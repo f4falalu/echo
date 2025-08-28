@@ -1,7 +1,6 @@
 import chalk from 'chalk';
 import { Box, Text, useApp, useInput } from 'ink';
-import type React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 export const InteractiveCommand: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState(0);

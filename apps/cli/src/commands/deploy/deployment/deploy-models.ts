@@ -1,13 +1,14 @@
 import { relative } from 'node:path';
 import type { BusterSDK } from '@buster/sdk';
+import type { DeployRequest, DeployResponse } from '@buster/server-shared';
 import yaml from 'js-yaml';
 import { generateDefaultSQL } from '../models/parsing';
 import type {
+  CLIDeploymentResult,
   DeployColumn,
-  DeployRequest,
+  DeployModel,
   DeploymentFailure,
   DeploymentItem,
-  DeploymentResult,
   Model,
 } from '../schemas';
 
@@ -19,9 +20,9 @@ export async function deployModels(
   modelFiles: Array<{ file: string; models: Model[] }>,
   sdk: BusterSDK,
   baseDir: string,
-  options: { dryRun: boolean; verbose: boolean }
-): Promise<DeploymentResult> {
-  const result: DeploymentResult = {
+  options: { dryRun: boolean; verbose: boolean; deleteAbsentModels?: boolean }
+): Promise<CLIDeploymentResult> {
+  const result: CLIDeploymentResult = {
     success: [],
     updated: [],
     noChange: [],
@@ -29,7 +30,10 @@ export async function deployModels(
     excluded: [],
   };
 
-  // Process each file and its models
+  // Collect all deploy models
+  const deployModels: DeployModel[] = [];
+  const modelFileMap = new Map<string, string>(); // modelName -> file
+
   for (const { file, models } of modelFiles) {
     const relativeFile = relative(baseDir, file);
 
@@ -39,56 +43,21 @@ export async function deployModels(
           console.info(`Processing model: ${model.name} from ${relativeFile}`);
         }
 
-        // Convert model to deployment request
-        const deployRequest = modelToDeployRequest(model);
+        // Convert model to deployment request format
+        const deployModel = modelToDeployRequest(model);
+        deployModels.push(deployModel);
+        modelFileMap.set(model.name, relativeFile);
 
         if (options.dryRun) {
-          // In dry-run mode, just validate and add to success
+          // In dry-run mode, just validate and log what would happen
           console.info(`[DRY RUN] Would deploy model: ${model.name}`);
-          console.info(`  Data Source: ${deployRequest.data_source_name}`);
-          console.info(`  Schema: ${deployRequest.schema}`);
-          console.info(`  Database: ${deployRequest.database || 'N/A'}`);
-          console.info(`  Columns: ${deployRequest.columns.length}`);
-
-          result.success.push({
-            file: relativeFile,
-            modelName: model.name,
-            dataSource: deployRequest.data_source_name,
-          });
-        } else {
-          // Actual deployment
-          const deployResult = await deploySingleModel(deployRequest, sdk);
-
-          if (deployResult.success) {
-            if (deployResult.updated) {
-              result.updated.push({
-                file: relativeFile,
-                modelName: model.name,
-                dataSource: deployRequest.data_source_name,
-              });
-            } else if (deployResult.noChange) {
-              result.noChange.push({
-                file: relativeFile,
-                modelName: model.name,
-                dataSource: deployRequest.data_source_name,
-              });
-            } else {
-              result.success.push({
-                file: relativeFile,
-                modelName: model.name,
-                dataSource: deployRequest.data_source_name,
-              });
-            }
-          } else {
-            result.failures.push({
-              file: relativeFile,
-              modelName: model.name,
-              errors: deployResult.errors,
-            });
-          }
+          console.info(`  Data Source: ${deployModel.data_source_name}`);
+          console.info(`  Schema: ${deployModel.schema}`);
+          console.info(`  Database: ${deployModel.database || 'N/A'}`);
+          console.info(`  Columns: ${deployModel.columns.length}`);
         }
       } catch (error) {
-        // Handle unexpected errors
+        // Handle model conversion errors
         const errorMessage = error instanceof Error ? error.message : String(error);
         result.failures.push({
           file: relativeFile,
@@ -99,60 +68,95 @@ export async function deployModels(
     }
   }
 
-  return result;
-}
+  // Return early if dry run
+  if (options.dryRun) {
+    for (const model of deployModels) {
+      const file = modelFileMap.get(model.name) || 'unknown';
+      result.success.push({
+        file,
+        modelName: model.name,
+        dataSource: model.data_source_name,
+      });
+    }
+    return result;
+  }
 
-/**
- * Deploy a single model to the API
- */
-async function deploySingleModel(
-  deployRequest: DeployRequest,
-  sdk: BusterSDK
-): Promise<{
-  success: boolean;
-  updated?: boolean;
-  noChange?: boolean;
-  errors: string[];
-}> {
+  // Perform actual deployment
   try {
-    // Call SDK to deploy the model
-    // Note: This assumes the SDK has a deployDataset method
-    // You'll need to adjust based on actual SDK implementation
-    const response = await (sdk as any).datasets.deploy({
-      ...deployRequest,
-      // The API expects these fields
-      type: 'view',
-      env: 'dev',
-    });
+    const deployRequest: DeployRequest = {
+      models: deployModels,
+      deleteAbsentModels: options.deleteAbsentModels !== false,
+    };
 
-    // Check response for success/update/no-change status
-    if (response.success) {
-      return {
-        success: true,
-        updated: response.updated || false,
-        noChange: response.noChange || false,
-        errors: [],
-      };
-    } else {
-      return {
-        success: false,
-        errors: response.errors || ['Deployment failed'],
-      };
+    const response: DeployResponse = await sdk.datasets.deploy(deployRequest);
+
+    // Process response
+    for (const item of response.success) {
+      const file = modelFileMap.get(item.name) || 'unknown';
+      result.success.push({
+        file,
+        modelName: item.name,
+        dataSource: item.dataSource,
+      });
+    }
+
+    for (const item of response.updated) {
+      const file = modelFileMap.get(item.name) || 'unknown';
+      result.updated.push({
+        file,
+        modelName: item.name,
+        dataSource: item.dataSource,
+      });
+    }
+
+    for (const item of response.noChange) {
+      const file = modelFileMap.get(item.name) || 'unknown';
+      result.noChange.push({
+        file,
+        modelName: item.name,
+        dataSource: item.dataSource,
+      });
+    }
+
+    for (const failure of response.failures) {
+      const file = modelFileMap.get(failure.name) || 'unknown';
+      result.failures.push({
+        file,
+        modelName: failure.name,
+        errors: failure.errors,
+      });
+    }
+
+    // Log deleted models if any
+    if (response.deleted && response.deleted.length > 0) {
+      console.info(
+        `\n🗑️  Soft-deleted ${response.deleted.length} models not included in deployment:`
+      );
+      for (const name of response.deleted) {
+        console.info(`   - ${name}`);
+      }
     }
   } catch (error) {
-    // Handle API errors
+    // Handle API errors - add all models as failures
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return {
-      success: false,
-      errors: [`API Error: ${errorMessage}`],
-    };
+
+    for (const model of deployModels) {
+      const file = modelFileMap.get(model.name) || 'unknown';
+      result.failures.push({
+        file,
+        modelName: model.name,
+        errors: [`API Error: ${errorMessage}`],
+      });
+    }
   }
+
+  return result;
 }
 
 /**
  * Convert a semantic model to a deployment request
  */
-export function modelToDeployRequest(model: Model): DeployRequest {
+export function modelToDeployRequest(model: Model): DeployModel {
   const columns: DeployColumn[] = [];
 
   // Convert dimensions to columns
@@ -196,26 +200,24 @@ export function modelToDeployRequest(model: Model): DeployRequest {
   }
 
   return {
-    id: undefined, // Will be set by API if updating
-    data_source_name: model.data_source_name,
-    env: 'dev',
-    type: 'view',
     name: model.name,
-    model: model.name,
+    data_source_name: model.data_source_name,
     schema: model.schema,
     database: model.database,
     description: model.description || '',
     sql_definition: sqlDefinition,
-    entity_relationships: undefined, // Preserved in yml_file instead
     columns,
     yml_file: ymlContent,
+    metrics: model.metrics,
+    filters: model.filters,
+    relationships: model.relationships,
   };
 }
 
 /**
  * Format deployment results for display
  */
-export function formatDeploymentSummary(result: DeploymentResult): string {
+export function formatDeploymentSummary(result: CLIDeploymentResult): string {
   const lines: string[] = [];
 
   lines.push('📊 Deployment Summary');

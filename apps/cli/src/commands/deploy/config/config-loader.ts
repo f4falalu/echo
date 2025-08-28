@@ -33,10 +33,9 @@ export async function loadBusterConfig(searchPath = '.'): Promise<BusterConfig |
         if (result.success) {
           console.info(`✅ Loaded buster.yml from: ${configPath}`);
           return result.data;
-        } else {
-          console.warn(`⚠️  Invalid buster.yml at ${configPath}:`, result.error.issues);
-          return null;
         }
+        console.warn(`⚠️  Invalid buster.yml at ${configPath}:`, result.error.issues);
+        return null;
       } catch (error) {
         console.error(`❌ Error reading buster.yml at ${configPath}:`, error);
         return null;
@@ -101,7 +100,7 @@ export function resolveConfiguration(
 export function getConfigBaseDir(configPath: string): string {
   // If configPath is a directory, use it directly
   // Otherwise, use its parent directory
-  if (existsSync(configPath) && require('fs').statSync(configPath).isDirectory()) {
+  if (existsSync(configPath) && require('node:fs').statSync(configPath).isDirectory()) {
     return resolve(configPath);
   }
   return resolve(join(configPath, '..'));

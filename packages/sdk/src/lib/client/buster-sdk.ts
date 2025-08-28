@@ -1,6 +1,7 @@
-import type { ValidateApiKeyResponse } from '@buster/server-shared';
+import type { DeployRequest, DeployResponse, ValidateApiKeyResponse } from '@buster/server-shared';
 import { isApiKeyValid, validateApiKey } from '../auth';
 import { type SDKConfig, SDKConfigSchema } from '../config';
+import { deployDatasets, getDatasets } from '../datasets';
 import { get } from '../http';
 
 // SDK instance interface
@@ -10,6 +11,10 @@ export interface BusterSDK {
   auth: {
     validateApiKey: (apiKey?: string) => Promise<ValidateApiKeyResponse>;
     isApiKeyValid: (apiKey?: string) => Promise<boolean>;
+  };
+  datasets: {
+    deploy: (request: DeployRequest) => Promise<DeployResponse>;
+    get: (dataSourceId?: string) => Promise<{ datasets: unknown[] }>;
   };
 }
 
@@ -24,6 +29,10 @@ export function createBusterSDK(config: Partial<SDKConfig>): BusterSDK {
     auth: {
       validateApiKey: (apiKey?: string) => validateApiKey(validatedConfig, apiKey),
       isApiKeyValid: (apiKey?: string) => isApiKeyValid(validatedConfig, apiKey),
+    },
+    datasets: {
+      deploy: (request: DeployRequest) => deployDatasets(validatedConfig, request),
+      get: (dataSourceId?: string) => getDatasets(validatedConfig, dataSourceId),
     },
   };
 }

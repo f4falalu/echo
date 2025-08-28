@@ -120,13 +120,7 @@ export function formatDeployError(error: unknown): string {
   if (error instanceof Error && error.message.includes('ENOENT')) {
     const match = error.message.match(/no such file or directory.*'(.+)'/);
     const file = match ? match[1] : 'unknown file';
-    return (
-      `File Not Found: ${file}\n\n` +
-      '💡 Check that:\n' +
-      '  • The file path is correct\n' +
-      '  • You have permission to read the file\n' +
-      '  • The file exists in the specified location'
-    );
+    return `File Not Found: ${file}\n\n💡 Check that:\n  • The file path is correct\n  • You have permission to read the file\n  • The file exists in the specified location`;
   }
 
   // Handle permission errors
@@ -142,26 +136,15 @@ export function formatDeployError(error: unknown): string {
 
   // Handle YAML parsing errors
   if (error instanceof Error && error.message.includes('YAMLException')) {
-    return (
-      `YAML Parsing Error: ${error.message}\n\n` +
-      '💡 Common YAML issues:\n' +
-      '  • Check indentation (use spaces, not tabs)\n' +
-      '  • Ensure proper syntax for lists and objects\n' +
-      '  • Verify all strings are properly quoted if needed\n' +
-      '  • Look for missing colons or dashes'
-    );
+    return `YAML Parsing Error: ${error.message}\n\n💡 Common YAML issues:\n  • Check indentation (use spaces, not tabs)\n  • Ensure proper syntax for lists and objects\n  • Verify all strings are properly quoted if needed\n  • Look for missing colons or dashes`;
   }
 
   // Generic error handling
   if (error instanceof Error) {
-    return `Error: ${error.message}\n\n` + '💡 For more help, run: buster --help';
+    return `Error: ${error.message}\n\n💡 For more help, run: buster --help`;
   }
 
-  return (
-    `Unknown error occurred: ${String(error)}\n\n` +
-    '💡 Enable debug mode for more details:\n' +
-    '   export BUSTER_DEBUG=1'
-  );
+  return `Unknown error occurred: ${String(error)}\n\n💡 Enable debug mode for more details:\n   export BUSTER_DEBUG=1`;
 }
 
 /**

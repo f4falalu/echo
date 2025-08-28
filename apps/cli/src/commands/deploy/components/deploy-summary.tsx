@@ -1,9 +1,9 @@
 import { Box, Text } from 'ink';
 import React from 'react';
-import type { DeploymentResult } from '../schemas';
+import type { CLIDeploymentResult } from '../schemas';
 
 interface DeploySummaryProps {
-  result: DeploymentResult;
+  result: CLIDeploymentResult;
 }
 
 /**
@@ -54,12 +54,17 @@ export function DeploySummary({ result }: DeploySummaryProps) {
           <Text color='red'>❌ Failed: {result.failures.length} models</Text>
           <Text color='dim'>{'-'.repeat(40)}</Text>
 
-          {result.failures.slice(0, 5).map((failure, index) => (
-            <Box key={index} flexDirection='column' marginLeft={2} marginY={0.5}>
+          {result.failures.slice(0, 5).map((failure) => (
+            <Box
+              key={`${failure.file}-${failure.modelName}`}
+              flexDirection='column'
+              marginLeft={2}
+              marginY={0.5}
+            >
               <Text color='yellow'>File: {failure.file}</Text>
               <Text color='magenta'>Model: {failure.modelName}</Text>
-              {failure.errors.map((error, errorIndex) => (
-                <Box key={errorIndex} marginLeft={2}>
+              {failure.errors.map((error: string) => (
+                <Box key={error} marginLeft={2}>
                   <Text color='red'>• {error}</Text>
                 </Box>
               ))}

@@ -1,98 +1,82 @@
+import {
+  type Argument,
+  ArgumentSchema,
+  type BusterConfig,
+  BusterConfigSchema,
+  type DatasetMetric,
+  DatasetMetricSchema,
+  type DeployColumn,
+  DeployColumnSchema,
+  type DeployModel,
+  DeployModelSchema,
+  type DeployRequest,
+  DeployRequestSchema,
+  type DeployResponse,
+  DeployResponseSchema,
+  type DeploymentFailure,
+  DeploymentFailureSchema,
+  type DeploymentItem,
+  DeploymentItemSchema,
+  type Dimension,
+  DimensionSchema,
+  type Filter,
+  FilterSchema,
+  type Measure,
+  MeasureSchema,
+  type Model,
+  ModelSchema,
+  MultiModelSchema,
+  type ProjectContext,
+  ProjectContextSchema,
+  type Relationship,
+  RelationshipSchema,
+  SingleModelSchema,
+} from '@buster/server-shared';
 import { z } from 'zod';
 
-// ============================================================================
-// Model Schemas - Define the structure of semantic layer models
-// ============================================================================
+// Re-export all the shared schemas from server-shared
+export {
+  ArgumentSchema,
+  DimensionSchema,
+  MeasureSchema,
+  DatasetMetricSchema,
+  FilterSchema,
+  RelationshipSchema,
+  ModelSchema,
+  SingleModelSchema,
+  MultiModelSchema,
+  ProjectContextSchema,
+  BusterConfigSchema,
+  DeployColumnSchema,
+  DeployModelSchema,
+  DeployRequestSchema,
+  DeploymentItemSchema,
+  DeploymentFailureSchema,
+  DeployResponseSchema,
+  type Argument,
+  type Dimension,
+  type Measure,
+  type DatasetMetric,
+  type Filter,
+  type Relationship,
+  type Model,
+  type ProjectContext,
+  type BusterConfig,
+  type DeployColumn,
+  type DeployModel,
+  type DeployRequest,
+  type DeploymentItem,
+  type DeploymentFailure,
+  type DeployResponse,
+};
 
-export const ArgumentSchema = z.object({
-  name: z.string(),
-  type: z.string(),
-  description: z.string().optional(),
-});
-
-export const DimensionSchema = z.object({
-  name: z.string(),
-  description: z.string().optional(),
-  type: z.string().optional(),
-  searchable: z.boolean().default(false),
-  options: z.array(z.string()).optional(),
-});
-
-export const MeasureSchema = z.object({
-  name: z.string(),
-  description: z.string().optional(),
-  type: z.string().optional(),
-});
-
-export const MetricSchema = z.object({
-  name: z.string(),
-  expr: z.string(),
-  description: z.string().optional(),
-  args: z.array(ArgumentSchema).default([]),
-});
-
-export const FilterSchema = z.object({
-  name: z.string(),
-  expr: z.string(),
-  description: z.string().optional(),
-  args: z.array(ArgumentSchema).default([]),
-});
-
-export const RelationshipSchema = z.object({
-  name: z.string(),
-  source_col: z.string(),
-  ref_col: z.string(),
-  type: z.string().optional(),
-  cardinality: z.string().optional(),
-  description: z.string().optional(),
-});
-
-export const ModelSchema = z.object({
-  name: z.string(),
-  description: z.string().optional(),
-  data_source_name: z.string().optional(),
-  database: z.string().optional(),
-  schema: z.string().optional(),
-  dimensions: z.array(DimensionSchema).default([]),
-  measures: z.array(MeasureSchema).default([]),
-  metrics: z.array(MetricSchema).default([]),
-  filters: z.array(FilterSchema).default([]),
-  relationships: z.array(RelationshipSchema).default([]),
-});
-
-// Support both single model and multi-model YAML files
-export const SingleModelSchema = ModelSchema;
-export const MultiModelSchema = z.object({
-  models: z.array(ModelSchema),
-});
+// Alias for backward compatibility in CLI
+export { DatasetMetricSchema as MetricSchema } from '@buster/server-shared';
+export type Metric = DatasetMetric;
 
 // ============================================================================
-// Configuration Schemas - Define buster.yml structure
+// CLI-specific schemas (not shared with server)
 // ============================================================================
-
-export const ProjectContextSchema = z.object({
-  name: z.string().optional(),
-  data_source_name: z.string().optional(),
-  database: z.string().optional(),
-  schema: z.string().optional(),
-  model_paths: z.array(z.string()).optional(),
-  semantic_model_paths: z.array(z.string()).optional(),
-  exclude_files: z.array(z.string()).optional(),
-  exclude_tags: z.array(z.string()).optional(),
-});
-
-export const BusterConfigSchema = z.object({
-  // Top-level fields for backwards compatibility
-  data_source_name: z.string().optional(),
-  database: z.string().optional(),
-  schema: z.string().optional(),
-  model_paths: z.array(z.string()).optional(),
-  semantic_model_paths: z.array(z.string()).optional(),
-  exclude_files: z.array(z.string()).optional(),
-  exclude_tags: z.array(z.string()).optional(),
-  // Multi-project structure (for future use)
-  projects: z.array(ProjectContextSchema).optional(),
-});
 
 // Resolved config after merging CLI options, file config, and defaults
 export const ResolvedConfigSchema = z.object({
@@ -106,7 +90,7 @@ export const ResolvedConfigSchema = z.object({
 });
 
 // ============================================================================
-// CLI Options Schema
+// CLI Options Schema (CLI-specific, not in server-shared)
 // ============================================================================
 
 export const DeployOptionsSchema = z.object({
@@ -120,46 +104,18 @@ export const DeployOptionsSchema = z.object({
 });
 
 // ============================================================================
-// Deployment Request/Response Schemas - For API interaction
+// CLI-specific Result Schema (includes file paths for local reporting)
 // ============================================================================
 
-export const DeployColumnSchema = z.object({
-  name: z.string(),
-  description: z.string().default(''),
-  semantic_type: z.string().optional(),
-  expr: z.string().optional(),
-  type: z.string().optional(),
-  agg: z.string().optional(),
-  searchable: z.boolean().default(false),
-});
-
-export const DeployRequestSchema = z.object({
-  id: z.string().optional(),
-  data_source_name: z.string(),
-  env: z.string().default('dev'),
-  type: z.string().default('view'),
-  name: z.string(),
-  model: z.string().optional(),
-  schema: z.string(),
-  database: z.string().optional(),
-  description: z.string().default(''),
-  sql_definition: z.string().optional(),
-  entity_relationships: z.array(z.any()).optional(),
-  columns: z.array(DeployColumnSchema),
-  yml_file: z.string().optional(),
-});
-
-// ============================================================================
-// Deployment Result Schemas
-// ============================================================================
-
-export const DeploymentItemSchema = z.object({
+// CLI-specific deployment item (includes file path)
+export const CLIDeploymentItemSchema = z.object({
   file: z.string(),
   modelName: z.string(),
   dataSource: z.string(),
 });
 
-export const DeploymentFailureSchema = z.object({
+// CLI-specific deployment failure (includes file path)
+export const CLIDeploymentFailureSchema = z.object({
   file: z.string(),
   modelName: z.string(),
   errors: z.array(z.string()),
@@ -170,35 +126,19 @@ export const DeploymentExcludedSchema = z.object({
   reason: z.string(),
 });
 
-export const DeploymentResultSchema = z.object({
-  success: z.array(DeploymentItemSchema).default([]),
-  updated: z.array(DeploymentItemSchema).default([]),
-  noChange: z.array(DeploymentItemSchema).default([]),
-  failures: z.array(DeploymentFailureSchema).default([]),
+export const CLIDeploymentResultSchema = z.object({
+  success: z.array(CLIDeploymentItemSchema).default([]),
+  updated: z.array(CLIDeploymentItemSchema).default([]),
+  noChange: z.array(CLIDeploymentItemSchema).default([]),
+  failures: z.array(CLIDeploymentFailureSchema).default([]),
   excluded: z.array(DeploymentExcludedSchema).default([]),
 });
 
 // ============================================================================
-// Type Exports - Inferred from schemas
+// Type Exports - CLI-specific types
 // ============================================================================
 
-export type Argument = z.infer<typeof ArgumentSchema>;
-export type Dimension = z.infer<typeof DimensionSchema>;
-export type Measure = z.infer<typeof MeasureSchema>;
-export type Metric = z.infer<typeof MetricSchema>;
-export type Filter = z.infer<typeof FilterSchema>;
-export type Relationship = z.infer<typeof RelationshipSchema>;
-export type Model = z.infer<typeof ModelSchema>;
-
-export type ProjectContext = z.infer<typeof ProjectContextSchema>;
-export type BusterConfig = z.infer<typeof BusterConfigSchema>;
 export type ResolvedConfig = z.infer<typeof ResolvedConfigSchema>;
 export type DeployOptions = z.infer<typeof DeployOptionsSchema>;
-
-export type DeployColumn = z.infer<typeof DeployColumnSchema>;
-export type DeployRequest = z.infer<typeof DeployRequestSchema>;
-
-export type DeploymentItem = z.infer<typeof DeploymentItemSchema>;
-export type DeploymentFailure = z.infer<typeof DeploymentFailureSchema>;
 export type DeploymentExcluded = z.infer<typeof DeploymentExcludedSchema>;
-export type DeploymentResult = z.infer<typeof DeploymentResultSchema>;
+export type CLIDeploymentResult = z.infer<typeof CLIDeploymentResultSchema>;

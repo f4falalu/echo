@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { DeployProgress } from './components/deploy-progress';
 import { DeploySummary } from './components/deploy-summary';
 import { deployHandler, validateDeployOptions } from './deploy-handler';
-import type { DeployOptions, DeploymentResult } from './schemas';
+import type { CLIDeploymentResult, DeployOptions } from './schemas';
 
 interface DeployCommandProps extends DeployOptions {}
 
@@ -16,7 +16,7 @@ export function DeployCommand(props: DeployCommandProps) {
     'validating'
   );
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<DeploymentResult | null>(null);
+  const [result, setResult] = useState<CLIDeploymentResult | null>(null);
   const [progress, setProgress] = useState({
     current: 0,
     total: 0,

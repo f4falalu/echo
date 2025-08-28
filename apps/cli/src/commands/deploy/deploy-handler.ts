@@ -10,13 +10,13 @@ import {
 import { deployModels, formatDeploymentSummary } from './deployment/deploy-models';
 import { discoverModelFiles, filterModelFiles } from './models/discovery';
 import { parseModelFile, resolveModelConfig, validateModel } from './models/parsing';
-import type { DeployOptions, DeploymentResult, Model } from './schemas';
+import type { CLIDeploymentResult, DeployOptions, Model } from './schemas';
 
 /**
  * Main deploy handler that orchestrates the entire deployment pipeline
  * This is the core logic that the UI component will call
  */
-export async function deployHandler(options: DeployOptions): Promise<DeploymentResult> {
+export async function deployHandler(options: DeployOptions): Promise<CLIDeploymentResult> {
   console.info('🚀 Starting Buster Deployment Process...');
 
   // 1. Determine base directory
@@ -162,7 +162,7 @@ export async function deployHandler(options: DeployOptions): Promise<DeploymentR
 
   // 9. Display summary
   const summary = formatDeploymentSummary(deploymentResult);
-  console.info('\n' + summary);
+  console.info(`\n${summary}`);
 
   return deploymentResult;
 }
@@ -178,7 +178,7 @@ export function validateDeployOptions(options: DeployOptions): {
 
   // Check if path exists (if provided)
   if (options.path) {
-    const fs = require('fs');
+    const fs = require('node:fs');
     if (!fs.existsSync(options.path)) {
       errors.push(`Path does not exist: ${options.path}`);
     }

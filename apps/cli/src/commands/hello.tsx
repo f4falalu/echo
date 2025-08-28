@@ -1,7 +1,6 @@
 import chalk from 'chalk';
 import { Box, Text } from 'ink';
-import type React from 'react';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 interface HelloCommandProps {
   name: string;
