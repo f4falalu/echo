@@ -7,3 +7,6 @@ export type { SDKConfig } from './config';
 
 // Error types
 export { SDKError, NetworkError } from './errors';
+
+// Auth exports
+export { validateApiKey, isApiKeyValid } from './auth';

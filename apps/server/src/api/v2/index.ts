@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 
 import healthcheckRoutes from '../healthcheck';
+import authRoutes from './auth';
 import chatsRoutes from './chats';
 import dictionariesRoutes from './dictionaries';
 import electricShapeRoutes from './electric-shape';
@@ -16,6 +17,7 @@ import titleRoutes from './title';
 import userRoutes from './users';
 
 const app = new Hono()
+  .route('/auth', authRoutes)
   .route('/users', userRoutes)
   .route('/electric-shape', electricShapeRoutes)
   .route('/healthcheck', healthcheckRoutes)

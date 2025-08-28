@@ -43,7 +43,7 @@ export const InteractiveCommand: React.FC = () => {
       <Box marginTop={1} flexDirection="column">
         {options.map((option, index) => (
           <Box key={option}>
-            <Text color={selectedOption === index ? 'green' : undefined}>
+            <Text {...(selectedOption === index ? { color: 'green' } : {})}>
               {selectedOption === index ? chalk.bold('▶ ') : '  '}
               {option}
             </Text>
