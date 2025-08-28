@@ -79,6 +79,10 @@
     "./s3-integrations": {
       "types": "./dist/s3-integrations/index.d.ts",
       "default": "./dist/s3-integrations/index.js"
+    },
+    "./shortcuts": {
+      "types": "./dist/shortcuts/index.d.ts",
+      "default": "./dist/shortcuts/index.js"
     }
   },
   "module": "src/index.ts",

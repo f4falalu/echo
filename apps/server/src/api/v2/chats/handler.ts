@@ -9,6 +9,10 @@ import {
 import { tasks } from '@trigger.dev/sdk';
 import { handleAssetChat, handleAssetChatWithPrompt } from './services/chat-helpers';
 import { initializeChat } from './services/chat-service';
+import {
+  enhanceMessageWithShortcut,
+  enhanceMessageWithShortcutId,
+} from './services/shortcut-service';
 
 /**
  * Handler function for creating a new chat.
@@ -56,13 +60,37 @@ export async function createChatHandler(
       throw new ChatError(ChatErrorCode.INVALID_REQUEST, 'prompt or asset_id is required', 400);
     }
 
+    // Process shortcuts if present
+    let enhancedPrompt = request.prompt;
+    if (request.prompt) {
+      // Check for shortcut ID first (explicit shortcut reference)
+      if (request.shortcut_id) {
+        enhancedPrompt = await enhanceMessageWithShortcutId(
+          request.prompt,
+          request.shortcut_id,
+          user.id,
+          organizationId
+        );
+      } else {
+        // Check for shortcut pattern in message (e.g., /weekly-report)
+        enhancedPrompt = await enhanceMessageWithShortcut(request.prompt, user.id, organizationId);
+      }
+    }
+
+    // Update request with enhanced prompt
+    const processedRequest = { ...request, prompt: enhancedPrompt };
+
     // Initialize chat (new or existing)
     // When we have both asset and prompt, we'll skip creating the initial message
     // since handleAssetChatWithPrompt will create both the import and prompt messages
-    const shouldCreateInitialMessage = !(request.asset_id && request.asset_type && request.prompt);
+    const shouldCreateInitialMessage = !(
+      processedRequest.asset_id &&
+      processedRequest.asset_type &&
+      processedRequest.prompt
+    );
     const modifiedRequest = shouldCreateInitialMessage
-      ? request
-      : { ...request, prompt: undefined };
+      ? processedRequest
+      : { ...processedRequest, prompt: undefined };
 
     const { chatId, messageId, chat } = await initializeChat(modifiedRequest, user, organizationId);
 
@@ -71,14 +99,14 @@ export async function createChatHandler(
     let actualMessageId = messageId; // Track the actual message ID to use for triggering
     let shouldTriggerAnalyst = true; // Flag to control whether to trigger analyst task
 
-    if (request.asset_id && request.asset_type) {
-      if (!request.prompt) {
+    if (processedRequest.asset_id && processedRequest.asset_type) {
+      if (!processedRequest.prompt) {
         // Original flow: just import the asset without a prompt
         finalChat = await handleAssetChat(
           chatId,
           messageId,
-          request.asset_id,
-          request.asset_type,
+          processedRequest.asset_id,
+          processedRequest.asset_type,
           user,
           chat
         );
@@ -89,9 +117,9 @@ export async function createChatHandler(
         finalChat = await handleAssetChatWithPrompt(
           chatId,
           messageId,
-          request.asset_id,
-          request.asset_type,
-          request.prompt,
+          processedRequest.asset_id,
+          processedRequest.asset_type,
+          processedRequest.prompt,
           user,
           chat
         );
@@ -104,7 +132,7 @@ export async function createChatHandler(
     }
 
     // Trigger background analysis only if we have a prompt or it's not an asset-only request
-    if (shouldTriggerAnalyst && (request.prompt || !request.asset_id)) {
+    if (shouldTriggerAnalyst && (processedRequest.prompt || !processedRequest.asset_id)) {
       try {
         // Just queue the background job - should be <100ms
         const taskHandle = await tasks.trigger(
@@ -146,8 +174,8 @@ export async function createChatHandler(
         target: '500ms',
         user,
         chatId,
-        hasPrompt: !!request.prompt,
-        hasAsset: !!request.asset_id,
+        hasPrompt: !!processedRequest.prompt,
+        hasAsset: !!processedRequest.asset_id,
         suggestion: 'Check database performance and trigger service',
       });
     }

@@ -22,3 +22,4 @@ export * from './teams';
 export * from './title';
 export * from './type-utilities';
 export * from './user';
+export * from './shortcuts';

@@ -10,6 +10,7 @@ import organizationRoutes from './organization';
 import reportsRoutes from './reports';
 import s3IntegrationsRoutes from './s3-integrations';
 import securityRoutes from './security';
+import shortcutsRoutes from './shortcuts';
 import slackRoutes from './slack';
 import supportRoutes from './support';
 import titleRoutes from './title';
@@ -25,6 +26,7 @@ const app = new Hono()
   .route('/slack', slackRoutes)
   .route('/support', supportRoutes)
   .route('/security', securityRoutes)
+  .route('/shortcuts', shortcutsRoutes)
   .route('/organizations', organizationRoutes)
   .route('/dictionaries', dictionariesRoutes)
   .route('/title', titleRoutes)

@@ -1,4 +1,8 @@
+import { config } from 'dotenv';
 import { defineConfig } from 'drizzle-kit';
+
+// Load specific .env file
+config({ path: '../../.env' }); // or '.env.development', '.env.production', etc.
 
 const connectionString = process.env.DATABASE_URL;
 

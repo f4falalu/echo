@@ -2285,3 +2285,54 @@ export const messagesToSlackMessages = pgTable(
     ),
   ]
 );
+
+export const shortcuts = pgTable(
+  'shortcuts',
+  {
+    id: uuid().defaultRandom().primaryKey().notNull(),
+    name: varchar({ length: 255 }).notNull(),
+    instructions: text().notNull(),
+    createdBy: uuid('created_by').notNull(),
+    updatedBy: uuid('updated_by'),
+    organizationId: uuid('organization_id').notNull(),
+    sharedWithWorkspace: boolean('shared_with_workspace').default(false).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
+  },
+  (table) => [
+    // Foreign keys
+    foreignKey({
+      columns: [table.createdBy],
+      foreignColumns: [users.id],
+      name: 'shortcuts_created_by_fkey',
+    }).onUpdate('cascade'),
+    foreignKey({
+      columns: [table.updatedBy],
+      foreignColumns: [users.id],
+      name: 'shortcuts_updated_by_fkey',
+    }).onUpdate('cascade'),
+    foreignKey({
+      columns: [table.organizationId],
+      foreignColumns: [organizations.id],
+      name: 'shortcuts_organization_id_fkey',
+    }).onDelete('cascade'),
+    // Unique constraints
+    unique('shortcuts_personal_unique').on(table.name, table.organizationId, table.createdBy),
+    // Indexes
+    index('shortcuts_org_user_idx').using(
+      'btree',
+      table.organizationId.asc().nullsLast().op('uuid_ops'),
+      table.createdBy.asc().nullsLast().op('uuid_ops')
+    ),
+    index('shortcuts_name_idx').using('btree', table.name.asc().nullsLast()),
+    // Conditional unique constraint for workspace shortcuts
+    uniqueIndex('shortcuts_workspace_unique')
+      .on(table.name, table.organizationId)
+      .where(sql`${table.sharedWithWorkspace} = true`),
+  ]
+);
