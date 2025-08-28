@@ -1,11 +1,11 @@
 #!/usr/bin/env bun
-import React from 'react';
-import { render } from 'ink';
 import { program } from 'commander';
-import { Main } from './commands/main.js';
+import { render } from 'ink';
+import React from 'react';
 import { Auth } from './commands/auth.js';
 import { HelloCommand } from './commands/hello.js';
 import { InteractiveCommand } from './commands/interactive.js';
+import { Main } from './commands/main.js';
 
 // CLI metadata
 program

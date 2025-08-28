@@ -1,6 +1,6 @@
+import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
-import { mkdir, readFile, writeFile, unlink } from 'node:fs/promises';
 import { z } from 'zod';
 
 // Credentials schema
@@ -36,19 +36,15 @@ export async function saveCredentials(credentials: Credentials): Promise<void> {
   try {
     // Validate credentials
     const validated = credentialsSchema.parse(credentials);
-    
+
     // Ensure directory exists
     await ensureCredentialsDir();
-    
+
     // Write credentials with restricted permissions
-    await writeFile(
-      CREDENTIALS_FILE,
-      JSON.stringify(validated, null, 2),
-      { mode: 0o600 }
-    );
+    await writeFile(CREDENTIALS_FILE, JSON.stringify(validated, null, 2), { mode: 0o600 });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      throw new Error(`Invalid credentials: ${error.errors.map(e => e.message).join(', ')}`);
+      throw new Error(`Invalid credentials: ${error.errors.map((e) => e.message).join(', ')}`);
     }
     console.error('Failed to save credentials:', error);
     throw new Error('Unable to save credentials');
@@ -64,7 +60,7 @@ export async function loadCredentials(): Promise<Credentials | null> {
     const data = await readFile(CREDENTIALS_FILE, 'utf-8');
     const parsed = JSON.parse(data);
     return credentialsSchema.parse(parsed);
-  } catch (error) {
+  } catch (_error) {
     // File doesn't exist or is invalid
     return null;
   }
@@ -92,7 +88,7 @@ export async function deleteCredentials(): Promise<void> {
 export async function getCredentials(): Promise<Credentials | null> {
   const envApiKey = process.env.BUSTER_API_KEY;
   const envApiUrl = process.env.BUSTER_HOST || process.env.BUSTER_API_URL;
-  
+
   // If we have env vars, use them (they take precedence)
   if (envApiKey) {
     return {
@@ -100,7 +96,7 @@ export async function getCredentials(): Promise<Credentials | null> {
       apiUrl: envApiUrl || DEFAULT_API_URL,
     };
   }
-  
+
   // Otherwise, try to load from file
   const saved = await loadCredentials();
   if (saved) {
@@ -110,7 +106,7 @@ export async function getCredentials(): Promise<Credentials | null> {
       apiUrl: envApiUrl || saved.apiUrl,
     };
   }
-  
+
   return null;
 }
 

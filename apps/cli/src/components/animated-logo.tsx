@@ -1,5 +1,5 @@
+import { Box, Text } from 'ink';
 import React, { useState, useEffect } from 'react';
-import { Text, Box } from 'ink';
 
 // ASCII art for the Buster "b" logo - compact version
 const BUSTER_LOGO_FRAMES = [
@@ -47,7 +47,7 @@ const BUSTER_LOGO_FRAMES = [
  :@@@@@@@@@+:  
   .=@@@@@+=.   
     .=@@@=.    
-  `
+  `,
 ];
 
 interface AnimatedLogoProps {
@@ -55,7 +55,7 @@ interface AnimatedLogoProps {
 }
 
 export function AnimatedLogo({ color = '#7C3AED' }: AnimatedLogoProps) {
-  const [frame, setFrame] = useState(0);
+  const [_frame, setFrame] = useState(0);
   const [opacity, setOpacity] = useState(0);
   const [growing, setGrowing] = useState(true);
 
@@ -84,7 +84,7 @@ export function AnimatedLogo({ color = '#7C3AED' }: AnimatedLogoProps) {
   const currentFrame = BUSTER_LOGO_FRAMES[opacity];
 
   return (
-    <Box flexDirection="column" alignItems="center">
+    <Box flexDirection='column' alignItems='center'>
       <Text color={color}>{currentFrame}</Text>
     </Box>
   );

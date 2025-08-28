@@ -1,29 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { Text, Box, useInput, useApp } from 'ink';
-import TextInput from 'ink-text-input';
-import Spinner from 'ink-spinner';
-import BigText from 'ink-big-text';
 import { createBusterSDK } from '@buster/sdk';
+import { Box, Text, useApp, useInput } from 'ink';
+import BigText from 'ink-big-text';
+import Spinner from 'ink-spinner';
+import TextInput from 'ink-text-input';
+import React, { useState, useEffect } from 'react';
 import {
-  saveCredentials,
+  type Credentials,
   getCredentials,
   hasCredentials,
-  type Credentials,
+  saveCredentials,
 } from '../utils/credentials.js';
 
 const DEFAULT_HOST = 'https://api2.buster.so';
-const LOCAL_HOST = 'http://localhost:3001';
+const _LOCAL_HOST = 'http://localhost:3001';
 
 // Component for the welcome screen header
 function WelcomeHeader() {
   return (
-    <Box paddingY={2} paddingX={2} alignItems="center">
+    <Box paddingY={2} paddingX={2} alignItems='center'>
       <Box marginRight={4}>
-        <Text color="#7C3AED">
-          <BigText text="BUSTER" font="block" />
+        <Text color='#7C3AED'>
+          <BigText text='BUSTER' font='block' />
         </Text>
       </Box>
-      <Box flexDirection="column" justifyContent="center">
+      <Box flexDirection='column' justifyContent='center'>
         <Text bold>Welcome to Buster</Text>
         <Box marginTop={1}>
           <Text dimColor>Type / to use slash commands</Text>
@@ -38,7 +38,7 @@ function WelcomeHeader() {
           <Text dimColor>/help for more</Text>
         </Box>
         <Box marginTop={2}>
-          <Text color="#7C3AED">"Run `buster` and fix all the errors"</Text>
+          <Text color='#7C3AED'>"Run `buster` and fix all the errors"</Text>
         </Box>
       </Box>
     </Box>
@@ -58,13 +58,13 @@ function CommandInput({ onSubmit }: { onSubmit: (input: string) => void }) {
 
   return (
     <Box paddingX={2} paddingBottom={1}>
-      <Box borderStyle="single" borderColor="#7C3AED" paddingX={1} width="100%">
-        <Text color="#7C3AED">❯ </Text>
+      <Box borderStyle='single' borderColor='#7C3AED' paddingX={1} width='100%'>
+        <Text color='#7C3AED'>❯ </Text>
         <TextInput
           value={input}
           onChange={setInput}
           onSubmit={handleSubmit}
-          placeholder="Enter a command or question..."
+          placeholder='Enter a command or question...'
         />
       </Box>
     </Box>
@@ -95,7 +95,7 @@ function AuthPrompt({ onAuth }: { onAuth: (creds: Credentials) => void }) {
       });
 
       const isValid = await sdk.auth.isApiKeyValid();
-      
+
       if (isValid) {
         const creds = { apiKey: apiKey.trim(), apiUrl: host };
         await saveCredentials(creds);
@@ -115,45 +115,42 @@ function AuthPrompt({ onAuth }: { onAuth: (creds: Credentials) => void }) {
     return (
       <Box paddingX={2}>
         <Text>
-          <Spinner type="dots" />
-          {' '}Validating your API key...
+          <Spinner type='dots' /> Validating your API key...
         </Text>
       </Box>
     );
   }
 
   return (
-    <Box flexDirection="column" paddingX={2}>
+    <Box flexDirection='column' paddingX={2}>
       <Box marginBottom={1}>
         <Text>Let's get you connected to Buster.</Text>
       </Box>
 
       {error && (
         <Box marginBottom={1}>
-          <Text color="red">❌ {error}</Text>
+          <Text color='red'>❌ {error}</Text>
         </Box>
       )}
-      
+
       <Box marginBottom={1}>
         <Text>Enter your API key: </Text>
       </Box>
-      
-      <Box borderStyle="single" borderColor="#7C3AED" paddingX={1}>
+
+      <Box borderStyle='single' borderColor='#7C3AED' paddingX={1}>
         <TextInput
           value={apiKey}
           onChange={setApiKey}
           onSubmit={handleSubmit}
-          mask="*"
-          placeholder="sk_..."
+          mask='*'
+          placeholder='sk_...'
         />
       </Box>
-      
+
       <Box marginTop={1}>
-        <Text dimColor>
-          Find your API key at {host}/app/settings/api-keys
-        </Text>
+        <Text dimColor>Find your API key at {host}/app/settings/api-keys</Text>
       </Box>
-      
+
       <Box marginTop={1}>
         <Text dimColor>Press Enter to continue</Text>
       </Box>
@@ -164,7 +161,7 @@ function AuthPrompt({ onAuth }: { onAuth: (creds: Credentials) => void }) {
 export function Main() {
   const { exit } = useApp();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [credentials, setCredentials] = useState<Credentials | null>(null);
+  const [_credentials, setCredentials] = useState<Credentials | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
 
@@ -173,8 +170,8 @@ export function Main() {
     const checkAuth = async () => {
       try {
         const creds = await getCredentials();
-        
-        if (creds && creds.apiKey) {
+
+        if (creds?.apiKey) {
           // Validate the stored credentials
           const sdk = createBusterSDK({
             apiKey: creds.apiKey,
@@ -183,7 +180,7 @@ export function Main() {
           });
 
           const isValid = await sdk.auth.isApiKeyValid();
-          
+
           if (isValid) {
             setCredentials(creds);
             setIsAuthenticated(true);
@@ -193,7 +190,7 @@ export function Main() {
         } else {
           setIsAuthenticated(false);
         }
-      } catch (error) {
+      } catch (_error) {
         setIsAuthenticated(false);
       } finally {
         setCheckingAuth(false);
@@ -217,7 +214,7 @@ export function Main() {
 
   const handleCommand = (command: string) => {
     setCommandHistory([...commandHistory, command]);
-    
+
     // Handle special commands
     if (command === '/help') {
       console.info('\nAvailable commands:');
@@ -238,12 +235,11 @@ export function Main() {
 
   if (checkingAuth) {
     return (
-      <Box flexDirection="column">
+      <Box flexDirection='column'>
         <WelcomeHeader />
         <Box paddingX={2}>
           <Text>
-            <Spinner type="dots" />
-            {' '}Checking configuration...
+            <Spinner type='dots' /> Checking configuration...
           </Text>
         </Box>
       </Box>
@@ -251,20 +247,20 @@ export function Main() {
   }
 
   return (
-    <Box flexDirection="column">
+    <Box flexDirection='column'>
       <WelcomeHeader />
-      
+
       {/* Show command history if authenticated */}
       {isAuthenticated && commandHistory.length > 0 && (
-        <Box flexDirection="column" paddingX={2} marginBottom={1}>
+        <Box flexDirection='column' paddingX={2} marginBottom={1}>
           {commandHistory.slice(-5).map((cmd, idx) => (
-            <Box key={idx}>
+            <Box key={`cmd-${idx}-${cmd}`}>
               <Text dimColor>❯ {cmd}</Text>
             </Box>
           ))}
         </Box>
       )}
-      
+
       {isAuthenticated ? (
         <CommandInput onSubmit={handleCommand} />
       ) : (

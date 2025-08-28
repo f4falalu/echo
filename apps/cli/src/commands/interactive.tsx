@@ -1,23 +1,19 @@
-import React, { useState } from 'react';
-import { Text, Box, useInput, useApp } from 'ink';
 import chalk from 'chalk';
+import { Box, Text, useApp, useInput } from 'ink';
+import type React from 'react';
+import { useState } from 'react';
 
 export const InteractiveCommand: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState(0);
   const { exit } = useApp();
 
-  const options = [
-    'Create a new project',
-    'Deploy to production',
-    'Run tests',
-    'Exit'
-  ];
+  const options = ['Create a new project', 'Deploy to production', 'Run tests', 'Exit'];
 
   useInput((input, key) => {
     if (key.upArrow) {
-      setSelectedOption(prev => Math.max(0, prev - 1));
+      setSelectedOption((prev) => Math.max(0, prev - 1));
     } else if (key.downArrow) {
-      setSelectedOption(prev => Math.min(options.length - 1, prev + 1));
+      setSelectedOption((prev) => Math.min(options.length - 1, prev + 1));
     } else if (key.return) {
       if (selectedOption === options.length - 1) {
         exit();
@@ -32,15 +28,15 @@ export const InteractiveCommand: React.FC = () => {
   });
 
   return (
-    <Box flexDirection="column">
+    <Box flexDirection='column'>
       <Box marginBottom={1}>
-        <Text color="cyan" bold>
+        <Text color='cyan' bold>
           🚀 Buster CLI - Interactive Mode
         </Text>
       </Box>
-      
+
       <Text dimColor>Use arrow keys to navigate, Enter to select, Q to quit</Text>
-      <Box marginTop={1} flexDirection="column">
+      <Box marginTop={1} flexDirection='column'>
         {options.map((option, index) => (
           <Box key={option}>
             <Text {...(selectedOption === index ? { color: 'green' } : {})}>

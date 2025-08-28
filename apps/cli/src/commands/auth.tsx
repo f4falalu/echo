@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { Text, Box, useInput, useApp } from 'ink';
-import TextInput from 'ink-text-input';
-import Spinner from 'ink-spinner';
 import { createBusterSDK } from '@buster/sdk';
+import { Box, Text, useApp, useInput } from 'ink';
+import Spinner from 'ink-spinner';
+import TextInput from 'ink-text-input';
+import React, { useState, useEffect } from 'react';
 import {
-  saveCredentials,
-  loadCredentials,
+  type Credentials,
   deleteCredentials,
   getCredentials,
-  type Credentials,
+  loadCredentials,
+  saveCredentials,
 } from '../utils/credentials.js';
 
 interface AuthProps {
@@ -28,8 +28,8 @@ export function Auth({ apiKey, host, local, cloud, clear, noSave }: AuthProps) {
   const [step, setStep] = useState<'clear' | 'prompt' | 'validate' | 'save' | 'done'>('clear');
   const [apiKeyInput, setApiKeyInput] = useState('');
   const [hostInput, setHostInput] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [existingCreds, setExistingCreds] = useState<Credentials | null>(null);
+  const [_error, setError] = useState<string | null>(null);
+  const [_existingCreds, setExistingCreds] = useState<Credentials | null>(null);
   const [finalCreds, setFinalCreds] = useState<Credentials | null>(null);
 
   // Handle clear flag
@@ -52,19 +52,19 @@ export function Auth({ apiKey, host, local, cloud, clear, noSave }: AuthProps) {
   // Load existing credentials
   useEffect(() => {
     if (step === 'prompt') {
-      loadCredentials().then(creds => {
+      loadCredentials().then((creds) => {
         setExistingCreds(creds);
-        
+
         // Determine the host to use
         let targetHost = DEFAULT_HOST;
         if (local) targetHost = LOCAL_HOST;
         else if (cloud) targetHost = DEFAULT_HOST;
         else if (host) targetHost = host;
         else if (creds?.apiUrl) targetHost = creds.apiUrl;
-        
+
         setHostInput(targetHost);
         setApiKeyInput(apiKey || '');
-        
+
         // If we have all required info from args, skip to validation
         if (apiKey) {
           setFinalCreds({ apiKey, apiUrl: targetHost });
@@ -75,7 +75,7 @@ export function Auth({ apiKey, host, local, cloud, clear, noSave }: AuthProps) {
   }, [step, apiKey, host, local, cloud]);
 
   // Handle input completion
-  useInput((input, key) => {
+  useInput((_input, key) => {
     if (key.return && step === 'prompt') {
       if (!hostInput) {
         setError('Host URL is required');
@@ -85,7 +85,7 @@ export function Auth({ apiKey, host, local, cloud, clear, noSave }: AuthProps) {
         setError('API key is required');
         return;
       }
-      
+
       setFinalCreds({ apiKey: apiKeyInput, apiUrl: hostInput });
       setStep('validate');
     }
@@ -99,8 +99,9 @@ export function Auth({ apiKey, host, local, cloud, clear, noSave }: AuthProps) {
         apiUrl: finalCreds.apiUrl,
         timeout: 30000,
       });
-      
-      sdk.auth.isApiKeyValid()
+
+      sdk.auth
+        .isApiKeyValid()
         .then((valid: boolean) => {
           if (valid) {
             setStep(noSave ? 'done' : 'save');
@@ -133,21 +134,19 @@ export function Auth({ apiKey, host, local, cloud, clear, noSave }: AuthProps) {
   // Display success and exit
   useEffect(() => {
     if (step === 'done' && finalCreds) {
-      const masked = finalCreds.apiKey.length > 6 
-        ? `****${finalCreds.apiKey.slice(-6)}`
-        : '****';
-      
-      console.log('\n✅ You\'ve successfully connected to Buster!\n');
+      const masked = finalCreds.apiKey.length > 6 ? `****${finalCreds.apiKey.slice(-6)}` : '****';
+
+      console.log("\n✅ You've successfully connected to Buster!\n");
       console.log('Connection details:');
       console.log(`  host: ${finalCreds.apiUrl}`);
       console.log(`  api_key: ${masked}`);
-      
+
       if (!noSave && step === 'done') {
         console.log('\nCredentials saved successfully!');
       } else if (noSave) {
         console.log('\nNote: Credentials were not saved due to --no-save flag');
       }
-      
+
       exit();
     }
   }, [step, finalCreds, noSave, exit]);
@@ -159,41 +158,29 @@ export function Auth({ apiKey, host, local, cloud, clear, noSave }: AuthProps) {
 
   if (step === 'prompt') {
     return (
-      <Box flexDirection="column">
-        {existingCreds && (
-          <Text color="yellow">
-            ⚠️  Existing credentials found. They will be overwritten.
-          </Text>
+      <Box flexDirection='column'>
+        {_existingCreds && (
+          <Text color='yellow'>⚠️ Existing credentials found. They will be overwritten.</Text>
         )}
-        
-        {error && (
-          <Text color="red">❌ {error}</Text>
-        )}
-        
+
+        {_error && <Text color='red'>❌ {_error}</Text>}
+
         <Box marginY={1}>
           <Text>Enter the URL of your Buster API (default: {DEFAULT_HOST}): </Text>
         </Box>
-        <TextInput
-          value={hostInput}
-          onChange={setHostInput}
-          placeholder={DEFAULT_HOST}
-        />
-        
+        <TextInput value={hostInput} onChange={setHostInput} placeholder={DEFAULT_HOST} />
+
         <Box marginY={1}>
           <Text>Enter your API key: </Text>
         </Box>
-        <TextInput
-          value={apiKeyInput}
-          onChange={setApiKeyInput}
-          mask="*"
-        />
-        
+        <TextInput value={apiKeyInput} onChange={setApiKeyInput} mask='*' />
+
         <Box marginTop={1}>
           <Text dimColor>
             Find your API key at {hostInput || DEFAULT_HOST}/app/settings/api-keys
           </Text>
         </Box>
-        
+
         <Box marginTop={1}>
           <Text dimColor>Press Enter when ready to continue</Text>
         </Box>
@@ -205,8 +192,7 @@ export function Auth({ apiKey, host, local, cloud, clear, noSave }: AuthProps) {
     return (
       <Box>
         <Text>
-          <Spinner type="dots" />
-          {' '}Validating API key...
+          <Spinner type='dots' /> Validating API key...
         </Text>
       </Box>
     );
@@ -216,8 +202,7 @@ export function Auth({ apiKey, host, local, cloud, clear, noSave }: AuthProps) {
     return (
       <Box>
         <Text>
-          <Spinner type="dots" />
-          {' '}Saving credentials...
+          <Spinner type='dots' /> Saving credentials...
         </Text>
       </Box>
     );

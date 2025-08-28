@@ -15,9 +15,9 @@ export async function validateApiKey(
   const request: ValidateApiKeyRequest = {
     apiKey: apiKey || config.apiKey,
   };
-  
+
   console.info(`Validating API key with endpoint: ${config.apiUrl}/api/v2/auth/validate-api-key`);
-  
+
   return post<ValidateApiKeyResponse>(config, '/api/v2/auth/validate-api-key', request);
 }
 
@@ -27,10 +27,7 @@ export async function validateApiKey(
  * @param apiKey - The API key to validate (optional, uses config.apiKey if not provided)
  * @returns Promise<boolean> - true if valid, false otherwise
  */
-export async function isApiKeyValid(
-  config: SDKConfig,
-  apiKey?: string
-): Promise<boolean> {
+export async function isApiKeyValid(config: SDKConfig, apiKey?: string): Promise<boolean> {
   try {
     const response = await validateApiKey(config, apiKey);
     return response.valid;

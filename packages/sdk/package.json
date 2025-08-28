@@ -32,11 +32,11 @@
     "@buster/vitest-config": "workspace:*",
     "@buster/env-utils": "workspace:*",
     "@buster/server-shared": "workspace:*",
-    "zod": "^3.22.4"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
     "typescript": "^5.3.3",
-    "vitest": "^1.2.0"
+    "vitest": "catalog:"
   }
 }

@@ -1,7 +1,7 @@
+import type { ValidateApiKeyResponse } from '@buster/server-shared';
+import { isApiKeyValid, validateApiKey } from '../auth';
 import { type SDKConfig, SDKConfigSchema } from '../config';
 import { get } from '../http';
-import { validateApiKey, isApiKeyValid } from '../auth';
-import type { ValidateApiKeyResponse } from '@buster/server-shared';
 
 // SDK instance interface
 export interface BusterSDK {

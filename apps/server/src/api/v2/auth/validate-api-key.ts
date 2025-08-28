@@ -1,5 +1,5 @@
+import { getApiKeyDetails, validateApiKey } from '@buster/database';
 import type { ValidateApiKeyRequest, ValidateApiKeyResponse } from '@buster/server-shared';
-import { validateApiKey, getApiKeyDetails } from '@buster/database';
 
 /**
  * Handler for validating an API key
@@ -12,23 +12,23 @@ export async function validateApiKeyHandler(
   try {
     // First check if the API key is valid
     const isValid = await validateApiKey(request.apiKey);
-    
+
     if (!isValid) {
       return {
         valid: false,
       };
     }
-    
+
     // If valid, get the details
     const details = await getApiKeyDetails(request.apiKey);
-    
+
     if (!details) {
       // This shouldn't happen if validateApiKey returned true, but handle it
       return {
         valid: false,
       };
     }
-    
+
     return {
       valid: true,
       organizationId: details.organizationId,
