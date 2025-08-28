@@ -3,6 +3,8 @@ import { program } from 'commander';
 import { render } from 'ink';
 import React from 'react';
 import { Auth } from './commands/auth.js';
+import { DeployCommand } from './commands/deploy/deploy.js';
+import { DeployOptionsSchema } from './commands/deploy/schemas.js';
 import { HelloCommand } from './commands/hello.js';
 import { InteractiveCommand } from './commands/interactive.js';
 import { Main } from './commands/main.js';
@@ -47,6 +49,37 @@ program
   .description('Run an interactive demo')
   .action(async () => {
     render(<InteractiveCommand />);
+  });
+
+// Deploy command - deploy semantic models to Buster API
+program
+  .command('deploy')
+  .description('Deploy semantic models to Buster API')
+  .option('--path <path>', 'Path to search for model files (defaults to current directory)')
+  .option('--dry-run', 'Validate models without deploying')
+  .option('--no-recursive', 'Do not search directories recursively')
+  .option('--data-source <name>', 'Override data source name')
+  .option('--database <name>', 'Override database name')
+  .option('--schema <name>', 'Override schema name')
+  .option('--verbose', 'Show detailed output')
+  .action(async (options) => {
+    try {
+      // Parse and validate options
+      const parsedOptions = DeployOptionsSchema.parse({
+        path: options.path,
+        dryRun: options.dryRun || false,
+        recursive: options.recursive !== false,
+        dataSource: options.dataSource,
+        database: options.database,
+        schema: options.schema,
+        verbose: options.verbose || false,
+      });
+
+      render(<DeployCommand {...parsedOptions} />);
+    } catch (error) {
+      console.error('Invalid options:', error);
+      process.exit(1);
+    }
   });
 
 // Parse command line arguments
