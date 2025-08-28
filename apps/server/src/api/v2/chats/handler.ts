@@ -9,10 +9,7 @@ import {
 import { tasks } from '@trigger.dev/sdk';
 import { handleAssetChat, handleAssetChatWithPrompt } from './services/chat-helpers';
 import { initializeChat } from './services/chat-service';
-import {
-  enhanceMessageWithShortcut,
-  enhanceMessageWithShortcutId,
-} from './services/shortcut-service';
+import { enhanceMessageWithShortcut } from './services/shortcut-service';
 
 /**
  * Handler function for creating a new chat.
@@ -63,18 +60,8 @@ export async function createChatHandler(
     // Process shortcuts if present
     let enhancedPrompt = request.prompt;
     if (request.prompt) {
-      // Check for shortcut ID first (explicit shortcut reference)
-      if (request.shortcut_id) {
-        enhancedPrompt = await enhanceMessageWithShortcutId(
-          request.prompt,
-          request.shortcut_id,
-          user.id,
-          organizationId
-        );
-      } else {
-        // Check for shortcut pattern in message (e.g., /weekly-report)
-        enhancedPrompt = await enhanceMessageWithShortcut(request.prompt, user.id, organizationId);
-      }
+      // Check for shortcut pattern in message (e.g., /weekly-report)
+      enhancedPrompt = await enhanceMessageWithShortcut(request.prompt, user.id, organizationId);
     }
 
     // Update request with enhanced prompt

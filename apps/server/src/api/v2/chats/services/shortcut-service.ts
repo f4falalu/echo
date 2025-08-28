@@ -1,4 +1,4 @@
-import { findShortcutByName, getShortcutById } from '@buster/database';
+import { findShortcutByName } from '@buster/database';
 import { ChatError, ChatErrorCode } from '@buster/server-shared/chats';
 
 /**
@@ -18,7 +18,7 @@ export function parseShortcutFromMessage(message: string): {
   }
 
   return {
-    shortcutName: match[1],
+    shortcutName: match[1] ?? null,
     additionalContext: match[2] || '',
   };
 }
@@ -57,38 +57,3 @@ export async function enhanceMessageWithShortcut(
     : shortcut.instructions;
 }
 
-/**
- * Enhance a message with a specific shortcut ID
- * @param message The original message (optional)
- * @param shortcutId The shortcut ID to apply
- * @param userId The user's ID
- * @param organizationId The organization's ID
- * @returns Enhanced message with shortcut instructions
- */
-export async function enhanceMessageWithShortcutId(
-  message: string | undefined,
-  shortcutId: string,
-  userId: string,
-  organizationId: string
-): Promise<string> {
-  const shortcut = await getShortcutById({ id: shortcutId });
-
-  if (!shortcut) {
-    throw new ChatError(ChatErrorCode.INVALID_REQUEST, 'Shortcut not found', 404);
-  }
-
-  // Check permissions: user must be in same org and either creator or shortcut is workspace-shared
-  if (
-    shortcut.organizationId !== organizationId ||
-    (!shortcut.sharedWithWorkspace && shortcut.createdBy !== userId)
-  ) {
-    throw new ChatError(
-      ChatErrorCode.INVALID_REQUEST,
-      'You do not have permission to use this shortcut',
-      403
-    );
-  }
-
-  // Concatenate shortcut instructions with any additional message
-  return message ? `${shortcut.instructions} ${message}` : shortcut.instructions;
-}

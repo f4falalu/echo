@@ -51,7 +51,6 @@ export const ChatCreateHandlerRequestSchema = z.object({
   message_id: z.string().optional(),
   asset_id: z.string().optional(),
   asset_type: ChatAssetTypeSchema.optional(),
-  shortcut_id: z.string().uuid().optional(),
 });
 
 // Cancel chat params schema

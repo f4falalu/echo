@@ -50,6 +50,12 @@ export async function createShortcutHandler(
       sharedWithWorkspace: data.sharedWithWorkspace,
     });
 
+    if (!shortcut) {
+      throw new HTTPException(500, {
+        message: 'Failed to create shortcut',
+      });
+    }
+
     return shortcut;
   } catch (error) {
     console.error('Error in createShortcutHandler:', {
