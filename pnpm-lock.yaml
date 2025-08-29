@@ -194,8 +194,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/vitest-config
       '@electric-sql/client':
-        specifier: ^1.0.7
-        version: 1.0.7
+        specifier: ^1.0.9
+        version: 1.0.9
       '@hono/zod-validator':
         specifier: ^0.7.2
         version: 0.7.2(hono@4.9.2)(zod@3.25.76)
@@ -2539,6 +2539,9 @@ packages:
 
   '@electric-sql/client@1.0.7':
     resolution: {integrity: sha512-w9geRoZL1gn294Nn68YxicRvWFJEXWYPr+jZubSOyjaSa6tVQJk0rjYuFmOwpQyudFQrsL17HFrGga9UOaBhdA==}
+
+  '@electric-sql/client@1.0.9':
+    resolution: {integrity: sha512-9fLjGww+5mGBJ9o47sizCSkyLixjoA49IRh8jBVxzpDq4EGwv77k54df0hRYWtD4VoBQL+49MyT9KDfE/a5Ygw==}
 
   '@electric-sql/react@1.0.7':
     resolution: {integrity: sha512-48HNRzdgWqT4G2TEryKbh95K9OZd42mwUzyJ4rnBWUHOtXlQIoaQajEWgIgB/eNrspQwC/STvhAHYQ+2eQJxEw==}
@@ -6427,6 +6430,7 @@ packages:
 
   bun@1.2.18:
     resolution: {integrity: sha512-OR+EpNckoJN4tHMVZPaTPxDj2RgpJgJwLruTIFYbO3bQMguLd0YrmkWKYqsiihcLgm2ehIjF/H1RLfZiRa7+qQ==}
+    cpu: [arm64, x64, aarch64]
     os: [darwin, linux, win32]
     hasBin: true
 
@@ -14761,6 +14765,12 @@ snapshots:
       '@rollup/rollup-darwin-arm64': 4.44.2
 
   '@electric-sql/client@1.0.7':
+    dependencies:
+      '@microsoft/fetch-event-source': 2.0.1
+    optionalDependencies:
+      '@rollup/rollup-darwin-arm64': 4.44.2
+
+  '@electric-sql/client@1.0.9':
     dependencies:
       '@microsoft/fetch-event-source': 2.0.1
     optionalDependencies:
