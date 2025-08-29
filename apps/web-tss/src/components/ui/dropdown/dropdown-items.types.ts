@@ -22,7 +22,7 @@ export interface IDropdownItem<
   items?: IDropdownItems<T>;
   link?: string | ILinkProps<TRouter, TOptions, TFrom>;
   linkTarget?: '_blank' | '_self';
-  linkIcon?: 'arrow-right' | 'arrow-external' | 'caret-right';
+  linkIcon?: 'arrow-right' | 'arrow-external' | 'caret-right' | 'none';
 }
 
 export interface DropdownDivider {

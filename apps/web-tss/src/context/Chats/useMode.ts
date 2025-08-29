@@ -1,19 +1,10 @@
-import { useParams } from '@tanstack/react-router';
+import { useGetChatId } from './useGetChatId';
 
-const stableSelect = (v?: { chatId?: string }) => v?.chatId !== undefined;
 export const useIsChatMode = () => {
-  const chatId = useParams({
-    select: stableSelect,
-    strict: false,
-  });
-
-  return chatId !== undefined && chatId;
+  return !!useGetChatId();
 };
 
 export const useIsFileMode = () => {
-  const chatId = useParams({
-    select: stableSelect,
-    strict: false,
-  });
+  const chatId = useGetChatId();
   return chatId === undefined;
 };

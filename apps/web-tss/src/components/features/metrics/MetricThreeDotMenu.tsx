@@ -93,7 +93,7 @@ export const ThreeDotMenuButton = React.memo(
     const items: IDropdownItems = useMemo(
       () =>
         [
-          !isChatMode && openFullScreenMetric,
+          isChatMode && openFullScreenMetric,
           // drilldownItem,
           isOwnerEffective && !isViewingOldVersion && shareMenu,
           isEditor && !isViewingOldVersion && statusSelectMenu,
@@ -138,7 +138,7 @@ export const ThreeDotMenuButton = React.memo(
     );
 
     return (
-      <Dropdown items={items} side="left" align="end" contentClassName="max-h-fit" modal>
+      <Dropdown items={items} side="left" align="start" contentClassName="max-h-fit" modal>
         <Button prefix={<Dots />} variant="ghost" data-testid="three-dot-menu-button" />
       </Dropdown>
     );
@@ -389,9 +389,10 @@ const useOpenFullScreenMetric = ({
   return useMemo(
     () =>
       createDropdownItem({
-        label: 'Open in metric page',
+        label: 'Open chart',
         value: 'open-in-full-screen',
         icon: <ArrowUpRight />,
+        linkIcon: 'none',
         link: {
           to: '/app/metrics/$metricId',
           params: {

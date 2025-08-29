@@ -7,6 +7,7 @@ import { Button } from '../buttons/Button';
 import { Checkbox } from '../checkbox/Checkbox';
 import { CaretRight } from '../icons/NucleoIconFilled';
 import { ArrowRight, ArrowUpRight, Check3 as Check } from '../icons/NucleoIconOutlined';
+import type { IDropdownItem } from './dropdown-items.types';
 
 const DropdownMenu = DropdownMenuPrimitive.Root;
 
@@ -260,13 +261,14 @@ const DropdownMenuLink = <
 }: {
   className?: string;
   link: string | ILinkProps<TRouter, TOptions, TFrom> | null;
-  linkIcon?: 'arrow-right' | 'arrow-external' | 'caret-right';
+  linkIcon?: IDropdownItem['linkIcon'];
   linkTarget?: '_blank' | '_self';
 }) => {
   const icon = React.useMemo(() => {
     if (linkIcon === 'arrow-right') return <ArrowRight />;
     if (linkIcon === 'arrow-external') return <ArrowUpRight />;
     if (linkIcon === 'caret-right') return <CaretRight />;
+    if (linkIcon === 'none') return null;
   }, [linkIcon]);
 
   const isExternal = typeof link === 'string' && link.startsWith('http');

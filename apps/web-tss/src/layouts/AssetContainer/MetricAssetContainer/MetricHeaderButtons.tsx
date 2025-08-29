@@ -7,6 +7,7 @@ import { SaveMetricToDashboardButton } from '@/components/features/buttons/SaveM
 import { ShareMetricButton } from '@/components/features/buttons/ShareMetricButton';
 import { ThreeDotMenuButton } from '@/components/features/metrics/MetricThreeDotMenu';
 import { SquareChartPen, Xmark } from '@/components/ui/icons';
+import { useGetChatId } from '@/context/Chats/useGetChatId';
 import { useIsChatMode, useIsFileMode } from '@/context/Chats/useMode';
 import { useIsMetricReadOnly } from '@/context/Metrics/useIsMetricReadOnly';
 import { canEdit, getIsEffectiveOwner } from '@/lib/share';
@@ -47,7 +48,7 @@ export const MetricContainerHeaderButtons: React.FC<{
       <HideButtonContainer show={isFileMode}>
         <CreateChatButton assetId={metricId} assetType="metric" />
       </HideButtonContainer>
-      {isChatMode && <ClosePageButton metricId={metricId} />}
+      {isChatMode && <ClosePageButton />}
     </FileButtonContainer>
   );
 });
@@ -87,7 +88,13 @@ const SaveToDashboardButton = React.memo(({ metricId }: { metricId: string }) =>
 });
 SaveToDashboardButton.displayName = 'SaveToDashboardButton';
 
-const ClosePageButton = React.memo(({ metricId }: { metricId: string }) => {
-  return <SelectableButton selected={false} tooltipText="Close" icon={<Xmark />} />;
+const ClosePageButton = React.memo(() => {
+  const chatId = useGetChatId() || '';
+
+  return (
+    <Link to="/app/chats/$chatId" params={{ chatId }}>
+      <SelectableButton selected={false} tooltipText="Close" icon={<Xmark />} />
+    </Link>
+  );
 });
 ClosePageButton.displayName = 'ClosePageButton';
