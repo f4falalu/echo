@@ -67,7 +67,7 @@ const isAtBottom = (element: HTMLElement, threshold = 30): boolean => {
  * is re–enabled.
  */
 export const useAutoScroll = (
-  containerRef: React.RefObject<HTMLElement>,
+  containerRef: React.RefObject<HTMLElement | null>,
   options: UseAutoScrollOptions = {}
 ): UseAutoScrollReturn => {
   const {

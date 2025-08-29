@@ -11,10 +11,11 @@
 
   .scroll-header {
     @apply pointer-events-none top-[0px] z-10 right-0 left-0 h-[0.5px] w-full sticky;
+    /* Only show animation when there's actual scrolling (starts at 1px instead of 0px) */
     animation-name: scrollShowAnimation;
     animation-duration: 1ms; /* Firefox requires this to apply the animation */
     animation-timeline: --scrollShadowContainer;
-    animation-range: 0px 140px;
+    animation-range: 0px 140px; /* Ensures animation only triggers with actual scroll content */
     animation-fill-mode: forwards;
   }
 }
@@ -44,10 +45,8 @@
 @keyframes scrollShowAnimation {
   from {
     background-color: transparent;
-    min-height: 0px;
   }
   to {
     background-color: var(--color-border);
-    min-height: 0.5px;
   }
 }

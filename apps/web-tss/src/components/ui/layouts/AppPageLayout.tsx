@@ -67,7 +67,7 @@ export const AppPageLayout: React.FC<React.PropsWithChildren<AppPageLayoutProps>
       >
         <div
           className={cn(
-            'pointer-events-none scroll-header-border top-[0px] scroll-header z-10 right-0 left-0 h-[0.5px] w-full sticky bg-border transition-colors duration-300',
+            'pointer-events-none top-[0px] scroll-header z-10 right-0 left-0 h-[0.5px] w-full sticky bg-border transition-colors duration-300',
             !scrollable && isGhostBorder && 'bg-transparent'
           )}
         />

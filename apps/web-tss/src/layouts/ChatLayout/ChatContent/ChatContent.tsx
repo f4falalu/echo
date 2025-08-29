@@ -1,28 +1,24 @@
 'use client';
 
 import React, { useRef } from 'react';
-import { useMount } from '@/hooks';
+import { useGetChatMessageIds } from '@/context/Chats';
 import { useAutoScroll } from '@/hooks/useAutoScroll';
+import { useMount } from '@/hooks/useMount';
 import { cn } from '@/lib/utils';
-import { useChatIndividualContextSelector, type ChatIndividualState } from '../../ChatContext';
+import { CHAT_CONTAINER_ID } from '../ChatContainer';
 import { ChatInput } from './ChatInput';
 import { ChatMessageBlock } from './ChatMessageBlock';
-import { CHAT_CONTAINER_ID } from '../ChatContainer';
 import { ChatScrollToBottom } from './ChatScrollToBottom';
 
 const autoClass = 'mx-auto max-w-[600px] w-full';
 
-const stableChatIdSelector = (state: ChatIndividualState) => state.chatId;
-const stableChatMessageIdsSelector = (state: ChatIndividualState) => state.chatMessageIds;
-
-export const ChatContent: React.FC = React.memo(() => {
-  const chatId = useChatIndividualContextSelector(stableChatIdSelector);
-  const chatMessageIds = useChatIndividualContextSelector(stableChatMessageIdsSelector);
-  const containerRef = useRef<HTMLElement | null>(null);
+export const ChatContent: React.FC<{ chatId: string | undefined }> = React.memo(({ chatId }) => {
+  const chatMessageIds = useGetChatMessageIds(chatId);
+  const containerRef = useRef<HTMLElement>(null);
 
   const { isAutoScrollEnabled, scrollToBottom, enableAutoScroll } = useAutoScroll(containerRef, {
     observeSubTree: true,
-    enabled: false
+    enabled: false,
   });
 
   useMount(() => {

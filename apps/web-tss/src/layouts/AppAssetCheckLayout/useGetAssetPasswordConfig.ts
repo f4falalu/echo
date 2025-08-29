@@ -1,4 +1,5 @@
 import type { AssetType } from '@buster/server-shared/assets';
+import type { ResponseMessageFileType } from '@buster/server-shared/chats';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import type { RustApiError } from '@/api/errors';
@@ -33,7 +34,7 @@ const getAssetAccess = (error: RustApiError | null): AssetAccess => {
 
 export const useGetAssetPasswordConfig = (
   assetId: string,
-  type: AssetType,
+  type: AssetType | ResponseMessageFileType,
   versionNumber: number | undefined
 ) => {
   const chosenVersionNumber = versionNumber || 'LATEST';
@@ -50,6 +51,9 @@ export const useGetAssetPasswordConfig = (
     }
     if (type === 'collection') {
       return collectionQueryKeys.collectionsGetCollection(assetId);
+    }
+    if (type === 'reasoning') {
+      return chatQueryKeys.chatsGetChat(assetId);
     }
 
     const _exhaustiveCheck: 'chat' = type;

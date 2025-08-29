@@ -5,7 +5,7 @@ import { ChatHeader } from './ChatHeader';
 
 export const CHAT_CONTAINER_ID = 'chat-container-content';
 
-export const ChatContainer = React.memo(() => {
+export const ChatContainer = React.memo(({ chatId }: { chatId: string | undefined }) => {
   return (
     <AppPageLayout
       headerSizeVariant="default"
@@ -15,7 +15,7 @@ export const ChatContainer = React.memo(() => {
       id={CHAT_CONTAINER_ID}
       className="chat-container-content flex h-full w-full min-w-[295px] flex-col"
     >
-      <ChatContent />
+      <ChatContent chatId={chatId} />
     </AppPageLayout>
   );
 });

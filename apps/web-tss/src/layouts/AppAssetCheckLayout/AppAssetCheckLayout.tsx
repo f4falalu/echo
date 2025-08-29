@@ -1,4 +1,5 @@
 import type { AssetType } from '@buster/server-shared/assets';
+import type { ResponseMessageFileType } from '@buster/server-shared/chats';
 import { useParams, useSearch } from '@tanstack/react-router';
 import type React from 'react';
 import { FileIndeterminateLoader } from '@/components/features/loaders/FileIndeterminateLoader';
@@ -9,7 +10,7 @@ import { useGetAssetPasswordConfig } from './useGetAssetPasswordConfig';
 import { useShowLoader } from './useShowLoader';
 
 export type AppAssetCheckLayoutProps = {
-  assetType: AssetType;
+  assetType: AssetType | ResponseMessageFileType;
 };
 
 export const AppAssetCheckLayout: React.FC<

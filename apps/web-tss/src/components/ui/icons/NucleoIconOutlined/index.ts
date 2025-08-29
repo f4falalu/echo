@@ -24,8 +24,10 @@ export { default as Copy2 } from './copy-2'; // Alternate copy icon
 export { default as Database } from './database'; // Database icon
 export { default as Dots } from './dots';
 export { default as DotsVertical } from './dots-vertical';
+export { default as DoubleChevronRight } from './double-chevron-right';
 export { default as Download } from './download';
 export { default as Download4 } from './download-4';
+export { default as DuplicatePlus } from './duplicate-plus';
 export { default as Eye } from './eye'; // Eye (show) icon
 export { default as EyeSlash } from './eye-slash'; // Eye with slash (hide) icon
 export { default as File } from './file';
@@ -44,6 +46,7 @@ export { default as Magnifier } from './magnifier';
 export { default as Message } from './message'; // Message icon
 export { default as Messages } from './messages'; // Messages icon
 export { default as Minus } from './minus';
+export { default as OctagonWarning } from './octagon-warning';
 export { default as PaintRoller } from './paint-roller';
 export { default as Pencil } from './pencil';
 export { default as Plus } from './plus'; // Plus/add icon
@@ -60,6 +63,8 @@ export { default as Star } from './star';
 export { default as Stars } from './stars';
 export { default as Storage } from './storage';
 export { default as Table } from './table'; // Table icon
+export { default as ThumbsDown } from './thumbs-down';
+export { default as ThumbsUp } from './thumbs-up';
 export { default as Trash } from './trash';
 export { default as TriangleWarning } from './triangle-warning';
 export { default as UnorderedList2 } from './unordered-list-2'; // Unordered list variant 2 icon

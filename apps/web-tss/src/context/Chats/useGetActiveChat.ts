@@ -26,3 +26,19 @@ export const useGetCurrentMessageId = () => {
 
   return currentMessageId;
 };
+
+const stableChatTitleSelector = (state: IBusterChat) => state.title;
+export const useGetActiveChatTitle = () => {
+  const chatId = useGetChatId();
+  const { data: chatTitle } = useGetChat({ id: chatId || '' }, { select: stableChatTitleSelector });
+  return chatTitle;
+};
+
+const stableChatMessageIdsSelector = (state: IBusterChat) => state.message_ids;
+export const useGetChatMessageIds = (chatId?: string) => {
+  const { data: chatMessageIds } = useGetChat(
+    { id: chatId || '' },
+    { select: stableChatMessageIdsSelector }
+  );
+  return chatMessageIds;
+};

@@ -1,3 +1,4 @@
+import type { ResponseMessageFileType } from '@buster/server-shared/chats';
 import type { ShareAssetType } from '@buster/server-shared/share';
 import type React from 'react';
 import { useRef } from 'react';
@@ -12,7 +13,7 @@ import {
 
 export const AppPasswordAccess: React.FC<{
   assetId: string;
-  type: ShareAssetType;
+  type: ShareAssetType | ResponseMessageFileType;
   children: React.ReactNode;
 }> = ({ children, assetId, type }) => {
   const { password, error } = useProtectedAsset(assetId);
@@ -31,7 +32,7 @@ AppPasswordAccess.displayName = 'AppPasswordAccess';
 const AppPasswordInputComponent: React.FC<{
   password: string | undefined;
   assetId: string;
-  type: ShareAssetType;
+  type: ShareAssetType | ResponseMessageFileType;
   error: string | null;
 }> = ({ password, error, assetId, type }) => {
   const inputRef = useRef<HTMLInputElement>(null);

@@ -1,27 +1,25 @@
-import React, { useMemo } from 'react';
+import { useNavigate } from '@tanstack/react-router';
+import type React from 'react';
+import { useMemo } from 'react';
 import { useDeleteChat, useDuplicateChat, useGetChat } from '@/api/buster_rest/chats';
-import { useFavoriteStar } from '@/components/features/list';
-import { Dropdown, type DropdownItems } from '@/components/ui/dropdown';
+import { useFavoriteStar } from '@/components/features/favorites';
+import { Dropdown, type IDropdownItems } from '@/components/ui/dropdown';
 import { DuplicatePlus, Pencil, Star, Trash } from '@/components/ui/icons';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
-import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { timeout } from '@/lib';
-import { assetParamsToRoute } from '@/lib/assets';
-import { BusterRoutes } from '@/routes';
-import { useChatIndividualContextSelector } from '../../../ChatContext';
+import { useGetChatId } from '@/context/Chats/useGetChatId';
+import { timeout } from '@/lib/timeout';
 import { CHAT_HEADER_TITLE_ID } from '../ChatHeaderTitle';
 
 export const ChatContainerHeaderDropdown: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   const { openSuccessMessage } = useBusterNotifications();
-  const chatId = useChatIndividualContextSelector((state) => state.chatId);
-  const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
+  const chatId = useGetChatId();
+  const navigate = useNavigate();
   const { mutate: deleteChat, isPending: isDeleting } = useDeleteChat();
   const { mutateAsync: duplicateChat, isPending: isDuplicating } = useDuplicateChat();
-  const selectedFileId = useChatIndividualContextSelector((state) => state.selectedFileId);
-  const selectedFileType = useChatIndividualContextSelector((state) => state.selectedFileType);
+
   const { data: chatTitle } = useGetChat(
     { id: chatId || '' },
     { select: (x) => x.title, enabled: !!chatId }
@@ -30,10 +28,10 @@ export const ChatContainerHeaderDropdown: React.FC<{
   const { isFavorited, onFavoriteClick } = useFavoriteStar({
     id: chatId || '',
     type: 'chat',
-    name: chatTitle || ''
+    name: chatTitle || '',
   });
 
-  const menuItem: DropdownItems = useMemo(() => {
+  const menuItem: IDropdownItems = useMemo(() => {
     return [
       {
         label: 'Delete chat',
@@ -46,11 +44,11 @@ export const ChatContainerHeaderDropdown: React.FC<{
             { data: [chatId] },
             {
               onSuccess: () => {
-                onChangePage({ route: BusterRoutes.APP_CHAT });
+                navigate({ to: '/app/chats' });
                 openSuccessMessage('Chat deleted');
-              }
+              },
             }
-          )
+          ),
       },
       {
         label: 'Duplicate chat',
@@ -61,21 +59,10 @@ export const ChatContainerHeaderDropdown: React.FC<{
           if (chatId) {
             const res = await duplicateChat({ id: chatId });
             await timeout(100);
-            if (selectedFileType && selectedFileId) {
-              const route = assetParamsToRoute({
-                assetId: selectedFileId,
-                chatId: res.id,
-                type: selectedFileType
-              });
-
-              if (route) await onChangePage(route);
-            } else {
-              await onChangePage({ route: BusterRoutes.APP_CHAT_ID, chatId: res.id });
-            }
-
+            await navigate({ to: '/app/chats/$chatId', params: { chatId: res.id } });
             openSuccessMessage('Chat duplicated');
           }
-        }
+        },
       },
       {
         label: 'Edit chat title',
@@ -88,14 +75,14 @@ export const ChatContainerHeaderDropdown: React.FC<{
             input.focus();
             input.select();
           }
-        }
+        },
       },
       {
         label: isFavorited ? 'Remove from favorites' : 'Add to favorites',
         value: 'add-to-favorites',
         icon: isFavorited ? <StarFilled /> : <Star />,
-        onClick: onFavoriteClick
-      }
+        onClick: onFavoriteClick,
+      },
     ];
   }, [
     chatId,
@@ -106,9 +93,7 @@ export const ChatContainerHeaderDropdown: React.FC<{
     isFavorited,
     onFavoriteClick,
     openSuccessMessage,
-    onChangePage,
-    selectedFileType,
-    selectedFileId
+    navigate,
   ]);
 
   return (

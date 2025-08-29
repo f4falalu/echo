@@ -34,13 +34,13 @@ export const useIsAssetFileChanged = () => {
       return reportParams;
     }
 
-    if (assetType === 'collection' || assetType === 'chat') {
-      return {
-        isFileChanged: false,
-        onResetToOriginal: () => {},
-      };
-    }
+    const _exhaustiveCheck: 'chat' | 'collection' = assetType;
 
-    const _exhaustiveCheck: never = assetType;
+    return {
+      isFileChanged: false,
+      onResetToOriginal: () => {
+        console.warn('No reset to original for asset type', assetType);
+      },
+    };
   }, [assetType, metricParams, dashboardParams, reportParams]);
 };

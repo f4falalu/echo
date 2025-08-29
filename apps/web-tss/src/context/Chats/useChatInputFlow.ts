@@ -4,13 +4,12 @@ import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { timeout } from '@/lib/timeout';
 import { CHAT_CONTAINER_ID } from '../../layouts/ChatLayout/ChatContainer';
+import { useIsAssetFileChanged } from '../BusterAssets/useIsAssetFileChanged';
 import { useSelectedAssetId, useSelectedAssetType } from '../BusterAssets/useSelectedAssetType';
 import { useChat } from './useChat';
 import { useGetCurrentMessageId } from './useGetActiveChat';
 import { useGetChatId } from './useGetChatId';
-import { useIsChatMode } from './useMode';
-
-type FlowType = 'followup-chat' | 'followup-metric' | 'followup-dashboard' | 'new';
+import { useIsChatMode, useIsFileMode } from './useMode';
 
 export const useChatInputFlow = ({
   disableSubmit,
@@ -25,7 +24,8 @@ export const useChatInputFlow = ({
   textAreaRef: React.RefObject<HTMLTextAreaElement | null>;
   loading: boolean;
 }) => {
-  const hasChat = useIsChatMode();
+  const isChatMode = useIsChatMode();
+  const isFileMode = useIsFileMode();
   const chatId = useGetChatId();
   const {
     onFollowUpChat,
@@ -37,26 +37,10 @@ export const useChatInputFlow = ({
   const currentMessageId = useGetCurrentMessageId();
   const selectedAssetType = useSelectedAssetType();
   const selectedAssetId = useSelectedAssetId();
-  // const selectedFileType = useChatIndividualContextSelector((x) => x.selectedFileType);
-  // const selectedFileId = useChatIndividualContextSelector((x) => x.selectedFileId);
-  // const onStartNewChat = useBusterNewChatContextSelector((state) => state.onStartNewChat);
-  // const onFollowUpChat = useBusterNewChatContextSelector((state) => state.onFollowUpChat);
-  // const isSubmittingChat = useBusterNewChatContextSelector((state) => state.isSubmittingChat);
-  // const onStartChatFromFile = useBusterNewChatContextSelector((state) => state.onStartChatFromFile);
-  // const onStopChatContext = useBusterNewChatContextSelector((state) => state.onStopChat);
-  // const currentMessageId = useChatIndividualContextSelector((x) => x.currentMessageId);
-  // const isFileChanged = useChatIndividualContextSelector((x) => x.isFileChanged);
-  // const onResetToOriginal = useChatIndividualContextSelector((x) => x.onResetToOriginal);
+  const { isFileChanged, onResetToOriginal } = useIsAssetFileChanged();
   const { openConfirmModal } = useBusterNotifications();
 
   const submittingCooldown = useRef(isSubmittingChat);
-
-  const flow: FlowType = useMemo(() => {
-    if (hasChat) return 'followup-chat';
-    if (selectedAssetType === 'metric' && selectedAssetId) return 'followup-metric';
-    if (selectedAssetType === 'dashboard' && selectedAssetId) return 'followup-dashboard';
-    return 'new';
-  }, [hasChat, selectedAssetType, selectedAssetId]);
 
   const onSubmitPreflight = useMemoizedFn(async () => {
     if (
@@ -77,36 +61,20 @@ export const useChatInputFlow = ({
 
     const method = async () => {
       submittingCooldown.current = true;
-      switch (flow) {
-        case 'followup-chat':
-          await onFollowUpChat({ prompt: trimmedInputValue, chatId });
-          break;
 
-        case 'followup-metric':
-          if (!selectedAssetId) return;
-          await onStartChatFromFile({
-            prompt: trimmedInputValue,
-            fileId: selectedAssetId,
-            fileType: 'metric',
-          });
-          break;
-        case 'followup-dashboard':
-          if (!selectedAssetId) return;
-          await onStartChatFromFile({
-            prompt: trimmedInputValue,
-            fileId: selectedAssetId,
-            fileType: 'dashboard',
-          });
-          break;
-
-        case 'new':
-          await onStartNewChat({ prompt: trimmedInputValue });
-          break;
-
-        default: {
-          const _exhaustiveCheck: never = flow;
-          return _exhaustiveCheck;
-        }
+      if (isChatMode || selectedAssetType === 'chat') {
+        await onFollowUpChat({ prompt: trimmedInputValue, chatId });
+      } else if (selectedAssetType === 'collection') {
+        // maybe we will support this one day. Good day that'll be. Until then, we will just dream.
+      } else if (isFileMode) {
+        if (!selectedAssetId) return;
+        await onStartChatFromFile({
+          prompt: trimmedInputValue,
+          fileId: selectedAssetId,
+          fileType: selectedAssetType,
+        });
+      } else {
+        await onStartNewChat({ prompt: trimmedInputValue });
       }
 
       setInputValue('');
@@ -155,7 +123,7 @@ export const useChatInputFlow = ({
 
   const onStopChat = useMemoizedFn(() => {
     if (!chatId) return;
-    onStopChatContext({ chatId, messageId: currentMessageId });
+    onStopChatContext({ chatId });
     setTimeout(() => {
       textAreaRef.current?.focus();
       textAreaRef.current?.select();

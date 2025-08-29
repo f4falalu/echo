@@ -1,70 +1,71 @@
-'use client';
-
+import { ClientOnly } from '@tanstack/react-router';
 import type React from 'react';
 import { useMemo, useRef } from 'react';
-import { AppSplitter, type AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
-import { ChatContainer } from '../ChatContainer';
-import { ChatContextProvider } from '../ChatContext/ChatContext';
-import { ChatLayoutContextProvider, useChatLayoutContext } from '../ChatLayoutContext';
+import {
+  AppSplitter,
+  type AppSplitterRef,
+  type LayoutSize,
+} from '@/components/ui/layouts/AppSplitter';
+import { useGetChatId } from '@/context/Chats/useGetChatId';
+import { useSelectedLayoutMode } from '@/context/Chats/useSelectedLayoutMode';
+import { useSelectedAssetId } from '../../context/BusterAssets/useSelectedAssetType';
+import { ChatContainer } from './ChatContainer';
 import {
   DEFAULT_CHAT_OPTION_SIDEBAR_SIZE,
   DEFAULT_FILE_OPTION_SIDEBAR_SIZE,
-  MAX_CHAT_BOTH_SIDEBAR_SIZE
-} from '../ChatLayoutContext/config';
-import { FileContainer } from '../FileContainer';
+  MAX_CHAT_BOTH_SIDEBAR_SIZE,
+} from './config';
 
 interface ChatSplitterProps {
-  children?: React.ReactNode;
+  children: React.ReactNode | null;
+  initialLayout: LayoutSize;
+  autoSaveId: string;
+  defaultLayout: LayoutSize;
 }
 
-export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
+export const ChatLayout: React.FC<ChatSplitterProps> = ({
+  initialLayout,
+  autoSaveId,
+  children,
+  defaultLayout,
+}) => {
   const appSplitterRef = useRef<AppSplitterRef>(null);
+  const selectedLayout = useSelectedLayoutMode();
+  const selectedAssetId = useSelectedAssetId();
+  const chatId = useGetChatId();
 
-  const chatLayoutProps = useChatLayoutContext({ appSplitterRef });
-  const { selectedLayout, selectedFile } = chatLayoutProps;
-
-  const defaultSplitterLayout = useMemo(() => {
-    if (selectedLayout === 'chat-only') return ['auto', '0px'];
-    if (selectedLayout === 'file-only' || selectedLayout === 'chat-hidden') return ['0px', 'auto'];
-    return ['380px', 'auto'];
-  }, [selectedLayout]);
-
-  const autoSaveId = `chat-splitter-${chatLayoutProps.chatId || '🫥'}-${chatLayoutProps.dashboardId || chatLayoutProps.metricId || '❌'}`;
-  const leftPanelMinSize = selectedFile ? DEFAULT_CHAT_OPTION_SIDEBAR_SIZE : '0px';
+  const leftPanelMinSize = selectedAssetId ? DEFAULT_CHAT_OPTION_SIDEBAR_SIZE : '0px';
   const leftPanelMaxSize = selectedLayout === 'both' ? MAX_CHAT_BOTH_SIDEBAR_SIZE : undefined;
-  const rightPanelMinSize = selectedFile ? DEFAULT_FILE_OPTION_SIDEBAR_SIZE : '0px';
+  const rightPanelMinSize = selectedAssetId ? DEFAULT_FILE_OPTION_SIDEBAR_SIZE : '0px';
   const rightPanelMaxSize = selectedLayout === 'chat-only' ? '0px' : undefined;
   const renderLeftPanel = selectedLayout !== 'file-only';
   const renderRightPanel = selectedLayout !== 'chat-only';
-  const secondaryFileView = chatLayoutProps.secondaryView;
-  const mounted = true;
 
-  const bustStorageOnInit = (preservedSideValue: number | null, containerSize: number) => {
-    if (containerSize && !preservedSideValue) {
-      return true;
-    }
-    return selectedLayout === 'chat-only' || selectedLayout === 'file-only' || !!secondaryFileView;
-  };
+  // useAutoChangeLayout({
+  //   lastMessageId: currentMessageId,
+  //   chatId,
+  // });
+  // useChatStreaming({ chatId, messageId: currentMessageId, isStreamingMessage });
 
   return (
-    <ChatLayoutContextProvider chatLayoutProps={chatLayoutProps}>
-      <ChatContextProvider>
-        <AppSplitter
-          ref={appSplitterRef}
-          leftChildren={mounted && renderLeftPanel && <ChatContainer />}
-          rightChildren={mounted && renderRightPanel && <FileContainer>{children}</FileContainer>}
-          autoSaveId={autoSaveId}
-          defaultLayout={defaultSplitterLayout}
-          allowResize={selectedLayout === 'both'}
-          preserveSide={'left'}
-          leftPanelMinSize={leftPanelMinSize}
-          leftPanelMaxSize={leftPanelMaxSize}
-          rightPanelMinSize={rightPanelMinSize}
-          rightPanelMaxSize={rightPanelMaxSize}
-          bustStorageOnInit={bustStorageOnInit}
-        />
-      </ChatContextProvider>
-    </ChatLayoutContextProvider>
+    <ClientOnly>
+      <AppSplitter
+        ref={appSplitterRef}
+        leftChildren={renderLeftPanel && <ChatContainer chatId={chatId} />}
+        rightChildren={renderRightPanel && children}
+        autoSaveId={autoSaveId}
+        defaultLayout={defaultLayout}
+        allowResize={selectedLayout === 'both'}
+        preserveSide={'right'}
+        leftPanelMinSize={leftPanelMinSize}
+        leftPanelMaxSize={leftPanelMaxSize}
+        rightPanelMinSize={rightPanelMinSize}
+        rightPanelMaxSize={rightPanelMaxSize}
+        initialLayout={initialLayout}
+        rightPanelElement="div"
+        leftPanelElement="div"
+      />
+    </ClientOnly>
   );
 };
 

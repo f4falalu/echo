@@ -33,6 +33,6 @@ declare module '@tanstack/react-router' {
   }
 
   interface RouteContext {
-    assetType?: AssetType;
+    assetType?: AssetType | 'reasoning';
   }
 }

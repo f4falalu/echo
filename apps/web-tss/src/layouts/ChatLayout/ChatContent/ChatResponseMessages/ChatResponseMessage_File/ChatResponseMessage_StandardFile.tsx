@@ -1,16 +1,17 @@
-import { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat/chatMessageInterfaces';
-import { ASSET_ICONS } from '@/components/features/config/assetIcons';
-import { CollapisbleFileCard } from '@/components/ui/card/CollapisbleFileCard';
-import Link from 'next/link';
+import { Link } from '@tanstack/react-router';
 import React, { useMemo } from 'react';
+import type { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat/chatMessageInterfaces';
+import { ASSET_ICONS } from '@/components/features/icons/assetIcons';
+import { CollapisbleFileCard } from '@/components/ui/card/CollapisbleFileCard';
 import { Text } from '@/components/ui/typography';
 import { TextAndVersionText } from '@/components/ui/typography/TextAndVersionText';
+import type { ILinkProps } from '@/types/routes';
 
 export const ChatResponseMessage_StandardFile: React.FC<{
   responseMessage: BusterChatResponseMessage_file;
   isSelectedFile: boolean;
-  href: string;
-}> = React.memo(({ responseMessage, isSelectedFile, href }) => {
+  linkParams: ILinkProps;
+}> = React.memo(({ responseMessage, isSelectedFile, linkParams }) => {
   const { file_type, file_name, version_number } = responseMessage;
 
   const selectedIcon = useMemo(() => {
@@ -29,7 +30,7 @@ export const ChatResponseMessage_StandardFile: React.FC<{
   }, [selectedIcon]);
 
   return (
-    <Link href={href} prefetch data-testid="chat-response-message-file">
+    <Link {...linkParams} data-testid="chat-response-message-file">
       <CollapisbleFileCard
         fileName={<TextAndVersionText text={file_name} version={version_number} />}
         icon={icon}

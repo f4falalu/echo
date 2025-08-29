@@ -1,12 +1,17 @@
+import type { RegisteredRouter } from '@tanstack/react-router';
 import { useMemo } from 'react';
 import type { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat';
-import { useGetFileLink } from '@/context/Assets/useGetFileLink';
-import { BusterRoutes, createBusterRoute } from '@/routes';
+import { assetParamsToRoute } from '@/lib/assets/assetParamsToRoute';
+import type { ILinkProps } from '@/types/routes';
 
-export const useGetFileHref = ({
+export const useGetFileHref = <
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = unknown,
+  TFrom extends string = string,
+>({
   responseMessage,
   isSelectedFile,
-  chatId
+  chatId,
 }: {
   responseMessage: BusterChatResponseMessage_file;
   isSelectedFile: boolean;
@@ -14,27 +19,29 @@ export const useGetFileHref = ({
 }) => {
   const { file_type, id, version_number } = responseMessage;
 
-  const { getFileLink } = useGetFileLink();
+  const href: ILinkProps<TRouter, TOptions, TFrom> = useMemo(() => {
+    if (!chatId)
+      return {
+        to: '/app/home',
+      } as ILinkProps<TRouter, TOptions, TFrom>;
 
-  const href = useMemo(() => {
-    if (!chatId) return '';
-
-    if (isSelectedFile) {
-      return createBusterRoute({
-        route: BusterRoutes.APP_CHAT_ID,
-        chatId
-      });
+    if (isSelectedFile || file_type === 'reasoning') {
+      return {
+        to: '/app/chats/$chatId',
+        params: {
+          chatId,
+        },
+      } as ILinkProps<TRouter, TOptions, TFrom>;
     }
 
-    const link = getFileLink({
-      fileId: id,
-      fileType: file_type,
+    const link = assetParamsToRoute({
+      assetId: id,
+      assetType: file_type,
       chatId,
       versionNumber: version_number,
-      useVersionHistoryMode: false
-    });
+    }) as ILinkProps<TRouter, TOptions, TFrom>;
 
-    return link || '';
+    return link;
   }, [chatId, file_type, id, version_number, isSelectedFile]);
 
   return href;

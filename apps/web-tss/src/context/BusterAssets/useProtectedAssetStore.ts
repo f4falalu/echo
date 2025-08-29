@@ -1,10 +1,11 @@
+import type { ResponseMessageFileType } from '@buster/server-shared/chats';
 import type { ShareAssetType } from '@buster/server-shared/share';
 import { Store, useStore } from '@tanstack/react-store';
 import { useCallback } from 'react';
 
 type ProtectedAsset = {
   password: string | undefined;
-  type: ShareAssetType | undefined;
+  type: ShareAssetType | ResponseMessageFileType | undefined;
   error: string | null;
 };
 
@@ -25,7 +26,7 @@ export const setProtectedAssetPassword = ({
 }: {
   assetId: string;
   password: string;
-  type: ShareAssetType;
+  type: ShareAssetType | ResponseMessageFileType;
 }) => {
   protectedAssetsStore.setState((prev) =>
     new Map(prev).set(assetId, { password, type, error: null })

@@ -1,13 +1,15 @@
 import type { AssetType } from '@buster/server-shared/assets';
+import type { ResponseMessageFileType } from '@buster/server-shared/chats';
 
 export const getAssetIdAndVersionNumber = (
-  assetType: AssetType,
+  assetType: AssetType | ResponseMessageFileType,
   params: {
     chatId?: string;
     dashboardId?: string;
     metricId?: string;
     reportId?: string;
     collectionId?: string;
+    messageId?: string;
   },
   search: {
     metric_version_number?: number;
@@ -29,6 +31,9 @@ export const getAssetIdAndVersionNumber = (
   }
   if (assetType === 'collection') {
     return { assetId: params.collectionId ?? '', versionNumber: undefined };
+  }
+  if (assetType === 'reasoning') {
+    return { assetId: params.messageId ?? '', versionNumber: undefined };
   }
   const _exhaustiveCheck: never = assetType;
   return { assetId: '', versionNumber: undefined };

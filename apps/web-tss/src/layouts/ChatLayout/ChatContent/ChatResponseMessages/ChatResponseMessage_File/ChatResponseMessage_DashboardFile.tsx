@@ -1,28 +1,30 @@
-import type { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat/chatMessageInterfaces';
-import { useGetDashboard, usePrefetchGetDashboardClient } from '@/api/buster_rest/dashboards';
+import { type ChartType, DEFAULT_CHART_CONFIG } from '@buster/server-shared/metrics';
+import { Link, type LinkProps, type RegisteredRouter } from '@tanstack/react-router';
+import { AnimatePresence, type MotionProps, motion } from 'framer-motion';
 import React, { useMemo } from 'react';
-import { AnimatePresence, motion, type MotionProps } from 'framer-motion';
-import { BusterDashboardResponse } from '@/api/asset_interfaces/dashboard';
-import { CircleSpinnerLoader } from '@/components/ui/loaders/CircleSpinnerLoader';
-import { CircleXmark } from '@/components/ui/icons';
-import { ASSET_ICONS } from '@/components/features/config/assetIcons';
-import { AppTooltip } from '@/components/ui/tooltip';
-import { useChatLayoutContextSelector } from '@/layouts/ChatLayout/ChatLayoutContext';
-import { ChartType, DEFAULT_CHART_CONFIG } from '@buster/server-shared/metrics';
-import { useGetMetricMemoized } from '@/context/Metrics';
-import { BusterRoutes, createBusterRoute } from '@/routes';
-import { getSelectedChartTypeConfig } from '@/lib/metrics/selectedChartType';
-import { Text } from '@/components/ui/typography';
-import Link from 'next/link';
+import type { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat/chatMessageInterfaces';
+import type { BusterDashboardResponse } from '@/api/asset_interfaces/dashboard';
+import { useGetDashboard, usePrefetchGetDashboardClient } from '@/api/buster_rest/dashboards';
+import { useGetMetricMemoized } from '@/api/buster_rest/metrics/metricQueryHelpers';
+import { ASSET_ICONS } from '@/components/features/icons/assetIcons';
+import { Button } from '@/components/ui/buttons';
 import { CollapisbleFileCard } from '@/components/ui/card/CollapisbleFileCard';
+import { CircleXmark } from '@/components/ui/icons';
+import { CircleSpinnerLoader } from '@/components/ui/loaders/CircleSpinnerLoader';
+import { AppTooltip } from '@/components/ui/tooltip';
+import { Text } from '@/components/ui/typography';
 import { ShimmerText } from '@/components/ui/typography/ShimmerText';
 import { TextAndVersionText } from '@/components/ui/typography/TextAndVersionText';
-import { Button } from '@/components/ui/buttons';
+import { useGetDashboardParams } from '@/context/Dashboards/useGetDashboardParams';
+import { useGetMetricParams } from '@/context/Metrics/useGetMetricParams';
+import { getSelectedChartTypeConfig } from '@/lib/metrics/selectedChartType';
+import type { ILinkProps } from '@/types/routes';
+import { defineLink } from '../../../../../lib/routes';
 
 const itemAnimationConfig: MotionProps = {
   initial: { opacity: 0 },
   animate: { opacity: 1 },
-  transition: { duration: 0.7 }
+  transition: { duration: 0.7 },
 };
 
 export const ChatResponseMessage_DashboardFile: React.FC<{
@@ -30,17 +32,17 @@ export const ChatResponseMessage_DashboardFile: React.FC<{
   responseMessage: BusterChatResponseMessage_file;
   isSelectedFile: boolean;
   chatId: string;
-  href: string;
-}> = React.memo(({ isStreamFinished, responseMessage, isSelectedFile, chatId, href }) => {
+  linkParams: ILinkProps;
+}> = React.memo(({ isStreamFinished, responseMessage, isSelectedFile, chatId, linkParams }) => {
   const { version_number, id, file_name } = responseMessage;
-  const metricId = useChatLayoutContextSelector((x) => x.metricId);
-  const dashboardId = useChatLayoutContextSelector((x) => x.dashboardId);
+  const { metricId } = useGetMetricParams();
+  const { dashboardId } = useGetDashboardParams();
   const prefetchGetDashboard = usePrefetchGetDashboardClient();
   const {
     data: dashboardResponse,
     isError,
     isFetched: isFetchedDashboard,
-    isLoading
+    isLoading,
   } = useGetDashboard(
     { id, versionNumber: version_number },
     { select: ({ dashboard, metrics }) => ({ dashboard, metrics }) }
@@ -53,14 +55,15 @@ export const ChatResponseMessage_DashboardFile: React.FC<{
       return React.Fragment;
     }
 
+    // biome-ignore lint/correctness/noNestedComponentDefinitions: just easier
     const Component = ({ children }: { children: React.ReactNode }) => (
-      <Link href={href} passHref prefetch>
+      <Link {...linkParams} preload="viewport">
         {children}
       </Link>
     );
     Component.displayName = 'HeaderWrapper';
     return Component;
-  }, [href, metricId]);
+  }, [linkParams, metricId]);
 
   const FileInfo = useMemo(() => {
     if (metricId) {
@@ -84,14 +87,16 @@ export const ChatResponseMessage_DashboardFile: React.FC<{
         {...itemAnimationConfig}
         onMouseEnter={() => {
           prefetchGetDashboard(id, version_number);
-        }}>
+        }}
+      >
         <CollapisbleFileCard
           collapseContent={true}
           collapsible={hasMetrics ? 'chevron' : false}
           selected={isSelectedFile}
           collapseDefaultIcon={<HeaderIcon isLoading={isLoading} isError={isError} />}
           fileName={FileInfo}
-          headerWrapper={HeaderWrapper}>
+          headerWrapper={HeaderWrapper}
+        >
           {!hasMetrics ? null : dashboardResponse ? (
             <Content
               dashboardResponse={dashboardResponse}
@@ -132,30 +137,44 @@ const HeaderIcon: React.FC<{
 
 HeaderIcon.displayName = 'HeaderIcon';
 
-const Content: React.FC<{
+const Content = <
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = Record<string, unknown>,
+  TFrom extends string = string,
+>({
+  dashboardResponse,
+  chatId,
+  metricId,
+  isFetched,
+  dashboardId,
+}: {
   dashboardResponse: Pick<BusterDashboardResponse, 'dashboard' | 'metrics'>;
   isFetched: boolean;
   metricId: string | undefined;
   dashboardId: string | undefined;
   chatId: string;
-}> = React.memo(({ dashboardResponse, chatId, metricId, isFetched, dashboardId }) => {
+}) => {
   const getMetricMemoized = useGetMetricMemoized();
-  type RowItem = {
+
+  type RowItem<
+    TRouter extends RegisteredRouter = RegisteredRouter,
+    TOptions = Record<string, unknown>,
+    TFrom extends string = string,
+  > = {
     id: string;
     name: string;
     chartType: ChartType;
-    link: string;
+    linkParams: ILinkProps<TRouter, TOptions, TFrom>;
     isSelectedMetric: boolean;
     icon: React.ReactNode;
     iconTooltip: string;
   };
 
-  const items: RowItem[] = useMemo(() => {
+  const items: RowItem<TRouter, TOptions, TFrom>[] = useMemo(() => {
     const rows = dashboardResponse.dashboard.config.rows || [];
-    return rows.reduce<RowItem[]>((acc, row) => {
-      return [
-        ...acc,
-        ...row.items.map((item) => {
+    return rows.reduce<RowItem<TRouter, TOptions, TFrom>[]>((acc, row) => {
+      return acc.concat(
+        row.items.map((item) => {
           const metricFromDashboardResponse = dashboardResponse.metrics[item.id];
           const metric =
             getMetricMemoized(item.id, metricFromDashboardResponse?.version_number) ||
@@ -167,27 +186,28 @@ const Content: React.FC<{
             lineGroupType: metric.chart_config?.lineGroupType,
             barGroupType: metric.chart_config?.barGroupType,
             barLayout: metric.chart_config?.barLayout,
-            hasAreaStyle: false
+            hasAreaStyle: false,
           });
 
           return {
             id: item.id,
             name: metric.file_name || 'Untitled',
             chartType,
-            link: createBusterRoute({
-              route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_CHART,
-              chatId,
-              dashboardId: dashboardResponse.dashboard.id,
-              dashboardVersionNumber: dashboardResponse.dashboard.version_number,
-              metricId: metric.id
-            }),
+            linkParams: {
+              to: '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/chart',
+              params: {
+                chatId,
+                metricId: metric.id,
+                dashboardId: dashboardResponse.dashboard.id,
+              },
+            } as ILinkProps<TRouter, TOptions, TFrom>,
             isSelectedMetric:
               metric.id === metricId && dashboardResponse.dashboard.id === dashboardId,
             icon: selectedChartIconConfig?.icon ? <selectedChartIconConfig.icon /> : null,
-            iconTooltip: selectedChartIconConfig?.tooltipText || ''
-          };
+            iconTooltip: selectedChartIconConfig?.tooltipText || '',
+          } satisfies RowItem<TRouter, TOptions, TFrom>;
         })
-      ];
+      );
     }, []);
   }, [
     dashboardResponse.dashboard,
@@ -195,7 +215,7 @@ const Content: React.FC<{
     isFetched,
     metricId,
     chatId,
-    getMetricMemoized
+    getMetricMemoized,
   ]);
 
   return (
@@ -204,17 +224,20 @@ const Content: React.FC<{
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
-      }}>
+      }}
+    >
       {items.map((item) => (
         <div
           className="flex items-center justify-between space-x-2.5 overflow-hidden"
-          key={item.id}>
-          <Link href={item.link} passHref prefetch className="truncate">
+          key={item.id}
+        >
+          <Link {...item.linkParams} className="truncate">
             <Text
               truncate
               size={'sm'}
               className="cursor-pointer hover:underline"
-              variant={item.isSelectedMetric ? 'default' : 'secondary'}>
+              variant={item.isSelectedMetric ? 'default' : 'secondary'}
+            >
               {item.name}
             </Text>
           </Link>
@@ -226,7 +249,7 @@ const Content: React.FC<{
       ))}
     </div>
   );
-});
+};
 
 Content.displayName = 'Content';
 
@@ -242,12 +265,15 @@ const SelectDashboardButtonAndText: React.FC<{
         {fileName}
       </Text>
       <Link
-        href={createBusterRoute({
-          route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID,
+        to="/app/chats/$chatId/dashboards/$dashboardId"
+        params={{
           chatId,
           dashboardId,
-          dashboardVersionNumber: versionNumber
-        })}>
+        }}
+        search={{
+          dashboard_version_number: versionNumber,
+        }}
+      >
         <Button size={'small'} variant={'default'} className="min-w-fit">
           View dashboard
         </Button>

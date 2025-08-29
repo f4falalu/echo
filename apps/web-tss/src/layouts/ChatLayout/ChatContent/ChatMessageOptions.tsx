@@ -1,44 +1,44 @@
+import { useNavigate } from '@tanstack/react-router';
 import React, { useMemo } from 'react';
 import {
   useDuplicateChat,
   useGetChatMessage,
-  useUpdateChatMessageFeedback
+  useUpdateChatMessageFeedback,
 } from '@/api/buster_rest/chats';
+import { MessageAssumptions } from '@/components/features/sheets/MessageAssumptions';
 import { Button } from '@/components/ui/buttons';
 import { DuplicatePlus, ThumbsDown } from '@/components/ui/icons';
 import { ThumbsDown as ThumbsDownFilled } from '@/components/ui/icons/NucleoIconFilled';
 import { AppTooltip } from '@/components/ui/tooltip';
-import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useMemoizedFn } from '@/hooks';
-import { formatDate, timeout } from '@/lib';
-import { BusterRoutes } from '@/routes';
 import { Text } from '@/components/ui/typography';
-import { MessageAssumptions } from '@/components/features/sheets/MessageAssumptions';
+import { useBusterNotifications } from '@/context/BusterNotifications';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { formatDate } from '@/lib/date';
+import { timeout } from '@/lib/timeout';
 
 export const ChatMessageOptions: React.FC<{
   messageId: string;
   chatId: string;
 }> = React.memo(({ messageId, chatId }) => {
-  const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
+  const navigate = useNavigate();
   const { openConfirmModal } = useBusterNotifications();
   const { mutateAsync: duplicateChat, isPending: isCopying } = useDuplicateChat();
   const { mutateAsync: updateChatMessageFeedback } = useUpdateChatMessageFeedback();
   const { data: feedback } = useGetChatMessage(messageId, {
-    select: ({ feedback }) => feedback
+    select: ({ feedback }) => feedback,
   });
   const { data: updatedAt } = useGetChatMessage(messageId, {
-    select: ({ updated_at }) => updated_at
+    select: ({ updated_at }) => updated_at,
   });
   const { data: postProcessingMessage } = useGetChatMessage(messageId, {
-    select: ({ post_processing_message }) => post_processing_message
+    select: ({ post_processing_message }) => post_processing_message,
   });
 
   const updatedAtFormatted = useMemo(() => {
     if (!updatedAt) return '';
     return formatDate({
       date: updatedAt,
-      format: 'lll'
+      format: 'lll',
     });
   }, [updatedAt]);
 
@@ -50,14 +50,16 @@ export const ChatMessageOptions: React.FC<{
       onOk: async () => {
         const res = await duplicateChat({
           id: chatId,
-          message_id: messageId
+          message_id: messageId,
         });
         await timeout(100);
-        await onChangePage({
-          route: BusterRoutes.APP_CHAT_ID,
-          chatId: res.id
+        await navigate({
+          to: '/app/chats/$chatId',
+          params: {
+            chatId: res.id,
+          },
         });
-      }
+      },
     });
   });
 
@@ -78,7 +80,7 @@ export const ChatMessageOptions: React.FC<{
           onClick={() =>
             updateChatMessageFeedback({
               message_id: messageId,
-              feedback: feedback === 'negative' ? null : 'negative'
+              feedback: feedback === 'negative' ? null : 'negative',
             })
           }
         />
@@ -93,7 +95,8 @@ export const ChatMessageOptions: React.FC<{
       <Text
         className="ml-auto opacity-0 transition-opacity duration-200 group-hover:opacity-100"
         variant={'tertiary'}
-        size={'sm'}>
+        size={'sm'}
+      >
         {updatedAtFormatted}
       </Text>
     </div>

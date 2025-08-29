@@ -1,6 +1,7 @@
 'use client';
 
 import type { AssetType } from '@buster/server-shared/assets';
+import type { ResponseMessageFileType } from '@buster/server-shared/chats';
 import { Link, type LinkProps } from '@tanstack/react-router';
 import React, { useMemo } from 'react';
 import { BusterLogo } from '@/assets/svg/BusterLogo';
@@ -10,7 +11,7 @@ import { useIsAnonymousSupabaseUser } from '@/context/Supabase';
 
 export const AppNoPageAccess: React.FC<{
   assetId: string;
-  type: AssetType;
+  type: AssetType | ResponseMessageFileType;
 }> = React.memo(({ type }) => {
   const isAnonymousUser = useIsAnonymousSupabaseUser();
 
