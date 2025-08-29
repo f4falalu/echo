@@ -1,4 +1,4 @@
-import { Link, useLocation, useMatch, useNavigate, useRouter } from '@tanstack/react-router';
+import { Link } from '@tanstack/react-router';
 import React from 'react';
 import { useGetMetric } from '@/api/buster_rest/metrics';
 import { CreateChatButton } from '@/components/features/AssetLayout/CreateChatButton';
@@ -7,13 +7,13 @@ import { SaveMetricToDashboardButton } from '@/components/features/buttons/SaveM
 import { ShareMetricButton } from '@/components/features/buttons/ShareMetricButton';
 import { ThreeDotMenuButton } from '@/components/features/metrics/MetricThreeDotMenu';
 import { SquareChartPen, Xmark } from '@/components/ui/icons';
-import { useAppSplitterAnimateWidth } from '@/components/ui/layouts/AppSplitter/AppSplitterProvider';
 import { useIsChatMode, useIsFileMode } from '@/context/Chats/useMode';
 import { useIsMetricReadOnly } from '@/context/Metrics/useIsMetricReadOnly';
 import { canEdit, getIsEffectiveOwner } from '@/lib/share';
 import { FileButtonContainer } from '../FileButtonContainer';
 import { HideButtonContainer } from '../HideButtonContainer';
 import { SelectableButton } from '../SelectableButton';
+import { useIsMetricEditMode, useMetricEditToggle } from './MetricContextProvider';
 
 export const MetricContainerHeaderButtons: React.FC<{
   metricId: string;
@@ -55,17 +55,8 @@ export const MetricContainerHeaderButtons: React.FC<{
 MetricContainerHeaderButtons.displayName = 'MetricContainerHeaderButtons';
 
 const EditChartButton = React.memo(({ metricId }: { metricId: string }) => {
-  const location = useLocation();
-  const isChartEditMode = location.pathname.includes('/chart/edit');
-  const animateWidth = useAppSplitterAnimateWidth();
-
-  const handleClick = async () => {
-    if (isChartEditMode) {
-      await animateWidth('0px', 'right', 300);
-    } else {
-      await animateWidth('230px', 'right', 300);
-    }
-  };
+  const isChartEditMode = useIsMetricEditMode();
+  const toggleEditMode = useMetricEditToggle();
 
   return (
     <Link
@@ -81,7 +72,7 @@ const EditChartButton = React.memo(({ metricId }: { metricId: string }) => {
       }
       params={{ metricId }}
       data-testid="edit-chart-button"
-      onClick={handleClick}
+      onClick={() => toggleEditMode()}
     >
       <SelectableButton
         tooltipText="Edit chart"

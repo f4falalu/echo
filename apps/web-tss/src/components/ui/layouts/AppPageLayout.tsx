@@ -3,6 +3,19 @@ import { cn } from '@/lib/utils';
 import { AppPageLayoutContent } from './AppPageLayoutContent';
 import { AppPageLayoutHeader } from './AppPageLayoutHeader';
 
+export type AppPageLayoutProps = {
+  header?: React.ReactNode;
+  secondaryHeader?: React.ReactNode;
+  scrollable?: boolean;
+  className?: string;
+  headerSizeVariant?: 'default' | 'list';
+  headerBorderVariant?: 'default' | 'ghost';
+  headerClassName?: string;
+  mainClassName?: string;
+  contentContainerId?: string;
+  id?: string;
+};
+
 /**
  * @param header - Header content at the top of the page
  * @param floating - Applies floating styles (default: true)
@@ -11,20 +24,7 @@ import { AppPageLayoutHeader } from './AppPageLayoutHeader';
  * @param children - Page content
  * @internal
  */
-export const AppPageLayout: React.FC<
-  React.PropsWithChildren<{
-    header?: React.ReactNode;
-    secondaryHeader?: React.ReactNode;
-    scrollable?: boolean;
-    className?: string;
-    headerSizeVariant?: 'default' | 'list';
-    headerBorderVariant?: 'default' | 'ghost';
-    headerClassName?: string;
-    mainClassName?: string;
-    contentContainerId?: string;
-    id?: string;
-  }>
-> = ({
+export const AppPageLayout: React.FC<React.PropsWithChildren<AppPageLayoutProps>> = ({
   children,
   header,
   id,
@@ -37,6 +37,8 @@ export const AppPageLayout: React.FC<
   mainClassName = '',
   contentContainerId,
 }) => {
+  const isGhostBorder = headerBorderVariant === 'ghost';
+
   return (
     <div
       id={id}
@@ -47,32 +49,26 @@ export const AppPageLayout: React.FC<
       )}
     >
       {header && (
-        <AppPageLayoutHeader
-          className={cn(headerBorderVariant === 'ghost' && '-mt-[0.5px]', headerClassName)}
-          sizeVariant={headerSizeVariant}
-        >
+        <AppPageLayoutHeader className={headerClassName} sizeVariant={headerSizeVariant}>
           {header}
         </AppPageLayoutHeader>
       )}
 
       {secondaryHeader && (
-        <AppPageLayoutHeader
-          className={cn(headerBorderVariant === 'ghost' && '-mt-[0.5px]', headerClassName)}
-          sizeVariant={headerSizeVariant}
-        >
+        <AppPageLayoutHeader className={headerClassName} sizeVariant={headerSizeVariant}>
           {secondaryHeader}
         </AppPageLayoutHeader>
       )}
 
       <AppPageLayoutContent
-        className={cn(headerBorderVariant === 'ghost' && 'scroll-shadow-container', mainClassName)}
+        className={cn(isGhostBorder && 'scroll-shadow-container', mainClassName)}
         scrollable={scrollable}
         id={contentContainerId}
       >
         <div
           className={cn(
-            'pointer-events-none top-[0px] scroll-header z-10 right-0 left-0 h-[0.5px] w-full sticky bg-border',
-            !scrollable && headerBorderVariant === 'ghost' && '!bg-transparent'
+            'pointer-events-none scroll-header-border top-[0px] scroll-header z-10 right-0 left-0 h-[0.5px] w-full sticky bg-border transition-colors duration-300',
+            !scrollable && isGhostBorder && 'bg-transparent'
           )}
         />
 

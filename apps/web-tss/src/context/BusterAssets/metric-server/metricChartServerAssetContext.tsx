@@ -1,7 +1,10 @@
 import { ClientOnly, Outlet } from '@tanstack/react-router';
-import { useState } from 'react';
 import { AppSplitter, type LayoutSize } from '@/components/ui/layouts/AppSplitter';
 import { MetricViewChart } from '@/controllers/MetricController/MetricViewChart';
+import {
+  useIsMetricEditMode,
+  useMetricEditSplitter,
+} from '@/layouts/AssetContainer/MetricAssetContainer/MetricContextProvider';
 import { useGetMetricParams } from './useGetMetricParams';
 
 const defaultLayoutClosed: LayoutSize = ['auto', '0px'];
@@ -10,13 +13,15 @@ const defaultLayoutOpen: LayoutSize = ['auto', '300px'];
 export const component = () => {
   const { metricId, metric_version_number } = useGetMetricParams();
   const autoSaveId = `metric-chart-layout-${metricId}`;
-  const [openEditor, setOpenEditor] = useState(true);
+  const isMetricEditMode = useIsMetricEditMode();
+  const splitterRef = useMetricEditSplitter();
 
-  const defaultLayout = openEditor ? defaultLayoutOpen : defaultLayoutClosed;
+  const defaultLayout = isMetricEditMode ? defaultLayoutOpen : defaultLayoutClosed;
 
   return (
     <ClientOnly>
       <AppSplitter
+        ref={splitterRef}
         autoSaveId={autoSaveId}
         defaultLayout={defaultLayout}
         initialLayout={defaultLayout}

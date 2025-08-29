@@ -1,16 +1,17 @@
 import type React from 'react';
 
-import { AppPageLayout } from '@/components/ui/layouts/AppPageLayout';
+import { AppPageLayout, type AppPageLayoutProps } from '@/components/ui/layouts/AppPageLayout';
 
 export const AssetContainer: React.FC<{
   children: React.ReactNode;
   header?: React.ReactNode;
   scrollable?: boolean;
-}> = ({ children, header, scrollable = false }) => {
+  headerBorderVariant?: AppPageLayoutProps['headerBorderVariant'];
+}> = ({ children, header, scrollable = false, headerBorderVariant = 'ghost' }) => {
   return (
     <AppPageLayout
       header={header}
-      headerBorderVariant="ghost"
+      headerBorderVariant={headerBorderVariant}
       headerSizeVariant="default"
       scrollable={scrollable}
     >

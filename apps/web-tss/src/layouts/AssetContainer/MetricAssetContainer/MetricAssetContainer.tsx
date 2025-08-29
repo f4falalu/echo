@@ -1,6 +1,7 @@
 import { ClientOnly } from '@tanstack/react-router';
 import { AssetContainer } from '../AssetContainer';
 import { MetricContainerHeaderSegment } from './MetricContainerHeaderSegment';
+import { MetricAssetContextProvider } from './MetricContextProvider';
 import { MetricContainerHeaderButtons } from './MetricHeaderButtons';
 
 export const MetricAssetContainer: React.FC<{
@@ -9,13 +10,23 @@ export const MetricAssetContainer: React.FC<{
   metric_version_number: number | undefined;
 }> = ({ children, metricId, metric_version_number }) => {
   return (
-    <AssetContainer
-      header={
-        <MetricAssetHeader metricId={metricId} metric_version_number={metric_version_number} />
-      }
-    >
-      {children}
-    </AssetContainer>
+    <MetricAssetContextProvider>
+      {({ isMetricEditMode }) => {
+        return (
+          <AssetContainer
+            headerBorderVariant={isMetricEditMode ? 'default' : 'ghost'}
+            header={
+              <MetricAssetHeader
+                metricId={metricId}
+                metric_version_number={metric_version_number}
+              />
+            }
+          >
+            {children}
+          </AssetContainer>
+        );
+      }}
+    </MetricAssetContextProvider>
   );
 };
 
