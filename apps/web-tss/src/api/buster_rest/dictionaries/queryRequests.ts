@@ -1,10 +1,10 @@
 import { QueryClient, useQuery } from '@tanstack/react-query';
 import { dictionariesQueryKeys } from '@/api/query_keys/dictionaries';
-import { useSupabaseContext } from '@/context/Supabase';
+import { useIsAnonymousSupabaseUser } from '@/context/Supabase';
 import { getColorPalettes, getCurrencies } from './requests';
 
 export const useColorDictionaryThemes = () => {
-  const isAnonymousUser = useSupabaseContext((x) => x.isAnonymousUser);
+  const isAnonymousUser = useIsAnonymousSupabaseUser();
 
   return useQuery({
     ...dictionariesQueryKeys.colorPalettes,

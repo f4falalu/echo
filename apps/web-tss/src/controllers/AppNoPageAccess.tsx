@@ -6,13 +6,13 @@ import React, { useMemo } from 'react';
 import { BusterLogo } from '@/assets/svg/BusterLogo';
 import { Button } from '@/components/ui/buttons';
 import { Title } from '@/components/ui/typography';
-import { useSupabaseContext } from '@/context/Supabase';
+import { useIsAnonymousSupabaseUser } from '@/context/Supabase';
 
 export const AppNoPageAccess: React.FC<{
   assetId: string;
   type: AssetType;
 }> = React.memo(({ type }) => {
-  const isAnonymousUser = useSupabaseContext((x) => x.isAnonymousUser);
+  const isAnonymousUser = useIsAnonymousSupabaseUser();
 
   const { buttonText, link } = useMemo(() => {
     console.warn('fix pathname');

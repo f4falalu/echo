@@ -1,13 +1,8 @@
 import type { UserResponse } from '@buster/server-shared/user';
 import { useQuery } from '@tanstack/react-query';
-import { useCallback } from 'react';
 import { userQueryKeys } from '@/api/query_keys/users';
-import {
-  type SupabaseContextReturnType,
-  useSupabaseContext,
-} from '@/context/Supabase/SupabaseContextProvider';
+import { useIsAnonymousSupabaseUser } from '@/context/Supabase';
 import { checkIfUserIsAdmin } from '@/lib/user';
-import { getBrowserClient } from '../../../integrations/supabase/client';
 
 const stableSelectUserOrganization = (data: UserResponse | null) => {
   const firstOrganization = data?.organizations?.[0];
@@ -63,7 +58,7 @@ export const useGetUserBasicInfo = () => {
 };
 
 export const useIsAnonymousUser = () => {
-  const isAnonymousUser = useSupabaseContext(useCallback((state) => state.isAnonymousUser, []));
+  const isAnonymousUser = useIsAnonymousSupabaseUser();
   return isAnonymousUser;
 };
 

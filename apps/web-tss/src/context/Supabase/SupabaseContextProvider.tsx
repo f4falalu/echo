@@ -62,7 +62,7 @@ const useSupabaseContextInternal = ({
   };
 };
 
-const SupabaseContext = createContext<ReturnType<typeof useSupabaseContextInternal>>({
+export const SupabaseContext = createContext<ReturnType<typeof useSupabaseContextInternal>>({
   isAnonymousUser: true,
 } as ReturnType<typeof useSupabaseContextInternal>);
 
@@ -76,7 +76,3 @@ export const SupabaseContextProvider: React.FC<
 SupabaseContextProvider.displayName = 'SupabaseContextProvider';
 
 export type SupabaseContextReturnType = ReturnType<typeof useSupabaseContextInternal>;
-
-export const useSupabaseContext = <T,>(selector: (state: SupabaseContextReturnType) => T) => {
-  return useContextSelector(SupabaseContext, selector);
-};

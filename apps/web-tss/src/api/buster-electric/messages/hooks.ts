@@ -4,13 +4,14 @@ import isEmpty from 'lodash/isEmpty';
 import uniq from 'lodash/uniq';
 import { useMemo, useRef } from 'react';
 import { useGetChatMemoized, useGetChatMessageMemoized } from '@/api/buster_rest/chats';
-import { useChatUpdate } from '@/api/buster_rest/chats/useChatUpdate';
 import { reportsQueryKeys } from '@/api/query_keys/reports';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import type { BusterChatMessage } from '../../asset_interfaces/chat';
+import { useChatUpdate } from '../../buster_rest/chats/useChatUpdate';
 import { chatQueryKeys } from '../../query_keys/chat';
 import { dashboardQueryKeys } from '../../query_keys/dashboard';
 import { metricsQueryKeys } from '../../query_keys/metric';
+import { DEFAULT_UPDATE_OPERATIONS } from '../config';
 import { useShape, useShapeStream } from '../instances';
 import { updateMessageShapeToIChatMessage } from './helpers';
 import { messageShape, messagesShape } from './shapes';
@@ -25,7 +26,6 @@ export const useGetMessages = ({ chatId }: { chatId: string }) => {
   return useShape(shape);
 };
 
-const updateOperations: Array<'insert' | 'update' | 'delete'> = ['update'];
 const insertOperations: Array<'insert' | 'update' | 'delete'> = ['insert'];
 
 export const useTrackAndUpdateMessageChanges = (
@@ -53,7 +53,7 @@ export const useTrackAndUpdateMessageChanges = (
 
   return useShapeStream(
     shape,
-    updateOperations,
+    DEFAULT_UPDATE_OPERATIONS,
     (message) => {
       if (message?.value && chatId) {
         const iChatMessage = updateMessageShapeToIChatMessage(message.value);
@@ -162,7 +162,7 @@ export const useTrackAndUpdateNewMessages = ({ chatId }: { chatId: string | unde
   return useShapeStream(
     shape,
     insertOperations,
-    useMemoizedFn((message) => {
+    (message) => {
       if (message?.value && chatId) {
         const messageId = message.value.id;
         const chat = getChatMemoized(chatId);
@@ -187,7 +187,7 @@ export const useTrackAndUpdateNewMessages = ({ chatId }: { chatId: string | unde
           }
         }
       }
-    }),
+    },
     subscribe
   );
 };

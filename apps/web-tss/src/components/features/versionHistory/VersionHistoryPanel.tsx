@@ -26,6 +26,8 @@ export const VersionHistoryPanel = React.memo(
     //   assetId,
     //   type,
     // });
+    type;
+    assetId;
 
     const bodyRef = useRef<HTMLDivElement>(null);
 

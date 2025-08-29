@@ -6,8 +6,8 @@ import {
   type Row,
 } from '@electric-sql/client';
 import { getShapeStream, useShape as useElectricShape } from '@electric-sql/react';
-import { useEffect, useMemo, useRef } from 'react';
-import { useSupabaseContext } from '@/context/Supabase';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useGetSupabaseAccessToken } from '@/context/Supabase';
 import { ELECTRIC_BASE_URL } from './config';
 
 export type ElectricShapeOptions<T extends Row<unknown> = Row<unknown>> = Omit<
@@ -18,7 +18,7 @@ export type ElectricShapeOptions<T extends Row<unknown> = Row<unknown>> = Omit<
 export const useShape = <T extends Row<unknown> = Row<unknown>>(
   params: ElectricShapeOptions<T>
 ): ReturnType<typeof useElectricShape<T>> => {
-  const accessToken = useSupabaseContext((state) => state.accessToken);
+  const accessToken = useGetSupabaseAccessToken();
 
   const shapeStream: Parameters<typeof useElectricShape<T>>[0] = useMemo(() => {
     return createElectricShape(params, accessToken);
@@ -56,11 +56,11 @@ export const useShapeStream = <T extends Row<unknown> = Row<unknown>>(
   subscribe: boolean = true,
   shouldUnsubscribe?: (d: { operationType: string; message: ChangeMessage<T> }) => boolean
 ) => {
-  const accessToken = useSupabaseContext((s) => s.accessToken);
+  const accessToken = useGetSupabaseAccessToken();
   const memoParams = useMemo(() => params, [JSON.stringify(params)]);
   const abortRef = useRef<AbortController>(null);
 
-  const createStream = () => {
+  const createStream = useCallback(() => {
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -72,7 +72,7 @@ export const useShapeStream = <T extends Row<unknown> = Row<unknown>>(
       ...opts,
       signal: controller.signal,
     });
-  };
+  }, [accessToken, memoParams]);
 
   useEffect(() => {
     if (!subscribe) {
@@ -117,7 +117,5 @@ export const useShapeStream = <T extends Row<unknown> = Row<unknown>>(
     accessToken,
     subscribe,
     operations.join(','), // primitive dep
-    onUpdate,
-    shouldUnsubscribe,
   ]);
 };
