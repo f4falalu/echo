@@ -409,6 +409,8 @@ export const useUpdateMetric = (params: {
 
     if (prevMetric && newMetric) {
       queryClient.setQueryData(options.queryKey, newMetric);
+    } else {
+      console.warn('No previous metric found', { prevMetric, newMetric });
     }
 
     return { newMetric, prevMetric };

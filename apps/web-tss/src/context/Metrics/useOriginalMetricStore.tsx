@@ -1,7 +1,7 @@
 import { Store, useStore } from '@tanstack/react-store';
 import type { BusterMetric } from '@/api/asset_interfaces/metric';
 
-const originalMetricStore = new Store(new Map<string, BusterMetric>());
+export const originalMetricStore = new Store(new Map<string, BusterMetric>());
 
 export const setOriginalMetric = (metric: BusterMetric) => {
   originalMetricStore.setState((prev) => new Map(prev).set(metric.id, metric));
@@ -17,10 +17,6 @@ export const removeOriginalMetric = (metricId: string) => {
     newState.delete(metricId);
     return newState;
   });
-};
-
-const useOriginalMetricStore = () => {
-  return useStore(originalMetricStore);
 };
 
 const stableSelectOriginalMetric = (metricId: string | undefined) => {

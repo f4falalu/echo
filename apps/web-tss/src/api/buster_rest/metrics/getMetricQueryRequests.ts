@@ -20,11 +20,42 @@ import { setOriginalMetric } from '@/context/Metrics/useOriginalMetricStore';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { upgradeMetricToIMetric } from '@/lib/metrics';
 import type { RustApiError } from '../../errors';
-import {
-  useGetLatestMetricVersionMemoized,
-  useGetMetricVersionNumber,
-} from './metricVersionNumber';
+import { useGetMetricVersionNumber } from './metricVersionNumber';
 import { downloadMetricFile, getMetric, getMetricData } from './requests';
+
+const getMetricQueryFn = async ({
+  id,
+  version,
+  password,
+  queryClient,
+}: {
+  id: string | undefined;
+  version: number | undefined | 'LATEST';
+  password: string | undefined;
+  queryClient: QueryClient;
+}) => {
+  const chosenVersionNumber: number | undefined = version === 'LATEST' ? undefined : version;
+  const result = await getMetric({
+    id: id || '',
+    password,
+    version_number: chosenVersionNumber,
+  });
+  const updatedMetric = upgradeMetricToIMetric(result, null);
+  const isLatestVersion =
+    updatedMetric.version_number === last(updatedMetric.versions)?.version_number;
+
+  if (isLatestVersion) {
+    setOriginalMetric(updatedMetric);
+  }
+
+  if (result?.version_number) {
+    queryClient.setQueryData(
+      metricsQueryKeys.metricsGetMetric(result.id, result.version_number).queryKey,
+      updatedMetric
+    );
+  }
+  return updatedMetric;
+};
 
 export const useGetMetric = <TData = BusterMetric>(
   {
@@ -42,31 +73,9 @@ export const useGetMetric = <TData = BusterMetric>(
   const { selectedVersionNumber, paramVersionNumber, latestVersionNumber } =
     useGetMetricVersionNumber(id || '', versionNumberProp);
 
-  const initialQueryFn = async (version?: number | 'LATEST') => {
-    const chosenVersionNumber: number | undefined = version === 'LATEST' ? undefined : version;
-    const result = await getMetric({
-      id: id || '',
-      password,
-      version_number: chosenVersionNumber,
-    });
-    const updatedMetric = upgradeMetricToIMetric(result, null);
-    const isLatestVersion =
-      updatedMetric.version_number === last(updatedMetric.versions)?.version_number;
-    if (isLatestVersion) {
-      setOriginalMetric(updatedMetric);
-    }
-    if (result?.version_number) {
-      queryClient.setQueryData(
-        metricsQueryKeys.metricsGetMetric(result.id, result.version_number).queryKey,
-        updatedMetric
-      );
-    }
-    return updatedMetric;
-  };
-
   const { isFetched: isFetchedInitial, isError: isErrorInitial } = useQuery({
     ...metricsQueryKeys.metricsGetMetric(id || '', 'LATEST'),
-    queryFn: () => initialQueryFn(),
+    queryFn: () => getMetricQueryFn({ id, version: 'LATEST', password, queryClient }),
     enabled: false, //In the year of our lord 2025, April 10, I, Nate Kelley, decided to disable this query in favor of explicityly fetching the data. May god have mercy on our souls.
     retry(_failureCount, error) {
       if (error?.message !== undefined && id) {
@@ -84,37 +93,42 @@ export const useGetMetric = <TData = BusterMetric>(
   return useQuery({
     ...metricsQueryKeys.metricsGetMetric(id || '', selectedVersionNumber),
     enabled: !!latestVersionNumber && isFetchedInitial && !isErrorInitial,
-    queryFn: () => initialQueryFn(selectedVersionNumber),
+    queryFn: () => getMetricQueryFn({ id, version: selectedVersionNumber, password, queryClient }),
     select: params?.select,
   });
 };
 
-export const usePrefetchGetMetricClient = <TData = BusterMetric>(
-  params?: Omit<UseQueryOptions<BusterMetric, RustApiError, TData>, 'queryKey' | 'queryFn'>
-) => {
+export const usePrefetchGetMetricClient = () => {
   const queryClient = useQueryClient();
-  const getLatestMetricVersion = useGetLatestMetricVersionMemoized();
-
   return useMemoizedFn(
     async ({ id, versionNumber }: { id: string; versionNumber: number | undefined }) => {
-      const latestVersionNumber = getLatestMetricVersion(id);
-      const options = metricsQueryKeys.metricsGetMetric(
-        id,
-        versionNumber || latestVersionNumber || 'LATEST'
-      );
-      const existingData = queryClient.getQueryData(options.queryKey);
-      if (!existingData) {
-        await queryClient.prefetchQuery({
-          ...options,
-          queryFn: async () => {
-            const result = await getMetric({ id, version_number: versionNumber });
-            return upgradeMetricToIMetric(result, null);
-          },
-          ...params,
-        });
-      }
+      return prefetchGetMetric({ id, version_number: versionNumber }, queryClient);
     }
   );
+};
+
+export const prefetchGetMetric = async (
+  params: Parameters<typeof getMetric>[0],
+  queryClient: QueryClient
+): Promise<BusterMetric | undefined> => {
+  const { id, version_number } = params;
+  const queryKey = metricsQueryKeys.metricsGetMetric(id, version_number || 'LATEST')?.queryKey;
+  const existingData = queryClient.getQueryData(queryKey);
+
+  if (!existingData) {
+    await queryClient.prefetchQuery({
+      ...metricsQueryKeys.metricsGetMetric(id, version_number || 'LATEST'),
+      queryFn: () =>
+        getMetricQueryFn({
+          id,
+          version: params.version_number,
+          password: undefined,
+          queryClient,
+        }),
+    });
+  }
+
+  return existingData || queryClient.getQueryData(queryKey);
 };
 
 export const useGetMetricData = <TData = BusterMetricDataExtended>(

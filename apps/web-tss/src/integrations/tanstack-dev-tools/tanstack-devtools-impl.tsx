@@ -2,7 +2,7 @@ import { TanStackDevtools as TanstackDevtoolsBase } from '@tanstack/react-devtoo
 import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import type React from 'react';
-import StoreDevtools from './demo-store-devtools';
+import StoreDevtools from './metric-store-devtools';
 
 // The actual devtools component implementation
 const TanstackDevtoolsImpl: React.FC = () => {

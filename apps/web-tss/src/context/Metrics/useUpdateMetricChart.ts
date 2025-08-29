@@ -37,22 +37,8 @@ export const useUpdateMetricChart = (props?: { metricId: string; chatId?: string
   const getMetricMemoized = useGetMetricMemoized();
 
   const onUpdateMetricChartConfig = useMemoizedFn(
-    ({
-      chartConfig,
-      ignoreUndoRedo,
-    }: {
-      chartConfig: Partial<ChartConfigProps>;
-      ignoreUndoRedo?: boolean;
-    }) => {
+    ({ chartConfig }: { chartConfig: Partial<ChartConfigProps> }) => {
       const currentMetric = getMetricMemoized(metricId);
-
-      if (!ignoreUndoRedo) {
-        // undoRedoParams.addToUndoStack({
-        //   metricId: editMetric.id,
-        //   messageId: editMessage.id,
-        //   chartConfig: editMessage.chart_config
-        // });
-      }
 
       const newChartConfig: ChartConfigProps = {
         ...DEFAULT_CHART_CONFIG,

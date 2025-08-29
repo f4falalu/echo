@@ -7,10 +7,10 @@ import { useGetLatestMetricVersionMemoized } from './metricVersionNumber';
 
 export const useGetMetricMemoized = () => {
   const queryClient = useQueryClient();
-  const getLatestMetricVersion = useGetLatestMetricVersionMemoized();
+
   const getMetricMemoized = useMemoizedFn(
     (metricId: string, versionNumberProp?: number): BusterMetric => {
-      const versionNumber = versionNumberProp || getLatestMetricVersion(metricId) || 'LATEST';
+      const versionNumber = versionNumberProp || 'LATEST';
       const options = metricsQueryKeys.metricsGetMetric(metricId, versionNumber);
       const data = queryClient.getQueryData(options.queryKey);
       if (!data) {

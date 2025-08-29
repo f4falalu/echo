@@ -10,23 +10,25 @@ export const MetricAssetContainer: React.FC<{
   metric_version_number: number | undefined;
 }> = ({ children, metricId, metric_version_number }) => {
   return (
-    <MetricAssetContextProvider>
-      {({ isMetricEditMode }) => {
-        return (
-          <AssetContainer
-            headerBorderVariant={isMetricEditMode ? 'default' : 'ghost'}
-            header={
-              <MetricAssetHeader
-                metricId={metricId}
-                metric_version_number={metric_version_number}
-              />
-            }
-          >
-            {children}
-          </AssetContainer>
-        );
-      }}
-    </MetricAssetContextProvider>
+    <ClientOnly>
+      <MetricAssetContextProvider>
+        {({ isMetricEditMode }) => {
+          return (
+            <AssetContainer
+              headerBorderVariant={isMetricEditMode ? 'default' : 'ghost'}
+              header={
+                <MetricAssetHeader
+                  metricId={metricId}
+                  metric_version_number={metric_version_number}
+                />
+              }
+            >
+              {children}
+            </AssetContainer>
+          );
+        }}
+      </MetricAssetContextProvider>
+    </ClientOnly>
   );
 };
 
@@ -35,7 +37,7 @@ const MetricAssetHeader: React.FC<{
   metric_version_number: number | undefined;
 }> = ({ metricId, metric_version_number }) => {
   return (
-    <ClientOnly>
+    <>
       <MetricContainerHeaderSegment
         metricId={metricId}
         metric_version_number={metric_version_number}
@@ -45,6 +47,6 @@ const MetricAssetHeader: React.FC<{
         metricId={metricId}
         metricVersionNumber={metric_version_number}
       />
-    </ClientOnly>
+    </>
   );
 };

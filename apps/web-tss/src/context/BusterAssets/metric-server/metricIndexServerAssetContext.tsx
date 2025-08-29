@@ -51,7 +51,9 @@ export const loader = async ({
   params: { metricId: string };
   deps: { metric_version_number?: number };
   context: { queryClient: QueryClient };
-}): Promise<{ title: string | undefined }> => {
+}): Promise<{
+  title: string | undefined;
+}> => {
   const data = await prefetchGetMetric(
     { id: metricId, version_number: metric_version_number },
     queryClient
@@ -72,9 +74,12 @@ export const head = ({ loaderData }: { loaderData?: { title: string | undefined 
 
 export const component = () => {
   const params = useGetMetricParams();
+
   return (
     <MetricAssetContainer {...params}>
       <Outlet />
     </MetricAssetContainer>
   );
 };
+
+export const ssr = false;
