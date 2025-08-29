@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router';
+import { Link, useLocation, useMatch, useNavigate, useRouter } from '@tanstack/react-router';
 import React from 'react';
 import { useGetMetric } from '@/api/buster_rest/metrics';
 import { CreateChatButton } from '@/components/features/AssetLayout/CreateChatButton';
@@ -7,6 +7,7 @@ import { SaveMetricToDashboardButton } from '@/components/features/buttons/SaveM
 import { ShareMetricButton } from '@/components/features/buttons/ShareMetricButton';
 import { ThreeDotMenuButton } from '@/components/features/metrics/MetricThreeDotMenu';
 import { SquareChartPen, Xmark } from '@/components/ui/icons';
+import { useAppSplitterAnimateWidth } from '@/components/ui/layouts/AppSplitter/AppSplitterProvider';
 import { useIsChatMode, useIsFileMode } from '@/context/Chats/useMode';
 import { useIsMetricReadOnly } from '@/context/Metrics/useIsMetricReadOnly';
 import { canEdit, getIsEffectiveOwner } from '@/lib/share';
@@ -46,7 +47,7 @@ export const MetricContainerHeaderButtons: React.FC<{
       <HideButtonContainer show={isFileMode}>
         <CreateChatButton assetId={metricId} assetType="metric" />
       </HideButtonContainer>
-      {isChatMode && <ClosePageButton />}
+      {isChatMode && <ClosePageButton metricId={metricId} />}
     </FileButtonContainer>
   );
 });
@@ -54,22 +55,38 @@ export const MetricContainerHeaderButtons: React.FC<{
 MetricContainerHeaderButtons.displayName = 'MetricContainerHeaderButtons';
 
 const EditChartButton = React.memo(({ metricId }: { metricId: string }) => {
-  const isEditorOpen = true;
+  const location = useLocation();
+  const isChartEditMode = location.pathname.includes('/chart/edit');
+  const animateWidth = useAppSplitterAnimateWidth();
+
+  const handleClick = async () => {
+    if (isChartEditMode) {
+      await animateWidth('0px', 'right', 300);
+    } else {
+      await animateWidth('230px', 'right', 300);
+    }
+  };
 
   return (
     <Link
-      to="/app/metrics/$metricId/chart"
+      to={isChartEditMode ? '/app/metrics/$metricId/chart' : '/app/metrics/$metricId/chart/edit'}
+      mask={
+        isChartEditMode
+          ? {
+              to: '/app/metrics/$metricId/chart',
+              params: { metricId },
+              unmaskOnReload: true,
+            }
+          : undefined
+      }
       params={{ metricId }}
       data-testid="edit-chart-button"
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      }}
+      onClick={handleClick}
     >
       <SelectableButton
         tooltipText="Edit chart"
         icon={<SquareChartPen />}
-        selected={isEditorOpen}
+        selected={isChartEditMode}
       />
     </Link>
   );
@@ -93,7 +110,7 @@ const SaveToDashboardButton = React.memo(({ metricId }: { metricId: string }) =>
 });
 SaveToDashboardButton.displayName = 'SaveToDashboardButton';
 
-const ClosePageButton = React.memo(() => {
+const ClosePageButton = React.memo(({ metricId }: { metricId: string }) => {
   return <SelectableButton selected={false} tooltipText="Close" icon={<Xmark />} />;
 });
 ClosePageButton.displayName = 'ClosePageButton';

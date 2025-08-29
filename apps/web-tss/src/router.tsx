@@ -1,6 +1,6 @@
 import type { User } from '@supabase/supabase-js';
 import type { QueryClient } from '@tanstack/react-query';
-import { createRouter as createTanstackRouter } from '@tanstack/react-router';
+import { createRouteMask, createRouter as createTanstackRouter } from '@tanstack/react-router';
 import { routerWithQueryClient } from '@tanstack/react-router-with-query';
 import {
   LazyCatchErrorCard,
@@ -16,6 +16,13 @@ export interface AppRouterContext {
   user: User | null;
 }
 
+const metricChartEditToMetricChartMask = createRouteMask({
+  routeTree,
+  from: '/app/metrics/$metricId/chart/edit', // internal route you actually navigate to
+  to: '/app/metrics/$metricId/chart', // URL shown in the bar/history
+  params: true, // keep path/search/hash params in sync
+});
+
 // Create a new router instance
 export const createRouter = () => {
   const queryClient = TanstackQuery.getQueryClient();
@@ -23,6 +30,7 @@ export const createRouter = () => {
   const router = routerWithQueryClient(
     createTanstackRouter({
       routeTree,
+      routeMasks: [metricChartEditToMetricChartMask],
       context: { queryClient, user: null }, //context is defined in the root route
       scrollRestoration: true,
       defaultPreload: 'intent',
