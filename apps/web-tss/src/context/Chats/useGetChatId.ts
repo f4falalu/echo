@@ -1,6 +1,6 @@
 import { useParams } from '@tanstack/react-router';
 
-const stableSelect = (v?: { chatId?: string }) => v?.chatId !== undefined && v.chatId;
+const stableSelect = (v?: { chatId?: string }) => v?.chatId;
 export const useGetChatId = () => {
   const chatId = useParams({
     select: stableSelect,

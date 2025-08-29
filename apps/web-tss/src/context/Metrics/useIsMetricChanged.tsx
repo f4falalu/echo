@@ -10,13 +10,20 @@ import { compareObjectsByKeys } from '@/lib/objects';
 import { canEdit } from '@/lib/share';
 import { useGetOriginalMetric } from './useOriginalMetricStore';
 
-export const useIsMetricChanged = ({ metricId }: { metricId: string | undefined }) => {
+export const useIsMetricChanged = ({
+  metricId,
+  enabled = true,
+}: {
+  metricId: string | undefined;
+  enabled?: boolean;
+}) => {
   const queryClient = useQueryClient();
   const originalMetric = useGetOriginalMetric(metricId);
 
   const { data: currentMetric, refetch: refetchCurrentMetric } = useGetMetric(
     { id: metricId, versionNumber: undefined },
     {
+      enabled: false,
       select: (x) => ({
         name: x.name,
         description: x.description,
@@ -46,7 +53,8 @@ export const useIsMetricChanged = ({ metricId }: { metricId: string | undefined 
   const isEditor = canEdit(currentMetric?.permission);
 
   const isFileChanged = useMemo(() => {
-    if (!isEditor || !originalMetric || !isLatestVersion || !currentMetric) return false;
+    if (!isEditor || !originalMetric || !isLatestVersion || !currentMetric || !enabled)
+      return false;
 
     return (
       !currentMetric ||
@@ -58,7 +66,7 @@ export const useIsMetricChanged = ({ metricId }: { metricId: string | undefined 
         'version_number',
       ])
     );
-  }, [originalMetric, currentMetric, isLatestVersion, isEditor]);
+  }, [originalMetric, currentMetric, isLatestVersion, isEditor, enabled]);
 
   return {
     onResetToOriginal,

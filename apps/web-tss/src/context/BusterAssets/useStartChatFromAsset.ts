@@ -1,10 +1,10 @@
 import type { ChatAssetType } from '@buster/server-shared/chats';
 import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
-import { useStartChatFromAsset } from '@/api/buster_rest/chats';
+import { useStartChatFromAsset as useStartChatFromAssetRest } from '@/api/buster_rest/chats';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 
-export const useStartChatFromReport = ({
+export const useStartChatFromAsset = ({
   assetId,
   assetType,
 }: {
@@ -12,7 +12,7 @@ export const useStartChatFromReport = ({
   assetType: ChatAssetType;
 }) => {
   const [loading, setLoading] = useState(false);
-  const { mutateAsync: startChatFromAsset, isPending } = useStartChatFromAsset();
+  const { mutateAsync: startChatFromAsset, isPending } = useStartChatFromAssetRest();
   const navigate = useNavigate();
 
   const onCreateFileClick = useMemoizedFn(async () => {

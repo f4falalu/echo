@@ -1,0 +1,104 @@
+import { useQueries } from '@tanstack/react-query';
+import React, { type PropsWithChildren } from 'react';
+import { createContext, useContextSelector } from 'use-context-selector';
+import type { BusterChatMessage } from '@/api/asset_interfaces/chat';
+import { useGetChat } from '@/api/buster_rest/chats';
+import type { SelectedFile } from '../interfaces';
+import { useAutoChangeLayout } from './useAutoChangeLayout';
+import { useChatStreaming } from './useChatStreaming';
+import { useGetChatId } from './useGetChatId';
+
+const useChatIndividualContext = ({
+  chatId,
+  selectedFile,
+}: {
+  chatId?: string;
+  selectedFile: SelectedFile | null;
+}) => {
+  const selectedFileId = selectedFile?.id;
+  const selectedFileType = selectedFile?.type;
+
+  const { data: chat } = useGetChat(
+    { id: chatId || '' },
+    {
+      select: (data) => ({
+        title: data?.title,
+        id: data?.id,
+        message_ids: data?.message_ids,
+      }),
+    }
+  );
+
+  // CHAT
+  const hasChat = !!chatId && !!chat?.id;
+  const chatTitle = chat?.title;
+  const chatMessageIds: string[] = chat?.message_ids ?? [];
+
+  //FILE
+  const hasFile = !!selectedFileId;
+
+  //MESSAGES
+  const currentMessageId = chatMessageIds[chatMessageIds.length - 1];
+
+  const isStreamingMessage = useQueries({
+    queries: chatMessageIds.map((messageId) => {
+      const queryKey = queryKeys.chatsMessages(messageId);
+      return {
+        ...queryKey,
+        enabled: false,
+        select: (data: BusterChatMessage | undefined) => data?.is_completed,
+      };
+    }),
+    combine: (result) => result.some((res) => res.data === false),
+  });
+
+  const { isFileChanged, onResetToOriginal } = useIsFileChanged({
+    selectedFileId,
+    selectedFileType,
+  });
+
+  useAutoChangeLayout({
+    lastMessageId: currentMessageId,
+    chatId,
+  });
+  useChatStreaming({ chatId, messageId: currentMessageId, isStreamingMessage });
+
+  return {
+    hasChat,
+    hasFile,
+    selectedFileId,
+    currentMessageId,
+    chatTitle,
+    selectedFileType,
+    chatMessageIds,
+    chatId,
+    isStreamingMessage,
+    isFileChanged,
+    onResetToOriginal,
+  };
+};
+
+export type ChatIndividualState = ReturnType<typeof useChatIndividualContext>;
+
+const IndividualChatContext = createContext<ChatIndividualState>({} as ChatIndividualState);
+
+export const ChatContextProvider = ({ children }: PropsWithChildren) => {
+  const chatId = useGetChatId();
+  const selectedFile = useChatLayoutContextSelector((x) => x.selectedFile);
+
+  const useChatContextValue = useChatIndividualContext({
+    chatId,
+    selectedFile,
+  });
+
+  return (
+    <IndividualChatContext.Provider value={useChatContextValue}>
+      {children}
+    </IndividualChatContext.Provider>
+  );
+};
+
+ChatContextProvider.displayName = 'ChatContextProvider';
+
+export const useChatIndividualContextSelector = <T,>(selector: (state: ChatIndividualState) => T) =>
+  useContextSelector(IndividualChatContext, selector);

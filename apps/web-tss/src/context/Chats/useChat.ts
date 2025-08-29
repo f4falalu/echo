@@ -1,6 +1,9 @@
 import { useNavigate } from '@tanstack/react-router';
+import { create } from 'mutative';
 import type { FileType } from '@/api/asset_interfaces/chat';
+import { useGetChatMemoized, useGetChatMessageMemoized } from '@/api/buster_rest/chats';
 import { useStartNewChat, useStopChat } from '@/api/buster_rest/chats/queryRequestsV2';
+import { useChatUpdate } from '@/api/buster_rest/chats/useChatUpdate';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 
 type StartChatParams = {
@@ -16,6 +19,9 @@ export const useChat = () => {
   const navigate = useNavigate();
   const { mutateAsync: startNewChat, isPending: isSubmittingChat } = useStartNewChat();
   const { mutate: stopChatMutation } = useStopChat();
+  const getChatMemoized = useGetChatMemoized();
+  const getChatMessageMemoized = useGetChatMessageMemoized();
+  const { onUpdateChat, onUpdateChatMessage } = useChatUpdate();
 
   const startChat = async ({
     prompt,
@@ -80,11 +86,55 @@ export const useChat = () => {
     stopChatMutation(chatId);
   });
 
+  const onReplaceMessageInChat = useMemoizedFn(
+    async ({
+      prompt,
+      messageId,
+      chatId,
+    }: {
+      prompt: string;
+      messageId: string;
+      chatId: string;
+    }) => {
+      const currentChat = getChatMemoized(chatId);
+      const currentMessage = getChatMessageMemoized(messageId);
+      const currentRequestMessage = currentMessage?.request_message;
+      if (!currentRequestMessage) return;
+
+      const messageIndex = currentChat?.message_ids.indexOf(messageId);
+
+      onUpdateChatMessage({
+        id: messageId,
+        request_message: create(currentRequestMessage, (draft) => {
+          draft.request = prompt;
+        }),
+        reasoning_message_ids: [],
+        response_message_ids: [],
+        reasoning_messages: {},
+        final_reasoning_message: null,
+      });
+
+      if (messageIndex !== -1 && typeof messageIndex === 'number') {
+        const updatedMessageIds = currentChat?.message_ids.slice(0, messageIndex + 1);
+        onUpdateChat({
+          id: chatId,
+          message_ids: updatedMessageIds,
+        });
+      }
+
+      return startChat({
+        prompt,
+        messageId,
+      });
+    }
+  );
+
   return {
     onStartNewChat,
     onStartChatFromFile,
     onFollowUpChat,
     onStopChat,
+    onReplaceMessageInChat,
     isSubmittingChat,
   };
 };

@@ -1,19 +1,22 @@
 import { useMemo } from 'react';
 import { useAssetNavigationBlocker } from '../BusterAssets/useAssetNavigationBlocker';
-import { useIsMetricChanged } from './useIsMetricChanged';
+import { useIsDashboardChanged } from './useIsDashboardChanged';
 
-export const useIsMetricFileChanged = ({
-  metricId,
+export const useIsDashboardFileChanged = ({
+  dashboardId,
   enabled = true,
 }: {
-  metricId: string;
+  dashboardId: string;
   enabled?: boolean;
 }) => {
-  const { isFileChanged, onResetToOriginal } = useIsMetricChanged({ metricId, enabled });
+  const { isFileChanged, onResetToOriginal } = useIsDashboardChanged({
+    dashboardId,
+    enabled,
+  });
 
   useAssetNavigationBlocker({
     isFileChanged,
-    onResetToOriginal,
+    onResetToOriginal: onResetToOriginal,
     enableBlocker: enabled,
   });
 

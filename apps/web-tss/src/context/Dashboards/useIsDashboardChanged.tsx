@@ -10,7 +10,13 @@ import { compareObjectsByKeys } from '@/lib/objects';
 import { canEdit } from '@/lib/share';
 import { useGetOriginalDashboard } from './useOriginalDashboardStore';
 
-export const useIsDashboardChanged = ({ dashboardId }: { dashboardId: string | undefined }) => {
+export const useIsDashboardChanged = ({
+  dashboardId,
+  enabled = true,
+}: {
+  dashboardId: string | undefined;
+  enabled?: boolean;
+}) => {
   const queryClient = useQueryClient();
   const originalDashboard = useGetOriginalDashboard(dashboardId);
 
@@ -33,7 +39,7 @@ export const useIsDashboardChanged = ({ dashboardId }: { dashboardId: string | u
     return currentDashboard?.version_number === last(currentDashboard?.versions)?.version_number;
   }, [currentDashboard]);
 
-  const onResetDashboardToOriginal = useMemoizedFn(() => {
+  const onResetToOriginal = useMemoizedFn(() => {
     const options = dashboardQueryKeys.dashboardGetDashboard(
       dashboardId || '',
       originalDashboard?.version_number || 'LATEST'
@@ -50,8 +56,9 @@ export const useIsDashboardChanged = ({ dashboardId }: { dashboardId: string | u
 
   const isEditor = canEdit(currentDashboard?.permission);
 
-  const isDashboardChanged = useMemo(() => {
-    if (!isEditor || !isLatestVersion || !currentDashboard || !originalDashboard) return false;
+  const isFileChanged = useMemo(() => {
+    if (!isEditor || !isLatestVersion || !currentDashboard || !originalDashboard || !enabled)
+      return false;
     return (
       !originalDashboard ||
       !currentDashboard ||
@@ -62,10 +69,7 @@ export const useIsDashboardChanged = ({ dashboardId }: { dashboardId: string | u
         'file',
       ])
     );
-  }, [originalDashboard, isEditor, currentDashboard, isLatestVersion]);
+  }, [originalDashboard, isEditor, currentDashboard, isLatestVersion, enabled]);
 
-  return {
-    onResetDashboardToOriginal,
-    isDashboardChanged,
-  };
+  return useMemo(() => ({ onResetToOriginal, isFileChanged }), [onResetToOriginal, isFileChanged]);
 };

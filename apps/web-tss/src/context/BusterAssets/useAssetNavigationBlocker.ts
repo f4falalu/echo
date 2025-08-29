@@ -4,15 +4,17 @@ import { useOpenConfirmModal } from '../BusterNotifications';
 export const useAssetNavigationBlocker = ({
   onResetToOriginal,
   isFileChanged,
+  enableBlocker = true,
 }: {
   onResetToOriginal: () => void | Promise<void>;
   isFileChanged: boolean;
+  enableBlocker?: boolean;
 }) => {
   const openConfirmModal = useOpenConfirmModal();
 
   useBlocker({
     shouldBlockFn: async () => {
-      if (!isFileChanged) return false;
+      if (!isFileChanged || !enableBlocker) return false;
 
       const shouldLeave = await openConfirmModal({
         title: 'Unsaved changes',

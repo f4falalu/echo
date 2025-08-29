@@ -4,11 +4,11 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { Button } from '@/components/ui/buttons';
 import { Stars } from '@/components/ui/icons';
 import { AppTooltip } from '@/components/ui/tooltip';
-import { useStartChatFromReport } from '@/context/BusterAssets/useStartChatFromAsset';
+import { useStartChatFromAsset } from '@/context/BusterAssets/useStartChatFromAsset';
 
 export const CreateChatButton = React.memo(
   ({ assetId, assetType }: { assetId: string; assetType: ChatAssetType }) => {
-    const { onCreateFileClick, loading } = useStartChatFromReport({
+    const { onCreateFileClick, loading } = useStartChatFromAsset({
       assetId,
       assetType,
     });
