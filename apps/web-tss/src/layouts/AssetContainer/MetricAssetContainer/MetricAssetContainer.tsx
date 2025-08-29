@@ -1,5 +1,6 @@
 import { AssetContainer } from '../AssetContainer';
 import { MetricContainerHeaderSegment } from './MetricContainerHeaderSegment';
+import { MetricContainerHeaderButtons } from './MetricHeaderButtons';
 
 export const MetricAssetContainer: React.FC<{
   children: React.ReactNode;
@@ -27,7 +28,10 @@ const MetricAssetHeader: React.FC<{
         metricId={metricId}
         metric_version_number={metric_version_number}
       />
-      <div>Metric Version Number: {metric_version_number}</div>
+      <MetricContainerHeaderButtons
+        metricId={metricId}
+        metricVersionNumber={metric_version_number}
+      />
     </>
   );
 };

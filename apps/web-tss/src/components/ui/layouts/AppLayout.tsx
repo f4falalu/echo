@@ -44,7 +44,7 @@ export const AppLayout: React.FC<
   return (
     <AppSplitter
       defaultLayout={defaultLayout}
-      className="max-h-screen min-h-screen overflow-hidden "
+      className="max-h-screen min-h-screen overflow-hidden"
       autoSaveId={autoSaveId}
       preserveSide="left"
       splitterClassName={''}

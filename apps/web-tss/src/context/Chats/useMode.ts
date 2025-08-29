@@ -6,7 +6,8 @@ export const useIsChatMode = () => {
     select: stableSelect,
     strict: false,
   });
-  return chatId !== undefined;
+
+  return chatId !== undefined && chatId;
 };
 
 export const useIsFileMode = () => {

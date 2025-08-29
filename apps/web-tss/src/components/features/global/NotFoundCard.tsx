@@ -7,7 +7,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card/CardBase';
 export const NotFoundCard: NotFoundRouteComponent = () => {
   return (
     <section
-      className="bg-opacity-90 flex min-h-screen w-screen flex-col items-center justify-center bg-linear-to-br from-gray-50 to-gray-200 p-8 backdrop-blur-xs backdrop-brightness-95 backdrop-filter"
+      className="flex flex-col items-center justify-center h-full w-full p-8 bg-background"
       aria-label="Page not found"
     >
       <Card className="-mt-10 max-w-100">

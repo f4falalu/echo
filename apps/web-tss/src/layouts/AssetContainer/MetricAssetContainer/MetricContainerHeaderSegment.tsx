@@ -52,21 +52,21 @@ const MetricSegments: React.FC<MetricContainerHeaderSegmentProps> = React.memo((
           label: 'Chart',
           value: 'chart' satisfies MetricView,
           link: {
-            to: './chart',
+            to: '../chart' as './chart', //not super happy about this, but I am lazy
           },
         },
         {
           label: 'Results',
           value: 'results' satisfies MetricView,
           link: {
-            to: './results',
+            to: '../results' as './results',
           },
         },
         {
           label: 'SQL',
           value: 'sql' satisfies MetricView,
           link: {
-            to: './sql',
+            to: '../sql' as './sql',
           },
         },
       ]}

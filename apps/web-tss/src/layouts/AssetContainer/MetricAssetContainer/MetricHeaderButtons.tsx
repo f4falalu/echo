@@ -6,8 +6,8 @@ import { SaveMetricToCollectionButton } from '@/components/features/buttons/Save
 import { SaveMetricToDashboardButton } from '@/components/features/buttons/SaveMetricToDashboardButton';
 import { ShareMetricButton } from '@/components/features/buttons/ShareMetricButton';
 import { ThreeDotMenuButton } from '@/components/features/metrics/MetricThreeDotMenu';
-import { SquareChartPen } from '@/components/ui/icons';
-import { useIsFileMode } from '@/context/Chats/useMode';
+import { SquareChartPen, Xmark } from '@/components/ui/icons';
+import { useIsChatMode, useIsFileMode } from '@/context/Chats/useMode';
 import { useIsMetricReadOnly } from '@/context/Metrics/useIsMetricReadOnly';
 import { canEdit, getIsEffectiveOwner } from '@/lib/share';
 import { FileButtonContainer } from '../FileButtonContainer';
@@ -16,8 +16,9 @@ import { SelectableButton } from '../SelectableButton';
 
 export const MetricContainerHeaderButtons: React.FC<{
   metricId: string;
-  metricVersionNumber: number;
+  metricVersionNumber: number | undefined;
 }> = React.memo(({ metricId, metricVersionNumber }) => {
+  const isChatMode = useIsChatMode();
   const isFileMode = useIsFileMode();
   const { isViewingOldVersion } = useIsMetricReadOnly({
     metricId: metricId || '',
@@ -36,8 +37,6 @@ export const MetricContainerHeaderButtons: React.FC<{
   return (
     <FileButtonContainer>
       {isEditor && !isViewingOldVersion && <EditChartButton metricId={metricId} />}
-      <SaveToCollectionButton metricId={metricId} />
-      <SaveToDashboardButton metricId={metricId} />
       {isEffectiveOwner && !isViewingOldVersion && <ShareMetricButton metricId={metricId} />}
       <ThreeDotMenuButton
         metricId={metricId}
@@ -47,6 +46,7 @@ export const MetricContainerHeaderButtons: React.FC<{
       <HideButtonContainer show={isFileMode}>
         <CreateChatButton assetId={metricId} assetType="metric" />
       </HideButtonContainer>
+      {isChatMode && <ClosePageButton />}
     </FileButtonContainer>
   );
 });
@@ -55,38 +55,11 @@ MetricContainerHeaderButtons.displayName = 'MetricContainerHeaderButtons';
 
 const EditChartButton = React.memo(({ metricId }: { metricId: string }) => {
   const isEditorOpen = true;
-  //  const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
-  // const editableSecondaryView: MetricFileViewSecondary = 'chart-edit';
-  // const isSelectedView = selectedFileViewSecondary === editableSecondaryView;
-
-  // const href = useMemo(() => {
-  //   if (isSelectedView) {
-  //     return assetParamsToRoute({
-  //       chatId,
-  //       assetId: metricId,
-  //       type: 'metric',
-  //       secondaryView: undefined,
-  //       versionNumber: metricVersionNumber,
-  //       page: 'chart',
-  //     });
-  //   }
-
-  //   return assetParamsToRoute({
-  //     chatId,
-  //     assetId: metricId,
-  //     type: 'metric',
-  //     secondaryView: 'chart-edit',
-  //     versionNumber: metricVersionNumber,
-  //     page: 'chart',
-  //   });
-  // }, [chatId, metricId, isSelectedView, metricVersionNumber]);
 
   return (
     <Link
       to="/app/metrics/$metricId/chart"
-      params={{
-        metricId,
-      }}
+      params={{ metricId }}
       data-testid="edit-chart-button"
       onClick={(e) => {
         e.preventDefault();
@@ -119,3 +92,8 @@ const SaveToDashboardButton = React.memo(({ metricId }: { metricId: string }) =>
   );
 });
 SaveToDashboardButton.displayName = 'SaveToDashboardButton';
+
+const ClosePageButton = React.memo(() => {
+  return <SelectableButton selected={false} tooltipText="Close" icon={<Xmark />} />;
+});
+ClosePageButton.displayName = 'ClosePageButton';
