@@ -93,12 +93,21 @@ export class SnowflakeAdapter extends BaseAdapter {
 
   private async createConnection(credentials: SnowflakeCredentials): Promise<snowflake.Connection> {
     const connectionOptions: snowflake.ConnectionOptions = {
-      account: credentials.account_id,
+      account: credentials.account_id, // Always required by SDK
       username: credentials.username,
       password: credentials.password,
       warehouse: credentials.warehouse_id,
       database: credentials.default_database,
     };
+
+    // Use custom_host if provided via accessUrl
+    if (credentials.custom_host) {
+      // Ensure the URL has proper protocol
+      const host = credentials.custom_host.startsWith('http')
+        ? credentials.custom_host
+        : `https://${credentials.custom_host}`;
+      connectionOptions.accessUrl = host;
+    }
 
     if (credentials.role) {
       connectionOptions.role = credentials.role;

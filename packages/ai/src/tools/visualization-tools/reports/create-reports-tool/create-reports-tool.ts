@@ -69,6 +69,7 @@ const CreateReportStateFileSchema = z.object({
     })
     .optional(),
   status: StatusSchema,
+  error: z.string().optional(),
 });
 
 const CreateReportsStateSchema = z.object({
@@ -78,6 +79,7 @@ const CreateReportsStateSchema = z.object({
   startTime: z.number().optional(),
   initialEntriesCreated: z.boolean().optional(),
   responseMessagesCreated: z.set(z.string()).optional(),
+  reportsModifiedInMessage: z.set(z.string()).optional(),
 });
 
 // Export types
@@ -96,6 +98,7 @@ export function createCreateReportsTool(context: CreateReportsContext) {
     argsText: undefined,
     files: [],
     toolCallId: undefined,
+    reportsModifiedInMessage: new Set(),
   };
 
   // Create all functions with the context and state passed

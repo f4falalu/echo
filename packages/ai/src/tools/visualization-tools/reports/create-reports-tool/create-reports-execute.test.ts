@@ -9,10 +9,7 @@ import type {
 // Mock dependencies
 vi.mock('@buster/database', () => ({
   updateMessageEntries: vi.fn().mockResolvedValue({ success: true }),
-}));
-
-vi.mock('../helpers/report-metric-helper', () => ({
-  reportContainsMetrics: vi.fn(),
+  batchUpdateReport: vi.fn().mockResolvedValue({ success: true }),
 }));
 
 vi.mock('./helpers/create-reports-tool-transform-helper', () => ({
@@ -37,19 +34,16 @@ vi.mock('../../../shared/create-raw-llm-tool-result-entry', () => ({
 }));
 
 import { updateMessageEntries } from '@buster/database';
-import { reportContainsMetrics } from '../helpers/report-metric-helper';
 
 describe('create-reports-execute', () => {
   let context: CreateReportsContext;
   let state: CreateReportsState;
   let mockUpdateMessageEntries: ReturnType<typeof vi.fn>;
-  let mockReportContainsMetrics: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     vi.clearAllMocks();
 
     mockUpdateMessageEntries = updateMessageEntries as ReturnType<typeof vi.fn>;
-    mockReportContainsMetrics = reportContainsMetrics as ReturnType<typeof vi.fn>;
 
     context = {
       userId: 'user-123',
@@ -65,8 +59,8 @@ describe('create-reports-execute', () => {
     };
   });
 
-  describe('responseMessages conditional logic', () => {
-    it('should add report to responseMessages when it contains metrics', async () => {
+  describe('responseMessages creation', () => {
+    it('should add all reports to responseMessages', async () => {
       // Setup state with a successful report
       state.files = [
         {
@@ -92,7 +86,6 @@ describe('create-reports-execute', () => {
       };
 
       // Mock that the report contains metrics
-      mockReportContainsMetrics.mockReturnValue(true);
 
       const execute = createCreateReportsExecute(context, state);
       await execute(input);
@@ -114,7 +107,7 @@ describe('create-reports-execute', () => {
       });
     });
 
-    it('should NOT add report to responseMessages when it does NOT contain metrics', async () => {
+    it('should add reports without metrics to responseMessages', async () => {
       // Setup state with a successful report
       state.files = [
         {
@@ -138,23 +131,27 @@ describe('create-reports-execute', () => {
         ],
       };
 
-      // Mock that the report does NOT contain metrics
-      mockReportContainsMetrics.mockReturnValue(false);
-
       const execute = createCreateReportsExecute(context, state);
       await execute(input);
 
-      // Check that updateMessageEntries was called WITHOUT responseMessages
+      // Check that updateMessageEntries was called WITH responseMessages
       expect(mockUpdateMessageEntries).toHaveBeenCalled();
-      const updateCall = mockUpdateMessageEntries.mock.calls[0]?.[0];
+      // Get the last call (final entries) which should have responseMessages
+      const lastCallIndex = mockUpdateMessageEntries.mock.calls.length - 1;
+      const updateCall = mockUpdateMessageEntries.mock.calls[lastCallIndex]?.[0];
 
-      expect(updateCall?.responseMessages).toBeUndefined();
-      // But reasoning and raw messages should still be there
-      expect(updateCall.reasoningMessages).toBeDefined();
-      expect(updateCall.rawLlmMessages).toBeDefined();
+      expect(updateCall?.responseMessages).toBeDefined();
+      expect(updateCall?.responseMessages).toHaveLength(1);
+      expect(updateCall?.responseMessages?.[0]).toMatchObject({
+        id: 'report-2',
+        type: 'file',
+        file_type: 'report',
+        file_name: 'Simple Report',
+        version_number: 1,
+      });
     });
 
-    it('should handle multiple reports with mixed metric presence', async () => {
+    it('should handle multiple reports all in responseMessages', async () => {
       // Setup state with multiple reports
       state.files = [
         {
@@ -197,28 +194,22 @@ describe('create-reports-execute', () => {
         ],
       };
 
-      // Mock metric detection for each report
-      mockReportContainsMetrics
-        .mockReturnValueOnce(true) // First report has metrics
-        .mockReturnValueOnce(false) // Second report has no metrics
-        .mockReturnValueOnce(true); // Third report has metrics
-
       const execute = createCreateReportsExecute(context, state);
       await execute(input);
 
-      // Check that only reports with metrics were added to responseMessages
+      // Check that all reports were added to responseMessages
       expect(mockUpdateMessageEntries).toHaveBeenCalled();
       // Get the last call (final entries) which should have responseMessages
       const lastCallIndex = mockUpdateMessageEntries.mock.calls.length - 1;
       const updateCall = mockUpdateMessageEntries.mock.calls[lastCallIndex]?.[0];
 
       expect(updateCall?.responseMessages).toBeDefined();
-      expect(updateCall?.responseMessages).toHaveLength(2); // Only 2 reports with metrics
+      expect(updateCall?.responseMessages).toHaveLength(3); // All 3 reports
 
       const responseIds = updateCall?.responseMessages?.map((msg: any) => msg.id) || [];
       expect(responseIds).toContain('report-1');
       expect(responseIds).toContain('report-3');
-      expect(responseIds).not.toContain('report-2');
+      expect(responseIds).toContain('report-2');
     });
 
     it('should create initial entries on first execution', async () => {
@@ -244,7 +235,7 @@ describe('create-reports-execute', () => {
       const firstCall = mockUpdateMessageEntries.mock.calls[0]?.[0];
       expect(firstCall.messageId).toBe('msg-001');
       expect(firstCall.reasoningMessages).toBeDefined();
-      expect(firstCall.rawLlmMessages).toBeDefined();
+      // rawLlmMessages are intentionally not created in initial entries to avoid duplicates
 
       // State should be updated
       expect(state.initialEntriesCreated).toBe(true);
@@ -271,8 +262,6 @@ describe('create-reports-execute', () => {
         ],
       };
 
-      mockReportContainsMetrics.mockReturnValue(true);
-
       const execute = createCreateReportsExecute(context, state);
       await execute(input);
 
@@ -281,6 +270,8 @@ describe('create-reports-execute', () => {
     });
 
     it('should handle reports with failed status', async () => {
+      // Simulate a scenario where one report was created during delta but another failed
+      // Report 1 has an ID (was created), Report 2 has no ID (creation failed)
       state.files = [
         {
           id: 'report-1',
@@ -290,11 +281,12 @@ describe('create-reports-execute', () => {
           status: 'completed',
         },
         {
-          id: 'report-2',
+          id: '', // No ID means report creation failed during delta
           file_name: 'Failed Report',
           file_type: 'report',
           version_number: 1,
           status: 'failed',
+          error: 'Report creation failed during streaming',
         },
       ];
 
@@ -311,16 +303,15 @@ describe('create-reports-execute', () => {
         ],
       };
 
-      mockReportContainsMetrics.mockReturnValue(true);
-
       const execute = createCreateReportsExecute(context, state);
       const result = await execute(input);
 
       // Result should show one success and one failure
+      // Report 1 succeeds because it has an ID, Report 2 fails because it has no ID
       expect(result.files).toHaveLength(1);
       expect(result.failed_files).toHaveLength(1);
 
-      // Only the successful report with metrics should be in responseMessages
+      // Only the successful report should be in responseMessages
       // Get the last call (final entries) which should have responseMessages
       const lastCallIndex = mockUpdateMessageEntries.mock.calls.length - 1;
       const updateCall = mockUpdateMessageEntries.mock.calls[lastCallIndex]?.[0];
@@ -350,8 +341,6 @@ describe('create-reports-execute', () => {
           },
         ],
       };
-
-      mockReportContainsMetrics.mockReturnValue(true);
 
       const execute = createCreateReportsExecute(context, state);
       const result = await execute(input);

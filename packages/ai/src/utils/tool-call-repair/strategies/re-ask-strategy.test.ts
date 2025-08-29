@@ -1,17 +1,37 @@
-import { NoSuchToolError, generateText } from 'ai';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { z } from 'zod';
+
+// Mock the dependencies - must be before imports
+vi.mock('ai', () => {
+  class MockNoSuchToolError extends Error {
+    toolName: string;
+    availableTools: string[];
+
+    constructor(options: { toolName: string; availableTools: string[] }) {
+      super(`Tool ${options.toolName} not found`);
+      this.toolName = options.toolName;
+      this.availableTools = options.availableTools;
+    }
+
+    static isInstance(error: any): boolean {
+      return error instanceof MockNoSuchToolError;
+    }
+  }
+
+  return {
+    NoSuchToolError: MockNoSuchToolError,
+    generateText: vi.fn(),
+    streamText: vi.fn(),
+    tool: vi.fn((config: any) => config),
+    stepCountIs: vi.fn((count: number) => ({ type: 'stepCount', count })),
+    hasToolCall: vi.fn((toolName: string) => ({ type: 'toolCall', toolName })),
+  };
+});
+
+import { NoSuchToolError, generateText, streamText } from 'ai';
 import { ANALYST_AGENT_NAME, THINK_AND_PREP_AGENT_NAME } from '../../../agents';
 import type { RepairContext } from '../types';
 import { canHandleNoSuchTool, repairWrongToolName } from './re-ask-strategy';
-
-// Mock the dependencies
-vi.mock('ai', async () => {
-  const actual = await vi.importActual('ai');
-  return {
-    ...actual,
-    generateText: vi.fn(),
-  };
-});
 
 vi.mock('braintrust', () => ({
   wrapTraced: (fn: any) => fn,
@@ -47,17 +67,18 @@ describe('re-ask-strategy', () => {
 
   describe('repairWrongToolName', () => {
     it('should re-ask and get corrected tool call', async () => {
-      const mockGenerateText = vi.mocked(generateText);
+      const mockStreamText = vi.mocked(streamText);
 
       const correctedToolCall = {
         toolName: 'correctTool',
         input: { param: 'value' },
       };
 
-      mockGenerateText.mockResolvedValueOnce({
-        toolCalls: [correctedToolCall],
-        text: '',
-        usage: {},
+      mockStreamText.mockReturnValueOnce({
+        textStream: (async function* () {})(),
+        toolCalls: Promise.resolve([correctedToolCall]),
+        text: Promise.resolve(''),
+        usage: Promise.resolve({}),
       } as any);
 
       const context: RepairContext = {
@@ -68,8 +89,8 @@ describe('re-ask-strategy', () => {
           input: { param: 'value' },
         } as any,
         tools: {
-          correctTool: { inputSchema: {} },
-          anotherTool: { inputSchema: {} },
+          correctTool: { inputSchema: z.object({}) },
+          anotherTool: { inputSchema: z.object({}) },
         } as any,
         error: new NoSuchToolError({
           toolName: 'wrongTool',
@@ -89,16 +110,16 @@ describe('re-ask-strategy', () => {
         input: JSON.stringify(correctedToolCall.input), // FIXED: Now returns stringified input
       });
 
-      // Verify the tool input is properly formatted as a string in the messages
-      const calls = mockGenerateText.mock.calls[0];
+      // Verify the tool input is properly formatted as an object in the messages
+      const calls = mockStreamText.mock.calls[0];
       const messages = calls?.[0]?.messages;
       const assistantMessage = messages?.find((m: any) => m.role === 'assistant');
       const content = assistantMessage?.content?.[0];
       if (content && typeof content === 'object' && 'input' in content) {
-        expect(content.input).toEqual(JSON.stringify({ param: 'value' }));
+        expect(content.input).toEqual({ param: 'value' });
       }
 
-      expect(mockGenerateText).toHaveBeenCalledWith(
+      expect(mockStreamText).toHaveBeenCalledWith(
         expect.objectContaining({
           model: 'mock-model',
           messages: expect.arrayContaining([
@@ -114,11 +135,12 @@ describe('re-ask-strategy', () => {
     });
 
     it('should use analyst agent context for error message', async () => {
-      const mockGenerateText = vi.mocked(generateText);
-      mockGenerateText.mockResolvedValueOnce({
-        toolCalls: [],
-        text: '',
-        usage: {},
+      const mockStreamText = vi.mocked(streamText);
+      mockStreamText.mockReturnValueOnce({
+        textStream: (async function* () {})(),
+        toolCalls: Promise.resolve([]),
+        text: Promise.resolve(''),
+        usage: Promise.resolve({}),
       } as any);
 
       const context: RepairContext = {
@@ -129,8 +151,8 @@ describe('re-ask-strategy', () => {
           input: '{}',
         } as any,
         tools: {
-          createMetrics: {},
-          modifyMetrics: {},
+          createMetrics: { inputSchema: z.object({}) },
+          modifyMetrics: { inputSchema: z.object({}) },
         } as any,
         error: new NoSuchToolError({
           toolName: 'executeSql',
@@ -146,8 +168,8 @@ describe('re-ask-strategy', () => {
 
       await repairWrongToolName(context);
 
-      const calls = mockGenerateText.mock.calls[0];
-      if (!calls) throw new Error('generateText not called');
+      const calls = mockStreamText.mock.calls[0];
+      if (!calls) throw new Error('streamText not called');
       const messages = calls[0]?.messages;
       if (!messages) throw new Error('No messages found');
       const toolResultMessage = messages.find((m: any) => m.role === 'tool');
@@ -164,11 +186,12 @@ describe('re-ask-strategy', () => {
     });
 
     it('should use think-and-prep agent context for error message', async () => {
-      const mockGenerateText = vi.mocked(generateText);
-      mockGenerateText.mockResolvedValueOnce({
-        toolCalls: [],
-        text: '',
-        usage: {},
+      const mockStreamText = vi.mocked(streamText);
+      mockStreamText.mockReturnValueOnce({
+        textStream: (async function* () {})(),
+        toolCalls: Promise.resolve([]),
+        text: Promise.resolve(''),
+        usage: Promise.resolve({}),
       } as any);
 
       const context: RepairContext = {
@@ -179,8 +202,8 @@ describe('re-ask-strategy', () => {
           input: '{}',
         } as any,
         tools: {
-          executeSql: {},
-          sequentialThinking: {},
+          executeSql: { inputSchema: z.object({}) },
+          sequentialThinking: { inputSchema: z.object({}) },
         } as any,
         error: new NoSuchToolError({
           toolName: 'createMetrics',
@@ -197,8 +220,8 @@ describe('re-ask-strategy', () => {
 
       await repairWrongToolName(context);
 
-      const calls = mockGenerateText.mock.calls[0];
-      if (!calls) throw new Error('generateText not called');
+      const calls = mockStreamText.mock.calls[0];
+      if (!calls) throw new Error('streamText not called');
       const messages = calls[0]?.messages;
       if (!messages) throw new Error('No messages found');
       const toolResultMessage = messages.find((m: any) => m.role === 'tool');
@@ -213,11 +236,12 @@ describe('re-ask-strategy', () => {
     });
 
     it('should return null if no valid tool call is returned', async () => {
-      const mockGenerateText = vi.mocked(generateText);
-      mockGenerateText.mockResolvedValueOnce({
-        toolCalls: [],
-        text: '',
-        usage: {},
+      const mockStreamText = vi.mocked(streamText);
+      mockStreamText.mockReturnValueOnce({
+        textStream: (async function* () {})(),
+        toolCalls: Promise.resolve([]),
+        text: Promise.resolve(''),
+        usage: Promise.resolve({}),
       } as any);
 
       const context: RepairContext = {
@@ -228,7 +252,7 @@ describe('re-ask-strategy', () => {
           input: '{}',
         } as any,
         tools: {
-          correctTool: {},
+          correctTool: { inputSchema: z.object({}) },
         } as any,
         error: new NoSuchToolError({
           toolName: 'wrongTool',
@@ -243,8 +267,10 @@ describe('re-ask-strategy', () => {
     });
 
     it('should handle errors during re-ask', async () => {
-      const mockGenerateText = vi.mocked(generateText);
-      mockGenerateText.mockRejectedValueOnce(new Error('Generation failed'));
+      const mockStreamText = vi.mocked(streamText);
+      mockStreamText.mockImplementationOnce(() => {
+        throw new Error('Generation failed');
+      });
 
       const context: RepairContext = {
         toolCall: {
@@ -267,11 +293,12 @@ describe('re-ask-strategy', () => {
     });
 
     it('should wrap non-JSON string inputs in an object', async () => {
-      const mockGenerateText = vi.mocked(generateText);
-      mockGenerateText.mockResolvedValueOnce({
-        toolCalls: [{ toolName: 'correctTool', input: { wrapped: true } }],
-        text: '',
-        usage: {},
+      const mockStreamText = vi.mocked(streamText);
+      mockStreamText.mockReturnValueOnce({
+        textStream: (async function* () {})(),
+        toolCalls: Promise.resolve([{ toolName: 'correctTool', input: { wrapped: true } }]),
+        text: Promise.resolve(''),
+        usage: Promise.resolve({}),
       } as any);
 
       const context: RepairContext = {
@@ -282,7 +309,7 @@ describe('re-ask-strategy', () => {
           input: 'plain text input',
         } as any,
         tools: {
-          correctTool: { inputSchema: {} },
+          correctTool: { inputSchema: z.object({}) },
         } as any,
         error: new NoSuchToolError({
           toolName: 'wrongTool',
@@ -295,7 +322,7 @@ describe('re-ask-strategy', () => {
       await repairWrongToolName(context);
 
       // Verify the non-JSON string was wrapped in an object
-      const calls = mockGenerateText.mock.calls[0];
+      const calls = mockStreamText.mock.calls[0];
       const messages = calls?.[0]?.messages;
       const assistantMessage = messages?.find((m: any) => m.role === 'assistant');
       const content = assistantMessage?.content?.[0];
@@ -305,11 +332,12 @@ describe('re-ask-strategy', () => {
     });
 
     it('should handle already valid JSON string inputs', async () => {
-      const mockGenerateText = vi.mocked(generateText);
-      mockGenerateText.mockResolvedValueOnce({
-        toolCalls: [{ toolName: 'correctTool', input: { handled: true } }],
-        text: '',
-        usage: {},
+      const mockStreamText = vi.mocked(streamText);
+      mockStreamText.mockReturnValueOnce({
+        textStream: (async function* () {})(),
+        toolCalls: Promise.resolve([{ toolName: 'correctTool', input: { handled: true } }]),
+        text: Promise.resolve(''),
+        usage: Promise.resolve({}),
       } as any);
 
       const context: RepairContext = {
@@ -320,7 +348,7 @@ describe('re-ask-strategy', () => {
           input: '{"already":"valid"}',
         } as any,
         tools: {
-          correctTool: { inputSchema: {} },
+          correctTool: { inputSchema: z.object({}) },
         } as any,
         error: new NoSuchToolError({
           toolName: 'wrongTool',
@@ -333,12 +361,12 @@ describe('re-ask-strategy', () => {
       await repairWrongToolName(context);
 
       // Verify the valid JSON string was parsed to an object
-      const calls = mockGenerateText.mock.calls[0];
+      const calls = mockStreamText.mock.calls[0];
       const messages = calls?.[0]?.messages;
       const assistantMessage = messages?.find((m: any) => m.role === 'assistant');
       const content = assistantMessage?.content?.[0];
       if (content && typeof content === 'object' && 'input' in content) {
-        expect(content.input).toEqual('{"already":"valid"}'); // Now expects stringified JSON
+        expect(content.input).toEqual({ already: 'valid' }); // Expects parsed object
       }
     });
   });

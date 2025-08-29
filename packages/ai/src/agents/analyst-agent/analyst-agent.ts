@@ -118,7 +118,7 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
           messages: [systemMessage, datasetsSystemMessage, ...messages],
           stopWhen: STOP_CONDITIONS,
           toolChoice: 'required',
-          maxOutputTokens: 10000,
+          maxOutputTokens: 25000,
           temperature: 0,
           experimental_repairToolCall: async (repairContext) => {
             return repairToolCall({

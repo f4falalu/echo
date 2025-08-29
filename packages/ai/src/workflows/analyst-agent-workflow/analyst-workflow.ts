@@ -14,6 +14,20 @@ import {
   runGenerateChatTitleStep,
   runThinkAndPrepAgentStep,
 } from '../../steps';
+import { CREATE_DASHBOARDS_TOOL_NAME } from '../../tools/visualization-tools/dashboards/create-dashboards-tool/create-dashboards-tool';
+import { MODIFY_DASHBOARDS_TOOL_NAME } from '../../tools/visualization-tools/dashboards/modify-dashboards-tool/modify-dashboards-tool';
+import { CREATE_METRICS_TOOL_NAME } from '../../tools/visualization-tools/metrics/create-metrics-tool/create-metrics-tool';
+import { MODIFY_METRICS_TOOL_NAME } from '../../tools/visualization-tools/metrics/modify-metrics-tool/modify-metrics-tool';
+import { CREATE_REPORTS_TOOL_NAME } from '../../tools/visualization-tools/reports/create-reports-tool/create-reports-tool';
+import { MODIFY_REPORTS_TOOL_NAME } from '../../tools/visualization-tools/reports/modify-reports-tool/modify-reports-tool';
+import {
+  type AnalystWorkflowOutput,
+  type ChartInfo,
+  type DataSnapshot,
+  extractChartInfo,
+  extractToolCallsFromMessages,
+  segmentMessagesByUserRequests,
+} from './workflow-output.types';
 
 const AnalystWorkflowInputSchema = z.object({
   messages: z.array(z.custom<ModelMessage>()),
@@ -28,8 +42,11 @@ const AnalystWorkflowInputSchema = z.object({
 
 export type AnalystWorkflowInput = z.infer<typeof AnalystWorkflowInputSchema>;
 
-export async function runAnalystWorkflow(input: AnalystWorkflowInput) {
+export async function runAnalystWorkflow(
+  input: AnalystWorkflowInput
+): Promise<AnalystWorkflowOutput> {
   const workflowStartTime = Date.now();
+  const workflowId = `workflow_${input.chatId}_${input.messageId}`;
 
   const { messages } = input;
 
@@ -59,23 +76,136 @@ export async function runAnalystWorkflow(input: AnalystWorkflowInput) {
     },
   });
 
+  console.info('[runAnalystWorkflow] DEBUG: Think-and-prep results', {
+    workflowId,
+    messageId: input.messageId,
+    earlyTermination: thinkAndPrepAgentStepResults.earlyTermination,
+    messageCount: thinkAndPrepAgentStepResults.messages.length,
+  });
+
   messages.push(...thinkAndPrepAgentStepResults.messages);
 
-  await runAnalystAgentStep({
-    options: {
+  // Check if think-and-prep agent terminated early (clarifying question or direct response)
+  let analystAgentStepResults = { messages: [] as ModelMessage[] };
+
+  if (!thinkAndPrepAgentStepResults.earlyTermination) {
+    console.info('[runAnalystWorkflow] Running analyst agent step (early termination = false)', {
+      workflowId,
       messageId: input.messageId,
-      chatId: input.chatId,
-      organizationId: input.organizationId,
-      dataSourceId: input.dataSourceId,
-      dataSourceSyntax: input.dataSourceSyntax,
-      userId: input.userId,
-      datasets: input.datasets,
-      workflowStartTime,
+      earlyTermination: thinkAndPrepAgentStepResults.earlyTermination,
+    });
+
+    analystAgentStepResults = await runAnalystAgentStep({
+      options: {
+        messageId: input.messageId,
+        chatId: input.chatId,
+        organizationId: input.organizationId,
+        dataSourceId: input.dataSourceId,
+        dataSourceSyntax: input.dataSourceSyntax,
+        userId: input.userId,
+        datasets: input.datasets,
+        workflowStartTime,
+      },
+      streamOptions: {
+        messages,
+      },
+    });
+
+    messages.push(...analystAgentStepResults.messages);
+  } else {
+    console.info('[runAnalystWorkflow] DEBUG: SKIPPING analyst agent due to early termination', {
+      workflowId,
+      messageId: input.messageId,
+      earlyTermination: thinkAndPrepAgentStepResults.earlyTermination,
+    });
+  }
+
+  // Extract all tool calls from messages
+  const allToolCalls = extractToolCallsFromMessages(messages);
+
+  // Extract charts created from tool calls
+  const chartsCreated: ChartInfo[] = [];
+  for (const toolCall of allToolCalls) {
+    if (
+      toolCall.result &&
+      (toolCall.toolName === CREATE_METRICS_TOOL_NAME ||
+        toolCall.toolName === CREATE_DASHBOARDS_TOOL_NAME ||
+        toolCall.toolName === CREATE_REPORTS_TOOL_NAME ||
+        toolCall.toolName === MODIFY_METRICS_TOOL_NAME ||
+        toolCall.toolName === MODIFY_DASHBOARDS_TOOL_NAME ||
+        toolCall.toolName === MODIFY_REPORTS_TOOL_NAME)
+    ) {
+      const charts = extractChartInfo(toolCall, toolCall.result);
+      chartsCreated.push(...charts);
+    }
+  }
+
+  // Segment messages by user requests
+  const userRequestSegments = segmentMessagesByUserRequests(messages, allToolCalls, chartsCreated);
+
+  // Calculate summary statistics
+  const failedToolCalls = allToolCalls.filter((tc) => !tc.success);
+  const uniqueToolsUsed = [...new Set(allToolCalls.map((tc) => tc.toolName))];
+  const chartsByType = chartsCreated.reduce(
+    (acc, chart) => {
+      acc[chart.type] = (acc[chart.type] || 0) + 1;
+      return acc;
     },
-    streamOptions: {
-      messages,
+    {} as Record<string, number>
+  );
+
+  // Extract all data snapshots from SQL execution tool calls
+  const allDataSnapshots: DataSnapshot[] = [];
+  for (const segment of userRequestSegments) {
+    allDataSnapshots.push(...segment.dataSnapshots);
+  }
+
+  const totalDataRowsReturned = allDataSnapshots.reduce(
+    (sum, snapshot) => sum + snapshot.rowCount,
+    0
+  );
+
+  const totalSqlQueries = allToolCalls.filter((tc) => tc.toolName === 'executeSql').length;
+
+  const workflowEndTime = Date.now();
+
+  // Construct the comprehensive output
+  const output: AnalystWorkflowOutput = {
+    workflowId,
+    chatId: input.chatId,
+    messageId: input.messageId,
+    userId: input.userId,
+    organizationId: input.organizationId,
+    dataSourceId: input.dataSourceId,
+
+    startTime: workflowStartTime,
+    endTime: workflowEndTime,
+    totalExecutionTimeMs: workflowEndTime - workflowStartTime,
+
+    analysisMode: analysisType === 'investigation' ? 'investigation' : 'standard',
+
+    messages,
+
+    allToolCalls,
+    failedToolCalls,
+
+    userRequestSegments,
+
+    chartsCreated,
+
+    summary: {
+      totalToolCalls: allToolCalls.length,
+      successfulToolCalls: allToolCalls.length - failedToolCalls.length,
+      failedToolCalls: failedToolCalls.length,
+      totalChartsCreated: chartsCreated.length,
+      chartsByType,
+      totalDataRowsReturned,
+      totalSqlQueries,
+      uniqueToolsUsed,
     },
-  });
+  };
+
+  return output;
 }
 
 const AnalystPrepStepSchema = z.object({

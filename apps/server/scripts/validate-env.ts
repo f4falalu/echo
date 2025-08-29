@@ -14,22 +14,15 @@ const requiredEnv = {
   ELECTRIC_PROXY_URL: process.env.ELECTRIC_PROXY_URL,
   DATABASE_URL: process.env.DATABASE_URL,
   TRIGGER_SECRET_KEY: process.env.TRIGGER_SECRET_KEY,
+  // Slack integration environment variables (now required)
+  SLACK_CLIENT_ID: process.env.SLACK_CLIENT_ID,
+  SLACK_CLIENT_SECRET: process.env.SLACK_CLIENT_SECRET,
+  SLACK_APP_SUPPORT_URL: process.env.SLACK_APP_SUPPORT_URL,
+  SERVER_URL: process.env.SERVER_URL,
 };
 
-// Conditionally validate Slack environment variables if integration is enabled
-const conditionalEnv: Record<string, string> = {};
-if (process.env.SLACK_INTEGRATION_ENABLED === 'true') {
-  conditionalEnv.SLACK_CLIENT_ID = process.env.SLACK_CLIENT_ID;
-  conditionalEnv.SLACK_CLIENT_SECRET = process.env.SLACK_CLIENT_SECRET;
-  conditionalEnv.SLACK_APP_SUPPORT_URL = process.env.SLACK_APP_SUPPORT_URL;
-  conditionalEnv.SERVER_URL = process.env.SERVER_URL;
-}
-
-// Combine required and conditional environment variables
-const allRequiredEnv = { ...requiredEnv, ...conditionalEnv };
-
 // Validate environment variables
-const { hasErrors } = validateEnv(allRequiredEnv);
+const { hasErrors } = validateEnv(requiredEnv);
 
 if (hasErrors) {
   process.exit(1);

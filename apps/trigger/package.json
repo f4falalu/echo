@@ -4,11 +4,10 @@
   "private": false,
   "type": "module",
   "scripts": {
-    "dev": "echo 'y' | npx trigger.dev@latest dev",
+    "dev": "echo 'y' | npx trigger.dev@latest dev --env-file ../../.env",
     "dev:fast": "echo 'y' | npx trigger.dev@latest dev",
     "deploy": "echo 'y' | npx trigger.dev@latest deploy",
-    "prebuild": "[ \"$SKIP_ENV_CHECK\" = \"true\" ] || tsx scripts/validate-env.ts",
-    "build": "echo 'No build step required but we run it to make sure env is loaded' && tsc --noEmit",
+    "build": "echo 'No build step required' && tsc --noEmit",
     "build:dry-run": "echo 'No build step required but we run it to make sure env is loaded' && tsc --noEmit",
     "lint": "biome check --write",
     "test": "vitest run",
@@ -20,20 +19,19 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.864.0",
+    "@aws-sdk/client-s3": "catalog:",
     "@aws-sdk/s3-request-presigner": "^3.864.0",
     "@buster/access-controls": "workspace:*",
     "@buster/ai": "workspace:*",
     "@buster/data-source": "workspace:^",
     "@buster/database": "workspace:*",
-    "@buster/env-utils": "workspace:*",
     "@buster/server-shared": "workspace:*",
     "@buster/slack": "workspace:*",
     "@buster/test-utils": "workspace:*",
     "@buster/typescript-config": "workspace:*",
     "@buster/vitest-config": "workspace:*",
     "@buster/web-tools": "workspace:*",
-    "@trigger.dev/sdk": "catalog:",
+    "@trigger.dev/sdk": "4.0.1",
     "ai": "catalog:",
     "braintrust": "catalog:",
     "drizzle-orm": "catalog:",
@@ -41,6 +39,6 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@trigger.dev/build": "catalog:"
+    "@trigger.dev/build": "4.0.1"
   }
 }

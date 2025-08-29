@@ -38,6 +38,9 @@ export interface SnowflakeCredentials {
 
   /** Default schema to use */
   default_schema?: string;
+
+  /** Optional custom host for load balancers (e.g., "ridedvp-angel.yukicomputing.com:443") */
+  custom_host?: string;
 }
 
 /**
@@ -119,7 +122,7 @@ export interface MySQLCredentials {
   port?: number;
 
   /** Database name */
-  database: string;
+  default_database: string;
 
   /** Username for authentication */
   username: string;
@@ -158,7 +161,7 @@ export interface SQLServerCredentials {
   port?: number;
 
   /** Database name */
-  database: string;
+  default_database: string;
 
   /** Username for authentication */
   username: string;
@@ -199,7 +202,7 @@ export interface RedshiftCredentials {
   port?: number;
 
   /** Database name */
-  database: string;
+  default_database: string;
 
   /** Username for authentication */
   username: string;
@@ -208,7 +211,7 @@ export interface RedshiftCredentials {
   password: string;
 
   /** Default schema to use */
-  schema?: string;
+  default_schema?: string;
 
   /** SSL configuration (required for Redshift) */
   ssl?: boolean;

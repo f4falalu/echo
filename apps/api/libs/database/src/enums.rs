@@ -96,12 +96,17 @@ pub enum TeamToUserRole {
     PartialOrd,
 )]
 #[diesel(sql_type = sql_types::AssetPermissionRoleEnum)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "snake_case")]
 pub enum AssetPermissionRole {
+    #[serde(alias = "owner")]
     Owner,
+    #[serde(alias = "fullAccess")]
     FullAccess,
+    #[serde(alias = "canEdit")]
     CanEdit,
+    #[serde(alias = "canFilter")]
     CanFilter,
+    #[serde(alias = "canView")]
     CanView,
 }
 
@@ -233,6 +238,8 @@ pub enum AssetType {
     MetricFile,
     #[serde(rename = "dashboard")]
     DashboardFile,
+    #[serde(rename = "report")]
+    ReportFile,
 }
 
 impl AssetType {
@@ -244,6 +251,7 @@ impl AssetType {
             AssetType::Chat => "chat",
             AssetType::MetricFile => "metric",
             AssetType::DashboardFile => "dashboard",
+            AssetType::ReportFile => "report",
         }
     }
 }
@@ -591,6 +599,7 @@ impl ToSql<sql_types::AssetTypeEnum, Pg> for AssetType {
             AssetType::Chat => out.write_all(b"chat")?,
             AssetType::DashboardFile => out.write_all(b"dashboard_file")?,
             AssetType::MetricFile => out.write_all(b"metric_file")?,
+            AssetType::ReportFile => out.write_all(b"report_file")?,
         }
         Ok(IsNull::No)
     }
@@ -605,6 +614,7 @@ impl FromSql<sql_types::AssetTypeEnum, Pg> for AssetType {
             b"chat" => Ok(AssetType::Chat),
             b"dashboard_file" => Ok(AssetType::DashboardFile),
             b"metric_file" => Ok(AssetType::MetricFile),
+            b"report_file" => Ok(AssetType::ReportFile),
             _ => Err("Unrecognized enum variant".into()),
         }
     }

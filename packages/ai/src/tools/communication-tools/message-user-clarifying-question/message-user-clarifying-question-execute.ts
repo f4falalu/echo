@@ -1,16 +1,18 @@
 import { updateMessageEntries } from '@buster/database';
 import { wrapTraced } from 'braintrust';
 import { createRawToolResultEntry } from '../../shared/create-raw-llm-tool-result-entry';
-import type {
-  MessageUserClarifyingQuestionContext,
-  MessageUserClarifyingQuestionInput,
-  MessageUserClarifyingQuestionOutput,
-  MessageUserClarifyingQuestionState,
+import { createMessageUserClarifyingQuestionRawLlmMessageEntry } from './helpers/message-user-clarifying-question-transform-helper';
+import {
+  MESSAGE_USER_CLARIFYING_QUESTION_TOOL_NAME,
+  type MessageUserClarifyingQuestionContext,
+  type MessageUserClarifyingQuestionInput,
+  type MessageUserClarifyingQuestionOutput,
+  type MessageUserClarifyingQuestionState,
 } from './message-user-clarifying-question';
-import { MESSAGE_USER_CLARIFYING_QUESTION_TOOL_NAME } from './message-user-clarifying-question';
 
 // Process message user clarifying question tool execution
 async function processMessageUserClarifyingQuestion(
+  state: MessageUserClarifyingQuestionState,
   toolCallId: string,
   messageId: string
 ): Promise<MessageUserClarifyingQuestionOutput> {
@@ -18,6 +20,8 @@ async function processMessageUserClarifyingQuestion(
     success: true,
   };
 
+  // Create both the tool call and result messages to maintain proper ordering
+  const rawLlmMessage = createMessageUserClarifyingQuestionRawLlmMessageEntry(state, toolCallId);
   const rawToolResultEntry = createRawToolResultEntry(
     toolCallId,
     MESSAGE_USER_CLARIFYING_QUESTION_TOOL_NAME,
@@ -25,9 +29,14 @@ async function processMessageUserClarifyingQuestion(
   );
 
   try {
+    // Send both messages together: tool call followed by result
+    const rawLlmMessages = rawLlmMessage
+      ? [rawLlmMessage, rawToolResultEntry]
+      : [rawToolResultEntry];
+
     await updateMessageEntries({
       messageId,
-      rawLlmMessages: [rawToolResultEntry],
+      rawLlmMessages,
     });
   } catch (error) {
     console.error('[message-user-clarifying-question] Error updating message entries:', error);
@@ -36,13 +45,12 @@ async function processMessageUserClarifyingQuestion(
   return output;
 }
 
-// Factory function for execute callback
+// Factory function that creates the execute function with proper context typing
 export function createMessageUserClarifyingQuestionExecute(
   context: MessageUserClarifyingQuestionContext,
   state: MessageUserClarifyingQuestionState
 ) {
-  // Wrap the execution with tracing
-  const executeMessageUserClarifyingQuestion = wrapTraced(
+  return wrapTraced(
     async (
       _input: MessageUserClarifyingQuestionInput
     ): Promise<MessageUserClarifyingQuestionOutput> => {
@@ -50,15 +58,8 @@ export function createMessageUserClarifyingQuestionExecute(
         throw new Error('Tool call ID is required');
       }
 
-      return processMessageUserClarifyingQuestion(state.toolCallId, context.messageId);
+      return processMessageUserClarifyingQuestion(state, state.toolCallId, context.messageId);
     },
     { name: 'Message User Clarifying Question' }
   );
-
-  // Return the execute function
-  return async (
-    input: MessageUserClarifyingQuestionInput
-  ): Promise<MessageUserClarifyingQuestionOutput> => {
-    return await executeMessageUserClarifyingQuestion(input);
-  };
 }

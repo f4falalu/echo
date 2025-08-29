@@ -17,6 +17,7 @@ import { type PermissionedDataset, getPermissionedDatasets } from '@buster/acces
 // AI package imports
 import { type AnalystWorkflowInput, runAnalystWorkflow } from '@buster/ai';
 
+import type { ModelMessage } from 'ai';
 import type { messagePostProcessingTask } from '../message-post-processing/message-post-processing';
 
 /**
@@ -244,7 +245,7 @@ export const analystAgentTask: ReturnType<
   machine: 'small-2x',
   schema: AnalystAgentTaskInputSchema,
   queue: analystQueue,
-  maxDuration: 1200, // 15 minutes for complex analysis
+  maxDuration: 1200, // 20 minutes for complex analysis
   run: async (payload): Promise<AnalystAgentTaskOutput> => {
     const taskStartTime = Date.now();
     const resourceTracker = new ResourceTracker();
@@ -339,19 +340,20 @@ export const analystAgentTask: ReturnType<
       logPerformanceMetrics('post-data-load', payload.message_id, taskStartTime, resourceTracker);
 
       // Task 4: Prepare workflow input with conversation history
-      // Convert conversation history to messages format expected by the workflow
-      const messages =
+      // The conversation history from getChatConversationHistory is already in ModelMessage[] format
+      const modelMessages: ModelMessage[] =
         conversationHistory.length > 0
           ? conversationHistory
           : [
               {
-                role: 'user' as const,
+                role: 'user',
+                // v5 supports string content directly for user messages
                 content: messageContext.requestMessage,
               },
             ];
 
       const workflowInput: AnalystWorkflowInput = {
-        messages,
+        messages: modelMessages,
         messageId: payload.message_id,
         chatId: messageContext.chatId,
         userId: messageContext.userId,

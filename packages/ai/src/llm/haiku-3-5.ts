@@ -24,14 +24,26 @@ function initializeHaiku35() {
     }
   }
 
-  // Only include Vertex if credentials are available
-  if (process.env.VERTEX_CLIENT_EMAIL && process.env.VERTEX_PRIVATE_KEY) {
+  // Only include Vertex if all required credentials are available
+  if (
+    process.env.VERTEX_CLIENT_EMAIL &&
+    process.env.VERTEX_PRIVATE_KEY &&
+    process.env.VERTEX_PROJECT
+  ) {
     try {
       models.push(vertexModel('claude-3-5-haiku@20241022'));
-      console.info('Haiku35: Vertex AI model added to fallback chain');
+      console.info('Haiku35: Vertex AI model added to fallback chain (fallback)');
     } catch (error) {
       console.warn('Haiku35: Failed to initialize Vertex AI model:', error);
     }
+  } else {
+    const missing = [];
+    if (!process.env.VERTEX_CLIENT_EMAIL) missing.push('VERTEX_CLIENT_EMAIL');
+    if (!process.env.VERTEX_PRIVATE_KEY) missing.push('VERTEX_PRIVATE_KEY');
+    if (!process.env.VERTEX_PROJECT) missing.push('VERTEX_PROJECT');
+    console.info(
+      `Haiku35: Missing Vertex credentials (${missing.join(', ')}), skipping Vertex model`
+    );
   }
 
   // Ensure we have at least one model
@@ -47,7 +59,28 @@ function initializeHaiku35() {
     models,
     modelResetInterval: 60000,
     retryAfterOutput: true,
-    onError: (err) => console.error(`FALLBACK.  Here is the error: ${err}`),
+    onError: (err, modelId) => {
+      // Handle various error formats
+      let errorMessage = 'Unknown error';
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      } else if (err && typeof err === 'object') {
+        const errObj = err as Record<string, unknown>;
+        if ('message' in errObj) {
+          errorMessage = String(errObj.message);
+        }
+        if ('type' in errObj) {
+          errorMessage = `${errObj.type}: ${errObj.message || 'No message'}`;
+        }
+      } else {
+        errorMessage = String(err);
+      }
+
+      const errorDetails =
+        err instanceof Error && err.stack ? err.stack : JSON.stringify(err, null, 2);
+      console.error(`FALLBACK from model ${modelId}. Error: ${errorMessage}`);
+      console.error('Error details:', errorDetails);
+    },
   });
 
   return _haiku35Instance;

@@ -23,10 +23,6 @@ const SlackEnvSchema = z.object({
   SLACK_CLIENT_ID: z.string().min(1),
   SLACK_CLIENT_SECRET: z.string().min(1),
   SERVER_URL: z.string().url(),
-  SLACK_INTEGRATION_ENABLED: z
-    .string()
-    .default('false')
-    .transform((val) => val === 'true'),
 });
 
 // OAuth metadata schema
@@ -70,7 +66,6 @@ export class SlackOAuthService {
           hasClientId: !!process.env.SLACK_CLIENT_ID,
           hasClientSecret: !!process.env.SLACK_CLIENT_SECRET,
           hasServerUrl: !!process.env.SERVER_URL,
-          integrationEnabled: process.env.SLACK_INTEGRATION_ENABLED,
         },
       });
       throw new Error(
@@ -81,9 +76,10 @@ export class SlackOAuthService {
 
   /**
    * Check if Slack integration is enabled
+   * Always returns true as the integration is now permanently enabled
    */
   isEnabled(): boolean {
-    return this.env.SLACK_INTEGRATION_ENABLED;
+    return true;
   }
 
   /**
@@ -95,11 +91,6 @@ export class SlackOAuthService {
     metadata?: OAuthMetadata;
   }): Promise<{ authUrl: string; state: string }> {
     try {
-      // Check if integration is enabled
-      if (!this.isEnabled()) {
-        throw new Error('Slack integration is not enabled');
-      }
-
       // Check for existing integration - allow re-installation if scopes don't match
       const existing = await slackHelpers.getActiveIntegration(params.organizationId);
       if (existing) {
@@ -136,7 +127,6 @@ export class SlackOAuthService {
         userId: params.userId,
         errorType: error instanceof Error ? error.constructor.name : typeof error,
         timestamp: new Date().toISOString(),
-        integrationEnabled: this.isEnabled(),
       });
       throw error; // Re-throw to maintain existing error handling in handler
     }
