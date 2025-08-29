@@ -1,5 +1,5 @@
 import type React from 'react';
-import ApartmentBuilding from '@/components/ui/icons/NucleoIconFilled/apartment-building';
+import ApartmentBuilding from '@/components/ui/icons/NucleoIconOutlined/apartment-building';
 import { cn } from '@/lib/classMerge';
 
 export const WorkspaceAvatar: React.FC<{

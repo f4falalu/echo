@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
 import { useIsUserAdmin, useIsUserRegistered } from '@/api/buster_rest/users/useGetUserInfo';
 import { BackButton } from '@/components/ui/buttons/BackButton';
+import ApartmentBuilding from '@/components/ui/icons/NucleoIconOutlined/apartment-building';
 import CircleUser from '@/components/ui/icons/NucleoIconOutlined/circle-user';
 import { createSidebarGroup } from '@/components/ui/sidebar/create-sidebar-item';
-import ApartmentBuilding from '../../ui/icons/NucleoIconOutlined/apartment-building';
 import LockCircle from '../../ui/icons/NucleoIconOutlined/lock-circle';
-import { type ISidebarGroup, type ISidebarItem, Sidebar } from '../../ui/sidebar';
+import { type ISidebarGroup, Sidebar } from '../../ui/sidebar';
 import { SidebarUserFooter } from './SidebarUserFooter';
 
 const accountItems: ISidebarGroup = createSidebarGroup({

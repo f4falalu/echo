@@ -1,13 +1,16 @@
-import { type ParsedLocation, useLocation } from '@tanstack/react-router';
+import { type ParsedLocation, useLocation, useNavigate } from '@tanstack/react-router';
 import { useCallback, useRef } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 import type { AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
+import { useGetMetricParams } from '@/context/Metrics/useGetMetricParams';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 
 const useMetricAssetContext = () => {
   const splitterRef = useRef<AppSplitterRef>(null);
   const pathname = useLocation({ select: useCallback((x: ParsedLocation) => x.pathname, []) });
   const isMetricEditMode = pathname.includes('/chart/edit');
+  const { metricId } = useGetMetricParams();
+  const navigate = useNavigate();
 
   const toggleEditMode = useMemoizedFn(async (v?: boolean) => {
     const toggleOff = v !== undefined ? v : !isMetricEditMode;
@@ -19,8 +22,21 @@ const useMetricAssetContext = () => {
 
     if (!toggleOff) {
       await splitterRef.current?.animateWidth('0px', 'right', 300);
+      await navigate({
+        to: '/app/metrics/$metricId/chart',
+        params: { metricId },
+      });
     } else {
-      await splitterRef.current?.animateWidth('300px', 'right', 300);
+      splitterRef.current?.animateWidth('300px', 'right', 300);
+      await navigate({
+        to: '/app/metrics/$metricId/chart/edit',
+        mask: {
+          to: '/app/metrics/$metricId/chart/edit',
+          params: { metricId },
+          unmaskOnReload: true,
+        },
+        params: { metricId },
+      });
     }
   });
 

@@ -37,7 +37,7 @@ export const MetricContainerHeaderButtons: React.FC<{
 
   return (
     <FileButtonContainer>
-      {isEditor && !isViewingOldVersion && <EditChartButton metricId={metricId} />}
+      {isEditor && !isViewingOldVersion && <EditChartButton />}
       {isEffectiveOwner && !isViewingOldVersion && <ShareMetricButton metricId={metricId} />}
       <ThreeDotMenuButton
         metricId={metricId}
@@ -54,32 +54,18 @@ export const MetricContainerHeaderButtons: React.FC<{
 
 MetricContainerHeaderButtons.displayName = 'MetricContainerHeaderButtons';
 
-const EditChartButton = React.memo(({ metricId }: { metricId: string }) => {
+const EditChartButton = React.memo(() => {
   const isChartEditMode = useIsMetricEditMode();
   const toggleEditMode = useMetricEditToggle();
 
   return (
-    <Link
-      to={isChartEditMode ? '/app/metrics/$metricId/chart' : '/app/metrics/$metricId/chart/edit'}
-      mask={
-        isChartEditMode
-          ? {
-              to: '/app/metrics/$metricId/chart',
-              params: { metricId },
-              unmaskOnReload: true,
-            }
-          : undefined
-      }
-      params={{ metricId }}
+    <SelectableButton
+      tooltipText="Edit chart"
+      icon={<SquareChartPen />}
       data-testid="edit-chart-button"
       onClick={() => toggleEditMode()}
-    >
-      <SelectableButton
-        tooltipText="Edit chart"
-        icon={<SquareChartPen />}
-        selected={isChartEditMode}
-      />
-    </Link>
+      selected={isChartEditMode}
+    />
   );
 });
 EditChartButton.displayName = 'EditChartButton';
