@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useVersionHistoryMode } from '@/layouts/AssetContainer/MetricAssetContainer';
-import { createDropdownItem, type IDropdownItems } from '../../ui/dropdown';
-import { createVersionDropdownItemBase } from './listDropdownItemBase';
+import type { IDropdownItems } from '../../ui/dropdown';
+import { createVersionHistoryDropdownItems } from './createVersionHelpers';
 
 export const useListMetricVersionDropdownItems = ({
   versions,
@@ -16,18 +16,11 @@ export const useListMetricVersionDropdownItems = ({
   const { openVersionHistoryMode } = useVersionHistoryMode();
 
   const versionHistoryItems: IDropdownItems = useMemo(() => {
-    return versions
-      .map(({ version_number, updated_at }) => {
-        return createDropdownItem({
-          ...createVersionDropdownItemBase({
-            version_number,
-            updated_at,
-            selectedVersion,
-          }),
-          onClick: () => openVersionHistoryMode(version_number),
-        });
-      })
-      .reverse();
+    return createVersionHistoryDropdownItems({
+      versions,
+      selectedVersion,
+      onClick: openVersionHistoryMode,
+    });
   }, [versions, selectedVersion]);
 
   return versionHistoryItems;

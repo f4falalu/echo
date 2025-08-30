@@ -1,1 +1,1 @@
-export * from './MetricViewChart';
+export * from './MetricViewChartController';

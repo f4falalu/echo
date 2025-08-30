@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { useGetMetric } from '@/api/buster_rest/metrics';
+import { METRIC_CHART_CONTAINER_ID } from '@/components/features/metrics/MetricViewChart/config';
 import { SquareChart } from '@/components/ui/icons';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { METRIC_CHART_CONTAINER_ID } from '@/controllers/MetricController/MetricViewChart/config';
 import { downloadElementToImage } from '@/lib/exportUtils';
 
 export const useDownloadPNGSelectMenu = ({

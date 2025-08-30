@@ -1,9 +1,8 @@
 import { useNavigate } from '@tanstack/react-router';
 import { useMemo } from 'react';
+import { METRIC_CHART_TITLE_INPUT_ID } from '@/components/features/metrics/MetricViewChart/MetricViewChartHeader';
 import { Pencil } from '@/components/ui/icons';
-import { METRIC_CHART_TITLE_INPUT_ID } from '@/controllers/MetricController/MetricViewChart/MetricViewChartHeader';
 import { ensureElementExists } from '@/lib/element';
-import { timeout } from '@/lib/timeout';
 
 export const useRenameMetricOnPage = ({
   metricId,
@@ -21,12 +20,12 @@ export const useRenameMetricOnPage = ({
       icon: <Pencil />,
       onClick: async () => {
         await navigate({
-          from: '.' as '/app/metrics/$metricId',
-          to: './chart',
+          unsafeRelative: 'path',
+          from: undefined as unknown as '/app/metrics/$metricId',
+          to: '../chart' as './chart',
           params: { metricId },
           search: metricVersionNumber ? { metric_version_number: metricVersionNumber } : undefined,
         });
-        await timeout(100);
         const input = await ensureElementExists(
           () => document.getElementById(METRIC_CHART_TITLE_INPUT_ID) as HTMLInputElement
         );

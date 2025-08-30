@@ -1,6 +1,6 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import type { BusterMetric } from '@/api/asset_interfaces/metric';
-import { useGetMetric } from '@/api/buster_rest/metrics';
+import { useGetMetric, useSaveMetric } from '@/api/buster_rest/metrics';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { Button } from '../../ui/buttons';
 import { CircleInfo } from '../../ui/icons';
@@ -19,13 +19,16 @@ type MetricVersionHistoryModalProps = Pick<
 };
 
 export const MetricVersionHistoryModal = React.memo(
-  ({ onClose, versionNumber, metricId }: MetricVersionHistoryModalProps) => {
+  ({ onClose, versionNumber: versionNumberProp, metricId }: MetricVersionHistoryModalProps) => {
+    const [versionNumber, setVersionNumber] = useState<number | false>(versionNumberProp);
     const { data: versions = [] } = useGetMetric(
       { id: metricId },
       { select: useCallback((x: BusterMetric) => x.versions, []) }
     );
+    const { mutateAsync: updateMetric, isPending: isRestoringVersion } = useSaveMetric({
+      updateOnSave: true,
+    });
 
-    const restoringVersion = null;
     const title = 'Metric Version History';
     const learnMoreButton = (
       <Button className="pl-0.5!" size={'small'} prefix={<CircleInfo />} variant={'ghost'}>
@@ -34,26 +37,25 @@ export const MetricVersionHistoryModal = React.memo(
     );
 
     const versionHistoryItems = useMemo<VersionHistoryItem[]>(
-      () =>
-        createVersionHistoryItems(
-          Array.from({ length: 100 }, (_, i) => ({
-            version_number: i + 1,
-            updated_at: new Date().toISOString(),
-            selected: false,
-            onClickVersion: () => {},
-            onClickRestoreVersion: () => {},
-          }))
-        ),
+      () => createVersionHistoryItems(versions),
       [versions]
     );
 
     const onClickVersion = useMemoizedFn((versionNumber: number) => {
-      //
+      setVersionNumber(versionNumber);
     });
 
-    const onClickRestoreVersion = useMemoizedFn((versionNumber: number) => {
-      //
+    const onClickRestoreVersion = useMemoizedFn(async (versionNumber: number) => {
+      if (isRestoringVersion) return;
+      await updateMetric({
+        id: metricId,
+        restore_to_version: versionNumber,
+      });
     });
+
+    useLayoutEffect(() => {
+      setVersionNumber(versionNumberProp ?? undefined);
+    }, [versionNumberProp]);
 
     return (
       <VersionHistoryModal
@@ -63,7 +65,7 @@ export const MetricVersionHistoryModal = React.memo(
         versionHistoryItems={versionHistoryItems}
         onClickVersion={onClickVersion}
         onClickRestoreVersion={onClickRestoreVersion}
-        restoringVersion={restoringVersion}
+        isRestoringVersion={isRestoringVersion}
         learnMoreButton={learnMoreButton}
       >
         <div>Metric Version History</div>

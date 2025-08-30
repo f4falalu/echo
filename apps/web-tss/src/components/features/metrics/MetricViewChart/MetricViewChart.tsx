@@ -1,11 +1,8 @@
-'use client';
-
 import { AnimatePresence, motion } from 'framer-motion';
 import isEmpty from 'lodash/isEmpty';
 import React, { useMemo } from 'react';
 import type { BusterMetric } from '@/api/asset_interfaces/metric';
 import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
-import { useIsMetricReadOnly } from '@/context/Metrics/useIsMetricReadOnly';
 import { useUpdateMetricChart } from '@/context/Metrics/useUpdateMetricChart';
 import { useSelectedColorPalette } from '@/context/Themes/usePalettes';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
@@ -13,7 +10,6 @@ import { cn } from '@/lib/classMerge';
 import { inputHasText } from '@/lib/text';
 import { MetricChartEvaluation } from './MetricChartEvaluation';
 import { MetricDataTruncatedWarning } from './MetricDataTruncatedWarning';
-import { MetricSaveFilePopup } from './MetricSaveFilePopup';
 import { MetricViewChartContent } from './MetricViewChartContent';
 import { MetricViewChartHeader } from './MetricViewChartHeader';
 
@@ -46,13 +42,7 @@ export const MetricViewChart: React.FC<{
   className?: string;
   cardClassName?: string;
 }> = React.memo(
-  ({
-    metricId,
-    versionNumber,
-    readOnly: readOnlyProp = false,
-    className = '',
-    cardClassName = '',
-  }) => {
+  ({ metricId, versionNumber, readOnly = false, className = '', cardClassName = '' }) => {
     const { data: metric } = useGetMetric(
       { id: metricId, versionNumber },
       { select: stableMetricSelect }
@@ -67,10 +57,7 @@ export const MetricViewChart: React.FC<{
     const { name, description, time_frame, evaluation_score, evaluation_summary } = metric || {};
 
     const isTable = metric?.chart_config.selectedChartType === 'table';
-    const { isReadOnly, isVersionHistoryMode, isViewingOldVersion } = useIsMetricReadOnly({
-      metricId,
-      readOnly: readOnlyProp,
-    });
+
     const loadingData = !isFetchedMetricData;
     const hasData = !loadingData && !isEmpty(metricData?.data);
     const errorData = !!metricDataError;
@@ -101,7 +88,7 @@ export const MetricViewChart: React.FC<{
               description={description}
               timeFrame={time_frame}
               onSetTitle={onSetTitle}
-              readOnly={isReadOnly}
+              readOnly={readOnly}
             />
             <div className={'border-border border-b'} />
             <MetricViewChartContent
@@ -111,7 +98,7 @@ export const MetricViewChart: React.FC<{
               fetchedData={isFetchedMetricData}
               errorMessage={metricDataError?.message}
               metricId={metricId}
-              readOnly={isReadOnly}
+              readOnly={readOnly}
             />
           </MetricViewChartCard>
 
@@ -124,10 +111,6 @@ export const MetricViewChart: React.FC<{
             evaluationSummary={evaluation_summary}
           />
         </AnimatePresenceWrapper>
-
-        {!isReadOnly && !isVersionHistoryMode && !isViewingOldVersion && (
-          <MetricSaveFilePopup metricId={metricId} />
-        )}
       </div>
     );
   }

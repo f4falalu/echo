@@ -16,6 +16,7 @@ import { timeout } from '@/lib/timeout';
 import { Button } from '../../ui/buttons';
 import { Check, Check3, Xmark } from '../../ui/icons';
 import { AppPageLayout } from '../../ui/layouts/AppPageLayout';
+import { AppTooltip } from '../../ui/tooltip';
 import { Text } from '../../ui/typography';
 
 export type VersionHistoryItem = {
@@ -31,8 +32,8 @@ export interface VersionHistoryModalProps {
   versionHistoryItems: VersionHistoryItem[];
   onClickVersion: (versionNumber: number) => void;
   onClickRestoreVersion: (versionNumber: number) => void;
-  restoringVersion: number | null;
   learnMoreButton?: React.ReactNode;
+  isRestoringVersion: boolean;
 }
 
 export const VersionHistoryModal = ({
@@ -42,7 +43,7 @@ export const VersionHistoryModal = ({
   versionHistoryItems,
   onClickVersion,
   onClickRestoreVersion,
-  restoringVersion,
+  isRestoringVersion,
   learnMoreButton,
 }: VersionHistoryModalProps) => {
   const open = versionNumber !== false;
@@ -97,7 +98,7 @@ export const VersionHistoryModal = ({
               <RestoreVersionContainer
                 onClickRestoreVersion={onClickRestoreVersionPreflight}
                 disableRestoreVersion={versionNumber === latestVersionNumber}
-                isRestoringVersion={restoringVersion !== null}
+                isRestoringVersion={isRestoringVersion}
                 learnMoreButton={learnMoreButton}
               />
             </>
@@ -179,14 +180,25 @@ const RestoreVersionContainer: React.FC<
   return (
     <div className="absolute bottom-0 bg-panel-background border-t flex justify-between items-center gap-x-2 left-0 right-0 w-full h-[38px] px-4">
       <div>{learnMoreButton}</div>
-      <Button
-        loading={isRestoringVersion}
-        onClick={() => onClickRestoreVersion()}
-        disabled={disableRestoreVersion}
-        variant={'black'}
+      <AppTooltip
+        delayDuration={650}
+        title={
+          disableRestoreVersion
+            ? 'This is the latest version'
+            : isRestoringVersion
+              ? 'Restoring...'
+              : ''
+        }
       >
-        Restore this version
-      </Button>
+        <Button
+          loading={isRestoringVersion}
+          onClick={() => onClickRestoreVersion()}
+          disabled={disableRestoreVersion}
+          variant={'black'}
+        >
+          Restore this version
+        </Button>
+      </AppTooltip>
     </div>
   );
 };

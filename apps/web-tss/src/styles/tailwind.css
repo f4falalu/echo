@@ -272,6 +272,9 @@
     @apply border-border outline-ring/0;
   }
   body {
-    @apply bg-background-secondary text-foreground text-base;
+    @apply bg-background-secondary text-foreground text-base h-full w-full;
+  }
+  html {
+    @apply h-full w-full;
   }
 }
