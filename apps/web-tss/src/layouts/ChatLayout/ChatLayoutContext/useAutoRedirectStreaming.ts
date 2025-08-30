@@ -1,37 +1,36 @@
 import { useNavigate } from '@tanstack/react-router';
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import type { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat';
-import { useGetChat, useGetChatMessage, useGetChatMessageMemoized } from '@/api/buster_rest/chats';
-import { useGetCurrentMessageId } from '@/context/Chats';
+import { useGetChatMessageMemoized } from '@/api/buster_rest/chats';
+import { useHasLoadedChat } from '@/context/Chats/useGetChat';
+import {
+  useGetChatMessageCompleted,
+  useGetChatMessageHasResponseFile,
+  useGetChatMessageIsFinishedReasoning,
+  useGetChatMessageLastReasoningMessageId,
+} from '@/context/Chats/useGetChatMessage';
 import { assetParamsToRoute } from '@/lib/assets/assetParamsToRoute';
 
-export const useAutoChangeLayout = ({
+export const useAutoRedirectStreaming = ({
   lastMessageId,
   chatId,
 }: {
   lastMessageId: string;
   chatId: string | undefined;
 }) => {
-  const getChatMessageMemoized = useGetChatMessageMemoized();
-  const messageId = useGetCurrentMessageId();
-  const { data: isStreamFinished = false } = useGetChatMessage(lastMessageId, {
-    select: (x) => x?.is_completed,
-  });
-  const { data: lastReasoningMessageId } = useGetChatMessage(lastMessageId, {
-    select: (x) => x?.reasoning_message_ids?.[x?.reasoning_message_ids?.length - 1],
-  });
-  const { data: isFinishedReasoning } = useGetChatMessage(lastMessageId, {
-    select: (x) => !!lastReasoningMessageId && !!(x?.is_completed || !!x.final_reasoning_message),
-  });
-  const { data: hasResponseFile } = useGetChatMessage(lastMessageId, {
-    select: (x) => Object.values(x?.response_messages || {}).some((x) => x.type === 'file'),
-  });
   const navigate = useNavigate();
+  const getChatMessageMemoized = useGetChatMessageMemoized();
+  const isStreamFinished = useGetChatMessageCompleted({ messageId: lastMessageId });
+  const lastReasoningMessageId = useGetChatMessageLastReasoningMessageId({
+    messageId: lastMessageId,
+  });
+  const isFinishedReasoning = useGetChatMessageIsFinishedReasoning({ messageId: lastMessageId });
+  const hasResponseFile = useGetChatMessageHasResponseFile({ messageId: lastMessageId });
 
   const previousLastMessageId = useRef<string | null>(null);
   const previousIsCompletedStream = useRef<boolean>(isStreamFinished);
 
-  const { data: hasLoadedChat } = useGetChat({ id: chatId || '' }, { select: (x) => !!x.id });
+  const hasLoadedChat = useHasLoadedChat({ chatId: chatId || '' });
 
   const hasReasoning = !!lastReasoningMessageId;
 
@@ -39,6 +38,7 @@ export const useAutoChangeLayout = ({
     previousIsCompletedStream.current = isStreamFinished;
   }, [hasLoadedChat]);
 
+  //streaming logic to redirect
   useEffect(() => {
     if (!hasLoadedChat || !chatId) {
       return;
@@ -72,7 +72,7 @@ export const useAutoChangeLayout = ({
     else if (!isStreamFinished && !isFinishedReasoning && hasReasoning && chatId) {
       previousLastMessageId.current = lastMessageId;
 
-      if (!messageId) {
+      if (!lastMessageId) {
         navigate({
           to: '/app/chats/$chatId/reasoning/$messageId',
           params: {

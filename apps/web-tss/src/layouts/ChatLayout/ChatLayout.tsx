@@ -1,15 +1,19 @@
 import { ClientOnly } from '@tanstack/react-router';
 import type React from 'react';
-import { useMemo, useRef } from 'react';
+import { useRef } from 'react';
 import {
   AppSplitter,
   type AppSplitterRef,
   type LayoutSize,
 } from '@/components/ui/layouts/AppSplitter';
+import { useGetCurrentMessageId, useIsStreamingMessage } from '@/context/Chats';
 import { useGetChatId } from '@/context/Chats/useGetChatId';
 import { useSelectedLayoutMode } from '@/context/Chats/useSelectedLayoutMode';
 import { useSelectedAssetId } from '../../context/BusterAssets/useSelectedAssetType';
 import { ChatContainer } from './ChatContainer';
+import { useAutoChatSplitter } from './ChatLayoutContext/useAutoChatSplitter';
+import { useAutoRedirectStreaming } from './ChatLayoutContext/useAutoRedirectStreaming';
+import { useChatStreaming } from './ChatLayoutContext/useChatStreaming';
 import {
   DEFAULT_CHAT_OPTION_SIDEBAR_SIZE,
   DEFAULT_FILE_OPTION_SIDEBAR_SIZE,
@@ -32,7 +36,9 @@ export const ChatLayout: React.FC<ChatSplitterProps> = ({
   const appSplitterRef = useRef<AppSplitterRef>(null);
   const selectedLayout = useSelectedLayoutMode();
   const selectedAssetId = useSelectedAssetId();
+  const currentMessageId = useGetCurrentMessageId() || '';
   const chatId = useGetChatId();
+  const isStreamingMessage = useIsStreamingMessage();
 
   const leftPanelMinSize = selectedAssetId ? DEFAULT_CHAT_OPTION_SIDEBAR_SIZE : '0px';
   const leftPanelMaxSize = selectedLayout === 'both' ? MAX_CHAT_BOTH_SIDEBAR_SIZE : undefined;
@@ -41,11 +47,12 @@ export const ChatLayout: React.FC<ChatSplitterProps> = ({
   const renderLeftPanel = selectedLayout !== 'file-only';
   const renderRightPanel = selectedLayout !== 'chat-only';
 
-  // useAutoChangeLayout({
-  //   lastMessageId: currentMessageId,
-  //   chatId,
-  // });
-  // useChatStreaming({ chatId, messageId: currentMessageId, isStreamingMessage });
+  useAutoRedirectStreaming({
+    lastMessageId: currentMessageId,
+    chatId,
+  });
+  useChatStreaming({ chatId, messageId: currentMessageId, isStreamingMessage });
+  useAutoChatSplitter({ appSplitterRef });
 
   return (
     <ClientOnly>

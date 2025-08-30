@@ -1,10 +1,10 @@
 import React from 'react';
+import type { BusterChatMessage } from '@/api/asset_interfaces/chat';
 import { useGetChatMessage } from '@/api/buster_rest/chats';
 import { ChatMessageOptions } from '../ChatMessageOptions';
 import { MessageContainer } from '../MessageContainer';
 import { ChatResponseMessageSelector } from './ChatResponseMessageSelector';
 import { ChatResponseReasoning } from './ChatResponseReasoning';
-import type { BusterChatMessage } from '@/api/asset_interfaces/chat';
 
 interface ChatResponseMessagesProps {
   isStreamFinished: boolean;
@@ -21,13 +21,13 @@ const stableFinalReasoningMessageSelector = (x: BusterChatMessage) => x?.final_r
 export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.memo(
   ({ chatId, isStreamFinished, messageId, messageIndex }) => {
     const { data: responseMessageIds } = useGetChatMessage(messageId, {
-      select: stableResponseMessageIdsSelector
+      select: stableResponseMessageIdsSelector,
     });
     const { data: lastReasoningMessageId } = useGetChatMessage(messageId, {
-      select: stableLastReasoningMessageIdSelector
+      select: stableLastReasoningMessageIdSelector,
     });
     const { data: finalReasoningMessage } = useGetChatMessage(messageId, {
-      select: stableFinalReasoningMessageSelector
+      select: stableFinalReasoningMessageSelector,
     });
     const showReasoningMessage =
       messageIndex === 0 ? !!lastReasoningMessageId || !isStreamFinished : true;
@@ -38,7 +38,8 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
         hideAvatar={false}
         isStreamFinished={isStreamFinished}
         isFinishedReasoning={!!finalReasoningMessage}
-        hasReasoningMessage={!!lastReasoningMessageId}>
+        hasReasoningMessage={!!lastReasoningMessageId}
+      >
         {showReasoningMessage && (
           <ChatResponseReasoning
             reasoningMessageId={lastReasoningMessageId}
@@ -49,7 +50,7 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
           />
         )}
 
-        {responseMessageIds?.map((responseMessageId, index) => (
+        {responseMessageIds?.map((responseMessageId) => (
           <React.Fragment key={responseMessageId}>
             <ChatResponseMessageSelector
               responseMessageId={responseMessageId}

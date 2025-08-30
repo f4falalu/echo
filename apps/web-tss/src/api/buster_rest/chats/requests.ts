@@ -38,7 +38,6 @@ export const getListLogs = async (params?: GetLogsListRequest): Promise<GetLogsL
 
 // Client-side fetch version
 export const getChat = async ({ id }: GetChatRequest): Promise<GetChatResponse> => {
-  console.log('getChat', id);
   return mainApi.get<GetChatResponse>(`${CHATS_BASE}/${id}`).then((res) => res.data);
 };
 
