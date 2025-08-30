@@ -48,15 +48,12 @@ export const initializeMetrics = (
   prefetchData: boolean
 ) => {
   for (const metric of Object.values(metrics)) {
-    const prevMetric = queryClient.getQueryData(
-      metricsQueryKeys.metricsGetMetric(metric.id, metric.version_number).queryKey
-    );
-    const upgradedMetric = upgradeMetricToIMetric(metric, prevMetric);
-
+    const upgradedMetric = upgradeMetricToIMetric(metric, null);
     queryClient.setQueryData(
       metricsQueryKeys.metricsGetMetric(metric.id, metric.version_number).queryKey,
       upgradedMetric
     );
+    console.warn('TODO: make sure we using version correctly?');
     if (prefetchData) {
       prefetchGetMetricDataClient(
         { id: metric.id, version_number: metric.version_number },

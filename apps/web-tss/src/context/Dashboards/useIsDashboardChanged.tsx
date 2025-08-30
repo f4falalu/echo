@@ -40,10 +40,7 @@ export const useIsDashboardChanged = ({
   }, [currentDashboard]);
 
   const onResetToOriginal = useMemoizedFn(() => {
-    const options = dashboardQueryKeys.dashboardGetDashboard(
-      dashboardId || '',
-      originalDashboard?.version_number || 'LATEST'
-    );
+    const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId || '', 'LATEST');
     const currentDashboard = queryClient.getQueryData<BusterDashboardResponse>(options.queryKey);
     if (originalDashboard && currentDashboard) {
       const resetDashboard = create(currentDashboard, (draft) => {

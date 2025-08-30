@@ -66,7 +66,7 @@ export const VersionHistoryModal = ({
         <DialogDescription hidden>{'This is the version history of the asset'}</DialogDescription>
         <AppPageLayout
           headerBorderVariant="default"
-          header={<div>Version History</div>}
+          header={<Text>{title}</Text>}
           headerClassName="bg-panel-background"
         >
           {open && children}
@@ -79,7 +79,7 @@ export const VersionHistoryModal = ({
           mainClassName="bg-panel-background relative"
           header={
             <div className="flex w-full items-center justify-between gap-x-2.5">
-              <Text>Version History</Text>
+              <Text>Version history</Text>
               <DialogClose asChild>
                 <Button prefix={<Xmark />} variant="ghost" />
               </DialogClose>

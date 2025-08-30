@@ -40,12 +40,12 @@ export const useChatStreaming = ({
             { id: responseMessage.id, version_number: responseMessage.version_number },
             queryClient
           );
-          const options = metricsQueryKeys.metricsGetMetric(
-            responseMessage.id,
-            responseMessage.version_number
-          );
+          const queryKey = metricsQueryKeys
+            .metricsGetMetric(responseMessage.id, 'LATEST')
+            .queryKey.slice(0, 3);
           queryClient.invalidateQueries({
-            queryKey: options.queryKey,
+            queryKey,
+            exact: false,
             refetchType: 'all',
           });
         }

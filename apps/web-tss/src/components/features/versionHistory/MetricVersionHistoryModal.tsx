@@ -22,15 +22,25 @@ type MetricVersionHistoryModalProps = Pick<
 export const MetricVersionHistoryModal = React.memo(
   ({ onClose, versionNumber: versionNumberProp, metricId }: MetricVersionHistoryModalProps) => {
     const [versionNumber, setVersionNumber] = useState<number | false>(versionNumberProp);
-    const { data: versions = [] } = useGetMetric(
+    const { data } = useGetMetric(
       { id: metricId },
-      { select: useCallback((x: BusterMetric) => x.versions, []) }
+      {
+        select: useCallback(
+          (x: BusterMetric) => ({
+            versions: x.versions,
+            name: x.name,
+          }),
+          []
+        ),
+      }
     );
     const { mutateAsync: updateMetric, isPending: isRestoringVersion } = useSaveMetric({
       updateOnSave: true,
     });
 
-    const title = 'Metric Version History';
+    const versions = data?.versions || [];
+    const title = data?.name || '';
+
     const learnMoreButton = (
       <Button className="pl-0.5!" size={'small'} prefix={<CircleInfo />} variant={'ghost'}>
         Learn More
@@ -52,6 +62,7 @@ export const MetricVersionHistoryModal = React.memo(
         id: metricId,
         restore_to_version: versionNumber,
       });
+      onClose();
     });
 
     useLayoutEffect(() => {

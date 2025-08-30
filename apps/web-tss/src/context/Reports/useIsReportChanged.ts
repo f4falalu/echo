@@ -42,10 +42,7 @@ export const useIsReportChanged = ({
   }, [currentReport]);
 
   const onResetToOriginal = useMemoizedFn(() => {
-    const options = reportsQueryKeys.reportsGetReport(
-      reportId || '',
-      originalReport?.version_number || 'LATEST'
-    );
+    const options = reportsQueryKeys.reportsGetReport(reportId || '', 'LATEST');
     const currentReport = queryClient.getQueryData<GetReportResponse>(options.queryKey);
     if (originalReport && currentReport) {
       const resetReport = create(currentReport, (draft) => {

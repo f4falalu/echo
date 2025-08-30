@@ -40,10 +40,7 @@ export const useIsMetricChanged = ({
   }, [currentMetric]);
 
   const onResetToOriginal = useMemoizedFn(() => {
-    const options = metricsQueryKeys.metricsGetMetric(
-      metricId || '',
-      originalMetric?.version_number || 'LATEST'
-    );
+    const options = metricsQueryKeys.metricsGetMetric(metricId || '', 'LATEST');
     if (originalMetric) {
       queryClient.setQueryData(options.queryKey, originalMetric);
     }

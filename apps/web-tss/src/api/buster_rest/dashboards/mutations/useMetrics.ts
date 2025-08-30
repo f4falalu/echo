@@ -182,7 +182,7 @@ export const useAddMetricsToDashboard = () => {
         for (const metric of Object.values(data.metrics)) {
           const dashboardId = data.dashboard.id;
           const dashboardName = data.dashboard.name;
-          const options = metricsQueryKeys.metricsGetMetric(metric.id, metric.version_number);
+          const options = metricsQueryKeys.metricsGetMetric(metric.id, 'LATEST');
           queryClient.setQueryData(options.queryKey, (old) => {
             if (!old) return old;
             return create(old, (draft) => {

@@ -51,7 +51,7 @@ export const MetricViewChartContent: React.FC<MetricViewChartContentProps> = ({
           {...chartConfig}
         />
       ) : (
-        <PreparingYourRequestLoader text="Loading metric..." />
+        <PreparingYourRequestLoader text="Processing your request..." />
       )}
     </div>
   );

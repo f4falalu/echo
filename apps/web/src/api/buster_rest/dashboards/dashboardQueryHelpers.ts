@@ -62,11 +62,7 @@ export const useGetDashboardAndInitializeMetrics = (params?: { prefetchData?: bo
 
   const initializeMetrics = useMemoizedFn((metrics: BusterDashboardResponse['metrics']) => {
     for (const metric of Object.values(metrics)) {
-      const prevMetric = queryClient.getQueryData(
-        metricsQueryKeys.metricsGetMetric(metric.id, metric.version_number).queryKey
-      );
-      const upgradedMetric = upgradeMetricToIMetric(metric, prevMetric);
-
+      const upgradedMetric = upgradeMetricToIMetric(metric, null);
       queryClient.setQueryData(
         metricsQueryKeys.metricsGetMetric(metric.id, metric.version_number).queryKey,
         upgradedMetric
