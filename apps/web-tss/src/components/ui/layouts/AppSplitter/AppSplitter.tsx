@@ -82,8 +82,6 @@ const AppSplitterWrapper = forwardRef<AppSplitterRef, IAppSplitterProps>(
       autoSaveId,
     });
 
-    console.log(autoSaveId, initialValue);
-
     return (
       <AppSplitterContext.Provider value={{ splitterAutoSaveId, containerRef }}>
         <div

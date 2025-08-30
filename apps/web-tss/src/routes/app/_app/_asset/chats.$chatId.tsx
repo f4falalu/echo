@@ -55,7 +55,7 @@ export const Route = createFileRoute('/app/_app/_asset/chats/$chatId')({
   }),
   component: () => {
     const { initialLayout, selectedLayout, autoSaveId, defaultLayout } = Route.useLoaderData();
-    console.log(initialLayout, selectedLayout, autoSaveId, defaultLayout);
+
     return (
       <ChatLayout
         initialLayout={initialLayout}

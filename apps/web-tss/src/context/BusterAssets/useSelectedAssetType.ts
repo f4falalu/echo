@@ -5,7 +5,13 @@ const assetRouteApi = getRouteApi('/app/_app/_asset');
 const stableCtxSelector = (ctx: RouteContext) => ctx.assetType;
 export const useSelectedAssetType = () => {
   const data = assetRouteApi.useRouteContext({ select: stableCtxSelector });
-  return data || 'reasoning';
+  const { messageId } = useParams({
+    strict: false,
+  });
+  if (messageId || !data) {
+    return 'reasoning';
+  }
+  return data;
 };
 
 export const useSelectedAssetId = () => {
