@@ -1,4 +1,6 @@
 import { ClientOnly } from '@tanstack/react-router';
+import React from 'react';
+import { MetricVersionHistoryModal } from '@/components/features/versionHistory/MetricVersionHistoryModal';
 import { AssetContainer } from '../AssetContainer';
 import { MetricContainerHeaderSegment } from './MetricContainerHeaderSegment';
 import { MetricAssetContextProvider } from './MetricContextProvider';
@@ -12,19 +14,27 @@ export const MetricAssetContainer: React.FC<{
   return (
     <ClientOnly>
       <MetricAssetContextProvider>
-        {({ isMetricEditMode }) => {
+        {({ isMetricEditMode, versionHistoryMode, closeVersionHistoryMode }) => {
           return (
-            <AssetContainer
-              headerBorderVariant={isMetricEditMode ? 'default' : 'ghost'}
-              header={
-                <MetricAssetHeader
-                  metricId={metricId}
-                  metric_version_number={metric_version_number}
-                />
-              }
-            >
-              {children}
-            </AssetContainer>
+            <React.Fragment>
+              <AssetContainer
+                headerBorderVariant={isMetricEditMode ? 'default' : 'ghost'}
+                header={
+                  <MetricAssetHeader
+                    metricId={metricId}
+                    metric_version_number={metric_version_number}
+                  />
+                }
+              >
+                {children}
+              </AssetContainer>
+
+              <MetricVersionHistoryModal
+                onClose={closeVersionHistoryMode}
+                versionNumber={versionHistoryMode}
+                metricId={metricId}
+              />
+            </React.Fragment>
           );
         }}
       </MetricAssetContextProvider>

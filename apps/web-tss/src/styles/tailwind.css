@@ -178,6 +178,7 @@
 
   /* Component colors */
   --color-page-background: var(--page-background);
+  --color-panel-background: var(--panel-background);
   --color-item-hover: var(--item-hover);
   --color-item-hover-active: var(--item-hover-active);
   --color-item-active: var(--item-active);

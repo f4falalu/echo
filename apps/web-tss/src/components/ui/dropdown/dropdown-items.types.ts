@@ -1,5 +1,6 @@
 import type { RegisteredRouter } from '@tanstack/react-router';
 import type { ILinkProps } from '@/types/routes';
+import type { DropdownProps } from './Dropdown';
 
 export interface IDropdownItem<
   T = string,
@@ -23,6 +24,7 @@ export interface IDropdownItem<
   link?: string | ILinkProps<TRouter, TOptions, TFrom>;
   linkTarget?: '_blank' | '_self';
   linkIcon?: 'arrow-right' | 'arrow-external' | 'caret-right' | 'none';
+  selectType?: DropdownProps<T>['selectType'];
 }
 
 export interface DropdownDivider {

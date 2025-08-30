@@ -31,7 +31,7 @@ export interface DropdownProps<
   TFrom extends string = string,
 > extends DropdownMenuProps {
   items: IDropdownItems<T, TRouter, TOptions, TFrom>;
-  selectType?: 'single' | 'multiple' | 'none';
+  selectType?: 'single' | 'multiple' | 'none' | 'single-selectable-link';
   menuHeader?: string | React.ReactNode; //if string it will render a search box
   onSelect?: (value: T) => void;
   align?: 'start' | 'center' | 'end';
@@ -232,7 +232,7 @@ export const DropdownContent = <T,>({
                   key={dropdownItemKey(item, index)}
                   item={item}
                   index={hotkeyIndex}
-                  selectType={selectType}
+                  selectType={(item as IDropdownItem<T>).selectType || selectType}
                   onSelect={onSelect}
                   onSelectItem={onSelectItem}
                   closeOnSelect={(item as IDropdownItem<T>).closeOnSelect !== false}
@@ -254,7 +254,7 @@ export const DropdownContent = <T,>({
                   key={dropdownItemKey(item, index)}
                   item={item}
                   index={hotkeyIndex}
-                  selectType={selectType}
+                  selectType={(item as IDropdownItem<T>).selectType || selectType}
                   onSelect={onSelect}
                   onSelectItem={onSelectItem}
                   closeOnSelect={(item as IDropdownItem<T>).closeOnSelect !== false}
@@ -319,13 +319,13 @@ const DropdownItemSelector = <
 
   return (
     <DropdownItem<T, TRouter, TOptions, TFrom>
-      {...item}
       closeOnSelect={closeOnSelect}
       onSelect={onSelect}
       onSelectItem={onSelectItem}
       selectType={selectType}
       index={index}
       showIndex={showIndex}
+      {...item}
     />
   );
 };
@@ -362,7 +362,6 @@ const DropdownItem = <
   closeOnSelect: boolean;
   index: number;
   showIndex: boolean;
-  selectType: DropdownProps<T>['selectType'];
 }) => {
   const onClickItem = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
     if (onClick) onClick(e);
@@ -376,7 +375,8 @@ const DropdownItem = <
   });
 
   const isSubItem = items && items.length > 0;
-  const isSelectable = !!selectType && selectType !== 'none';
+  const isSelectable =
+    !!selectType && selectType !== 'none' && selectType !== 'single-selectable-link';
 
   // Helper function to render the content consistently with proper type safety
   const renderContent = () => {
@@ -437,7 +437,7 @@ const DropdownItem = <
   }
 
   //I do not think this selected check is stable... look into refactoring
-  if (selectType === 'single') {
+  if (selectType === 'single' || selectType === 'single-selectable-link') {
     return (
       <DropdownMenuCheckboxItemSingle
         checked={selected}
@@ -537,7 +537,7 @@ const DropdownSubMenuWrapper = <T,>({
               onSelect={onSelect}
               onSelectItem={onSelectItem}
               closeOnSelect={closeOnSelect}
-              selectType={selectType}
+              selectType={(item as IDropdownItem<T>).selectType || selectType}
               showIndex={showIndex}
             />
           ))}

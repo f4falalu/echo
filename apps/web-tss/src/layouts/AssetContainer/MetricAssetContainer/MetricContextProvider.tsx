@@ -1,5 +1,5 @@
 import { type ParsedLocation, useLocation, useNavigate } from '@tanstack/react-router';
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 import type { AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
 import { useGetMetricParams } from '@/context/Metrics/useGetMetricParams';
@@ -9,7 +9,8 @@ const useMetricAssetContext = () => {
   const splitterRef = useRef<AppSplitterRef>(null);
   const pathname = useLocation({ select: useCallback((x: ParsedLocation) => x.pathname, []) });
   const isMetricEditMode = pathname.includes('/chart/edit');
-  const { metricId } = useGetMetricParams();
+  const [versionHistoryMode, setVersionHistoryMode] = useState<number | false>(false);
+  const { metricId = '' } = useGetMetricParams();
   const navigate = useNavigate();
 
   const toggleEditMode = useMemoizedFn(async (v?: boolean) => {
@@ -31,7 +32,7 @@ const useMetricAssetContext = () => {
       await navigate({
         to: '/app/metrics/$metricId/chart/edit',
         mask: {
-          to: '/app/metrics/$metricId/chart/edit',
+          to: '/app/metrics/$metricId/chart',
           params: { metricId },
           unmaskOnReload: true,
         },
@@ -40,10 +41,21 @@ const useMetricAssetContext = () => {
     }
   });
 
+  const openVersionHistoryMode = useMemoizedFn((versionNumber: number) => {
+    setVersionHistoryMode(versionNumber);
+  });
+
+  const closeVersionHistoryMode = useMemoizedFn(() => {
+    setVersionHistoryMode(false);
+  });
+
   return {
     toggleEditMode,
+    openVersionHistoryMode,
+    closeVersionHistoryMode,
     splitterRef,
     isMetricEditMode,
+    versionHistoryMode,
   };
 };
 
@@ -80,4 +92,16 @@ export const useMetricEditSplitter = () => {
 const stableToggleEditMode = (x: ReturnType<typeof useMetricAssetContext>) => x.toggleEditMode;
 export const useMetricEditToggle = () => {
   return useContextSelector(MetricAssetContext, stableToggleEditMode);
+};
+
+const stableVersionHistorySelector = (x: ReturnType<typeof useMetricAssetContext>) => ({
+  versionHistoryMode: x.versionHistoryMode,
+  openVersionHistoryMode: x.openVersionHistoryMode,
+  closeVersionHistoryMode: x.closeVersionHistoryMode,
+});
+
+export const useVersionHistoryMode = () => {
+  const { closeVersionHistoryMode, openVersionHistoryMode, versionHistoryMode } =
+    useContextSelector(MetricAssetContext, stableVersionHistorySelector);
+  return { versionHistoryMode, openVersionHistoryMode, closeVersionHistoryMode };
 };

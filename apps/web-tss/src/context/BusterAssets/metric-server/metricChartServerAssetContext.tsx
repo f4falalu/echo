@@ -31,6 +31,7 @@ export const component = () => {
         rightPanelMinSize={'250px'}
         rightPanelMaxSize={'500px'}
       />
+      <Outlet />
     </ClientOnly>
   );
 };

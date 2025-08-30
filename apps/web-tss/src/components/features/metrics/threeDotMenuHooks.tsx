@@ -1,45 +1,46 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useGetMetric } from '@/api/buster_rest/metrics';
 import { DropdownContent, type IDropdownItem, type IDropdownItems } from '@/components/ui/dropdown';
 import { History, Star, WandSparkle } from '@/components/ui/icons';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
+import type { BusterMetric } from '../../../api/asset_interfaces/metric';
 import { FollowUpWithAssetContent } from '../assets/FollowUpWithAsset';
 import { useFavoriteStar } from '../favorites';
-import { useListVersionDropdownItems } from '../versionHistory/useListVersionDropdownItems';
+import { useListMetricVersionDropdownItems } from '../versionHistory/useListMetricVersionDropdownItems';
 
 export const useVersionHistorySelectMenu = ({ metricId }: { metricId: string }): IDropdownItem => {
   const { data } = useGetMetric(
     { id: metricId },
     {
-      select: (x) => ({
-        versions: x.versions,
-        version_number: x.version_number,
-      }),
+      select: useCallback(
+        (x: BusterMetric) => ({
+          versions: x.versions,
+          version_number: x.version_number,
+        }),
+        []
+      ),
     }
   );
   const { versions = [], version_number } = data || {};
 
-  const versionHistoryItems: IDropdownItems = useListVersionDropdownItems({
+  const versionHistoryItems: IDropdownItems = useListMetricVersionDropdownItems({
     versions,
     selectedVersion: version_number,
   });
-
-  const reverseVersionHistoryItems = useMemo(() => {
-    return [...versionHistoryItems].reverse();
-  }, [versionHistoryItems]);
 
   return useMemo(
     () => ({
       label: 'Version history',
       value: 'version-history',
       icon: <History />,
+      selectType: 'none',
       items: [
         <React.Fragment key="version-history-sub-menu">
-          <DropdownContent items={reverseVersionHistoryItems} selectType="single" />
+          <DropdownContent items={versionHistoryItems} selectType="single-selectable-link" />
         </React.Fragment>,
       ],
     }),
-    [reverseVersionHistoryItems]
+    [versionHistoryItems]
   );
 };
 

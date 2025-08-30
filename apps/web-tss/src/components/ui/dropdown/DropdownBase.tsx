@@ -260,7 +260,7 @@ const DropdownMenuLink = <
   linkIcon = 'arrow-right',
 }: {
   className?: string;
-  link: string | ILinkProps<TRouter, TOptions, TFrom> | null;
+  link: string | ILinkProps<TRouter, TOptions, TFrom> | null | undefined;
   linkIcon?: IDropdownItem['linkIcon'];
   linkTarget?: '_blank' | '_self';
 }) => {
@@ -308,7 +308,7 @@ const DropdownMenuLink = <
 
   return (
     <div
-      className={className}
+      className={cn('swag', className)}
       onClick={(e) => e.stopPropagation()}
       onKeyDown={(e) => e.stopPropagation()}
     >

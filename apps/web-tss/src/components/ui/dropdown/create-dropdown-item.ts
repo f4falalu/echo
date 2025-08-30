@@ -35,14 +35,3 @@ export function createDropdownItems<
 ): IDropdownItem<T, TRouter, TOptions, TFrom>[] {
   return items;
 }
-
-const test = createDropdownItems([
-  createDropdownItem({
-    label: 'Results view',
-    value: 'results-view',
-    link: {
-      from: '/app/metrics/$metricId',
-      to: 'results',
-    },
-  }),
-]);
