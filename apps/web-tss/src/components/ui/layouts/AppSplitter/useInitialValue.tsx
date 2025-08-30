@@ -37,8 +37,6 @@ export const useInitialValue = ({
           ? (containerRef.current?.offsetWidth ?? 0)
           : (containerRef.current?.offsetHeight ?? 0);
 
-      console.log(autoSaveId, preserveSide, initialLayout, leftValue, rightValue, containerSize);
-
       if (preserveSide === 'left' && leftValue === 'auto') {
         return '100%';
       }

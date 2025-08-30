@@ -1,7 +1,7 @@
 import { useParams, useSearch } from '@tanstack/react-router';
 import { useMemo } from 'react';
 
-const stableMetricParams = ({ metricId }: { metricId: string }) => ({
+const stableMetricParams = ({ metricId }: { metricId?: string }) => ({
   metricId,
 });
 const stableMetricSearch = (search?: { metric_version_number?: number }) => ({
@@ -10,11 +10,11 @@ const stableMetricSearch = (search?: { metric_version_number?: number }) => ({
 
 export const useGetMetricParams = () => {
   const { metricId } = useParams({
-    from: '/app/_app/_asset/metrics/$metricId',
+    strict: false,
     select: stableMetricParams,
   });
   const { metric_version_number } = useSearch({
-    from: '/app/_app/_asset/metrics/$metricId',
+    strict: false,
     select: stableMetricSearch,
   });
 

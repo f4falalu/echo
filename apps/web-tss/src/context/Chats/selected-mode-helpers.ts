@@ -55,14 +55,15 @@ export const chooseInitialLayout = ({
 }): LayoutSize => {
   const firstValue = initialLayout?.[0];
   const secondValue = initialLayout?.[1];
+
   if (layout === 'chat-only') {
-    if (firstValue === '0px') {
+    if (firstValue === '0px' || firstValue !== 'auto') {
       return defaultLayout;
     }
   }
 
   if (layout === 'file-only') {
-    if (firstValue === '0px') {
+    if (firstValue === '0px' || firstValue !== 'auto') {
       return defaultLayout;
     }
   }

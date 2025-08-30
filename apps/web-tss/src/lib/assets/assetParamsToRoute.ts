@@ -519,6 +519,21 @@ export const assetParamsToRoute = (params: AssetParamsToRoute): ILinkProps => {
       return route.buildNavigationOptions();
     }
 
+    case 'reasoning': {
+      // Reasoning routes require both chatId and assetId (which is the messageId)
+      // For now, we'll use a simple approach that matches the existing pattern
+      // The reasoning route is /app/_app/_asset/chats/$chatId/reasoning/$messageId
+      // Since this doesn't fit the standard RouteBuilder pattern, we'll handle it specially
+      console.warn('Reasoning route implementation needs to be updated to match route tree types');
+      return {
+        to: '/app/_app/_asset/chats/$chatId/reasoning/$messageId' as RouteFilePaths,
+        params: {
+          chatId: params.chatId,
+          messageId: params.assetId,
+        },
+      } as unknown as ILinkProps;
+    }
+
     default:
       console.warn(`Unknown asset type: ${(params as AssetParamsToRoute).assetType}`, params);
       throw new Error(`Unknown asset type: ${(params as AssetParamsToRoute).assetType}`, params);

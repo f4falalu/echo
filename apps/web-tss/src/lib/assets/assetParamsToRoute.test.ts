@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import type { FileRouteTypes } from '@/routeTree.gen';
-import { assetParamsToRoute, createRouteBuilder } from './assetParamsToRoute';
+import {
+  assetParamsToRoute,
+  assetParamsToRoutePath,
+  createRouteBuilder,
+} from './assetParamsToRoute';
 
 type RouteFilePaths = FileRouteTypes['to'];
 
@@ -828,6 +832,78 @@ describe('assetParamsToRoute', () => {
           report_version_number: 40,
         },
       });
+    });
+  });
+
+  describe('Reasoning route tests', () => {
+    it('should handle reasoning asset type correctly', () => {
+      // Basic reasoning route
+      const reasoningRoute = assetParamsToRoute({
+        assetType: 'reasoning',
+        assetId: 'message-123',
+        chatId: 'chat-456',
+      });
+      expect(reasoningRoute).toEqual({
+        to: '/app/_app/_asset/chats/$chatId/reasoning/$messageId',
+        params: {
+          chatId: 'chat-456',
+          messageId: 'message-123',
+        },
+      });
+    });
+
+    it('should handle reasoning route with different IDs', () => {
+      const reasoningRoute = assetParamsToRoute({
+        assetType: 'reasoning',
+        assetId: 'reasoning-message-789',
+        chatId: 'test-chat-abc',
+      });
+      expect(reasoningRoute).toEqual({
+        to: '/app/_app/_asset/chats/$chatId/reasoning/$messageId',
+        params: {
+          chatId: 'test-chat-abc',
+          messageId: 'reasoning-message-789',
+        },
+      });
+    });
+
+    it('should handle reasoning route with UUIDs', () => {
+      const reasoningRoute = assetParamsToRoute({
+        assetType: 'reasoning',
+        assetId: '550e8400-e29b-41d4-a716-446655440000',
+        chatId: '6ba7b810-9dad-11d1-80b4-00c04fd430c8',
+      });
+      expect(reasoningRoute).toEqual({
+        to: '/app/_app/_asset/chats/$chatId/reasoning/$messageId',
+        params: {
+          chatId: '6ba7b810-9dad-11d1-80b4-00c04fd430c8',
+          messageId: '550e8400-e29b-41d4-a716-446655440000',
+        },
+      });
+    });
+
+    it('should handle reasoning route with special characters in IDs', () => {
+      const reasoningRoute = assetParamsToRoute({
+        assetType: 'reasoning',
+        assetId: 'message-with-special-chars-123!@#',
+        chatId: 'chat-with-special-chars-456!@#',
+      });
+      expect(reasoningRoute).toEqual({
+        to: '/app/_app/_asset/chats/$chatId/reasoning/$messageId',
+        params: {
+          chatId: 'chat-with-special-chars-456!@#',
+          messageId: 'message-with-special-chars-123!@#',
+        },
+      });
+    });
+
+    it('should work with assetParamsToRoutePath helper function', () => {
+      const reasoningPath = assetParamsToRoutePath({
+        assetType: 'reasoning',
+        assetId: 'message-123',
+        chatId: 'chat-456',
+      });
+      expect(reasoningPath).toBe('/app/_app/_asset/chats/$chatId/reasoning/$messageId');
     });
   });
 
