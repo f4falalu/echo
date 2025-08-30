@@ -13,7 +13,6 @@ import React, {
 } from 'react';
 import { useCookieState } from '@/hooks/useCookieState';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
-import { useMount } from '@/hooks/useMount';
 import { cn } from '@/lib/classMerge';
 import type { AppSplitterRef, IAppSplitterProps, SplitterState } from './AppSplitter.types';
 import { AppSplitterProvider } from './AppSplitterProvider';
@@ -60,15 +59,8 @@ const AppSplitterWrapper = forwardRef<AppSplitterRef, IAppSplitterProps>(
   ({ autoSaveId, style, className, split = 'vertical', ...props }, componentRef) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const isVertical = split === 'vertical';
-    const [mounted, setMounted] = useState(
-      !props.leftPanelMinSize &&
-        !props.rightPanelMinSize &&
-        !props.leftPanelMaxSize &&
-        !props.rightPanelMaxSize
-    );
     const splitterAutoSaveId = createAutoSaveId(autoSaveId);
 
-    const { splitterAutoSaveId: parentSplitterAutoSaveId } = useAppSplitterContext();
     const {
       leftPanelMinSize,
       preserveSide,
@@ -78,18 +70,6 @@ const AppSplitterWrapper = forwardRef<AppSplitterRef, IAppSplitterProps>(
     } = props;
 
     // Calculate initialValue using custom hook
-
-    useMount(async () => {
-      //we need to wait for the parent to be mounted and the container to be sized
-      if (parentSplitterAutoSaveId || !containerRef.current?.offsetWidth) {
-        requestAnimationFrame(() => {
-          setMounted(true);
-        });
-      } else {
-        setMounted(true);
-      }
-    });
-
     const initialValue = useInitialValue({
       initialLayout: props.initialLayout,
       split,
@@ -99,11 +79,10 @@ const AppSplitterWrapper = forwardRef<AppSplitterRef, IAppSplitterProps>(
       leftPanelMaxSize,
       rightPanelMaxSize,
       containerRef,
-      mounted,
       autoSaveId,
     });
 
-    console.log(autoSaveId, mounted, initialValue);
+    console.log(autoSaveId, initialValue);
 
     return (
       <AppSplitterContext.Provider value={{ splitterAutoSaveId, containerRef }}>
@@ -113,17 +92,15 @@ const AppSplitterWrapper = forwardRef<AppSplitterRef, IAppSplitterProps>(
           className={cn('flex h-full w-full', isVertical ? 'flex-row' : 'flex-col', className)}
           style={style}
         >
-          {mounted && (
-            <AppSplitterBase
-              {...props}
-              ref={componentRef}
-              isVertical={isVertical}
-              containerRef={containerRef}
-              splitterAutoSaveId={splitterAutoSaveId}
-              split={split}
-              calculatedInitialValue={initialValue}
-            />
-          )}
+          <AppSplitterBase
+            {...props}
+            ref={componentRef}
+            isVertical={isVertical}
+            containerRef={containerRef}
+            splitterAutoSaveId={splitterAutoSaveId}
+            split={split}
+            calculatedInitialValue={initialValue}
+          />
         </div>
       </AppSplitterContext.Provider>
     );
@@ -142,7 +119,7 @@ const AppSplitterBase = forwardRef<
     isVertical: boolean;
     containerRef: React.RefObject<HTMLDivElement | null>;
     splitterAutoSaveId: string;
-    calculatedInitialValue: number | null;
+    calculatedInitialValue: number | '100%' | null;
   }
 >(
   (
@@ -210,7 +187,11 @@ const AppSplitterBase = forwardRef<
     // Load saved layout from cookies
     const [savedLayout, setSavedLayout] = useCookieState<number | null>(splitterAutoSaveId, {
       defaultValue,
-      initialValue: () => calculatedInitialValue ?? defaultValue(),
+      initialValue: () => {
+        // Convert '100%' to null so it gets handled in the preservedPanelSize logic
+        if (calculatedInitialValue === '100%') return null;
+        return calculatedInitialValue ?? defaultValue();
+      },
     });
 
     // ================================
@@ -298,7 +279,18 @@ const AppSplitterBase = forwardRef<
       // Handle hidden panels
       if (leftHidden || rightHidden) return 0;
 
-      const currentSize = savedLayout ?? 0;
+      let currentSize = savedLayout ?? 0;
+
+      // Special handling for '100%' initial value
+      if (calculatedInitialValue === '100%' && state.containerSize > 0) {
+        // If we haven't had user interaction yet and the initial value was '100%',
+        // make the preserved panel fill the entire container
+        if (!hasUserInteracted && (savedLayout === null || savedLayout !== state.containerSize)) {
+          currentSize = state.containerSize;
+          // Update the saved layout to the actual container size for stability
+          setSavedLayout(state.containerSize);
+        }
+      }
 
       // Check if the preserved panel is at 0px
       const isPanelZero = currentSize === 0;
@@ -311,7 +303,15 @@ const AppSplitterBase = forwardRef<
 
       const finalSize = shouldApplyConstraints ? applyConstraints(currentSize) : currentSize;
       return Math.max(0, finalSize);
-    }, [state, savedLayout, leftHidden, rightHidden, applyConstraints]);
+    }, [
+      state,
+      savedLayout,
+      leftHidden,
+      rightHidden,
+      applyConstraints,
+      calculatedInitialValue,
+      setSavedLayout,
+    ]);
 
     // Determine panel sizes based on preserve side
     const { leftSize, rightSize } = useMemo(() => {

@@ -11,7 +11,6 @@ interface UseInitialValueProps {
   leftPanelMaxSize?: number | string;
   rightPanelMaxSize?: number | string;
   containerRef: React.RefObject<HTMLDivElement | null>;
-  mounted: boolean;
   autoSaveId: string;
 }
 
@@ -28,7 +27,6 @@ export const useInitialValue = ({
   leftPanelMaxSize,
   rightPanelMaxSize,
   containerRef,
-  mounted,
   autoSaveId,
 }: UseInitialValueProps) => {
   const getInitialValue = () => {
@@ -42,10 +40,10 @@ export const useInitialValue = ({
       console.log(autoSaveId, preserveSide, initialLayout, leftValue, rightValue, containerSize);
 
       if (preserveSide === 'left' && leftValue === 'auto') {
-        return containerSize;
+        return '100%';
       }
       if (preserveSide === 'right' && rightValue === 'auto') {
-        return containerSize;
+        return '100%';
       }
 
       const preserveValue = preserveSide === 'left' ? leftValue : rightValue;
@@ -79,7 +77,7 @@ export const useInitialValue = ({
 
   const memoizedInitialValue = useMemo(() => {
     return getInitialValue();
-  }, [mounted, autoSaveId]);
+  }, [autoSaveId]);
 
   return memoizedInitialValue;
 };

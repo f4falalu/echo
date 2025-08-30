@@ -56,24 +56,22 @@ export const ChatLayout: React.FC<ChatSplitterProps> = ({
   useAutoChatSplitter({ appSplitterRef });
 
   return (
-    <ClientOnly>
-      <AppSplitter
-        ref={appSplitterRef}
-        leftChildren={renderLeftPanel && <ChatContainer chatId={chatId} />}
-        rightChildren={renderRightPanel && children}
-        autoSaveId={autoSaveId}
-        defaultLayout={defaultLayout}
-        allowResize={selectedLayout === 'both'}
-        preserveSide={'left'}
-        leftPanelMinSize={leftPanelMinSize}
-        leftPanelMaxSize={leftPanelMaxSize}
-        rightPanelMinSize={rightPanelMinSize}
-        rightPanelMaxSize={rightPanelMaxSize}
-        initialLayout={initialLayout}
-        rightPanelElement="div"
-        leftPanelElement="div"
-      />
-    </ClientOnly>
+    <AppSplitter
+      ref={appSplitterRef}
+      leftChildren={renderLeftPanel && <ChatContainer chatId={chatId} />}
+      rightChildren={renderRightPanel && children}
+      autoSaveId={autoSaveId}
+      defaultLayout={defaultLayout}
+      allowResize={selectedLayout === 'both'}
+      preserveSide={'left'}
+      leftPanelMinSize={leftPanelMinSize}
+      leftPanelMaxSize={leftPanelMaxSize}
+      rightPanelMinSize={rightPanelMinSize}
+      rightPanelMaxSize={rightPanelMaxSize}
+      initialLayout={initialLayout}
+      rightPanelElement="div"
+      leftPanelElement="div"
+    />
   );
 };
 

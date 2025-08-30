@@ -1,5 +1,6 @@
 'use client';
 
+import { ClientOnly } from '@tanstack/react-router';
 import React, { useRef } from 'react';
 import { useGetChatMessageIds } from '@/context/Chats';
 import { useAutoScroll } from '@/hooks/useAutoScroll';
@@ -31,7 +32,7 @@ export const ChatContent: React.FC<{ chatId: string | undefined }> = React.memo(
   });
 
   return (
-    <>
+    <ClientOnly>
       <div className="mb-48 flex h-full w-full flex-col">
         {chatMessageIds?.map((messageId, index) => (
           <div key={messageId} className={autoClass}>
@@ -51,7 +52,7 @@ export const ChatContent: React.FC<{ chatId: string | undefined }> = React.memo(
           scrollToBottom={scrollToBottom}
         />
       </ChatInputWrapper>
-    </>
+    </ClientOnly>
   );
 });
 
