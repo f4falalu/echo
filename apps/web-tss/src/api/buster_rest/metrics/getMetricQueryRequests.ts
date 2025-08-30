@@ -6,6 +6,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import last from 'lodash/last';
+import { useCallback } from 'react';
 import type {
   BusterMetric,
   BusterMetricData,
@@ -20,7 +21,10 @@ import { setOriginalMetric } from '@/context/Metrics/useOriginalMetricStore';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { upgradeMetricToIMetric } from '@/lib/metrics';
 import type { RustApiError } from '../../errors';
-import { useGetMetricVersionNumber } from './metricVersionNumber';
+import {
+  useGetLatestMetricVersionMemoized,
+  useGetMetricVersionNumber,
+} from './metricVersionNumber';
 import { downloadMetricFile, getMetric, getMetricData } from './requests';
 
 const getMetricQueryFn = async ({
@@ -70,13 +74,14 @@ export const useGetMetric = <TData = BusterMetric>(
   const queryClient = useQueryClient();
   const password = getProtectedAssetPassword(id || '');
 
-  const { selectedVersionNumber, paramVersionNumber, latestVersionNumber } =
-    useGetMetricVersionNumber(id || '', versionNumberProp);
+  const { selectedVersionNumber, latestVersionNumber } = useGetMetricVersionNumber(
+    id || '',
+    versionNumberProp
+  );
 
   const { isFetched: isFetchedInitial, isError: isErrorInitial } = useQuery({
     ...metricsQueryKeys.metricsGetMetric(id || '', 'LATEST'),
     queryFn: () => getMetricQueryFn({ id, version: 'LATEST', password, queryClient }),
-    enabled: false, //In the year of our lord 2025, April 10, I, Nate Kelley, decided to disable this query in favor of explicityly fetching the data. May god have mercy on our souls.
     retry(_failureCount, error) {
       if (error?.message !== undefined && id) {
         setProtectedAssetPasswordError({
@@ -133,7 +138,7 @@ export const prefetchGetMetric = async (
 
 export const useGetMetricData = <TData = BusterMetricDataExtended>(
   {
-    id,
+    id = '',
     versionNumber: versionNumberProp,
   }: {
     id: string | undefined;
@@ -141,27 +146,38 @@ export const useGetMetricData = <TData = BusterMetricDataExtended>(
   },
   params?: Omit<UseQueryOptions<BusterMetricData, RustApiError, TData>, 'queryKey' | 'queryFn'>
 ) => {
-  const password = getProtectedAssetPassword(id || '');
-  const { selectedVersionNumber } = useGetMetricVersionNumber(id || '', versionNumberProp);
+  const queryClient = useQueryClient();
+  const password = getProtectedAssetPassword(id);
+  const getLatestMetricVersion = useGetLatestMetricVersionMemoized();
+  const { selectedVersionNumber } = useGetMetricVersionNumber(id, versionNumberProp);
   const {
     isFetched: isFetchedMetric,
     isError: isErrorMetric,
     dataUpdatedAt,
-    data: metric,
+    data: metricId,
   } = useGetMetric(
     { id, versionNumber: selectedVersionNumber },
-    { select: (x) => ({ id: x.id, version_number: x.version_number }) }
+    { select: useCallback((x: BusterMetric) => x?.id, []) }
   );
 
   const queryFn = async () => {
     const chosenVersionNumber: number | undefined =
       versionNumberProp === 'LATEST' ? undefined : versionNumberProp;
     const result = await getMetricData({
-      id: id || '',
+      id,
       version_number: chosenVersionNumber || undefined,
       password,
     });
-
+    const isLatest = versionNumberProp === 'LATEST' || !versionNumberProp;
+    if (isLatest) {
+      const latestVersionNumber = getLatestMetricVersion(id);
+      if (latestVersionNumber) {
+        queryClient.setQueryData(
+          metricsQueryKeys.metricsGetData(id, latestVersionNumber).queryKey,
+          result
+        );
+      }
+    }
     return result;
   };
 
@@ -173,7 +189,7 @@ export const useGetMetricData = <TData = BusterMetricDataExtended>(
         !!id &&
         isFetchedMetric &&
         !isErrorMetric &&
-        !!metric?.id &&
+        !!metricId &&
         !!dataUpdatedAt &&
         !!selectedVersionNumber
       );

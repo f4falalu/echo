@@ -90,7 +90,7 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
       // if (!isMounted && selectedChartType !== 'table') return null;
 
       if (loading || error) {
-        return <PreparingYourRequestLoader error={error} />;
+        return <PreparingYourRequestLoader error={error} text="Processing your request..." />;
       }
 
       if (showNoData || !data) {

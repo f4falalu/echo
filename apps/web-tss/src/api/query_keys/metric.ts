@@ -29,7 +29,7 @@ export const metricsGetList = (
 export const metricsGetData = (id: string, version_number: number | 'LATEST') =>
   queryOptions<BusterMetricDataExtended>({
     queryKey: ['metrics', 'data', id, version_number || 'LATEST'] as const,
-    staleTime: 3 * 60 * 60 * 1000, // 3 hours,
+    staleTime: 1000 * 60 * 30, // 30 minutes,
   });
 
 export const metricsQueryKeys = {

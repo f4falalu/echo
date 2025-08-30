@@ -1,20 +1,17 @@
-import last from 'lodash/last';
 import type React from 'react';
 import { useMemo, useRef } from 'react';
 import {
   Dialog,
   DialogClose,
-  DialogCloseButton,
   DialogContent,
   DialogDescription,
-  DialogHeader,
   DialogTitle,
 } from '@/components/ui/modal/ModalBase';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useMount } from '@/hooks/useMount';
 import { timeout } from '@/lib/timeout';
 import { Button } from '../../ui/buttons';
-import { Check, Check3, Xmark } from '../../ui/icons';
+import { Check3, Xmark } from '../../ui/icons';
 import { AppPageLayout } from '../../ui/layouts/AppPageLayout';
 import { AppTooltip } from '../../ui/tooltip';
 import { Text } from '../../ui/typography';
@@ -45,6 +42,7 @@ export const VersionHistoryModal = ({
   onClickRestoreVersion,
   isRestoringVersion,
   learnMoreButton,
+  children,
 }: VersionHistoryModalProps) => {
   const open = versionNumber !== false;
 
@@ -71,7 +69,7 @@ export const VersionHistoryModal = ({
           header={<div>Version History</div>}
           headerClassName="bg-panel-background"
         >
-          Body
+          {open && children}
         </AppPageLayout>
         <AppPageLayout
           headerBorderVariant="ghost"

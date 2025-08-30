@@ -1,22 +1,22 @@
-'use client';
-
 import type { DataMetadata } from '@buster/server-shared/metrics';
 import type React from 'react';
 import type { BusterMetric, BusterMetricData } from '@/api/asset_interfaces/metric';
 import { BusterChartDynamic } from '@/components/ui/charts/BusterChartDynamic';
 import { cn } from '@/lib/classMerge';
+import { PreparingYourRequestLoader } from '../../../ui/charts/LoadingComponents';
 import { METRIC_CHART_CONTAINER_ID } from './config';
 
-interface MetricViewChartContentProps {
+type MetricViewChartContentProps = {
   className?: string;
-  chartConfig: Required<BusterMetric['chart_config']>;
-  metricData: BusterMetricData['data'];
-  dataMetadata: DataMetadata | undefined;
-  fetchedData: boolean;
   errorMessage: string | null | undefined;
   metricId: string;
   readOnly: boolean;
-}
+  chartConfig: Required<BusterMetric['chart_config']> | undefined;
+  metricData: BusterMetricData['data'];
+  dataMetadata: DataMetadata | undefined;
+  fetchedData: boolean;
+  fetchedMetric: boolean;
+};
 
 export const MetricViewChartContent: React.FC<MetricViewChartContentProps> = ({
   className,
@@ -27,6 +27,7 @@ export const MetricViewChartContent: React.FC<MetricViewChartContentProps> = ({
   errorMessage,
   metricId,
   readOnly,
+  fetchedMetric,
 }) => {
   const columnMetadata = dataMetadata?.column_metadata;
   const isTable = chartConfig?.selectedChartType === 'table';
@@ -39,15 +40,19 @@ export const MetricViewChartContent: React.FC<MetricViewChartContentProps> = ({
       className={cn('flex h-full flex-col overflow-hidden', cardClassName, className)}
       data-testid="metric-view-chart-content"
     >
-      <BusterChartDynamic
-        loading={!fetchedData}
-        error={errorMessage || undefined}
-        data={metricData}
-        columnMetadata={columnMetadata}
-        id={METRIC_CHART_CONTAINER_ID(metricId)}
-        readOnly={readOnly}
-        {...chartConfig}
-      />
+      {fetchedMetric && chartConfig ? (
+        <BusterChartDynamic
+          loading={!fetchedData}
+          error={errorMessage || undefined}
+          data={metricData}
+          columnMetadata={columnMetadata}
+          id={METRIC_CHART_CONTAINER_ID(metricId)}
+          readOnly={readOnly}
+          {...chartConfig}
+        />
+      ) : (
+        <PreparingYourRequestLoader text="Loading metric..." />
+      )}
     </div>
   );
 };

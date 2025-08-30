@@ -13,16 +13,15 @@ export const useGetDashboardVersionNumber = (
   versionNumber: number | 'LATEST' = 'LATEST'
 ) => {
   const { data: latestVersionNumber } = useQuery({
-    ...dashboardQueryKeys.dashboardGetDashboard(dashboardId, versionNumber),
+    ...dashboardQueryKeys.dashboardGetDashboard(dashboardId, 'LATEST'),
     enabled: false,
     select: stableVersionDataSelector,
   });
 
   // Get the dashboard_version_number query param from the route
   const paramVersionNumber = useSearch({
-    from: '/app/_app/_asset/dashboards/$dashboardId/',
-    shouldThrow: false,
     select: stableVersionSearchSelector,
+    strict: false,
   });
 
   const selectedVersionNumber = versionNumber ?? paramVersionNumber ?? 'LATEST';

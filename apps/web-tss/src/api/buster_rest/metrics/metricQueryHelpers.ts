@@ -3,7 +3,6 @@ import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import type { BusterMetricDataExtended } from '../../asset_interfaces/metric';
 import type { BusterMetric } from '../../asset_interfaces/metric/interfaces';
 import { metricsQueryKeys } from '../../query_keys/metric';
-import { useGetLatestMetricVersionMemoized } from './metricVersionNumber';
 
 export const useGetMetricMemoized = () => {
   const queryClient = useQueryClient();

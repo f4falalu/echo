@@ -13,15 +13,14 @@ export const useGetReportVersionNumber = (
   versionNumber: number | 'LATEST' = 'LATEST'
 ) => {
   const { data: latestVersionNumber } = useQuery({
-    ...reportsQueryKeys.reportsGetReport(reportId, versionNumber),
+    ...reportsQueryKeys.reportsGetReport(reportId, 'LATEST'),
     enabled: false,
     select: stableVersionDataSelector,
   });
 
   const paramVersionNumber = useSearch({
-    from: '/app/_app/_asset/reports/$reportId/',
-    shouldThrow: false,
     select: stableVersionSearchSelector,
+    strict: false,
   });
 
   const selectedVersionNumber = versionNumber ?? paramVersionNumber ?? 'LATEST';

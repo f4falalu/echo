@@ -41,6 +41,7 @@ import { useIsChatMode } from '@/context/Chats/useMode';
 import { useDownloadMetricDataCSV } from '@/context/Metrics/useDownloadMetricDataCSV';
 import { useDownloadPNGSelectMenu } from '@/context/Metrics/useDownloadMetricDataPNG';
 import { useRenameMetricOnPage } from '@/context/Metrics/useRenameMetricOnPage';
+import { useMetricEditToggle } from '@/layouts/AssetContainer/MetricAssetContainer';
 import { canEdit, getIsEffectiveOwner, getIsOwner } from '@/lib/share';
 import { ASSET_ICONS } from '../icons/assetIcons';
 import {
@@ -286,14 +287,13 @@ const useStatusSelectMenu = ({ metricId }: { metricId: string }) => {
 };
 
 const useEditChartSelectMenu = () => {
-  const onClickButton = () => {
-    alert('TODO: edit chart');
-  };
+  const toggleEditMode = useMetricEditToggle();
+
   return useMemo(
     () => ({
       label: 'Edit chart',
       value: 'edit-chart',
-      onClick: onClickButton,
+      onClick: () => toggleEditMode(true),
       icon: <SquareChartPen />,
     }),
     []

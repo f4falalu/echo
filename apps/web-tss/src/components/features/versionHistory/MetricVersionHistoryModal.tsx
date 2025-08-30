@@ -4,6 +4,7 @@ import { useGetMetric, useSaveMetric } from '@/api/buster_rest/metrics';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { Button } from '../../ui/buttons';
 import { CircleInfo } from '../../ui/icons';
+import { MetricViewChart } from '../metrics/MetricViewChart';
 import { createVersionHistoryItems } from './createVersionHelpers';
 import {
   type VersionHistoryItem,
@@ -68,7 +69,7 @@ export const MetricVersionHistoryModal = React.memo(
         isRestoringVersion={isRestoringVersion}
         learnMoreButton={learnMoreButton}
       >
-        <div>Metric Version History</div>
+        <MetricViewChart metricId={metricId} versionNumber={versionNumber || undefined} readOnly />
       </VersionHistoryModal>
     );
   }

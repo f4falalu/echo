@@ -13,16 +13,15 @@ export const useGetMetricVersionNumber = (
   versionNumber: number | 'LATEST' = 'LATEST'
 ) => {
   const { data: latestVersionNumber } = useQuery({
-    ...metricsQueryKeys.metricsGetMetric(metricId, versionNumber),
+    ...metricsQueryKeys.metricsGetMetric(metricId, 'LATEST'),
     enabled: false,
     select: stableVersionDataSelector,
   });
 
   // Get the metric_version_number query param from the route
   const paramVersionNumber = useSearch({
-    from: '/app/_app/_asset/metrics/$metricId',
-    shouldThrow: false,
     select: stableVersionSearchSelector,
+    strict: false,
   });
 
   const selectedVersionNumber = versionNumber ?? paramVersionNumber ?? 'LATEST';

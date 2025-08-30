@@ -43,15 +43,15 @@ export const MetricViewChart: React.FC<{
   cardClassName?: string;
 }> = React.memo(
   ({ metricId, versionNumber, readOnly = false, className = '', cardClassName = '' }) => {
-    const { data: metric } = useGetMetric(
+    const { data: metric, isFetched: isFetchedMetric } = useGetMetric(
       { id: metricId, versionNumber },
-      { select: stableMetricSelect }
+      { select: stableMetricSelect, enabled: true }
     );
     const {
       data: metricData,
       isFetched: isFetchedMetricData,
       error: metricDataError,
-    } = useGetMetricData({ id: metricId, versionNumber }, { enabled: false });
+    } = useGetMetricData({ id: metricId, versionNumber });
 
     const { onUpdateMetricName } = useUpdateMetricChart({ metricId });
     const { name, description, time_frame, evaluation_score, evaluation_summary } = metric || {};
@@ -69,8 +69,6 @@ export const MetricViewChart: React.FC<{
         onUpdateMetricName({ name: title });
       }
     });
-
-    if (!metric) return null;
 
     return (
       <div className={cn('flex h-full flex-col justify-between space-y-3.5 p-5', className)}>
@@ -92,10 +90,11 @@ export const MetricViewChart: React.FC<{
             />
             <div className={'border-border border-b'} />
             <MetricViewChartContent
-              chartConfig={{ ...metric.chart_config, colors }}
+              chartConfig={metric ? { ...metric.chart_config, colors } : undefined}
               metricData={metricData?.data || []}
               dataMetadata={metricData?.data_metadata}
               fetchedData={isFetchedMetricData}
+              fetchedMetric={isFetchedMetric}
               errorMessage={metricDataError?.message}
               metricId={metricId}
               readOnly={readOnly}

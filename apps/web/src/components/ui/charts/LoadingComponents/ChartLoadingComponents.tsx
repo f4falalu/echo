@@ -4,10 +4,10 @@ import { ShimmerLoadingText } from '../OtherComponents/ShimmerLoadingText';
 
 export const PreparingYourRequestLoader: React.FC<{
   className?: string;
-  text?: string;
+  text: string;
   error?: string | null | undefined;
   useShimmer?: boolean;
-}> = ({ className = '', text = 'Processing your request...', error, useShimmer = true }) => {
+}> = ({ className = '', text, error, useShimmer = true }) => {
   return (
     <div
       className={cn(
