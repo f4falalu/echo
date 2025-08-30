@@ -257,6 +257,7 @@ const useStatusSelectMenu = ({ metricId }: { metricId: string }) => {
   const { data: metricStatus } = useGetMetric({ id: metricId }, { select: (x) => x.status });
   const { mutate: updateStatus } = useBulkUpdateMetricVerificationStatus();
   const isAdmin = useIsUserAdmin();
+  console.log(metricStatus);
 
   const onChangeStatus = async (status: VerificationStatus) => {
     return updateStatus([{ id: metricId, status }]);

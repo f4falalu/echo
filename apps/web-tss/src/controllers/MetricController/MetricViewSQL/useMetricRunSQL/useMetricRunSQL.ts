@@ -60,9 +60,8 @@ export const useMetricRunSQL = () => {
     data_metadata: BusterMetricData['data_metadata'];
     isDataFromRerun: boolean;
   }) => {
-    const latestVersionNumber = getLatestMetricVersion(metricId);
-    const options = metricsQueryKeys.metricsGetData(metricId, latestVersionNumber as number);
-    const currentData = getMetricDataMemoized(metricId, latestVersionNumber as number);
+    const options = metricsQueryKeys.metricsGetData(metricId, 'LATEST');
+    const currentData = getMetricDataMemoized(metricId, 'LATEST');
     if (!currentData) return;
     const setter = isDataFromRerun ? 'dataFromRerun' : 'data';
 
@@ -178,8 +177,7 @@ export const useMetricRunSQL = () => {
       });
       await timeout(50);
 
-      const latestVersionNumber = getLatestMetricVersion(metricId);
-      const currentData = getMetricDataMemoized(metricId, latestVersionNumber as number);
+      const currentData = getMetricDataMemoized(metricId, 'LATEST');
 
       if (currentData?.data_metadata && currentData?.dataFromRerun) {
         onSetDataForMetric({

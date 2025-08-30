@@ -24,11 +24,12 @@ export const useGetMetricMemoized = () => {
 
 export const useGetMetricDataMemoized = () => {
   const queryClient = useQueryClient();
-  const getLatestMetricVersion = useGetLatestMetricVersionMemoized();
   const getMetricDataMemoized = useMemoizedFn(
-    (metricId: string, versionNumberProp?: number): BusterMetricDataExtended | undefined => {
-      const latestVersionNumber = getLatestMetricVersion(metricId) || 'LATEST';
-      const versionNumber = versionNumberProp ?? latestVersionNumber;
+    (
+      metricId: string,
+      versionNumberProp?: number | 'LATEST'
+    ): BusterMetricDataExtended | undefined => {
+      const versionNumber = versionNumberProp ?? 'LATEST';
       if (versionNumber == null) return undefined;
       const options = metricsQueryKeys.metricsGetData(metricId, versionNumber);
       const data = queryClient.getQueryData(options.queryKey);

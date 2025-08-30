@@ -163,16 +163,13 @@ export const useAddMetricsToDashboard = () => {
     mutationFn: addMetricToDashboard,
     onMutate: ({ metricIds, dashboardId }) => {
       for (const metricId of metricIds) {
-        const highestVersion = getLatestMetricVersion(metricId);
-        if (highestVersion) {
-          const options = metricsQueryKeys.metricsGetMetric(metricId, highestVersion);
-          queryClient.setQueryData(options.queryKey, (old) => {
-            if (!old) return old;
-            return create(old, (draft) => {
-              draft.dashboards = [...(draft.dashboards || []), { id: dashboardId, name: '' }];
-            });
+        const options = metricsQueryKeys.metricsGetMetric(metricId, 'LATEST');
+        queryClient.setQueryData(options.queryKey, (old) => {
+          if (!old) return old;
+          return create(old, (draft) => {
+            draft.dashboards = [...(draft.dashboards || []), { id: dashboardId, name: '' }];
           });
-        }
+        });
       }
     },
     onSuccess: (data) => {
@@ -223,16 +220,13 @@ export const useRemoveMetricsFromDashboard = () => {
   }) => {
     const method = async () => {
       for (const metricId of metricIds) {
-        const highestVersion = getLatestMetricVersion(metricId);
-        if (highestVersion) {
-          const options = metricsQueryKeys.metricsGetMetric(metricId, highestVersion);
-          queryClient.setQueryData(options.queryKey, (old) => {
-            if (!old) return old;
-            return create(old, (draft) => {
-              draft.dashboards = old?.dashboards?.filter((d) => d.id !== dashboardId) || [];
-            });
+        const options = metricsQueryKeys.metricsGetMetric(metricId, 'LATEST');
+        queryClient.setQueryData(options.queryKey, (old) => {
+          if (!old) return old;
+          return create(old, (draft) => {
+            draft.dashboards = old?.dashboards?.filter((d) => d.id !== dashboardId) || [];
           });
-        }
+        });
       }
 
       const dashboardResponse = await ensureDashboardConfig(dashboardId, false);
