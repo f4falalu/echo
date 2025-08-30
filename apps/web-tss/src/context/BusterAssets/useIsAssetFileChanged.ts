@@ -34,7 +34,7 @@ export const useIsAssetFileChanged = () => {
       return reportParams;
     }
 
-    const _exhaustiveCheck: 'chat' | 'collection' = assetType;
+    const _exhaustiveCheck: 'chat' | 'collection' | 'reasoning' = assetType;
 
     return {
       isFileChanged: false,

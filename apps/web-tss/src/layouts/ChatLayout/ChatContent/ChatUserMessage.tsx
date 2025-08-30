@@ -12,6 +12,7 @@ import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useMount } from '@/hooks/useMount';
 import { cn } from '@/lib/classMerge';
+import { useChat } from '../../../context/Chats/useChat';
 import { MessageContainer } from './MessageContainer';
 
 export const ChatUserMessage: React.FC<{
@@ -131,7 +132,7 @@ const EditMessage: React.FC<{
 }> = React.memo(({ requestMessage, onSetIsEditing, messageId, chatId }) => {
   const [prompt, setPrompt] = useState(requestMessage.request || '');
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
-  const onReplaceMessageInChat = useBusterNewChatContextSelector((x) => x.onReplaceMessageInChat);
+  const { onReplaceMessageInChat } = useChat();
 
   const onSave = useMemoizedFn(() => {
     onReplaceMessageInChat({

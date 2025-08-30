@@ -1,8 +1,8 @@
 import type React from 'react';
 import { forwardRef } from 'react';
 import { Avatar } from '@/components/ui/avatar';
-import { cn } from '@/lib/classMerge';
 import { BusterLoadingAvatar } from '@/components/ui/avatar/BusterLoadingAvatar';
+import { cn } from '@/lib/classMerge';
 
 interface MessageContainerProps {
   children: React.ReactNode;
@@ -23,7 +23,6 @@ export const MessageContainer = forwardRef<HTMLDivElement, MessageContainerProps
     {
       children,
       senderName,
-      senderId,
       senderAvatar,
       className = '',
       hideAvatar = false,
@@ -31,7 +30,7 @@ export const MessageContainer = forwardRef<HTMLDivElement, MessageContainerProps
       isStreamFinished = true,
       isFinishedReasoning = true,
       onMouseEnter,
-      onMouseLeave
+      onMouseLeave,
     },
     ref
   ) => {
@@ -40,7 +39,8 @@ export const MessageContainer = forwardRef<HTMLDivElement, MessageContainerProps
         ref={ref}
         className={'flex w-full space-x-2'}
         onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}>
+        onMouseLeave={onMouseLeave}
+      >
         <div className={cn('w-6 transition-opacity', hideAvatar ? 'opacity-0' : 'opacity-100')}>
           {senderName ? (
             <Avatar size={24} name={senderName} image={senderAvatar || ''} useToolTip={true} />

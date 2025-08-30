@@ -55,12 +55,19 @@ type CollectionParamsToRoute = {
   dashboardVersionNumber?: number;
 };
 
+type ReasoningParamsToRoute = {
+  assetType: 'reasoning';
+  assetId: string;
+  chatId: string;
+};
+
 export type AssetParamsToRoute =
   | ChatParamsToRoute
   | MetricParamsToRoute
   | DashboardParamsToRoute
   | ReportParamsToRoute
-  | CollectionParamsToRoute;
+  | CollectionParamsToRoute
+  | ReasoningParamsToRoute;
 
 /**
  * Route builder internal state type

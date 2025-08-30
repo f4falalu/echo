@@ -29,10 +29,10 @@ function RouteComponent() {
 
 declare module '@tanstack/react-router' {
   interface StaticDataRouteOption {
-    assetType?: AssetType;
+    assetType?: AssetType | 'reasoning';
   }
 
   interface RouteContext {
-    assetType?: AssetType;
+    assetType?: AssetType | 'reasoning';
   }
 }

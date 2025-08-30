@@ -1,9 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
-import { http, HttpResponse } from 'msw';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { HttpResponse, http } from 'msw';
 import type { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat/chatMessageInterfaces';
-import { ChatResponseMessage_DashboardFile } from './ChatResponseMessage_DashboardFile';
-import { BASE_URL } from '@/api/buster_rest/config';
+import { BASE_URL } from '@/api/config';
 import { generateMockDashboard } from '@/mocks/MOCK_DASHBOARD';
+import { ChatResponseMessage_DashboardFile } from './ChatResponseMessage_DashboardFile';
 
 const mockResponseMessage: BusterChatResponseMessage_file = {
   id: 'dashboard-response-1',
@@ -16,9 +16,9 @@ const mockResponseMessage: BusterChatResponseMessage_file = {
     {
       status: 'completed',
       message: 'Dashboard loaded successfully',
-      timestamp: Date.now()
-    }
-  ]
+      timestamp: Date.now(),
+    },
+  ],
 };
 
 const { response: mockDashboardResponse } = generateMockDashboard(
@@ -40,25 +40,25 @@ const meta: Meta<typeof ChatResponseMessage_DashboardFile> = {
           // You can handle different logic based on version_number if needed
           // For now, returning the same mock response regardless of version
           return HttpResponse.json(mockDashboardResponse);
-        })
-      ]
-    }
+        }),
+      ],
+    },
   },
   tags: ['autodocs'],
   argTypes: {
     isStreamFinished: {
       control: 'boolean',
-      description: 'Whether the stream has completed'
+      description: 'Whether the stream has completed',
     },
     responseMessage: {
       control: false,
-      description: 'The dashboard file response message'
+      description: 'The dashboard file response message',
     },
     isSelectedFile: {
       control: 'boolean',
-      description: 'Whether this file is currently selected'
-    }
-  }
+      description: 'Whether this file is currently selected',
+    },
+  },
 };
 
 export default meta;
@@ -68,24 +68,24 @@ export const Default: Story = {
   args: {
     isStreamFinished: true,
     responseMessage: mockResponseMessage,
-    isSelectedFile: false
-  }
+    isSelectedFile: false,
+  },
 };
 
 export const Selected: Story = {
   args: {
     isStreamFinished: true,
     responseMessage: mockResponseMessage,
-    isSelectedFile: true
-  }
+    isSelectedFile: true,
+  },
 };
 
 export const StreamingInProgress: Story = {
   args: {
     isStreamFinished: false,
     responseMessage: mockResponseMessage,
-    isSelectedFile: false
-  }
+    isSelectedFile: false,
+  },
 };
 
 export const LoadingState: Story = {
@@ -99,15 +99,15 @@ export const LoadingState: Story = {
           // Delay response to show loading state
           await new Promise((resolve) => setTimeout(resolve, 2000));
           return HttpResponse.json(mockDashboardResponse);
-        })
-      ]
-    }
+        }),
+      ],
+    },
   },
   args: {
     isStreamFinished: true,
     responseMessage: mockResponseMessage,
-    isSelectedFile: false
-  }
+    isSelectedFile: false,
+  },
 };
 
 export const ErrorState: Story = {
@@ -119,15 +119,15 @@ export const ErrorState: Story = {
           const versionNumber = url.searchParams.get('version_number');
 
           return HttpResponse.json({ error: 'Dashboard not found' }, { status: 404 });
-        })
-      ]
-    }
+        }),
+      ],
+    },
   },
   args: {
     isStreamFinished: true,
     responseMessage: mockResponseMessage,
-    isSelectedFile: false
-  }
+    isSelectedFile: false,
+  },
 };
 
 export const DifferentVersions: Story = {
@@ -136,10 +136,10 @@ export const DifferentVersions: Story = {
     responseMessage: {
       ...mockResponseMessage,
       version_number: 3,
-      file_name: 'Marketing Dashboard v3'
+      file_name: 'Marketing Dashboard v3',
     },
-    isSelectedFile: false
-  }
+    isSelectedFile: false,
+  },
 };
 
 export const WithMetadata: Story = {
@@ -151,15 +151,15 @@ export const WithMetadata: Story = {
         {
           status: 'loading',
           message: 'Loading dashboard data...',
-          timestamp: Date.now() - 3000
+          timestamp: Date.now() - 3000,
         },
         {
           status: 'completed',
           message: 'Dashboard loaded successfully',
-          timestamp: Date.now()
-        }
-      ]
+          timestamp: Date.now(),
+        },
+      ],
     },
-    isSelectedFile: false
-  }
+    isSelectedFile: false,
+  },
 };

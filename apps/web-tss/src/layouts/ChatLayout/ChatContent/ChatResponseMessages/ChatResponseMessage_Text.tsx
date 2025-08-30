@@ -10,7 +10,7 @@ import type { ChatResponseMessageProps } from './ChatResponseMessageSelector';
 export const ChatResponseMessage_Text: React.FC<ChatResponseMessageProps> = React.memo(
   ({ responseMessageId, messageId, isStreamFinished }) => {
     const { data: responseMessage } = useGetChatMessage(messageId, {
-      select: (x) => x?.response_messages?.[responseMessageId]
+      select: (x) => x?.response_messages?.[responseMessageId],
     });
     const { message } = responseMessage as BusterChatResponseMessage_text;
 

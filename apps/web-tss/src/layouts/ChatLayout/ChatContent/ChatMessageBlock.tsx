@@ -1,10 +1,10 @@
 'use client';
 
 import React from 'react';
+import type { BusterChatMessage } from '@/api/asset_interfaces/chat';
 import { useGetChatMessage } from '@/api/buster_rest/chats';
 import { ChatResponseMessages } from './ChatResponseMessages';
 import { ChatUserMessage } from './ChatUserMessage';
-import type { BusterChatMessage } from '@/api/asset_interfaces/chat';
 
 // Stable selector functions to prevent unnecessary re-renders
 const selectMessageExists = (message: BusterChatMessage | undefined) => !!message?.id;
@@ -17,13 +17,13 @@ export const ChatMessageBlock: React.FC<{
   messageIndex: number;
 }> = React.memo(({ messageId, chatId, messageIndex }) => {
   const { data: messageExists } = useGetChatMessage(messageId, {
-    select: selectMessageExists
+    select: selectMessageExists,
   });
   const { data: requestMessage } = useGetChatMessage(messageId, {
-    select: selectRequestMessage
+    select: selectRequestMessage,
   });
   const { data: isStreamFinished = true } = useGetChatMessage(messageId, {
-    select: selectIsCompleted
+    select: selectIsCompleted,
   });
 
   if (!messageExists) return null;
