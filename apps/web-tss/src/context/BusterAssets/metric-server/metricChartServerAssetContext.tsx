@@ -1,6 +1,6 @@
 import { ClientOnly, Outlet } from '@tanstack/react-router';
 import { AppSplitter, type LayoutSize } from '@/components/ui/layouts/AppSplitter';
-import { MetricViewChart } from '@/controllers/MetricController/MetricViewChart';
+import { MetricViewChartController } from '@/controllers/MetricController/MetricViewChartController';
 import {
   useIsMetricEditMode,
   useMetricEditSplitter,
@@ -26,7 +26,9 @@ export const component = () => {
         defaultLayout={defaultLayout}
         initialLayout={defaultLayout}
         preserveSide="right"
-        leftChildren={<MetricViewChart metricId={metricId} versionNumber={metric_version_number} />}
+        leftChildren={
+          <MetricViewChartController metricId={metricId} versionNumber={metric_version_number} />
+        }
         rightChildren={<Outlet />}
         rightPanelMinSize={'250px'}
         rightPanelMaxSize={'500px'}

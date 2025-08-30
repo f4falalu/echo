@@ -3,9 +3,11 @@ import { CircleSpinnerLoaderContainer } from '../../../components/ui/loaders';
 import { useGetMetricParams } from './useGetMetricParams';
 
 const MetricEditController = lazy(() =>
-  import('@/controllers/MetricController/MetricViewChart/MetricEditController').then((x) => ({
-    default: x.MetricEditController,
-  }))
+  import('@/controllers/MetricController/MetricViewChartController/MetricEditController').then(
+    (x) => ({
+      default: x.MetricEditController,
+    })
+  )
 );
 
 export const component = () => {

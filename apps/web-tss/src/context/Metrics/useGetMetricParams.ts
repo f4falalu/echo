@@ -9,7 +9,7 @@ const stableMetricSearch = (search?: { metric_version_number?: number }) => ({
 });
 
 export const useGetMetricParams = () => {
-  const { metricId } = useParams({
+  const { metricId = '' } = useParams({
     strict: false,
     select: stableMetricParams,
   });
