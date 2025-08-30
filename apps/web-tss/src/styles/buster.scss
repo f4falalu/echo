@@ -17,7 +17,7 @@
     animation-name: scrollShowAnimation;
     animation-duration: 1ms; /* Firefox requires this to apply the animation */
     animation-timeline: --scrollShadowContainer;
-    animation-range: 1px 90px; /* Start at 5px to ensure scrolling has actually occurred */
+    animation-range: 1px 85px; /* Start at 5px to ensure scrolling has actually occurred */
     animation-fill-mode: both; /* Use 'both' instead of 'forwards' for better control */
   }
 }

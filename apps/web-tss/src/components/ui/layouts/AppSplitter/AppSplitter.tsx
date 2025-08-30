@@ -100,7 +100,10 @@ const AppSplitterWrapper = forwardRef<AppSplitterRef, IAppSplitterProps>(
       rightPanelMaxSize,
       containerRef,
       mounted,
+      autoSaveId,
     });
+
+    console.log(autoSaveId, mounted, initialValue);
 
     return (
       <AppSplitterContext.Provider value={{ splitterAutoSaveId, containerRef }}>
@@ -110,15 +113,17 @@ const AppSplitterWrapper = forwardRef<AppSplitterRef, IAppSplitterProps>(
           className={cn('flex h-full w-full', isVertical ? 'flex-row' : 'flex-col', className)}
           style={style}
         >
-          <AppSplitterBase
-            {...props}
-            ref={componentRef}
-            isVertical={isVertical}
-            containerRef={containerRef}
-            splitterAutoSaveId={splitterAutoSaveId}
-            split={split}
-            calculatedInitialValue={initialValue}
-          />
+          {mounted && (
+            <AppSplitterBase
+              {...props}
+              ref={componentRef}
+              isVertical={isVertical}
+              containerRef={containerRef}
+              splitterAutoSaveId={splitterAutoSaveId}
+              split={split}
+              calculatedInitialValue={initialValue}
+            />
+          )}
         </div>
       </AppSplitterContext.Provider>
     );
@@ -288,8 +293,7 @@ const AppSplitterBase = forwardRef<
 
     // Calculate preserved panel size - non-preserved panel will use flex-1
     const preservedPanelSize = useMemo(() => {
-      const { containerSize, isAnimating, sizeSetByAnimation, isDragging, hasUserInteracted } =
-        state;
+      const { isAnimating, sizeSetByAnimation, isDragging, hasUserInteracted } = state;
 
       // Handle hidden panels
       if (leftHidden || rightHidden) return 0;

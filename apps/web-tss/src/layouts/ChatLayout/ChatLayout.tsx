@@ -7,8 +7,8 @@ import {
   type LayoutSize,
 } from '@/components/ui/layouts/AppSplitter';
 import { useGetCurrentMessageId, useIsStreamingMessage } from '@/context/Chats';
+import type { LayoutMode } from '@/context/Chats/selected-mode-helpers';
 import { useGetChatId } from '@/context/Chats/useGetChatId';
-import { useSelectedLayoutMode } from '@/context/Chats/useSelectedLayoutMode';
 import { useSelectedAssetId } from '../../context/BusterAssets/useSelectedAssetType';
 import { ChatContainer } from './ChatContainer';
 import { useAutoChatSplitter } from './ChatLayoutContext/useAutoChatSplitter';
@@ -25,6 +25,7 @@ interface ChatSplitterProps {
   initialLayout: LayoutSize;
   autoSaveId: string;
   defaultLayout: LayoutSize;
+  selectedLayout: LayoutMode;
 }
 
 export const ChatLayout: React.FC<ChatSplitterProps> = ({
@@ -32,9 +33,9 @@ export const ChatLayout: React.FC<ChatSplitterProps> = ({
   autoSaveId,
   children,
   defaultLayout,
+  selectedLayout,
 }) => {
   const appSplitterRef = useRef<AppSplitterRef>(null);
-  const selectedLayout = useSelectedLayoutMode();
   const selectedAssetId = useSelectedAssetId();
   const currentMessageId = useGetCurrentMessageId() || '';
   const chatId = useGetChatId();
@@ -63,7 +64,7 @@ export const ChatLayout: React.FC<ChatSplitterProps> = ({
         autoSaveId={autoSaveId}
         defaultLayout={defaultLayout}
         allowResize={selectedLayout === 'both'}
-        preserveSide={'right'}
+        preserveSide={'left'}
         leftPanelMinSize={leftPanelMinSize}
         leftPanelMaxSize={leftPanelMaxSize}
         rightPanelMinSize={rightPanelMinSize}

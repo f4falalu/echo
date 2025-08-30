@@ -2,19 +2,26 @@ import type { AssetType } from '@buster/server-shared/assets';
 import { createFileRoute, Outlet, useLoaderData } from '@tanstack/react-router';
 import omit from 'lodash/omit';
 import { getAppLayout } from '@/api/server-functions/getAppLayout';
-import { ChatLayout } from '@/layouts/ChatLayout';
 import {
-  DEFAULT_CHAT_OPTION_SIDEBAR_SIZE,
-  DEFAULT_FILE_OPTION_SIDEBAR_SIZE,
-} from '@/layouts/ChatLayout/config';
-import { getDefaultLayout } from '../../../../context/Chats/useSelectedLayoutMode';
+  chooseInitialLayout,
+  getDefaultLayout,
+  getDefaultLayoutMode,
+} from '@/context/Chats/selected-mode-helpers';
+import { ChatLayout } from '@/layouts/ChatLayout';
 
 export const Route = createFileRoute('/app/_app/_asset/chats/$chatId')({
   loader: async ({ params, context }) => {
     const chatId = params.chatId;
     const assetParams = omit(params, 'chatId');
     const assetType = context.assetType;
-    const autoSaveId = `chat-splitter-${chatId || '🫥'}-${assetType || '❌'}`;
+    const autoSaveId = `chat-${chatId || '🫥'}-${assetType || '❌'}`;
+    const selectedLayout = getDefaultLayoutMode({
+      chatId,
+      assetParams,
+    });
+    const defaultLayout = getDefaultLayout({
+      layout: selectedLayout,
+    });
 
     const [chatLayout, title] = await Promise.all([
       getAppLayout({ data: { id: autoSaveId } }),
@@ -23,17 +30,19 @@ export const Route = createFileRoute('/app/_app/_asset/chats/$chatId')({
         assetType: 'chat',
       }),
     ]);
-    const defaultLayout = getDefaultLayout({
-      chatId,
-      assetParams,
+
+    const initialLayout = chooseInitialLayout({
+      layout: selectedLayout,
+      initialLayout: chatLayout,
+      defaultLayout,
     });
-    const initialLayout = chatLayout ?? defaultLayout;
 
     return {
       title,
       autoSaveId,
       initialLayout,
       defaultLayout,
+      selectedLayout,
     };
   },
   head: ({ loaderData }) => ({
@@ -45,12 +54,14 @@ export const Route = createFileRoute('/app/_app/_asset/chats/$chatId')({
     ],
   }),
   component: () => {
-    const { initialLayout, autoSaveId, defaultLayout } = Route.useLoaderData();
+    const { initialLayout, selectedLayout, autoSaveId, defaultLayout } = Route.useLoaderData();
+    console.log(initialLayout, selectedLayout, autoSaveId, defaultLayout);
     return (
       <ChatLayout
         initialLayout={initialLayout}
         autoSaveId={autoSaveId}
         defaultLayout={defaultLayout}
+        selectedLayout={selectedLayout}
       >
         <Outlet />
       </ChatLayout>

@@ -1,5 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
-import { useMemoizedFn } from '../../../../hooks/useMemoizedFn';
+import { useMemo } from 'react';
 import type { LayoutSize } from './AppSplitter.types';
 import { sizeToPixels } from './helpers';
 
@@ -13,6 +12,7 @@ interface UseInitialValueProps {
   rightPanelMaxSize?: number | string;
   containerRef: React.RefObject<HTMLDivElement | null>;
   mounted: boolean;
+  autoSaveId: string;
 }
 
 /**
@@ -29,6 +29,7 @@ export const useInitialValue = ({
   rightPanelMaxSize,
   containerRef,
   mounted,
+  autoSaveId,
 }: UseInitialValueProps) => {
   const getInitialValue = () => {
     if (initialLayout) {
@@ -38,12 +39,15 @@ export const useInitialValue = ({
           ? (containerRef.current?.offsetWidth ?? 0)
           : (containerRef.current?.offsetHeight ?? 0);
 
+      console.log(autoSaveId, preserveSide, initialLayout, leftValue, rightValue, containerSize);
+
       if (preserveSide === 'left' && leftValue === 'auto') {
         return containerSize;
       }
       if (preserveSide === 'right' && rightValue === 'auto') {
         return containerSize;
       }
+
       const preserveValue = preserveSide === 'left' ? leftValue : rightValue;
       const result = sizeToPixels(preserveValue, containerSize);
 
@@ -73,9 +77,9 @@ export const useInitialValue = ({
     return null;
   };
 
-  const initialValue = useMemo(() => {
+  const memoizedInitialValue = useMemo(() => {
     return getInitialValue();
-  }, [getInitialValue, mounted]);
+  }, [mounted, autoSaveId]);
 
-  return initialValue;
+  return memoizedInitialValue;
 };

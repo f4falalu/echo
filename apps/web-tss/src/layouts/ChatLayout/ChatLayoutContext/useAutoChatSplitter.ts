@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
 import type { AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
 import {
   useSelectedAssetId,
   useSelectedAssetType,
 } from '@/context/BusterAssets/useSelectedAssetType';
+import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 import { DEFAULT_CHAT_OPTION_SIDEBAR_SIZE } from '../config';
 
 export const useAutoChatSplitter = ({
@@ -38,7 +38,7 @@ export const useAutoChatSplitter = ({
     }
   };
 
-  useEffect(() => {
+  useUpdateEffect(() => {
     const isSplitterClosed = appSplitterRef.current?.isSideClosed('right');
     if (isSplitterClosed && selectedAssetId) {
       animateOpenSplitter('both');
