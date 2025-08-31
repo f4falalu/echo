@@ -1,7 +1,8 @@
-import { useRouter } from '@tanstack/react-router';
+import { type BuildLocationFn, type RegisteredRouter, useRouter } from '@tanstack/react-router';
 import { useMemo } from 'react';
 
-export const useBuildLocation = () => {
+export const useBuildLocation = <TRouter extends RegisteredRouter>() => {
   const { buildLocation } = useRouter();
-  return useMemo(() => buildLocation, [buildLocation]);
+
+  return buildLocation;
 };

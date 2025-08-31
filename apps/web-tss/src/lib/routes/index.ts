@@ -1,4 +1,4 @@
-import type { RegisteredRouter, ValidateLinkOptions } from '@tanstack/react-router';
+import type { ParsedLocation, RegisteredRouter, ValidateLinkOptions } from '@tanstack/react-router';
 import type { ILinkProps } from '@/types/routes';
 
 export function defineLink<
@@ -18,3 +18,5 @@ export function defineLinkFromFactory<TFrom extends string>(fromOptions: { from:
       ...toOptions,
     }) as ValidateLinkOptions<TRouter, TOptions, TFrom>;
 }
+
+export const createFullURL = (location: ParsedLocation) => window.location.origin + location.href;

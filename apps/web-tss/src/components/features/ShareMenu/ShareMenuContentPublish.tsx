@@ -15,7 +15,7 @@ import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useBuildLocation } from '@/context/Routes/useRouteBuilder';
 import { cn } from '@/lib/classMerge';
 import { createDayjsDate } from '@/lib/date';
-import { defineLink } from '@/lib/routes';
+import { createFullURL } from '@/lib/routes';
 import type { ShareMenuContentBodyProps } from './ShareMenuContentBody';
 
 export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = React.memo(
@@ -46,40 +46,50 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
 
     const linkUrl: string = useMemo(() => {
       if (assetType === 'metric') {
-        return buildLocation({
-          to: '/app/metrics/$metricId/chart',
-          params: {
-            metricId: assetId,
-          },
-        }).href;
+        return createFullURL(
+          buildLocation({
+            to: '/app/metrics/$metricId/chart',
+            params: {
+              metricId: assetId,
+            },
+          })
+        );
       } else if (assetType === 'dashboard') {
-        return buildLocation({
-          to: '/app/dashboards/$dashboardId',
-          params: {
-            dashboardId: assetId,
-          },
-        }).href;
+        return createFullURL(
+          buildLocation({
+            to: '/app/dashboards/$dashboardId',
+            params: {
+              dashboardId: assetId,
+            },
+          })
+        );
       } else if (assetType === 'collection') {
-        return buildLocation({
-          to: '/app/collections/$collectionId',
-          params: {
-            collectionId: assetId,
-          },
-        }).href;
+        return createFullURL(
+          buildLocation({
+            to: '/app/collections/$collectionId',
+            params: {
+              collectionId: assetId,
+            },
+          })
+        );
       } else if (assetType === 'report') {
-        return buildLocation({
-          to: '/app/reports/$reportId',
-          params: {
-            reportId: assetId,
-          },
-        }).href;
+        return createFullURL(
+          buildLocation({
+            to: '/app/reports/$reportId',
+            params: {
+              reportId: assetId,
+            },
+          })
+        );
       } else if (assetType === 'chat') {
-        return buildLocation({
-          to: '/app/chats/$chatId',
-          params: {
-            chatId: assetId,
-          },
-        }).href;
+        return createFullURL(
+          buildLocation({
+            to: '/app/chats/$chatId',
+            params: {
+              chatId: assetId,
+            },
+          })
+        );
       }
 
       const _exhaustiveCheck: never = assetType;

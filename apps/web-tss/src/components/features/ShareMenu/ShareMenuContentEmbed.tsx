@@ -1,4 +1,5 @@
 import type { ShareAssetType } from '@buster/server-shared/share';
+import type { BuildLocationFn, ParsedLocation } from '@tanstack/react-router';
 import React, { useMemo } from 'react';
 import { useUpdateCollectionShare } from '@/api/buster_rest/collections';
 import { useUpdateDashboardShare } from '@/api/buster_rest/dashboards';
@@ -9,6 +10,7 @@ import { Input } from '@/components/ui/inputs';
 import { Text } from '@/components/ui/typography';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { cn } from '@/lib/classMerge';
+import { createFullURL } from '@/lib/routes';
 import { useBuildLocation } from '../../../context/Routes/useRouteBuilder';
 import type { ShareMenuContentBodyProps } from './ShareMenuContentBody';
 
@@ -19,30 +21,36 @@ export const ShareMenuContentEmbed: React.FC<ShareMenuContentBodyProps> = React.
 
     const embedURL = useMemo(() => {
       if (assetType === 'metric') {
-        return buildLocation({
-          to: '/embed/metric/$metricId',
-          params: {
-            metricId: assetId,
-          },
-        }).href;
+        return createFullURL(
+          buildLocation({
+            to: '/embed/metric/$metricId',
+            params: {
+              metricId: assetId,
+            },
+          })
+        );
       }
 
       if (assetType === 'dashboard') {
-        return buildLocation({
-          to: '/embed/dashboard/$dashboardId',
-          params: {
-            dashboardId: assetId,
-          },
-        }).href;
+        return createFullURL(
+          buildLocation({
+            to: '/embed/dashboard/$dashboardId',
+            params: {
+              dashboardId: assetId,
+            },
+          })
+        );
       }
 
       if (assetType === 'report') {
-        return buildLocation({
-          to: '/embed/report/$reportId',
-          params: {
-            reportId: assetId,
-          },
-        }).href;
+        return createFullURL(
+          buildLocation({
+            to: '/embed/report/$reportId',
+            params: {
+              reportId: assetId,
+            },
+          })
+        );
       }
 
       if (assetType === 'chat') {
@@ -77,9 +85,7 @@ export const ShareMenuContentEmbed: React.FC<ShareMenuContentBodyProps> = React.
 ShareMenuContentEmbed.displayName = 'ShareMenuContentEmbed';
 
 const createIframe = (url: string) => {
-  const newUrl = window.location.origin + url;
-
-  return `<iframe src="${newUrl}" width="100%" height="100%" frameborder="0"></iframe>`;
+  return `<iframe src="${url}" width="100%" height="100%" frameborder="0"></iframe>`;
 };
 
 export const ShareMenuContentEmbedFooter = ({
