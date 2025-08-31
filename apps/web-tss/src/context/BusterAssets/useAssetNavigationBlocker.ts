@@ -13,6 +13,7 @@ export const useAssetNavigationBlocker = ({
   const openConfirmModal = useOpenConfirmModal();
 
   useBlocker({
+    disabled: !enableBlocker,
     shouldBlockFn: async () => {
       if (!isFileChanged || !enableBlocker) return false;
 

@@ -55,7 +55,6 @@ import { Route as AppAppAssetMetricsMetricIdSqlRouteImport } from './routes/app/
 import { Route as AppAppAssetMetricsMetricIdResultsRouteImport } from './routes/app/_app/_asset/metrics.$metricId.results'
 import { Route as AppAppAssetMetricsMetricIdChartRouteImport } from './routes/app/_app/_asset/metrics.$metricId.chart'
 import { Route as AppAppAssetReportsReportIdMetricsMetricIdRouteImport } from './routes/app/_app/_asset/reports.$reportId.metrics.$metricId'
-import { Route as AppAppAssetMetricsMetricIdChartEditRouteImport } from './routes/app/_app/_asset/metrics.$metricId.chart.edit'
 import { Route as AppAppAssetDashboardsDashboardIdMetricsMetricIdRouteImport } from './routes/app/_app/_asset/dashboards.$dashboardId.metrics.$metricId'
 import { Route as AppAppAssetCollectionsCollectionIdReportsReportIdRouteImport } from './routes/app/_app/_asset/collections.$collectionId.reports.$reportId'
 import { Route as AppAppAssetCollectionsCollectionIdMetricsMetricIdRouteImport } from './routes/app/_app/_asset/collections.$collectionId.metrics.$metricId'
@@ -322,12 +321,6 @@ const AppAppAssetReportsReportIdMetricsMetricIdRoute =
     path: '/reports/$reportId/metrics/$metricId',
     getParentRoute: () => AppAppAssetRoute,
   } as any)
-const AppAppAssetMetricsMetricIdChartEditRoute =
-  AppAppAssetMetricsMetricIdChartEditRouteImport.update({
-    id: '/edit',
-    path: '/edit',
-    getParentRoute: () => AppAppAssetMetricsMetricIdChartRoute,
-  } as any)
 const AppAppAssetDashboardsDashboardIdMetricsMetricIdRoute =
   AppAppAssetDashboardsDashboardIdMetricsMetricIdRouteImport.update({
     id: '/metrics/$metricId',
@@ -522,7 +515,7 @@ export interface FileRoutesByFullPath {
   '/app/datasets/$datasetId/overview': typeof AppAppDatasetsDatasetIdOverviewRoute
   '/app/settings/datasources/add': typeof AppSettingsSettingsDatasourcesAddRoute
   '/app/settings/datasources/': typeof AppSettingsSettingsDatasourcesIndexRoute
-  '/app/metrics/$metricId/chart': typeof AppAppAssetMetricsMetricIdChartRouteWithChildren
+  '/app/metrics/$metricId/chart': typeof AppAppAssetMetricsMetricIdChartRoute
   '/app/metrics/$metricId/results': typeof AppAppAssetMetricsMetricIdResultsRoute
   '/app/metrics/$metricId/sql': typeof AppAppAssetMetricsMetricIdSqlRoute
   '/app/collections/$collectionId': typeof AppAppAssetCollectionsCollectionIdIndexRoute
@@ -537,7 +530,6 @@ export interface FileRoutesByFullPath {
   '/app/collections/$collectionId/metrics/$metricId': typeof AppAppAssetCollectionsCollectionIdMetricsMetricIdRoute
   '/app/collections/$collectionId/reports/$reportId': typeof AppAppAssetCollectionsCollectionIdReportsReportIdRouteWithChildren
   '/app/dashboards/$dashboardId/metrics/$metricId': typeof AppAppAssetDashboardsDashboardIdMetricsMetricIdRouteWithChildren
-  '/app/metrics/$metricId/chart/edit': typeof AppAppAssetMetricsMetricIdChartEditRoute
   '/app/reports/$reportId/metrics/$metricId': typeof AppAppAssetReportsReportIdMetricsMetricIdRoute
   '/app/dashboards/$dashboardId/metrics/$metricId/chart': typeof AppAppAssetDashboardsDashboardIdMetricsMetricIdChartRoute
   '/app/dashboards/$dashboardId/metrics/$metricId/result': typeof AppAppAssetDashboardsDashboardIdMetricsMetricIdResultRoute
@@ -586,7 +578,7 @@ export interface FileRoutesByTo {
   '/app/datasets/$datasetId/overview': typeof AppAppDatasetsDatasetIdOverviewRoute
   '/app/settings/datasources/add': typeof AppSettingsSettingsDatasourcesAddRoute
   '/app/settings/datasources': typeof AppSettingsSettingsDatasourcesIndexRoute
-  '/app/metrics/$metricId/chart': typeof AppAppAssetMetricsMetricIdChartRouteWithChildren
+  '/app/metrics/$metricId/chart': typeof AppAppAssetMetricsMetricIdChartRoute
   '/app/metrics/$metricId/results': typeof AppAppAssetMetricsMetricIdResultsRoute
   '/app/metrics/$metricId/sql': typeof AppAppAssetMetricsMetricIdSqlRoute
   '/app/collections/$collectionId': typeof AppAppAssetCollectionsCollectionIdIndexRoute
@@ -601,7 +593,6 @@ export interface FileRoutesByTo {
   '/app/collections/$collectionId/metrics/$metricId': typeof AppAppAssetCollectionsCollectionIdMetricsMetricIdRoute
   '/app/collections/$collectionId/reports/$reportId': typeof AppAppAssetCollectionsCollectionIdReportsReportIdRouteWithChildren
   '/app/dashboards/$dashboardId/metrics/$metricId': typeof AppAppAssetDashboardsDashboardIdMetricsMetricIdRouteWithChildren
-  '/app/metrics/$metricId/chart/edit': typeof AppAppAssetMetricsMetricIdChartEditRoute
   '/app/reports/$reportId/metrics/$metricId': typeof AppAppAssetReportsReportIdMetricsMetricIdRoute
   '/app/dashboards/$dashboardId/metrics/$metricId/chart': typeof AppAppAssetDashboardsDashboardIdMetricsMetricIdChartRoute
   '/app/dashboards/$dashboardId/metrics/$metricId/result': typeof AppAppAssetDashboardsDashboardIdMetricsMetricIdResultRoute
@@ -656,7 +647,7 @@ export interface FileRoutesById {
   '/app/_app/datasets/$datasetId/overview': typeof AppAppDatasetsDatasetIdOverviewRoute
   '/app/_settings/settings/datasources/add': typeof AppSettingsSettingsDatasourcesAddRoute
   '/app/_settings/settings/datasources/': typeof AppSettingsSettingsDatasourcesIndexRoute
-  '/app/_app/_asset/metrics/$metricId/chart': typeof AppAppAssetMetricsMetricIdChartRouteWithChildren
+  '/app/_app/_asset/metrics/$metricId/chart': typeof AppAppAssetMetricsMetricIdChartRoute
   '/app/_app/_asset/metrics/$metricId/results': typeof AppAppAssetMetricsMetricIdResultsRoute
   '/app/_app/_asset/metrics/$metricId/sql': typeof AppAppAssetMetricsMetricIdSqlRoute
   '/app/_app/_asset/collections/$collectionId/': typeof AppAppAssetCollectionsCollectionIdIndexRoute
@@ -671,7 +662,6 @@ export interface FileRoutesById {
   '/app/_app/_asset/collections/$collectionId/metrics/$metricId': typeof AppAppAssetCollectionsCollectionIdMetricsMetricIdRoute
   '/app/_app/_asset/collections/$collectionId/reports/$reportId': typeof AppAppAssetCollectionsCollectionIdReportsReportIdRouteWithChildren
   '/app/_app/_asset/dashboards/$dashboardId/metrics/$metricId': typeof AppAppAssetDashboardsDashboardIdMetricsMetricIdRouteWithChildren
-  '/app/_app/_asset/metrics/$metricId/chart/edit': typeof AppAppAssetMetricsMetricIdChartEditRoute
   '/app/_app/_asset/reports/$reportId/metrics/$metricId': typeof AppAppAssetReportsReportIdMetricsMetricIdRoute
   '/app/_app/_asset/dashboards/$dashboardId/metrics/$metricId/chart': typeof AppAppAssetDashboardsDashboardIdMetricsMetricIdChartRoute
   '/app/_app/_asset/dashboards/$dashboardId/metrics/$metricId/result': typeof AppAppAssetDashboardsDashboardIdMetricsMetricIdResultRoute
@@ -739,7 +729,6 @@ export interface FileRouteTypes {
     | '/app/collections/$collectionId/metrics/$metricId'
     | '/app/collections/$collectionId/reports/$reportId'
     | '/app/dashboards/$dashboardId/metrics/$metricId'
-    | '/app/metrics/$metricId/chart/edit'
     | '/app/reports/$reportId/metrics/$metricId'
     | '/app/dashboards/$dashboardId/metrics/$metricId/chart'
     | '/app/dashboards/$dashboardId/metrics/$metricId/result'
@@ -803,7 +792,6 @@ export interface FileRouteTypes {
     | '/app/collections/$collectionId/metrics/$metricId'
     | '/app/collections/$collectionId/reports/$reportId'
     | '/app/dashboards/$dashboardId/metrics/$metricId'
-    | '/app/metrics/$metricId/chart/edit'
     | '/app/reports/$reportId/metrics/$metricId'
     | '/app/dashboards/$dashboardId/metrics/$metricId/chart'
     | '/app/dashboards/$dashboardId/metrics/$metricId/result'
@@ -872,7 +860,6 @@ export interface FileRouteTypes {
     | '/app/_app/_asset/collections/$collectionId/metrics/$metricId'
     | '/app/_app/_asset/collections/$collectionId/reports/$reportId'
     | '/app/_app/_asset/dashboards/$dashboardId/metrics/$metricId'
-    | '/app/_app/_asset/metrics/$metricId/chart/edit'
     | '/app/_app/_asset/reports/$reportId/metrics/$metricId'
     | '/app/_app/_asset/dashboards/$dashboardId/metrics/$metricId/chart'
     | '/app/_app/_asset/dashboards/$dashboardId/metrics/$metricId/result'
@@ -1230,13 +1217,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAppAssetReportsReportIdMetricsMetricIdRouteImport
       parentRoute: typeof AppAppAssetRoute
     }
-    '/app/_app/_asset/metrics/$metricId/chart/edit': {
-      id: '/app/_app/_asset/metrics/$metricId/chart/edit'
-      path: '/edit'
-      fullPath: '/app/metrics/$metricId/chart/edit'
-      preLoaderRoute: typeof AppAppAssetMetricsMetricIdChartEditRouteImport
-      parentRoute: typeof AppAppAssetMetricsMetricIdChartRoute
-    }
     '/app/_app/_asset/dashboards/$dashboardId/metrics/$metricId': {
       id: '/app/_app/_asset/dashboards/$dashboardId/metrics/$metricId'
       path: '/metrics/$metricId'
@@ -1519,31 +1499,15 @@ const AppAppAssetDashboardsDashboardIdRouteWithChildren =
     AppAppAssetDashboardsDashboardIdRouteChildren,
   )
 
-interface AppAppAssetMetricsMetricIdChartRouteChildren {
-  AppAppAssetMetricsMetricIdChartEditRoute: typeof AppAppAssetMetricsMetricIdChartEditRoute
-}
-
-const AppAppAssetMetricsMetricIdChartRouteChildren: AppAppAssetMetricsMetricIdChartRouteChildren =
-  {
-    AppAppAssetMetricsMetricIdChartEditRoute:
-      AppAppAssetMetricsMetricIdChartEditRoute,
-  }
-
-const AppAppAssetMetricsMetricIdChartRouteWithChildren =
-  AppAppAssetMetricsMetricIdChartRoute._addFileChildren(
-    AppAppAssetMetricsMetricIdChartRouteChildren,
-  )
-
 interface AppAppAssetMetricsMetricIdRouteChildren {
-  AppAppAssetMetricsMetricIdChartRoute: typeof AppAppAssetMetricsMetricIdChartRouteWithChildren
+  AppAppAssetMetricsMetricIdChartRoute: typeof AppAppAssetMetricsMetricIdChartRoute
   AppAppAssetMetricsMetricIdResultsRoute: typeof AppAppAssetMetricsMetricIdResultsRoute
   AppAppAssetMetricsMetricIdSqlRoute: typeof AppAppAssetMetricsMetricIdSqlRoute
 }
 
 const AppAppAssetMetricsMetricIdRouteChildren: AppAppAssetMetricsMetricIdRouteChildren =
   {
-    AppAppAssetMetricsMetricIdChartRoute:
-      AppAppAssetMetricsMetricIdChartRouteWithChildren,
+    AppAppAssetMetricsMetricIdChartRoute: AppAppAssetMetricsMetricIdChartRoute,
     AppAppAssetMetricsMetricIdResultsRoute:
       AppAppAssetMetricsMetricIdResultsRoute,
     AppAppAssetMetricsMetricIdSqlRoute: AppAppAssetMetricsMetricIdSqlRoute,

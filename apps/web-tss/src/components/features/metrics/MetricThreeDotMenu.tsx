@@ -1,5 +1,5 @@
 import type { VerificationStatus } from '@buster/server-shared/share';
-import { useNavigate } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import React, { useMemo } from 'react';
 import {
   useAddMetricsToDashboard,
@@ -69,7 +69,7 @@ export const ThreeDotMenuButton = React.memo(
     const statusSelectMenu = useStatusSelectMenu({ metricId });
     const favoriteMetric = useFavoriteMetricSelectMenu({ metricId });
     const editChartMenu = useEditChartSelectMenu();
-    const resultsViewMenu = useResultsViewSelectMenu();
+    const resultsViewMenu = useResultsViewSelectMenu({ metricId });
     const sqlEditorMenu = useSQLEditorSelectMenu({ metricId });
     const downloadCSVMenu = useDownloadMetricDataCSV({
       metricId,
@@ -293,42 +293,44 @@ const useEditChartSelectMenu = () => {
     () => ({
       label: 'Edit chart',
       value: 'edit-chart',
-      onClick: () => toggleEditMode(true),
+      onClick: () => toggleEditMode(),
       icon: <SquareChartPen />,
     }),
     []
   );
 };
 
-const useResultsViewSelectMenu = () => {
+const useResultsViewSelectMenu = ({ metricId }: { metricId: string }) => {
   return useMemo(
     () =>
       createDropdownItem({
         label: 'Results view',
         value: 'results-view',
         link: {
-          to: './results',
-          from: '.' as '/app/metrics/$metricId',
+          unsafeRelative: 'path',
+          to: '../results' as '/app/metrics/$metricId/results',
+          params: (prev) => ({ ...prev, metricId }),
         },
         icon: <Table />,
       }),
-    []
+    [metricId]
   );
 };
 
 const useSQLEditorSelectMenu = ({ metricId }: { metricId: string }) => {
-  const link = useMemo(() => {
-    return undefined;
-  }, [metricId]);
-
   return useMemo(
-    () => ({
-      label: 'SQL Editor',
-      value: 'sql-editor',
-      icon: <SquareCode />,
-      link,
-    }),
-    [link]
+    () =>
+      createDropdownItem({
+        label: 'SQL Editor',
+        value: 'sql-editor',
+        icon: <SquareCode />,
+        link: {
+          unsafeRelative: 'path',
+          to: '../sql' as '/app/metrics/$metricId/sql',
+          params: (prev) => ({ ...prev, metricId }),
+        },
+      }),
+    [metricId]
   );
 };
 

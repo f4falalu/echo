@@ -21,9 +21,8 @@ export const useRenameMetricOnPage = ({
       onClick: async () => {
         await navigate({
           unsafeRelative: 'path',
-          from: undefined as unknown as '/app/metrics/$metricId',
-          to: '../chart' as './chart',
-          params: { metricId },
+          to: '../chart' as '/app/metrics/$metricId/chart',
+          params: (prev) => ({ ...prev, metricId }),
           search: metricVersionNumber ? { metric_version_number: metricVersionNumber } : undefined,
         });
         const input = await ensureElementExists(

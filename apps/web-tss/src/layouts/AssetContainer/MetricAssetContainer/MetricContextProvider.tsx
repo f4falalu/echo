@@ -1,4 +1,4 @@
-import { type ParsedLocation, useLocation, useNavigate } from '@tanstack/react-router';
+import { type ParsedLocation, useBlocker, useLocation, useNavigate } from '@tanstack/react-router';
 import { useCallback, useRef, useState } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 import type { AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
@@ -8,13 +8,25 @@ import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 const useMetricAssetContext = () => {
   const splitterRef = useRef<AppSplitterRef>(null);
   const pathname = useLocation({ select: useCallback((x: ParsedLocation) => x.pathname, []) });
-  const isMetricEditMode = pathname.includes('/chart/edit');
+  const [isMetricEditMode, setIsMetricEditMode] = useState(false);
   const [versionHistoryMode, setVersionHistoryMode] = useState<number | false>(false);
   const { metricId = '' } = useGetMetricParams();
   const navigate = useNavigate();
 
   const toggleEditMode = useMemoizedFn(async (v?: boolean) => {
+    const isChartPage = pathname.includes('/chart');
+    console.log('isChartPage', isChartPage);
+
+    if (!isChartPage) {
+      await navigate({
+        unsafeRelative: 'path',
+        to: '../chart' as '/app/metrics/$metricId/chart',
+        params: (prev) => ({ ...prev, metricId }),
+      });
+    }
+
     const toggleOff = v !== undefined ? v : !isMetricEditMode;
+    setIsMetricEditMode(toggleOff);
 
     if (!splitterRef.current) {
       console.warn('splitterRef is not set');
@@ -24,19 +36,16 @@ const useMetricAssetContext = () => {
     if (!toggleOff) {
       await splitterRef.current?.animateWidth('0px', 'right', 300);
       await navigate({
-        to: '/app/metrics/$metricId/chart',
-        params: { metricId },
+        unsafeRelative: 'path',
+        to: '../chart' as '/app/metrics/$metricId/chart',
+        params: (prev) => ({ ...prev, metricId }),
       });
     } else {
       splitterRef.current?.animateWidth('300px', 'right', 300);
       await navigate({
-        to: '/app/metrics/$metricId/chart/edit',
-        mask: {
-          to: '/app/metrics/$metricId/chart',
-          params: { metricId },
-          unmaskOnReload: true,
-        },
-        params: { metricId },
+        unsafeRelative: 'path',
+        to: '../chart' as '/app/metrics/$metricId/chart',
+        params: (prev) => ({ ...prev, metricId }),
       });
     }
   });
