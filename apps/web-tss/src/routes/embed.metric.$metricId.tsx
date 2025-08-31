@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import omit from 'lodash/omit';
-import * as metricServerContext from '@/context/BusterAssets/metric-server/metricIndexServerAssetContext';
+import * as metricServerContext from '@/context/BusterAssets/metric-server/metricLayoutServerAssetContext';
 
 const metricEmbedContext = omit(metricServerContext, ['beforeLoad']);
 

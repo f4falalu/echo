@@ -7,6 +7,10 @@ export const validateSearch = z.object({
   dashboard_version_number: z.coerce.number().optional(),
 });
 
+export const staticData = {
+  assetType: 'dashboard' as AssetType,
+};
+
 export const loader = async ({
   params: { dashboardId },
   context: { queryClient },
@@ -22,10 +26,6 @@ export const loader = async ({
   };
 };
 
-export const staticData = {
-  assetType: 'dashboard' as AssetType,
-};
-
 export const head = ({ loaderData }: { loaderData?: { title: string | undefined } } = {}) => ({
   meta: [
     { title: loaderData?.title || 'Dashboard' },
@@ -34,3 +34,7 @@ export const head = ({ loaderData }: { loaderData?: { title: string | undefined 
     { name: 'og:description', content: 'View and interact with your dashboard' },
   ],
 });
+
+export const component = () => {
+  return <div>Dashboard</div>;
+};

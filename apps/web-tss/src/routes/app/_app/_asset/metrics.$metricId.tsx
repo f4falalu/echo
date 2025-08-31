@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
-import * as metricServerContext from '@/context/BusterAssets/metric-server/metricIndexServerAssetContext';
+import * as metricLayoutServerContext from '@/context/BusterAssets/metric-server/metricLayoutServerAssetContext';
 
 export const Route = createFileRoute('/app/_app/_asset/metrics/$metricId')({
-  ...metricServerContext,
+  ...metricLayoutServerContext,
 });
