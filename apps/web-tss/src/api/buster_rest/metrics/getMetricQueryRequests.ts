@@ -38,6 +38,7 @@ const getMetricQueryFn = async ({
   password: string | undefined;
   queryClient: QueryClient;
 }) => {
+  console.trace('getMetricQueryFn', id, version, password, queryClient);
   const chosenVersionNumber: number | undefined = version === 'LATEST' ? undefined : version;
   const result = await getMetric({
     id: id || '',
@@ -157,7 +158,7 @@ export const useGetMetricData = <TData = BusterMetricDataExtended>(
     data: metricId,
   } = useGetMetric(
     { id, versionNumber: selectedVersionNumber },
-    { select: useCallback((x: BusterMetric) => x?.id, []) }
+    { select: useCallback((x: BusterMetric) => x?.id, []), enabled: params?.enabled !== false }
   );
 
   const queryFn = async () => {

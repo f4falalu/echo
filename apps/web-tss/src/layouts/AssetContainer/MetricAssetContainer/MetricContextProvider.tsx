@@ -13,41 +13,47 @@ const useMetricAssetContext = () => {
   const { metricId = '' } = useGetMetricParams();
   const navigate = useNavigate();
 
-  const toggleEditMode = useMemoizedFn(async (v?: boolean) => {
-    const isChartPage = pathname.includes('/chart');
+  const toggleEditMode = useMemoizedFn(
+    async (v?: boolean, params?: { metricId?: string; metricVersionNumber?: number }) => {
+      const isChartPage = pathname.includes('/chart');
+      const searchParams = { metric_version_number: params?.metricVersionNumber };
 
-    if (!isChartPage) {
-      await navigate({
-        unsafeRelative: 'path',
-        to: '../chart' as '/app/metrics/$metricId/chart',
-        params: (prev) => ({ ...prev, metricId }),
-      });
+      if (!isChartPage) {
+        await navigate({
+          unsafeRelative: 'path',
+          to: '../chart' as '/app/metrics/$metricId/chart',
+          params: (prev) => ({ ...prev, metricId, ...params }),
+          search: (prev) => ({ ...prev, ...searchParams }),
+        });
+      }
+
+      const toggleOff = v !== undefined ? v : !isMetricEditMode;
+      setIsMetricEditMode(toggleOff);
+
+      if (!splitterRef.current) {
+        console.warn('splitterRef is not set');
+        return;
+      }
+
+      if (!toggleOff) {
+        await splitterRef.current?.animateWidth('0px', 'right', 300);
+        await navigate({
+          unsafeRelative: 'path',
+          to: '../chart' as '/app/metrics/$metricId/chart',
+          params: (prev) => ({ ...prev, metricId, ...params }),
+          search: (prev) => ({ ...prev, ...searchParams }),
+        });
+      } else {
+        splitterRef.current?.animateWidth('300px', 'right', 300);
+        await navigate({
+          unsafeRelative: 'path',
+          to: '../chart' as '/app/metrics/$metricId/chart',
+          params: (prev) => ({ ...prev, metricId, ...params }),
+          search: (prev) => ({ ...prev, ...searchParams }),
+        });
+      }
     }
-
-    const toggleOff = v !== undefined ? v : !isMetricEditMode;
-    setIsMetricEditMode(toggleOff);
-
-    if (!splitterRef.current) {
-      console.warn('splitterRef is not set');
-      return;
-    }
-
-    if (!toggleOff) {
-      await splitterRef.current?.animateWidth('0px', 'right', 300);
-      await navigate({
-        unsafeRelative: 'path',
-        to: '../chart' as '/app/metrics/$metricId/chart',
-        params: (prev) => ({ ...prev, metricId }),
-      });
-    } else {
-      splitterRef.current?.animateWidth('300px', 'right', 300);
-      await navigate({
-        unsafeRelative: 'path',
-        to: '../chart' as '/app/metrics/$metricId/chart',
-        params: (prev) => ({ ...prev, metricId }),
-      });
-    }
-  });
+  );
 
   const openVersionHistoryMode = useMemoizedFn((versionNumber: number) => {
     setVersionHistoryMode(versionNumber);

@@ -5,19 +5,9 @@ import { MetricViewChartController } from '@/controllers/MetricController/Metric
 import {
   useIsMetricEditMode,
   useMetricEditSplitter,
-  useMetricEditToggle,
 } from '@/layouts/AssetContainer/MetricAssetContainer/MetricContextProvider';
 import { CircleSpinnerLoaderContainer } from '../../../components/ui/loaders';
-import { useUnmount } from '../../../hooks/useUnmount';
 import { useGetMetricParams } from './useGetMetricParams';
-
-const MetricEditController = lazy(() =>
-  import('@/controllers/MetricController/MetricViewChartController/MetricEditController').then(
-    (x) => ({
-      default: x.MetricEditController,
-    })
-  )
-);
 
 const defaultLayoutClosed: LayoutSize = ['auto', '0px'];
 const defaultLayoutOpen: LayoutSize = ['auto', '300px'];
@@ -59,6 +49,13 @@ export const component = () => {
   );
 };
 
+const MetricEditController = lazy(() =>
+  import('@/controllers/MetricController/MetricViewChartController/MetricEditController').then(
+    (x) => ({
+      default: x.MetricEditController,
+    })
+  )
+);
 const RightChildren = ({ metricId, renderChart }: { metricId: string; renderChart: boolean }) => {
   return renderChart ? (
     <Suspense fallback={<CircleSpinnerLoaderContainer />}>

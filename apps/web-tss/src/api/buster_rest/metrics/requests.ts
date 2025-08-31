@@ -24,9 +24,12 @@ import type {
 } from '@buster/server-shared/share';
 import { mainApi, mainApiV2 } from '../instances';
 
-export const getMetric = async (params: GetMetricRequest): Promise<GetMetricResponse> => {
+export const getMetric = async ({
+  id,
+  ...params
+}: GetMetricRequest): Promise<GetMetricResponse> => {
   return mainApi
-    .get<GetMetricResponse>(`/metric_files/${params.id}`, {
+    .get<GetMetricResponse>(`/metric_files/${id}`, {
       params,
     })
     .then((res) => {

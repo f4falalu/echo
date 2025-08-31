@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
-import * as dashboardServerContext from '@/context/BusterAssets/dashboard-server/dashboardServerAssetContext';
+import * as dashboardServerContext from '@/context/BusterAssets/dashboard-server/dashboardLayoutServerAssetContext';
 
 export const Route = createFileRoute(
   '/app/_app/_asset/collections/$collectionId/chats/$chatId/dashboards/$dashboardId'

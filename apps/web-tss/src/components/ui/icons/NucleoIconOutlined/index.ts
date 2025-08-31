@@ -18,6 +18,7 @@ export { default as CircleCopy } from './circle-copy';
 export { default as CircleInfo } from './circle-info';
 export { default as CircleWarning } from './circle-warning';
 export { default as CircleXmark } from './circle-xmark';
+export { default as Code } from './code';
 export { default as Command } from './command';
 export { default as Copy } from './copy';
 export { default as Copy2 } from './copy-2'; // Alternate copy icon
@@ -48,6 +49,7 @@ export { default as Messages } from './messages'; // Messages icon
 export { default as Minus } from './minus';
 export { default as OctagonWarning } from './octagon-warning';
 export { default as PaintRoller } from './paint-roller';
+export { default as PenSparkle } from './pen-sparkle';
 export { default as Pencil } from './pencil';
 export { default as Plus } from './plus'; // Plus/add icon
 export { default as ReturnKey } from './return-key';

@@ -3,7 +3,7 @@ import type React from 'react';
 import { useMemo } from 'react';
 import { useDeleteChat, useDuplicateChat, useGetChat } from '@/api/buster_rest/chats';
 import { useFavoriteStar } from '@/components/features/favorites';
-import { Dropdown, type IDropdownItems } from '@/components/ui/dropdown';
+import { createDropdownItems, Dropdown, type IDropdownItems } from '@/components/ui/dropdown';
 import { DuplicatePlus, Pencil, Star, Trash } from '@/components/ui/icons';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import { useBusterNotifications } from '@/context/BusterNotifications';
@@ -32,7 +32,7 @@ export const ChatContainerHeaderDropdown: React.FC<{
   });
 
   const menuItem: IDropdownItems = useMemo(() => {
-    return [
+    return createDropdownItems([
       {
         label: 'Delete chat',
         value: 'delete',
@@ -81,9 +81,9 @@ export const ChatContainerHeaderDropdown: React.FC<{
         label: isFavorited ? 'Remove from favorites' : 'Add to favorites',
         value: 'add-to-favorites',
         icon: isFavorited ? <StarFilled /> : <Star />,
-        onClick: onFavoriteClick,
+        onClick: () => onFavoriteClick(),
       },
-    ];
+    ]);
   }, [
     chatId,
     isDeleting,

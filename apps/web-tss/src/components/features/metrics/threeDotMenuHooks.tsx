@@ -1,6 +1,11 @@
 import React, { useCallback, useMemo } from 'react';
 import { useGetMetric } from '@/api/buster_rest/metrics';
-import { DropdownContent, type IDropdownItem, type IDropdownItems } from '@/components/ui/dropdown';
+import {
+  createDropdownItem,
+  DropdownContent,
+  type IDropdownItem,
+  type IDropdownItems,
+} from '@/components/ui/dropdown';
 import { History, Star, WandSparkle } from '@/components/ui/icons';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import type { BusterMetric } from '../../../api/asset_interfaces/metric';
@@ -53,13 +58,14 @@ export const useFavoriteMetricSelectMenu = ({ metricId }: { metricId: string }) 
   });
 
   const item: IDropdownItem = useMemo(
-    () => ({
-      label: isFavorited ? 'Remove from favorites' : 'Add to favorites',
-      value: 'add-to-favorites',
-      icon: isFavorited ? <StarFilled /> : <Star />,
-      onClick: onFavoriteClick,
-      closeOnSelect: false,
-    }),
+    () =>
+      createDropdownItem({
+        label: isFavorited ? 'Remove from favorites' : 'Add to favorites',
+        value: 'add-to-favorites',
+        icon: isFavorited ? <StarFilled /> : <Star />,
+        onClick: () => onFavoriteClick(),
+        closeOnSelect: false,
+      }),
     [isFavorited, onFavoriteClick]
   );
 

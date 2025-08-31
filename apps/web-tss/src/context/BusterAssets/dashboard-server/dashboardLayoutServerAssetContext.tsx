@@ -1,5 +1,6 @@
 import type { AssetType } from '@buster/server-shared/assets';
 import type { QueryClient } from '@tanstack/react-query';
+import { Outlet } from '@tanstack/react-router';
 import { z } from 'zod';
 import { prefetchGetDashboard } from '@/api/buster_rest/dashboards';
 
@@ -36,5 +37,5 @@ export const head = ({ loaderData }: { loaderData?: { title: string | undefined 
 });
 
 export const component = () => {
-  return <div>Dashboard</div>;
+  return <Outlet />;
 };
