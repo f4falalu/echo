@@ -104,8 +104,7 @@ export const useAddAndRemoveMetricsFromDashboard = () => {
     onSuccess: (data) => {
       if (data) {
         queryClient.setQueryData(
-          dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, data.dashboard.version_number)
-            .queryKey,
+          dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, 'LATEST').queryKey,
           data
         );
         setOriginalDashboard(data.dashboard);
@@ -175,8 +174,7 @@ export const useAddMetricsToDashboard = () => {
     onSuccess: (data) => {
       if (data) {
         queryClient.setQueryData(
-          dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, data.dashboard.version_number)
-            .queryKey,
+          dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, 'LATEST').queryKey,
           data
         );
         for (const metric of Object.values(data.metrics)) {
@@ -207,7 +205,6 @@ export const useRemoveMetricsFromDashboard = () => {
   const { openConfirmModal, openErrorMessage } = useBusterNotifications();
   const queryClient = useQueryClient();
   const ensureDashboardConfig = useEnsureDashboardConfig({ prefetchData: false });
-  const getLatestMetricVersion = useGetLatestMetricVersionMemoized();
 
   const removeMetricFromDashboard = async ({
     metricIds,
@@ -234,7 +231,7 @@ export const useRemoveMetricsFromDashboard = () => {
       if (dashboardResponse) {
         const versionedOptions = dashboardQueryKeys.dashboardGetDashboard(
           dashboardResponse.dashboard.id,
-          dashboardResponse.dashboard.version_number
+          'LATEST'
         );
 
         const newConfig = removeMetricFromDashboardConfig(
@@ -252,8 +249,7 @@ export const useRemoveMetricsFromDashboard = () => {
         const data = await dashboardsUpdateDashboard({ id: dashboardId, config: newConfig });
 
         queryClient.setQueryData(
-          dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, data.dashboard.version_number)
-            .queryKey,
+          dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, 'LATEST').queryKey,
           data
         );
 
@@ -281,8 +277,9 @@ export const useRemoveMetricsFromDashboard = () => {
     mutationFn: removeMetricFromDashboard,
     onSuccess: (_, variables) => {
       variables.metricIds.forEach((id) => {
+        const queryKey = metricsQueryKeys.metricsGetMetric(id, 'LATEST').queryKey.slice(0, 3);
         queryClient.invalidateQueries({
-          queryKey: metricsQueryKeys.metricsGetMetric(id, 'LATEST').queryKey.slice(0, 3),
+          queryKey,
           refetchType: 'all',
           exact: false,
         });

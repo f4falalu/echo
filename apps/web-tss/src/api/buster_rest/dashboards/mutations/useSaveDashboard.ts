@@ -16,13 +16,13 @@ export const useSaveDashboard = (params?: { updateOnSave?: boolean }) => {
     onSuccess: (data, variables) => {
       if (updateOnSave && data) {
         queryClient.setQueryData(
-          dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, data.dashboard.version_number)
-            .queryKey,
+          dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, 'LATEST').queryKey,
           data
         );
         setOriginalDashboard(data.dashboard);
 
         if (variables.restore_to_version) {
+          console.warn('TODO check if this is correct');
           queryClient.invalidateQueries({
             queryKey: dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, 'LATEST')
               .queryKey,

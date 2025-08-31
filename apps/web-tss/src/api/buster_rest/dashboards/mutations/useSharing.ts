@@ -9,12 +9,11 @@ import { shareDashboard, unshareDashboard, updateDashboardShare } from '../reque
  */
 export const useShareDashboard = () => {
   const queryClient = useQueryClient();
-  const getLatestDashboardVersion = useGetLatestDashboardVersionMemoized();
+
   return useMutation({
     mutationFn: shareDashboard,
     onMutate: ({ id, params }) => {
-      const latestVersionNumber = getLatestDashboardVersion(id) ?? 'LATEST';
-      const queryKey = dashboardQueryKeys.dashboardGetDashboard(id, latestVersionNumber).queryKey;
+      const queryKey = dashboardQueryKeys.dashboardGetDashboard(id, 'LATEST').queryKey;
 
       queryClient.setQueryData(queryKey, (previousData) => {
         if (!previousData) return previousData;
@@ -47,15 +46,10 @@ export const useShareDashboard = () => {
  */
 export const useUnshareDashboard = () => {
   const queryClient = useQueryClient();
-  const getLatestDashboardVersion = useGetLatestDashboardVersionMemoized();
   return useMutation({
     mutationFn: unshareDashboard,
     onMutate: (variables) => {
-      const latestVersionNumber = getLatestDashboardVersion(variables.id) ?? 'LATEST';
-      const queryKey = dashboardQueryKeys.dashboardGetDashboard(
-        variables.id,
-        latestVersionNumber
-      ).queryKey;
+      const queryKey = dashboardQueryKeys.dashboardGetDashboard(variables.id, 'LATEST').queryKey;
       queryClient.setQueryData(queryKey, (previousData) => {
         if (!previousData) return previousData;
         return create(previousData, (draft) => {
@@ -73,12 +67,11 @@ export const useUnshareDashboard = () => {
  */
 export const useUpdateDashboardShare = () => {
   const queryClient = useQueryClient();
-  const getLatestDashboardVersion = useGetLatestDashboardVersionMemoized();
+
   return useMutation({
     mutationFn: updateDashboardShare,
     onMutate: ({ id, params }) => {
-      const latestVersionNumber = getLatestDashboardVersion(id) ?? 'LATEST';
-      const queryKey = dashboardQueryKeys.dashboardGetDashboard(id, latestVersionNumber).queryKey;
+      const queryKey = dashboardQueryKeys.dashboardGetDashboard(id, 'LATEST').queryKey;
       queryClient.setQueryData(queryKey, (previousData) => {
         if (!previousData) return previousData;
         return create(previousData, (draft) => {

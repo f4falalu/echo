@@ -11,7 +11,7 @@ import { canEdit } from '@/lib/share';
 import { useGetOriginalDashboard } from './useOriginalDashboardStore';
 
 export const useIsDashboardChanged = ({
-  dashboardId,
+  dashboardId = '',
   enabled = true,
 }: {
   dashboardId: string | undefined;
@@ -40,7 +40,7 @@ export const useIsDashboardChanged = ({
   }, [currentDashboard]);
 
   const onResetToOriginal = useMemoizedFn(() => {
-    const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId || '', 'LATEST');
+    const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId, 'LATEST');
     const currentDashboard = queryClient.getQueryData<BusterDashboardResponse>(options.queryKey);
     if (originalDashboard && currentDashboard) {
       const resetDashboard = create(currentDashboard, (draft) => {

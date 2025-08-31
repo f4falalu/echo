@@ -149,15 +149,14 @@ export const prefetchGetDashboard = async (
   queryClient: QueryClient
 ) => {
   const chosenVersionNumber = version_number || 'LATEST';
-  const queryFn = async () => {
-    return getDashboardAndInitializeMetrics({
+  const queryFn = async () =>
+    getDashboardAndInitializeMetrics({
       id,
       version_number: chosenVersionNumber,
       queryClient,
       prefetchMetricsData: false,
       shouldInitializeMetrics: true,
     });
-  };
 
   const queryKey = dashboardQueryKeys.dashboardGetDashboard(id, chosenVersionNumber)?.queryKey;
   const existingData = queryClient.getQueryData(queryKey);

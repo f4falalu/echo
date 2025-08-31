@@ -3,6 +3,7 @@ import { create } from 'mutative';
 import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
 import { getOriginalDashboard } from '@/context/Dashboards/useOriginalDashboardStore';
 import { useGetLatestDashboardVersionMemoized } from '../dashboardVersionNumber';
+import type { dashboardsUpdateDashboard } from '../requests';
 import { useSaveDashboard } from './useSaveDashboard';
 
 /**
@@ -19,9 +20,7 @@ export const useUpdateDashboard = (params?: {
   const { mutateAsync: saveDashboard } = useSaveDashboard({ updateOnSave });
   const getLatestDashboardVersion = useGetLatestDashboardVersionMemoized();
 
-  const mutationFn = async (
-    variables: Parameters<typeof import('../requests').dashboardsUpdateDashboard>[0]
-  ) => {
+  const mutationFn = async (variables: Parameters<typeof dashboardsUpdateDashboard>[0]) => {
     if (saveToServer) {
       return await saveDashboard({
         ...variables,
@@ -33,16 +32,12 @@ export const useUpdateDashboard = (params?: {
   return useMutation({
     mutationFn,
     onMutate: (variables) => {
-      const latestVersionNumber = getLatestDashboardVersion(variables.id) ?? 'LATEST';
       const originalDashboard = getOriginalDashboard(variables.id);
       if (!originalDashboard) return;
       const updatedDashboard = create(originalDashboard, (draft) => {
         Object.assign(draft, variables);
       });
-      const queryKey = dashboardQueryKeys.dashboardGetDashboard(
-        variables.id,
-        latestVersionNumber
-      ).queryKey;
+      const queryKey = dashboardQueryKeys.dashboardGetDashboard(variables.id, 'LATEST').queryKey;
 
       queryClient.setQueryData(queryKey, (previousData) => {
         if (!previousData) return previousData;

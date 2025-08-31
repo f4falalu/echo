@@ -22,8 +22,7 @@ export const useUpdateDashboardConfig = () => {
   }: Partial<BusterDashboard['config']> & {
     dashboardId: string;
   }) => {
-    const latestVersionNumber = getLatestDashboardVersion(dashboardId) ?? 'LATEST';
-    const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId, latestVersionNumber);
+    const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId, 'LATEST');
     const previousDashboard = queryClient.getQueryData(options.queryKey);
     const previousConfig = previousDashboard?.dashboard?.config;
     if (previousConfig) {

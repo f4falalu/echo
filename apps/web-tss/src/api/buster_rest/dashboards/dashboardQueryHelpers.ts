@@ -28,8 +28,7 @@ export const useEnsureDashboardConfig = (params?: { prefetchData?: boolean }) =>
       });
       if (res) {
         queryClient.setQueryData(
-          dashboardQueryKeys.dashboardGetDashboard(res.dashboard.id, res.dashboard.version_number)
-            .queryKey,
+          dashboardQueryKeys.dashboardGetDashboard(res.dashboard.id, 'LATEST').queryKey,
           res
         );
         dashboardResponse = res;
@@ -112,6 +111,10 @@ export const getDashboardAndInitializeMetrics = async ({
 
     if (isLatestVersion) {
       setOriginalDashboardFn?.(data.dashboard);
+      queryClient.setQueryData(
+        dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, 'LATEST').queryKey,
+        data
+      );
     }
 
     if (data.dashboard.version_number) {

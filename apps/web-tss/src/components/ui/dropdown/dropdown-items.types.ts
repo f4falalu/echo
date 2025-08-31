@@ -14,7 +14,7 @@ export interface IDropdownItem<
   secondaryLabel?: string;
   value: T;
   shortcut?: string;
-  onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
+  onClick?: (e: React.MouseEvent<HTMLDivElement> | KeyboardEvent) => void;
   closeOnSelect?: boolean; //default is true
   icon?: React.ReactNode;
   disabled?: boolean;

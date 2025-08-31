@@ -363,14 +363,15 @@ const DropdownItem = <
   index: number;
   showIndex: boolean;
 }) => {
-  const onClickItem = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
+  const onClickItem = useMemoizedFn((e: React.MouseEvent<HTMLDivElement> | KeyboardEvent) => {
+    if (disabled) return;
     if (onClick) onClick(e);
     if (onSelect) onSelect(value as T);
   });
   const enabledHotKeys = showIndex && !disabled && !!onSelectItem;
 
   // Add hotkey support when showIndex is true
-  useHotkeys(showIndex ? `${index}` : '', (_e) => onSelectItem(index), {
+  useHotkeys(`${index}`, onClickItem, {
     enabled: enabledHotKeys,
   });
 
@@ -391,7 +392,7 @@ const DropdownItem = <
         {shortcut && <DropdownMenuShortcut>{shortcut}</DropdownMenuShortcut>}
         {link && (
           <DropdownMenuLink<TRouter, TOptions, TFrom>
-            className="-mr-1 ml-auto opacity-0 group-hover:opacity-50 hover:opacity-100"
+            className="ml-auto opacity-0 group-hover:opacity-50 hover:opacity-100"
             link={isSelectable ? link : null}
             linkIcon={linkIcon}
           />

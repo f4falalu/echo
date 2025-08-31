@@ -308,7 +308,7 @@ const DropdownMenuLink = <
 
   return (
     <div
-      className={cn('swag', className)}
+      className={className}
       onClick={(e) => e.stopPropagation()}
       onKeyDown={(e) => e.stopPropagation()}
     >
