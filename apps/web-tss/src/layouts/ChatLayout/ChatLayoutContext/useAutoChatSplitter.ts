@@ -13,7 +13,7 @@ export const useAutoChatSplitter = ({
 }) => {
   const selectedAssetType = useSelectedAssetType();
   const selectedAssetId = useSelectedAssetId();
-  const layoutTrigger = selectedAssetType === 'chat' ? 'chat' : selectedAssetId;
+  const layoutTrigger = selectedAssetType === 'chat' ? 'chat' : !!selectedAssetId;
 
   const animateOpenSplitter = async (side: 'left' | 'right' | 'both') => {
     if (appSplitterRef.current) {

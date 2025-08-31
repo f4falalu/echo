@@ -77,81 +77,66 @@ export const useGetListLogs = (
   });
 };
 
+const getChatQueryFn = (params: Parameters<typeof getChat>[0], queryClient: QueryClient) => {
+  return getChat(params).then((chat) => {
+    const { iChat, iChatMessages } = updateChatToIChat(chat);
+    const lastMessageId = last(iChat.message_ids);
+
+    if (!lastMessageId) return iChat;
+
+    const lastMessage = iChatMessages[lastMessageId];
+    if (lastMessage) {
+      for (const responseMessage of Object.values(lastMessage.response_messages)) {
+        if (responseMessage.type === 'file' && responseMessage.file_type === 'metric') {
+          prefetchGetMetricDataClient(
+            { id: responseMessage.id, version_number: responseMessage.version_number },
+            queryClient
+          );
+        }
+      }
+    }
+
+    for (const messageId of iChat.message_ids) {
+      queryClient.setQueryData(
+        chatQueryKeys.chatsMessages(messageId).queryKey,
+        iChatMessages[messageId]
+      );
+    }
+
+    return iChat;
+  });
+};
+
 export const useGetChat = <TData = IBusterChat>(
   params: Parameters<typeof getChat>[0],
   options?: Omit<UseQueryOptions<IBusterChat, RustApiError, TData>, 'queryKey' | 'queryFn'>
 ) => {
   const queryClient = useQueryClient();
-  const queryFn = () => {
-    return getChat(params).then((chat) => {
-      const { iChat, iChatMessages } = updateChatToIChat(chat);
-      const lastMessageId = last(iChat.message_ids);
-
-      if (!lastMessageId) return iChat;
-
-      const lastMessage = iChatMessages[lastMessageId];
-      if (lastMessage) {
-        for (const responseMessage of Object.values(lastMessage.response_messages)) {
-          if (responseMessage.type === 'file' && responseMessage.file_type === 'metric') {
-            prefetchGetMetricDataClient(
-              { id: responseMessage.id, version_number: responseMessage.version_number },
-              queryClient
-            );
-          }
-        }
-      }
-
-      for (const messageId of iChat.message_ids) {
-        queryClient.setQueryData(
-          chatQueryKeys.chatsMessages(messageId).queryKey,
-          iChatMessages[messageId]
-        );
-      }
-
-      return iChat;
-    });
-  };
 
   return useQuery({
     ...chatQueryKeys.chatsGetChat(params.id),
     enabled: !!params.id,
-    queryFn,
+    queryFn: () => getChatQueryFn(params, queryClient),
     select: options?.select,
     refetchOnWindowFocus: true,
     ...options,
   });
 };
 
-export const prefetchGetChatServer = async (
-  params: Parameters<typeof getChat>[0],
-  queryClientProp?: QueryClient
-) => {
-  const queryClient = queryClientProp || new QueryClient();
-
-  await queryClient.prefetchQuery({
-    ...chatQueryKeys.chatsGetChat(params.id),
-    queryFn: async () => {
-      return await getChat(params).then((chat) => {
-        return updateChatToIChat(chat).iChat;
-      });
-    },
-  });
-
-  return queryClient;
-};
-
 export const prefetchGetChat = async (
   params: Parameters<typeof getChat>[0],
-  queryClientProp?: QueryClient
+  queryClient: QueryClient
 ) => {
-  const queryClient = queryClientProp || new QueryClient();
+  const query = chatQueryKeys.chatsGetChat(params.id);
+  const existingData = queryClient.getQueryData(query.queryKey);
 
-  await queryClient.prefetchQuery({
-    ...chatQueryKeys.chatsGetChat(params.id),
-    queryFn: () => getChat(params),
-  });
-
-  return queryClient;
+  if (!existingData) {
+    await queryClient.prefetchQuery({
+      ...query,
+      queryFn: () => getChatQueryFn(params, queryClient),
+    });
+  }
+  return existingData || queryClient.getQueryData(query.queryKey);
 };
 
 export const useUpdateChat = (params?: { updateToServer?: boolean }) => {

@@ -1,5 +1,3 @@
-'use client';
-
 import React, {
   createContext,
   forwardRef,
@@ -34,10 +32,6 @@ const AppSplitterContext = createContext<{
   splitterAutoSaveId: '',
   containerRef: { current: null },
 });
-
-const useAppSplitterContext = () => {
-  return useContext(AppSplitterContext);
-};
 
 // ================================
 // MAIN COMPONENT
@@ -79,7 +73,6 @@ const AppSplitterWrapper = forwardRef<AppSplitterRef, IAppSplitterProps>(
       leftPanelMaxSize,
       rightPanelMaxSize,
       containerRef,
-      autoSaveId,
     });
 
     return (
@@ -182,37 +175,15 @@ const AppSplitterBase = forwardRef<
       containerRef,
     });
 
-    // Keep track of previous layout when autoSaveId changes to preserve state
-    const previousLayoutRef = useRef<number | null>(null);
-    const previousAutoSaveIdRef = useRef<string>(splitterAutoSaveId);
-
-    // Track if autoSaveId has changed
-    const autoSaveIdChanged = previousAutoSaveIdRef.current !== splitterAutoSaveId;
-
     // Load saved layout from cookies
     const [savedLayout, setSavedLayout] = useCookieState<number | null>(splitterAutoSaveId, {
       defaultValue,
       initialValue: () => {
-        // If autoSaveId changed and we have a previous layout, use that instead of initial value
-        if (autoSaveIdChanged && previousLayoutRef.current !== null) {
-          return previousLayoutRef.current;
-        }
-
-        // Otherwise, use the calculated initial value only on first mount
-        // Convert '100%' to null so it gets handled in the preservedPanelSize logic
+        // Convert '100%' to null so it gets handled in initialization effect
         if (calculatedInitialValue === '100%') return null;
         return calculatedInitialValue ?? defaultValue();
       },
     });
-
-    // Update refs after cookie state is initialized
-    useEffect(() => {
-      if (autoSaveIdChanged) {
-        previousAutoSaveIdRef.current = splitterAutoSaveId;
-      }
-      // Always keep track of the current layout for potential future autoSaveId changes
-      previousLayoutRef.current = savedLayout ?? null;
-    }, [splitterAutoSaveId, savedLayout, autoSaveIdChanged]);
 
     // ================================
     // SIZE CALCULATION LOGIC
@@ -292,6 +263,29 @@ const AppSplitterBase = forwardRef<
       return constrainedSize;
     });
 
+    // Initialize savedLayout if needed
+    useEffect(() => {
+      if (savedLayout === null && state.containerSize > 0) {
+        let initialSize: number;
+
+        if (calculatedInitialValue === '100%') {
+          initialSize = state.containerSize;
+        } else if (typeof calculatedInitialValue === 'number') {
+          initialSize = calculatedInitialValue;
+        } else {
+          initialSize = calculateInitialSize(state.containerSize);
+        }
+
+        setSavedLayout(initialSize);
+      }
+    }, [
+      savedLayout,
+      state.containerSize,
+      calculatedInitialValue,
+      calculateInitialSize,
+      setSavedLayout,
+    ]);
+
     // Calculate preserved panel size - non-preserved panel will use flex-1
     const preservedPanelSize = useMemo(() => {
       const { isAnimating, sizeSetByAnimation, isDragging, hasUserInteracted } = state;
@@ -299,47 +293,20 @@ const AppSplitterBase = forwardRef<
       // Handle hidden panels
       if (leftHidden || rightHidden) return 0;
 
-      let currentSize = savedLayout ?? 0;
+      // Use current saved layout or 0 as fallback
+      const currentSize = savedLayout ?? 0;
 
-      // Special handling for '100%' initial value and null savedLayout
-      if (state.containerSize > 0 && savedLayout === null) {
-        if (calculatedInitialValue === '100%') {
-          // For '100%' initial value, fill the container
-          currentSize = state.containerSize;
-          setSavedLayout(state.containerSize);
-        } else if (typeof calculatedInitialValue === 'number' && calculatedInitialValue > 0) {
-          // For numeric initial values, use them
-          currentSize = calculatedInitialValue;
-          setSavedLayout(calculatedInitialValue);
-        } else {
-          // Fallback to default calculation
-          const initialSize = calculateInitialSize(state.containerSize);
-          currentSize = initialSize;
-          setSavedLayout(initialSize);
-        }
-      }
-
-      // Allow 0px panels to animate - don't return early during animations
+      // Return 0 immediately for 0px panels (unless animating)
       if (currentSize === 0 && !isAnimating && !sizeSetByAnimation) {
         return 0;
       }
 
-      // During animation or when size was set by animation, don't apply constraints
+      // Apply constraints only when not animating and user has interacted
       const shouldApplyConstraints =
         !isAnimating && !sizeSetByAnimation && hasUserInteracted && !isDragging;
 
-      const finalSize = shouldApplyConstraints ? applyConstraints(currentSize) : currentSize;
-      return Math.max(0, finalSize);
-    }, [
-      state,
-      savedLayout,
-      leftHidden,
-      rightHidden,
-      applyConstraints,
-      calculatedInitialValue,
-      setSavedLayout,
-      calculateInitialSize,
-    ]);
+      return shouldApplyConstraints ? applyConstraints(currentSize) : Math.max(0, currentSize);
+    }, [state, savedLayout, leftHidden, rightHidden, applyConstraints]);
 
     // Determine panel sizes based on preserve side
     const { leftSize, rightSize } = useMemo(() => {
