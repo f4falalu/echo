@@ -15,7 +15,7 @@ export const useAutoChatSplitter = ({
   const selectedAssetId = useSelectedAssetId();
   const layoutTrigger = selectedAssetType === 'chat' ? 'chat' : selectedAssetId;
 
-  const animateOpenSplitter = (side: 'left' | 'right' | 'both') => {
+  const animateOpenSplitter = async (side: 'left' | 'right' | 'both') => {
     if (appSplitterRef.current) {
       const { animateWidth, getSizesInPixels } = appSplitterRef.current;
       const sizes = getSizesInPixels();
@@ -23,17 +23,15 @@ export const useAutoChatSplitter = ({
       const rightSize = sizes[1] ?? 0;
 
       if (side === 'left') {
-        animateWidth('100%', 'left');
+        await animateWidth('100%', 'left');
       } else if (side === 'right') {
-        animateWidth('100%', 'right');
+        await animateWidth('100%', 'right');
       } else if (side === 'both') {
         const shouldAnimate = Number(leftSize) < 200 || Number(rightSize) < 340;
 
         if (!shouldAnimate) return;
 
-        animateWidth(DEFAULT_CHAT_OPTION_SIDEBAR_SIZE, 'left');
-        console.warn('TODO: close secondary view');
-        //   closeSecondaryView();
+        await animateWidth(DEFAULT_CHAT_OPTION_SIDEBAR_SIZE, 'left');
       }
     }
   };

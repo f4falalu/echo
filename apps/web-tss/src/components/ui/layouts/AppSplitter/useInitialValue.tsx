@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import type { LayoutSize } from './AppSplitter.types';
 import { sizeToPixels } from './helpers';
 
@@ -16,7 +16,10 @@ interface UseInitialValueProps {
 
 /**
  * Custom hook to calculate the initial value for the AppSplitter component
- * based on the initial layout and container size constraints
+ * based on the initial layout and container size constraints.
+ *
+ * IMPORTANT: This hook should only use the initial value on first calculation,
+ * not recalculate when autoSaveId changes to prevent animation snapping.
  */
 export const useInitialValue = ({
   initialLayout,
@@ -29,7 +32,20 @@ export const useInitialValue = ({
   containerRef,
   autoSaveId,
 }: UseInitialValueProps) => {
+  // Track whether this is the first calculation for this component instance
+  const hasInitializedRef = useRef(false);
+  const firstAutoSaveIdRef = useRef(autoSaveId);
+
+  // Only consider this a "first calculation" if the autoSaveId hasn't changed from the original
+  const isFirstCalculation =
+    !hasInitializedRef.current && firstAutoSaveIdRef.current === autoSaveId;
+
   const getInitialValue = () => {
+    // Only use initialLayout on the very first calculation or when autoSaveId is the same as original
+    if (!isFirstCalculation && hasInitializedRef.current) {
+      return null; // Don't use initial layout for subsequent autoSaveId changes
+    }
+
     if (initialLayout) {
       const [leftValue, rightValue] = initialLayout;
       const containerSize =
@@ -74,8 +90,22 @@ export const useInitialValue = ({
   };
 
   const memoizedInitialValue = useMemo(() => {
-    return getInitialValue();
-  }, [autoSaveId]);
+    const value = getInitialValue();
+    // Mark as initialized after first successful calculation
+    if (value !== null || isFirstCalculation) {
+      hasInitializedRef.current = true;
+    }
+    return value;
+  }, [
+    autoSaveId,
+    initialLayout,
+    split,
+    preserveSide,
+    leftPanelMinSize,
+    rightPanelMinSize,
+    leftPanelMaxSize,
+    rightPanelMaxSize,
+  ]);
 
   return memoizedInitialValue;
 };

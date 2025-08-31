@@ -15,7 +15,6 @@ const useMetricAssetContext = () => {
 
   const toggleEditMode = useMemoizedFn(async (v?: boolean) => {
     const isChartPage = pathname.includes('/chart');
-    console.log('isChartPage', isChartPage);
 
     if (!isChartPage) {
       await navigate({

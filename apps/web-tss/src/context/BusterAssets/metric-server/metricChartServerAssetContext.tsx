@@ -5,8 +5,10 @@ import { MetricViewChartController } from '@/controllers/MetricController/Metric
 import {
   useIsMetricEditMode,
   useMetricEditSplitter,
+  useMetricEditToggle,
 } from '@/layouts/AssetContainer/MetricAssetContainer/MetricContextProvider';
 import { CircleSpinnerLoaderContainer } from '../../../components/ui/loaders';
+import { useUnmount } from '../../../hooks/useUnmount';
 import { useGetMetricParams } from './useGetMetricParams';
 
 const MetricEditController = lazy(() =>
@@ -50,6 +52,7 @@ export const component = () => {
         }
         rightPanelMinSize={'250px'}
         rightPanelMaxSize={'500px'}
+        allowResize={isMetricEditMode}
       />
       <Outlet />
     </ClientOnly>
