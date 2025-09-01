@@ -5,7 +5,7 @@ import { useUpdateCollection } from '@/api/buster_rest/collections';
 import type { ButtonProps } from '@/components/ui/buttons';
 import { Input } from '@/components/ui/inputs/Input';
 import { AppModal } from '@/components/ui/modal';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 
 interface RenameCollectionModalProps {
   collectionId: string;
@@ -24,7 +24,7 @@ export const RenameCollectionModal = React.memo<RenameCollectionModalProps>(
       if (!newName.trim() || newName.trim() === currentName || isPending) return;
       await updateCollection({
         id: collectionId,
-        name: newName
+        name: newName,
       });
       onClose();
     });
@@ -36,7 +36,7 @@ export const RenameCollectionModal = React.memo<RenameCollectionModalProps>(
     const header = useMemo(
       () => ({
         title: 'Rename Collection',
-        description: 'Enter a new name for your collection'
+        description: 'Enter a new name for your collection',
       }),
       []
     );
@@ -47,13 +47,13 @@ export const RenameCollectionModal = React.memo<RenameCollectionModalProps>(
           text: 'Rename',
           onClick: handleRename,
           loading: isPending,
-          disabled: isDisabled
+          disabled: isDisabled,
         },
         secondaryButton: {
           text: 'Cancel',
           onClick: onClose,
-          variant: 'ghost' as ButtonProps['variant']
-        }
+          variant: 'ghost' as ButtonProps['variant'],
+        },
       }),
       [handleRename, isPending, isDisabled, onClose]
     );

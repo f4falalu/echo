@@ -3,7 +3,7 @@ import { useGetCollection, useRemoveAssetFromCollection } from '@/api/buster_res
 import { Button } from '@/components/ui/buttons';
 import { Trash } from '@/components/ui/icons';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 
 export const CollectionIndividualSelectedPopup: React.FC<{
   selectedRowKeys: string[];
@@ -22,7 +22,7 @@ export const CollectionIndividualSelectedPopup: React.FC<{
           selectedRowKeys={selectedRowKeys}
           collectionId={collectionId}
           onSelectChange={onSelectChange}
-        />
+        />,
       ]}
       show={show}
     />
@@ -48,13 +48,13 @@ const CollectionDeleteButton: React.FC<{
             if (selectedRowKeys.includes(asset.id)) {
               result.push({
                 type: asset.asset_type as 'metric' | 'dashboard',
-                id: asset.id
+                id: asset.id,
               });
             }
             return result;
           },
           []
-        )
+        ),
       });
     }
   });

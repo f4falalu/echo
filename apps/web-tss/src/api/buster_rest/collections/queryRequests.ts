@@ -123,7 +123,12 @@ export const useUpdateCollection = () => {
     onSuccess: (data) => {
       queryClient.setQueryData(
         collectionQueryKeys.collectionsGetCollection(data.id).queryKey,
-        data
+        (old) => {
+          if (!old) return old;
+          return create(old, (draft) => {
+            draft.name = data.name || old.name || '';
+          });
+        }
       );
     },
   });

@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { CollectionIndividualController } from '@/controllers/CollectionIndividualController';
 
 export const Route = createFileRoute('/app/_app/_asset/collections/$collectionId/')({
   staticData: {
@@ -25,5 +26,6 @@ export const Route = createFileRoute('/app/_app/_asset/collections/$collectionId
 });
 
 function RouteComponent() {
-  return <div>Hello "/app/collections/$collectionId"!</div>;
+  const { collectionId } = Route.useParams();
+  return <CollectionIndividualController collectionId={collectionId} />;
 }
