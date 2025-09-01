@@ -3,4 +3,5 @@ import * as metricLayoutServerContext from '@/context/BusterAssets/metric-server
 
 export const Route = createFileRoute('/app/_app/_asset/_metrics/chats/$chatId/metrics/$metricId')({
   ...metricLayoutServerContext,
+  loader: metricLayoutServerContext.loader<{ metricId: string; chatId: string }>,
 });

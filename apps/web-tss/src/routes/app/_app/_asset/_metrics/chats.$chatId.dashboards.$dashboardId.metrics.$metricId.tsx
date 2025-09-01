@@ -5,4 +5,9 @@ export const Route = createFileRoute(
   '/app/_app/_asset/_metrics/chats/$chatId/dashboards/$dashboardId/metrics/$metricId'
 )({
   ...metricLayoutServerContext,
+  loader: metricLayoutServerContext.loader<{
+    dashboardId: string;
+    metricId: string;
+    chatId: string;
+  }>,
 });

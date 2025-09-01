@@ -8,18 +8,19 @@ import { MetricAssetContainer } from '@/layouts/AssetContainer/MetricAssetContai
 
 export const validateSearch = z.object({
   metric_version_number: z.coerce.number().optional(),
+  dashboard_version_number: z.coerce.number().optional(),
 });
 
 export const staticData = {
   assetType: 'metric' as AssetType,
 };
 
-export const loader = async ({
+export const loader = async <T extends { metricId: string }>({
   params: { metricId },
   context: { queryClient },
   deps: { metric_version_number },
 }: {
-  params: { metricId: string };
+  params: T;
   deps: { metric_version_number?: number };
   context: { queryClient: QueryClient };
 }): Promise<{

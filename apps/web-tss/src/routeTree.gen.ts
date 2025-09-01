@@ -64,15 +64,20 @@ import { Route as AppAppAssetMetricsCollectionsCollectionIdMetricsMetricIdRouteI
 import { Route as AppAppAssetMetricsChatsChatIdMetricsMetricIdRouteImport } from './routes/app/_app/_asset/_metrics/chats.$chatId.metrics.$metricId'
 import { Route as AppAppAssetDashboardsCollectionsCollectionIdDashboardDashboardIdRouteImport } from './routes/app/_app/_asset/_dashboards/collections.$collectionId.dashboard.$dashboardId'
 import { Route as AppAppAssetDashboardsChatsChatIdDashboardsDashboardIdRouteImport } from './routes/app/_app/_asset/_dashboards/chats.$chatId.dashboards.$dashboardId'
+import { Route as AppAppAssetMetricsChatsChatIdMetricsMetricIdIndexRouteImport } from './routes/app/_app/_asset/_metrics/chats.$chatId.metrics.$metricId.index'
 import { Route as AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdSqlRouteImport } from './routes/app/_app/_asset/_metrics/dashboards.$dashboardId.metrics.$metricId.sql'
 import { Route as AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdResultRouteImport } from './routes/app/_app/_asset/_metrics/dashboards.$dashboardId.metrics.$metricId.result'
 import { Route as AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdChartRouteImport } from './routes/app/_app/_asset/_metrics/dashboards.$dashboardId.metrics.$metricId.chart'
+import { Route as AppAppAssetMetricsChatsChatIdMetricsMetricIdSqlRouteImport } from './routes/app/_app/_asset/_metrics/chats.$chatId.metrics.$metricId.sql'
+import { Route as AppAppAssetMetricsChatsChatIdMetricsMetricIdResultsRouteImport } from './routes/app/_app/_asset/_metrics/chats.$chatId.metrics.$metricId.results'
+import { Route as AppAppAssetMetricsChatsChatIdMetricsMetricIdChartRouteImport } from './routes/app/_app/_asset/_metrics/chats.$chatId.metrics.$metricId.chart'
 import { Route as AppAppAssetMetricsCollectionsCollectionIdReportsReportIdMetricsMetricIdRouteImport } from './routes/app/_app/_asset/_metrics/collections.$collectionId.reports.$reportId.metrics.$metricId'
 import { Route as AppAppAssetMetricsCollectionsCollectionIdDashboardDashboardIdMetricsMetricIdRouteImport } from './routes/app/_app/_asset/_metrics/collections.$collectionId.dashboard.$dashboardId.metrics.$metricId'
 import { Route as AppAppAssetMetricsCollectionsCollectionIdChatsChatIdMetricsMetricIdRouteImport } from './routes/app/_app/_asset/_metrics/collections.$collectionId.chats.$chatId.metrics.$metricId'
 import { Route as AppAppAssetMetricsChatsChatIdReportReportIdMetricsMetricIdRouteImport } from './routes/app/_app/_asset/_metrics/chats.$chatId.report.$reportId.metrics.$metricId'
 import { Route as AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdRouteImport } from './routes/app/_app/_asset/_metrics/chats.$chatId.dashboards.$dashboardId.metrics.$metricId'
 import { Route as AppAppAssetDashboardsCollectionsCollectionIdChatsChatIdDashboardsDashboardIdRouteImport } from './routes/app/_app/_asset/_dashboards/collections.$collectionId.chats.$chatId.dashboards.$dashboardId'
+import { Route as AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdIndexRouteImport } from './routes/app/_app/_asset/_metrics/chats.$chatId.dashboards.$dashboardId.metrics.$metricId.index'
 import { Route as AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdSqlRouteImport } from './routes/app/_app/_asset/_metrics/chats.$chatId.dashboards.$dashboardId.metrics.$metricId.sql'
 import { Route as AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdResultRouteImport } from './routes/app/_app/_asset/_metrics/chats.$chatId.dashboards.$dashboardId.metrics.$metricId.result'
 import { Route as AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdChartRouteImport } from './routes/app/_app/_asset/_metrics/chats.$chatId.dashboards.$dashboardId.metrics.$metricId.chart'
@@ -377,6 +382,12 @@ const AppAppAssetDashboardsChatsChatIdDashboardsDashboardIdRoute =
     path: '/chats/$chatId/dashboards/$dashboardId',
     getParentRoute: () => AppAppAssetRoute,
   } as any)
+const AppAppAssetMetricsChatsChatIdMetricsMetricIdIndexRoute =
+  AppAppAssetMetricsChatsChatIdMetricsMetricIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppAppAssetMetricsChatsChatIdMetricsMetricIdRoute,
+  } as any)
 const AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdSqlRoute =
   AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdSqlRouteImport.update({
     id: '/sql',
@@ -402,6 +413,24 @@ const AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdChartRoute =
         AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdRoute,
     } as any,
   )
+const AppAppAssetMetricsChatsChatIdMetricsMetricIdSqlRoute =
+  AppAppAssetMetricsChatsChatIdMetricsMetricIdSqlRouteImport.update({
+    id: '/sql',
+    path: '/sql',
+    getParentRoute: () => AppAppAssetMetricsChatsChatIdMetricsMetricIdRoute,
+  } as any)
+const AppAppAssetMetricsChatsChatIdMetricsMetricIdResultsRoute =
+  AppAppAssetMetricsChatsChatIdMetricsMetricIdResultsRouteImport.update({
+    id: '/results',
+    path: '/results',
+    getParentRoute: () => AppAppAssetMetricsChatsChatIdMetricsMetricIdRoute,
+  } as any)
+const AppAppAssetMetricsChatsChatIdMetricsMetricIdChartRoute =
+  AppAppAssetMetricsChatsChatIdMetricsMetricIdChartRouteImport.update({
+    id: '/chart',
+    path: '/chart',
+    getParentRoute: () => AppAppAssetMetricsChatsChatIdMetricsMetricIdRoute,
+  } as any)
 const AppAppAssetMetricsCollectionsCollectionIdReportsReportIdMetricsMetricIdRoute =
   AppAppAssetMetricsCollectionsCollectionIdReportsReportIdMetricsMetricIdRouteImport.update(
     {
@@ -446,6 +475,15 @@ const AppAppAssetDashboardsCollectionsCollectionIdChatsChatIdDashboardsDashboard
       id: '/_dashboards/collections/$collectionId/chats/$chatId/dashboards/$dashboardId',
       path: '/collections/$collectionId/chats/$chatId/dashboards/$dashboardId',
       getParentRoute: () => AppAppAssetRoute,
+    } as any,
+  )
+const AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdIndexRoute =
+  AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdIndexRouteImport.update(
+    {
+      id: '/',
+      path: '/',
+      getParentRoute: () =>
+        AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdRoute,
     } as any,
   )
 const AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdSqlRoute =
@@ -536,13 +574,17 @@ export interface FileRoutesByFullPath {
   '/app/metrics/$metricId/': typeof AppAppAssetMetricsMetricsMetricIdIndexRoute
   '/app/chats/$chatId/dashboards/$dashboardId': typeof AppAppAssetDashboardsChatsChatIdDashboardsDashboardIdRoute
   '/app/collections/$collectionId/dashboard/$dashboardId': typeof AppAppAssetDashboardsCollectionsCollectionIdDashboardDashboardIdRoute
-  '/app/chats/$chatId/metrics/$metricId': typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdRoute
+  '/app/chats/$chatId/metrics/$metricId': typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdRouteWithChildren
   '/app/collections/$collectionId/metrics/$metricId': typeof AppAppAssetMetricsCollectionsCollectionIdMetricsMetricIdRoute
   '/app/dashboards/$dashboardId/metrics/$metricId': typeof AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdRouteWithChildren
   '/app/reports/$reportId/metrics/$metricId': typeof AppAppAssetMetricsReportsReportIdMetricsMetricIdRoute
+  '/app/chats/$chatId/metrics/$metricId/chart': typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdChartRoute
+  '/app/chats/$chatId/metrics/$metricId/results': typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdResultsRoute
+  '/app/chats/$chatId/metrics/$metricId/sql': typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdSqlRoute
   '/app/dashboards/$dashboardId/metrics/$metricId/chart': typeof AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdChartRoute
   '/app/dashboards/$dashboardId/metrics/$metricId/result': typeof AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdResultRoute
   '/app/dashboards/$dashboardId/metrics/$metricId/sql': typeof AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdSqlRoute
+  '/app/chats/$chatId/metrics/$metricId/': typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdIndexRoute
   '/app/collections/$collectionId/chats/$chatId/dashboards/$dashboardId': typeof AppAppAssetDashboardsCollectionsCollectionIdChatsChatIdDashboardsDashboardIdRoute
   '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId': typeof AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdRouteWithChildren
   '/app/chats/$chatId/report/$reportId/metrics/$metricId': typeof AppAppAssetMetricsChatsChatIdReportReportIdMetricsMetricIdRoute
@@ -552,6 +594,7 @@ export interface FileRoutesByFullPath {
   '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/chart': typeof AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdChartRoute
   '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/result': typeof AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdResultRoute
   '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/sql': typeof AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdSqlRoute
+  '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/': typeof AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdIndexRoute
   '/app/collections/$collectionId/chats/$chatId/dashboards/$dashboardId/metrics/$metricId': typeof AppAppAssetMetricsCollectionsCollectionIdChatsChatIdDashboardsDashboardIdMetricsMetricIdRoute
 }
 export interface FileRoutesByTo {
@@ -598,15 +641,17 @@ export interface FileRoutesByTo {
   '/app/metrics/$metricId': typeof AppAppAssetMetricsMetricsMetricIdIndexRoute
   '/app/chats/$chatId/dashboards/$dashboardId': typeof AppAppAssetDashboardsChatsChatIdDashboardsDashboardIdRoute
   '/app/collections/$collectionId/dashboard/$dashboardId': typeof AppAppAssetDashboardsCollectionsCollectionIdDashboardDashboardIdRoute
-  '/app/chats/$chatId/metrics/$metricId': typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdRoute
   '/app/collections/$collectionId/metrics/$metricId': typeof AppAppAssetMetricsCollectionsCollectionIdMetricsMetricIdRoute
   '/app/dashboards/$dashboardId/metrics/$metricId': typeof AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdRouteWithChildren
   '/app/reports/$reportId/metrics/$metricId': typeof AppAppAssetMetricsReportsReportIdMetricsMetricIdRoute
+  '/app/chats/$chatId/metrics/$metricId/chart': typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdChartRoute
+  '/app/chats/$chatId/metrics/$metricId/results': typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdResultsRoute
+  '/app/chats/$chatId/metrics/$metricId/sql': typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdSqlRoute
   '/app/dashboards/$dashboardId/metrics/$metricId/chart': typeof AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdChartRoute
   '/app/dashboards/$dashboardId/metrics/$metricId/result': typeof AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdResultRoute
   '/app/dashboards/$dashboardId/metrics/$metricId/sql': typeof AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdSqlRoute
+  '/app/chats/$chatId/metrics/$metricId': typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdIndexRoute
   '/app/collections/$collectionId/chats/$chatId/dashboards/$dashboardId': typeof AppAppAssetDashboardsCollectionsCollectionIdChatsChatIdDashboardsDashboardIdRoute
-  '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId': typeof AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdRouteWithChildren
   '/app/chats/$chatId/report/$reportId/metrics/$metricId': typeof AppAppAssetMetricsChatsChatIdReportReportIdMetricsMetricIdRoute
   '/app/collections/$collectionId/chats/$chatId/metrics/$metricId': typeof AppAppAssetMetricsCollectionsCollectionIdChatsChatIdMetricsMetricIdRoute
   '/app/collections/$collectionId/dashboard/$dashboardId/metrics/$metricId': typeof AppAppAssetMetricsCollectionsCollectionIdDashboardDashboardIdMetricsMetricIdRoute
@@ -614,6 +659,7 @@ export interface FileRoutesByTo {
   '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/chart': typeof AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdChartRoute
   '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/result': typeof AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdResultRoute
   '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/sql': typeof AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdSqlRoute
+  '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId': typeof AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdIndexRoute
   '/app/collections/$collectionId/chats/$chatId/dashboards/$dashboardId/metrics/$metricId': typeof AppAppAssetMetricsCollectionsCollectionIdChatsChatIdDashboardsDashboardIdMetricsMetricIdRoute
 }
 export interface FileRoutesById {
@@ -667,13 +713,17 @@ export interface FileRoutesById {
   '/app/_app/_asset/_metrics/metrics/$metricId/': typeof AppAppAssetMetricsMetricsMetricIdIndexRoute
   '/app/_app/_asset/_dashboards/chats/$chatId/dashboards/$dashboardId': typeof AppAppAssetDashboardsChatsChatIdDashboardsDashboardIdRoute
   '/app/_app/_asset/_dashboards/collections/$collectionId/dashboard/$dashboardId': typeof AppAppAssetDashboardsCollectionsCollectionIdDashboardDashboardIdRoute
-  '/app/_app/_asset/_metrics/chats/$chatId/metrics/$metricId': typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdRoute
+  '/app/_app/_asset/_metrics/chats/$chatId/metrics/$metricId': typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdRouteWithChildren
   '/app/_app/_asset/_metrics/collections/$collectionId/metrics/$metricId': typeof AppAppAssetMetricsCollectionsCollectionIdMetricsMetricIdRoute
   '/app/_app/_asset/_metrics/dashboards/$dashboardId/metrics/$metricId': typeof AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdRouteWithChildren
   '/app/_app/_asset/_metrics/reports/$reportId/metrics/$metricId': typeof AppAppAssetMetricsReportsReportIdMetricsMetricIdRoute
+  '/app/_app/_asset/_metrics/chats/$chatId/metrics/$metricId/chart': typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdChartRoute
+  '/app/_app/_asset/_metrics/chats/$chatId/metrics/$metricId/results': typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdResultsRoute
+  '/app/_app/_asset/_metrics/chats/$chatId/metrics/$metricId/sql': typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdSqlRoute
   '/app/_app/_asset/_metrics/dashboards/$dashboardId/metrics/$metricId/chart': typeof AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdChartRoute
   '/app/_app/_asset/_metrics/dashboards/$dashboardId/metrics/$metricId/result': typeof AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdResultRoute
   '/app/_app/_asset/_metrics/dashboards/$dashboardId/metrics/$metricId/sql': typeof AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdSqlRoute
+  '/app/_app/_asset/_metrics/chats/$chatId/metrics/$metricId/': typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdIndexRoute
   '/app/_app/_asset/_dashboards/collections/$collectionId/chats/$chatId/dashboards/$dashboardId': typeof AppAppAssetDashboardsCollectionsCollectionIdChatsChatIdDashboardsDashboardIdRoute
   '/app/_app/_asset/_metrics/chats/$chatId/dashboards/$dashboardId/metrics/$metricId': typeof AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdRouteWithChildren
   '/app/_app/_asset/_metrics/chats/$chatId/report/$reportId/metrics/$metricId': typeof AppAppAssetMetricsChatsChatIdReportReportIdMetricsMetricIdRoute
@@ -683,6 +733,7 @@ export interface FileRoutesById {
   '/app/_app/_asset/_metrics/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/chart': typeof AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdChartRoute
   '/app/_app/_asset/_metrics/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/result': typeof AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdResultRoute
   '/app/_app/_asset/_metrics/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/sql': typeof AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdSqlRoute
+  '/app/_app/_asset/_metrics/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/': typeof AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdIndexRoute
   '/app/_app/_asset/_metrics/collections/$collectionId/chats/$chatId/dashboards/$dashboardId/metrics/$metricId': typeof AppAppAssetMetricsCollectionsCollectionIdChatsChatIdDashboardsDashboardIdMetricsMetricIdRoute
 }
 export interface FileRouteTypes {
@@ -738,9 +789,13 @@ export interface FileRouteTypes {
     | '/app/collections/$collectionId/metrics/$metricId'
     | '/app/dashboards/$dashboardId/metrics/$metricId'
     | '/app/reports/$reportId/metrics/$metricId'
+    | '/app/chats/$chatId/metrics/$metricId/chart'
+    | '/app/chats/$chatId/metrics/$metricId/results'
+    | '/app/chats/$chatId/metrics/$metricId/sql'
     | '/app/dashboards/$dashboardId/metrics/$metricId/chart'
     | '/app/dashboards/$dashboardId/metrics/$metricId/result'
     | '/app/dashboards/$dashboardId/metrics/$metricId/sql'
+    | '/app/chats/$chatId/metrics/$metricId/'
     | '/app/collections/$collectionId/chats/$chatId/dashboards/$dashboardId'
     | '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId'
     | '/app/chats/$chatId/report/$reportId/metrics/$metricId'
@@ -750,6 +805,7 @@ export interface FileRouteTypes {
     | '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/chart'
     | '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/result'
     | '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/sql'
+    | '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/'
     | '/app/collections/$collectionId/chats/$chatId/dashboards/$dashboardId/metrics/$metricId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -796,15 +852,17 @@ export interface FileRouteTypes {
     | '/app/metrics/$metricId'
     | '/app/chats/$chatId/dashboards/$dashboardId'
     | '/app/collections/$collectionId/dashboard/$dashboardId'
-    | '/app/chats/$chatId/metrics/$metricId'
     | '/app/collections/$collectionId/metrics/$metricId'
     | '/app/dashboards/$dashboardId/metrics/$metricId'
     | '/app/reports/$reportId/metrics/$metricId'
+    | '/app/chats/$chatId/metrics/$metricId/chart'
+    | '/app/chats/$chatId/metrics/$metricId/results'
+    | '/app/chats/$chatId/metrics/$metricId/sql'
     | '/app/dashboards/$dashboardId/metrics/$metricId/chart'
     | '/app/dashboards/$dashboardId/metrics/$metricId/result'
     | '/app/dashboards/$dashboardId/metrics/$metricId/sql'
+    | '/app/chats/$chatId/metrics/$metricId'
     | '/app/collections/$collectionId/chats/$chatId/dashboards/$dashboardId'
-    | '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId'
     | '/app/chats/$chatId/report/$reportId/metrics/$metricId'
     | '/app/collections/$collectionId/chats/$chatId/metrics/$metricId'
     | '/app/collections/$collectionId/dashboard/$dashboardId/metrics/$metricId'
@@ -812,6 +870,7 @@ export interface FileRouteTypes {
     | '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/chart'
     | '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/result'
     | '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/sql'
+    | '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId'
     | '/app/collections/$collectionId/chats/$chatId/dashboards/$dashboardId/metrics/$metricId'
   id:
     | '__root__'
@@ -868,9 +927,13 @@ export interface FileRouteTypes {
     | '/app/_app/_asset/_metrics/collections/$collectionId/metrics/$metricId'
     | '/app/_app/_asset/_metrics/dashboards/$dashboardId/metrics/$metricId'
     | '/app/_app/_asset/_metrics/reports/$reportId/metrics/$metricId'
+    | '/app/_app/_asset/_metrics/chats/$chatId/metrics/$metricId/chart'
+    | '/app/_app/_asset/_metrics/chats/$chatId/metrics/$metricId/results'
+    | '/app/_app/_asset/_metrics/chats/$chatId/metrics/$metricId/sql'
     | '/app/_app/_asset/_metrics/dashboards/$dashboardId/metrics/$metricId/chart'
     | '/app/_app/_asset/_metrics/dashboards/$dashboardId/metrics/$metricId/result'
     | '/app/_app/_asset/_metrics/dashboards/$dashboardId/metrics/$metricId/sql'
+    | '/app/_app/_asset/_metrics/chats/$chatId/metrics/$metricId/'
     | '/app/_app/_asset/_dashboards/collections/$collectionId/chats/$chatId/dashboards/$dashboardId'
     | '/app/_app/_asset/_metrics/chats/$chatId/dashboards/$dashboardId/metrics/$metricId'
     | '/app/_app/_asset/_metrics/chats/$chatId/report/$reportId/metrics/$metricId'
@@ -880,6 +943,7 @@ export interface FileRouteTypes {
     | '/app/_app/_asset/_metrics/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/chart'
     | '/app/_app/_asset/_metrics/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/result'
     | '/app/_app/_asset/_metrics/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/sql'
+    | '/app/_app/_asset/_metrics/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/'
     | '/app/_app/_asset/_metrics/collections/$collectionId/chats/$chatId/dashboards/$dashboardId/metrics/$metricId'
   fileRoutesById: FileRoutesById
 }
@@ -1286,6 +1350,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAppAssetDashboardsChatsChatIdDashboardsDashboardIdRouteImport
       parentRoute: typeof AppAppAssetRoute
     }
+    '/app/_app/_asset/_metrics/chats/$chatId/metrics/$metricId/': {
+      id: '/app/_app/_asset/_metrics/chats/$chatId/metrics/$metricId/'
+      path: '/'
+      fullPath: '/app/chats/$chatId/metrics/$metricId/'
+      preLoaderRoute: typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdIndexRouteImport
+      parentRoute: typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdRoute
+    }
     '/app/_app/_asset/_metrics/dashboards/$dashboardId/metrics/$metricId/sql': {
       id: '/app/_app/_asset/_metrics/dashboards/$dashboardId/metrics/$metricId/sql'
       path: '/sql'
@@ -1306,6 +1377,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/dashboards/$dashboardId/metrics/$metricId/chart'
       preLoaderRoute: typeof AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdChartRouteImport
       parentRoute: typeof AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdRoute
+    }
+    '/app/_app/_asset/_metrics/chats/$chatId/metrics/$metricId/sql': {
+      id: '/app/_app/_asset/_metrics/chats/$chatId/metrics/$metricId/sql'
+      path: '/sql'
+      fullPath: '/app/chats/$chatId/metrics/$metricId/sql'
+      preLoaderRoute: typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdSqlRouteImport
+      parentRoute: typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdRoute
+    }
+    '/app/_app/_asset/_metrics/chats/$chatId/metrics/$metricId/results': {
+      id: '/app/_app/_asset/_metrics/chats/$chatId/metrics/$metricId/results'
+      path: '/results'
+      fullPath: '/app/chats/$chatId/metrics/$metricId/results'
+      preLoaderRoute: typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdResultsRouteImport
+      parentRoute: typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdRoute
+    }
+    '/app/_app/_asset/_metrics/chats/$chatId/metrics/$metricId/chart': {
+      id: '/app/_app/_asset/_metrics/chats/$chatId/metrics/$metricId/chart'
+      path: '/chart'
+      fullPath: '/app/chats/$chatId/metrics/$metricId/chart'
+      preLoaderRoute: typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdChartRouteImport
+      parentRoute: typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdRoute
     }
     '/app/_app/_asset/_metrics/collections/$collectionId/reports/$reportId/metrics/$metricId': {
       id: '/app/_app/_asset/_metrics/collections/$collectionId/reports/$reportId/metrics/$metricId'
@@ -1348,6 +1440,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/collections/$collectionId/chats/$chatId/dashboards/$dashboardId'
       preLoaderRoute: typeof AppAppAssetDashboardsCollectionsCollectionIdChatsChatIdDashboardsDashboardIdRouteImport
       parentRoute: typeof AppAppAssetRoute
+    }
+    '/app/_app/_asset/_metrics/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/': {
+      id: '/app/_app/_asset/_metrics/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/'
+      path: '/'
+      fullPath: '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/'
+      preLoaderRoute: typeof AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdIndexRouteImport
+      parentRoute: typeof AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdRoute
     }
     '/app/_app/_asset/_metrics/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/sql': {
       id: '/app/_app/_asset/_metrics/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/sql'
@@ -1451,6 +1550,30 @@ const AppAppAssetMetricsMetricsMetricIdRouteWithChildren =
     AppAppAssetMetricsMetricsMetricIdRouteChildren,
   )
 
+interface AppAppAssetMetricsChatsChatIdMetricsMetricIdRouteChildren {
+  AppAppAssetMetricsChatsChatIdMetricsMetricIdChartRoute: typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdChartRoute
+  AppAppAssetMetricsChatsChatIdMetricsMetricIdResultsRoute: typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdResultsRoute
+  AppAppAssetMetricsChatsChatIdMetricsMetricIdSqlRoute: typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdSqlRoute
+  AppAppAssetMetricsChatsChatIdMetricsMetricIdIndexRoute: typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdIndexRoute
+}
+
+const AppAppAssetMetricsChatsChatIdMetricsMetricIdRouteChildren: AppAppAssetMetricsChatsChatIdMetricsMetricIdRouteChildren =
+  {
+    AppAppAssetMetricsChatsChatIdMetricsMetricIdChartRoute:
+      AppAppAssetMetricsChatsChatIdMetricsMetricIdChartRoute,
+    AppAppAssetMetricsChatsChatIdMetricsMetricIdResultsRoute:
+      AppAppAssetMetricsChatsChatIdMetricsMetricIdResultsRoute,
+    AppAppAssetMetricsChatsChatIdMetricsMetricIdSqlRoute:
+      AppAppAssetMetricsChatsChatIdMetricsMetricIdSqlRoute,
+    AppAppAssetMetricsChatsChatIdMetricsMetricIdIndexRoute:
+      AppAppAssetMetricsChatsChatIdMetricsMetricIdIndexRoute,
+  }
+
+const AppAppAssetMetricsChatsChatIdMetricsMetricIdRouteWithChildren =
+  AppAppAssetMetricsChatsChatIdMetricsMetricIdRoute._addFileChildren(
+    AppAppAssetMetricsChatsChatIdMetricsMetricIdRouteChildren,
+  )
+
 interface AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdRouteChildren {
   AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdChartRoute: typeof AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdChartRoute
   AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdResultRoute: typeof AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdResultRoute
@@ -1476,6 +1599,7 @@ interface AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdRoute
   AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdChartRoute: typeof AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdChartRoute
   AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdResultRoute: typeof AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdResultRoute
   AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdSqlRoute: typeof AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdSqlRoute
+  AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdIndexRoute: typeof AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdIndexRoute
 }
 
 const AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdRouteChildren: AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdRouteChildren =
@@ -1486,6 +1610,8 @@ const AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdRouteChil
       AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdResultRoute,
     AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdSqlRoute:
       AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdSqlRoute,
+    AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdIndexRoute:
+      AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdIndexRoute,
   }
 
 const AppAppAssetMetricsChatsChatIdDashboardsDashboardIdMetricsMetricIdRouteWithChildren =
@@ -1502,7 +1628,7 @@ interface AppAppAssetRouteChildren {
   AppAppAssetCollectionsCollectionIdReportsReportIdRoute: typeof AppAppAssetCollectionsCollectionIdReportsReportIdRoute
   AppAppAssetDashboardsChatsChatIdDashboardsDashboardIdRoute: typeof AppAppAssetDashboardsChatsChatIdDashboardsDashboardIdRoute
   AppAppAssetDashboardsCollectionsCollectionIdDashboardDashboardIdRoute: typeof AppAppAssetDashboardsCollectionsCollectionIdDashboardDashboardIdRoute
-  AppAppAssetMetricsChatsChatIdMetricsMetricIdRoute: typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdRoute
+  AppAppAssetMetricsChatsChatIdMetricsMetricIdRoute: typeof AppAppAssetMetricsChatsChatIdMetricsMetricIdRouteWithChildren
   AppAppAssetMetricsCollectionsCollectionIdMetricsMetricIdRoute: typeof AppAppAssetMetricsCollectionsCollectionIdMetricsMetricIdRoute
   AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdRoute: typeof AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdRouteWithChildren
   AppAppAssetMetricsReportsReportIdMetricsMetricIdRoute: typeof AppAppAssetMetricsReportsReportIdMetricsMetricIdRoute
@@ -1531,7 +1657,7 @@ const AppAppAssetRouteChildren: AppAppAssetRouteChildren = {
   AppAppAssetDashboardsCollectionsCollectionIdDashboardDashboardIdRoute:
     AppAppAssetDashboardsCollectionsCollectionIdDashboardDashboardIdRoute,
   AppAppAssetMetricsChatsChatIdMetricsMetricIdRoute:
-    AppAppAssetMetricsChatsChatIdMetricsMetricIdRoute,
+    AppAppAssetMetricsChatsChatIdMetricsMetricIdRouteWithChildren,
   AppAppAssetMetricsCollectionsCollectionIdMetricsMetricIdRoute:
     AppAppAssetMetricsCollectionsCollectionIdMetricsMetricIdRoute,
   AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdRoute:
