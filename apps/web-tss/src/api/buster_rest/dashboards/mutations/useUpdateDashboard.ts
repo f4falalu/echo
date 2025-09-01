@@ -39,7 +39,6 @@ export const useUpdateDashboard = (params?: {
         Object.assign(draft, variables);
       });
       const queryKey = dashboardQueryKeys.dashboardGetDashboard(variables.id, 'LATEST').queryKey;
-
       queryClient.setQueryData(queryKey, (previousData) => {
         if (!previousData) return previousData;
         return create(previousData, (draft) => {

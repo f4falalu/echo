@@ -4,7 +4,7 @@ import { InputTextArea } from '@/components/ui/inputs/InputTextArea';
 import { EditableTitle } from '@/components/ui/typography/EditableTitle';
 import { useMount } from '@/hooks/useMount';
 
-export const DASHBOARD_TITLE_INPUT_ID = 'dashboard-title-input';
+export const DASHBOARD_TITLE_INPUT_ID = (dashboardId: string) => `${dashboardId}-title-input`;
 
 const DEFAULT_TITLE = 'Untitled Dashboard';
 
@@ -45,7 +45,7 @@ export const DashboardEditTitles: React.FC<{
         readOnly={readOnly}
         onSetValue={onChangeTitle}
         onChange={onChangeTitle}
-        id={DASHBOARD_TITLE_INPUT_ID}
+        id={DASHBOARD_TITLE_INPUT_ID(dashboardId)}
         placeholder="New dashboard"
         level={3}
       >

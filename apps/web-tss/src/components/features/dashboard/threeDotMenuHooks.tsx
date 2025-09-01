@@ -9,6 +9,7 @@ import {
 } from '@/api/buster_rest/dashboards';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import { useBusterNotifications } from '@/context/BusterNotifications';
+import { DASHBOARD_TITLE_INPUT_ID } from '@/controllers/DashboardController/DashboardViewDashboardController/DashboardEditTitle';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { onOpenDashboardContentModal } from '../../../context/Dashboards/dashboard-content-store';
 import { ensureElementExists } from '../../../lib/element';
@@ -20,9 +21,8 @@ import Pencil from '../../ui/icons/NucleoIconOutlined/pencil';
 import { useSaveToCollectionsDropdownContent } from '../dropdowns/SaveToCollectionsDropdown';
 import { useFavoriteStar } from '../favorites/useFavoriteStar';
 import { ASSET_ICONS } from '../icons/assetIcons';
-import { METRIC_CHART_TITLE_INPUT_ID } from '../metrics/MetricChartCard/MetricViewChartHeader';
 import { getShareAssetConfig, ShareMenuContent } from '../ShareMenu';
-import { useListMetricVersionDropdownItems } from '../versionHistory/useListMetricVersionDropdownItems';
+import { useListDashboardVersionDropdownItems } from '../versionHistory/useListDashboardVersionDropdownItems';
 
 export const useDashboardVersionHistorySelectMenu = ({
   dashboardId,
@@ -43,7 +43,7 @@ export const useDashboardVersionHistorySelectMenu = ({
   );
   const { versions = [], version_number } = data || {};
 
-  const versionHistoryItems: IDropdownItems = useListMetricVersionDropdownItems({
+  const versionHistoryItems: IDropdownItems = useListDashboardVersionDropdownItems({
     versions,
     selectedVersion: version_number,
   });
@@ -184,7 +184,7 @@ export const useRenameDashboardSelectMenu = ({
               : undefined,
           });
           const input = await ensureElementExists(
-            () => document.getElementById(METRIC_CHART_TITLE_INPUT_ID) as HTMLInputElement
+            () => document.getElementById(DASHBOARD_TITLE_INPUT_ID(dashboardId)) as HTMLInputElement
           );
           if (input) {
             input.focus();

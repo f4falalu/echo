@@ -5,7 +5,7 @@ import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 const useDashboardAssetContext = () => {
   const [versionHistoryMode, setVersionHistoryMode] = useState<number | false>(false);
 
-  const openVersionHistoryMode = useMemoizedFn((versionNumber: number) => {
+  const openDashboardVersionHistoryMode = useMemoizedFn((versionNumber: number) => {
     setVersionHistoryMode(versionNumber);
   });
 
@@ -14,7 +14,7 @@ const useDashboardAssetContext = () => {
   });
 
   return {
-    openVersionHistoryMode,
+    openDashboardVersionHistoryMode,
     closeVersionHistoryMode,
     versionHistoryMode,
   };
@@ -42,12 +42,16 @@ export const DashboardAssetContextProvider = ({
 
 const stableVersionHistorySelector = (x: ReturnType<typeof useDashboardAssetContext>) => ({
   versionHistoryMode: x.versionHistoryMode,
-  openVersionHistoryMode: x.openVersionHistoryMode,
+  openDashboardVersionHistoryMode: x.openDashboardVersionHistoryMode,
   closeVersionHistoryMode: x.closeVersionHistoryMode,
 });
 
-export const useVersionHistoryMode = () => {
-  const { closeVersionHistoryMode, openVersionHistoryMode, versionHistoryMode } =
+export const useDashboardVersionHistoryMode = () => {
+  const { closeVersionHistoryMode, openDashboardVersionHistoryMode, versionHistoryMode } =
     useContextSelector(DashboardAssetContext, stableVersionHistorySelector);
-  return { versionHistoryMode, openVersionHistoryMode, closeVersionHistoryMode };
+  return {
+    versionHistoryMode,
+    openDashboardVersionHistoryMode,
+    closeVersionHistoryMode,
+  };
 };

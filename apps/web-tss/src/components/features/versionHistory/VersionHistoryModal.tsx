@@ -44,6 +44,8 @@ export const VersionHistoryModal = ({
   learnMoreButton,
   children,
 }: VersionHistoryModalProps) => {
+  const shouldRenderVersionHistoryModal = useRef(false);
+
   const open = versionNumber !== false;
 
   const onClickRestoreVersionPreflight = useMemoizedFn(() => {
@@ -55,6 +57,14 @@ export const VersionHistoryModal = ({
       return Math.max(acc, item.version_number);
     }, 0);
   }, [versionHistoryItems]);
+
+  if (versionNumber && !shouldRenderVersionHistoryModal.current) {
+    shouldRenderVersionHistoryModal.current = true;
+  }
+
+  if (!shouldRenderVersionHistoryModal.current) {
+    return null;
+  }
 
   return (
     <Dialog open={open} onOpenChange={onClose}>

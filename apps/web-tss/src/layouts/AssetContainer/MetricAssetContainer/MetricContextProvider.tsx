@@ -1,4 +1,4 @@
-import { type ParsedLocation, useBlocker, useLocation, useNavigate } from '@tanstack/react-router';
+import { type ParsedLocation, useLocation, useNavigate } from '@tanstack/react-router';
 import { useCallback, useRef, useState } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 import type { AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
@@ -55,7 +55,7 @@ const useMetricAssetContext = () => {
     }
   );
 
-  const openVersionHistoryMode = useMemoizedFn((versionNumber: number) => {
+  const openMetricVersionHistoryMode = useMemoizedFn((versionNumber: number) => {
     setVersionHistoryMode(versionNumber);
   });
 
@@ -65,7 +65,7 @@ const useMetricAssetContext = () => {
 
   return {
     toggleEditMode,
-    openVersionHistoryMode,
+    openMetricVersionHistoryMode,
     closeVersionHistoryMode,
     splitterRef,
     isMetricEditMode,
@@ -110,12 +110,12 @@ export const useMetricEditToggle = () => {
 
 const stableVersionHistorySelector = (x: ReturnType<typeof useMetricAssetContext>) => ({
   versionHistoryMode: x.versionHistoryMode,
-  openVersionHistoryMode: x.openVersionHistoryMode,
+  openMetricVersionHistoryMode: x.openMetricVersionHistoryMode,
   closeVersionHistoryMode: x.closeVersionHistoryMode,
 });
 
-export const useVersionHistoryMode = () => {
-  const { closeVersionHistoryMode, openVersionHistoryMode, versionHistoryMode } =
+export const useMetricVersionHistoryMode = () => {
+  const { closeVersionHistoryMode, openMetricVersionHistoryMode, versionHistoryMode } =
     useContextSelector(MetricAssetContext, stableVersionHistorySelector);
-  return { versionHistoryMode, openVersionHistoryMode, closeVersionHistoryMode };
+  return { versionHistoryMode, openMetricVersionHistoryMode, closeVersionHistoryMode };
 };
