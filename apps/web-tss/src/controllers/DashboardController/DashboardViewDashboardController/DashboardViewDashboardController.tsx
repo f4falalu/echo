@@ -1,10 +1,11 @@
 import { ClientOnly } from '@tanstack/react-router';
 import type React from 'react';
 import { useGetDashboard, useUpdateDashboardConfig } from '@/api/buster_rest/dashboards';
+import { AddToDashboardModal } from '@/components/features/dashboard/AddToDashboardModal';
 import { StatusCard } from '@/components/ui/card/StatusCard';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { onOpenDashboardContentModal } from '@/context/Dashboards/dashboard-content-store';
+import { useToggleDashboardContentModal } from '@/context/Dashboards/dashboard-content-store';
 import { useIsDashboardReadOnly } from '@/context/Dashboards/useIsDashboardReadOnly';
+import { canEdit } from '@/lib/share';
 import { DashboardContentController } from './DashboardContentController';
 import { DashboardEditTitles } from './DashboardEditTitle';
 import { DashboardSaveFilePopup } from './DashboardSaveFilePopup';
@@ -28,6 +29,9 @@ export const DashboardViewDashboardController: React.FC<{
     dashboardId,
     readOnly: readOnlyProp,
   });
+  const isEditor = canEdit(dashboardResponse?.permission);
+  const { openDashboardContentModal, onCloseDashboardContentModal, onOpenDashboardContentModal } =
+    useToggleDashboardContentModal();
 
   if (!isFetched) {
     return null;
@@ -63,6 +67,14 @@ export const DashboardViewDashboardController: React.FC<{
           <DashboardSaveFilePopup dashboardId={dashboardId} />
         )}
       </div>
+
+      {isEditor && !isReadOnly && (
+        <AddToDashboardModal
+          open={openDashboardContentModal}
+          onClose={onCloseDashboardContentModal}
+          dashboardId={dashboardId}
+        />
+      )}
     </ClientOnly>
   );
 };

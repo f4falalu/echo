@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { create } from 'mutative';
 import type { BusterDashboardResponse } from '@/api/asset_interfaces/dashboard';
 import { MAX_NUMBER_OF_ITEMS_ON_DASHBOARD } from '@/api/asset_interfaces/dashboard/config';
-import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
 import { createDashboardFullConfirmModal } from '@/components/features/modals/createDashboardFullConfirmModal';
 import { useBusterNotifications } from '@/context/BusterNotifications';
@@ -15,10 +14,9 @@ import { useSaveDashboard } from '../queryRequests';
  * useAddAndRemoveMetricsFromDashboard
  */
 export const useAddAndRemoveMetricsFromDashboard = () => {
-  const queryClient = useQueryClient();
   const { openErrorMessage, openConfirmModal } = useBusterNotifications();
   const ensureDashboardConfig = useEnsureDashboardConfig({ prefetchData: false });
-  const { mutateAsync: dashboardsUpdateDashboard } = useSaveDashboard();
+  const { mutateAsync: dashboardsUpdateDashboard } = useSaveDashboard({ updateOnSave: true });
 
   const addAndRemoveMetrics = async ({
     metrics,
@@ -110,7 +108,7 @@ export const useAddMetricsToDashboard = () => {
   const queryClient = useQueryClient();
   const { openErrorMessage, openConfirmModal } = useBusterNotifications();
   const ensureDashboardConfig = useEnsureDashboardConfig({ prefetchData: false });
-  const { mutateAsync: dashboardsUpdateDashboard } = useSaveDashboard();
+  const { mutateAsync: dashboardsUpdateDashboard } = useSaveDashboard({ updateOnSave: true });
 
   const addMetricToDashboard = async ({
     metricIds,
@@ -171,7 +169,7 @@ export const useRemoveMetricsFromDashboard = () => {
   const { openConfirmModal, openErrorMessage } = useBusterNotifications();
   const queryClient = useQueryClient();
   const ensureDashboardConfig = useEnsureDashboardConfig({ prefetchData: false });
-  const { mutateAsync: dashboardsUpdateDashboard } = useSaveDashboard();
+  const { mutateAsync: dashboardsUpdateDashboard } = useSaveDashboard({ updateOnSave: true });
 
   const removeMetricFromDashboard = async ({
     metricIds,
@@ -195,15 +193,11 @@ export const useRemoveMetricsFromDashboard = () => {
 
       const dashboardResponse = await ensureDashboardConfig(dashboardId, false);
 
-      console.log('dashboardResponse', dashboardResponse);
-
       if (dashboardResponse) {
         const newConfig = removeMetricFromDashboardConfig(
           metricIds,
           dashboardResponse.dashboard.config
         );
-
-        console.log('newConfigx', newConfig);
 
         const data = await dashboardsUpdateDashboard({ id: dashboardId, config: newConfig });
 

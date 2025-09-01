@@ -1,4 +1,5 @@
-import React from 'react';
+import type React from 'react';
+import { useMemo } from 'react';
 import { useAddAndRemoveMetricsFromDashboard, useGetDashboard } from '@/api/buster_rest/dashboards';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { AddMetricModal } from './AddMetricModal';
@@ -7,34 +8,39 @@ export const AddToDashboardModal: React.FC<{
   open: boolean;
   onClose: () => void;
   dashboardId: string;
-}> = React.memo(({ open, onClose, dashboardId }) => {
+}> = ({ open, onClose, dashboardId }) => {
   const { data: dashboard, isFetched: isFetchedDashboard } = useGetDashboard({ id: dashboardId });
   const { mutateAsync: addAndRemoveMetricsFromDashboard } = useAddAndRemoveMetricsFromDashboard();
 
-  const selectedMetrics = Object.values(dashboard?.metrics || {}).map((metric) => ({
-    id: metric.id,
-    name: metric.name
-  }));
+  const initialSelectedMetrics = useMemo(
+    () =>
+      Object.values(dashboard?.metrics || {}).map((metric) => ({
+        id: metric.id,
+        name: metric.name,
+      })),
+    [dashboard?.metrics]
+  );
 
-  const handleAddAndRemoveMetrics = useMemoizedFn(async () => {
-    console.log('selectedMetrics', selectedMetrics);
-    await addAndRemoveMetricsFromDashboard({
-      dashboardId: dashboardId,
-      metrics: selectedMetrics
-    });
-    onClose();
-  });
+  const handleAddAndRemoveMetrics = useMemoizedFn(
+    async (selectedMetrics: { id: string; name: string }[]) => {
+      await addAndRemoveMetricsFromDashboard({
+        dashboardId: dashboardId,
+        metrics: selectedMetrics,
+      });
+      onClose();
+    }
+  );
 
   return (
     <AddMetricModal
       open={open}
-      selectedMetrics={selectedMetrics}
+      initialSelectedMetrics={initialSelectedMetrics}
       loading={!isFetchedDashboard}
       onAddMetrics={handleAddAndRemoveMetrics}
       onClose={onClose}
       saveButtonText="Update dashboard"
     />
   );
-});
+};
 
 AddToDashboardModal.displayName = 'AddToDashboardModal';

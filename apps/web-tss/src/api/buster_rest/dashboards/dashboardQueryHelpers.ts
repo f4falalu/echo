@@ -23,12 +23,10 @@ export const useEnsureDashboardConfig = (params?: { prefetchData?: boolean }) =>
   const method = useMemoizedFn(async (dashboardId: string, initializeMetrics = true) => {
     const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId, 'LATEST');
     let dashboardResponse = queryClient.getQueryData(options.queryKey);
-    console.log('dashboardResponse in ensureDashboardConfig', dashboardResponse);
     if (!dashboardResponse) {
       const res = await prefetchDashboard(dashboardId, 'LATEST', initializeMetrics).catch(() => {
         openErrorMessage('Failed to save metrics to dashboard. Dashboard not found');
       });
-      console.log('res in ensureDashboardConfig', res);
       if (res) {
         queryClient.setQueryData(
           dashboardQueryKeys.dashboardGetDashboard(res.dashboard.id, 'LATEST').queryKey,
