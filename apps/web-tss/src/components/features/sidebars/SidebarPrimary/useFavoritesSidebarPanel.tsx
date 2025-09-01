@@ -9,9 +9,8 @@ import { assetTypeToIcon } from '@/components/features/icons/assetIcons';
 import type { ISidebarGroup } from '@/components/ui/sidebar';
 import { useMount } from '@/hooks/useMount';
 import { assetParamsToRoute } from '@/lib/assets/assetParamsToRoute';
-
+import { createSimpleAssetRoute } from '@/lib/routes/createSimpleAssetRoute';
 import { createSidebarItem } from '../../../ui/sidebar/create-sidebar-item';
-import { getFavoriteRoute } from './getFavoriteRoute';
 
 export const useFavoriteSidebarPanel = (): ISidebarGroup | null => {
   const { data: favorites } = useGetUserFavorites();
@@ -33,7 +32,7 @@ export const useFavoriteSidebarPanel = (): ISidebarGroup | null => {
       onItemsReorder: updateUserFavorites,
       items: favorites.map((favorite) => {
         const Icon = assetTypeToIcon(favorite.asset_type);
-        const link = getFavoriteRoute(favorite);
+        const link = createSimpleAssetRoute(favorite);
 
         return createSidebarItem({
           label: favorite.name,
