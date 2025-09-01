@@ -1,4 +1,4 @@
-import { useNavigate } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import React, { useMemo } from 'react';
 import { useStartChatFromAsset } from '@/api/buster_rest/chats';
 import { useRemoveMetricsFromDashboard } from '@/api/buster_rest/dashboards';
