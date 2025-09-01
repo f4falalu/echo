@@ -20,9 +20,8 @@ import {
 } from '@/components/ui/dropdown';
 import { Code, PenSparkle, ShareRight, SquareChartPen, Trash } from '@/components/ui/icons';
 import { useGetChatId } from '@/context/Chats/useGetChatId';
-import { assetParamsToRoute } from '@/lib/assets/assetParamsToRoute';
 import { getIsEffectiveOwner } from '@/lib/share';
-import { useMetricEditToggle } from '../../../../../layouts/AssetContainer/MetricAssetContainer';
+import { useMetricEditToggle } from '../../../../layouts/AssetContainer/MetricAssetContainer';
 
 export const useMetricCardThreeDotMenuItems = ({
   dashboardId,

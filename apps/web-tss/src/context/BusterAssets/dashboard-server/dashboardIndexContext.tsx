@@ -4,5 +4,5 @@ import { DashboardViewDashboardController } from '@/controllers/DashboardControl
 export const component = () => {
   const { dashboardId } = useGetDashboardParams();
 
-  return <div>Dashboard: {dashboardId}</div>;
+  return <DashboardViewDashboardController dashboardId={dashboardId} />;
 };

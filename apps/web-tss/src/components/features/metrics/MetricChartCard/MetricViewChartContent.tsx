@@ -2,8 +2,8 @@ import type { DataMetadata } from '@buster/server-shared/metrics';
 import type React from 'react';
 import type { BusterMetric, BusterMetricData } from '@/api/asset_interfaces/metric';
 import { BusterChartDynamic } from '@/components/ui/charts/BusterChartDynamic';
+import { PreparingYourRequestLoader } from '@/components/ui/charts/LoadingComponents';
 import { cn } from '@/lib/classMerge';
-import { PreparingYourRequestLoader } from '../../../ui/charts/LoadingComponents';
 import { METRIC_CHART_CONTAINER_ID } from './config';
 
 type MetricViewChartContentProps = {
@@ -16,6 +16,7 @@ type MetricViewChartContentProps = {
   dataMetadata: DataMetadata | undefined;
   fetchedData: boolean;
   fetchedMetric: boolean;
+  animate: boolean;
 };
 
 export const MetricViewChartContent: React.FC<MetricViewChartContentProps> = ({
@@ -28,6 +29,7 @@ export const MetricViewChartContent: React.FC<MetricViewChartContentProps> = ({
   metricId,
   readOnly,
   fetchedMetric,
+  animate = true,
 }) => {
   const columnMetadata = dataMetadata?.column_metadata;
   const isTable = chartConfig?.selectedChartType === 'table';
@@ -48,6 +50,8 @@ export const MetricViewChartContent: React.FC<MetricViewChartContentProps> = ({
           columnMetadata={columnMetadata}
           id={METRIC_CHART_CONTAINER_ID(metricId)}
           readOnly={readOnly}
+          animate={animate}
+          animateLegend={animate}
           {...chartConfig}
         />
       ) : (

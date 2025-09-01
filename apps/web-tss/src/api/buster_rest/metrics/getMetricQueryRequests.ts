@@ -38,7 +38,6 @@ const getMetricQueryFn = async ({
   password: string | undefined;
   queryClient: QueryClient;
 }) => {
-  console.trace('getMetricQueryFn', id, version, password, queryClient);
   const chosenVersionNumber: number | undefined = version === 'LATEST' ? undefined : version;
   const result = await getMetric({
     id: id || '',

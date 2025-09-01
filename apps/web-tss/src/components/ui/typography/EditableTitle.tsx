@@ -14,9 +14,18 @@ const editableTitleVariants = cva('relative flex items-center justify-between', 
       4: 'text-md',
       5: 'text-base',
     },
+    variant: {
+      ghost: '',
+      default: '',
+    },
+    readOnly: {
+      true: 'cursor-inherit pointer-events-none',
+      false: 'cursor-text',
+    },
   },
   defaultVariants: {
     level: 4,
+    variant: 'default',
   },
 });
 
@@ -49,6 +58,7 @@ export const EditableTitle = React.forwardRef<
       onPressEnter,
       children,
       level = 4,
+      variant = 'default',
       onEdit,
       onChange,
       onSetValue,
@@ -56,6 +66,8 @@ export const EditableTitle = React.forwardRef<
     inputRef
   ) => {
     const [value, setValue] = React.useState(children);
+
+    const isGhost = variant === 'ghost';
 
     useLayoutEffect(() => {
       setValue(children);
@@ -71,8 +83,8 @@ export const EditableTitle = React.forwardRef<
           readOnly={readOnly}
           variant="ghost"
           className={cn(
-            'w-full cursor-text! rounded-none! px-0! py-0! leading-1',
-            editableTitleVariants({ level }),
+            'w-full rounded-none! px-0! py-0! leading-1',
+            editableTitleVariants({ level, variant, readOnly }),
             inputClassName
           )}
           value={value}
@@ -92,7 +104,9 @@ export const EditableTitle = React.forwardRef<
             onPressEnter?.();
           }}
         />
-        <div className="from-page-background pointer-events-none absolute top-0 right-0 h-full w-6 bg-gradient-to-l to-transparent" />
+        {!isGhost && (
+          <div className="from-page-background pointer-events-none absolute top-0 right-0 h-full w-6 bg-gradient-to-l to-transparent" />
+        )}
       </div>
     );
   }

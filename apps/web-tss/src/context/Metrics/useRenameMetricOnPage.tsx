@@ -1,6 +1,6 @@
 import { useNavigate } from '@tanstack/react-router';
 import { useMemo } from 'react';
-import { METRIC_CHART_TITLE_INPUT_ID } from '@/components/features/metrics/MetricViewChart/MetricViewChartHeader';
+import { METRIC_CHART_TITLE_INPUT_ID } from '@/components/features/metrics/MetricChartCard/MetricViewChartHeader';
 import { Pencil } from '@/components/ui/icons';
 import { ensureElementExists } from '@/lib/element';
 

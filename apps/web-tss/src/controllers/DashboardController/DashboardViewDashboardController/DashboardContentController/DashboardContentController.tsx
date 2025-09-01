@@ -9,9 +9,9 @@ import type { useUpdateDashboardConfig } from '@/api/buster_rest/dashboards';
 import { BusterResizeableGrid, type BusterResizeableGridRow } from '@/components/ui/grid';
 import { useDebounceFn } from '@/hooks/useDebounce';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { DashboardMetricItem } from '../../../../components/features/metrics/DashboardMetricItem';
 import { DashboardContentControllerProvider } from './DashboardContentControllerContext';
 import { DashboardEmptyState, DashboardNoContentReadOnly } from './DashboardEmptyState';
-import { DashboardMetricItem } from './DashboardMetricItem';
 import {
   hasRemovedMetrics,
   hasUnmappedMetrics,
@@ -26,7 +26,6 @@ const DEFAULT_EMPTY_CONFIG: DashboardConfig = {};
 export const DashboardContentController: React.FC<{
   readOnly?: boolean;
   metrics: BusterDashboardResponse['metrics'] | undefined;
-  chatId: string | undefined;
   dashboard: BusterDashboardResponse['dashboard'] | undefined;
   onUpdateDashboardConfig: ReturnType<typeof useUpdateDashboardConfig>['mutateAsync'];
   onOpenAddContentModal: () => void;
@@ -34,7 +33,6 @@ export const DashboardContentController: React.FC<{
   ({
     onOpenAddContentModal,
     dashboard,
-    chatId,
     readOnly = false,
     metrics = DEFAULT_EMPTY_METRICS,
     onUpdateDashboardConfig,
@@ -64,7 +62,6 @@ export const DashboardContentController: React.FC<{
             dashboardId={dashboard?.id}
             isDragOverlay
             numberOfMetrics={numberOfMetrics}
-            chatId={undefined}
             dashboardVersionNumber={dashboardVersionNumber}
             metricVersionNumber={metrics[draggingId]?.version_number}
           />
@@ -90,7 +87,6 @@ export const DashboardContentController: React.FC<{
                     metricId={item.id}
                     dashboardId={dashboard?.id || ''}
                     readOnly={readOnly}
-                    chatId={chatId}
                     numberOfMetrics={numberOfMetrics}
                     metricVersionNumber={metricVersionNumber}
                     dashboardVersionNumber={dashboardVersionNumber}

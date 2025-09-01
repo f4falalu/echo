@@ -15,13 +15,16 @@ export const MetricDataTruncatedWarning: React.FC<MetricDataTruncatedWarningProp
   className,
   metricId,
 }) => {
-  const { mutateAsync: downloadMetricFile, isPending: isGettingFile } = useDownloadMetricFile();
-  const [hasError, setHasError] = useState(false);
+  const {
+    mutateAsync: downloadMetricFile,
+    isPending: isGettingFile,
+    error: downloadError,
+  } = useDownloadMetricFile();
+
+  const hasError = !!downloadError;
 
   const handleDownload = async () => {
     try {
-      setHasError(false);
-
       // Create a timeout promise that rejects after 2 minutes (matching backend timeout)
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => reject(new Error('Download timeout')), 2 * 60 * 1000); // 2 minutes
@@ -42,7 +45,6 @@ export const MetricDataTruncatedWarning: React.FC<MetricDataTruncatedWarningProp
       document.body.removeChild(link);
     } catch (error) {
       console.error('Failed to download metric file:', error);
-      setHasError(true);
     }
   };
 

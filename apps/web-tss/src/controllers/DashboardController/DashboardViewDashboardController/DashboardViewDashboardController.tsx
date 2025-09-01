@@ -10,9 +10,8 @@ import { DashboardSaveFilePopup } from './DashboardSaveFilePopup';
 
 export const DashboardViewDashboardController: React.FC<{
   dashboardId: string;
-  chatId: string | undefined;
   readOnly?: boolean;
-}> = ({ dashboardId, chatId, readOnly: readOnlyProp = false }) => {
+}> = ({ dashboardId, readOnly: readOnlyProp = false }) => {
   const {
     data: dashboardResponse,
     isFetched,
@@ -54,7 +53,6 @@ export const DashboardViewDashboardController: React.FC<{
         <DashboardContentController
           metrics={metrics}
           dashboard={dashboard}
-          chatId={chatId}
           onUpdateDashboardConfig={onUpdateDashboardConfig}
           onOpenAddContentModal={onOpenDashboardContentModal}
           readOnly={isReadOnly}
