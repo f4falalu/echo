@@ -6,6 +6,7 @@ import { metricsQueryKeys } from '@/api/query_keys/metric';
 import { getProtectedAssetPassword } from '@/context/BusterAssets/useProtectedAssetStore';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { setOriginalDashboard } from '@/context/Dashboards/useOriginalDashboardStore';
+import { setOriginalMetric } from '@/context/Metrics/useOriginalMetricStore';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { upgradeMetricToIMetric } from '@/lib/metrics/upgradeToIMetric';
 import { prefetchGetMetricDataClient } from '../metrics/queryRequests';
@@ -22,10 +23,12 @@ export const useEnsureDashboardConfig = (params?: { prefetchData?: boolean }) =>
   const method = useMemoizedFn(async (dashboardId: string, initializeMetrics = true) => {
     const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId, 'LATEST');
     let dashboardResponse = queryClient.getQueryData(options.queryKey);
+    console.log('dashboardResponse in ensureDashboardConfig', dashboardResponse);
     if (!dashboardResponse) {
       const res = await prefetchDashboard(dashboardId, 'LATEST', initializeMetrics).catch(() => {
         openErrorMessage('Failed to save metrics to dashboard. Dashboard not found');
       });
+      console.log('res in ensureDashboardConfig', res);
       if (res) {
         queryClient.setQueryData(
           dashboardQueryKeys.dashboardGetDashboard(res.dashboard.id, 'LATEST').queryKey,
@@ -52,7 +55,14 @@ export const initializeMetrics = (
       metricsQueryKeys.metricsGetMetric(metric.id, metric.version_number).queryKey,
       upgradedMetric
     );
-    console.warn('TODO: make sure we using version correctly?');
+    const isLatestVersion = metric.version_number === last(metric.versions)?.version_number;
+    if (isLatestVersion) {
+      setOriginalMetric(upgradedMetric);
+      queryClient.setQueryData(
+        metricsQueryKeys.metricsGetMetric(metric.id, 'LATEST').queryKey,
+        upgradedMetric
+      );
+    }
     if (prefetchData) {
       prefetchGetMetricDataClient(
         { id: metric.id, version_number: metric.version_number },

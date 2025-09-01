@@ -35,9 +35,8 @@ export const useIsDashboardChanged = ({
     }
   );
 
-  const isLatestVersion = useMemo(() => {
-    return currentDashboard?.version_number === last(currentDashboard?.versions)?.version_number;
-  }, [currentDashboard]);
+  const isLatestVersion =
+    currentDashboard?.version_number === last(currentDashboard?.versions)?.version_number;
 
   const onResetToOriginal = useMemoizedFn(() => {
     const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId, 'LATEST');

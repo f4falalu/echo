@@ -110,10 +110,13 @@ export const AppModal = <T,>({
       >
         <div className="flex flex-col gap-4 overflow-hidden p-6">
           {header && (
-            <DialogHeader className="">
-              {header.title && <DialogTitle>{header.title}</DialogTitle>}
-              {header.description && <DialogDescription>{header.description}</DialogDescription>}
-            </DialogHeader>
+            <>
+              <DialogHeader className="">
+                {header.title && <DialogTitle>{header.title}</DialogTitle>}
+                {header.description && <DialogDescription>{header.description}</DialogDescription>}
+              </DialogHeader>
+              <DialogDescription hidden>{header.description || header.title}</DialogDescription>
+            </>
           )}
 
           {children}

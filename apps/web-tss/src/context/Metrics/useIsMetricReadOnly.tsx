@@ -58,11 +58,10 @@ export const useIsMetricReadOnly = ({
 };
 
 const checkIfMetricIsViewingOldVersion = (
-  metricVersionNumber: number | 'LATEST',
+  metricVersionNumber: number | undefined,
   metricData: Pick<BusterMetric, 'versions' | 'version_number'> | undefined
 ) => {
   if (!metricVersionNumber) return false;
-  if (metricVersionNumber === 'LATEST') return false;
   if (metricVersionNumber !== last(metricData?.versions)?.version_number) return true;
   return false;
 };

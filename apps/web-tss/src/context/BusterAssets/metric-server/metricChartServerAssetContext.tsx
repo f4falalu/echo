@@ -1,19 +1,19 @@
 import { ClientOnly, Outlet } from '@tanstack/react-router';
 import { lazy, Suspense, useRef } from 'react';
 import { AppSplitter, type LayoutSize } from '@/components/ui/layouts/AppSplitter';
+import { useGetMetricParams } from '@/context/Metrics/useGetMetricParams';
 import { MetricViewChartController } from '@/controllers/MetricController/MetricViewChartController';
 import {
   useIsMetricEditMode,
   useMetricEditSplitter,
 } from '@/layouts/AssetContainer/MetricAssetContainer/MetricContextProvider';
 import { CircleSpinnerLoaderContainer } from '../../../components/ui/loaders';
-import { useGetMetricParams } from './useGetMetricParams';
 
 const defaultLayoutClosed: LayoutSize = ['auto', '0px'];
 const defaultLayoutOpen: LayoutSize = ['auto', '300px'];
 
 export const component = () => {
-  const { metricId, metric_version_number } = useGetMetricParams();
+  const { metricId, metricVersionNumber } = useGetMetricParams();
   const autoSaveId = `metric-chart-layout-${metricId}`;
   const isMetricEditMode = useIsMetricEditMode();
   const splitterRef = useMetricEditSplitter();
@@ -35,7 +35,7 @@ export const component = () => {
         initialLayout={defaultLayout}
         preserveSide="right"
         leftChildren={
-          <MetricViewChartController metricId={metricId} versionNumber={metric_version_number} />
+          <MetricViewChartController metricId={metricId} versionNumber={metricVersionNumber} />
         }
         rightChildren={
           <RightChildren metricId={metricId} renderChart={hasSeenMetricEditMode.current} />

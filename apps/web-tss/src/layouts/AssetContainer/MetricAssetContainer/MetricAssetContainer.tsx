@@ -9,8 +9,8 @@ import { MetricContainerHeaderButtons } from './MetricHeaderButtons';
 export const MetricAssetContainer: React.FC<{
   children: React.ReactNode;
   metricId: string;
-  metric_version_number: number | undefined;
-}> = ({ children, metricId, metric_version_number }) => {
+  metricVersionNumber: number | undefined;
+}> = ({ children, metricId, metricVersionNumber }) => {
   return (
     <ClientOnly>
       <MetricAssetContextProvider>
@@ -22,7 +22,7 @@ export const MetricAssetContainer: React.FC<{
                 header={
                   <MetricAssetHeader
                     metricId={metricId}
-                    metric_version_number={metric_version_number}
+                    metricVersionNumber={metricVersionNumber}
                   />
                 }
               >
@@ -44,19 +44,13 @@ export const MetricAssetContainer: React.FC<{
 
 const MetricAssetHeader: React.FC<{
   metricId: string;
-  metric_version_number: number | undefined;
-}> = ({ metricId, metric_version_number }) => {
+  metricVersionNumber: number | undefined;
+}> = ({ metricId, metricVersionNumber }) => {
   return (
     <>
-      <MetricContainerHeaderSegment
-        metricId={metricId}
-        metric_version_number={metric_version_number}
-      />
+      <MetricContainerHeaderSegment metricId={metricId} metricVersionNumber={metricVersionNumber} />
 
-      <MetricContainerHeaderButtons
-        metricId={metricId}
-        metricVersionNumber={metric_version_number}
-      />
+      <MetricContainerHeaderButtons metricId={metricId} metricVersionNumber={metricVersionNumber} />
     </>
   );
 };

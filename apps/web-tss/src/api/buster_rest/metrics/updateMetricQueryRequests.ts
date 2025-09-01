@@ -401,17 +401,7 @@ export const useBulkUpdateMetricVerificationStatus = () => {
       });
       for (const metric of data.updated_metrics) {
         const upgradedMetric = upgradeMetricToIMetric(metric, null);
-        queryClient.setQueryData(
-          metricsQueryKeys.metricsGetMetric(metric.id, 'LATEST').queryKey,
-          upgradedMetric
-        );
-        const isLatestVersion = metric.version_number === last(metric.versions)?.version_number;
-        if (isLatestVersion) {
-          queryClient.setQueryData(
-            metricsQueryKeys.metricsGetMetric(metric.id, 'LATEST').queryKey,
-            upgradedMetric
-          );
-        }
+        setMetricQueryData(queryClient, upgradedMetric);
       }
     },
   });
@@ -427,7 +417,6 @@ const setMetricQueryData = (queryClient: QueryClient, upgradedMetric: BusterMetr
       metricsQueryKeys.metricsGetMetric(id, 'LATEST').queryKey,
       upgradedMetric
     );
-
     setOriginalMetric(upgradedMetric);
   }
 

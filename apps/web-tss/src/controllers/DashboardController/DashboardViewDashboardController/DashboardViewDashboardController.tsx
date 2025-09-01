@@ -43,28 +43,26 @@ export const DashboardViewDashboardController: React.FC<{
 
   return (
     <ClientOnly>
-      <ScrollArea className="h-full">
-        <div className="flex h-full flex-col space-y-3 p-10">
-          <DashboardEditTitles
-            dashboardId={dashboardId}
-            readOnly={isReadOnly}
-            title={dashboardResponse?.dashboard?.name || ''}
-            description={dashboardResponse?.dashboard?.description || ''}
-          />
+      <div className="flex h-full flex-col space-y-3 p-10">
+        <DashboardEditTitles
+          dashboardId={dashboardId}
+          readOnly={isReadOnly}
+          title={dashboardResponse?.dashboard?.name || ''}
+          description={dashboardResponse?.dashboard?.description || ''}
+        />
 
-          <DashboardContentController
-            metrics={metrics}
-            dashboard={dashboard}
-            onUpdateDashboardConfig={onUpdateDashboardConfig}
-            onOpenAddContentModal={onOpenDashboardContentModal}
-            readOnly={isReadOnly}
-          />
+        <DashboardContentController
+          metrics={metrics}
+          dashboard={dashboard}
+          onUpdateDashboardConfig={onUpdateDashboardConfig}
+          onOpenAddContentModal={onOpenDashboardContentModal}
+          readOnly={isReadOnly}
+        />
 
-          {!isReadOnly && !isVersionHistoryMode && !isViewingOldVersion && (
-            <DashboardSaveFilePopup dashboardId={dashboardId} />
-          )}
-        </div>
-      </ScrollArea>
+        {!isReadOnly && !isVersionHistoryMode && !isViewingOldVersion && (
+          <DashboardSaveFilePopup dashboardId={dashboardId} />
+        )}
+      </div>
     </ClientOnly>
   );
 };

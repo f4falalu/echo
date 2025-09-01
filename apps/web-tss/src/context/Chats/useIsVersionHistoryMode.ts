@@ -36,7 +36,7 @@ export const useChatIsVersionHistoryMode = ({
       case 'report':
         return reportsQueryKeys.reportsGetReport(reportId, reportVersionNumber);
       case 'metric':
-        return metricsQueryKeys.metricsGetMetric(metricId, metricVersionNumber);
+        return metricsQueryKeys.metricsGetMetric(metricId, metricVersionNumber || 'LATEST');
     }
   }, [
     type,

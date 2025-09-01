@@ -3,6 +3,8 @@ import type { QueryClient } from '@tanstack/react-query';
 import { Outlet } from '@tanstack/react-router';
 import { z } from 'zod';
 import { prefetchGetDashboard } from '@/api/buster_rest/dashboards';
+import { useGetDashboardParams } from '@/context/Dashboards/useGetDashboardParams';
+import { DashboardAssetContainer } from '@/layouts/AssetContainer/DashboardAssetContainer/DashboardAssetContainer';
 
 export const validateSearch = z.object({
   dashboard_version_number: z.coerce.number().optional(),
@@ -37,7 +39,12 @@ export const head = ({ loaderData }: { loaderData?: { title: string | undefined 
 });
 
 export const component = () => {
-  return <Outlet />;
+  const params = useGetDashboardParams();
+  return (
+    <DashboardAssetContainer {...params}>
+      <Outlet />
+    </DashboardAssetContainer>
+  );
 };
 
 export const ssr = false;

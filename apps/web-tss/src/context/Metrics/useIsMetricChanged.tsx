@@ -35,9 +35,8 @@ export const useIsMetricChanged = ({
       }),
     }
   );
-  const isLatestVersion = useMemo(() => {
-    return currentMetric?.version_number === last(currentMetric?.versions)?.version_number;
-  }, [currentMetric]);
+  const isLatestVersion =
+    currentMetric?.version_number === last(currentMetric?.versions)?.version_number;
 
   const onResetToOriginal = useMemoizedFn(() => {
     const options = metricsQueryKeys.metricsGetMetric(metricId || '', 'LATEST');

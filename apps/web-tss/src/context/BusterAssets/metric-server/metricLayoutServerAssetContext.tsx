@@ -3,8 +3,8 @@ import type { QueryClient } from '@tanstack/react-query';
 import { Outlet } from '@tanstack/react-router';
 import { z } from 'zod';
 import { prefetchGetMetric } from '@/api/buster_rest/metrics';
+import { useGetMetricParams } from '@/context/Metrics/useGetMetricParams';
 import { MetricAssetContainer } from '@/layouts/AssetContainer/MetricAssetContainer';
-import { useGetMetricParams } from './useGetMetricParams';
 
 export const validateSearch = z.object({
   metric_version_number: z.coerce.number().optional(),

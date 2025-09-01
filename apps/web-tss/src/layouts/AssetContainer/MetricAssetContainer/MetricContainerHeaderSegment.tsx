@@ -5,12 +5,12 @@ import { useIsMetricReadOnly } from '@/context/Metrics/useIsMetricReadOnly';
 
 interface MetricContainerHeaderSegmentProps {
   metricId: string;
-  metric_version_number: number | undefined;
+  metricVersionNumber: number | undefined;
 }
 
 export const MetricContainerHeaderSegment: React.FC<MetricContainerHeaderSegmentProps> = React.memo(
   (props) => {
-    const { metricId, metric_version_number } = props;
+    const { metricId, metricVersionNumber } = props;
 
     const { isFetched, isError } = useIsMetricReadOnly({
       metricId,

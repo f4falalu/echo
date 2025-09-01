@@ -6,12 +6,10 @@ import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
 import { createDashboardFullConfirmModal } from '@/components/features/modals/createDashboardFullConfirmModal';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { setOriginalDashboard } from '@/context/Dashboards/useOriginalDashboardStore';
-import { useGetLatestMetricVersionMemoized } from '../../metrics/metricVersionNumber';
 import { useEnsureDashboardConfig } from '../dashboardQueryHelpers';
 import { addMetricToDashboardConfig, removeMetricFromDashboardConfig } from '../helpers';
 import { addAndRemoveMetricsToDashboard } from '../helpers/addAndRemoveMetricsToDashboard';
-import { dashboardsUpdateDashboard } from '../requests';
+import { useSaveDashboard } from '../queryRequests';
 
 /**
  * useAddAndRemoveMetricsFromDashboard
@@ -20,6 +18,7 @@ export const useAddAndRemoveMetricsFromDashboard = () => {
   const queryClient = useQueryClient();
   const { openErrorMessage, openConfirmModal } = useBusterNotifications();
   const ensureDashboardConfig = useEnsureDashboardConfig({ prefetchData: false });
+  const { mutateAsync: dashboardsUpdateDashboard } = useSaveDashboard();
 
   const addAndRemoveMetrics = async ({
     metrics,
@@ -101,15 +100,6 @@ export const useAddAndRemoveMetricsFromDashboard = () => {
 
   return useMutation({
     mutationFn: addAndRemoveMetrics,
-    onSuccess: (data) => {
-      if (data) {
-        queryClient.setQueryData(
-          dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, 'LATEST').queryKey,
-          data
-        );
-        setOriginalDashboard(data.dashboard);
-      }
-    },
   });
 };
 
@@ -120,7 +110,7 @@ export const useAddMetricsToDashboard = () => {
   const queryClient = useQueryClient();
   const { openErrorMessage, openConfirmModal } = useBusterNotifications();
   const ensureDashboardConfig = useEnsureDashboardConfig({ prefetchData: false });
-  const getLatestMetricVersion = useGetLatestMetricVersionMemoized();
+  const { mutateAsync: dashboardsUpdateDashboard } = useSaveDashboard();
 
   const addMetricToDashboard = async ({
     metricIds,
@@ -171,30 +161,6 @@ export const useAddMetricsToDashboard = () => {
         });
       }
     },
-    onSuccess: (data) => {
-      if (data) {
-        queryClient.setQueryData(
-          dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, 'LATEST').queryKey,
-          data
-        );
-        for (const metric of Object.values(data.metrics)) {
-          const dashboardId = data.dashboard.id;
-          const dashboardName = data.dashboard.name;
-          const options = metricsQueryKeys.metricsGetMetric(metric.id, 'LATEST');
-          queryClient.setQueryData(options.queryKey, (old) => {
-            if (!old) return old;
-            return create(old, (draft) => {
-              draft.dashboards = [
-                ...(draft.dashboards || []),
-                { id: dashboardId, name: dashboardName },
-              ];
-            });
-          });
-        }
-
-        setOriginalDashboard(data.dashboard);
-      }
-    },
   });
 };
 
@@ -205,6 +171,7 @@ export const useRemoveMetricsFromDashboard = () => {
   const { openConfirmModal, openErrorMessage } = useBusterNotifications();
   const queryClient = useQueryClient();
   const ensureDashboardConfig = useEnsureDashboardConfig({ prefetchData: false });
+  const { mutateAsync: dashboardsUpdateDashboard } = useSaveDashboard();
 
   const removeMetricFromDashboard = async ({
     metricIds,
@@ -228,32 +195,22 @@ export const useRemoveMetricsFromDashboard = () => {
 
       const dashboardResponse = await ensureDashboardConfig(dashboardId, false);
 
-      if (dashboardResponse) {
-        const versionedOptions = dashboardQueryKeys.dashboardGetDashboard(
-          dashboardResponse.dashboard.id,
-          'LATEST'
-        );
+      console.log('dashboardResponse', dashboardResponse);
 
+      if (dashboardResponse) {
         const newConfig = removeMetricFromDashboardConfig(
           metricIds,
           dashboardResponse.dashboard.config
         );
 
-        queryClient.setQueryData(versionedOptions.queryKey, (currentDashboard) => {
-          if (!currentDashboard) return currentDashboard;
-          return create(currentDashboard, (draft) => {
-            draft.dashboard.config = newConfig;
-          });
-        });
+        console.log('newConfigx', newConfig);
 
         const data = await dashboardsUpdateDashboard({ id: dashboardId, config: newConfig });
 
-        queryClient.setQueryData(
-          dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, 'LATEST').queryKey,
-          data
-        );
-
-        setOriginalDashboard(data.dashboard);
+        if (!data) {
+          console.warn('Failed to remove metrics from dashboard');
+          return;
+        }
 
         return data;
       }
@@ -275,15 +232,5 @@ export const useRemoveMetricsFromDashboard = () => {
 
   return useMutation({
     mutationFn: removeMetricFromDashboard,
-    onSuccess: (_, variables) => {
-      variables.metricIds.forEach((id) => {
-        const queryKey = metricsQueryKeys.metricsGetMetric(id, 'LATEST').queryKey.slice(0, 3);
-        queryClient.invalidateQueries({
-          queryKey,
-          refetchType: 'all',
-          exact: false,
-        });
-      });
-    },
   });
 };

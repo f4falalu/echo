@@ -1,5 +1,5 @@
 import isEmpty from 'lodash/isEmpty';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import type {
   BusterDashboardResponse,
   BusterMetric,
@@ -7,17 +7,11 @@ import type {
 } from '@/api/asset_interfaces';
 import type { useUpdateDashboardConfig } from '@/api/buster_rest/dashboards';
 import { BusterResizeableGrid, type BusterResizeableGridRow } from '@/components/ui/grid';
-import { useDebounceFn } from '@/hooks/useDebounce';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { DashboardMetricItem } from '../../../../components/features/metrics/DashboardMetricItem';
 import { DashboardContentControllerProvider } from './DashboardContentControllerContext';
 import { DashboardEmptyState, DashboardNoContentReadOnly } from './DashboardEmptyState';
-import {
-  hasRemovedMetrics,
-  hasUnmappedMetrics,
-  normalizeNewMetricsIntoGrid,
-  removeChildrenFromItems,
-} from './helpers';
+import { removeChildrenFromItems } from './helpers';
 
 const DEFAULT_EMPTY_ROWS: DashboardConfig['rows'] = [];
 const DEFAULT_EMPTY_METRICS: Record<string, BusterMetric> = {};
@@ -40,17 +34,9 @@ export const DashboardContentController: React.FC<{
     const [draggingId, setDraggingId] = useState<string | null>(null);
     const dashboardVersionNumber = dashboard?.version_number;
     const dashboardConfig = dashboard?.config || DEFAULT_EMPTY_CONFIG;
-    const configRows = dashboardConfig?.rows || DEFAULT_EMPTY_ROWS;
+    const rows = dashboardConfig?.rows || DEFAULT_EMPTY_ROWS;
     const hasMetrics = !isEmpty(metrics);
     const numberOfMetrics = Object.values(metrics).length;
-
-    const remapMetrics = useMemo(() => {
-      return hasUnmappedMetrics(metrics, configRows) || hasRemovedMetrics(metrics, configRows);
-    }, [metrics, configRows.length]);
-
-    const rows = useMemo(() => {
-      return remapMetrics ? normalizeNewMetricsIntoGrid(metrics, configRows) : configRows;
-    }, [remapMetrics, metrics, configRows]);
 
     const memoizedOverlayComponent = useMemo(() => {
       return (
@@ -96,11 +82,6 @@ export const DashboardContentController: React.FC<{
         });
     }, [JSON.stringify(rows), readOnly, dashboard?.id, numberOfMetrics]);
 
-    const { run: debouncedForInitialRenderOnUpdateDashboardConfig } = useDebounceFn(
-      onUpdateDashboardConfig,
-      { wait: 650, leading: true }
-    );
-
     const onRowLayoutChange = useMemoizedFn((layoutRows: BusterResizeableGridRow[]) => {
       if (dashboard) {
         onUpdateDashboardConfig({
@@ -117,12 +98,6 @@ export const DashboardContentController: React.FC<{
     const onStartDrag = useMemoizedFn(({ id }: { id: string }) => {
       setDraggingId(id);
     });
-
-    useEffect(() => {
-      if (remapMetrics && dashboard?.id) {
-        debouncedForInitialRenderOnUpdateDashboardConfig({ rows, dashboardId: dashboard.id });
-      }
-    }, [dashboard?.id, remapMetrics]);
 
     //overflow visible is needed to allow dropzones to be visible
     return (

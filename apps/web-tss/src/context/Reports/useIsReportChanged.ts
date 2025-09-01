@@ -37,9 +37,8 @@ export const useIsReportChanged = ({
     }
   );
 
-  const isLatestVersion = useMemo(() => {
-    return currentReport?.version_number === last(currentReport?.versions)?.version_number;
-  }, [currentReport]);
+  const isLatestVersion =
+    currentReport?.version_number === last(currentReport?.versions)?.version_number;
 
   const onResetToOriginal = useMemoizedFn(() => {
     const options = reportsQueryKeys.reportsGetReport(reportId || '', 'LATEST');
