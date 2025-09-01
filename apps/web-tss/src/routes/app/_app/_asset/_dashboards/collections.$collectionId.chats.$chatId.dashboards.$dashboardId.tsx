@@ -3,7 +3,7 @@ import { z } from 'zod';
 import * as dashboardServerContext from '@/context/BusterAssets/dashboard-server/dashboardLayoutServerAssetContext';
 
 export const Route = createFileRoute(
-  '/app/_app/_asset/collections/$collectionId/chats/$chatId/dashboards/$dashboardId'
+  '/app/_app/_asset/_dashboards/collections/$collectionId/chats/$chatId/dashboards/$dashboardId'
 )({
   ...dashboardServerContext,
   component: RouteComponent,

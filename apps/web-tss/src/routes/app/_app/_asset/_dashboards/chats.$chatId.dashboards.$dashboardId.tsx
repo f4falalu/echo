@@ -5,7 +5,7 @@ const searchParamsSchema = z.object({
   dashboard_version_number: z.coerce.number().optional(),
 });
 
-export const Route = createFileRoute('/app/_app/_asset/chats/$chatId/dashboards/$dashboardId')({
+export const Route = createFileRoute('/app/_app/_asset/_dashboards/chats/$chatId/dashboards/$dashboardId')({
   staticData: {
     assetType: 'dashboard',
   },

@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import * as metricServerContext from '@/context/BusterAssets/metric-server/metricLayoutServerAssetContext';
 
 export const Route = createFileRoute(
-  '/app/_app/_asset/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/result'
+  '/app/_app/_asset/_metrics/chats/$chatId/dashboards/$dashboardId/metrics/$metricId/sql'
 )({
   ...metricServerContext,
 });

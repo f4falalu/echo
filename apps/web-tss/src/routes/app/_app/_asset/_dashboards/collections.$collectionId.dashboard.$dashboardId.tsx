@@ -7,7 +7,7 @@ const searchParamsSchema = z.object({
 });
 
 export const Route = createFileRoute(
-  '/app/_app/_asset/collections/$collectionId/dashboard/$dashboardId'
+  '/app/_app/_asset/_dashboards/collections/$collectionId/dashboard/$dashboardId'
 )({
   ...dashboardServerContext,
   component: RouteComponent,
