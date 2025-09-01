@@ -70,7 +70,14 @@ export const MetricVersionHistoryModal = React.memo(
         isRestoringVersion={isRestoringVersion}
         learnMoreButton={learnMoreButton}
       >
-        <MetricViewChart metricId={metricId} versionNumber={versionNumber || undefined} readOnly />
+        {versionNumber && (
+          <MetricViewChart
+            metricId={metricId}
+            versionNumber={versionNumber || undefined}
+            readOnly
+            animate={false}
+          />
+        )}
       </VersionHistoryModal>
     );
   }

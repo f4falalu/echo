@@ -14,10 +14,20 @@ interface DashboardMetricItemBaseProps {
   numberOfMetrics: number;
   className?: string;
   isDragOverlay?: boolean;
+  animate?: boolean;
+  readOnly?: boolean;
 }
 
 export const DashboardMetricItem: React.FC<DashboardMetricItemBaseProps> = React.memo(
-  ({ dashboardId, metricVersionNumber, metricId, isDragOverlay = false, numberOfMetrics }) => {
+  ({
+    dashboardId,
+    animate: animateProp = true,
+    metricVersionNumber,
+    metricId,
+    isDragOverlay = false,
+    numberOfMetrics,
+    readOnly = false,
+  }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const hasBeenInViewport = useHasBeenInViewport(containerRef, {
       threshold: 0.25,
@@ -26,7 +36,7 @@ export const DashboardMetricItem: React.FC<DashboardMetricItemBaseProps> = React
       { id: metricId, versionNumber: metricVersionNumber },
       { select: useCallback((data: BusterMetricData) => data.data?.length || 0, []) }
     );
-    const animate = !isDragOverlay && dataLength < 125 && numberOfMetrics <= 30;
+    const animate = !isDragOverlay && dataLength < 125 && numberOfMetrics <= 30 && animateProp;
 
     const { attributes, listeners } = useContext(SortableItemContext);
 
@@ -39,10 +49,11 @@ export const DashboardMetricItem: React.FC<DashboardMetricItemBaseProps> = React
         metricId={metricId}
         versionNumber={metricVersionNumber}
         animate={animate}
-        useHeaderLink
+        useHeaderLink={!readOnly}
         renderChartContent={hasBeenInViewport}
         headerSecondaryContent={
-          !isDragOverlay && (
+          !isDragOverlay &&
+          !readOnly && (
             <DashboardMetricItemThreeDotMenu
               metricId={metricId}
               metricVersionNumber={metricVersionNumber}

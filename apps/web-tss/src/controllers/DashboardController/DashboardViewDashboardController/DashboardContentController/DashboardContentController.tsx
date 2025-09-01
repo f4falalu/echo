@@ -1,10 +1,7 @@
+import type { DashboardConfig } from '@buster/server-shared/dashboards';
 import isEmpty from 'lodash/isEmpty';
 import React, { useMemo, useState } from 'react';
-import type {
-  BusterDashboardResponse,
-  BusterMetric,
-  DashboardConfig,
-} from '@/api/asset_interfaces';
+import type { BusterDashboardResponse, BusterMetric } from '@/api/asset_interfaces';
 import type { useUpdateDashboardConfig } from '@/api/buster_rest/dashboards';
 import { BusterResizeableGrid, type BusterResizeableGridRow } from '@/components/ui/grid';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
@@ -23,11 +20,13 @@ export const DashboardContentController: React.FC<{
   dashboard: BusterDashboardResponse['dashboard'] | undefined;
   onUpdateDashboardConfig: ReturnType<typeof useUpdateDashboardConfig>['mutateAsync'];
   onOpenAddContentModal: () => void;
+  animate?: boolean;
 }> = React.memo(
   ({
     onOpenAddContentModal,
     dashboard,
     readOnly = false,
+    animate = true,
     metrics = DEFAULT_EMPTY_METRICS,
     onUpdateDashboardConfig,
   }) => {
@@ -49,17 +48,19 @@ export const DashboardContentController: React.FC<{
             numberOfMetrics={numberOfMetrics}
             dashboardVersionNumber={dashboardVersionNumber}
             metricVersionNumber={metrics[draggingId]?.version_number}
+            readOnly={readOnly}
           />
         )
       );
-    }, [draggingId, dashboard?.id, numberOfMetrics, metrics]);
+    }, [draggingId, dashboard?.id, numberOfMetrics, metrics, readOnly]);
 
-    const dashboardRows = useMemo(() => {
+    const dashboardRows: BusterResizeableGridRow[] = useMemo(() => {
       return rows
         .filter((row) => row.items.length > 0)
         .map((row) => {
           return {
             ...row,
+            id: String(row.id),
             items: row.items.map((item) => {
               const selectedMetric = metrics[item.id];
               const metricVersionNumber = selectedMetric.version_number;
@@ -67,6 +68,7 @@ export const DashboardContentController: React.FC<{
               return {
                 ...item,
                 children: (
+                  //todo move this a callback...
                   <DashboardMetricItem
                     key={item.id}
                     metricId={item.id}
@@ -74,13 +76,15 @@ export const DashboardContentController: React.FC<{
                     numberOfMetrics={numberOfMetrics}
                     metricVersionNumber={metricVersionNumber}
                     dashboardVersionNumber={dashboardVersionNumber}
+                    animate={animate}
+                    readOnly={readOnly}
                   />
                 ),
               };
             }),
           };
         });
-    }, [JSON.stringify(rows), readOnly, dashboard?.id, numberOfMetrics]);
+    }, [JSON.stringify(rows), readOnly, dashboard?.id, numberOfMetrics, animate]);
 
     const onRowLayoutChange = useMemoizedFn((layoutRows: BusterResizeableGridRow[]) => {
       if (dashboard) {

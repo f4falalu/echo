@@ -13,13 +13,15 @@ import { DashboardSaveFilePopup } from './DashboardSaveFilePopup';
 export const DashboardViewDashboardController: React.FC<{
   dashboardId: string;
   readOnly?: boolean;
-}> = ({ dashboardId, readOnly: readOnlyProp = false }) => {
+  dashboardVersionNumber?: number;
+  animate?: boolean;
+}> = ({ dashboardId, dashboardVersionNumber, readOnly: readOnlyProp = false, animate = true }) => {
   const {
     data: dashboardResponse,
     isFetched,
     isError,
     error,
-  } = useGetDashboard({ id: dashboardId });
+  } = useGetDashboard({ id: dashboardId, versionNumber: dashboardVersionNumber });
 
   const { mutateAsync: onUpdateDashboardConfig } = useUpdateDashboardConfig();
 
@@ -61,6 +63,7 @@ export const DashboardViewDashboardController: React.FC<{
           onUpdateDashboardConfig={onUpdateDashboardConfig}
           onOpenAddContentModal={onOpenDashboardContentModal}
           readOnly={isReadOnly}
+          animate={animate}
         />
 
         {!isReadOnly && !isVersionHistoryMode && !isViewingOldVersion && (

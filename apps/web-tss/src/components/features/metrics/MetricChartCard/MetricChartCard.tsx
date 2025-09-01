@@ -18,7 +18,7 @@ export type MetricChartCardProps = {
   className?: string;
   attributes?: DraggableAttributes;
   listeners?: DraggableSyntheticListeners;
-  headerSecondaryContent: React.ReactNode;
+  headerSecondaryContent?: React.ReactNode;
   useHeaderLink?: boolean;
   animate?: boolean;
   renderChartContent?: boolean; // we do this to avoid expensive rendering if off screen

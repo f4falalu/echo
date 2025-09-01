@@ -1,6 +1,8 @@
 import React, { useCallback } from 'react';
 import type { BusterDashboardResponse } from '@/api/asset_interfaces/dashboard';
 import { useGetDashboard, useSaveDashboard } from '@/api/buster_rest/dashboards';
+import { DashboardViewDashboardController } from '@/controllers/DashboardController/DashboardViewDashboardController';
+import { ScrollArea } from '../../ui/scroll-area';
 import { useVersionHistoryModalCommon } from './useVersionHistoryModalCommon';
 import { VersionHistoryModal, type VersionHistoryModalProps } from './VersionHistoryModal';
 
@@ -58,7 +60,16 @@ export const DashboardVersionModal = React.memo(
         isRestoringVersion={isRestoringVersion}
         learnMoreButton={learnMoreButton}
       >
-        {data?.name} {versionNumber}
+        {versionNumber && (
+          <ScrollArea className="h-full">
+            <DashboardViewDashboardController
+              dashboardId={dashboardId}
+              readOnly
+              dashboardVersionNumber={versionNumber}
+              animate={false}
+            />
+          </ScrollArea>
+        )}
       </VersionHistoryModal>
     );
   }
