@@ -1,3 +1,4 @@
+import type { AddAndRemoveFromCollectionResponse } from '@buster/server-shared/collections';
 import type {
   ShareAssetType,
   ShareDeleteRequest,
@@ -111,7 +112,9 @@ export const addAssetToCollection = async ({
     id: string;
   }[];
 }) => {
-  return mainApi.post<null>(`/collections/${id}/assets`, { assets }).then((res) => res.data);
+  return mainApi
+    .post<AddAndRemoveFromCollectionResponse>(`/collections/${id}/assets`, { assets })
+    .then((res) => res.data);
 };
 
 export const removeAssetFromCollection = async ({
@@ -119,6 +122,6 @@ export const removeAssetFromCollection = async ({
   assets,
 }: Parameters<typeof addAssetToCollection>[0]) => {
   return mainApi
-    .delete<null>(`/collections/${id}/assets`, { data: { assets } })
+    .delete<AddAndRemoveFromCollectionResponse>(`/collections/${id}/assets`, { data: { assets } })
     .then((res) => res.data);
 };

@@ -83,6 +83,10 @@
     "./s3-integrations": {
       "types": "./dist/s3-integrations/index.d.ts",
       "default": "./dist/s3-integrations/index.js"
+    },
+    "./collections": {
+      "types": "./dist/collections/index.d.ts",
+      "default": "./dist/collections/index.js"
     }
   },
   "module": "src/index.ts",

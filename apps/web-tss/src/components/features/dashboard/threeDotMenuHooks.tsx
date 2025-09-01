@@ -132,6 +132,7 @@ export const useFavoriteDashboardSelectMenu = ({ dashboardId }: { dashboardId: s
         value: 'add-to-favorites',
         icon: isFavorited ? <StarFilled /> : <Star />,
         onClick: () => onFavoriteClick(),
+        closeOnSelect: false,
       }),
     [isFavorited, onFavoriteClick]
   );
