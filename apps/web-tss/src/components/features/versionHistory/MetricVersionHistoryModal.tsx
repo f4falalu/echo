@@ -75,7 +75,6 @@ export const MetricVersionHistoryModal = React.memo(
             metricId={metricId}
             versionNumber={versionNumber || undefined}
             readOnly
-            animate={false}
           />
         )}
       </VersionHistoryModal>
