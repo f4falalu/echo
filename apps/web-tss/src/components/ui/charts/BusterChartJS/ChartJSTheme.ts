@@ -60,7 +60,7 @@ ChartJS.register(
   Tooltip,
   Colors,
   ArcElement,
-  ChartDeferred,
+  // ChartDeferred, //on Sept 1, 2025 I decided to use in viewport instead
   ChartMountedPlugin,
   Legend,
   CategoryScale,

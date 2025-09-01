@@ -43,7 +43,7 @@ export const MetricViewChartHeader: React.FC<MetricViewChartHeaderProps> = React
       >
         <div
           className={cn(
-            'justify-between group flex h-full min-h-0 w-full flex-1 flex-nowrap space-x-0.5',
+            'justify-between group flex h-full w-full flex-1 flex-nowrap space-x-0.5 max-h-13 min-h-13',
             useHeaderLink && 'hover:bg-item-hover relative'
           )}
         >
@@ -51,7 +51,7 @@ export const MetricViewChartHeader: React.FC<MetricViewChartHeaderProps> = React
             {...attributes}
             {...listeners}
             className={cn(
-              'flex max-h-13 min-h-13 flex-col justify-center space-y-0.5 overflow-hidden w-full pl-4 pr-1.5'
+              'flex  flex-col justify-center space-y-0.5 overflow-hidden w-full pl-4 pr-1.5'
             )}
             data-testid={`metric-item-${metricId}`}
           >

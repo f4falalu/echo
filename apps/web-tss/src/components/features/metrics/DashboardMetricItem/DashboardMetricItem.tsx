@@ -1,8 +1,9 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, useRef } from 'react';
 import type { BusterMetricData } from '@/api/asset_interfaces/metric';
 import { useGetMetricData } from '@/api/buster_rest/metrics';
 import { MetricChartCard } from '@/components/features/metrics/MetricChartCard';
 import { SortableItemContext } from '@/components/ui/grid/SortableItemContext';
+import { useHasBeenInViewport } from '@/hooks/useInViewport';
 import { DashboardMetricItemThreeDotMenu } from './DashboardMetricItemThreeDotMenu';
 
 interface DashboardMetricItemBaseProps {
@@ -16,6 +17,10 @@ interface DashboardMetricItemBaseProps {
 
 export const DashboardMetricItem: React.FC<DashboardMetricItemBaseProps> = React.memo(
   ({ dashboardId, metricVersionNumber, metricId, isDragOverlay = false, numberOfMetrics }) => {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const hasBeenInViewport = useHasBeenInViewport(containerRef, {
+      threshold: 0.25,
+    });
     const { data: dataLength = 0 } = useGetMetricData(
       { id: metricId, versionNumber: metricVersionNumber },
       { select: useCallback((data: BusterMetricData) => data.data?.length || 0, []) }
@@ -26,6 +31,7 @@ export const DashboardMetricItem: React.FC<DashboardMetricItemBaseProps> = React
 
     return (
       <MetricChartCard
+        ref={containerRef}
         attributes={attributes}
         listeners={listeners}
         readOnly
@@ -33,6 +39,7 @@ export const DashboardMetricItem: React.FC<DashboardMetricItemBaseProps> = React
         versionNumber={metricVersionNumber}
         animate={animate}
         useHeaderLink
+        renderChartContent={hasBeenInViewport}
         headerSecondaryContent={
           !isDragOverlay && (
             <DashboardMetricItemThreeDotMenu
