@@ -1,3 +1,4 @@
+import type { GetDashboardResponse } from '@buster/server-shared/dashboards';
 import {
   type QueryClient,
   type UseQueryOptions,
@@ -5,7 +6,6 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import type { BusterDashboardResponse } from '@/api/asset_interfaces/dashboard';
 import type { RustApiError } from '@/api/errors';
 import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
 import { setProtectedAssetPasswordError } from '@/context/BusterAssets/useProtectedAssetStore';
@@ -22,15 +22,12 @@ import { useGetDashboardVersionNumber } from '../dashboardVersionNumber';
  * Fetches a dashboard by id and selected version number. Also primes the cache
  * for the latest version to ensure version switching is seamless.
  */
-export const useGetDashboard = <TData = BusterDashboardResponse>(
+export const useGetDashboard = <TData = GetDashboardResponse>(
   {
     id: idProp,
     versionNumber: versionNumberProp = 'LATEST',
   }: { id: string | undefined; versionNumber?: number | 'LATEST' },
-  params?: Omit<
-    UseQueryOptions<BusterDashboardResponse, RustApiError, TData>,
-    'queryKey' | 'queryFn'
-  >
+  params?: Omit<UseQueryOptions<GetDashboardResponse, RustApiError, TData>, 'queryKey' | 'queryFn'>
 ) => {
   const id = idProp || '';
   const queryFn = useGetDashboardAndInitializeMetrics();
@@ -66,11 +63,8 @@ export const useGetDashboard = <TData = BusterDashboardResponse>(
  * usePrefetchGetDashboardClient
  * Returns a function that will prefetch a dashboard if its cache entry is stale.
  */
-export const usePrefetchGetDashboardClient = <TData = BusterDashboardResponse>(
-  params?: Omit<
-    UseQueryOptions<BusterDashboardResponse, RustApiError, TData>,
-    'queryKey' | 'queryFn'
-  >
+export const usePrefetchGetDashboardClient = <TData = GetDashboardResponse>(
+  params?: Omit<UseQueryOptions<GetDashboardResponse, RustApiError, TData>, 'queryKey' | 'queryFn'>
 ) => {
   const queryClient = useQueryClient();
   const queryFn = useGetDashboardAndInitializeMetrics({ prefetchData: false });

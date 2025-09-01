@@ -57,6 +57,7 @@ import { Route as AppAppAssetChatsChatIdReasoningMessageIdRouteImport } from './
 import { Route as AppAppAssetMetricsMetricsMetricIdSqlRouteImport } from './routes/app/_app/_asset/_metrics/metrics.$metricId.sql'
 import { Route as AppAppAssetMetricsMetricsMetricIdResultsRouteImport } from './routes/app/_app/_asset/_metrics/metrics.$metricId.results'
 import { Route as AppAppAssetMetricsMetricsMetricIdChartRouteImport } from './routes/app/_app/_asset/_metrics/metrics.$metricId.chart'
+import { Route as AppAppAssetDashboardsDashboardsDashboardIdContentRouteImport } from './routes/app/_app/_asset/_dashboards/dashboards.$dashboardId.content'
 import { Route as AppAppAssetMetricsReportsReportIdMetricsMetricIdRouteImport } from './routes/app/_app/_asset/_metrics/reports.$reportId.metrics.$metricId'
 import { Route as AppAppAssetMetricsDashboardsDashboardIdMetricsMetricIdRouteImport } from './routes/app/_app/_asset/_metrics/dashboards.$dashboardId.metrics.$metricId'
 import { Route as AppAppAssetMetricsCollectionsCollectionIdMetricsMetricIdRouteImport } from './routes/app/_app/_asset/_metrics/collections.$collectionId.metrics.$metricId'
@@ -332,6 +333,12 @@ const AppAppAssetMetricsMetricsMetricIdChartRoute =
     path: '/chart',
     getParentRoute: () => AppAppAssetMetricsMetricsMetricIdRoute,
   } as any)
+const AppAppAssetDashboardsDashboardsDashboardIdContentRoute =
+  AppAppAssetDashboardsDashboardsDashboardIdContentRouteImport.update({
+    id: '/content',
+    path: '/content',
+    getParentRoute: () => AppAppAssetDashboardsDashboardsDashboardIdRoute,
+  } as any)
 const AppAppAssetMetricsReportsReportIdMetricsMetricIdRoute =
   AppAppAssetMetricsReportsReportIdMetricsMetricIdRouteImport.update({
     id: '/_metrics/reports/$reportId/metrics/$metricId',
@@ -518,6 +525,7 @@ export interface FileRoutesByFullPath {
   '/app/metrics/$metricId': typeof AppAppAssetMetricsMetricsMetricIdRouteWithChildren
   '/app/collections/$collectionId': typeof AppAppAssetCollectionsCollectionIdIndexRoute
   '/app/reports/$reportId': typeof AppAppAssetReportsReportIdIndexRoute
+  '/app/dashboards/$dashboardId/content': typeof AppAppAssetDashboardsDashboardsDashboardIdContentRoute
   '/app/metrics/$metricId/chart': typeof AppAppAssetMetricsMetricsMetricIdChartRoute
   '/app/metrics/$metricId/results': typeof AppAppAssetMetricsMetricsMetricIdResultsRoute
   '/app/metrics/$metricId/sql': typeof AppAppAssetMetricsMetricsMetricIdSqlRoute
@@ -579,6 +587,7 @@ export interface FileRoutesByTo {
   '/app/settings/datasources': typeof AppSettingsSettingsDatasourcesIndexRoute
   '/app/collections/$collectionId': typeof AppAppAssetCollectionsCollectionIdIndexRoute
   '/app/reports/$reportId': typeof AppAppAssetReportsReportIdIndexRoute
+  '/app/dashboards/$dashboardId/content': typeof AppAppAssetDashboardsDashboardsDashboardIdContentRoute
   '/app/metrics/$metricId/chart': typeof AppAppAssetMetricsMetricsMetricIdChartRoute
   '/app/metrics/$metricId/results': typeof AppAppAssetMetricsMetricsMetricIdResultsRoute
   '/app/metrics/$metricId/sql': typeof AppAppAssetMetricsMetricsMetricIdSqlRoute
@@ -647,6 +656,7 @@ export interface FileRoutesById {
   '/app/_app/_asset/_metrics/metrics/$metricId': typeof AppAppAssetMetricsMetricsMetricIdRouteWithChildren
   '/app/_app/_asset/collections/$collectionId/': typeof AppAppAssetCollectionsCollectionIdIndexRoute
   '/app/_app/_asset/reports/$reportId/': typeof AppAppAssetReportsReportIdIndexRoute
+  '/app/_app/_asset/_dashboards/dashboards/$dashboardId/content': typeof AppAppAssetDashboardsDashboardsDashboardIdContentRoute
   '/app/_app/_asset/_metrics/metrics/$metricId/chart': typeof AppAppAssetMetricsMetricsMetricIdChartRoute
   '/app/_app/_asset/_metrics/metrics/$metricId/results': typeof AppAppAssetMetricsMetricsMetricIdResultsRoute
   '/app/_app/_asset/_metrics/metrics/$metricId/sql': typeof AppAppAssetMetricsMetricsMetricIdSqlRoute
@@ -713,6 +723,7 @@ export interface FileRouteTypes {
     | '/app/metrics/$metricId'
     | '/app/collections/$collectionId'
     | '/app/reports/$reportId'
+    | '/app/dashboards/$dashboardId/content'
     | '/app/metrics/$metricId/chart'
     | '/app/metrics/$metricId/results'
     | '/app/metrics/$metricId/sql'
@@ -774,6 +785,7 @@ export interface FileRouteTypes {
     | '/app/settings/datasources'
     | '/app/collections/$collectionId'
     | '/app/reports/$reportId'
+    | '/app/dashboards/$dashboardId/content'
     | '/app/metrics/$metricId/chart'
     | '/app/metrics/$metricId/results'
     | '/app/metrics/$metricId/sql'
@@ -841,6 +853,7 @@ export interface FileRouteTypes {
     | '/app/_app/_asset/_metrics/metrics/$metricId'
     | '/app/_app/_asset/collections/$collectionId/'
     | '/app/_app/_asset/reports/$reportId/'
+    | '/app/_app/_asset/_dashboards/dashboards/$dashboardId/content'
     | '/app/_app/_asset/_metrics/metrics/$metricId/chart'
     | '/app/_app/_asset/_metrics/metrics/$metricId/results'
     | '/app/_app/_asset/_metrics/metrics/$metricId/sql'
@@ -1224,6 +1237,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAppAssetMetricsMetricsMetricIdChartRouteImport
       parentRoute: typeof AppAppAssetMetricsMetricsMetricIdRoute
     }
+    '/app/_app/_asset/_dashboards/dashboards/$dashboardId/content': {
+      id: '/app/_app/_asset/_dashboards/dashboards/$dashboardId/content'
+      path: '/content'
+      fullPath: '/app/dashboards/$dashboardId/content'
+      preLoaderRoute: typeof AppAppAssetDashboardsDashboardsDashboardIdContentRouteImport
+      parentRoute: typeof AppAppAssetDashboardsDashboardsDashboardIdRoute
+    }
     '/app/_app/_asset/_metrics/reports/$reportId/metrics/$metricId': {
       id: '/app/_app/_asset/_metrics/reports/$reportId/metrics/$metricId'
       path: '/reports/$reportId/metrics/$metricId'
@@ -1390,11 +1410,14 @@ const AppAppAssetChatsChatIdRouteWithChildren =
   )
 
 interface AppAppAssetDashboardsDashboardsDashboardIdRouteChildren {
+  AppAppAssetDashboardsDashboardsDashboardIdContentRoute: typeof AppAppAssetDashboardsDashboardsDashboardIdContentRoute
   AppAppAssetDashboardsDashboardsDashboardIdIndexRoute: typeof AppAppAssetDashboardsDashboardsDashboardIdIndexRoute
 }
 
 const AppAppAssetDashboardsDashboardsDashboardIdRouteChildren: AppAppAssetDashboardsDashboardsDashboardIdRouteChildren =
   {
+    AppAppAssetDashboardsDashboardsDashboardIdContentRoute:
+      AppAppAssetDashboardsDashboardsDashboardIdContentRoute,
     AppAppAssetDashboardsDashboardsDashboardIdIndexRoute:
       AppAppAssetDashboardsDashboardsDashboardIdIndexRoute,
   }

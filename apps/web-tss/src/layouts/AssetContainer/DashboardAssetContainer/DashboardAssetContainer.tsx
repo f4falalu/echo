@@ -2,13 +2,14 @@ import { ClientOnly } from '@tanstack/react-router';
 import type React from 'react';
 import { DashboardVersionModal } from '@/components/features/versionHistory/DashboardVersionModal';
 import { AssetContainer } from '../AssetContainer';
-import { DashboardAssetHeader } from './DashboardAssetHeader';
+import { DashboardContainerHeaderSegment } from './DashboardContainerHeaderSegment';
 import { DashboardAssetContextProvider } from './DashboardContextProvider';
+import { DashboardContainerHeaderButtons } from './DashboardHeaderButtons';
 
 export const DashboardAssetContainer: React.FC<{
   children: React.ReactNode;
   dashboardId: string;
-  dashboardVersionNumber: number | 'LATEST';
+  dashboardVersionNumber: number | undefined;
 }> = ({ children, dashboardId, dashboardVersionNumber }) => {
   return (
     <ClientOnly>
@@ -42,6 +43,21 @@ export const DashboardAssetContainer: React.FC<{
   );
 };
 
-/*
+export const DashboardAssetHeader: React.FC<{
+  dashboardId: string;
+  dashboardVersionNumber: number | undefined;
+}> = ({ dashboardId, dashboardVersionNumber }) => {
+  return (
+    <>
+      <DashboardContainerHeaderSegment
+        dashboardId={dashboardId}
+        dashboardVersionNumber={dashboardVersionNumber}
+      />
 
-*/
+      <DashboardContainerHeaderButtons
+        dashboardId={dashboardId}
+        dashboardVersionNumber={dashboardVersionNumber}
+      />
+    </>
+  );
+};

@@ -1,6 +1,6 @@
+import type { GetDashboardResponse } from '@buster/server-shared/dashboards';
 import { type QueryClient, useQueryClient } from '@tanstack/react-query';
 import last from 'lodash/last';
-import type { BusterDashboardResponse } from '@/api/asset_interfaces/dashboard';
 import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
 import { getProtectedAssetPassword } from '@/context/BusterAssets/useProtectedAssetStore';
@@ -45,7 +45,7 @@ export const useEnsureDashboardConfig = (params?: { prefetchData?: boolean }) =>
 };
 
 export const initializeMetrics = (
-  metrics: BusterDashboardResponse['metrics'],
+  metrics: GetDashboardResponse['metrics'],
   queryClient: QueryClient,
   prefetchData: boolean
 ) => {
@@ -115,7 +115,6 @@ export const getDashboardAndInitializeMetrics = async ({
   }).then((data) => {
     const latestVersion = last(data.versions)?.version_number || 1;
     const isLatestVersion = data.dashboard.version_number === latestVersion;
-
     if (isLatestVersion) {
       setOriginalDashboard(data.dashboard);
       queryClient.setQueryData(

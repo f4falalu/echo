@@ -1,8 +1,17 @@
-import { useGetDashboardParams } from '@/context/Dashboards/useGetDashboardParams';
-import { DashboardViewDashboardController } from '@/controllers/DashboardController/DashboardViewDashboardController';
+import { redirect } from '@tanstack/react-router';
 
-export const component = () => {
-  const { dashboardId } = useGetDashboardParams();
-
-  return <DashboardViewDashboardController dashboardId={dashboardId} />;
+export const beforeLoad = ({
+  params,
+  search,
+}: {
+  params: { dashboardId: string };
+  search: { dashboard_version_number?: number };
+}) => {
+  throw redirect({
+    to: 'content',
+    from: undefined as unknown as '/app/dashboards/$dashboardId/',
+    params,
+    search,
+    unsafeRelative: 'path',
+  });
 };

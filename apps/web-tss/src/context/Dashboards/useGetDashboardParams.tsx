@@ -5,7 +5,7 @@ const stableDashboardParams = (params?: { dashboardId?: string }) => ({
   dashboardId: params?.dashboardId || '',
 });
 const stableDashboardSearch = (search?: { dashboard_version_number?: number }) => ({
-  dashboard_version_number: search?.dashboard_version_number || ('LATEST' as const),
+  dashboard_version_number: search?.dashboard_version_number,
 });
 
 export const useGetDashboardParams = () => {

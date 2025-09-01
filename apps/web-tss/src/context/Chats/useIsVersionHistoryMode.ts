@@ -32,9 +32,12 @@ export const useChatIsVersionHistoryMode = ({
   const query = useMemo(() => {
     switch (type) {
       case 'dashboard':
-        return dashboardQueryKeys.dashboardGetDashboard(dashboardId, dashboardVersionNumber);
+        return dashboardQueryKeys.dashboardGetDashboard(
+          dashboardId,
+          dashboardVersionNumber || 'LATEST'
+        );
       case 'report':
-        return reportsQueryKeys.reportsGetReport(reportId, reportVersionNumber);
+        return reportsQueryKeys.reportsGetReport(reportId, reportVersionNumber || 'LATEST');
       case 'metric':
         return metricsQueryKeys.metricsGetMetric(metricId, metricVersionNumber || 'LATEST');
     }

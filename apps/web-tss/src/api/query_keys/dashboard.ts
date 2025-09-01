@@ -1,8 +1,6 @@
+import type { GetDashboardResponse } from '@buster/server-shared/dashboards';
 import { queryOptions } from '@tanstack/react-query';
-import type {
-  BusterDashboardListItem,
-  BusterDashboardResponse,
-} from '@/api/asset_interfaces/dashboard';
+import type { BusterDashboardListItem } from '@/api/asset_interfaces/dashboard';
 import type { dashboardsGetList } from '../buster_rest/dashboards';
 
 const dashboardGetList = (
@@ -16,7 +14,7 @@ const dashboardGetList = (
   });
 
 const dashboardGetDashboard = (dashboardId: string, version_number: number | 'LATEST') =>
-  queryOptions<BusterDashboardResponse>({
+  queryOptions<GetDashboardResponse>({
     queryKey: ['dashboard', 'get', dashboardId, version_number || 'LATEST'] as const,
     staleTime: 60 * 1000,
   });

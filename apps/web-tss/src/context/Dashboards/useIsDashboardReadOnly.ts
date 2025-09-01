@@ -1,6 +1,6 @@
 import last from 'lodash/last';
 import { useCallback, useMemo } from 'react';
-import type { BusterDashboard, BusterDashboardResponse } from '@/api/asset_interfaces/dashboard';
+import type { BusterDashboardResponse } from '@/api/asset_interfaces/dashboard';
 import { useGetDashboard } from '@/api/buster_rest/dashboards';
 import { canEdit } from '@/lib/share';
 import { useChatIsVersionHistoryMode } from '../Chats/useIsVersionHistoryMode';
@@ -57,14 +57,13 @@ export const useIsDashboardReadOnly = ({
 };
 
 const checkIfDashboardIsViewingOldVersion = (
-  dashboardVersionNumber: number | 'LATEST',
+  dashboardVersionNumber: number | undefined,
   dashboardData?: {
     versions: BusterDashboardResponse['versions'];
     version_number: BusterDashboardResponse['dashboard']['version_number'];
   }
 ) => {
   if (!dashboardVersionNumber) return false;
-  if (dashboardVersionNumber === 'LATEST') return false;
   if (dashboardVersionNumber !== last(dashboardData?.versions)?.version_number) return true;
   return false;
 };

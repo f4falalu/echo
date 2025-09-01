@@ -33,6 +33,7 @@ export { default as Eye } from './eye'; // Eye (show) icon
 export { default as EyeSlash } from './eye-slash'; // Eye with slash (hide) icon
 export { default as File } from './file';
 export { default as FileText } from './file-text'; // File text icon
+export { default as Filter } from './filter';
 export { default as Flag } from './flag'; // Flag icon
 export { default as Folder5 } from './folder-5'; // Folder variant 5 icon
 export { default as FolderPlus } from './folder-plus'; // Folder with plus icon

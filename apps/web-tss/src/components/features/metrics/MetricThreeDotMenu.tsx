@@ -40,31 +40,30 @@ import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useIsChatMode } from '@/context/Chats/useMode';
 import { useDownloadMetricDataCSV } from '@/context/Metrics/useDownloadMetricDataCSV';
 import { useDownloadPNGSelectMenu } from '@/context/Metrics/useDownloadMetricDataPNG';
-import { useRenameMetricOnPage } from '@/context/Metrics/useRenameMetricOnPage';
 import { useMetricEditToggle } from '@/layouts/AssetContainer/MetricAssetContainer';
 import { canEdit, getIsEffectiveOwner, getIsOwner } from '@/lib/share';
 import { ASSET_ICONS } from '../icons/assetIcons';
 import {
   useFavoriteMetricSelectMenu,
   useMetricDrilldownItem,
-  useVersionHistorySelectMenu,
+  useMetricVersionHistorySelectMenu,
+  useRenameMetricOnPage,
 } from './threeDotMenuHooks';
 
-export const ThreeDotMenuButton = React.memo(
-  ({
-    metricId,
-    isViewingOldVersion,
-    versionNumber,
-  }: {
-    metricId: string;
-    isViewingOldVersion: boolean;
-    versionNumber: number | undefined;
-  }) => {
+interface MetricThreeDotMenuDropdownProps {
+  metricId: string;
+  isViewingOldVersion: boolean;
+  versionNumber: number | undefined;
+  children: React.ReactNode;
+}
+
+export const MetricThreeDotMenuDropdown = React.memo(
+  ({ metricId, isViewingOldVersion, versionNumber, children }: MetricThreeDotMenuDropdownProps) => {
     const isChatMode = useIsChatMode();
     const { data: permission } = useGetMetric({ id: metricId }, { select: (x) => x.permission });
     const openFullScreenMetric = useOpenFullScreenMetric({ metricId, versionNumber });
     const dashboardSelectMenu = useDashboardSelectMenu({ metricId });
-    const versionHistoryItems = useVersionHistorySelectMenu({ metricId });
+    const versionHistoryItems = useMetricVersionHistorySelectMenu({ metricId });
     const collectionSelectMenu = useCollectionSelectMenu({ metricId });
     const statusSelectMenu = useStatusSelectMenu({ metricId });
     const favoriteMetric = useFavoriteMetricSelectMenu({ metricId });
@@ -140,12 +139,22 @@ export const ThreeDotMenuButton = React.memo(
 
     return (
       <Dropdown items={items} side="left" align="start" contentClassName="max-h-fit" modal>
-        <Button prefix={<Dots />} variant="ghost" data-testid="three-dot-menu-button" />
+        {children}
       </Dropdown>
     );
   }
 );
-ThreeDotMenuButton.displayName = 'ThreeDotMenuButton';
+MetricThreeDotMenuDropdown.displayName = 'MetricThreeDotMenuDropdown';
+
+export const MetricThreeDotMenuButton = React.memo(
+  (props: Omit<MetricThreeDotMenuDropdownProps, 'children'>) => {
+    return (
+      <MetricThreeDotMenuDropdown {...props}>
+        <Button prefix={<Dots />} variant="ghost" data-testid="three-dot-menu-button" />
+      </MetricThreeDotMenuDropdown>
+    );
+  }
+);
 
 const useDashboardSelectMenu = ({ metricId }: { metricId: string }) => {
   const { mutateAsync: saveMetricsToDashboard } = useAddMetricsToDashboard();

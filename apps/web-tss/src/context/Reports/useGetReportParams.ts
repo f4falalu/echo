@@ -5,7 +5,7 @@ const stableReportParams = (params?: { reportId?: string }) => ({
   reportId: params?.reportId || '',
 });
 const stableReportSearch = (search?: { report_version_number?: number }) => ({
-  report_version_number: search?.report_version_number || ('LATEST' as const),
+  report_version_number: search?.report_version_number,
 });
 
 export const useGetReportParams = () => {

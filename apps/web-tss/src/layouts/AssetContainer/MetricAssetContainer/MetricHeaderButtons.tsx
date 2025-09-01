@@ -1,19 +1,19 @@
-import { Link } from '@tanstack/react-router';
-import React from 'react';
+import React, { useCallback } from 'react';
+import type { BusterMetric } from '@/api/asset_interfaces/metric';
 import { useGetMetric } from '@/api/buster_rest/metrics';
 import { CreateChatButton } from '@/components/features/AssetLayout/CreateChatButton';
 import { SaveMetricToCollectionButton } from '@/components/features/buttons/SaveMetricToCollectionButton';
 import { SaveMetricToDashboardButton } from '@/components/features/buttons/SaveMetricToDashboardButton';
 import { ShareMetricButton } from '@/components/features/buttons/ShareMetricButton';
-import { ThreeDotMenuButton } from '@/components/features/metrics/MetricThreeDotMenu';
-import { SquareChartPen, Xmark } from '@/components/ui/icons';
-import { useGetChatId } from '@/context/Chats/useGetChatId';
+import { ClosePageButton } from '@/components/features/chat/ClosePageButton';
+import { MetricThreeDotMenuButton } from '@/components/features/metrics/MetricThreeDotMenu';
+import { SelectableButton } from '@/components/ui/buttons/SelectableButton';
+import { SquareChartPen } from '@/components/ui/icons';
 import { useIsChatMode, useIsFileMode } from '@/context/Chats/useMode';
 import { useIsMetricReadOnly } from '@/context/Metrics/useIsMetricReadOnly';
 import { canEdit, getIsEffectiveOwner } from '@/lib/share';
 import { FileButtonContainer } from '../FileButtonContainer';
 import { HideButtonContainer } from '../HideButtonContainer';
-import { SelectableButton } from '../SelectableButton';
 import { useIsMetricEditMode, useMetricEditToggle } from './MetricContextProvider';
 
 export const MetricContainerHeaderButtons: React.FC<{
@@ -27,7 +27,7 @@ export const MetricContainerHeaderButtons: React.FC<{
   });
   const { error: metricError, data: permission } = useGetMetric(
     { id: metricId },
-    { select: (x) => x.permission }
+    { select: useCallback((x: BusterMetric) => x.permission, []) }
   );
 
   //we assume it is fetched until it is not
@@ -40,7 +40,7 @@ export const MetricContainerHeaderButtons: React.FC<{
     <FileButtonContainer>
       {isEditor && !isViewingOldVersion && <EditChartButton />}
       {isEffectiveOwner && !isViewingOldVersion && <ShareMetricButton metricId={metricId} />}
-      <ThreeDotMenuButton
+      <MetricThreeDotMenuButton
         metricId={metricId}
         isViewingOldVersion={isViewingOldVersion}
         versionNumber={metricVersionNumber}
@@ -87,14 +87,3 @@ const SaveToDashboardButton = React.memo(({ metricId }: { metricId: string }) =>
   );
 });
 SaveToDashboardButton.displayName = 'SaveToDashboardButton';
-
-const ClosePageButton = React.memo(() => {
-  const chatId = useGetChatId() || '';
-
-  return (
-    <Link to="/app/chats/$chatId" params={{ chatId }}>
-      <SelectableButton selected={false} tooltipText="Close" icon={<Xmark />} />
-    </Link>
-  );
-});
-ClosePageButton.displayName = 'ClosePageButton';

@@ -1,6 +1,6 @@
 import type React from 'react';
-import { Button } from '@/components/ui/buttons';
-import { AppTooltip } from '@/components/ui/tooltip';
+import { AppTooltip } from '../tooltip';
+import { Button } from './Button';
 
 export const SelectableButton: React.FC<{
   tooltipText: string;

@@ -7,7 +7,7 @@ import { ASSET_ICONS } from '@/components/features/icons/assetIcons';
 import {
   useFavoriteMetricSelectMenu,
   useMetricDrilldownItem,
-  useVersionHistorySelectMenu,
+  useMetricVersionHistorySelectMenu,
 } from '@/components/features/metrics/threeDotMenuHooks';
 import { getShareAssetConfig } from '@/components/features/ShareMenu/helpers';
 import { ShareMenuContent } from '@/components/features/ShareMenu/ShareMenuContent';
@@ -49,7 +49,7 @@ export const useDashboardMetricCardThreeDotMenuItems = ({
     metricVersionNumber,
   });
   const viewSQLButton = useViewSQLButton({ metricId, dashboardId, chatId, metricVersionNumber });
-  const versionHistoryButton = useVersionHistorySelectMenu({ metricId });
+  const versionHistoryButton = useMetricVersionHistorySelectMenu({ metricId });
   const favoriteMetricButton = useFavoriteMetricSelectMenu({ metricId });
 
   const dropdownItems: IDropdownItems = useMemo(

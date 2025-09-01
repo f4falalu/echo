@@ -1,0 +1,15 @@
+import { Link } from '@tanstack/react-router';
+import { SelectableButton } from '@/components/ui/buttons/SelectableButton';
+import { useGetChatId } from '@/context/Chats/useGetChatId';
+import { Xmark } from '../../ui/icons';
+
+export const ClosePageButton = () => {
+  const chatId = useGetChatId() || '';
+
+  return (
+    <Link to="/app/chats/$chatId" params={{ chatId }}>
+      <SelectableButton selected={false} tooltipText="Close" icon={<Xmark />} />
+    </Link>
+  );
+};
+ClosePageButton.displayName = 'ClosePageButton';
