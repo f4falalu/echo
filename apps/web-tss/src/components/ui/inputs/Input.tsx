@@ -3,7 +3,7 @@ import React from 'react';
 import { cn } from '@/lib/classMerge';
 
 export const inputVariants = cva(
-  'flex w-full rounded border px-2.5 text-base transition-all duration-200  disabled:cursor-not-allowed  disabled:text-gray-light ',
+  'flex w-full rounded border px-2.5 text-base transition-all !transition-[height:none] duration-200  disabled:cursor-not-allowed  disabled:text-gray-light ',
   {
     variants: {
       variant: {

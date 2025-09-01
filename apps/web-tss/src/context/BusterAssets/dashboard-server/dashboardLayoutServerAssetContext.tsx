@@ -39,3 +39,5 @@ export const head = ({ loaderData }: { loaderData?: { title: string | undefined 
 export const component = () => {
   return <Outlet />;
 };
+
+export const ssr = false;

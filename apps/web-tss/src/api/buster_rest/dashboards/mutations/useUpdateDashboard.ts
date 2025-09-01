@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { create } from 'mutative';
 import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
 import { getOriginalDashboard } from '@/context/Dashboards/useOriginalDashboardStore';
-import { useGetLatestDashboardVersionMemoized } from '../dashboardVersionNumber';
 import type { dashboardsUpdateDashboard } from '../requests';
 import { useSaveDashboard } from './useSaveDashboard';
 
@@ -18,7 +17,6 @@ export const useUpdateDashboard = (params?: {
   const { updateOnSave = false, updateVersion = false, saveToServer = false } = params || {};
   const queryClient = useQueryClient();
   const { mutateAsync: saveDashboard } = useSaveDashboard({ updateOnSave });
-  const getLatestDashboardVersion = useGetLatestDashboardVersionMemoized();
 
   const mutationFn = async (variables: Parameters<typeof dashboardsUpdateDashboard>[0]) => {
     if (saveToServer) {
@@ -33,7 +31,10 @@ export const useUpdateDashboard = (params?: {
     mutationFn,
     onMutate: (variables) => {
       const originalDashboard = getOriginalDashboard(variables.id);
-      if (!originalDashboard) return;
+      if (!originalDashboard) {
+        console.warn('No original dashboard found', variables);
+        return;
+      }
       const updatedDashboard = create(originalDashboard, (draft) => {
         Object.assign(draft, variables);
       });

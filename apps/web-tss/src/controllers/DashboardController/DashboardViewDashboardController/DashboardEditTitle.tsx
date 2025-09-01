@@ -6,11 +6,6 @@ import { useMount } from '@/hooks/useMount';
 
 export const DASHBOARD_TITLE_INPUT_ID = 'dashboard-title-input';
 
-const descriptionAutoResize = {
-  minRows: 1,
-  maxRows: 25,
-};
-
 const DEFAULT_TITLE = 'Untitled Dashboard';
 
 export const DashboardEditTitles: React.FC<{
@@ -29,8 +24,9 @@ export const DashboardEditTitles: React.FC<{
   };
 
   const onChangeDashboardDescription = (value: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if (!readOnly)
+    if (!readOnly) {
       onUpdateDashboard({ description: value.target.value, id: dashboardId, name: title });
+    }
   };
 
   useMount(() => {
@@ -59,11 +55,12 @@ export const DashboardEditTitles: React.FC<{
       {(description || !readOnly) && (
         <InputTextArea
           variant="ghost"
-          className={'py-0! pl-0!'}
           readOnly={readOnly}
           onChange={onChangeDashboardDescription}
           value={description}
-          autoResize={descriptionAutoResize}
+          minRows={1}
+          maxRows={25}
+          className={'py-0! pl-0!'}
           placeholder="Add description..."
         />
       )}

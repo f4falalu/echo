@@ -76,7 +76,6 @@ export const useGetDashboardAndInitializeMetrics = (params?: { prefetchData?: bo
         queryClient,
         shouldInitializeMetrics,
         prefetchMetricsData: prefetchData,
-        setOriginalDashboardFn: setOriginalDashboard,
       });
     }
   );
@@ -90,13 +89,11 @@ export const getDashboardAndInitializeMetrics = async ({
   queryClient,
   shouldInitializeMetrics = true,
   prefetchMetricsData = false,
-  setOriginalDashboardFn,
 }: {
   id: string;
   version_number: number | 'LATEST';
   password?: string;
   queryClient: QueryClient;
-  setOriginalDashboardFn?: (dashboard: BusterDashboardResponse['dashboard']) => void;
   shouldInitializeMetrics?: boolean;
   prefetchMetricsData?: boolean;
 }) => {
@@ -110,7 +107,7 @@ export const getDashboardAndInitializeMetrics = async ({
     const isLatestVersion = data.dashboard.version_number === latestVersion;
 
     if (isLatestVersion) {
-      setOriginalDashboardFn?.(data.dashboard);
+      setOriginalDashboard(data.dashboard);
       queryClient.setQueryData(
         dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, 'LATEST').queryKey,
         data

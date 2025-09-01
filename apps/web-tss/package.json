@@ -116,6 +116,7 @@
     "react-error-boundary": "^6.0.0",
     "react-hotkeys-hook": "^5.1.0",
     "react-markdown": "^10.1.0",
+    "react-textarea-autosize": "^8.5.9",
     "remark-gfm": "^4.0.1",
     "scheduler": "^0.26.0",
     "shiki": "^3.12.0",

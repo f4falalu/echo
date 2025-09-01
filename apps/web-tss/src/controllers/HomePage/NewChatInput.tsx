@@ -5,11 +5,6 @@ import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useMount } from '@/hooks/useMount';
 import { inputHasText } from '@/lib/text';
 
-const autoResizeConfig = {
-  minRows: 3,
-  maxRows: 18,
-};
-
 export const NewChatInput: React.FC<{
   initialValue?: string;
   autoSubmit?: boolean;
@@ -49,8 +44,10 @@ export const NewChatInput: React.FC<{
   return (
     <InputTextAreaButton
       className={'transition-all duration-300 hover:shadow-lg active:shadow-md'}
+      inputClassName="min-h-[78px]"
       placeholder="Ask Buster a question..."
-      autoResize={autoResizeConfig}
+      minRows={3}
+      maxRows={18}
       onSubmit={onSubmit}
       onChange={onChange}
       loading={loading}

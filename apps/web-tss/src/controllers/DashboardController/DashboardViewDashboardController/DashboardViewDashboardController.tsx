@@ -1,3 +1,4 @@
+import { ClientOnly } from '@tanstack/react-router';
 import type React from 'react';
 import { useGetDashboard, useUpdateDashboardConfig } from '@/api/buster_rest/dashboards';
 import { StatusCard } from '@/components/ui/card/StatusCard';
@@ -41,27 +42,29 @@ export const DashboardViewDashboardController: React.FC<{
   }
 
   return (
-    <ScrollArea className="h-full">
-      <div className="flex h-full flex-col space-y-3 p-10">
-        <DashboardEditTitles
-          dashboardId={dashboardId}
-          readOnly={isReadOnly}
-          title={dashboardResponse?.dashboard?.name || ''}
-          description={dashboardResponse?.dashboard?.description || ''}
-        />
+    <ClientOnly>
+      <ScrollArea className="h-full">
+        <div className="flex h-full flex-col space-y-3 p-10">
+          <DashboardEditTitles
+            dashboardId={dashboardId}
+            readOnly={isReadOnly}
+            title={dashboardResponse?.dashboard?.name || ''}
+            description={dashboardResponse?.dashboard?.description || ''}
+          />
 
-        <DashboardContentController
-          metrics={metrics}
-          dashboard={dashboard}
-          onUpdateDashboardConfig={onUpdateDashboardConfig}
-          onOpenAddContentModal={onOpenDashboardContentModal}
-          readOnly={isReadOnly}
-        />
+          <DashboardContentController
+            metrics={metrics}
+            dashboard={dashboard}
+            onUpdateDashboardConfig={onUpdateDashboardConfig}
+            onOpenAddContentModal={onOpenDashboardContentModal}
+            readOnly={isReadOnly}
+          />
 
-        {!isReadOnly && !isVersionHistoryMode && !isViewingOldVersion && (
-          <DashboardSaveFilePopup dashboardId={dashboardId} />
-        )}
-      </div>
-    </ScrollArea>
+          {!isReadOnly && !isVersionHistoryMode && !isViewingOldVersion && (
+            <DashboardSaveFilePopup dashboardId={dashboardId} />
+          )}
+        </div>
+      </ScrollArea>
+    </ClientOnly>
   );
 };

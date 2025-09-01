@@ -87,9 +87,7 @@ export const MetricViewChartHeader: React.FC<MetricViewChartHeaderProps> = React
               </>
             ) : null}
           </div>
-          {headerSecondaryContent && (
-            <MetricCardThreeMenuContainer>{headerSecondaryContent}</MetricCardThreeMenuContainer>
-          )}
+          {headerSecondaryContent}
         </div>
       </LinkWrapper>
     );
@@ -121,31 +119,5 @@ const LinkWrapper: React.FC<{
     >
       {children}
     </Link>
-  );
-};
-
-export const MetricCardThreeMenuContainer = ({
-  children,
-  className,
-}: {
-  className?: string;
-  children: React.ReactNode;
-}) => {
-  return (
-    <div
-      onClick={(e) => {
-        e.stopPropagation();
-        e.preventDefault();
-      }}
-      className={cn(
-        // Use opacity and pointer-events instead of display:none to maintain positioning context
-        'mt-1.5 mr-1.5  hidden group-hover:block',
-        'group-hover:pointer-events-auto',
-        //     isOpen && 'pointer-events-auto block',
-        className
-      )}
-    >
-      {children}
-    </div>
   );
 };

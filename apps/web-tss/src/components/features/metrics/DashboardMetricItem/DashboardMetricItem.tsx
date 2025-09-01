@@ -9,6 +9,7 @@ import { DashboardMetricItemThreeDotMenu } from './DashboardMetricItemThreeDotMe
 interface DashboardMetricItemBaseProps {
   metricId: string;
   metricVersionNumber: number | undefined;
+  dashboardVersionNumber: number | undefined;
   dashboardId: string;
   numberOfMetrics: number;
   className?: string;

@@ -58,7 +58,6 @@ export const DashboardContentController: React.FC<{
         draggingId && (
           <DashboardMetricItem
             metricId={draggingId}
-            readOnly={true}
             dashboardId={dashboard?.id}
             isDragOverlay
             numberOfMetrics={numberOfMetrics}
@@ -86,7 +85,6 @@ export const DashboardContentController: React.FC<{
                     key={item.id}
                     metricId={item.id}
                     dashboardId={dashboard?.id || ''}
-                    readOnly={readOnly}
                     numberOfMetrics={numberOfMetrics}
                     metricVersionNumber={metricVersionNumber}
                     dashboardVersionNumber={dashboardVersionNumber}

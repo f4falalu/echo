@@ -26,6 +26,7 @@ export interface InputTextAreaButtonProps extends Omit<InputTextAreaProps, 'vari
   onStop?: () => void;
   variant?: 'default';
   disabledSubmit?: boolean;
+  inputClassName?: string;
 }
 
 export const InputTextAreaButton = forwardRef<HTMLTextAreaElement, InputTextAreaButtonProps>(
@@ -33,14 +34,17 @@ export const InputTextAreaButton = forwardRef<HTMLTextAreaElement, InputTextArea
     {
       className,
       disabled,
-      autoResize,
+      minRows,
+      maxRows,
       sendIcon = <ArrowUp />,
       loadingIcon = <ShapeSquare />,
       loading = false,
       onSubmit,
       onStop,
       variant = 'default',
+      inputClassName = '',
       disabledSubmit,
+      style,
       ...props
     },
     textRef
@@ -74,9 +78,12 @@ export const InputTextAreaButton = forwardRef<HTMLTextAreaElement, InputTextArea
           variant="ghost"
           className={cn(
             'leading-1.3 w-full px-5! pt-4! pr-10 align-middle',
-            loading && 'cursor-not-allowed! opacity-70'
+            loading && 'cursor-not-allowed! opacity-70',
+            inputClassName
           )}
-          autoResize={autoResize}
+          style={style}
+          minRows={minRows}
+          maxRows={maxRows}
           rounding="xl"
           onPressMetaEnter={onSubmitPreflight}
           onPressEnter={onSubmitPreflight}

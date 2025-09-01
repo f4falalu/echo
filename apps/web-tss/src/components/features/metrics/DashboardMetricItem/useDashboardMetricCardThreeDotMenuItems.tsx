@@ -1,5 +1,3 @@
-'use client';
-
 import { useNavigate } from '@tanstack/react-router';
 import React, { useMemo } from 'react';
 import { useStartChatFromAsset } from '@/api/buster_rest/chats';
@@ -20,10 +18,10 @@ import {
 } from '@/components/ui/dropdown';
 import { Code, PenSparkle, ShareRight, SquareChartPen, Trash } from '@/components/ui/icons';
 import { useGetChatId } from '@/context/Chats/useGetChatId';
+import { useMetricEditToggle } from '@/layouts/AssetContainer/MetricAssetContainer';
 import { getIsEffectiveOwner } from '@/lib/share';
-import { useMetricEditToggle } from '../../../../layouts/AssetContainer/MetricAssetContainer';
 
-export const useMetricCardThreeDotMenuItems = ({
+export const useDashboardMetricCardThreeDotMenuItems = ({
   dashboardId,
   metricId,
   metricVersionNumber,
