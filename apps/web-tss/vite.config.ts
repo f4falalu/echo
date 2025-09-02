@@ -21,49 +21,7 @@ const config = defineConfig(({ command, mode }) => {
       tailwindcss(),
       tanstackStart({ customViteReactPlugin: true, target: 'cloudflare-module' }),
       viteReact(),
-      // useChecker
-      //   ? checker({
-      //       typescript: isTypecheck,
-      //       biome: isProduction,
-      //     })
-      //   : undefined,
     ],
-    // build: {
-    //   chunkSizeWarningLimit: 850,
-    //   rollupOptions: {
-    //     // Exclude test and stories files from build
-    //     external: (id) => {
-    //       // Exclude .test and .stories files
-    //       if (/\.(test|stories)\.(js|ts|jsx|tsx)$/.test(id)) {
-    //         return true;
-    //       }
-
-    //       // Don't externalize React and React DOM - let them be bundled
-    //       return false;
-    //     },
-    //     output: {
-    //       // Force lodash and lodash-es into a dedicated vendor chunk
-    //       manualChunks(id) {
-    //         if (id.includes('node_modules/lodash')) {
-    //           return 'vendor-lodash';
-    //         }
-    //         if (id.includes('node_modules/lodash-es')) {
-    //           return 'vendor-lodash';
-    //         }
-    //         // // Move supabase modules to their own chunk
-    //         if (id.includes('node_modules/@supabase')) {
-    //           return 'vendor-supabase';
-    //         }
-    //         if (id.includes('zod')) {
-    //           return 'vendor-zod';
-    //         }
-    //         if (id.includes('@tanstack')) {
-    //           return 'vendor-tanstack';
-    //         }
-    //       },
-    //     },
-    //   },
-    // },
   };
 });
 
