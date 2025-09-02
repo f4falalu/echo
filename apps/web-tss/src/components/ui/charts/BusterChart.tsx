@@ -1,5 +1,3 @@
-'use client';
-
 import {
   type ChartEncodes,
   DEFAULT_CHART_CONFIG,

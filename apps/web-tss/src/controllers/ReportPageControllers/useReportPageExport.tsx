@@ -1,5 +1,3 @@
-'use client';
-
 import { lazy, useRef, useState } from 'react';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { printHTMLPage } from '@/lib/print';

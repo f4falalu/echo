@@ -1,5 +1,3 @@
-'use client';
-
 import React, { type ReactNode, useMemo, useState } from 'react';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { cn } from '@/lib/utils';

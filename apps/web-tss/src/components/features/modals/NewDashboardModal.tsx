@@ -1,5 +1,3 @@
-'use client';
-
 import { useNavigate } from '@tanstack/react-router';
 import React, { useEffect, useMemo } from 'react';
 import { useCreateDashboard, useUpdateDashboard } from '@/api/buster_rest/dashboards';

@@ -1,5 +1,3 @@
-'use client';
-
 import { toUnitLess } from '@platejs/basic-styles';
 import { FontSizePlugin } from '@platejs/basic-styles/react';
 import type { TElement } from 'platejs';

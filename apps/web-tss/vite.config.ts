@@ -10,8 +10,7 @@ const config = defineConfig(({ command, mode }) => {
   const isProduction = mode === 'production';
   const isTypecheck = process.argv.includes('--typecheck') || process.env.TYPECHECK === 'true';
   const useChecker = !process.env.VITEST && isBuild;
-  const isLocalBuild = process.env.VITE_PUBLIC_API2_URL?.includes('127.0.0.1');
-  console.log('isLocalBuild', isLocalBuild, process.env.VITE_PUBLIC_API2_URL);
+  const isLocalBuild = process.argv.includes('--local');
 
   return {
     server: { port: 3000 },
@@ -19,7 +18,10 @@ const config = defineConfig(({ command, mode }) => {
       // this is the plugin that enables path aliases
       viteTsConfigPaths({ projects: ['./tsconfig.json'] }),
       tailwindcss(),
-      tanstackStart({ customViteReactPlugin: true, target: 'bun' }),
+      tanstackStart({
+        customViteReactPlugin: true,
+        target: isLocalBuild ? 'bun' : 'cloudflare-module',
+      }),
       viteReact(),
       useChecker
         ? checker({
@@ -42,7 +44,6 @@ const config = defineConfig(({ command, mode }) => {
           return false;
         },
         output: {
-          // Force lodash and lodash-es into a dedicated vendor chunk
           manualChunks(id) {
             if (id.includes('node_modules/lodash')) {
               return 'vendor-lodash';

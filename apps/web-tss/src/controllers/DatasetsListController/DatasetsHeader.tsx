@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useMemo } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useIndividualDataset } from '@/api/buster_rest/datasets';

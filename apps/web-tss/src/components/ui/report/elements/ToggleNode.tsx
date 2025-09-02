@@ -1,5 +1,3 @@
-'use client';
-
 import { useToggleButton, useToggleButtonState } from '@platejs/toggle/react';
 
 import type { PlateElementProps } from 'platejs/react';

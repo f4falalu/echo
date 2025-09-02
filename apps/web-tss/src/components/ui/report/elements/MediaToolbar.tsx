@@ -1,5 +1,3 @@
-'use client';
-
 import {
   FloatingMedia as FloatingMediaPrimitive,
   FloatingMediaStore,

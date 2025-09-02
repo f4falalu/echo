@@ -1,5 +1,3 @@
-'use client';
-
 import { useCallback, useEffect, useState } from 'react';
 
 type SetState<S> = S | ((prevState?: S) => S);

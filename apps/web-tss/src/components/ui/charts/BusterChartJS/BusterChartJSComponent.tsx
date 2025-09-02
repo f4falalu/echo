@@ -1,5 +1,3 @@
-'use client';
-
 import type { ScatterAxis } from '@buster/server-shared/metrics';
 import type { ChartType as ChartJSChartType, Plugin, UpdateMode } from 'chart.js';
 import React, { useMemo, useState } from 'react';

@@ -1,1 +1,1 @@
-export * from './AppCodeEditor';
+export { AppCodeEditorDynamic as AppCodeEditor } from './AppCodeEditorDynamic';

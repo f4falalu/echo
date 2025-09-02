@@ -1,5 +1,3 @@
-'use client';
-
 import { SuggestionPlugin } from '@platejs/suggestion/react';
 import { useEditorPlugin, usePluginOption } from 'platejs/react';
 import * as React from 'react';

@@ -1,5 +1,3 @@
-'use client';
-
 import { isServer } from '@tanstack/react-query';
 import cookies from 'js-cookie';
 import { useState } from 'react';

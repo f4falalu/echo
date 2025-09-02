@@ -1,5 +1,3 @@
-'use client';
-
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 import { useEditorRef } from 'platejs/react';
 import * as React from 'react';

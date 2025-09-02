@@ -1,5 +1,3 @@
-'use client';
-
 import { MediaPluginOptions } from '@platejs/media';
 import {
   AudioPlugin,

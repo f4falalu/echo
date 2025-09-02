@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useMemo } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import type { BusterCollectionListItem } from '@/api/asset_interfaces/collection';

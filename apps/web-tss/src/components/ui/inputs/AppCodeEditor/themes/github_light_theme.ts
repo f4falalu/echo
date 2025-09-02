@@ -1,7 +1,3 @@
-'use client';
-
-import type { editor } from 'monaco-editor';
-
 const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--color-primary');
 const borderColor = getComputedStyle(document.documentElement).getPropertyValue('--color-border');
 
@@ -9,7 +5,7 @@ const borderColor = getComputedStyle(document.documentElement).getPropertyValue(
 const textColor = '#000000';
 const editorBackground = '#ffffff';
 
-const theme: editor.IStandaloneThemeData = {
+const theme = {
   base: 'vs',
   inherit: true,
   rules: [

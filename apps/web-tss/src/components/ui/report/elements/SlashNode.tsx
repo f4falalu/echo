@@ -1,5 +1,3 @@
-'use client';
-
 import type { TComboboxInputElement } from 'platejs';
 
 import type { PlateElementProps } from 'platejs/react';

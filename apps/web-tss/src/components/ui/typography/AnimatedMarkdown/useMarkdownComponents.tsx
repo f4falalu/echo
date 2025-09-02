@@ -113,7 +113,13 @@ export const useMarkdownComponents = ({
         </LinkComponent>
       ),
       img: ({ className, style, src, alt }) => (
-        <ImageComponent {...commonProps} className={className} style={style} src={src} alt={alt} />
+        <ImageComponent
+          {...commonProps}
+          className={className}
+          style={style}
+          src={String(src)}
+          alt={alt}
+        />
       ),
       hr: ({ className, style }) => (
         <HorizontalRuleComponent {...commonProps} className={className} style={style} />

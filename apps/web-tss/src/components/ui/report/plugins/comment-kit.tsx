@@ -1,5 +1,4 @@
 /** biome-ignore-all lint/style/noNonNullAssertion: it's cool */
-'use client';
 
 import { type BaseCommentConfig, BaseCommentPlugin, getDraftCommentKey } from '@platejs/comment';
 import type { ExtendConfig, Path } from 'platejs';

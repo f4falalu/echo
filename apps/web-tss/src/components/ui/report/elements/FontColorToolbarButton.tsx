@@ -1,5 +1,3 @@
-'use client';
-
 import type { DropdownMenuItemProps, DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 import { useComposedRef } from '@udecode/cn';
 import debounce from 'lodash/debounce.js';

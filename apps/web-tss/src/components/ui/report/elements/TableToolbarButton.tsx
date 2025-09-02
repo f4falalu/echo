@@ -1,5 +1,3 @@
-'use client';
-
 import { TablePlugin, useTableMergeState } from '@platejs/table/react';
 
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';

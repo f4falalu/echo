@@ -1,5 +1,3 @@
-'use client';
-
 import type { Emoji } from '@emoji-mart/data';
 import {
   type EmojiCategoryList,

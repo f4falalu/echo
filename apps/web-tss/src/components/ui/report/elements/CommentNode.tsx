@@ -1,5 +1,3 @@
-'use client';
-
 import { getCommentCount } from '@platejs/comment';
 
 import type { TCommentText } from 'platejs';

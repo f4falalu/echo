@@ -1,5 +1,3 @@
-'use client';
-
 import { getMentionOnSelectItem } from '@platejs/mention';
 
 import type { TComboboxInputElement, TMentionElement } from 'platejs';

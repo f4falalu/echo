@@ -1,5 +1,3 @@
-'use client';
-
 import { MarkdownPlugin } from '@platejs/markdown';
 
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';

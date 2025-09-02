@@ -1,5 +1,3 @@
-'use client';
-
 import { isServer } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useMemoizedFn } from './useMemoizedFn';

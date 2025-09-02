@@ -1,5 +1,4 @@
 /** biome-ignore-all lint/style/noNonNullAssertion: living on the edge */
-'use client';
 
 import { EmojiInlineIndexSearch, insertEmoji } from '@platejs/emoji';
 import { EmojiPlugin } from '@platejs/emoji/react';

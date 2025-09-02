@@ -1,5 +1,4 @@
 /** biome-ignore-all lint/a11y/useHeadingContent: not applicable */
-'use client';
 
 import { KEYS } from 'platejs';
 import type { PlateEditor } from 'platejs/react';

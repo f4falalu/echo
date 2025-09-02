@@ -1,5 +1,3 @@
-'use client';
-
 import { createBrowserClient as createBrowserClientSSR } from '@supabase/ssr';
 import { env } from '@/env';
 

@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import { useGetDashboard, useUpdateDashboard } from '@/api/buster_rest/dashboards';
 import { EditFileContainer } from '@/components/features/files/EditFileContainer';

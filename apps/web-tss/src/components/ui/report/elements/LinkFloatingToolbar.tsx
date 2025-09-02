@@ -1,5 +1,3 @@
-'use client';
-
 import { flip, offset, type UseVirtualFloatingOptions } from '@platejs/floating';
 import { getLinkAttributes } from '@platejs/link';
 import {

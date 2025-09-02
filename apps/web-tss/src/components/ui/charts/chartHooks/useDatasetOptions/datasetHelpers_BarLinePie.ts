@@ -1,5 +1,3 @@
-'use client';
-
 import type { ColumnMetaData, SimplifiedColumnType } from '@buster/server-shared/metrics';
 import { createDayjsDate } from '@/lib/date';
 import type { BusterChartProps } from '../../BusterChart.types';

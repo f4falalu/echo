@@ -1,5 +1,3 @@
-'use client';
-
 import { ClientOnly } from '@tanstack/react-router';
 import React, { useRef } from 'react';
 import { ScrollToBottomButton } from '@/components/features/buttons/ScrollToBottomButton';

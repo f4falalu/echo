@@ -1,5 +1,3 @@
-'use client';
-
 import { cva, type VariantProps } from 'class-variance-authority';
 import React, { useLayoutEffect } from 'react';
 import { cn } from '@/lib/classMerge';

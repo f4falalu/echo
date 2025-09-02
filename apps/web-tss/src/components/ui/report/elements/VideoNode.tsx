@@ -1,5 +1,3 @@
-'use client';
-
 import { useDraggable } from '@platejs/dnd';
 import { parseTwitterUrl, parseVideoUrl } from '@platejs/media';
 import { useMediaState } from '@platejs/media/react';

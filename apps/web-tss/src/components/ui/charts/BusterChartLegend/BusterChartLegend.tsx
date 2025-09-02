@@ -1,5 +1,3 @@
-'use client';
-
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useMemo, useRef } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';

@@ -1,5 +1,3 @@
-'use client';
-
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
 import { cn } from '@/lib/classMerge';

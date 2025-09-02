@@ -1,5 +1,3 @@
-'use client';
-
 import { useToggleToolbarButton, useToggleToolbarButtonState } from '@platejs/toggle/react';
 import type * as React from 'react';
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';

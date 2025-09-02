@@ -1,5 +1,4 @@
 /** biome-ignore-all lint/style/noNonNullAssertion: too lazy right now will revisit later */
-'use client';
 
 import { DndPlugin, useDraggable, useDropLine } from '@platejs/dnd';
 import { expandListItemsWithChildren } from '@platejs/list';

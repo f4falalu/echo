@@ -1,5 +1,3 @@
-'use client';
-
 import { PlaceholderPlugin, PlaceholderProvider, updateUploadHistory } from '@platejs/media/react';
 
 import type { TPlaceholderElement } from 'platejs';

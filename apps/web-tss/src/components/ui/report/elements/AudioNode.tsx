@@ -1,5 +1,3 @@
-'use client';
-
 import { useMediaState } from '@platejs/media/react';
 import { ResizableProvider } from '@platejs/resizable';
 import type { TAudioElement } from 'platejs';

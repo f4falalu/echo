@@ -1,5 +1,3 @@
-'use client';
-
 import type React from 'react';
 import { Toaster as ToasterSonner } from 'sonner';
 import CircleCheck from '../icons/NucleoIconOutlined/circle-check';

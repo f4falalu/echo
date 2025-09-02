@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import { Button } from '@/components/ui/buttons';
 import { Dots } from '@/components/ui/icons';

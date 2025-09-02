@@ -1,5 +1,3 @@
-'use client';
-
 import { cn } from '@/lib/utils';
 
 import { THEME_RESET_COLORS, THEME_RESET_STYLE } from '@/styles/theme-reset';

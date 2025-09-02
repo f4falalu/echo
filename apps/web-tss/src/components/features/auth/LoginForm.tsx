@@ -1,5 +1,3 @@
-'use client';
-
 import { Link, useNavigate } from '@tanstack/react-router';
 import Cookies from 'js-cookie';
 import React, { useMemo, useState } from 'react';

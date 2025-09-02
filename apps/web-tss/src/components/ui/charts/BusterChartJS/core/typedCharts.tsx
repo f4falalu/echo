@@ -1,5 +1,3 @@
-'use client';
-
 import type { ChartComponentLike, ChartType } from 'chart.js';
 import {
   BarController,

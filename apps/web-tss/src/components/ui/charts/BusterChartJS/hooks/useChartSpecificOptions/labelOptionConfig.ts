@@ -1,5 +1,3 @@
-'use client';
-
 import { isServer } from '@/lib/window';
 import type { ChartProps } from '../../core';
 

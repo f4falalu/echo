@@ -1,5 +1,3 @@
-'use client';
-
 import { lazy, useRef, useState } from 'react';
 import { DynamicReportPageController } from '@/controllers/ReportPageControllers/DynamicReportPageController';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';

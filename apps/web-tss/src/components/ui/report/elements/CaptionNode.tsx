@@ -1,5 +1,3 @@
-'use client';
-
 import {
   Caption as CaptionPrimitive,
   CaptionTextarea as CaptionTextareaPrimitive,

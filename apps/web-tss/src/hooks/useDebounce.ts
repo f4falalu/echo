@@ -1,5 +1,3 @@
-'use client';
-
 import debounce from 'lodash/debounce';
 import isFunction from 'lodash/isFunction';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';

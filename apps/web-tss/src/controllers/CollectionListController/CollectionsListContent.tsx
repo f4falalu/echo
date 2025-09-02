@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useMemo, useState } from 'react';
 import type { BusterCollectionListItem } from '@/api/asset_interfaces';
 import { FavoriteStar } from '@/components/features/favorites';

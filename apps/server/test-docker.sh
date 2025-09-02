@@ -44,7 +44,7 @@ fi
 
 echo -e "${BLUE}📋 Build Information:${NC}"
 echo "- Using optimized Bun-based multi-stage Dockerfile"
-echo "- Base image: oven/bun:1.2.15-alpine (includes Node.js compatibility)"
+echo "- Base image: oven/bun:1.2.21-alpine (includes Node.js compatibility)"
 echo "- Package manager: pnpm (installed in container)"
 echo "- Build context: repository root (for workspace dependencies)"
 echo ""
@@ -157,7 +157,7 @@ echo "- Image: $IMAGE_NAME"
 echo "- Container: $CONTAINER_NAME"
 echo "- Port exposed: $HOST_PORT -> $SERVER_PORT"
 echo "- Health check: ✅ PASSED"
-echo "- Base image: oven/bun:1.2.15-alpine"
+echo "- Base image: oven/bun:1.2.21-alpine"
 echo "- Runtime: Bun with Node.js compatibility"
 
 # No cleanup needed since we're not creating temporary files

@@ -1,5 +1,3 @@
-'use client';
-
 import 'intersection-observer';
 import { useState } from 'react';
 import type { BasicTarget } from '../lib/domTarget';
