@@ -125,12 +125,14 @@ export const SearchRequestSchema = z.object({
   dataSourceId: z.string().uuid(),
   query: z.string().min(1),
   limit: z.number().int().min(1).max(100).default(10),
-  filters: z.object({
-    database: z.string().optional(),
-    schema: z.string().optional(),
-    table: z.string().optional(),
-    column: z.string().optional(),
-  }).optional(),
+  filters: z
+    .object({
+      database: z.string().optional(),
+      schema: z.string().optional(),
+      table: z.string().optional(),
+      column: z.string().optional(),
+    })
+    .optional(),
   similarityThreshold: z.number().min(0).max(1).optional(),
 });
 
@@ -195,7 +197,9 @@ export type SyncError = z.infer<typeof SyncErrorSchema>;
  * Create a unique key for deduplication
  * Format: "${database}:${schema}:${table}:${column}:${value}"
  */
-export function createUniqueKey(value: SearchableValue | Omit<SearchableValue, 'embedding' | 'synced_at'>): string {
+export function createUniqueKey(
+  value: SearchableValue | Omit<SearchableValue, 'embedding' | 'synced_at'>
+): string {
   return `${value.database}:${value.schema}:${value.table}:${value.column}:${value.value}`;
 }
 
@@ -207,16 +211,16 @@ export function parseUniqueKey(key: string): Omit<SearchableValue, 'embedding' |
   if (parts.length < 5) {
     throw new Error(`Invalid unique key format: ${key}`);
   }
-  
+
   // Handle case where value contains colons
   const [database, schema, table, column, ...valueParts] = parts;
-  
+
   if (!database || !schema || !table || !column) {
     throw new Error(`Invalid unique key format: ${key}`);
   }
-  
+
   const value = valueParts.join(':');
-  
+
   return { database, schema, table, column, value };
 }
 
@@ -234,17 +238,17 @@ export function generateNamespace(dataSourceId: string): string {
 export function isValidForEmbedding(value: string): boolean {
   // Skip empty or whitespace-only values
   if (!value.trim()) return false;
-  
+
   // Skip values that are too short (less than 3 characters)
   if (value.trim().length < 3) return false;
-  
+
   // Skip values that are too long (more than 8000 characters)
   if (value.length > 8000) return false;
-  
+
   // Skip values that appear to be IDs (UUIDs, numeric IDs, etc.)
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   const numericIdRegex = /^\d+$/;
   if (uuidRegex.test(value) || numericIdRegex.test(value)) return false;
-  
+
   return true;
 }

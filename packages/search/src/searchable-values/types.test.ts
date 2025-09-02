@@ -1,23 +1,23 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  SearchableValueSchema,
-  TurbopufferQuerySchema,
+  BatchConfigSchema,
   DeduplicationResultSchema,
-  TurbopufferDocumentSchema,
-  UpsertResultSchema,
+  ErrorTypeSchema,
+  SearchRequestSchema,
+  SearchResponseSchema,
+  SearchResultSchema,
+  SearchableValueSchema,
+  SyncErrorSchema,
+  SyncJobMetadataSchema,
   SyncJobPayloadSchema,
   SyncJobStatusSchema,
-  SyncJobMetadataSchema,
-  BatchConfigSchema,
-  SearchRequestSchema,
-  SearchResultSchema,
-  SearchResponseSchema,
-  ErrorTypeSchema,
-  SyncErrorSchema,
+  TurbopufferDocumentSchema,
+  TurbopufferQuerySchema,
+  UpsertResultSchema,
   createUniqueKey,
-  parseUniqueKey,
   generateNamespace,
   isValidForEmbedding,
+  parseUniqueKey,
 } from './types';
 
 describe('Searchable Values Types', () => {
@@ -149,7 +149,7 @@ describe('Searchable Values Types', () => {
     it('should use defaults when not specified', () => {
       const config = {};
       const result = BatchConfigSchema.parse(config);
-      
+
       expect(result.batchSize).toBe(100);
       expect(result.maxRetries).toBe(3);
       expect(result.rateLimitDelay).toBe(1000);
@@ -242,7 +242,7 @@ describe('Searchable Values Types', () => {
       it('should generate correct namespace format', () => {
         const dataSourceId = '123e4567-e89b-12d3-a456-426614174000';
         const namespace = generateNamespace(dataSourceId);
-        
+
         expect(namespace).toBe('ds_123e4567-e89b-12d3-a456-426614174000');
       });
     });
