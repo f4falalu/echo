@@ -10,6 +10,8 @@ const config = defineConfig(({ command, mode }) => {
   const isProduction = mode === 'production';
   const isTypecheck = process.argv.includes('--typecheck') || process.env.TYPECHECK === 'true';
   const useChecker = !process.env.VITEST && isBuild;
+  const isLocalBuild = process.env.VITE_PUBLIC_API2_URL?.includes('127.0.0.1');
+  console.log('isLocalBuild', isLocalBuild, process.env.VITE_PUBLIC_API2_URL);
 
   return {
     server: { port: 3000 },
@@ -17,7 +19,7 @@ const config = defineConfig(({ command, mode }) => {
       // this is the plugin that enables path aliases
       viteTsConfigPaths({ projects: ['./tsconfig.json'] }),
       tailwindcss(),
-      tanstackStart({ customViteReactPlugin: true, target: 'bun' }),
+      tanstackStart({ customViteReactPlugin: true }),
       viteReact(),
       useChecker
         ? checker({
@@ -35,6 +37,10 @@ const config = defineConfig(({ command, mode }) => {
           if (/\.(test|stories)\.(js|ts|jsx|tsx)$/.test(id)) {
             return true;
           }
+          // Exclude Monaco Editor from server-side bundle (Cloudflare Workers can't handle it)
+          // if (id.includes('monaco-editor') || id.includes('@monaco-editor')) {
+          //   return true;
+          // }
           // Don't externalize React and React DOM - let them be bundled
           return false;
         },
@@ -54,9 +60,7 @@ const config = defineConfig(({ command, mode }) => {
             if (id.includes('zod')) {
               return 'vendor-zod';
             }
-            if (id.includes('monaco-editor')) {
-              return 'vendor-monaco-editor';
-            }
+            // Monaco Editor is externalized, so no need to chunk it
             if (id.includes('@tanstack')) {
               return 'vendor-tanstack';
             }

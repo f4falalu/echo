@@ -1,0 +1,9 @@
+# wrangler.toml
+name = "web-tss"
+main = "./.output/server/index.mjs"
+compatibility_date = "2025-09-02"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+binding = "ASSETS"
+directory = "./.output/public"
