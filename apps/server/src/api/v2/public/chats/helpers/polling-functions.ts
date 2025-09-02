@@ -1,6 +1,7 @@
 import { chats, db, eq, messages } from '@buster/database';
 import { PublicChatError, PublicChatErrorCode } from '@buster/server-shared';
 import type { ChatMessage } from '@buster/server-shared/chats';
+import { runs } from '@trigger.dev/sdk';
 import { DEFAULT_MESSAGES, POLLING_CONFIG } from '../constants';
 
 export interface PollingConfig {
@@ -14,11 +15,34 @@ export interface PollingConfig {
 export interface MessageCompletionResult {
   isCompleted: boolean;
   responseMessage?: string;
+  triggerRunId?: string | null;
   fileInfo?: {
     fileId: string | null;
     fileType: string | null;
     versionNumber: number | null;
   };
+}
+
+export type JobStatus =
+  | 'PENDING'
+  | 'QUEUED'
+  | 'EXECUTING'
+  | 'COMPLETED'
+  | 'FAILED'
+  | 'CANCELED'
+  | 'UNKNOWN';
+
+export interface CombinedStatus {
+  messageCompleted: boolean;
+  jobStatus: JobStatus;
+  responseMessage?: string | undefined;
+  fileInfo?:
+    | {
+        fileId: string | null;
+        fileType: string | null;
+        versionNumber: number | null;
+      }
+    | undefined;
 }
 
 /**
@@ -45,6 +69,7 @@ export async function checkMessageCompletion(messageId: string): Promise<Message
         isCompleted: messages.isCompleted,
         responseMessages: messages.responseMessages,
         chatId: messages.chatId,
+        triggerRunId: messages.triggerRunId,
       })
       .from(messages)
       .where(eq(messages.id, messageId))
@@ -59,9 +84,9 @@ export async function checkMessageCompletion(messageId: string): Promise<Message
       );
     }
 
-    // If not completed, return early
+    // If not completed, return early with trigger run ID
     if (!message.isCompleted) {
-      return { isCompleted: false };
+      return { isCompleted: false, triggerRunId: message.triggerRunId };
     }
 
     // Extract the final response message
@@ -186,6 +211,65 @@ export async function pollMessageCompletion(
  */
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Check the status of a trigger job
+ * @param triggerRunId The trigger run ID
+ * @returns The job status
+ */
+export async function checkTriggerJobStatus(triggerRunId: string | null): Promise<JobStatus> {
+  if (!triggerRunId) {
+    return 'UNKNOWN';
+  }
+
+  try {
+    const run = await runs.retrieve(triggerRunId);
+
+    // Trigger.dev v3 uses simple status strings
+    // Map them to our JobStatus type
+    const status = run.status as string;
+
+    if (status === 'COMPLETED') {
+      return 'COMPLETED';
+    }
+    if (status === 'FAILED') {
+      return 'FAILED';
+    }
+    if (status === 'CANCELED') {
+      return 'CANCELED';
+    }
+    if (status === 'EXECUTING') {
+      return 'EXECUTING';
+    }
+    if (status === 'QUEUED' || status === 'PENDING') {
+      return 'QUEUED';
+    }
+
+    // For any other status, return EXECUTING to keep polling
+    return 'EXECUTING';
+  } catch (error) {
+    console.error('Error checking trigger job status:', error);
+    // If we can't check the status, assume it's still running
+    return 'UNKNOWN';
+  }
+}
+
+/**
+ * Check both message completion and trigger job status
+ * @param messageId The message ID
+ * @returns Combined status information
+ */
+export async function checkCombinedStatus(messageId: string): Promise<CombinedStatus> {
+  const messageResult = await checkMessageCompletion(messageId);
+  const jobStatus = await checkTriggerJobStatus(messageResult.triggerRunId || null);
+
+  return {
+    messageCompleted: messageResult.isCompleted,
+    jobStatus,
+    responseMessage: messageResult.responseMessage,
+    fileInfo: messageResult.fileInfo,
+  };
 }
 
 /**

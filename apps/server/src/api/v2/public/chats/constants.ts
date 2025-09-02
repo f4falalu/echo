@@ -7,8 +7,11 @@ export const DEFAULT_MESSAGES = {
   PROCESSING_START: "I've started working on your request. I'll notify you when it's finished.",
   PROCESSING_COMPLETE: "I've finished working on your request!",
   PROCESSING_COMPLETE_GENERIC: "I've completed your request!",
+  STILL_PROCESSING: 'Still processing your request...',
   ERROR_GENERIC: 'An unexpected error occurred while processing your request',
   ERROR_INTERNAL: 'Internal server error',
+  ERROR_JOB_FAILED: 'The processing job failed. Please try again.',
+  ERROR_TIMEOUT: 'Request processing timed out after 30 minutes.',
 } as const;
 
 // Polling configuration defaults
@@ -18,6 +21,7 @@ export const POLLING_CONFIG = {
   MAX_DURATION_MS: 30 * 60 * 1000, // 30 minutes max
   BACKOFF_MULTIPLIER: 1.2, // Gradually increase interval
   MAX_INTERVAL_MS: 15000, // Max 15 seconds between checks
+  STATUS_UPDATE_INTERVAL_MS: 30000, // Send status update every 30 seconds
 } as const;
 
 // SSE configuration

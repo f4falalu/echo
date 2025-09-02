@@ -1,20 +1,23 @@
 import type { ApiKeyContext, PublicChatRequest } from '@buster/server-shared';
 import { PublicChatError, PublicChatErrorCode } from '@buster/server-shared';
+import type { Context } from 'hono';
 import { extractMessageId, initializeChat } from './helpers/chat-functions';
-import { createSSEResponseStream } from './helpers/stream-functions';
+import { createPublicChatSSEStream } from './helpers/sse-handler';
 import { resolveAndValidateUser } from './helpers/user-functions';
 
 /**
  * Main handler for public chat API requests
  * Composes all the functional components to process a chat request
+ * @param c Hono context
  * @param request The validated public chat request
  * @param apiKey The validated API key context
- * @returns A ReadableStream for SSE responses
+ * @returns SSE response using Hono's streamSSE
  */
 export async function publicChatHandler(
+  c: Context,
   request: PublicChatRequest,
   apiKey: ApiKeyContext
-): Promise<ReadableStream<Uint8Array>> {
+) {
   try {
     // Step 1: Resolve and validate the user
     const user = await resolveAndValidateUser(request.email, apiKey.organizationId);
@@ -25,13 +28,14 @@ export async function publicChatHandler(
     // Step 3: Extract the message ID from the chat
     const messageId = extractMessageId(chat);
 
-    // Step 4: Create and return the SSE response stream
+    // Step 4: Create and return the SSE response stream using Hono's streamSSE
     // The stream will handle:
     // - Sending initial status message
-    // - Polling for completion
-    // - Sending final response
-    // - Error handling
-    return createSSEResponseStream(chat.id, messageId);
+    // - Sending periodic "still processing" messages
+    // - Checking both message completion and trigger job status
+    // - Sending final response or error
+    // - Keeping connection alive for up to 30 minutes
+    return createPublicChatSSEStream(c, chat.id, messageId);
   } catch (error) {
     // Handle errors that occur before streaming starts
     if (error instanceof PublicChatError) {

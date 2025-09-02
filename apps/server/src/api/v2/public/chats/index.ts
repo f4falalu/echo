@@ -1,11 +1,10 @@
 import { PublicChatError, PublicChatRequestSchema } from '@buster/server-shared';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
+import { streamSSE } from 'hono/streaming';
 import { createApiKeyAuthMiddleware } from '../../../../middleware/api-key-auth';
 import { corsMiddleware } from '../../../../middleware/cors';
-import { SSEStreamController, createSSEHeaders } from '../../../../utils/sse';
 import { publicChatHandler } from './handler';
-import { createErrorEvent } from './helpers/stream-functions';
 
 const app = new Hono();
 
@@ -47,34 +46,29 @@ app.post(
       // Get the validated request body
       const request = c.req.valid('json');
 
-      // Process the chat request and get the SSE stream
-      const stream = await publicChatHandler(request, apiKey);
-
-      // Return the SSE response with proper headers
-      return new Response(stream, {
-        headers: createSSEHeaders(),
-      });
+      // Process the chat request and return the SSE stream
+      // The handler now uses Hono's streamSSE internally
+      return await publicChatHandler(c, request, apiKey);
     } catch (error) {
       // Handle errors that occur during handler execution
       console.error('Public chat endpoint error:', error);
 
-      // Return SSE stream with error event to maintain consistent interface
-      const controller = new SSEStreamController();
-      const stream = controller.createStream();
-
-      // Send error event
-      const errorMessage =
-        error instanceof PublicChatError
-          ? error.message
-          : error instanceof Error
+      // Return SSE stream with error event using Hono's streamSSE
+      return streamSSE(c, async (stream) => {
+        const errorMessage =
+          error instanceof PublicChatError
             ? error.message
-            : 'Internal server error';
+            : error instanceof Error
+              ? error.message
+              : 'Internal server error';
 
-      controller.sendEvent(createErrorEvent(errorMessage));
-      controller.close();
-
-      return new Response(stream, {
-        headers: createSSEHeaders(),
+        await stream.writeSSE({
+          data: JSON.stringify({
+            type: 'error',
+            error: errorMessage,
+          }),
+          event: 'error',
+        });
       });
     }
   }
