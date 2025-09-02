@@ -21,7 +21,7 @@ export const POLLING_CONFIG = {
   MAX_DURATION_MS: 30 * 60 * 1000, // 30 minutes max
   BACKOFF_MULTIPLIER: 1.2, // Gradually increase interval
   MAX_INTERVAL_MS: 15000, // Max 15 seconds between checks
-  STATUS_UPDATE_INTERVAL_MS: 30000, // Send status update every 30 seconds
+  STATUS_UPDATE_INTERVAL_MS: 5000, // Send status update every 5 seconds
 } as const;
 
 // SSE configuration
