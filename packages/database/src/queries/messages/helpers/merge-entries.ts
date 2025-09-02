@@ -130,16 +130,124 @@ function getRawLlmMessageKey(message: ModelMessage): string {
 }
 
 /**
+ * Ensures tool calls always precede their corresponding tool results
+ * This fixes any ordering issues that may occur during concurrent updates
+ */
+function sortToolCallsBeforeResults(messages: ModelMessage[]): ModelMessage[] {
+  // Map to store tool call/result pairs
+  const toolPairs = new Map<
+    string,
+    { call?: ModelMessage; result?: ModelMessage; callIndex?: number; resultIndex?: number }
+  >();
+  const standaloneMessages: { message: ModelMessage; index: number }[] = [];
+
+  // First pass: identify tool calls and results
+  messages.forEach((msg, index) => {
+    const toolCallIds = getToolCallIds(msg.content);
+
+    if (toolCallIds) {
+      // This message has tool call IDs
+      const toolCallIdList = toolCallIds.split(',');
+
+      for (const toolCallId of toolCallIdList) {
+        if (!toolCallId) continue;
+
+        const pair = toolPairs.get(toolCallId) || {};
+
+        if (msg.role === 'assistant') {
+          // This is a tool call
+          pair.call = msg;
+          pair.callIndex = index;
+        } else if (msg.role === 'tool') {
+          // This is a tool result
+          pair.result = msg;
+          pair.resultIndex = index;
+        }
+
+        toolPairs.set(toolCallId, pair);
+      }
+    } else {
+      // Standalone message without tool call IDs
+      standaloneMessages.push({ message: msg, index });
+    }
+  });
+
+  // Build the sorted array
+  const sorted: ModelMessage[] = [];
+  const processedIndices = new Set<number>();
+
+  // Process messages in original order, but ensure tool pairs are correctly ordered
+  messages.forEach((msg, index) => {
+    if (processedIndices.has(index)) {
+      return; // Already processed as part of a tool pair
+    }
+
+    const toolCallIds = getToolCallIds(msg.content);
+
+    if (toolCallIds) {
+      const toolCallIdList = toolCallIds.split(',');
+
+      for (const toolCallId of toolCallIdList) {
+        if (!toolCallId) continue;
+
+        const pair = toolPairs.get(toolCallId);
+        if (!pair) continue;
+
+        // If this is a tool result that appears before its call, skip it for now
+        if (
+          msg.role === 'tool' &&
+          pair.call &&
+          pair.callIndex !== undefined &&
+          pair.callIndex > index &&
+          !processedIndices.has(pair.callIndex)
+        ) {
+          continue; // Will be added when we process the call
+        }
+
+        // If this is a tool call, add both call and result in correct order
+        if (msg.role === 'assistant' && pair.call && !processedIndices.has(index)) {
+          sorted.push(pair.call);
+          processedIndices.add(index);
+
+          // Add the corresponding result immediately after
+          if (
+            pair.result &&
+            pair.resultIndex !== undefined &&
+            !processedIndices.has(pair.resultIndex)
+          ) {
+            sorted.push(pair.result);
+            processedIndices.add(pair.resultIndex);
+          }
+        }
+
+        // If this is an orphaned tool result (no corresponding call), add it
+        if (msg.role === 'tool' && !pair.call && !processedIndices.has(index)) {
+          sorted.push(msg);
+          processedIndices.add(index);
+        }
+      }
+    } else {
+      // Standalone message
+      sorted.push(msg);
+      processedIndices.add(index);
+    }
+  });
+
+  return sorted;
+}
+
+/**
  * Merges raw LLM messages by combination of 'role' and 'toolCallId', preserving order
  * Messages with the same role and tool call IDs replace existing ones at their original position
  * New messages are appended
+ * Tool calls are guaranteed to precede their corresponding tool results
  */
 export function mergeRawLlmMessages(
   existing: ModelMessage[],
   updates: ModelMessage[]
 ): ModelMessage[] {
   if (!existing || existing.length === 0) {
-    return updates;
+    return sortToolCallsBeforeResults(updates);
   }
 
   // Create a map of new messages by their unique key
@@ -175,5 +283,6 @@ export function mergeRawLlmMessages(
     }
   }
 
-  return merged;
+  // Ensure tool calls always precede their results
+  return sortToolCallsBeforeResults(merged);
 }
