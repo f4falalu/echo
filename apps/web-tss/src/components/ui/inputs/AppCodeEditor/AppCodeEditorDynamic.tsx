@@ -1,10 +1,17 @@
 import { ClientOnly } from '@tanstack/react-router';
 import { lazy, Suspense } from 'react';
 import { CircleSpinnerLoaderContainer } from '../../loaders/CircleSpinnerLoaderContainer';
+import type { AppCodeEditorProps } from './AppCodeEditor';
 
-const Editor = lazy(() => import('@monaco-editor/react').then((m) => ({ default: m.Editor })));
+const AppCodeEditor = lazy(() =>
+  import('./AppCodeEditor').then((mod) => {
+    return {
+      default: mod.AppCodeEditor,
+    };
+  })
+);
 
-export const AppCodeEditorDynamic = () => {
+export const AppCodeEditorDynamic = (props: AppCodeEditorProps) => {
   return (
     <ClientOnly
       fallback={<CircleSpinnerLoaderContainer className="animate-in fade-in-0 duration-300" />}
@@ -12,7 +19,7 @@ export const AppCodeEditorDynamic = () => {
       <Suspense
         fallback={<CircleSpinnerLoaderContainer className="animate-in fade-in-0 duration-300" />}
       >
-        <Editor />
+        <AppCodeEditor {...props} />
       </Suspense>
     </ClientOnly>
   );
