@@ -1,5 +1,8 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { isDev } from '@/config';
+
+const ENABLE_TANSTACK_PANEL = process.env.VITE_ENABLE_TANSTACK_PANEL === 'true' || isDev;
 
 // Lazy load the actual devtools component
 const LazyTanstackDevtools = lazy(() =>
@@ -19,12 +22,20 @@ export const TanstackDevtools: React.FC = React.memo(() => {
     setMounted(true);
   }, []);
 
-  useHotkeys('shift+a', () => {
-    setUseDevTools(true);
-  });
+  useHotkeys(
+    'shift+a',
+    () => {
+      setUseDevTools(true);
+    },
+    { enabled: ENABLE_TANSTACK_PANEL }
+  );
 
   // Only render in development and on the client
   if (!mounted || !useDevTools) {
+    return null;
+  }
+
+  if (!ENABLE_TANSTACK_PANEL) {
     return null;
   }
 

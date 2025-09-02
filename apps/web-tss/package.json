@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite dev --port 3000",
     "dev:fast": "pnpm run build && pnpm run start",
-    "start": "node .output/server/index.mjs",
+    "start": "bun .output/server/index.mjs",
     "build": "vite build -- --typecheck",
     "build:no-typecheck": "vite build",
     "build:fix": "pnpm build:no-typecheck && pnpm run build:fix-react-symlink",

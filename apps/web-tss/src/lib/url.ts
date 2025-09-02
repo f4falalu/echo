@@ -4,7 +4,7 @@ export const getURLPathname = (url: string): string => {
 };
 
 const ACCEPTED_DOMAINS = [
-  process.env.NEXT_PUBLIC_URL,
+  process.env.VITE_PUBLIC_URL,
   'twitter.com',
   'x.com',
   'youtube.com',
