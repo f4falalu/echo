@@ -44,6 +44,39 @@ export async function updateMessageEntries({
       throw new Error(`Message not found: ${messageId}`);
     }
 
+    // Fix any stringified JSON inputs in rawLlmMessages before merging
+    const fixedRawLlmMessages = rawLlmMessages?.map((msg) => {
+      if (msg.role === 'assistant' && Array.isArray(msg.content)) {
+        const fixedContent = msg.content.map((item) => {
+          if (
+            typeof item === 'object' &&
+            'type' in item &&
+            item.type === 'tool-call' &&
+            'input' in item &&
+            typeof item.input === 'string'
+          ) {
+            try {
+              // Try to parse the stringified JSON
+              const parsedInput = JSON.parse(item.input);
+              return {
+                ...item,
+                input: parsedInput,
+              };
+            } catch {
+              // If parsing fails, keep the original
+              return item;
+            }
+          }
+          return item;
+        });
+        return {
+          ...msg,
+          content: fixedContent,
+        };
+      }
+      return msg;
+    });
+
     // Merge with new entries
     const mergedEntries = {
       responseMessages: responseMessages
@@ -52,8 +85,8 @@ export async function updateMessageEntries({
       reasoning: reasoningMessages
         ? mergeReasoningMessages(existingEntries.reasoning, reasoningMessages)
         : existingEntries.reasoning,
-      rawLlmMessages: rawLlmMessages
-        ? mergeRawLlmMessages(existingEntries.rawLlmMessages, rawLlmMessages)
+      rawLlmMessages: fixedRawLlmMessages
+        ? mergeRawLlmMessages(existingEntries.rawLlmMessages, fixedRawLlmMessages)
         : existingEntries.rawLlmMessages,
     };
 
