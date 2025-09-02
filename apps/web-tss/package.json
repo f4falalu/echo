@@ -6,8 +6,10 @@
   "scripts": {
     "dev": "vite dev --port 3000",
     "dev:fast": "pnpm run build && pnpm run start",
-    "start": "bun .output/server/index.mjs",
+    "start": "node .output/server/index.mjs",
+    "start:bun": "bun .output/server/index.mjs",
     "build": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build -- --typecheck",
+    "build:local": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build -- --typecheck --local",
     "build:no-typecheck": "vite build",
     "build:fix": "pnpm build:no-typecheck && pnpm run build:fix-react-symlink",
     "build:fix-react-symlink": "npx tsx scripts/fix-react-symlink.ts",
