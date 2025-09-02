@@ -73,5 +73,20 @@ export {
   type RetryOptions,
 } from './client';
 
-// Note: Deduplication exports will be added after implementation
-// export * from './deduplicate';
+// Export deduplication functionality
+export {
+  // Main deduplication functions
+  deduplicateValues,
+  checkExistence,
+  getDeduplicationStats,
+  // Utility functions
+  batchArray,
+  escapeSqlString,
+  formatSqlInClause,
+  // Connection management (for advanced use cases)
+  createConnection,
+  closeConnection,
+  executeQuery,
+  // Types
+  type DuckDBConnection,
+} from './deduplicate';
