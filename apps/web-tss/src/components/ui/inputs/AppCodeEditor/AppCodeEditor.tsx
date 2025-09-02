@@ -100,10 +100,17 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
     const onMountCodeEditor = useCallback(
       async (editor: editor.IStandaloneCodeEditor, monaco: typeof import('monaco-editor')) => {
         // Setup Monaco web workers (client-side only)
-        if (typeof window !== 'undefined') {
-          const { setupMonacoWorkers } = await import('./setupMonacoWorkers');
-          await setupMonacoWorkers();
-        }
+        // if (typeof window !== 'undefined') {
+        //   try {
+        //     // Use string concatenation to avoid static analysis during build
+        //     const workerPath = './setup' + 'Monaco' + 'Workers';
+        //     const { setupMonacoWorkers } = await import(/* @vite-ignore */ workerPath);
+        //     await setupMonacoWorkers();
+        //   } catch (error) {
+        //     // Fallback for SSR or when workers can't be loaded
+        //     console.warn('Could not load Monaco workers:', error);
+        //   }
+        // }
 
         const [GithubLightTheme, NightOwlTheme] = await Promise.all([
           (await import('./themes/github_light_theme')).default,

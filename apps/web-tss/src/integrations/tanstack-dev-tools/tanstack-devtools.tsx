@@ -8,11 +8,11 @@ const ENABLE_TANSTACK_PANEL =
   (process.env.VITE_ENABLE_TANSTACK_PANEL === 'true' || isDev) && !isServer;
 
 // Lazy load the actual devtools component
-const LazyTanstackDevtools = lazy(() =>
-  import('./tanstack-devtools-impl').then((mod) => ({
-    default: mod.default,
-  }))
-);
+// const LazyTanstackDevtools = lazy(() =>
+//   import('./tanstack-devtools-impl').then((mod) => ({
+//     default: mod.default,
+//   }))
+// );
 
 // Export component with Suspense wrapper
 export const TanstackDevtools: React.FC = React.memo(() => {
@@ -33,20 +33,16 @@ export const TanstackDevtools: React.FC = React.memo(() => {
     { enabled: ENABLE_TANSTACK_PANEL }
   );
 
-  // Only render in development and on the client
-  if (!mounted || !useDevTools) {
-    return null;
-  }
-
-  if (!ENABLE_TANSTACK_PANEL) {
+  if (!ENABLE_TANSTACK_PANEL || !mounted || !useDevTools) {
     return null;
   }
 
   return (
     <ClientOnly>
-      <Suspense fallback={null}>
+      <div>SWAG</div>
+      {/* <Suspense fallback={null}>
         <LazyTanstackDevtools />
-      </Suspense>
+      </Suspense> */}
     </ClientOnly>
   );
 });

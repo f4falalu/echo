@@ -1,8 +1,6 @@
 import { ClientOnly } from '@tanstack/react-router';
 import { lazy, Suspense } from 'react';
 
-//import StoreDevtools from './metric-store-devtools';
-
 const LazyTanstackDevtools = lazy(() =>
   import('@tanstack/react-devtools').then((mod) => ({
     default: mod.TanStackDevtools,

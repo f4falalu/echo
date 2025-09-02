@@ -15,32 +15,11 @@ const config = defineConfig(({ command, mode }) => {
 
   return {
     server: { port: 3000 },
-    ssr: {
-      // Exclude Monaco Editor and related from SSR bundle
-      external: (id) => {
-        // Monaco Editor and related
-        if (
-          id.includes('monaco-editor') ||
-          id.includes('@monaco-editor') ||
-          id.includes('setupMonacoWorkers')
-        ) {
-          return true;
-        }
-        // TanStack devtools (now handled via dynamic imports, but keep basic exclusions)
-        if (id.includes('@tanstack/devtools')) {
-          return true;
-        }
-
-        return false;
-      },
-      // Exclude Monaco Editor workers specifically
-      noExternal: ['!**/monaco-editor/**/*worker*'],
-    },
     plugins: [
       // this is the plugin that enables path aliases
       viteTsConfigPaths({ projects: ['./tsconfig.json'] }),
       tailwindcss(),
-      tanstackStart({ customViteReactPlugin: true, target: 'cloudflare-module' }),
+      tanstackStart({ customViteReactPlugin: true, target: 'bun' }),
       viteReact(),
       useChecker
         ? checker({
@@ -58,14 +37,7 @@ const config = defineConfig(({ command, mode }) => {
           if (/\.(test|stories)\.(js|ts|jsx|tsx)$/.test(id)) {
             return true;
           }
-          // Exclude Monaco Editor from server-side bundle (Cloudflare Workers can't handle it)
-          if (id.includes('monaco-editor') || id.includes('@monaco-editor')) {
-            return true;
-          }
-          // Exclude Monaco worker setup file from SSR
-          if (id.includes('setupMonacoWorkers')) {
-            return true;
-          }
+
           // Don't externalize React and React DOM - let them be bundled
           return false;
         },
