@@ -20,7 +20,7 @@ catalog:
   '@platejs/markdown': ^49.2.14
   '@platejs/math': ^49.0.0
   '@platejs/media': ^49.0.0
-  '@platejs/table': ^49.1.13
+  '@platejs/table': 49.1.13
   '@platejs/toc': ^49.0.0
   '@platejs/toggle': ^49.0.0
   '@supabase/supabase-js': ^2.50.0

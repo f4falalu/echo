@@ -1,13 +1,18 @@
 import type { TElement } from 'platejs';
 import { type PlateEditor, useEditorRef, useElement } from 'platejs/react';
 import React, { useMemo } from 'react';
-import type { DropdownItem, DropdownItems } from '@/components/ui/dropdown';
-import { ArrowUpRight, Code, SquareChartPen, Table, Trash } from '@/components/ui/icons';
 import {
   useDownloadMetricDataCSV,
   useDownloadPNGSelectMenu,
   useRenameMetricOnPage,
-} from '@/context/Metrics/metricDropdownItems';
+} from '@/components/features/metrics/threeDotMenuHooks';
+import {
+  createDropdownItem,
+  createDropdownItems,
+  type IDropdownItem,
+  type IDropdownItems,
+} from '@/components/ui/dropdown';
+import { ArrowUpRight, Code, SquareChartPen, Table, Trash } from '@/components/ui/icons';
 import { assetParamsToRoute } from '@/lib/assets/assetParamsToRoute';
 
 export const useMetricContentThreeDotMenuItems = ({
@@ -22,7 +27,7 @@ export const useMetricContentThreeDotMenuItems = ({
   metricVersionNumber: number | undefined;
   reportVersionNumber: number | undefined;
   reportId: string;
-}): DropdownItems => {
+}): IDropdownItems => {
   const editor = useEditorRef();
   const element = useElement();
 
@@ -72,10 +77,7 @@ export const useMetricContentThreeDotMenuItems = ({
 };
 
 const useOpenChartItem = ({
-  reportId,
   metricId,
-  chatId,
-  reportVersionNumber,
   metricVersionNumber,
 }: {
   reportId: string;
@@ -83,25 +85,25 @@ const useOpenChartItem = ({
   metricVersionNumber: number | undefined;
   chatId: string | undefined;
   reportVersionNumber: number | undefined;
-}): DropdownItem => {
-  const route = assetParamsToRoute({
-    assetId: metricId,
-    type: 'metric',
-    reportVersionNumber,
-    metricVersionNumber,
-    reportId,
-    metricId,
-    chatId,
-  });
+}): IDropdownItem => {
   return useMemo(
-    () => ({
-      value: 'open-chart',
-      label: 'Open chart',
-      icon: <ArrowUpRight />,
-      link: route,
-      linkIcon: 'arrow-right',
-    }),
-    [route]
+    () =>
+      createDropdownItem({
+        value: 'open-chart',
+        label: 'Open chart',
+        icon: <ArrowUpRight />,
+        link: {
+          to: '/app/metrics/$metricId/chart',
+          params: {
+            metricId,
+          },
+          search: {
+            metric_version_number: metricVersionNumber,
+          },
+        },
+        linkIcon: 'arrow-right',
+      }),
+    []
   );
 };
 
@@ -111,17 +113,18 @@ const useRemoveFromReportItem = ({
 }: {
   editor: PlateEditor;
   element: TElement;
-}): DropdownItem => {
+}): IDropdownItem => {
   return useMemo(
-    () => ({
-      value: 'remove-from-report',
-      label: 'Remove from report',
-      icon: <Trash />,
-      onClick: () => {
-        const path = editor.api.findPath(element);
-        editor.tf.removeNodes({ at: path });
-      },
-    }),
+    () =>
+      createDropdownItem({
+        value: 'remove-from-report',
+        label: 'Remove from report',
+        icon: <Trash />,
+        onClick: () => {
+          const path = editor.api.findPath(element);
+          editor.tf.removeNodes({ at: path });
+        },
+      }),
     []
   );
 };
@@ -138,36 +141,51 @@ const useNavigatetoMetricItem = ({
   metricVersionNumber: number | undefined;
   chatId: string | undefined;
   reportVersionNumber: number | undefined;
-}): DropdownItem[] => {
+}): IDropdownItem[] => {
   return useMemo(() => {
-    const baseParams = {
-      assetId: metricId,
-      type: 'metric' as const,
-      reportVersionNumber,
-      metricVersionNumber,
-      reportId,
-      chatId,
-    };
-
-    const editChartRoute = assetParamsToRoute({
-      ...baseParams,
-      page: 'chart',
-    });
-
-    const resultsChartRoute = assetParamsToRoute({
-      ...baseParams,
-      page: 'results',
-    });
-
-    const sqlChartRoute = assetParamsToRoute({
-      ...baseParams,
-      page: 'sql',
-    });
-
-    return [
-      { value: 'edit-chart', label: 'Edit chart', icon: <SquareChartPen />, link: editChartRoute },
-      { value: 'results-chart', label: 'Results chart', icon: <Table />, link: resultsChartRoute },
-      { value: 'sql-chart', label: 'SQL chart', icon: <Code />, link: sqlChartRoute },
-    ];
+    return createDropdownItems([
+      {
+        value: 'edit-chart',
+        label: 'Edit chart',
+        icon: <SquareChartPen />,
+        link: {
+          to: '/app/metrics/$metricId/chart',
+          params: {
+            metricId,
+          },
+          search: {
+            metric_version_number: metricVersionNumber,
+          },
+        },
+      },
+      {
+        value: 'results-chart',
+        label: 'Results chart',
+        icon: <Table />,
+        link: {
+          to: '/app/metrics/$metricId/results',
+          params: {
+            metricId,
+          },
+          search: {
+            metric_version_number: metricVersionNumber,
+          },
+        },
+      },
+      {
+        value: 'sql-chart',
+        label: 'SQL chart',
+        icon: <Code />,
+        link: {
+          to: '/app/metrics/$metricId/sql',
+          params: {
+            metricId,
+          },
+          search: {
+            metric_version_number: metricVersionNumber,
+          },
+        },
+      },
+    ]);
   }, [reportId, metricId, chatId, reportVersionNumber, metricVersionNumber]);
 };

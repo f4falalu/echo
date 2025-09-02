@@ -1,8 +1,6 @@
 import { getEquationHtml } from '@platejs/math';
-
 import type { SlateElementProps, TEquationElement } from 'platejs';
 import { SlateElement } from 'platejs';
-import * as React from 'react';
 import { cn } from '@/lib/utils';
 import { NodeTypeIcons } from '../config/icons';
 
@@ -86,6 +84,7 @@ export function InlineEquationElementStatic(props: SlateElementProps<TEquationEl
             props.element.texExpression.length === 0 && 'hidden',
             'font-mono leading-none'
           )}
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: no other option
           dangerouslySetInnerHTML={{ __html: html }}
         />
       </div>

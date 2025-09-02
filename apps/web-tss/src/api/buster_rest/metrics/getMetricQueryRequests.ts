@@ -140,9 +140,11 @@ export const useGetMetricData = <TData = BusterMetricDataExtended>(
   {
     id = '',
     versionNumber: versionNumberProp,
+    reportFileId,
   }: {
     id: string | undefined;
     versionNumber?: number | 'LATEST';
+    reportFileId?: string;
   },
   params?: Omit<UseQueryOptions<BusterMetricData, RustApiError, TData>, 'queryKey' | 'queryFn'>
 ) => {
@@ -167,6 +169,7 @@ export const useGetMetricData = <TData = BusterMetricDataExtended>(
       id,
       version_number: chosenVersionNumber || undefined,
       password,
+      report_file_id: reportFileId,
     });
     const isLatest = versionNumberProp === 'LATEST' || !versionNumberProp;
     if (isLatest) {

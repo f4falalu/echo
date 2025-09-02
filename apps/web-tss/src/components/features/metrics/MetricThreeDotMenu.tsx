@@ -1,5 +1,5 @@
 import type { VerificationStatus } from '@buster/server-shared/share';
-import { Link, useNavigate } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import React, { useMemo } from 'react';
 import {
   useAddMetricsToDashboard,
@@ -17,6 +17,8 @@ import { useSaveToCollectionsDropdownContent } from '@/components/features/dropd
 import { useSaveToDashboardDropdownContent } from '@/components/features/dropdowns/SaveToDashboardDropdown';
 import { StatusBadgeIndicator } from '@/components/features/metrics/StatusBadgeIndicator';
 import { useStatusDropdownContent } from '@/components/features/metrics/StatusBadgeIndicator/useStatusDropdownContent';
+import { useDownloadMetricDataCSV } from '@/components/features/metrics/useDownloadMetricDataCSV';
+import { useDownloadPNGSelectMenu } from '@/components/features/metrics/useDownloadMetricDataPNG';
 import { getShareAssetConfig } from '@/components/features/ShareMenu/helpers';
 import { ShareMenuContent } from '@/components/features/ShareMenu/ShareMenuContent';
 import { Button } from '@/components/ui/buttons';
@@ -38,8 +40,6 @@ import {
 } from '@/components/ui/icons';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useIsChatMode } from '@/context/Chats/useMode';
-import { useDownloadMetricDataCSV } from '@/context/Metrics/useDownloadMetricDataCSV';
-import { useDownloadPNGSelectMenu } from '@/context/Metrics/useDownloadMetricDataPNG';
 import { useMetricEditToggle } from '@/layouts/AssetContainer/MetricAssetContainer';
 import { canEdit, getIsEffectiveOwner, getIsOwner } from '@/lib/share';
 import { ASSET_ICONS } from '../icons/assetIcons';

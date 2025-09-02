@@ -43,7 +43,7 @@ catalogs:
       specifier: ^49.0.0
       version: 49.0.0
     '@platejs/table':
-      specifier: ^49.1.13
+      specifier: 49.1.13
       version: 49.1.13
     '@platejs/toc':
       specifier: ^49.0.0
@@ -877,6 +877,18 @@ importers:
       '@monaco-editor/react':
         specifier: ^4.7.0
         version: 4.7.0(monaco-editor@0.52.2)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)
+      '@platejs/dnd':
+        specifier: ^49.2.10
+        version: 49.2.10(platejs@49.2.12(@types/react@19.1.12)(immer@10.1.1)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)(scheduler@0.26.0)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web-tss+@platejs+ai+react)))(react-dnd-html5-backend@16.0.1)(react-dnd@16.0.1(@types/node@24.0.10)(@types/react@19.1.12)(react@apps+web-tss+@platejs+ai+react))(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)
+      '@platejs/resizable':
+        specifier: ^49.0.0
+        version: 49.0.0(platejs@49.2.12(@types/react@19.1.12)(immer@10.1.1)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)(scheduler@0.26.0)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web-tss+@platejs+ai+react)))(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)
+      '@platejs/selection':
+        specifier: ^49.2.4
+        version: 49.2.4(platejs@49.2.12(@types/react@19.1.12)(immer@10.1.1)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)(scheduler@0.26.0)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web-tss+@platejs+ai+react)))(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)
+      '@platejs/table':
+        specifier: 'catalog:'
+        version: 49.1.13(platejs@49.2.12(@types/react@19.1.12)(immer@10.1.1)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)(scheduler@0.26.0)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web-tss+@platejs+ai+react)))(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)
       '@radix-ui/react-avatar':
         specifier: ^1.1.10
         version: 1.1.10(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)
@@ -922,6 +934,9 @@ importers:
       '@radix-ui/react-tabs':
         specifier: ^1.1.13
         version: 1.1.13(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)
+      '@radix-ui/react-toolbar':
+        specifier: ^1.1.10
+        version: 1.1.10(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)
       '@radix-ui/react-tooltip':
         specifier: ^1.2.8
         version: 1.2.8(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)
@@ -19136,6 +19151,16 @@ snapshots:
       react-dnd-html5-backend: 16.0.1
       react-dom: 18.3.1(react@18.3.1)
 
+  '@platejs/dnd@49.2.10(platejs@49.2.12(@types/react@19.1.12)(immer@10.1.1)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)(scheduler@0.26.0)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web-tss+@platejs+ai+react)))(react-dnd-html5-backend@16.0.1)(react-dnd@16.0.1(@types/node@24.0.10)(@types/react@19.1.12)(react@apps+web-tss+@platejs+ai+react))(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)':
+    dependencies:
+      lodash: 4.17.21
+      platejs: 49.2.12(@types/react@19.1.12)(immer@10.1.1)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)(scheduler@0.26.0)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web-tss+@platejs+ai+react))
+      raf: 3.4.1
+      react: link:apps/web-tss/@platejs/ai/react
+      react-dnd: 16.0.1(@types/node@24.0.10)(@types/react@19.1.12)(react@apps+web-tss+@platejs+ai+react)
+      react-dnd-html5-backend: 16.0.1
+      react-dom: 19.1.1(react@apps+web-tss+@platejs+ai+react)
+
   '@platejs/docx@49.0.0(platejs@49.2.12(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.26.0)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       platejs: 49.2.12(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.26.0)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
@@ -19254,12 +19279,25 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
+  '@platejs/resizable@49.0.0(platejs@49.2.12(@types/react@19.1.12)(immer@10.1.1)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)(scheduler@0.26.0)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web-tss+@platejs+ai+react)))(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)':
+    dependencies:
+      platejs: 49.2.12(@types/react@19.1.12)(immer@10.1.1)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)(scheduler@0.26.0)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web-tss+@platejs+ai+react))
+      react: link:apps/web-tss/@platejs/ai/react
+      react-dom: 19.1.1(react@apps+web-tss+@platejs+ai+react)
+
   '@platejs/selection@49.2.4(platejs@49.2.12(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.26.0)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       copy-to-clipboard: 3.3.3
       platejs: 49.2.12(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.26.0)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
+
+  '@platejs/selection@49.2.4(platejs@49.2.12(@types/react@19.1.12)(immer@10.1.1)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)(scheduler@0.26.0)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web-tss+@platejs+ai+react)))(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)':
+    dependencies:
+      copy-to-clipboard: 3.3.3
+      platejs: 49.2.12(@types/react@19.1.12)(immer@10.1.1)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)(scheduler@0.26.0)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web-tss+@platejs+ai+react))
+      react: link:apps/web-tss/@platejs/ai/react
+      react-dom: 19.1.1(react@apps+web-tss+@platejs+ai+react)
 
   '@platejs/slash-command@49.0.0(platejs@49.2.12(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.26.0)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -19291,6 +19329,14 @@ snapshots:
       platejs: 49.2.12(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.26.0)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
+
+  '@platejs/table@49.1.13(platejs@49.2.12(@types/react@19.1.12)(immer@10.1.1)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)(scheduler@0.26.0)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web-tss+@platejs+ai+react)))(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)':
+    dependencies:
+      '@platejs/resizable': 49.0.0(platejs@49.2.12(@types/react@19.1.12)(immer@10.1.1)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)(scheduler@0.26.0)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web-tss+@platejs+ai+react)))(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)
+      lodash: 4.17.21
+      platejs: 49.2.12(@types/react@19.1.12)(immer@10.1.1)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)(scheduler@0.26.0)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web-tss+@platejs+ai+react))
+      react: link:apps/web-tss/@platejs/ai/react
+      react-dom: 19.1.1(react@apps+web-tss+@platejs+ai+react)
 
   '@platejs/toc@49.0.0(platejs@49.2.12(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.26.0)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -20079,6 +20125,23 @@ snapshots:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
+  '@radix-ui/react-roving-focus@1.1.10(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)':
+    dependencies:
+      '@radix-ui/primitive': 1.1.2
+      '@radix-ui/react-collection': 1.1.7(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)
+      '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.1.12)(react@apps+web-tss+@platejs+ai+react)
+      '@radix-ui/react-context': 1.1.2(@types/react@19.1.12)(react@apps+web-tss+@platejs+ai+react)
+      '@radix-ui/react-direction': 1.1.1(@types/react@19.1.12)(react@apps+web-tss+@platejs+ai+react)
+      '@radix-ui/react-id': 1.1.1(@types/react@19.1.12)(react@apps+web-tss+@platejs+ai+react)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)
+      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@19.1.12)(react@apps+web-tss+@platejs+ai+react)
+      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@19.1.12)(react@apps+web-tss+@platejs+ai+react)
+      react: link:apps/web-tss/@platejs/ai/react
+      react-dom: 19.1.1(react@apps+web-tss+@platejs+ai+react)
+    optionalDependencies:
+      '@types/react': 19.1.12
+      '@types/react-dom': 19.1.9(@types/react@19.1.12)
+
   '@radix-ui/react-roving-focus@1.1.11(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)':
     dependencies:
       '@radix-ui/primitive': 1.1.3
@@ -20335,6 +20398,21 @@ snapshots:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
+  '@radix-ui/react-toggle-group@1.1.10(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)':
+    dependencies:
+      '@radix-ui/primitive': 1.1.2
+      '@radix-ui/react-context': 1.1.2(@types/react@19.1.12)(react@apps+web-tss+@platejs+ai+react)
+      '@radix-ui/react-direction': 1.1.1(@types/react@19.1.12)(react@apps+web-tss+@platejs+ai+react)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)
+      '@radix-ui/react-roving-focus': 1.1.10(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)
+      '@radix-ui/react-toggle': 1.1.9(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)
+      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@19.1.12)(react@apps+web-tss+@platejs+ai+react)
+      react: link:apps/web-tss/@platejs/ai/react
+      react-dom: 19.1.1(react@apps+web-tss+@platejs+ai+react)
+    optionalDependencies:
+      '@types/react': 19.1.12
+      '@types/react-dom': 19.1.9(@types/react@19.1.12)
+
   '@radix-ui/react-toggle@1.1.9(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@radix-ui/primitive': 1.1.2
@@ -20345,6 +20423,17 @@ snapshots:
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
+
+  '@radix-ui/react-toggle@1.1.9(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)':
+    dependencies:
+      '@radix-ui/primitive': 1.1.2
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)
+      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@19.1.12)(react@apps+web-tss+@platejs+ai+react)
+      react: link:apps/web-tss/@platejs/ai/react
+      react-dom: 19.1.1(react@apps+web-tss+@platejs+ai+react)
+    optionalDependencies:
+      '@types/react': 19.1.12
+      '@types/react-dom': 19.1.9(@types/react@19.1.12)
 
   '@radix-ui/react-toolbar@1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -20360,6 +20449,21 @@ snapshots:
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
+
+  '@radix-ui/react-toolbar@1.1.10(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)':
+    dependencies:
+      '@radix-ui/primitive': 1.1.2
+      '@radix-ui/react-context': 1.1.2(@types/react@19.1.12)(react@apps+web-tss+@platejs+ai+react)
+      '@radix-ui/react-direction': 1.1.1(@types/react@19.1.12)(react@apps+web-tss+@platejs+ai+react)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)
+      '@radix-ui/react-roving-focus': 1.1.10(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)
+      '@radix-ui/react-separator': 1.1.7(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)
+      '@radix-ui/react-toggle-group': 1.1.10(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@apps+web-tss+@platejs+ai+react))(react@apps+web-tss+@platejs+ai+react)
+      react: link:apps/web-tss/@platejs/ai/react
+      react-dom: 19.1.1(react@apps+web-tss+@platejs+ai+react)
+    optionalDependencies:
+      '@types/react': 19.1.12
+      '@types/react-dom': 19.1.9(@types/react@19.1.12)
 
   '@radix-ui/react-tooltip@1.2.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -29846,6 +29950,18 @@ snapshots:
     optionalDependencies:
       '@types/node': 24.0.10
       '@types/react': 18.3.23
+
+  react-dnd@16.0.1(@types/node@24.0.10)(@types/react@19.1.12)(react@apps+web-tss+@platejs+ai+react):
+    dependencies:
+      '@react-dnd/invariant': 4.0.2
+      '@react-dnd/shallowequal': 4.0.2
+      dnd-core: 16.0.1
+      fast-deep-equal: 3.1.3
+      hoist-non-react-statics: 3.3.2
+      react: link:apps/web-tss/@platejs/ai/react
+    optionalDependencies:
+      '@types/node': 24.0.10
+      '@types/react': 19.1.12
 
   react-docgen-typescript@2.4.0(typescript@5.9.2):
     dependencies:

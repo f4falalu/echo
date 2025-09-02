@@ -1,19 +1,22 @@
 import { useNavigate } from '@tanstack/react-router';
-import React, { useCallback, useMemo } from 'react';
-import { useGetMetric } from '@/api/buster_rest/metrics';
+import React, { useCallback, useMemo, useState } from 'react';
+import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
 import {
   createDropdownItem,
   DropdownContent,
   type IDropdownItem,
   type IDropdownItems,
 } from '@/components/ui/dropdown';
-import { History, Pencil, Star, WandSparkle } from '@/components/ui/icons';
+import { Download4, History, Pencil, SquareChart, Star, WandSparkle } from '@/components/ui/icons';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import type { BusterMetric } from '../../../api/asset_interfaces/metric';
+import { useBusterNotifications } from '../../../context/BusterNotifications';
 import { ensureElementExists } from '../../../lib/element';
+import { downloadElementToImage } from '../../../lib/exportUtils';
 import { FollowUpWithAssetContent } from '../assets/FollowUpWithAsset';
 import { useFavoriteStar } from '../favorites';
 import { useListMetricVersionDropdownItems } from '../versionHistory/useListMetricVersionDropdownItems';
+import { METRIC_CHART_CONTAINER_ID } from './MetricChartCard/config';
 import { METRIC_CHART_TITLE_INPUT_ID } from './MetricChartCard/MetricViewChartHeader';
 
 export const useMetricVersionHistorySelectMenu = ({
@@ -130,5 +133,83 @@ export const useRenameMetricOnPage = ({
       },
     }),
     [navigate, metricId, metricVersionNumber]
+  );
+};
+
+export const useDownloadMetricDataCSV = ({
+  metricId,
+  metricVersionNumber,
+}: {
+  metricId: string;
+  metricVersionNumber: number | undefined;
+}) => {
+  const [isDownloading, setIsDownloading] = useState(false);
+  const { data: metricData } = useGetMetricData(
+    { id: metricId, versionNumber: metricVersionNumber },
+    { enabled: false }
+  );
+  const { data: name } = useGetMetric({ id: metricId }, { select: (x) => x.name });
+
+  return useMemo(
+    () => ({
+      label: 'Download as CSV',
+      value: 'download-csv',
+      icon: <Download4 />,
+      loading: isDownloading,
+      onClick: async () => {
+        const data = metricData?.data;
+        if (data && name) {
+          setIsDownloading(true);
+          const exportJSONToCSV = await import('@/lib/exportUtils').then(
+            (mod) => mod.exportJSONToCSV
+          );
+          await exportJSONToCSV(data, name);
+          setIsDownloading(false);
+        }
+      },
+    }),
+    [metricData, isDownloading, name]
+  );
+};
+
+export const useDownloadPNGSelectMenu = ({
+  metricId,
+  metricVersionNumber,
+}: {
+  metricId: string;
+  metricVersionNumber: number | undefined;
+}) => {
+  const { openErrorMessage } = useBusterNotifications();
+  const { data: name } = useGetMetric(
+    { id: metricId, versionNumber: metricVersionNumber },
+    { select: (x) => x.name }
+  );
+  const { data: selectedChartType } = useGetMetric(
+    { id: metricId },
+    { select: (x) => x.chart_config?.selectedChartType }
+  );
+
+  const canDownload = selectedChartType && selectedChartType !== 'table';
+
+  return useMemo(
+    () => ({
+      label: 'Download as PNG',
+      value: 'download-png',
+      disabled: true,
+      icon: <SquareChart />,
+      onClick: async () => {
+        const node = document.getElementById(METRIC_CHART_CONTAINER_ID(metricId)) as HTMLElement;
+        if (node) {
+          try {
+            return await downloadElementToImage(node, `${name}.png`);
+          } catch (error) {
+            console.error(error);
+          }
+        }
+
+        openErrorMessage('Failed to download PNG');
+      },
+    }),
+    [canDownload, metricId, name, openErrorMessage]
   );
 };
