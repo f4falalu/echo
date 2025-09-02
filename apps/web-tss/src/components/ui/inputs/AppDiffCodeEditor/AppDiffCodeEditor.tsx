@@ -1,8 +1,8 @@
-'use client';
-
 import { DiffEditor } from '@monaco-editor/react';
+import { ClientOnly } from '@tanstack/react-router';
 import type { editor } from 'monaco-editor/esm/vs/editor/editor.api';
-import React, { forwardRef, useMemo } from 'react';
+import type React from 'react';
+import { forwardRef, useMemo } from 'react';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { cn } from '@/lib/classMerge';
 import { CircleSpinnerLoaderContainer } from '../../loaders/CircleSpinnerLoaderContainer';
@@ -142,25 +142,26 @@ export const AppDiffCodeEditor = forwardRef<AppDiffCodeEditorHandle, AppDiffCode
         )}
         style={style}
       >
-        <DiffEditor
-          key={`${useDarkMode ? 'dark' : 'light'}-${viewMode}`}
-          height={height}
-          loading={<LoadingContainer />}
-          language={language}
-          className={className}
-          original={original}
-          modified={modified}
-          theme={useDarkMode ? 'night-owl' : 'github-light'}
-          onMount={onMountDiffEditor}
-          options={memoizedMonacoEditorOptions}
-        />
+        <ClientOnly fallback={<LoadingContainer />}>
+          <DiffEditor
+            key={`${useDarkMode ? 'dark' : 'light'}-${viewMode}`}
+            height={height}
+            loading={<LoadingContainer />}
+            language={language}
+            className={className}
+            original={original}
+            modified={modified}
+            theme={useDarkMode ? 'night-owl' : 'github-light'}
+            onMount={onMountDiffEditor}
+            options={memoizedMonacoEditorOptions}
+          />
+        </ClientOnly>
       </div>
     );
   }
 );
 AppDiffCodeEditor.displayName = 'AppDiffCodeEditor';
 
-const LoadingContainer = React.memo(() => {
+const LoadingContainer = () => {
   return <CircleSpinnerLoaderContainer className="animate-in fade-in-0 duration-300" />;
-});
-LoadingContainer.displayName = 'LoadingContainer';
+};

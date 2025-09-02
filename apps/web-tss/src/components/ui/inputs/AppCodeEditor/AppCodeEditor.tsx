@@ -4,6 +4,7 @@
 import './MonacoWebWorker';
 
 import { Editor } from '@monaco-editor/react';
+import { ClientOnly } from '@tanstack/react-router';
 import type { editor } from 'monaco-editor/esm/vs/editor/editor.api';
 import type React from 'react';
 import { forwardRef, useCallback, useMemo } from 'react';
@@ -153,18 +154,20 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
         )}
         style={style}
       >
-        <Editor
-          key={useDarkMode ? 'dark' : 'light'}
-          height={height}
-          language={language}
-          className={className}
-          defaultValue={defaultValue}
-          value={value}
-          theme={useDarkMode ? 'night-owl' : 'github-light'}
-          onMount={onMountCodeEditor}
-          onChange={onChangeCodeEditor}
-          options={memoizedMonacoEditorOptions}
-        />
+        <ClientOnly fallback={<LoadingContainer />}>
+          <Editor
+            key={useDarkMode ? 'dark' : 'light'}
+            height={height}
+            language={language}
+            className={className}
+            defaultValue={defaultValue}
+            value={value}
+            theme={useDarkMode ? 'night-owl' : 'github-light'}
+            onMount={onMountCodeEditor}
+            onChange={onChangeCodeEditor}
+            options={memoizedMonacoEditorOptions}
+          />
+        </ClientOnly>
       </div>
     );
   }

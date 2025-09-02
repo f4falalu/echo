@@ -6,6 +6,7 @@ import {
   DEFAULT_CHART_THEME,
   DEFAULT_COLUMN_METADATA,
 } from '@buster/server-shared/metrics';
+import { ClientOnly } from '@tanstack/react-router';
 import type { Chart } from 'chart.js';
 import isEmpty from 'lodash/isEmpty';
 import React, { useMemo } from 'react';
@@ -159,11 +160,13 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
     });
 
     return (
-      <BusterChartErrorWrapper>
-        <BusterChartWrapper id={id} className={className} loading={loading}>
-          {SwitchComponent()}
-        </BusterChartWrapper>
-      </BusterChartErrorWrapper>
+      <ClientOnly>
+        <BusterChartErrorWrapper>
+          <BusterChartWrapper id={id} className={className} loading={loading}>
+            {SwitchComponent()}
+          </BusterChartWrapper>
+        </BusterChartErrorWrapper>
+      </ClientOnly>
     );
   }
 );
