@@ -58,7 +58,6 @@
     "vitest": "catalog:"
   },
   "peerDependencies": {
-    "bun": "^1.2.15",
     "typescript": "^5"
   },
   "packageManager": "pnpm@10.15.0",
