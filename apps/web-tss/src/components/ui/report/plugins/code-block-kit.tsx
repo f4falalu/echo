@@ -1,4 +1,3 @@
-
 import { CodeBlockPlugin, CodeLinePlugin, CodeSyntaxPlugin } from '@platejs/code-block/react';
 import { common, createLowlight } from 'lowlight';
 

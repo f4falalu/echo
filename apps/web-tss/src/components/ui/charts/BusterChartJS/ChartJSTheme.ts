@@ -1,4 +1,3 @@
-
 import { DEFAULT_CHART_THEME } from '@buster/server-shared/metrics';
 import {
   ArcElement,

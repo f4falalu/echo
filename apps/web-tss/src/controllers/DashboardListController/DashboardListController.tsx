@@ -1,4 +1,3 @@
-
 import type React from 'react';
 import { useState } from 'react';
 import { useGetDashboardsList } from '@/api/buster_rest/dashboards';

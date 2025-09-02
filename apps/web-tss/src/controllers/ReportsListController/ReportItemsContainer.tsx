@@ -1,4 +1,3 @@
-
 import type { ReportListItem } from '@buster/server-shared/reports';
 import React, { memo, useMemo, useRef, useState } from 'react';
 import { FavoriteStar } from '@/components/features/favorites';

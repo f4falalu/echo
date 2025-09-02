@@ -1,4 +1,3 @@
-
 import { LinkPlugin } from '@platejs/link/react';
 import { LinkFloatingToolbar } from '../elements/LinkFloatingToolbar';
 import { LinkElement } from '../elements/LinkNode';

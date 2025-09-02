@@ -1,4 +1,3 @@
-
 import { AIChatPlugin } from '@platejs/ai/react';
 import { useEditorPlugin } from 'platejs/react';
 import type * as React from 'react';

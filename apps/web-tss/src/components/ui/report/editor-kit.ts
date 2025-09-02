@@ -1,4 +1,3 @@
-
 import { TrailingBlockPlugin, type Value } from 'platejs';
 import { type TPlateEditor, useEditorRef } from 'platejs/react';
 

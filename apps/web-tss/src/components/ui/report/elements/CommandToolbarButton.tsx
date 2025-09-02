@@ -1,4 +1,3 @@
-
 import { useEditorRef } from 'platejs/react';
 
 import * as React from 'react';

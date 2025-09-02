@@ -1,4 +1,3 @@
-
 import { TocPlugin } from '@platejs/toc/react';
 
 import { TocElement } from '../elements/TocNode';

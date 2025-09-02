@@ -1,4 +1,3 @@
-
 import isEqual from 'lodash/isEqual';
 import { useRef } from 'react';
 import { useMemoizedFn } from './useMemoizedFn';

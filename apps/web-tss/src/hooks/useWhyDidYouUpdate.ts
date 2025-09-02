@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from 'react';
 
 export type IProps = Record<string, unknown>;

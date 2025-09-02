@@ -1,4 +1,3 @@
-
 import { ListPlugin } from '@platejs/list/react';
 import { KEYS } from 'platejs';
 import { BlockList } from '../elements/BlockList';

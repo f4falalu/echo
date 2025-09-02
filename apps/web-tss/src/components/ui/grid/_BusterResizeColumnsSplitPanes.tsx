@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/lib/classMerge';
 import { MAX_NUMBER_OF_COLUMNS, MIN_NUMBER_OF_COLUMNS, NUMBER_OF_COLUMNS } from './helpers';

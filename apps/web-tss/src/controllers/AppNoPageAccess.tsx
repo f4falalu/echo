@@ -1,4 +1,3 @@
-
 import type { AssetType } from '@buster/server-shared/assets';
 import type { ResponseMessageFileType } from '@buster/server-shared/chats';
 import { Link, type LinkProps } from '@tanstack/react-router';

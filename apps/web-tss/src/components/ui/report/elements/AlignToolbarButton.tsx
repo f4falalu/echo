@@ -1,4 +1,3 @@
-
 import type { Alignment } from '@platejs/basic-styles';
 import { TextAlignPlugin } from '@platejs/basic-styles/react';
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';

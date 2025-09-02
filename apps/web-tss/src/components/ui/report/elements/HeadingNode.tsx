@@ -1,4 +1,3 @@
-
 import { cva, type VariantProps } from 'class-variance-authority';
 
 import type { PlateElementProps } from 'platejs/react';

@@ -1,4 +1,3 @@
-
 import {
   type ChartConfigProps,
   type ColumnLabelFormat,

@@ -1,4 +1,3 @@
-
 import { SortableContext, useSortable } from '@dnd-kit/sortable';
 import isEqual from 'lodash/isEqual';
 import React, { useEffect, useMemo, useState } from 'react';

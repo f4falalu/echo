@@ -1,4 +1,3 @@
-
 import { KEYS } from 'platejs';
 import { useEditorReadOnly } from 'platejs/react';
 import * as React from 'react';

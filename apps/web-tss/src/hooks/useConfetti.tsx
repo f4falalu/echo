@@ -1,4 +1,3 @@
-
 import type { Options } from 'canvas-confetti';
 import confetti from 'canvas-confetti';
 //https://www.kirilv.com/canvas-confetti/

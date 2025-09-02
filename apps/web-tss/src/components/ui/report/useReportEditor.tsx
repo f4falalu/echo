@@ -1,4 +1,3 @@
-
 import type { ReportElementWithId } from '@buster/server-shared/reports';
 import type { Value } from 'platejs';
 import { type TPlateEditor, useEditorRef, usePlateEditor } from 'platejs/react';

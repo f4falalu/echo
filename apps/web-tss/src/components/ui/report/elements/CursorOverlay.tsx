@@ -1,4 +1,3 @@
-
 import { AIChatPlugin } from '@platejs/ai/react';
 import {
   type CursorData,

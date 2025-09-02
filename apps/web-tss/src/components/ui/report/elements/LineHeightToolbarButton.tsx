@@ -1,4 +1,3 @@
-
 import { LineHeightPlugin } from '@platejs/basic-styles/react';
 
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';

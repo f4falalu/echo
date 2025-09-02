@@ -1,4 +1,3 @@
-
 import { BlockMenuPlugin } from '@platejs/selection/react';
 
 import { BlockContextMenu } from '../elements/BlockContextMenu';

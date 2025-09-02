@@ -1,4 +1,3 @@
-
 import { useTocElement, useTocElementState } from '@platejs/toc/react';
 import { cva } from 'class-variance-authority';
 import type { PlateElementProps } from 'platejs/react';

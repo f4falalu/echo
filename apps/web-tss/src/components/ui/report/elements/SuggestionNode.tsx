@@ -1,4 +1,3 @@
-
 import type { TSuggestionData, TSuggestionText } from 'platejs';
 import type { PlateLeafProps, RenderNodeWrapper } from 'platejs/react';
 import { PlateLeaf, useEditorPlugin, usePluginOption } from 'platejs/react';

@@ -1,4 +1,3 @@
-
 import { createPlatePlugin } from 'platejs/react';
 
 import { FixedToolbar } from '../elements/FixedToolbar';

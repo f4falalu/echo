@@ -1,4 +1,3 @@
-
 import { useMemo, useRef } from 'react';
 
 // biome-ignore lint/suspicious/noExplicitAny: Required for generic function types

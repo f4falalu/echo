@@ -1,4 +1,3 @@
-
 import { formatCodeBlock, isLangSupported } from '@platejs/code-block';
 import { NodeApi, type TCodeBlockElement, type TCodeSyntaxLeaf } from 'platejs';
 import {

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import type { dashboardsGetList } from '@/api/buster_rest/dashboards';
 import { Button } from '@/components/ui/buttons';

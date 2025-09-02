@@ -1,4 +1,3 @@
-
 import type { ChartEncodes, ChartType } from '@buster/server-shared/metrics';
 import type React from 'react';
 import { useEffect, useMemo, useState, useTransition } from 'react';

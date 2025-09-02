@@ -1,4 +1,3 @@
-
 import { MediaPluginOptions } from '@platejs/media';
 import {
   AudioPlugin,

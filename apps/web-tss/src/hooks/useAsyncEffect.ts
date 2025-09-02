@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 
 type AsyncEffect = () => Promise<undefined | (() => void)>;

@@ -1,4 +1,3 @@
-
 import { useNavigate } from '@tanstack/react-router';
 import React, { useEffect, useMemo } from 'react';
 import { useCreateCollection } from '@/api/buster_rest/collections';

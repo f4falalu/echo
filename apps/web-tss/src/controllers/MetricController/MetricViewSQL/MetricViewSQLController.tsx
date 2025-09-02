@@ -1,4 +1,3 @@
-
 import type { DataResult } from '@buster/server-shared/metrics';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';

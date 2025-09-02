@@ -1,4 +1,3 @@
-
 import { useLink } from '@platejs/link/react';
 
 import type { TLinkElement } from 'platejs';

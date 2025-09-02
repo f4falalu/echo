@@ -1,4 +1,3 @@
-
 import {
   TableCellHeaderPlugin,
   TableCellPlugin,

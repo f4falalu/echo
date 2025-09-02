@@ -1,4 +1,3 @@
-
 import {
   BoldPlugin,
   CodePlugin,

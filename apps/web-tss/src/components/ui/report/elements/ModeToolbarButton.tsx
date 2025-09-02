@@ -1,4 +1,3 @@
-
 import { SuggestionPlugin } from '@platejs/suggestion/react';
 import { DropdownMenuItemIndicator, type DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 import { useEditorRef, usePlateState, usePluginOption } from 'platejs/react';

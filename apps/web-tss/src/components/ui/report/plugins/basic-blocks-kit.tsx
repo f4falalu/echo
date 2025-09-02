@@ -1,4 +1,3 @@
-
 import {
   BlockquotePlugin,
   H1Plugin,

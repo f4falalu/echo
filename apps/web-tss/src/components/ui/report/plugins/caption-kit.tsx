@@ -1,4 +1,3 @@
-
 import { CaptionPlugin } from '@platejs/caption/react';
 import { KEYS } from 'platejs';
 import { CUSTOM_KEYS } from '../config/keys';

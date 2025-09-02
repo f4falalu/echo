@@ -1,4 +1,3 @@
-
 import {
   FloatingMedia as FloatingMediaPrimitive,
   FloatingMediaStore,

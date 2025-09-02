@@ -1,4 +1,3 @@
-
 import { DndPlugin } from '@platejs/dnd';
 import { PlaceholderPlugin } from '@platejs/media/react';
 import { DndProvider } from 'react-dnd';

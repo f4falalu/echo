@@ -1,4 +1,3 @@
-
 import { type DependencyList, useLayoutEffect, useRef } from 'react';
 
 /**

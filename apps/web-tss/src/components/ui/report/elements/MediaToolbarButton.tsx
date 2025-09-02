@@ -1,4 +1,3 @@
-
 import { PlaceholderPlugin } from '@platejs/media/react';
 
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';

@@ -1,4 +1,3 @@
-
 import { type DependencyList, type EffectCallback, useEffect } from 'react';
 
 interface DebounceEffectOptions {

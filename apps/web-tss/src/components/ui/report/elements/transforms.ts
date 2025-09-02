@@ -1,4 +1,3 @@
-
 import { insertCallout } from '@platejs/callout';
 import { insertCodeBlock } from '@platejs/code-block';
 import { insertDate } from '@platejs/date';

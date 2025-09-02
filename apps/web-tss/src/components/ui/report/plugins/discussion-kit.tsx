@@ -1,4 +1,3 @@
-
 import { createPlatePlugin } from 'platejs/react';
 import { BlockDiscussion } from '../elements/BlockDiscussion';
 import type { TComment } from '../elements/Comment';

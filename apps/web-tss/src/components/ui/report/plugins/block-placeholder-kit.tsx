@@ -1,4 +1,3 @@
-
 import { KEYS } from 'platejs';
 import { BlockPlaceholderPlugin } from 'platejs/react';
 

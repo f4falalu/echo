@@ -1,4 +1,3 @@
-
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 import { KEYS } from 'platejs';
 import { useEditorRef } from 'platejs/react';

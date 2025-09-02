@@ -1,4 +1,3 @@
-
 import { type BaseSuggestionConfig, BaseSuggestionPlugin } from '@platejs/suggestion';
 import {
   type ExtendConfig,

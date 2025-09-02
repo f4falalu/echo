@@ -1,4 +1,3 @@
-
 import type React from 'react';
 import { useState } from 'react';
 import { useGetCollectionsList } from '@/api/buster_rest/collections';

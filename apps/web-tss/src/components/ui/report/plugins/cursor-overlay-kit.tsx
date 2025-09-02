@@ -1,4 +1,3 @@
-
 import { CursorOverlayPlugin } from '@platejs/selection/react';
 
 import { CursorOverlay } from '../elements/CursorOverlay';

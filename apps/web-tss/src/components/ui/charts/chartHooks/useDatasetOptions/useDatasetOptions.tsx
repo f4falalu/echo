@@ -1,4 +1,3 @@
-
 import type {
   BarSortBy,
   ChartConfigProps,

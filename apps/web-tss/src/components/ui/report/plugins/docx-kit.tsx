@@ -1,4 +1,3 @@
-
 import { DocxPlugin } from '@platejs/docx';
 import { JuicePlugin } from '@platejs/juice';
 

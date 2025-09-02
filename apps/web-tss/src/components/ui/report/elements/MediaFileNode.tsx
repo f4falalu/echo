@@ -1,4 +1,3 @@
-
 import { useMediaState } from '@platejs/media/react';
 import { ResizableProvider } from '@platejs/resizable';
 import type { TFileElement } from 'platejs';

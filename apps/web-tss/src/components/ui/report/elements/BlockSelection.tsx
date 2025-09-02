@@ -1,4 +1,3 @@
-
 import { DndPlugin } from '@platejs/dnd';
 import { useBlockSelected } from '@platejs/selection/react';
 import { cva } from 'class-variance-authority';

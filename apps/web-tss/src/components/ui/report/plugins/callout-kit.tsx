@@ -1,4 +1,3 @@
-
 import { CalloutPlugin } from '@platejs/callout/react';
 
 import { CalloutElement } from '../elements/CalloutNode';

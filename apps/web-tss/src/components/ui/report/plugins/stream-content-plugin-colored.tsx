@@ -1,4 +1,3 @@
-
 import { StreamingText } from '../elements/StreamingText';
 import { StreamContentPlugin as BaseStreamContentPlugin } from './stream-content-plugin';
 

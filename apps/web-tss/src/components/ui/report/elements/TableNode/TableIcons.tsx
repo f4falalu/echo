@@ -1,4 +1,3 @@
-
 type IconProps = React.SVGProps<SVGSVGElement>;
 
 export function BorderAllIcon(props: IconProps) {

@@ -1,4 +1,3 @@
-
 import { type MutableRefObject, useEffect, useRef } from 'react';
 import { useLatest } from './useLatest';
 
