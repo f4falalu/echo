@@ -1,5 +1,5 @@
 import React from 'react';
-import { SaveResetFilePopup } from '@/components/features/popups/SaveResetFilePopupBase';
+import { SaveResetFilePopup } from '@/components/features/popups/SaveResetFilePopup';
 import { useIsMetricFileChanged } from '@/context/Metrics/useIsMetricFileChanged';
 import { useUpdateMetricChart } from '@/context/Metrics/useUpdateMetricChart';
 

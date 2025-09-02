@@ -2,7 +2,7 @@ import React, { lazy, Suspense } from 'react';
 import type { SaveResetFilePopupProps } from './SaveResetFilePopupBase';
 
 const SaveResetFilePopupBase = lazy(() =>
-  import('./SaveResetFilePopupBase').then((mod) => ({ default: mod.SaveResetFilePopup }))
+  import('./SaveResetFilePopupBase').then((mod) => ({ default: mod.SaveResetFilePopupBase }))
 );
 
 export const SaveResetFilePopup = (props: SaveResetFilePopupProps) => {

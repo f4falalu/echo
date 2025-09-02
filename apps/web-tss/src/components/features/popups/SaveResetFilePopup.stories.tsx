@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import { fn } from 'storybook/test';
 import { Button } from '@/components/ui/buttons';
-import { SaveResetFilePopup } from './SaveResetFilePopupBase';
+import { SaveResetFilePopup } from './SaveResetFilePopup';
 
 const meta: Meta<typeof SaveResetFilePopup> = {
   title: 'Features/Popups/SaveResetFilePopup',

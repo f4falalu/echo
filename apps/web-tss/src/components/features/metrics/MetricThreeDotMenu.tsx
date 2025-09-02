@@ -17,8 +17,10 @@ import { useSaveToCollectionsDropdownContent } from '@/components/features/dropd
 import { useSaveToDashboardDropdownContent } from '@/components/features/dropdowns/SaveToDashboardDropdown';
 import { StatusBadgeIndicator } from '@/components/features/metrics/StatusBadgeIndicator';
 import { useStatusDropdownContent } from '@/components/features/metrics/StatusBadgeIndicator/useStatusDropdownContent';
-import { useDownloadMetricDataCSV } from '@/components/features/metrics/useDownloadMetricDataCSV';
-import { useDownloadPNGSelectMenu } from '@/components/features/metrics/useDownloadMetricDataPNG';
+import {
+  useDownloadMetricDataCSV,
+  useDownloadPNGSelectMenu,
+} from '@/components/features/metrics/threeDotMenuHooks';
 import { getShareAssetConfig } from '@/components/features/ShareMenu/helpers';
 import { ShareMenuContent } from '@/components/features/ShareMenu/ShareMenuContent';
 import { Button } from '@/components/ui/buttons';

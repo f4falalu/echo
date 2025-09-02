@@ -14,7 +14,7 @@ export type SaveResetFilePopupProps = {
   showHotsKeys?: boolean;
 };
 
-export const SaveResetFilePopup: React.FC<SaveResetFilePopupProps> = React.memo(
+export const SaveResetFilePopupBase: React.FC<SaveResetFilePopupProps> = React.memo(
   ({ open, onReset, onSave, isSaving = false, className = '', showHotsKeys = false }) => {
     return (
       <PopupContainer show={open} className={className}>
@@ -74,6 +74,6 @@ const SplitterContent: React.FC<{
   );
 });
 
-SaveResetFilePopup.displayName = 'SaveResetFilePopup';
+SaveResetFilePopupBase.displayName = 'SaveResetFilePopupBase';
 
 SplitterContent.displayName = 'SplitterContent';

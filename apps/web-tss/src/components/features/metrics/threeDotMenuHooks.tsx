@@ -1,5 +1,6 @@
 import { useNavigate } from '@tanstack/react-router';
 import React, { useCallback, useMemo, useState } from 'react';
+import type { BusterMetric } from '@/api/asset_interfaces/metric';
 import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
 import {
   createDropdownItem,
@@ -9,10 +10,9 @@ import {
 } from '@/components/ui/dropdown';
 import { Download4, History, Pencil, SquareChart, Star, WandSparkle } from '@/components/ui/icons';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
-import type { BusterMetric } from '../../../api/asset_interfaces/metric';
-import { useBusterNotifications } from '../../../context/BusterNotifications';
-import { ensureElementExists } from '../../../lib/element';
-import { downloadElementToImage } from '../../../lib/exportUtils';
+import { useBusterNotifications } from '@/context/BusterNotifications';
+import { ensureElementExists } from '@/lib/element';
+import { downloadElementToImage } from '@/lib/exportUtils';
 import { FollowUpWithAssetContent } from '../assets/FollowUpWithAsset';
 import { useFavoriteStar } from '../favorites';
 import { useListMetricVersionDropdownItems } from '../versionHistory/useListMetricVersionDropdownItems';

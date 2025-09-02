@@ -2,7 +2,7 @@ import type { PlateEditor } from 'platejs/react';
 
 // Render the current editor content to a canvas for image export.
 export const getCanvas = async (editor: PlateEditor) => {
-  const { default: html2canvas } = await import('html2canvas-pro');
+  const html2canvas = await import('html2canvas-pro').then((m) => m.default);
 
   // Create a temporary style element to isolate any styles needed during export.
   // Ensure it is always cleaned up, even if an error occurs during rendering.
