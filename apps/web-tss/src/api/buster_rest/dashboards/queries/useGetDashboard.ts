@@ -16,6 +16,7 @@ import {
   useGetDashboardAndInitializeMetrics,
 } from '../dashboardQueryHelpers';
 import { useGetDashboardVersionNumber } from '../dashboardVersionNumber';
+import { dashboardsGetList } from '../requests';
 
 /**
  * useGetDashboard
@@ -85,15 +86,9 @@ export const usePrefetchGetDashboardClient = <TData = GetDashboardResponse>(
  * Returns the dashboards list using a compiled set of filters.
  */
 export const useGetDashboardsList = (
-  params: Omit<
-    Parameters<typeof import('../requests').dashboardsGetList>[0],
-    'page_token' | 'page_size'
-  >,
+  params: Omit<Parameters<typeof dashboardsGetList>[0], 'page_token' | 'page_size'>,
   options?: Omit<
-    UseQueryOptions<
-      Awaited<ReturnType<typeof import('../requests').dashboardsGetList>>,
-      RustApiError
-    >,
+    UseQueryOptions<Awaited<ReturnType<typeof dashboardsGetList>>, RustApiError>,
     'queryKey' | 'queryFn' | 'initialData'
   >
 ) => {
@@ -107,7 +102,7 @@ export const useGetDashboardsList = (
 
   return useQuery({
     ...dashboardQueryKeys.dashboardGetList(filters),
-    queryFn: () => import('../requests').then((m) => m.dashboardsGetList(filters)),
+    queryFn: () => dashboardsGetList(filters),
     ...options,
   });
 };
@@ -117,21 +112,19 @@ export const useGetDashboardsList = (
  * Prefetches the dashboards list if it is stale and the org id is present.
  */
 export const prefetchGetDashboardsList = async (
-  queryClient: import('@tanstack/react-query').QueryClient,
-  params?: Parameters<typeof import('../requests').dashboardsGetList>[0]
+  queryClient: QueryClient,
+  params?: Parameters<typeof dashboardsGetList>[0]
 ) => {
   const options = dashboardQueryKeys.dashboardGetList(params);
   const isStale = isQueryStale(options, queryClient);
   if (!isStale || !hasOrganizationId(queryClient)) return queryClient;
 
   const lastQueryKey = options.queryKey[options.queryKey.length - 1];
-  const compiledParams = lastQueryKey as Parameters<
-    typeof import('../requests').dashboardsGetList
-  >[0];
+  const compiledParams = lastQueryKey as Parameters<typeof dashboardsGetList>[0];
 
   await queryClient.prefetchQuery({
     ...options,
-    queryFn: () => import('../requests').then((m) => m.dashboardsGetList(compiledParams)),
+    queryFn: () => dashboardsGetList(compiledParams),
   });
 
   return queryClient;

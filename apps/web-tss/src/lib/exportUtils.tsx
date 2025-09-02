@@ -1,5 +1,3 @@
-'use client';
-
 import { timeout } from './timeout';
 
 export async function exportJSONToCSV(
