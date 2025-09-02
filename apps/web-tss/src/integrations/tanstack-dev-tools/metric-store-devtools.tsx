@@ -140,7 +140,4 @@ function DevtoolPanel() {
   );
 }
 
-export default {
-  name: 'Metric Original Store',
-  render: <DevtoolPanel />,
-};
+export default DevtoolPanel;

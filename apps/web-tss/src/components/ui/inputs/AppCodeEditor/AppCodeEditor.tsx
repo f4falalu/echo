@@ -1,8 +1,6 @@
 //https://github.com/popsql/monaco-sql-languages/blob/main/example/src/App.js#L2
 //https://dtstack.github.io/monaco-sql-languages/
 
-import './MonacoWebWorker';
-
 import { Editor } from '@monaco-editor/react';
 import { ClientOnly } from '@tanstack/react-router';
 import type { editor } from 'monaco-editor/esm/vs/editor/editor.api';
@@ -101,6 +99,12 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
 
     const onMountCodeEditor = useCallback(
       async (editor: editor.IStandaloneCodeEditor, monaco: typeof import('monaco-editor')) => {
+        // Setup Monaco web workers (client-side only)
+        if (typeof window !== 'undefined') {
+          const { setupMonacoWorkers } = await import('./setupMonacoWorkers');
+          await setupMonacoWorkers();
+        }
+
         const [GithubLightTheme, NightOwlTheme] = await Promise.all([
           (await import('./themes/github_light_theme')).default,
           (await import('./themes/tomorrow_night_theme')).default,
