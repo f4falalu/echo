@@ -1,5 +1,5 @@
+import type { DashboardConfig } from '@buster/server-shared/dashboards';
 import { describe, expect, it } from 'vitest';
-import type { DashboardConfig } from '@/api/asset_interfaces/dashboard';
 import { NUMBER_OF_COLUMNS } from '@/components/ui/grid/helpers';
 import { createMockMetric } from '@/mocks/metric';
 import { hasRemovedMetrics, hasUnmappedMetrics } from './hasMappedMetrics';

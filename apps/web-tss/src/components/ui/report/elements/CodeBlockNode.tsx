@@ -132,7 +132,6 @@ CodeBlockCombobox.displayName = 'CodeBlockCombobox';
 
 function CopyButton({
   value,
-  ...props
 }: { value: (() => string) | string } & Omit<React.ComponentProps<typeof Button>, 'value'>) {
   const [hasCopied, setHasCopied] = React.useState(false);
 

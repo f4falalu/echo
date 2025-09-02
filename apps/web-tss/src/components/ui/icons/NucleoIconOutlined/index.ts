@@ -95,8 +95,10 @@ export { default as Music } from './music';
 export { default as OctagonWarning } from './octagon-warning';
 export { default as OrderedList } from './ordered-list';
 export { default as PaintRoller } from './paint-roller';
+export { default as Pen } from './pen';
 export { default as PenSparkle } from './pen-sparkle';
 export { default as Pencil } from './pencil';
+export { default as Pencil2 } from './pencil-2';
 export { default as Pilcrow } from './pilcrow';
 export { default as Plus } from './plus'; // Plus/add icon
 export { default as Quote } from './quote';

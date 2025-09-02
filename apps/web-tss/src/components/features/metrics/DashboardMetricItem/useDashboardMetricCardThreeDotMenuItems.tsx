@@ -240,7 +240,7 @@ const useViewResultsButton = ({
         value: 'view-results',
         icon: <ASSET_ICONS.table />,
         link: {
-          to: '/app/dashboards/$dashboardId/metrics/$metricId/result',
+          to: '/app/dashboards/$dashboardId/metrics/$metricId/results',
           params: {
             dashboardId,
             metricId,

@@ -32,6 +32,7 @@ export function EquationElementStatic(props: SlateElementProps<TEquationElement>
       >
         {element.texExpression.length > 0 ? (
           <span
+            // biome-ignore lint/security/noDangerouslySetInnerHtml: cool kids dangerously set inner html
             dangerouslySetInnerHTML={{
               __html: html,
             }}

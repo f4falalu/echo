@@ -7,7 +7,7 @@ export type MetricPluginOptions = {
   openMetricModal: boolean;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+/** biome-ignore lint/complexity/noBannedTypes: it's cool */
 export type MetricPluginApi = {
   // the methods are defined in the extendApi function
 };
@@ -42,7 +42,7 @@ export const MetricPlugin = createPlatePlugin<
       emptyLineEnd: 'exit',
     },
   },
-}).extendApi(({ setOption, plugin, editor, tf, ...rest }) => {
+}).extendApi(({ setOption, tf }) => {
   return {
     openAddMetricModal: () => {
       setOption('openMetricModal', true);

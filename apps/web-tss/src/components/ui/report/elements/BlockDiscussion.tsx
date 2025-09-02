@@ -50,6 +50,7 @@ export const BlockDiscussion: RenderNodeWrapper<AnyPluginConfig> = (props) => {
     return;
   }
 
+  // biome-ignore lint/correctness/noNestedComponentDefinitions: meh
   const Component = (props: PlateElementProps) => (
     <BlockCommentContent
       blockPath={blockPath}
@@ -136,7 +137,7 @@ const BlockCommentContent = ({
 
     if (!activeNode) return null;
 
-    return editor.api.toDOMNode(activeNode[0])!;
+    return editor.api.toDOMNode(activeNode[0]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     open,
@@ -181,6 +182,7 @@ const BlockCommentContent = ({
           {isCommenting ? (
             <CommentCreateForm className="p-4" focusOnMount />
           ) : (
+            // biome-ignore lint/complexity/noUselessFragments: it's cool
             <React.Fragment>
               {noneActive ? (
                 sortedMergedData.map((item, index) =>

@@ -6,10 +6,8 @@ const meta: Meta<typeof InputTextArea> = {
   component: InputTextArea,
   tags: ['autodocs'],
   args: {
-    autoResize: {
-      minRows: 1,
-      maxRows: 4,
-    },
+    minRows: 1,
+    maxRows: 4,
   },
   argTypes: {
     variant: {
@@ -65,9 +63,7 @@ export const LargeRows: Story = {
 export const AutoResize: Story = {
   args: {
     placeholder: 'Auto resize textarea...',
-    autoResize: {
-      minRows: 4,
-      maxRows: 12,
-    },
+    minRows: 4,
+    maxRows: 12,
   },
 };

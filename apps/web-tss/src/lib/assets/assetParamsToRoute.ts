@@ -108,16 +108,6 @@ const ROUTE_MAP: Record<string, RouteFilePaths> = {
   'chat+report+metric': '/app/chats/$chatId/report/$reportId/metrics/$metricId',
 
   // Collection combination routes
-  'collection+chat': '/app/collections/$collectionId/chats/$chatId',
-  'collection+dashboard': '/app/collections/$collectionId/dashboard/$dashboardId',
-  'collection+metric': '/app/collections/$collectionId/metrics/$metricId',
-  'collection+chat+dashboard':
-    '/app/collections/$collectionId/chats/$chatId/dashboards/$dashboardId',
-  'collection+chat+metric': '/app/collections/$collectionId/chats/$chatId/metrics/$metricId',
-  'collection+dashboard+metric':
-    '/app/collections/$collectionId/dashboard/$dashboardId/metrics/$metricId',
-  'collection+chat+dashboard+metric':
-    '/app/collections/$collectionId/chats/$chatId/dashboards/$dashboardId/metrics/$metricId',
 } as const;
 
 // Type-check that all routes are valid

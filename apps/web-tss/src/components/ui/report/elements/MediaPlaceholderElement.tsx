@@ -79,6 +79,7 @@ export const PlaceholderElement = withHOC(
         if (restFiles.length > 0) {
           // Convert File[] to FileList
           const dataTransfer = new DataTransfer();
+          // biome-ignore lint/suspicious/useIterableCallbackReturn: look into this later
           restFiles.forEach((file) => dataTransfer.items.add(file));
           editor.getTransforms(PlaceholderPlugin).insert.media(dataTransfer.files);
         }
@@ -108,6 +109,7 @@ export const PlaceholderElement = withHOC(
           isUpload: true,
           name: element.mediaType === KEYS.file ? uploadedFile.name : '',
           placeholderId: element.id as string,
+          // biome-ignore lint/style/noNonNullAssertion: look into this later
           type: element.mediaType!,
           url: uploadedFile.url,
         };

@@ -157,7 +157,8 @@ const EditMessage: React.FC<{
     <div className="-mt-0.5 flex flex-col space-y-2">
       <InputTextArea
         ref={textAreaRef}
-        autoResize={{ minRows: 3, maxRows: 10 }}
+        minRows={3}
+        maxRows={10}
         value={prompt}
         onPressEnter={onSave}
         onChange={(e) => setPrompt(e.target.value)}

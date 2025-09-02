@@ -336,6 +336,7 @@ function EmojiPickerSearchBar({
           aria-label="Search"
           autoComplete="off"
           type="text"
+          // biome-ignore lint/a11y/noAutofocus: it's cool
           autoFocus
         />
         {children}

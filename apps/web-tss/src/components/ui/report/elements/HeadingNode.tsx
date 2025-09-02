@@ -24,7 +24,7 @@ export function HeadingElement({
   ...props
 }: PlateElementProps & VariantProps<typeof headingVariants>) {
   return (
-    <PlateElement as={variant!} className={headingVariants({ variant })} {...props}>
+    <PlateElement as={variant as 'h1'} className={headingVariants({ variant })} {...props}>
       {props.children}
     </PlateElement>
   );

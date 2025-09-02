@@ -7,7 +7,7 @@ import {
   useSelected,
 } from 'platejs/react';
 import * as React from 'react';
-import { AddMetricModal } from '@/components/features/modal/AddMetricModal';
+import { AddMetricModal } from '@/components/features/dashboard/AddMetricModal';
 import { Button } from '@/components/ui/buttons';
 import { PopoverAnchor, PopoverBase, PopoverContent } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
@@ -82,7 +82,7 @@ export function MetricToolbar({
       <AddMetricModal
         open={openEditModal}
         loading={false}
-        selectedMetrics={preselectedMetrics}
+        initialSelectedMetrics={preselectedMetrics}
         onClose={onCloseEdit}
         onAddMetrics={handleAddMetrics}
         selectionMode="single"

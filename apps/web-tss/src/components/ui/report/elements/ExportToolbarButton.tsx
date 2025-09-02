@@ -14,7 +14,7 @@ import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
 import { createLabel, NodeTypeLabels } from '../config/labels';
 import { useExportReport } from '../hooks/useExportReport';
 
-export function ExportToolbarButton({ children, ...props }: DropdownMenuProps) {
+export function ExportToolbarButton({ children }: DropdownMenuProps) {
   const editor = useEditorRef();
   const [open, setOpen] = React.useState(false);
 

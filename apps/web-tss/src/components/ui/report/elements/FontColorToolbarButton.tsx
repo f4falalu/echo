@@ -14,7 +14,7 @@ import {
 import { Eraser } from '@/components/ui/icons';
 import { ToolbarButton, ToolbarMenuGroup } from '@/components/ui/toolbar/Toolbar';
 import { Tooltip } from '@/components/ui/tooltip';
-import { useGetPalettes } from '@/context-hooks/usePalettes';
+import { useGetPalettes } from '@/context/Themes/usePalettes';
 import { isBrightColor } from '@/lib/colors';
 import { cn } from '@/lib/utils';
 

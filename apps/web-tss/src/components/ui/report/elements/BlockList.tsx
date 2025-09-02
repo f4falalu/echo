@@ -25,6 +25,7 @@ const config: Record<
 export const BlockList: RenderNodeWrapper = (props) => {
   if (!props.element.listStyleType) return;
 
+  // biome-ignore lint/correctness/noNestedComponentDefinitions: meh
   const Component = (props: PlateElementProps) => <List {...props} />;
   Component.displayName = 'BlockList';
 

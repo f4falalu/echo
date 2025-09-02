@@ -64,7 +64,7 @@ export const MediaEmbedElement = withHOC(
     } = useMediaState({
       urlParsers,
     });
-    const width = useResizableValue('width');
+    const width = useResizableValue('width') as string;
     const provider = embed?.provider;
     const hasElement = !!url;
 
@@ -90,9 +90,9 @@ export const MediaEmbedElement = withHOC(
               />
 
               {isVideo ? (
-                isYoutube ? (
+                isYoutube && embed ? (
                   <LiteYouTubeEmbed
-                    id={embed!.id!}
+                    id={embed.id || ''}
                     title="youtube"
                     wrapperClass={cn(
                       'rounded-sm',
@@ -128,7 +128,7 @@ export const MediaEmbedElement = withHOC(
                         focused && selected && 'ring-ring ring-2 ring-offset-2'
                       )}
                       title="embed"
-                      src={embed!.url}
+                      src={embed?.url}
                       allowFullScreen
                     />
                   </div>

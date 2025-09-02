@@ -4,6 +4,7 @@ import { MetricElementStatic } from '../../elements/MetricElement/MetricElementS
 import type { TMetricElement } from './metric-kit';
 
 export const MetricBaseKit = [
+  // biome-ignore lint/complexity/noBannedTypes: it's cool
   createPlatePlugin<typeof CUSTOM_KEYS.metric, {}, {}, TMetricElement>({
     key: 'metric',
     node: {

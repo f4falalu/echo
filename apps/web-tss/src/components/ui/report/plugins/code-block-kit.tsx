@@ -2,7 +2,6 @@
 
 import { CodeBlockPlugin, CodeLinePlugin, CodeSyntaxPlugin } from '@platejs/code-block/react';
 import { common, createLowlight } from 'lowlight';
-import type { AnyPluginConfig } from 'platejs';
 
 import { CodeBlockElement, CodeLineElement, CodeSyntaxLeaf } from '../elements/CodeBlockNode';
 

@@ -44,7 +44,7 @@
     "@llm-ui/markdown": "^0.13.3",
     "@llm-ui/react": "^0.13.3",
     "@monaco-editor/react": "^4.7.0",
-    "@platejs/ai": "^49.2.4",
+    "@platejs/ai": "^49.2.15",
     "@platejs/autoformat": "catalog:",
     "@platejs/basic-nodes": "catalog:",
     "@platejs/basic-styles": "catalog:",

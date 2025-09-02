@@ -29,7 +29,7 @@ export const VideoElement = withHOC(
     } = useMediaState({
       urlParsers: [parseTwitterUrl, parseVideoUrl],
     });
-    const width = useResizableValue('width');
+    const width = useResizableValue('width') as string;
 
     const isEditorMounted = useEditorMounted();
 
@@ -66,7 +66,7 @@ export const VideoElement = withHOC(
               {!isUpload && isYoutube && (
                 <div ref={handleRef}>
                   <LiteYouTubeEmbed
-                    id={embed!.id!}
+                    id={embed?.id || ''}
                     title="youtube"
                     wrapperClass={cn(
                       'aspect-video rounded-sm',
@@ -102,7 +102,7 @@ export const VideoElement = withHOC(
             </div>
           </Resizable>
 
-          <Caption style={{ width }} align={align}>
+          <Caption style={{ width: width }} align={align}>
             <CaptionTextarea readOnly={readOnly} placeholder="Write a caption..." />
           </Caption>
         </figure>

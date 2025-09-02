@@ -1,9 +1,6 @@
 import type { ReportElementWithId } from '@buster/server-shared/reports';
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { Value } from 'platejs';
-import { useEffect, useRef, useState } from 'react';
-import { useMount } from '@/hooks';
-import { cn } from '@/lib/classMerge';
 import { ReportEditor } from './ReportEditor';
 
 const meta = {

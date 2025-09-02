@@ -1,5 +1,5 @@
+import type { DashboardConfig } from '@buster/server-shared/dashboards';
 import { describe, expect, it } from 'vitest';
-import type { DashboardConfig } from '@/api/asset_interfaces/dashboard';
 import type { BusterMetric } from '@/api/asset_interfaces/metric';
 import {
   MAX_NUMBER_OF_ITEMS,

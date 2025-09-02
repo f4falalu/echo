@@ -13,6 +13,7 @@ export const getCanvas = async (editor: PlateEditor) => {
   // Standard width for consistent PDF output (equivalent to A4 width with margins)
   const standardWidth = '850px';
 
+  // biome-ignore lint/style/noNonNullAssertion: it is guaranteed to be there
   const node = editor.api.toDOMNode(editor)!;
 
   if (!node) {

@@ -46,9 +46,7 @@ describe('InputTextArea', () => {
 
   describe('calculateMinHeight functionality', () => {
     it('should calculate correct min height with default rows', async () => {
-      const { container } = render(
-        <InputTextArea autoResize={{ minRows: 2 }} data-testid="textarea" />
-      );
+      const { container } = render(<InputTextArea minRows={2} data-testid="textarea" />);
 
       const textarea = container.querySelector('textarea') as HTMLTextAreaElement;
 
@@ -60,9 +58,7 @@ describe('InputTextArea', () => {
     });
 
     it('should calculate correct min height with custom minRows', async () => {
-      const { container } = render(
-        <InputTextArea autoResize={{ minRows: 3 }} data-testid="textarea" />
-      );
+      const { container } = render(<InputTextArea minRows={3} data-testid="textarea" />);
 
       const textarea = container.querySelector('textarea') as HTMLTextAreaElement;
 
@@ -81,9 +77,7 @@ describe('InputTextArea', () => {
         paddingBottom: '8px',
       });
 
-      const { container } = render(
-        <InputTextArea autoResize={{ minRows: 2 }} data-testid="textarea" />
-      );
+      const { container } = render(<InputTextArea minRows={2} data-testid="textarea" />);
 
       const textarea = container.querySelector('textarea') as HTMLTextAreaElement;
 
@@ -97,9 +91,7 @@ describe('InputTextArea', () => {
 
   describe('adjustHeight functionality', () => {
     it('should set height to minHeight when textarea is empty', async () => {
-      const { container } = render(
-        <InputTextArea autoResize={{ minRows: 2 }} data-testid="textarea" />
-      );
+      const { container } = render(<InputTextArea minRows={2} data-testid="textarea" />);
 
       const textarea = container.querySelector('textarea') as HTMLTextAreaElement;
 
@@ -119,9 +111,7 @@ describe('InputTextArea', () => {
     });
 
     it('should set height to minHeight when content is minimal', async () => {
-      const { container } = render(
-        <InputTextArea autoResize={{ minRows: 2 }} data-testid="textarea" />
-      );
+      const { container } = render(<InputTextArea minRows={2} data-testid="textarea" />);
 
       const textarea = container.querySelector('textarea') as HTMLTextAreaElement;
 
@@ -140,9 +130,7 @@ describe('InputTextArea', () => {
     });
 
     it('should use scrollHeight when content requires more space', async () => {
-      const { container } = render(
-        <InputTextArea autoResize={{ minRows: 2 }} data-testid="textarea" />
-      );
+      const { container } = render(<InputTextArea minRows={2} data-testid="textarea" />);
 
       const textarea = container.querySelector('textarea') as HTMLTextAreaElement;
 
@@ -165,7 +153,7 @@ describe('InputTextArea', () => {
 
     it('should respect maxRows and set overflow when content exceeds max height', async () => {
       const { container } = render(
-        <InputTextArea autoResize={{ minRows: 2, maxRows: 4 }} data-testid="textarea" />
+        <InputTextArea minRows={2} maxRows={4} data-testid="textarea" />
       );
 
       const textarea = container.querySelector('textarea') as HTMLTextAreaElement;
@@ -190,7 +178,7 @@ describe('InputTextArea', () => {
 
     it('should set overflow to hidden when content does not exceed max height', async () => {
       const { container } = render(
-        <InputTextArea autoResize={{ minRows: 2, maxRows: 4 }} data-testid="textarea" />
+        <InputTextArea minRows={2} maxRows={4} data-testid="textarea" />
       );
 
       const textarea = container.querySelector('textarea') as HTMLTextAreaElement;
@@ -211,9 +199,7 @@ describe('InputTextArea', () => {
     });
 
     it('should handle multiline content correctly', async () => {
-      const { container } = render(
-        <InputTextArea autoResize={{ minRows: 2 }} data-testid="textarea" />
-      );
+      const { container } = render(<InputTextArea minRows={2} data-testid="textarea" />);
 
       const textarea = container.querySelector('textarea') as HTMLTextAreaElement;
 
@@ -244,9 +230,7 @@ describe('InputTextArea', () => {
     });
 
     it('should apply resize-none class when autoResize is enabled', () => {
-      const { container } = render(
-        <InputTextArea autoResize={{ minRows: 2 }} data-testid="textarea" />
-      );
+      const { container } = render(<InputTextArea minRows={2} data-testid="textarea" />);
       const textarea = container.querySelector('textarea') as HTMLTextAreaElement;
 
       expect(textarea.classList.toString()).toContain('resize-none!');
@@ -254,7 +238,7 @@ describe('InputTextArea', () => {
 
     it('should adjust height when value prop changes', async () => {
       const { container, rerender } = render(
-        <InputTextArea autoResize={{ minRows: 2 }} value="" data-testid="textarea" />
+        <InputTextArea minRows={2} value="" data-testid="textarea" />
       );
 
       const textarea = container.querySelector('textarea') as HTMLTextAreaElement;
@@ -266,7 +250,7 @@ describe('InputTextArea', () => {
       // Change value prop
       rerender(
         <InputTextArea
-          autoResize={{ minRows: 2 }}
+          minRows={2}
           value="New longer content that requires more space"
           data-testid="textarea"
         />
@@ -326,9 +310,7 @@ describe('InputTextArea', () => {
 
   describe('edge cases', () => {
     it('should handle window resize events', async () => {
-      const { container } = render(
-        <InputTextArea autoResize={{ minRows: 2 }} data-testid="textarea" />
-      );
+      const { container } = render(<InputTextArea minRows={2} data-testid="textarea" />);
 
       const textarea = container.querySelector('textarea') as HTMLTextAreaElement;
 
@@ -348,9 +330,7 @@ describe('InputTextArea', () => {
         paddingBottom: '15px',
       });
 
-      const { container } = render(
-        <InputTextArea autoResize={{ minRows: 1 }} data-testid="textarea" />
-      );
+      const { container } = render(<InputTextArea minRows={1} data-testid="textarea" />);
 
       const textarea = container.querySelector('textarea') as HTMLTextAreaElement;
 

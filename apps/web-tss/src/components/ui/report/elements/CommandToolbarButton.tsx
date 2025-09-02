@@ -4,7 +4,7 @@ import { useEditorRef } from 'platejs/react';
 
 import * as React from 'react';
 
-import { MessagePen } from '@/components/ui/icons';
+import MessagePen from '@/components/ui/icons/NucleoIconOutlined/message-pen';
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
 import { createLabel } from '../config/labels';
 import { commentPlugin } from '../plugins/comment-kit';

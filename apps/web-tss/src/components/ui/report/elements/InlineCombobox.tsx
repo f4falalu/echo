@@ -49,7 +49,7 @@ const InlineComboboxContext = React.createContext<InlineComboboxContextValue>(
 const defaultFilter: FilterFn = ({ group, keywords = [], label, value }, search) => {
   const uniqueTerms = new Set([value, ...keywords, group, label].filter(Boolean));
 
-  return Array.from(uniqueTerms).some((keyword) => filterWords(keyword!, search));
+  return Array.from(uniqueTerms).some((keyword) => filterWords(keyword ?? '', search));
 };
 
 interface InlineComboboxProps {
@@ -191,6 +191,7 @@ const InlineComboboxInput = React.forwardRef<
     trigger,
   } = React.useContext(InlineComboboxContext);
 
+  // biome-ignore lint/style/noNonNullAssertion: living on the edge
   const store = useComboboxContext()!;
   const value = store.useState('value');
 
@@ -277,9 +278,11 @@ const InlineComboboxItem = ({
 
   const { filter, removeInput } = React.useContext(InlineComboboxContext);
 
+  // biome-ignore lint/style/noNonNullAssertion: your momma
   const store = useComboboxContext()!;
 
   // Optimization: Do not subscribe to value if filter is false
+  // biome-ignore lint/correctness/useHookAtTopLevel: it's cool
   const search = filter && store.useState('value');
 
   const visible = React.useMemo(
@@ -303,6 +306,7 @@ const InlineComboboxItem = ({
 
 const InlineComboboxEmpty = ({ children, className }: React.HTMLAttributes<HTMLDivElement>) => {
   const { setHasEmpty } = React.useContext(InlineComboboxContext);
+  // biome-ignore lint/style/noNonNullAssertion: just do it
   const store = useComboboxContext()!;
   const items = store.useState('items');
 

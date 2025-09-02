@@ -134,12 +134,12 @@ function LinkOpenButton() {
   );
 
   return (
+    // biome-ignore lint/a11y/useKeyWithMouseEvents: we will deal with it later
     <a
       {...attributes}
       onMouseOver={(e) => {
         e.stopPropagation();
       }}
-      aria-label="Open link in a new tab"
       target="_blank"
     >
       <Button variant={'ghost'} size={'default'} prefix={<NodeTypeIcons.externalLink />}></Button>

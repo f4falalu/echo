@@ -44,10 +44,8 @@ export const Default: Story = {
 export const WithAutoResize: Story = {
   args: {
     placeholder: 'Type to see auto-resize in action...',
-    autoResize: {
-      minRows: 3,
-      maxRows: 6,
-    },
+    minRows: 3,
+    maxRows: 6,
   },
 };
 
@@ -78,11 +76,8 @@ export const ChatInput: Story = {
   args: {
     placeholder: 'Ask Buster a question...',
     rows: 4,
-    autoResize: {
-      minRows: 4,
-      maxRows: 12,
-    },
-
+    minRows: 4,
+    maxRows: 12,
     loadingIcon: <ShapeSquare />,
     sendIcon: <ArrowUp />,
     onStop: fn(),

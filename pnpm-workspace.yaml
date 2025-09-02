@@ -11,15 +11,15 @@ catalog:
   '@aws-sdk/client-s3': ^3.873.0
   '@platejs/autoformat': ^49.0.0
   '@platejs/basic-nodes': ^49.0.0
-  '@platejs/basic-styles': ^49.0.0
+  '@platejs/basic-styles': 49.0.0
   '@platejs/date': ^49.0.2
   '@platejs/indent': ^49.0.0
   '@platejs/layout': ^49.2.1
   '@platejs/link': ^49.1.1
-  '@platejs/list': ^49.2.0
+  '@platejs/list': 49.2.0
   '@platejs/markdown': ^49.2.14
   '@platejs/math': ^49.0.0
-  '@platejs/media': ^49.0.0
+  '@platejs/media': 49.0.0
   '@platejs/table': 49.1.13
   '@platejs/toc': ^49.0.0
   '@platejs/toggle': ^49.0.0

@@ -51,10 +51,8 @@ export const InputCard: React.FC<InputCardProps> = ({
           readOnly={loading}
           onChange={handleChange}
           onPressEnter={handlePressEnter}
-          autoResize={{
-            minRows: 5,
-            maxRows: 10,
-          }}
+          minRows={5}
+          maxRows={10}
         />
       </div>
       <div className="w-full border-t" />

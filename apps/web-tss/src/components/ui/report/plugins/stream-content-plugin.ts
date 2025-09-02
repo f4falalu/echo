@@ -178,7 +178,9 @@ const removeExtraNodes = (editor: PlateEditor, startIndex: number, endIndex: num
  * Execute all operations in sequence
  */
 const executeOperations = (operations: Array<() => void>) => {
-  operations.forEach((op) => op());
+  operations.forEach((op) => {
+    op();
+  });
 };
 
 /**

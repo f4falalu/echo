@@ -4,7 +4,7 @@ import type { TSuggestionData, TSuggestionText } from 'platejs';
 import type { PlateLeafProps, RenderNodeWrapper } from 'platejs/react';
 import { PlateLeaf, useEditorPlugin, usePluginOption } from 'platejs/react';
 import * as React from 'react';
-import { SquareArrowDownLeft } from '@/components/ui/icons';
+import SquareArrowDownLeft from '@/components/ui/icons/NucleoIconOutlined/square-arrow-down-left';
 
 import { cn } from '@/lib/utils';
 import { type SuggestionConfig, suggestionPlugin } from '../plugins/suggestion-kit';

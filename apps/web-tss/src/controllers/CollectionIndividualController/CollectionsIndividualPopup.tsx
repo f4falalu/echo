@@ -35,7 +35,7 @@ const CollectionDeleteButton: React.FC<{
   selectedRowKeys: string[];
   collectionId: string;
   onSelectChange: (selectedRowKeys: string[]) => void;
-}> = ({ selectedRowKeys, onSelectChange, collectionId }) => {
+}> = ({ selectedRowKeys, collectionId }) => {
   const { mutateAsync: removeAssetFromCollection } = useRemoveAssetFromCollection();
   const { data: collection } = useGetCollection(collectionId);
 

@@ -270,15 +270,18 @@ export function ToolbarGroup({ children, className }: React.ComponentProps<'div'
   );
 }
 
-type TooltipProps<T extends React.ElementType> = {
+type TooltipWrapperProps = {
   tooltip?: React.ReactNode;
   tooltipContentProps?: Omit<React.ComponentPropsWithoutRef<typeof TooltipContent>, 'children'>;
   tooltipProps?: Omit<React.ComponentPropsWithoutRef<typeof Tooltip>, 'children'>;
   tooltipTriggerProps?: React.ComponentPropsWithoutRef<typeof TooltipTrigger>;
-} & React.ComponentProps<T>;
+};
 
-function withTooltip<T extends React.ElementType>(Component: T) {
-  return React.forwardRef<React.ElementRef<T>, TooltipProps<T>>(function ExtendComponent(
+function withTooltip(Component: typeof ToolbarButtonBase) {
+  return React.forwardRef<
+    React.ElementRef<typeof ToolbarButtonBase>,
+    React.ComponentPropsWithoutRef<typeof ToolbarButtonBase> & TooltipWrapperProps
+  >(function ExtendComponent(
     { tooltip, tooltipContentProps, tooltipProps, tooltipTriggerProps, ...props },
     ref
   ) {
@@ -288,10 +291,7 @@ function withTooltip<T extends React.ElementType>(Component: T) {
       setMounted(true);
     }, []);
 
-    const component = React.createElement(Component, {
-      ref,
-      ...(props as React.ComponentProps<T>),
-    });
+    const component = <Component ref={ref} {...props} />;
 
     if (tooltip && mounted) {
       return (
@@ -299,7 +299,6 @@ function withTooltip<T extends React.ElementType>(Component: T) {
           <TooltipTrigger asChild {...tooltipTriggerProps}>
             {component}
           </TooltipTrigger>
-
           <TooltipContent {...tooltipContentProps}>{tooltip}</TooltipContent>
         </Tooltip>
       );

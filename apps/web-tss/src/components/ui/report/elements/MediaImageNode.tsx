@@ -6,7 +6,6 @@ import { ResizableProvider, useResizableValue } from '@platejs/resizable';
 import type { TImageElement } from 'platejs';
 import type { PlateElementProps } from 'platejs/react';
 import { PlateElement, withHOC } from 'platejs/react';
-import * as React from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -18,7 +17,7 @@ export const ImageElement = withHOC(
   ResizableProvider,
   function ImageElement(props: PlateElementProps<TImageElement>) {
     const { align = 'center', focused, readOnly, selected } = useMediaState();
-    const width = useResizableValue('width');
+    const width = useResizableValue('width') as string;
 
     const { isDragging, handleRef } = useDraggable({
       element: props.element,

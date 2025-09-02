@@ -25,7 +25,7 @@ export const calloutSerializer: MdNodeParser<'callout'> = {
       value: `<callout icon="${icon}" content="${content}"></callout>`,
     };
   },
-  deserialize: (node, deco, options) => {
+  deserialize: (node, _, options) => {
     // Extract the icon attribute from the HTML element
     const typedAttributes = parseAttributes(node.attributes) as {
       icon: string;

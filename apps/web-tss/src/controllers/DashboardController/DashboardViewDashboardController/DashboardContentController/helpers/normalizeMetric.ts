@@ -1,5 +1,5 @@
+import type { DashboardConfig } from '@buster/server-shared/dashboards';
 import { v4 as uuidv4 } from 'uuid';
-import type { DashboardConfig } from '@/api/asset_interfaces/dashboard';
 import type { BusterMetric } from '@/api/asset_interfaces/metric';
 import {
   MAX_NUMBER_OF_ITEMS,

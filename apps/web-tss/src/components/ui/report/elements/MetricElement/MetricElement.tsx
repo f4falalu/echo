@@ -73,7 +73,7 @@ export const MetricElement = withHOC(
 );
 
 const MetricResizeContainer: React.FC<PropsWithChildren> = ({ children }) => {
-  const width = useResizableValue('width') || 700;
+  const width = (useResizableValue('width') as number) || 700;
   const ref = useRef<HTMLDivElement>(null);
   const element = useElement();
   const editor = useEditorRef();

@@ -7,8 +7,6 @@ import { inputHasText } from '@/lib/text';
 import { useChatInputFlow } from '../../../../context/Chats/useChatInputFlow';
 import { AIWarning } from './AIWarning';
 
-const autoResizeConfig = { minRows: 2, maxRows: 16 };
-
 export const ChatInput: React.FC = React.memo(() => {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const isStreamingMessage = useIsStreamingMessage();
@@ -48,7 +46,8 @@ export const ChatInput: React.FC = React.memo(() => {
     >
       <InputTextAreaButton
         placeholder="Ask Buster a question..."
-        autoResize={autoResizeConfig}
+        minRows={2}
+        maxRows={16}
         onSubmit={onSubmitPreflight}
         onChange={onChange}
         onStop={onStopChat}

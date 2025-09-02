@@ -6,8 +6,8 @@ import {
   useReadOnly,
 } from 'platejs/react';
 import React, { useEffect } from 'react';
-import { ASSET_ICONS } from '@/components/features/config/assetIcons';
-import { AddMetricModal } from '@/components/features/modal/AddMetricModal';
+import { AddMetricModal } from '@/components/features/dashboard/AddMetricModal';
+import { ASSET_ICONS } from '@/components/features/icons/assetIcons';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { cn } from '@/lib/utils';
@@ -122,7 +122,7 @@ const MemoizedAddMetricModal = React.memo(
       <AddMetricModal
         open={openModal}
         loading={false}
-        selectedMetrics={EMPTY_SELECTED_METRICS}
+        initialSelectedMetrics={EMPTY_SELECTED_METRICS}
         onClose={onCloseAddMetricModal}
         onAddMetrics={onAddMetric}
         selectionMode="single"
