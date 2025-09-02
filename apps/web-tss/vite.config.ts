@@ -32,7 +32,11 @@ const config = defineConfig(({ command, mode }) => {
         // Exclude test and stories files from build
         external: (id) => {
           // Exclude .test and .stories files
-          return /\.(test|stories)\.(js|ts|jsx|tsx)$/.test(id);
+          if (/\.(test|stories)\.(js|ts|jsx|tsx)$/.test(id)) {
+            return true;
+          }
+          // Don't externalize React and React DOM - let them be bundled
+          return false;
         },
         output: {
           // Force lodash and lodash-es into a dedicated vendor chunk
