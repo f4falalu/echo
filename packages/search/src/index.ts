@@ -1,33 +1,25 @@
-// Export Turbopuffer client operations
-export {
-  querySearchableValues,
-  upsertSearchableValues,
-  getAllSearchableValues,
-  deleteSearchableValues,
-  createNamespace,
-  TurboPufferError,
-} from './searchable-values/client';
+/**
+ * @buster/search package
+ * Provides searchable values functionality using Turbopuffer and DuckDB
+ */
 
-// Export deduplication functions
-export {
-  deduplicateValues,
-  deduplicateValuesSimple,
-  DeduplicationError,
-} from './searchable-values/deduplicate';
+// Export all searchable-values functionality
+export * from './searchable-values';
 
-// Export types and schemas
-export {
-  type SearchableValue,
-  SearchableValueSchema,
-  type SearchQuery,
-  SearchQuerySchema,
-  type SearchResult,
-  SearchResultSchema,
-  type UpsertResult,
-  UpsertResultSchema,
-  type DeduplicationInput,
-  DeduplicationInputSchema,
-  type DeduplicationResult,
-  DeduplicationResultSchema,
-  NamespaceSchema,
-} from './searchable-values/types';
+// Note: Client and deduplication exports will be added once implementations are complete
+// These exports are commented out until the implementations match the new schema
+
+// export {
+//   querySearchableValues,
+//   upsertSearchableValues,
+//   getAllSearchableValues,
+//   deleteSearchableValues,
+//   createNamespace,
+//   TurboPufferError,
+// } from './searchable-values/client';
+
+// export {
+//   deduplicateValues,
+//   deduplicateValuesSimple,
+//   DeduplicationError,
+// } from './searchable-values/deduplicate';
