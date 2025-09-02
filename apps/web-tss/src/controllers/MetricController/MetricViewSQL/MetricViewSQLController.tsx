@@ -1,4 +1,3 @@
-'use client';
 
 import type { DataResult } from '@buster/server-shared/metrics';
 import React, { useEffect, useMemo, useState } from 'react';

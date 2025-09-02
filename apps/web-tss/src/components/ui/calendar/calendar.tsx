@@ -1,5 +1,4 @@
 /** biome-ignore-all lint/correctness/noNestedComponentDefinitions: shadcn does it. good enough for me. */
-'use client';
 
 import type * as React from 'react';
 import { DayPicker } from 'react-day-picker';

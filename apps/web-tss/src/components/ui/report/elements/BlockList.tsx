@@ -1,4 +1,3 @@
-'use client';
 
 import { isOrderedList } from '@platejs/list';
 import { useTodoListElement, useTodoListElementState } from '@platejs/list/react';

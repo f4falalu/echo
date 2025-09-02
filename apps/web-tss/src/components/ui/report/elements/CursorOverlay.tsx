@@ -1,4 +1,3 @@
-'use client';
 
 import { AIChatPlugin } from '@platejs/ai/react';
 import {

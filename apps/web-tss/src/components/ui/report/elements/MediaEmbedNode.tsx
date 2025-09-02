@@ -1,4 +1,3 @@
-'use client';
 
 import { type EmbedUrlParser, parseTwitterUrl, parseVideoUrl } from '@platejs/media';
 import { MediaEmbedPlugin, useMediaState } from '@platejs/media/react';

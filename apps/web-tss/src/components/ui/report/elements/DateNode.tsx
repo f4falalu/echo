@@ -1,4 +1,3 @@
-'use client';
 
 import type { TDateElement } from 'platejs';
 import type { PlateElementProps } from 'platejs/react';

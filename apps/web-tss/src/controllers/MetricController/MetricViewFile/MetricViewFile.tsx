@@ -1,4 +1,3 @@
-'use client';
 
 import React from 'react';
 import { useGetMetric, useUpdateMetric } from '@/api/buster_rest/metrics';

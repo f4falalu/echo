@@ -1,4 +1,3 @@
-'use client';
 
 import { PlaceholderPlugin, PlaceholderProvider, updateUploadHistory } from '@platejs/media/react';
 

@@ -1,4 +1,3 @@
-'use client';
 
 import { type BaseSuggestionConfig, BaseSuggestionPlugin } from '@platejs/suggestion';
 import {

@@ -1,4 +1,3 @@
-'use client';
 
 import { TablePlugin, useTableMergeState } from '@platejs/table/react';
 

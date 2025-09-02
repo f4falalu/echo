@@ -1,4 +1,3 @@
-'use client';
 
 import React, { useMemo } from 'react';
 import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';

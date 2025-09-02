@@ -1,4 +1,3 @@
-'use client';
 
 import isEqual from 'lodash/isEqual';
 import { useLayoutEffect, useState, useTransition } from 'react';

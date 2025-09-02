@@ -1,4 +1,3 @@
-'use client';
 
 import type { PlateTextProps } from 'platejs/react';
 import { PlateText, usePluginOption } from 'platejs/react';

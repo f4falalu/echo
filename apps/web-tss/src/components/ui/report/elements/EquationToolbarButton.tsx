@@ -1,4 +1,3 @@
-'use client';
 
 import { insertInlineEquation } from '@platejs/math';
 import { useEditorRef } from 'platejs/react';

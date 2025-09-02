@@ -1,4 +1,3 @@
-'use client';
 
 import type { ReportElementsWithIds, ReportElementWithId } from '@buster/server-shared/reports';
 import type { AnyPluginConfig, Value } from 'platejs';

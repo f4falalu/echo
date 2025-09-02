@@ -1,4 +1,3 @@
-'use client';
 
 import { DndPlugin } from '@platejs/dnd';
 import { PlaceholderPlugin } from '@platejs/media/react';

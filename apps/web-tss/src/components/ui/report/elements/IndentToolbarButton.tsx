@@ -1,4 +1,3 @@
-'use client';
 
 import { useIndentButton, useOutdentButton } from '@platejs/indent/react';
 import type * as React from 'react';

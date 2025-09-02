@@ -1,4 +1,3 @@
-'use client';
 
 import type { ChatListItem } from '@buster/server-shared/chats';
 import type { LinkProps } from '@tanstack/react-router';

@@ -1,4 +1,3 @@
-'use client';
 
 import type { Alignment } from '@platejs/basic-styles';
 import { TextAlignPlugin } from '@platejs/basic-styles/react';

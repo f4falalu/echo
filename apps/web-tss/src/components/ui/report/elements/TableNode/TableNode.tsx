@@ -1,4 +1,3 @@
-'use client';
 
 import { useDraggable, useDropLine } from '@platejs/dnd';
 import { BlockSelectionPlugin, useBlockSelected } from '@platejs/selection/react';

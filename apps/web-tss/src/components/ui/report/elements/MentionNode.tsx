@@ -1,4 +1,3 @@
-'use client';
 
 import { getMentionOnSelectItem } from '@platejs/mention';
 

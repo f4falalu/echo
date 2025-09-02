@@ -1,4 +1,3 @@
-'use client';
 
 import { useAIChatEditor } from '@platejs/ai/react';
 import { usePlateEditor } from 'platejs/react';

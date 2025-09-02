@@ -1,4 +1,3 @@
-'use client';
 
 import { TocPlugin } from '@platejs/toc/react';
 

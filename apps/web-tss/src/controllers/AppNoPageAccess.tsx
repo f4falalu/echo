@@ -1,4 +1,3 @@
-'use client';
 
 import type { AssetType } from '@buster/server-shared/assets';
 import type { ResponseMessageFileType } from '@buster/server-shared/chats';

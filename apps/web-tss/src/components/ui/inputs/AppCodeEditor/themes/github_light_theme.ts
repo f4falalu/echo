@@ -1,4 +1,3 @@
-'use client';
 
 const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--color-primary');
 const borderColor = getComputedStyle(document.documentElement).getPropertyValue('--color-border');

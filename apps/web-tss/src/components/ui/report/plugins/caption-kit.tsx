@@ -1,4 +1,3 @@
-'use client';
 
 import { CaptionPlugin } from '@platejs/caption/react';
 import { KEYS } from 'platejs';

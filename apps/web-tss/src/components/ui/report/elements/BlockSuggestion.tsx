@@ -1,7 +1,6 @@
 /** biome-ignore-all lint/style/noNonNullAssertion: it's cool */
 /** biome-ignore-all lint/suspicious/useIterableCallbackReturn: it's cool */
 /** biome-ignore-all lint/complexity/noUselessFragments: it's cool */
-'use client';
 
 import type { TResolvedSuggestion } from '@platejs/suggestion';
 import {

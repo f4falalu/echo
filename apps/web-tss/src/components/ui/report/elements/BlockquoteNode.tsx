@@ -1,4 +1,3 @@
-'use client';
 
 import { PlateElement, type PlateElementProps } from 'platejs/react';
 

@@ -1,4 +1,3 @@
-'use client';
 
 import { useLink } from '@platejs/link/react';
 

@@ -1,4 +1,3 @@
-'use client';
 
 import { PlaceholderPlugin, UploadErrorCode } from '@platejs/media/react';
 import { usePluginOption } from 'platejs/react';

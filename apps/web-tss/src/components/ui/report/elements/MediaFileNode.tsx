@@ -1,4 +1,3 @@
-'use client';
 
 import { useMediaState } from '@platejs/media/react';
 import { ResizableProvider } from '@platejs/resizable';

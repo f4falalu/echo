@@ -1,4 +1,3 @@
-'use client';
 
 import { BaseAlignKit } from './plugins/align-base-kit';
 import { BaseBasicBlocksKit } from './plugins/basic-blocks-base-kit';

@@ -1,4 +1,3 @@
-'use client';
 
 import { useEditorRef, useEditorSelector } from 'platejs/react';
 import type * as React from 'react';

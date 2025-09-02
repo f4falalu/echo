@@ -1,4 +1,3 @@
-'use client';
 
 import 'intersection-observer';
 import { useState } from 'react';

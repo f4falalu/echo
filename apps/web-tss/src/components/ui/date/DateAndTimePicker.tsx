@@ -1,4 +1,3 @@
-'use client';
 
 import dayjs from 'dayjs';
 import * as React from 'react';

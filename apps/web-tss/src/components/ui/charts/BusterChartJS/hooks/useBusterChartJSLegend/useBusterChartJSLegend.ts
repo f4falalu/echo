@@ -1,4 +1,3 @@
-'use client';
 
 import type { ChartEncodes, ChartType } from '@buster/server-shared/metrics';
 import type React from 'react';

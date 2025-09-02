@@ -1,4 +1,3 @@
-'use client';
 
 import { useLinkToolbarButton, useLinkToolbarButtonState } from '@platejs/link/react';
 import type * as React from 'react';

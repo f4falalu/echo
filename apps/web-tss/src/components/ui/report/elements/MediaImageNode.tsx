@@ -1,4 +1,3 @@
-'use client';
 
 import { useDraggable } from '@platejs/dnd';
 import { Image, ImagePlugin, useMediaState } from '@platejs/media/react';

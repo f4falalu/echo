@@ -1,4 +1,3 @@
-'use client';
 
 // import { hc } from 'hono/client';
 

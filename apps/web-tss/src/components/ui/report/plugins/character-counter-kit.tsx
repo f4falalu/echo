@@ -1,4 +1,3 @@
-'use client';
 
 import type { Descendant, PluginConfig, TElement, TNode } from 'platejs';
 import {

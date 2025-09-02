@@ -1,4 +1,3 @@
-'use client';
 
 import { getCommentCount } from '@platejs/comment';
 

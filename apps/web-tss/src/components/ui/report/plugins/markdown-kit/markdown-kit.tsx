@@ -1,4 +1,3 @@
-'use client';
 
 import { MarkdownPlugin as PlateMarkdownPlugin, remarkMdx, remarkMention } from '@platejs/markdown';
 import remarkGfm from 'remark-gfm';

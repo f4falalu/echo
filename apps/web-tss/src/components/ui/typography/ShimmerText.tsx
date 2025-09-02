@@ -1,4 +1,3 @@
-'use client';
 
 import { type MotionProps, motion } from 'framer-motion';
 import React, { useMemo } from 'react';

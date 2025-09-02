@@ -1,4 +1,3 @@
-'use client';
 
 import { BlockMenuPlugin } from '@platejs/selection/react';
 

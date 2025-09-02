@@ -1,4 +1,3 @@
-'use client';
 
 import { createPlatePlugin } from 'platejs/react';
 

@@ -1,4 +1,3 @@
-'use client';
 
 import githubDark from '@shikijs/themes/github-dark';
 import githubLight from '@shikijs/themes/github-light';

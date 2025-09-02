@@ -1,4 +1,3 @@
-'use client';
 
 import debounce from 'lodash/debounce';
 import isFunction from 'lodash/isFunction';

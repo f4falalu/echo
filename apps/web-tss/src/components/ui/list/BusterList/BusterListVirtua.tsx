@@ -1,4 +1,3 @@
-'use client';
 
 import { ClientOnly } from '@tanstack/react-router';
 import React, { useMemo, useRef } from 'react';

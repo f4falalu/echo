@@ -1,4 +1,3 @@
-'use client';
 
 import React, { useMemo } from 'react';
 import { useGetUserBasicInfo } from '@/api/buster_rest/users/useGetUserInfo';

@@ -1,4 +1,3 @@
-'use client';
 
 import { useDraggable } from '@platejs/dnd';
 import { ResizableProvider, useResizableValue } from '@platejs/resizable';

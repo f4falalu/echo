@@ -1,6 +1,5 @@
 /** biome-ignore-all lint/a11y/useFocusableInteractive: it's cool */
 /** biome-ignore-all lint/a11y/useSemanticElements: it's cool */
-'use client';
 
 import { useEquationElement, useEquationInput } from '@platejs/math/react';
 import { BlockSelectionPlugin } from '@platejs/selection/react';

@@ -1,4 +1,3 @@
-'use client';
 
 import { PlaceholderPlugin } from '@platejs/media/react';
 

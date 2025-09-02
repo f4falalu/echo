@@ -1,4 +1,3 @@
-'use client';
 
 import { SortableContext, useSortable } from '@dnd-kit/sortable';
 import isEqual from 'lodash/isEqual';

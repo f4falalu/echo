@@ -1,4 +1,3 @@
-'use client';
 
 import { useGetReportsList } from '@/api/buster_rest/reports';
 import { ReportItemsContainer } from './ReportItemsContainer';

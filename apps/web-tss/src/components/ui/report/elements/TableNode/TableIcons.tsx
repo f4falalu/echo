@@ -1,4 +1,3 @@
-'use client';
 
 type IconProps = React.SVGProps<SVGSVGElement>;
 
