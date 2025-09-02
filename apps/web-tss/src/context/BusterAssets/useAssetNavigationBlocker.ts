@@ -17,7 +17,7 @@ export const useAssetNavigationBlocker = ({
     shouldBlockFn: async () => {
       if (!isFileChanged || !enableBlocker) return false;
 
-      const shouldLeave = await openConfirmModal({
+      const shouldLeave = await openConfirmModal<true>({
         title: 'Unsaved changes',
         content: 'Looks like you have unsaved changes. Are you sure you want to leave?',
         primaryButtonProps: {
@@ -29,7 +29,7 @@ export const useAssetNavigationBlocker = ({
         showClose: false,
         onOk: () => {
           onResetToOriginal();
-          Promise.resolve(true);
+          return Promise.resolve(true);
         },
       });
 

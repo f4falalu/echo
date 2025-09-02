@@ -5,14 +5,15 @@ import type {
 } from '@/components/ui/modal/ConfirmModal';
 import { USER_CANCELLED_ERROR } from '../../integrations/tanstack-query/query-client-config';
 
-interface ConfirmProps<T = unknown> extends Omit<BaseConfirmProps, 'onOk'> {
+interface ConfirmProps<T = unknown, C = unknown>
+  extends Omit<BaseConfirmProps, 'onOk' | 'onCancel'> {
   title: string | React.ReactNode;
   content: string | React.ReactNode;
   onOk: () => T | Promise<T>;
   onCancel?: () => Promise<void>;
 }
 
-const defaultConfirmModalProps: ConfirmProps<unknown> = {
+const defaultConfirmModalProps: ConfirmProps<unknown, unknown> = {
   title: '',
   content: '',
   onOk: () => undefined,
@@ -31,7 +32,9 @@ export const useConfirmModalContext = () => {
   const [modalQueue, setModalQueue] = useState<QueuedModal[]>([]);
   const currentModal = modalQueue[0]; // Get the first modal in the queue
 
-  const openConfirmModal = <T = unknown>(props: ConfirmProps<T>): Promise<T | undefined> | T => {
+  const openConfirmModal = <T = unknown, C = unknown>(
+    props: ConfirmProps<T>
+  ): Promise<T | undefined> | T => {
     return new Promise<T | undefined>((resolve, reject) => {
       const newModal: QueuedModal<T> = {
         ...props,

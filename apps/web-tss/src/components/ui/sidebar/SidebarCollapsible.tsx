@@ -51,7 +51,7 @@ const SidebarTrigger: React.FC<SidebarTriggerProps> = React.memo(({ label, isOpe
         className
       )}
     >
-      <span className="">{label}</span>
+      <span className="truncate">{label}</span>
 
       <div
         className={cn(
@@ -203,8 +203,7 @@ export const SidebarCollapsible: React.FC<
         <CollapsibleContent
           className={cn(
             isMounted &&
-              'data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up',
-            'h-[var(--radix-collapsible-content-height)]'
+              'data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up'
           )}
           style={{
             minHeight:
