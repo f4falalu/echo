@@ -106,7 +106,7 @@ export class SSEStreamController {
    * @param eventType Optional event type
    * @param id Optional event ID
    */
-  sendEvent(event: PublicChatEvent | unknown, eventType?: string, id?: string): void {
+  sendEvent<T = PublicChatEvent>(event: T, eventType?: string, id?: string): void {
     const formatted = formatSSEEvent(event, eventType, id);
     this.sendRaw(formatted);
   }

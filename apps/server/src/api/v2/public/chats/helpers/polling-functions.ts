@@ -1,5 +1,7 @@
 import { chats, db, eq, messages } from '@buster/database';
 import { PublicChatError, PublicChatErrorCode } from '@buster/server-shared';
+import type { ChatMessage } from '@buster/server-shared/chats';
+import { DEFAULT_MESSAGES, POLLING_CONFIG } from '../constants';
 
 export interface PollingConfig {
   initialDelayMs: number;
@@ -23,11 +25,11 @@ export interface MessageCompletionResult {
  * Default polling configuration
  */
 export const DEFAULT_POLLING_CONFIG: PollingConfig = {
-  initialDelayMs: 2000, // Start checking after 2 seconds
-  intervalMs: 5000, // Check every 5 seconds
-  maxDurationMs: 30 * 60 * 1000, // 30 minutes max
-  backoffMultiplier: 1.2, // Gradually increase interval
-  maxIntervalMs: 15000, // Max 15 seconds between checks
+  initialDelayMs: POLLING_CONFIG.INITIAL_DELAY_MS,
+  intervalMs: POLLING_CONFIG.INTERVAL_MS,
+  maxDurationMs: POLLING_CONFIG.MAX_DURATION_MS,
+  backoffMultiplier: POLLING_CONFIG.BACKOFF_MULTIPLIER,
+  maxIntervalMs: POLLING_CONFIG.MAX_INTERVAL_MS,
 };
 
 /**
@@ -63,21 +65,17 @@ export async function checkMessageCompletion(messageId: string): Promise<Message
     }
 
     // Extract the final response message
-    let responseMessage = "I've finished working on your request!";
+    let responseMessage: string = DEFAULT_MESSAGES.PROCESSING_COMPLETE;
     if (message.responseMessages) {
-      // responseMessages is a JSON array, find the text message with is_final_message: true
-      const responseArray = message.responseMessages as Array<{
-        id: string;
-        type: string;
-        message?: string;
-        is_final_message?: boolean;
-      }>;
+      // responseMessages is a record/object, not an array
+      const responseMessagesRecord = message.responseMessages as ChatMessage['response_messages'];
+      const responseMessagesArray = Object.values(responseMessagesRecord);
 
-      const finalTextMessage = responseArray.find(
+      const finalTextMessage = responseMessagesArray.find(
         (msg) => msg.type === 'text' && msg.is_final_message === true
       );
 
-      if (finalTextMessage?.message) {
+      if (finalTextMessage && finalTextMessage.type === 'text') {
         responseMessage = finalTextMessage.message;
       }
     }
@@ -160,13 +158,18 @@ export async function pollMessageCompletion(
       onProgress(attempt, currentInterval);
     }
 
-    // Check if we'll exceed max duration on next iteration
-    if (Date.now() - startTime + currentInterval >= config.maxDurationMs) {
+    // Check if we've already exceeded max duration
+    const elapsedTime = Date.now() - startTime;
+    if (elapsedTime >= config.maxDurationMs) {
       break;
     }
 
+    // Calculate remaining time and wait for the minimum of interval or remaining time
+    const remainingTime = config.maxDurationMs - elapsedTime;
+    const waitTime = Math.min(currentInterval, remainingTime);
+
     // Wait before next check
-    await sleep(currentInterval);
+    await sleep(waitTime);
   }
 
   // Timeout reached
@@ -197,13 +200,16 @@ export async function* createPollingGenerator(
 ): AsyncGenerator<{ status: 'pending' | 'completed'; result?: MessageCompletionResult }> {
   const startTime = Date.now();
   let currentInterval = config.intervalMs;
-  let _attempt = 0;
 
   // Initial delay
   await sleep(config.initialDelayMs);
 
-  while (Date.now() - startTime < config.maxDurationMs) {
-    _attempt++;
+  while (true) {
+    // Check if we've exceeded max duration before attempting
+    const elapsedTime = Date.now() - startTime;
+    if (elapsedTime >= config.maxDurationMs) {
+      break;
+    }
 
     // Check completion status
     const result = await checkMessageCompletion(messageId);

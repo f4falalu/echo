@@ -4,8 +4,9 @@ import type {
   PublicChatResponseEvent,
   PublicChatStatusEvent,
 } from '@buster/server-shared';
-import { PublicChatError, PublicChatErrorCode } from '@buster/server-shared';
+import { PublicChatError } from '@buster/server-shared';
 import { SSEStreamController } from '../../../../../utils/sse';
+import { DEFAULT_MESSAGES } from '../constants';
 import { buildChatLink } from './chat-functions';
 import { type MessageCompletionResult, createPollingGenerator } from './polling-functions';
 
@@ -17,7 +18,7 @@ import { type MessageCompletionResult, createPollingGenerator } from './polling-
 export function createInitialStatusEvent(chatId: string): PublicChatStatusEvent {
   return {
     type: 'status',
-    message: "I've started working on your request. I'll notify you when it's finished.",
+    message: DEFAULT_MESSAGES.PROCESSING_START,
     link: buildChatLink(chatId),
   };
 }
@@ -59,6 +60,21 @@ export function createErrorEvent(error: string): PublicChatErrorEvent {
 }
 
 /**
+ * Gets a user-friendly error message from an error
+ * @param error The error to process
+ * @returns A user-friendly error message
+ */
+export function getErrorMessage(error: unknown): string {
+  if (error instanceof PublicChatError) {
+    return error.message;
+  }
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return DEFAULT_MESSAGES.ERROR_GENERIC;
+}
+
+/**
  * Creates an SSE response stream for a chat
  * @param chatId The chat ID
  * @param messageId The message ID to poll
@@ -75,7 +91,8 @@ export function createSSEResponseStream(
   processMessageWithSSE(chatId, messageId, controller).catch((error) => {
     console.error('SSE processing error:', error);
     // Send error event before closing
-    controller.sendEvent(createErrorEvent('An error occurred while processing your request'));
+    const errorMessage = getErrorMessage(error);
+    controller.sendEvent(createErrorEvent(errorMessage));
     controller.close();
   });
 
@@ -105,7 +122,7 @@ async function processMessageWithSSE(
       if (pollResult.status === 'completed' && pollResult.result) {
         // Send the final response
         const responseEvent = createResponseEvent(
-          pollResult.result.responseMessage || "I've completed your request!",
+          pollResult.result.responseMessage || DEFAULT_MESSAGES.PROCESSING_COMPLETE_GENERIC,
           chatId,
           pollResult.result.fileInfo
         );
@@ -116,14 +133,9 @@ async function processMessageWithSSE(
       // The initial status message is sufficient
     }
   } catch (error) {
-    // Handle errors
-    if (error instanceof PublicChatError) {
-      controller.sendEvent(createErrorEvent(error.message));
-    } else {
-      controller.sendEvent(
-        createErrorEvent('An unexpected error occurred while processing your request')
-      );
-    }
+    // Handle errors using shared error handler
+    const errorMessage = getErrorMessage(error);
+    controller.sendEvent(createErrorEvent(errorMessage));
     throw error;
   } finally {
     // Always close the stream
@@ -152,7 +164,7 @@ export async function* createSSEEventGenerator(
       if (pollResult.status === 'completed' && pollResult.result) {
         // Yield final response
         yield createResponseEvent(
-          pollResult.result.responseMessage || "I've completed your request!",
+          pollResult.result.responseMessage || DEFAULT_MESSAGES.PROCESSING_COMPLETE_GENERIC,
           chatId,
           pollResult.result.fileInfo
         );
@@ -160,12 +172,9 @@ export async function* createSSEEventGenerator(
       }
     }
   } catch (error) {
-    // Yield error event
-    if (error instanceof PublicChatError) {
-      yield createErrorEvent(error.message);
-    } else {
-      yield createErrorEvent('An unexpected error occurred');
-    }
+    // Yield error event using shared error handler
+    const errorMessage = getErrorMessage(error);
+    yield createErrorEvent(errorMessage);
     throw error;
   }
 }

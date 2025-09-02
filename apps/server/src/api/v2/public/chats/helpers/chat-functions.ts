@@ -2,6 +2,7 @@ import type { User } from '@buster/database';
 import { PublicChatError, PublicChatErrorCode } from '@buster/server-shared';
 import type { ChatCreateHandlerRequest, ChatWithMessages } from '@buster/server-shared/chats';
 import { createChatHandler } from '../../../chats/handler';
+import { URL_CONFIG } from '../constants';
 
 /**
  * Initializes a chat with the given prompt
@@ -49,10 +50,10 @@ export function buildChatLink(
   fileType?: string | null,
   versionNumber?: number | null
 ): string {
-  const baseUrl = process.env.BUSTER_URL || 'https://platform.buster.so';
+  const baseUrl = process.env.BUSTER_URL || URL_CONFIG.DEFAULT_BASE_URL;
 
   // If we have file information, build the file-specific URL
-  if (fileId && fileType && versionNumber !== null && versionNumber !== undefined) {
+  if (fileId && fileType && versionNumber != null) {
     // Convert file type to plural form for URL
     const fileTypePlural = fileType.endsWith('_file')
       ? fileType.replace('_file', '_files')

@@ -1,5 +1,10 @@
 import type { User } from '@buster/database';
-import { addUserToOrganization, createUser, findUserByEmailInOrganization } from '@buster/database';
+import {
+  addUserToOrganization,
+  createUser,
+  db,
+  findUserByEmailInOrganization,
+} from '@buster/database';
 import { PublicChatError, PublicChatErrorCode } from '@buster/server-shared';
 
 /**
@@ -15,17 +20,26 @@ export async function resolveUser(email: string, organizationId: string): Promis
     let user = await findUserByEmailInOrganization(email, organizationId);
 
     if (!user) {
-      // User doesn't exist in org, create them
-      user = await createUser(email);
+      // User doesn't exist in org, create them with transaction for atomicity
+      user = await db.transaction(async (_tx) => {
+        // Create the user
+        const newUser = await createUser(email);
 
-      // Add user to the organization with restricted_querier role
-      await addUserToOrganization(user.id, organizationId, 'restricted_querier');
+        // Add user to the organization with restricted_querier role
+        await addUserToOrganization(newUser.id, organizationId, 'restricted_querier');
+
+        return newUser;
+      });
     }
 
     return user;
   } catch (error) {
     console.error('Error resolving user:', error);
-    throw new PublicChatError(PublicChatErrorCode.USER_NOT_FOUND, 'Failed to resolve user', 500);
+    throw new PublicChatError(
+      PublicChatErrorCode.USER_CREATION_FAILED,
+      'Failed to resolve user',
+      500
+    );
   }
 }
 
@@ -79,7 +93,7 @@ export async function resolveAndValidateUser(email: string, organizationId: stri
   const hasPermissions = await validateUserPermissions(user, organizationId);
   if (!hasPermissions) {
     throw new PublicChatError(
-      PublicChatErrorCode.USER_NOT_FOUND,
+      PublicChatErrorCode.INSUFFICIENT_PERMISSIONS,
       'User does not have valid permissions',
       403
     );

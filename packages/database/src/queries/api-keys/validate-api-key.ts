@@ -39,7 +39,11 @@ export async function validateApiKey(key: string): Promise<ApiKeyValidation | nu
  * @param apiKeyId The API key ID
  * @returns The organization data if found, null otherwise
  */
-export async function getApiKeyOrganization(apiKeyId: string) {
+export async function getApiKeyOrganization(apiKeyId: string): Promise<{
+  id: string;
+  name: string;
+  paymentRequired: boolean;
+} | null> {
   try {
     const result = await db
       .select({
@@ -64,7 +68,11 @@ export async function getApiKeyOrganization(apiKeyId: string) {
  * @param apiKeyId The API key ID
  * @returns The user data if found, null otherwise
  */
-export async function getApiKeyOwner(apiKeyId: string) {
+export async function getApiKeyOwner(apiKeyId: string): Promise<{
+  id: string;
+  email: string;
+  name: string | null;
+} | null> {
   try {
     const result = await db
       .select({
