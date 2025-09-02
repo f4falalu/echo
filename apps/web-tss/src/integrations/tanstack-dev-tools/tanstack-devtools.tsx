@@ -1,6 +1,6 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { isDev } from '@/config';
+import { isDev } from '@/config/dev';
 
 const ENABLE_TANSTACK_PANEL = process.env.VITE_ENABLE_TANSTACK_PANEL === 'true' || isDev;
 

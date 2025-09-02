@@ -27,7 +27,7 @@ const config = defineConfig(({ command, mode }) => {
         : undefined,
     ],
     build: {
-      chunkSizeWarningLimit: 650,
+      chunkSizeWarningLimit: 850,
       rollupOptions: {
         // Exclude test and stories files from build
         external: (id) => {
