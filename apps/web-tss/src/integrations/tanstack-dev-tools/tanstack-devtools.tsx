@@ -1,3 +1,4 @@
+import { ClientOnly } from '@tanstack/react-router';
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { isDev } from '@/config/dev';
@@ -40,9 +41,11 @@ export const TanstackDevtools: React.FC = React.memo(() => {
   }
 
   return (
-    <Suspense fallback={null}>
-      <LazyTanstackDevtools />
-    </Suspense>
+    <ClientOnly>
+      <Suspense fallback={null}>
+        <LazyTanstackDevtools />
+      </Suspense>
+    </ClientOnly>
   );
 });
 

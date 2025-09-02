@@ -12,7 +12,7 @@ import { Download4, History, Pencil, SquareChart, Star, WandSparkle } from '@/co
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { ensureElementExists } from '@/lib/element';
-import { downloadElementToImage } from '@/lib/exportUtils';
+import { downloadElementToImage, exportJSONToCSV } from '@/lib/exportUtils';
 import { FollowUpWithAssetContent } from '../assets/FollowUpWithAsset';
 import { useFavoriteStar } from '../favorites';
 import { useListMetricVersionDropdownItems } from '../versionHistory/useListMetricVersionDropdownItems';
@@ -160,9 +160,6 @@ export const useDownloadMetricDataCSV = ({
         const data = metricData?.data;
         if (data && name) {
           setIsDownloading(true);
-          const exportJSONToCSV = await import('@/lib/exportUtils').then(
-            (mod) => mod.exportJSONToCSV
-          );
           await exportJSONToCSV(data, name);
           setIsDownloading(false);
         }
