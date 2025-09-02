@@ -21,7 +21,7 @@ export const useIsReportChanged = ({
   const originalReport = useGetOriginalReport(reportId);
 
   const { data: currentReport, refetch: refetchCurrentReport } = useGetReport(
-    { reportId: reportId || '', versionNumber: undefined },
+    { id: reportId || '', versionNumber: undefined },
     {
       enabled,
       select: useCallback(

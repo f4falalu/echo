@@ -1,5 +1,4 @@
 import type { RegisteredRouter } from '@tanstack/react-router';
-import { defineLink } from '../../../lib/routes';
 import type { ISidebarGroup, ISidebarItem, ISidebarList } from './interfaces';
 
 export function createSidebarItem<
@@ -39,21 +38,3 @@ export function createSidebarGroup<
 >(items: ISidebarGroup<TRouter, TOptions, TFrom>): ISidebarGroup<TRouter, TOptions, TFrom> {
   return items;
 }
-
-const test = createSidebarItem({
-  label: 'Test',
-  id: '123',
-  link: {
-    to: '/app/chats/$chatId',
-    params: { chatId: '123' },
-  },
-});
-
-const test123 = createSidebarItem({
-  label: 'Test',
-  id: '123',
-  link: defineLink({
-    to: '/app/chats/$chatId',
-    params: { chatId: '123' },
-  }),
-});

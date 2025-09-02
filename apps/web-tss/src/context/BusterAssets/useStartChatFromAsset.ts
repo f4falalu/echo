@@ -22,7 +22,7 @@ export const useStartChatFromAsset = ({
 
       if (assetType === 'metric') {
         await navigate({
-          to: '/app/chats/$chatId/metrics/$metricId',
+          to: '/app/chats/$chatId/metrics/$metricId/chart',
           params: {
             metricId: assetId,
             chatId: result.id,
@@ -30,7 +30,7 @@ export const useStartChatFromAsset = ({
         });
       } else if (assetType === 'dashboard') {
         await navigate({
-          to: '/app/chats/$chatId/dashboards/$dashboardId',
+          to: '/app/chats/$chatId/dashboards/$dashboardId/content',
           params: {
             dashboardId: assetId,
             chatId: result.id,

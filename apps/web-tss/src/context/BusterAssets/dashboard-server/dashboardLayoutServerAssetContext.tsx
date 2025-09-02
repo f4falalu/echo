@@ -19,7 +19,7 @@ export const loader = async ({
   context: { queryClient },
   deps: { dashboard_version_number },
 }: {
-  params: { dashboardId: string };
+  params: { dashboardId: string; chatId?: string };
   deps: { dashboard_version_number?: number };
   context: { queryClient: QueryClient };
 }): Promise<{ title: string | undefined }> => {

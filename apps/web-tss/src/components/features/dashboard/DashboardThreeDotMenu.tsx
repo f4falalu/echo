@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+import type { GetDashboardResponse } from '@buster/server-shared/dashboards';
+import React, { useCallback, useMemo } from 'react';
 import { useGetDashboard } from '@/api/buster_rest/dashboards';
 import { Button } from '@/components/ui/buttons';
 import { Dropdown, type IDropdownItems } from '@/components/ui/dropdown';
@@ -42,7 +43,7 @@ export const DashboardThreeDotMenu = React.memo(
     const filterDashboardMenu = useFilterDashboardSelectMenu();
     const { data: permission } = useGetDashboard(
       { id: dashboardId },
-      { select: (x) => x.permission }
+      { select: useCallback((x: GetDashboardResponse) => x.permission, []) }
     );
     const isEffectiveOwner = getIsEffectiveOwner(permission);
     const isFilter = canFilter(permission);

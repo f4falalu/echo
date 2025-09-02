@@ -2,6 +2,7 @@
 
 import { ClientOnly } from '@tanstack/react-router';
 import React, { useRef } from 'react';
+import { ScrollToBottomButton } from '@/components/features/buttons/ScrollToBottomButton';
 import { useGetChatMessageIds } from '@/context/Chats';
 import { useAutoScroll } from '@/hooks/useAutoScroll';
 import { useMount } from '@/hooks/useMount';
@@ -9,7 +10,6 @@ import { cn } from '@/lib/utils';
 import { CHAT_CONTAINER_ID } from '../ChatContainer';
 import { ChatInput } from './ChatInput';
 import { ChatMessageBlock } from './ChatMessageBlock';
-import { ChatScrollToBottom } from './ChatScrollToBottom';
 
 const autoClass = 'mx-auto max-w-[600px] w-full';
 
@@ -47,7 +47,7 @@ export const ChatContent: React.FC<{ chatId: string | undefined }> = React.memo(
       </div>
 
       <ChatInputWrapper>
-        <ChatScrollToBottom
+        <ScrollToBottomButton
           isAutoScrollEnabled={isAutoScrollEnabled}
           scrollToBottom={scrollToBottom}
         />
