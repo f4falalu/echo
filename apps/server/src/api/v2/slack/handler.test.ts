@@ -28,6 +28,8 @@ describe('SlackHandler', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // Mock BUSTER_URL to empty string so handler returns paths without domain
+    vi.stubEnv('BUSTER_URL', '');
     handler = new SlackHandler();
 
     // Create mock context
