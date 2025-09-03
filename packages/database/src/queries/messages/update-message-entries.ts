@@ -63,6 +63,9 @@ export async function updateMessageEntries({
       rawLlmMessages: mergedRawLlmMessages,
     };
 
+    // Update cache immediately (cache is source of truth during streaming)
+    messageEntriesCache.set(messageId, mergedEntries);
+
     // Build update data
     const updateData: Record<string, unknown> = {
       updatedAt: new Date().toISOString(),
@@ -80,16 +83,11 @@ export async function updateMessageEntries({
       updateData.rawLlmMessages = mergedEntries.rawLlmMessages;
     }
 
-    // Update cache and database concurrently
-    await Promise.all([
-      // Update cache immediately (cache is source of truth during streaming)
-      Promise.resolve(messageEntriesCache.set(messageId, mergedEntries)),
-      // Update database for persistence
-      db
-        .update(messages)
-        .set(updateData)
-        .where(and(eq(messages.id, messageId), isNull(messages.deletedAt))),
-    ]);
+    // Update database for persistence (after cache is updated)
+    await db
+      .update(messages)
+      .set(updateData)
+      .where(and(eq(messages.id, messageId), isNull(messages.deletedAt)));
 
     return { success: true };
   } catch (error) {
