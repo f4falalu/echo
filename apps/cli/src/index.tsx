@@ -5,10 +5,7 @@ import React from 'react';
 import { Auth } from './commands/auth.js';
 import { DeployCommand } from './commands/deploy/deploy.js';
 import { DeployOptionsSchema } from './commands/deploy/schemas.js';
-import { HelloCommand } from './commands/hello.js';
 import { InitCommand } from './commands/init.js';
-import { InteractiveCommand } from './commands/interactive.js';
-import { Main } from './commands/main.js';
 
 // CLI metadata
 program
