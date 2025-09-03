@@ -9,6 +9,7 @@ import electricShapeRoutes from './electric-shape';
 import githubRoutes from './github';
 import metricFilesRoutes from './metric_files';
 import organizationRoutes from './organization';
+import publicRoutes from './public';
 import reportsRoutes from './reports';
 import s3IntegrationsRoutes from './s3-integrations';
 import securityRoutes from './security';
@@ -33,6 +34,7 @@ const app = new Hono()
   .route('/dictionaries', dictionariesRoutes)
   .route('/title', titleRoutes)
   .route('/reports', reportsRoutes)
-  .route('/s3-integrations', s3IntegrationsRoutes);
+  .route('/s3-integrations', s3IntegrationsRoutes)
+  .route('/public', publicRoutes);
 
 export default app;

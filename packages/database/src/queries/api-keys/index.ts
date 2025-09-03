@@ -1,1 +1,1 @@
-export { validateApiKey, getApiKeyDetails } from './validate-api-key';
+export * from './validate-api-key';

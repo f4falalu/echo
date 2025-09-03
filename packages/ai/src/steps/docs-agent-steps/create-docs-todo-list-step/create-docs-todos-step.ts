@@ -2,6 +2,7 @@ import { generateObject } from 'ai';
 import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
+import { DEFAULT_ANTHROPIC_OPTIONS } from '../../../llm/providers/gateway';
 import { Sonnet4 } from '../../../llm/sonnet-4';
 import { getCreateDocsTodosSystemMessage } from './get-create-docs-todos-system-message';
 
@@ -64,6 +65,7 @@ async function generateDocsTodosWithLLM(
           schema: llmOutputSchema,
           messages: messagesWithContext,
           temperature: 0,
+          providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
         });
 
         return object;

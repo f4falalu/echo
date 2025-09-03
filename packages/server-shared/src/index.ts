@@ -14,6 +14,7 @@ export * from './github';
 export * from './message';
 export * from './metrics';
 export * from './organization';
+export * from './public-chat';
 export * from './s3-integrations';
 export * from './security';
 // Export share module (has some naming conflicts with chats and metrics)

@@ -1,3 +1,4 @@
+export * from './api-keys';
 export * from './messages';
 export * from './users';
 export * from './dataSources';
@@ -16,4 +17,3 @@ export * from './s3-integrations';
 export * from './vault';
 export * from './cascading-permissions';
 export * from './github-integrations';
-export * from './api-keys';
