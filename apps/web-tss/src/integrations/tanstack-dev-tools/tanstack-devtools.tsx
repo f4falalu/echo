@@ -7,12 +7,14 @@ import { isServer } from '@/lib/window';
 const ENABLE_TANSTACK_PANEL =
   (process.env.VITE_ENABLE_TANSTACK_PANEL === 'true' || isDev) && !isServer;
 
-// Lazy load the actual devtools component
-// const LazyTanstackDevtools = lazy(() =>
-//   import('./tanstack-devtools-impl').then((mod) => ({
-//     default: mod.default,
-//   }))
-// );
+// Lazy load the actual devtools component - only if not SSR
+const LazyTanstackDevtools = !isServer
+  ? lazy(() =>
+      import('./tanstack-devtools-impl').then((mod) => ({
+        default: mod.default,
+      }))
+    )
+  : () => null;
 
 // Export component with Suspense wrapper
 export const TanstackDevtools: React.FC = React.memo(() => {
@@ -39,10 +41,9 @@ export const TanstackDevtools: React.FC = React.memo(() => {
 
   return (
     <ClientOnly>
-      <div>SWAG</div>
-      {/* <Suspense fallback={null}>
+      <Suspense fallback={null}>
         <LazyTanstackDevtools />
-      </Suspense> */}
+      </Suspense>
     </ClientOnly>
   );
 });

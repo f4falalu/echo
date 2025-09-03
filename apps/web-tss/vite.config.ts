@@ -5,7 +5,7 @@ import { defineConfig } from 'vite';
 import checker from 'vite-plugin-checker';
 import viteTsConfigPaths from 'vite-tsconfig-paths';
 
-const config = defineConfig(({ command, mode }) => {
+const config = defineConfig(({ command, mode, isSsrBuild }) => {
   const isBuild = command === 'build';
   const isProduction = mode === 'production';
   const isTypecheck = process.argv.includes('--typecheck') || process.env.TYPECHECK === 'true';
@@ -14,6 +14,18 @@ const config = defineConfig(({ command, mode }) => {
 
   return {
     server: { port: 3000 },
+    ssr: {
+      noExternal: isSsrBuild ? [] : undefined,
+      external: isSsrBuild
+        ? [
+            '@tanstack/devtools',
+            '@tanstack/react-devtools',
+            '@tanstack/react-query-devtools',
+            '@tanstack/react-router-devtools',
+            'solid-js',
+          ]
+        : undefined,
+    },
     plugins: [
       // this is the plugin that enables path aliases
       viteTsConfigPaths({ projects: ['./tsconfig.json'] }),

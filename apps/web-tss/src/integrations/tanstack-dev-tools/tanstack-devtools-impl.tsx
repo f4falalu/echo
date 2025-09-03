@@ -1,29 +1,39 @@
 import { ClientOnly } from '@tanstack/react-router';
+import type React from 'react';
 import { lazy, Suspense } from 'react';
 
-const LazyTanstackDevtools = lazy(() =>
-  import('@tanstack/react-devtools').then((mod) => ({
-    default: mod.TanStackDevtools,
-  }))
-);
+// Only create lazy components if we're in the browser
+const LazyTanstackDevtools = !import.meta.env.SSR
+  ? lazy(() =>
+      import('@tanstack/react-devtools').then((mod) => ({
+        default: mod.TanStackDevtools,
+      }))
+    )
+  : () => null;
 
-const LazyReactQueryDevtoolsPanel = lazy(() =>
-  import('@tanstack/react-query-devtools').then((mod) => ({
-    default: mod.ReactQueryDevtoolsPanel,
-  }))
-);
+const LazyReactQueryDevtoolsPanel = !import.meta.env.SSR
+  ? lazy(() =>
+      import('@tanstack/react-query-devtools').then((mod) => ({
+        default: mod.ReactQueryDevtoolsPanel,
+      }))
+    )
+  : () => null;
 
-const LazyTanStackRouterDevtoolsPanel = lazy(() =>
-  import('@tanstack/react-router-devtools').then((mod) => ({
-    default: mod.TanStackRouterDevtoolsPanel,
-  }))
-);
+const LazyTanStackRouterDevtoolsPanel = !import.meta.env.SSR
+  ? lazy(() =>
+      import('@tanstack/react-router-devtools').then((mod) => ({
+        default: mod.TanStackRouterDevtoolsPanel,
+      }))
+    )
+  : () => null;
 
-const LazyMetricStoreDevtools = lazy(() =>
-  import('./metric-store-devtools').then((mod) => ({
-    default: mod.default,
-  }))
-);
+const LazyMetricStoreDevtools = !import.meta.env.SSR
+  ? lazy(() =>
+      import('./metric-store-devtools').then((mod) => ({
+        default: mod.default,
+      }))
+    )
+  : () => null;
 
 // The actual devtools component implementation
 const TanstackDevtoolsImpl: React.FC = () => {
