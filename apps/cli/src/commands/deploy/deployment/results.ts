@@ -80,7 +80,7 @@ export function processDeploymentResponse(
 /**
  * Pure function to format deployment summary for display
  */
-export function formatDeploymentSummary(result: CLIDeploymentResult): string {
+export function formatDeploymentSummary(result: CLIDeploymentResult, verbose = false): string {
   const lines: string[] = [];
 
   lines.push('📊 Deployment Summary');
@@ -109,11 +109,31 @@ export function formatDeploymentSummary(result: CLIDeploymentResult): string {
     lines.push(`❌ Failed: ${result.failures.length} models`);
     lines.push('-'.repeat(40));
 
-    for (const failure of result.failures) {
+    // Show first 5 failures in detail, then summarize the rest
+    const maxDetailedFailures = verbose ? result.failures.length : 5;
+    const detailedFailures = result.failures.slice(0, maxDetailedFailures);
+    const remainingCount = result.failures.length - maxDetailedFailures;
+
+    for (const failure of detailedFailures) {
+      lines.push('');
       lines.push(`  File: ${failure.file}`);
       lines.push(`  Model: ${failure.modelName}`);
       for (const error of failure.errors) {
-        lines.push(`    - ${error}`);
+        if (verbose) {
+          // Show full error in verbose mode
+          lines.push(`    • Full error: ${error}`);
+        } else {
+          // Extract meaningful error message from verbose SQL errors
+          const cleanedError = extractErrorMessage(error);
+          lines.push(`    • ${cleanedError}`);
+        }
+      }
+    }
+
+    if (remainingCount > 0) {
+      lines.push(`...and ${remainingCount} more failures`);
+      if (!verbose) {
+        lines.push('(Run with --verbose to see all error details)');
       }
     }
   }
@@ -123,10 +143,70 @@ export function formatDeploymentSummary(result: CLIDeploymentResult): string {
   if (result.failures.length === 0) {
     lines.push('🎉 All models processed successfully!');
   } else {
+    lines.push('');
     lines.push('⚠️  Some models failed to deploy. Please check the errors above.');
+    if (!verbose && result.failures.length > 0) {
+      lines.push('💡 Tip: Run with --verbose flag to see full error details');
+    }
   }
 
   return lines.join('\n');
+}
+
+/**
+ * Extract meaningful error message from verbose database errors
+ */
+function extractErrorMessage(error: string): string {
+  // Handle SQL update errors with large parameter lists
+  if (error.includes('Failed query:')) {
+    // Try to extract just the error reason after the params
+    const paramsMatch = error.match(/params:.*?([A-Z][^,]*error[^,]*)/i);
+    if (paramsMatch && paramsMatch[1]) {
+      return paramsMatch[1].trim();
+    }
+    
+    // Look for common database error patterns
+    if (error.includes('duplicate key')) {
+      return 'Duplicate key error - model may already exist';
+    }
+    if (error.includes('foreign key')) {
+      return 'Foreign key constraint violation';
+    }
+    if (error.includes('not null')) {
+      return 'Required field is missing (NOT NULL constraint)';
+    }
+    if (error.includes('unique constraint')) {
+      return 'Unique constraint violation';
+    }
+    if (error.includes('syntax error')) {
+      return 'SQL syntax error in model definition';
+    }
+    if (error.includes('permission denied')) {
+      return 'Permission denied for database operation';
+    }
+    if (error.includes('connection')) {
+      return 'Database connection error';
+    }
+    
+    // If we can't extract a specific error, show a generic message
+    return 'Database update failed - check model definition and permissions';
+  }
+  
+  // For non-SQL errors, truncate if too long
+  if (error.length > 200) {
+    // Try to find the actual error message part
+    const errorParts = error.split(':');
+    if (errorParts.length > 1) {
+      // Return the last meaningful part (often the actual error)
+      const lastPart = errorParts[errorParts.length - 1];
+      if (lastPart) {
+        return lastPart.trim().substring(0, 150) + '...';
+      }
+    }
+    return error.substring(0, 150) + '...';
+  }
+  
+  return error;
 }
 
 /**

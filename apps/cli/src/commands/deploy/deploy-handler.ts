@@ -45,7 +45,7 @@ export async function deployHandler(options: DeployOptions): Promise<CLIDeployme
   const finalResult = mergeDeploymentResults(projectResults);
 
   // 6. Display summary
-  const summary = formatDeploymentSummary(finalResult);
+  const summary = formatDeploymentSummary(finalResult, options.verbose);
   console.info(`\n${summary}`);
 
   return finalResult;
