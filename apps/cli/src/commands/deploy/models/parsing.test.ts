@@ -6,8 +6,10 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { Model } from '../schemas';
 import {
   ModelParsingError,
+  formatZodIssues,
   generateDefaultSQL,
   parseModelFile,
+  parseModelFileStrict,
   resolveModelConfig,
   validateModel,
 } from './parsing';
@@ -197,9 +199,7 @@ describe('parsing', () => {
           measures: [{ name: 'count', type: 'integer' }],
           metrics: [{ name: 'total', expr: 'sum(count)' }],
           filters: [{ name: 'active', expr: 'status = "active"' }],
-          relationships: [
-            { name: 'user_rel', source_col: 'user_id', ref_col: 'users.id' },
-          ],
+          relationships: [{ name: 'user_rel', source_col: 'user_id', ref_col: 'users.id' }],
         };
 
         const resolved = resolveModelConfig(model, baseConfig);
@@ -280,25 +280,22 @@ describe('parsing', () => {
 
       const result = await parseModelFile(filePath);
 
-      expect(result).toHaveLength(1);
-      expect(result[0].name).toBe('users');
-      expect(result[0].description).toBe('User model');
-      expect(result[0].dimensions).toHaveLength(1);
-      expect(result[0].measures).toHaveLength(1);
+      expect(result.models).toHaveLength(1);
+      expect(result.errors).toHaveLength(0);
+      expect(result.models[0].name).toBe('users');
+      expect(result.models[0].description).toBe('User model');
+      expect(result.models[0].dimensions).toHaveLength(1);
+      expect(result.models[0].measures).toHaveLength(1);
     });
 
-    it('should parse a multi-model file', async () => {
+    it('should only parse single model files (no models key)', async () => {
+      // Files with 'models' key should be rejected
       const multiModel = {
         models: [
           {
             name: 'users',
             dimensions: [{ name: 'id', searchable: false }],
             measures: [],
-          },
-          {
-            name: 'orders',
-            dimensions: [{ name: 'order_id', searchable: false }],
-            measures: [{ name: 'total' }],
           },
         ],
       };
@@ -308,19 +305,21 @@ describe('parsing', () => {
 
       const result = await parseModelFile(filePath);
 
-      expect(result).toHaveLength(2);
-      expect(result[0].name).toBe('users');
-      expect(result[1].name).toBe('orders');
+      // Should fail to parse because it has a 'models' key
+      expect(result.models).toHaveLength(0);
+      expect(result.errors.length).toBeGreaterThan(0);
     });
 
     it('should throw ModelParsingError for invalid YAML', async () => {
       const filePath = join(testDir, 'invalid.yml');
       await writeFile(filePath, 'invalid: yaml: content: :::');
 
+      // parseModelFile itself doesn't throw for invalid YAML structure,
+      // but parseModelFileStrict does
       await expect(parseModelFile(filePath)).rejects.toThrow(ModelParsingError);
     });
 
-    it('should throw ModelParsingError for invalid model structure', async () => {
+    it('should return validation errors for invalid model structure', async () => {
       const invalidModel = {
         // Missing required 'name' field
         dimensions: 'not an array',
@@ -329,7 +328,37 @@ describe('parsing', () => {
       const filePath = join(testDir, 'invalid-model.yml');
       await writeFile(filePath, yaml.dump(invalidModel));
 
-      await expect(parseModelFile(filePath)).rejects.toThrow(ModelParsingError);
+      const result = await parseModelFile(filePath);
+
+      expect(result.models).toHaveLength(0);
+      expect(result.errors.length).toBeGreaterThan(0);
+      expect(result.errors[0].issues.length).toBeGreaterThan(0);
+
+      // Check that we get specific validation issues
+      const allIssues = result.errors.flatMap((e) => formatZodIssues(e.issues));
+      expect(allIssues.some((issue) => issue.includes('name'))).toBe(true);
+    });
+
+    it('should return multiple validation errors for multiple invalid fields', async () => {
+      const invalidModel = {
+        name: 123, // Should be string
+        dimensions: 'not an array', // Should be array
+        measures: { invalid: 'object' }, // Should be array
+      };
+
+      const filePath = join(testDir, 'multi-error-model.yml');
+      await writeFile(filePath, yaml.dump(invalidModel));
+
+      const result = await parseModelFile(filePath);
+
+      expect(result.models).toHaveLength(0);
+      expect(result.errors.length).toBeGreaterThan(0);
+
+      // Should capture errors for all invalid fields
+      const allIssues = result.errors.flatMap((e) => formatZodIssues(e.issues));
+      expect(allIssues.some((issue) => issue.includes('name'))).toBe(true);
+      expect(allIssues.some((issue) => issue.includes('dimensions'))).toBe(true);
+      expect(allIssues.some((issue) => issue.includes('measures'))).toBe(true);
     });
 
     it('should throw ModelParsingError for empty file', async () => {
@@ -339,18 +368,126 @@ describe('parsing', () => {
       await expect(parseModelFile(filePath)).rejects.toThrow('Invalid YAML structure');
     });
 
-    it('should include file path in error message', async () => {
+    it('should include file path in error message for parseModelFileStrict', async () => {
       const filePath = join(testDir, 'error.yml');
       await writeFile(filePath, 'null');
 
       try {
-        await parseModelFile(filePath);
+        await parseModelFileStrict(filePath);
         expect.fail('Should have thrown');
       } catch (error) {
         expect(error).toBeInstanceOf(ModelParsingError);
         expect((error as ModelParsingError).file).toBe(filePath);
         expect((error as ModelParsingError).getDetailedMessage()).toContain(filePath);
       }
+    });
+
+    it('should parse each file as a single model only', async () => {
+      // Test that we can parse a valid single model
+      const singleModel = {
+        name: 'valid_model',
+        dimensions: [{ name: 'id', searchable: false }],
+        measures: [{ name: 'count' }],
+      };
+
+      const filePath = join(testDir, 'single-model.yml');
+      await writeFile(filePath, yaml.dump(singleModel));
+
+      const result = await parseModelFile(filePath);
+
+      expect(result.models).toHaveLength(1);
+      expect(result.errors).toHaveLength(0);
+      expect(result.models[0].name).toBe('valid_model');
+      expect(result.models[0].dimensions).toHaveLength(1);
+      expect(result.models[0].measures).toHaveLength(1);
+    });
+
+    it('should collect ALL Zod validation errors at once, not just the first', async () => {
+      // Create a model with multiple Zod schema violations
+      const invalidModel = {
+        name: 12345, // Should be string
+        description: null, // Should be string or undefined
+        dimensions: 'not_an_array', // Should be array
+        measures: { invalid: 'object' }, // Should be array
+        metrics: 'also_not_array', // Should be array
+        filters: 123, // Should be array
+        relationships: true, // Should be array
+      };
+
+      const filePath = join(testDir, 'multiple-zod-errors.yml');
+      await writeFile(filePath, yaml.dump(invalidModel));
+
+      const result = await parseModelFile(filePath);
+
+      expect(result.models).toHaveLength(0);
+      expect(result.errors).toHaveLength(1); // One error group for the single model
+
+      const allIssues = result.errors.flatMap((e) => formatZodIssues(e.issues));
+
+      // Should have collected ALL schema violations, not just the first one
+      expect(allIssues.length).toBeGreaterThanOrEqual(5); // At least 5 field errors
+      expect(allIssues.some((issue) => issue.includes('name'))).toBe(true);
+      expect(allIssues.some((issue) => issue.includes('dimensions'))).toBe(true);
+      expect(allIssues.some((issue) => issue.includes('measures'))).toBe(true);
+      expect(allIssues.some((issue) => issue.includes('metrics'))).toBe(true);
+      expect(allIssues.some((issue) => issue.includes('filters'))).toBe(true);
+    });
+
+    it('should provide detailed Zod error messages with field paths', async () => {
+      const invalidModel = {
+        name: 'test',
+        dimensions: [
+          { name: 'valid_dim', searchable: false },
+          { name: 123, searchable: 'not_boolean' }, // Invalid dimension
+        ],
+        measures: [
+          { name: 'valid_measure' },
+          { invalid_field: 'test' }, // Missing name field
+        ],
+      };
+
+      const filePath = join(testDir, 'detailed-errors.yml');
+      await writeFile(filePath, yaml.dump(invalidModel));
+
+      const result = await parseModelFile(filePath);
+
+      expect(result.models).toHaveLength(0);
+      expect(result.errors.length).toBeGreaterThan(0);
+
+      const allIssues = result.errors.flatMap((e) => formatZodIssues(e.issues));
+
+      // Check that we get specific path information in errors
+      const hasPathInfo = allIssues.some(
+        (issue) => issue.includes('dimensions') || issue.includes('measures')
+      );
+      expect(hasPathInfo).toBe(true);
+    });
+
+    it('should handle models with only some invalid fields gracefully', async () => {
+      const partiallyInvalidModel = {
+        name: 'partial_model',
+        description: 'Valid description',
+        dimensions: [{ name: 'id', searchable: false }],
+        measures: 'invalid_measures', // This field is invalid
+        metrics: [], // Valid empty array
+        filters: [], // Valid empty array
+        relationships: [], // Valid empty array
+      };
+
+      const filePath = join(testDir, 'partial-invalid.yml');
+      await writeFile(filePath, yaml.dump(partiallyInvalidModel));
+
+      const result = await parseModelFile(filePath);
+
+      expect(result.models).toHaveLength(0); // Model is invalid
+      expect(result.errors.length).toBeGreaterThan(0);
+
+      const allIssues = result.errors.flatMap((e) => formatZodIssues(e.issues));
+
+      // Should only report errors for invalid fields
+      expect(allIssues.some((issue) => issue.includes('measures'))).toBe(true);
+      // Should not have errors for valid fields
+      expect(allIssues.some((issue) => issue.includes('dimensions'))).toBe(false);
     });
   });
 
@@ -517,9 +654,7 @@ describe('parsing', () => {
         measures: [],
         metrics: [],
         filters: [],
-        relationships: [
-          { name: 'incomplete', source_col: '', ref_col: 'users.id' },
-        ],
+        relationships: [{ name: 'incomplete', source_col: '', ref_col: 'users.id' }],
       };
 
       const result = validateModel(model);

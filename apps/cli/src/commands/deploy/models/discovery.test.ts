@@ -157,11 +157,7 @@ describe('discovery', () => {
     });
 
     it('should exclude files matching single pattern', async () => {
-      const { included, excluded } = await filterModelFiles(
-        testFiles,
-        ['**/test/**'],
-        '/path/to'
-      );
+      const { included, excluded } = await filterModelFiles(testFiles, ['**/test/**'], '/path/to');
 
       expect(included).toHaveLength(4);
       expect(excluded).toHaveLength(1);
@@ -217,11 +213,7 @@ describe('discovery', () => {
         join(testDir, 'orders.yml'),
       ];
 
-      const { included, excluded } = await filterModelFiles(
-        absoluteFiles,
-        ['**/test/**'],
-        testDir
-      );
+      const { included, excluded } = await filterModelFiles(absoluteFiles, ['**/test/**'], testDir);
 
       expect(included).toHaveLength(2);
       expect(excluded).toHaveLength(1);
@@ -242,11 +234,7 @@ describe('discovery', () => {
 
   describe('countModelsInFiles', () => {
     it('should return the count of files', async () => {
-      const files = [
-        '/path/to/model1.yml',
-        '/path/to/model2.yml',
-        '/path/to/model3.yml',
-      ];
+      const files = ['/path/to/model1.yml', '/path/to/model2.yml', '/path/to/model3.yml'];
 
       const count = await countModelsInFiles(files);
 

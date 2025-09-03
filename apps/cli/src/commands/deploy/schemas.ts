@@ -25,12 +25,10 @@ import {
   MeasureSchema,
   type Model,
   ModelSchema,
-  MultiModelSchema,
   type ProjectContext,
   ProjectContextSchema,
   type Relationship,
   RelationshipSchema,
-  SingleModelSchema,
 } from '@buster/server-shared';
 import { z } from 'zod';
 
@@ -43,8 +41,6 @@ export {
   FilterSchema,
   RelationshipSchema,
   ModelSchema,
-  SingleModelSchema,
-  MultiModelSchema,
   ProjectContextSchema,
   BusterConfigSchema,
   DeployColumnSchema,

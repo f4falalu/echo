@@ -3,8 +3,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import yaml from 'js-yaml';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { BusterConfig, DeployOptions, DeployRequest, DeployResponse, Model } from './schemas';
 import { deployHandler, validateDeployOptions } from './deploy-handler';
+import type { BusterConfig, DeployOptions, DeployRequest, DeployResponse, Model } from './schemas';
 
 // Mock the deployment strategies module
 vi.mock('./deployment/strategies', () => ({
@@ -60,7 +60,10 @@ describe('deploy-handler', () => {
       const mockDeploy = vi.fn(async (request: DeployRequest) => {
         capturedRequest = request;
         return {
-          success: request.models.map((m) => ({ model_name: m.name, data_source: m.data_source_name })),
+          success: request.models.map((m) => ({
+            model_name: m.name,
+            data_source: m.data_source_name,
+          })),
           updated: [],
           no_change: [],
           failures: [],
@@ -105,8 +108,8 @@ describe('deploy-handler', () => {
       await mkdir(join(testDir, 'models'), { recursive: true });
       const model = {
         name: 'orders',
-        data_source_name: 'model_mysql',  // Override
-        schema: 'model_sales',  // Override
+        data_source_name: 'model_mysql', // Override
+        schema: 'model_sales', // Override
         // database not specified, should inherit from global
         dimensions: [{ name: 'order_id', searchable: false }],
         measures: [{ name: 'total' }],
@@ -118,7 +121,10 @@ describe('deploy-handler', () => {
       const mockDeploy = vi.fn(async (request: DeployRequest) => {
         capturedRequest = request;
         return {
-          success: request.models.map((m) => ({ model_name: m.name, data_source: m.data_source_name })),
+          success: request.models.map((m) => ({
+            model_name: m.name,
+            data_source: m.data_source_name,
+          })),
           updated: [],
           no_change: [],
           failures: [],
@@ -140,9 +146,9 @@ describe('deploy-handler', () => {
       // Verify the model overrides worked correctly
       expect(capturedRequest).toBeDefined();
       expect(capturedRequest?.models).toHaveLength(1);
-      expect(capturedRequest?.models[0].data_source_name).toBe('model_mysql');  // Overridden
-      expect(capturedRequest?.models[0].database).toBe('global_db');  // Inherited
-      expect(capturedRequest?.models[0].schema).toBe('model_sales');  // Overridden
+      expect(capturedRequest?.models[0].data_source_name).toBe('model_mysql'); // Overridden
+      expect(capturedRequest?.models[0].database).toBe('global_db'); // Inherited
+      expect(capturedRequest?.models[0].schema).toBe('model_sales'); // Overridden
     });
 
     it('should handle multiple models with different override patterns', async () => {
@@ -195,7 +201,10 @@ describe('deploy-handler', () => {
       const mockDeploy = vi.fn(async (request: DeployRequest) => {
         capturedRequest = request;
         return {
-          success: request.models.map((m) => ({ model_name: m.name, data_source: m.data_source_name })),
+          success: request.models.map((m) => ({
+            model_name: m.name,
+            data_source: m.data_source_name,
+          })),
           updated: [],
           no_change: [],
           failures: [],
@@ -237,7 +246,7 @@ describe('deploy-handler', () => {
       expect(external?.schema).toBe('external_data');
     });
 
-    it('should handle multi-model files with cascading', async () => {
+    it('should reject files with models key since we only support single model per file', async () => {
       // Create buster.yml with global config
       const busterConfig: BusterConfig = {
         projects: [
@@ -251,7 +260,7 @@ describe('deploy-handler', () => {
       };
       await writeFile(join(testDir, 'buster.yml'), yaml.dump(busterConfig));
 
-      // Create multi-model file
+      // Create file with models key (not supported anymore)
       await mkdir(join(testDir, 'models'), { recursive: true });
       const multiModel = {
         models: [
@@ -259,26 +268,14 @@ describe('deploy-handler', () => {
             name: 'model1',
             dimensions: [{ name: 'id', searchable: false }],
           },
-          {
-            name: 'model2',
-            data_source_name: 'custom_source',
-            dimensions: [{ name: 'id', searchable: false }],
-          },
-          {
-            name: 'model3',
-            schema: 'custom_schema',
-            dimensions: [{ name: 'id', searchable: false }],
-          },
         ],
       };
       await writeFile(join(testDir, 'models', 'models.yml'), yaml.dump(multiModel));
 
       // Mock the deployment function
-      let capturedRequest: DeployRequest | undefined;
       const mockDeploy = vi.fn(async (request: DeployRequest) => {
-        capturedRequest = request;
         return {
-          success: request.models.map((m) => ({ model_name: m.name, data_source: m.data_source_name })),
+          success: [],
           updated: [],
           no_change: [],
           failures: [],
@@ -295,23 +292,11 @@ describe('deploy-handler', () => {
         verbose: false,
       };
 
-      await deployHandler(options);
+      const result = await deployHandler(options);
 
-      // Verify cascading worked for all models in the file
-      expect(capturedRequest).toBeDefined();
-      expect(capturedRequest?.models).toHaveLength(3);
-
-      const model1 = capturedRequest?.models.find((m) => m.name === 'model1');
-      expect(model1?.data_source_name).toBe('global_postgres');
-      expect(model1?.schema).toBe('global_schema');
-
-      const model2 = capturedRequest?.models.find((m) => m.name === 'model2');
-      expect(model2?.data_source_name).toBe('custom_source');
-      expect(model2?.schema).toBe('global_schema');
-
-      const model3 = capturedRequest?.models.find((m) => m.name === 'model3');
-      expect(model3?.data_source_name).toBe('global_postgres');
-      expect(model3?.schema).toBe('custom_schema');
+      // Should fail to parse because models key is not supported
+      expect(result.failures.length).toBeGreaterThan(0);
+      expect(result.success).toHaveLength(0);
     });
 
     it('should handle multiple projects with different configs', async () => {
@@ -348,7 +333,10 @@ describe('deploy-handler', () => {
       const mockDeploy = vi.fn(async (request: DeployRequest) => {
         capturedRequests.push(request);
         return {
-          success: request.models.map((m) => ({ model_name: m.name, data_source: m.data_source_name })),
+          success: request.models.map((m) => ({
+            model_name: m.name,
+            data_source: m.data_source_name,
+          })),
           updated: [],
           no_change: [],
           failures: [],
@@ -419,6 +407,189 @@ describe('deploy-handler', () => {
 
       expect(result.valid).toBe(false);
       expect(result.errors).toContain('Path does not exist: /non/existent/path');
+    });
+  });
+
+  describe('comprehensive error collection', () => {
+    it('should collect ALL validation errors from ALL models, not just fail on first', async () => {
+      // Create buster.yml
+      const busterConfig: BusterConfig = {
+        projects: [
+          {
+            name: 'test-project',
+            data_source: 'postgres',
+            schema: 'public',
+          },
+        ],
+      };
+      await writeFile(join(testDir, 'buster.yml'), yaml.dump(busterConfig));
+
+      // Create models directory
+      const modelsDir = join(testDir, 'models');
+      await mkdir(modelsDir, { recursive: true });
+
+      // Model 1: Multiple Zod schema violations
+      const model1 = {
+        name: 123, // Should be string
+        dimensions: 'not_array', // Should be array
+        measures: { invalid: 'object' }, // Should be array
+      };
+      await writeFile(join(modelsDir, 'model1.yml'), yaml.dump(model1));
+
+      // Model 2: Valid structure but business rule violations
+      const model2 = {
+        name: 'model2',
+        dimensions: [],
+        measures: [], // Will trigger: needs at least one dimension or measure
+        metrics: [
+          { name: 'metric1', expr: '' }, // Will trigger: empty expression error
+        ],
+        filters: [
+          { name: 'filter1', expr: 'valid' },
+          { name: 'filter1', expr: 'duplicate' }, // Will trigger: duplicate name
+        ],
+        relationships: [],
+      };
+      await writeFile(join(modelsDir, 'model2.yml'), yaml.dump(model2));
+
+      // Model 3: Duplicate field names
+      const model3 = {
+        name: 'model3',
+        dimensions: [
+          { name: 'dim1', searchable: false },
+          { name: 'dim1', searchable: true }, // Duplicate
+        ],
+        measures: [
+          { name: 'measure1' },
+          { name: 'measure1' }, // Duplicate
+        ],
+      };
+      await writeFile(join(modelsDir, 'model3.yml'), yaml.dump(model3));
+
+      // Mock deployment
+      const mockDeploy = vi.fn(async () => ({
+        success: [],
+        updated: [],
+        no_change: [],
+        failures: [],
+      }));
+
+      const { createDryRunDeployer } = await import('./deployment/strategies');
+      (createDryRunDeployer as any).mockReturnValue(mockDeploy);
+
+      // Run deploy
+      const result = await deployHandler({
+        path: testDir,
+        dryRun: true,
+        verbose: true,
+      });
+
+      // Should have collected errors from ALL models
+      expect(result.failures.length).toBeGreaterThan(0);
+
+      // Get all error messages
+      const allErrors = result.failures.flatMap((f) => f.errors);
+
+      // Debug: Log errors to see what we're getting
+      if (allErrors.length === 0) {
+        console.log('No errors collected!');
+        console.log('Failures:', JSON.stringify(result.failures, null, 2));
+      }
+
+      // Should have collected multiple errors from different models
+      expect(allErrors.length).toBeGreaterThan(3); // At least some errors from each model
+
+      // Check we got different types of errors
+
+      // 1. Zod schema validation errors (from model1)
+      const hasSchemaErrors = allErrors.some(
+        (e) => e.includes('Expected') || e.includes('Invalid') || e.includes('Required')
+      );
+      expect(hasSchemaErrors).toBe(true);
+
+      // 2. Business rule validation errors (from model2)
+      // At least one of these should be present
+      const hasBusinessRuleErrors = allErrors.some(
+        (e) =>
+          e.includes('at least one dimension or measure') ||
+          e.includes('must have an expression') ||
+          e.includes('Duplicate filter name')
+      );
+      expect(hasBusinessRuleErrors).toBe(true);
+
+      // 3. Duplicate errors (from model3)
+      const hasDuplicateErrors = allErrors.some(
+        (e) => e.includes('Duplicate dimension name') || e.includes('Duplicate measure name')
+      );
+      expect(hasDuplicateErrors).toBe(true);
+
+      // Should have failures from multiple files
+      const filesWithErrors = new Set(result.failures.map((f) => f.file));
+      expect(filesWithErrors.size).toBeGreaterThanOrEqual(2); // At least 2 different files had errors
+
+      // Verify error output was logged
+      const errorCalls = consoleErrorSpy.mock.calls.map((call) => call.join(' '));
+      expect(errorCalls.some((msg) => msg.includes('validation error'))).toBe(true);
+    });
+
+    it('should continue processing valid models when some have errors', async () => {
+      // Create buster.yml
+      const busterConfig: BusterConfig = {
+        projects: [
+          {
+            name: 'test-project',
+            data_source: 'postgres',
+            schema: 'public',
+          },
+        ],
+      };
+      await writeFile(join(testDir, 'buster.yml'), yaml.dump(busterConfig));
+
+      // Create one valid model
+      const validModel = {
+        name: 'valid_model',
+        dimensions: [{ name: 'id', searchable: false }],
+        measures: [{ name: 'count' }],
+      };
+      await writeFile(join(testDir, 'valid.yml'), yaml.dump(validModel));
+
+      // Create one invalid model
+      const invalidModel = {
+        name: 123, // Wrong type
+        dimensions: 'not_array',
+      };
+      await writeFile(join(testDir, 'invalid.yml'), yaml.dump(invalidModel));
+
+      // Mock deployment that tracks what it received
+      let deployedModels: any[] = [];
+      const mockDeploy = vi.fn(async (request: DeployRequest) => {
+        deployedModels = request.models;
+        return {
+          success: request.models.map((m) => ({
+            name: m.name,
+            dataSource: m.data_source_name,
+          })),
+          updated: [],
+          noChange: [],
+          failures: [],
+        };
+      });
+
+      const { createDryRunDeployer } = await import('./deployment/strategies');
+      (createDryRunDeployer as any).mockReturnValue(mockDeploy);
+
+      const result = await deployHandler({
+        path: testDir,
+        dryRun: true,
+        verbose: false,
+      });
+
+      // Should have processed the valid model
+      expect(deployedModels).toHaveLength(1);
+      expect(deployedModels[0].name).toBe('valid_model');
+
+      // Should have failure for invalid model
+      expect(result.failures.some((f) => f.file.includes('invalid.yml'))).toBe(true);
     });
   });
 

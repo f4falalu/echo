@@ -1,13 +1,25 @@
 import { readFile } from 'node:fs/promises';
 import yaml from 'js-yaml';
-import type { ZodError } from 'zod';
-import { type Model, ModelSchema, MultiModelSchema, SingleModelSchema } from '../schemas';
+import type { ZodError, ZodIssue } from 'zod';
+import { type Model, ModelSchema } from '../schemas';
 
 /**
- * Parse a YAML model file and return an array of models
- * Supports both single model and multi-model files
+ * Result of parsing a model file - can contain both successful models and errors
  */
-export async function parseModelFile(filePath: string): Promise<Model[]> {
+export interface ParseModelResult {
+  models: Model[];
+  errors: Array<{
+    modelName?: string;
+    issues: ZodIssue[];
+  }>;
+}
+
+/**
+ * Parse a YAML model file and return both successful models and validation errors
+ * Each file contains exactly one model definition
+ * Now collects ALL validation errors instead of failing on first error
+ */
+export async function parseModelFile(filePath: string): Promise<ParseModelResult> {
   try {
     const content = await readFile(filePath, 'utf-8');
     const rawData = yaml.load(content) as unknown;
@@ -16,36 +28,67 @@ export async function parseModelFile(filePath: string): Promise<Model[]> {
       throw new Error(`Invalid YAML structure in ${filePath}`);
     }
 
-    // Try parsing as multi-model file first (has 'models' key)
-    const multiResult = MultiModelSchema.safeParse(rawData);
-    if (multiResult.success) {
-      return multiResult.data.models;
+    // Parse as single model file (flat structure, no 'models' key)
+    const parseResult = ModelSchema.safeParse(rawData);
+    if (parseResult.success) {
+      return {
+        models: [parseResult.data],
+        errors: [],
+      };
     }
 
-    // Try parsing as single model file
-    const singleResult = SingleModelSchema.safeParse(rawData);
-    if (singleResult.success) {
-      return [singleResult.data];
-    }
+    // Extract and return detailed validation errors
+    const errors = extractModelValidationErrors(rawData, parseResult.error);
 
-    // If neither works, throw the multi-model error (more informative)
-    throw new ModelParsingError(`Failed to parse model file`, filePath, multiResult.error);
+    return {
+      models: [],
+      errors,
+    };
   } catch (error) {
-    if (error instanceof ModelParsingError) {
-      throw error;
-    }
-
     if (error instanceof Error) {
       throw new ModelParsingError(`Error reading model file: ${error.message}`, filePath);
     }
-
     throw new ModelParsingError('Unknown error parsing model file', filePath);
   }
 }
 
 /**
+ * Parse a YAML model file and throw on any errors (backward compatibility)
+ */
+export async function parseModelFileStrict(filePath: string): Promise<Model[]> {
+  const result = await parseModelFile(filePath);
+
+  if (result.errors.length > 0) {
+    const allIssues = result.errors.flatMap((e) => e.issues);
+    const zodError = { issues: allIssues } as ZodError;
+    throw new ModelParsingError(`Failed to parse model file`, filePath, zodError);
+  }
+
+  return result.models;
+}
+
+/**
+ * Extract detailed validation errors from Zod error
+ */
+function extractModelValidationErrors(
+  rawData: unknown,
+  zodError: ZodError
+): Array<{ modelName?: string; issues: ZodIssue[] }> {
+  // Try to get the model name if it exists and is valid
+  const data = rawData as Record<string, unknown>;
+  const modelName = data && typeof data.name === 'string' ? data.name : undefined;
+
+  return [
+    {
+      ...(modelName !== undefined && { modelName }),
+      issues: zodError.issues,
+    },
+  ];
+}
+
+/**
  * Validate a model against business rules
- * Returns validation errors if any
+ * Returns ALL validation errors (doesn't stop at first error)
  */
 export function validateModel(model: Model): {
   valid: boolean;
@@ -178,4 +221,14 @@ export class ModelParsingError extends Error {
 
     return message;
   }
+}
+
+/**
+ * Format Zod issues into readable error messages
+ */
+export function formatZodIssues(issues: ZodIssue[]): string[] {
+  return issues.map((issue) => {
+    const path = issue.path.length > 0 ? `${issue.path.join('.')}: ` : '';
+    return `${path}${issue.message}`;
+  });
 }

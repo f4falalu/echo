@@ -17,7 +17,12 @@ import {
   validateModelsForDeployment,
 } from './deployment/transformers';
 import { discoverModelFiles, filterModelFiles } from './models/discovery';
-import { parseModelFile, resolveModelConfig, validateModel } from './models/parsing';
+import {
+  formatZodIssues,
+  parseModelFile,
+  resolveModelConfig,
+  validateModel,
+} from './models/parsing';
 import type { CLIDeploymentResult, DeployOptions, Model, ProjectContext } from './schemas';
 
 /**
@@ -191,6 +196,7 @@ async function processProject(
 
 /**
  * Parse and collect models from files
+ * Now collects ALL errors from ALL models instead of stopping at the first error
  */
 async function parseAndCollectModels(
   files: string[],
@@ -204,27 +210,63 @@ async function parseAndCollectModels(
   const models: Model[] = [];
   const parseFailures: Array<{ file: string; error: string }> = [];
 
-  for (const file of files) {
-    try {
-      const fileModels = await parseModelFile(file);
+  // Process all files and collect all errors
+  await Promise.all(
+    files.map(async (file) => {
+      const relativeFile = relative(baseDir, file);
 
-      for (const model of fileModels) {
-        // Resolve configuration for each model
-        const resolved = resolveModelConfig(model, config);
+      try {
+        const parseResult = await parseModelFile(file);
 
-        // Validate the resolved model
-        const validation = validateModel(resolved);
-        if (!validation.valid) {
-          throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
+        // Collect Zod validation errors
+        if (parseResult.errors.length > 0) {
+          for (const errorGroup of parseResult.errors) {
+            const formattedIssues = formatZodIssues(errorGroup.issues);
+            const modelPrefix = errorGroup.modelName ? `Model '${errorGroup.modelName}': ` : '';
+
+            for (const issue of formattedIssues) {
+              parseFailures.push({
+                file: relativeFile,
+                error: `${modelPrefix}${issue}`,
+              });
+            }
+          }
         }
 
-        models.push(resolved);
+        // Process successfully parsed models
+        for (const model of parseResult.models) {
+          // Resolve configuration for each model
+          const resolved = resolveModelConfig(model, config);
+
+          // Validate the resolved model against business rules
+          const validation = validateModel(resolved);
+          if (!validation.valid) {
+            // Add each validation error separately for better visibility
+            for (const error of validation.errors) {
+              parseFailures.push({
+                file: relativeFile,
+                error: `Model '${resolved.name}': ${error}`,
+              });
+            }
+          } else {
+            models.push(resolved);
+          }
+        }
+      } catch (error) {
+        // Handle file-level errors (e.g., file read errors, invalid YAML)
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        parseFailures.push({ file: relativeFile, error: errorMessage });
       }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      const relativeFile = relative(baseDir, file);
-      parseFailures.push({ file: relativeFile, error: errorMessage });
-      console.error(`  ❌ Failed to parse ${relativeFile}: ${errorMessage}`);
+    })
+  );
+
+  // Log all errors at once for better visibility
+  if (parseFailures.length > 0) {
+    console.error(
+      `\n  ❌ Found ${parseFailures.length} validation error${parseFailures.length === 1 ? '' : 's'}:`
+    );
+    for (const failure of parseFailures) {
+      console.error(`     ${failure.file}: ${failure.error}`);
     }
   }
 

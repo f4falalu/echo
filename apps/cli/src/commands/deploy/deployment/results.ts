@@ -109,31 +109,48 @@ export function formatDeploymentSummary(result: CLIDeploymentResult, verbose = f
     lines.push(`❌ Failed: ${result.failures.length} models`);
     lines.push('-'.repeat(40));
 
-    // Show first 5 failures in detail, then summarize the rest
-    const maxDetailedFailures = verbose ? result.failures.length : 5;
-    const detailedFailures = result.failures.slice(0, maxDetailedFailures);
-    const remainingCount = result.failures.length - maxDetailedFailures;
+    // Group failures by file for better readability
+    const failuresByFile = new Map<string, typeof result.failures>();
+    for (const failure of result.failures) {
+      const existing = failuresByFile.get(failure.file) || [];
+      existing.push(failure);
+      failuresByFile.set(failure.file, existing);
+    }
 
-    for (const failure of detailedFailures) {
+    // Show first 5 files with failures in detail, then summarize the rest
+    const maxDetailedFiles = verbose ? failuresByFile.size : 5;
+    const fileEntries = Array.from(failuresByFile.entries());
+    const detailedFiles = fileEntries.slice(0, maxDetailedFiles);
+    const remainingFileCount = fileEntries.length - maxDetailedFiles;
+
+    for (const [file, failures] of detailedFiles) {
       lines.push('');
-      lines.push(`  File: ${failure.file}`);
-      lines.push(`  Model: ${failure.modelName}`);
-      for (const error of failure.errors) {
-        if (verbose) {
-          // Show full error in verbose mode
-          lines.push(`    • Full error: ${error}`);
-        } else {
-          // Extract meaningful error message from verbose SQL errors
-          const cleanedError = extractErrorMessage(error);
-          lines.push(`    • ${cleanedError}`);
+      lines.push(`  📄 File: ${file}`);
+
+      for (const failure of failures) {
+        if (failure.modelName !== 'parse_error') {
+          lines.push(`     Model: ${failure.modelName}`);
+        }
+
+        // Show all errors for this model/file
+        for (const error of failure.errors) {
+          if (verbose) {
+            // Show full error in verbose mode
+            lines.push(`       • ${error}`);
+          } else {
+            // Extract meaningful error message
+            const cleanedError = extractErrorMessage(error);
+            lines.push(`       • ${cleanedError}`);
+          }
         }
       }
     }
 
-    if (remainingCount > 0) {
-      lines.push(`...and ${remainingCount} more failures`);
+    if (remainingFileCount > 0) {
+      lines.push('');
+      lines.push(`  ...and ${remainingFileCount} more files with errors`);
       if (!verbose) {
-        lines.push('(Run with --verbose to see all error details)');
+        lines.push('  (Run with --verbose to see all error details)');
       }
     }
   }
@@ -144,7 +161,10 @@ export function formatDeploymentSummary(result: CLIDeploymentResult, verbose = f
     lines.push('🎉 All models processed successfully!');
   } else {
     lines.push('');
-    lines.push('⚠️  Some models failed to deploy. Please check the errors above.');
+    const totalErrors = result.failures.reduce((sum, f) => sum + f.errors.length, 0);
+    lines.push(
+      `⚠️  Found ${totalErrors} validation error${totalErrors === 1 ? '' : 's'} across ${result.failures.length} model${result.failures.length === 1 ? '' : 's'}.`
+    );
     if (!verbose && result.failures.length > 0) {
       lines.push('💡 Tip: Run with --verbose flag to see full error details');
     }
@@ -161,10 +181,10 @@ function extractErrorMessage(error: string): string {
   if (error.includes('Failed query:')) {
     // Try to extract just the error reason after the params
     const paramsMatch = error.match(/params:.*?([A-Z][^,]*error[^,]*)/i);
-    if (paramsMatch && paramsMatch[1]) {
+    if (paramsMatch?.[1]) {
       return paramsMatch[1].trim();
     }
-    
+
     // Look for common database error patterns
     if (error.includes('duplicate key')) {
       return 'Duplicate key error - model may already exist';
@@ -187,11 +207,11 @@ function extractErrorMessage(error: string): string {
     if (error.includes('connection')) {
       return 'Database connection error';
     }
-    
+
     // If we can't extract a specific error, show a generic message
     return 'Database update failed - check model definition and permissions';
   }
-  
+
   // For non-SQL errors, truncate if too long
   if (error.length > 200) {
     // Try to find the actual error message part
@@ -200,12 +220,12 @@ function extractErrorMessage(error: string): string {
       // Return the last meaningful part (often the actual error)
       const lastPart = errorParts[errorParts.length - 1];
       if (lastPart) {
-        return lastPart.trim().substring(0, 150) + '...';
+        return `${lastPart.trim().substring(0, 150)}...`;
       }
     }
-    return error.substring(0, 150) + '...';
+    return `${error.substring(0, 150)}...`;
   }
-  
+
   return error;
 }
 
