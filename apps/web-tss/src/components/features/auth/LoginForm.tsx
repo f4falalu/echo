@@ -8,6 +8,7 @@ import Github from '@/components/ui/icons/customIcons/Github';
 import Google from '@/components/ui/icons/customIcons/Google';
 import Microsoft from '@/components/ui/icons/customIcons/Microsoft';
 import { Input } from '@/components/ui/inputs';
+import { AppTooltip } from '@/components/ui/tooltip';
 import { Text, Title } from '@/components/ui/typography';
 import { env } from '@/env';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
@@ -22,12 +23,20 @@ import { cn } from '@/lib/classMerge';
 import { isValidEmail } from '@/lib/email';
 import { inputHasText } from '@/lib/text';
 import { PolicyCheck } from './PolicyCheck';
+import { type LastUsedReturnType, useLastUsed } from './useLastUsed';
 
-export const LoginForm: React.FC<{ redirectTo: string | null | undefined }> = ({ redirectTo }) => {
+export const LoginForm: React.FC<{
+  redirectTo: string | null | undefined;
+  isAnonymousUser?: boolean;
+}> = ({ redirectTo }) => {
   const navigate = useNavigate();
+  const lastUsedProps = useLastUsed();
+
   const [loading, setLoading] = useState<'google' | 'github' | 'azure' | 'email' | null>(null);
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
-  const [signUpFlow, setSignUpFlow] = useState(true);
+  const [signUpFlow, setSignUpFlow] = useState(
+    lastUsedProps.isAnonymousUser && !env.VITE_PUBLIC_USER
+  );
   const [signUpSuccess, setSignUpSuccess] = useState(false);
 
   const onSignInWithUsernameAndPassword = useMemoizedFn(
@@ -162,6 +171,7 @@ export const LoginForm: React.FC<{ redirectTo: string | null | undefined }> = ({
             onSignInWithGoogle={onSignInWithGoogle}
             onSignInWithGithub={onSignInWithGithub}
             onSignInWithAzure={onSignInWithAzure}
+            lastUsedProps={lastUsedProps}
           />
         )}
       </div>
@@ -179,6 +189,7 @@ const LoginOptions: React.FC<{
   loading: 'google' | 'github' | 'azure' | 'email' | null;
   setErrorMessages: (value: string[]) => void;
   signUpFlow: boolean;
+  lastUsedProps: LastUsedReturnType;
 }> = ({
   onSubmitClick,
   onSignInWithGoogle,
@@ -189,11 +200,15 @@ const LoginOptions: React.FC<{
   loading,
   setErrorMessages,
   signUpFlow,
+  lastUsedProps,
 }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState(
+    lastUsedProps.supabaseUser?.email || env.VITE_PUBLIC_USER || ''
+  );
+  const [password, setPassword] = useState(env.VITE_PUBLIC_USER_PASSWORD || '');
   const [password2, setPassword2] = useState('');
   const [passwordCheck, setPasswordCheck] = useState(false);
+  const navigate = useNavigate();
   const disableSubmitButton =
     !inputHasText(password) || !inputHasText(password2) || password !== password2 || !passwordCheck;
 
@@ -209,13 +224,13 @@ const LoginOptions: React.FC<{
 
   useHotkeys(
     'meta+shift+b',
-    () => {
+    (e) => {
+      e.preventDefault();
       setSignUpFlow(false);
       const DEFAULT_CREDENTIALS = {
         email: env.VITE_PUBLIC_USER || '',
         password: env.VITE_PUBLIC_USER_PASSWORD || '',
       };
-      console.log('DEFAULT_CREDENTIALS', DEFAULT_CREDENTIALS);
 
       onSubmitClick({
         email: DEFAULT_CREDENTIALS.email,
@@ -228,7 +243,7 @@ const LoginOptions: React.FC<{
   return (
     <>
       <div className="flex flex-col items-center text-center">
-        <WelcomeText signUpFlow={signUpFlow} />
+        <WelcomeText signUpFlow={signUpFlow} lastUsedProps={lastUsedProps} />
       </div>
 
       <div className="mt-6 mb-4 flex flex-col space-y-3">
@@ -358,6 +373,14 @@ const LoginOptions: React.FC<{
         >
           {!signUpFlow ? 'Sign in' : 'Sign up'}
         </Button>
+
+        {lastUsedProps.isCurrentlySignedIn && !signUpFlow && (
+          <Link to="/app/home">
+            <Button size={'tall'} block={true} type="button" className="truncate" variant="black">
+              Continue with {lastUsedProps.supabaseUser?.email}
+            </Button>
+          </Link>
+        )}
       </form>
 
       <div className="mt-2 flex flex-col gap-y-2">
@@ -366,6 +389,7 @@ const LoginOptions: React.FC<{
           setPassword2={setPassword2}
           setSignUpFlow={setSignUpFlow}
           signUpFlow={signUpFlow}
+          lastUsedProps={lastUsedProps}
         />
 
         {!signUpFlow && <ResetPasswordLink email={email} tabIndex={-7} />}
@@ -401,13 +425,21 @@ const SignUpSuccess: React.FC<{
 
 const WelcomeText: React.FC<{
   signUpFlow: boolean;
-}> = ({ signUpFlow }) => {
+  lastUsedProps: LastUsedReturnType;
+}> = ({ signUpFlow, lastUsedProps }) => {
   const text = !signUpFlow ? 'Sign in' : 'Sign up for free';
+  const { isCurrentlySignedIn, supabaseUser } = lastUsedProps;
 
   return (
-    <Title className="mb-0" as="h1">
-      {text}
-    </Title>
+    <div className="flex items-center justify-center gap-2">
+      <AppTooltip
+        title={isCurrentlySignedIn ? `Currently signed in as ${supabaseUser?.email}` : undefined}
+      >
+        <Title className="mb-0" as="h1">
+          {text}
+        </Title>
+      </AppTooltip>
+    </div>
   );
 };
 
@@ -426,25 +458,30 @@ const AlreadyHaveAccount: React.FC<{
   setPassword2: (value: string) => void;
   setSignUpFlow: (value: boolean) => void;
   signUpFlow: boolean;
-}> = React.memo(({ setErrorMessages, setPassword2, setSignUpFlow, signUpFlow }) => {
-  return (
-    <div className="flex items-center justify-center gap-0.5">
-      <Text className="" variant="secondary" size="xs">
-        {signUpFlow ? 'Already have an account? ' : "Don't already have an account?"}
-      </Text>
+  lastUsedProps: LastUsedReturnType;
+}> = React.memo(({ setErrorMessages, setPassword2, setSignUpFlow, signUpFlow, lastUsedProps }) => {
+  const { isCurrentlySignedIn, supabaseUser } = lastUsedProps;
 
-      <Text
-        variant="primary"
-        size="xs"
-        className={cn('ml-1 cursor-pointer font-normal')}
-        onClick={() => {
-          setErrorMessages([]);
-          setPassword2('');
-          setSignUpFlow(!signUpFlow);
-        }}
-      >
-        {!signUpFlow ? 'Sign up' : 'Sign in'}
-      </Text>
+  return (
+    <div className="flex flex-col items-center justify-center gap-1.5">
+      <div className="flex items-center justify-center gap-0.5">
+        <Text className="" variant="secondary" size="xs">
+          {signUpFlow ? 'Already have an account? ' : "Don't already have an account?"}
+        </Text>
+
+        <Text
+          variant="primary"
+          size="xs"
+          className={cn('ml-1 cursor-pointer font-normal')}
+          onClick={() => {
+            setErrorMessages([]);
+            setPassword2('');
+            setSignUpFlow(!signUpFlow);
+          }}
+        >
+          {!signUpFlow ? 'Sign up' : 'Sign in'}
+        </Text>
+      </div>
     </div>
   );
 });

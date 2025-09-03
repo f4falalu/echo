@@ -89,3 +89,4 @@ drizzle/meta/
 *.tsbuildinfo
 /packages/aTest/.mastra
 **/*.private.*
+apps/web-tss/.env.prod

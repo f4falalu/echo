@@ -8,6 +8,9 @@ export type SupabaseContextType = {
   user: {
     id: string;
     is_anonymous: boolean;
+    email: string;
+    identities: User['identities'];
+    app_metadata: User['app_metadata'];
   };
   accessToken: string;
 };
@@ -20,7 +23,10 @@ const useSupabaseContextInternal = ({
   accessToken: accessTokenProp,
 }: SupabaseContextType) => {
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const [supabaseUser, setSupabaseUser] = useState<Pick<User, 'id' | 'is_anonymous'> | null>(user);
+  const [supabaseUser, setSupabaseUser] = useState<Pick<
+    User,
+    'id' | 'is_anonymous' | 'email' | 'identities' | 'app_metadata'
+  > | null>(user);
   const [accessToken, setAccessToken] = useState(accessTokenProp);
 
   const isAnonymousUser: boolean = !user?.id || user?.is_anonymous === true;

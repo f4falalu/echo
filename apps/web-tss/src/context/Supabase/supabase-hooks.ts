@@ -10,3 +10,8 @@ const stableIsAnonymousUserSelector = (state: SupabaseContextReturnType) => stat
 export const useIsAnonymousSupabaseUser = () => {
   return useContextSelector(SupabaseContext, stableIsAnonymousUserSelector);
 };
+
+const stableSupabaseUserSelector = (state: SupabaseContextReturnType) => state.supabaseUser;
+export const useGetSupabaseUser = () => {
+  return useContextSelector(SupabaseContext, stableSupabaseUserSelector);
+};
