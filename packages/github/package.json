@@ -33,12 +33,10 @@
     "@buster/env-utils": "workspace:*",
     "@buster/database": "workspace:*",
     "@buster/server-shared": "workspace:*",
-    "octokit": "^5.0.3",
-    "zod": "^3.23.8"
+    "octokit": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "tsx": "^4.19.2",
-    "typescript": "^5.6.3"
+    "tsx": "catalog:"
   }
 }

@@ -12,12 +12,15 @@ catalog:
   '@supabase/supabase-js': ^2.57.0
   '@trigger.dev/build': ^4.0.2
   '@trigger.dev/sdk': ^4.0.2
+  '@electric-sql/client': ^1.0.9
   ai: ^5.0.30
   axios: ^1.11.0
   braintrust: ^0.2.4
   dotenv: ^17.2.2
   drizzle-orm: ^0.44.5
+  lodash-es: ^4.17.21
   hono: ^4.9.6
+  octokit: ^5.0.3
   pg: ^8.16.3
   tsup: ^8.5.0
   tsx: ^4.20.5
