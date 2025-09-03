@@ -2,6 +2,19 @@ import { type Sandbox, createSandbox } from '@buster/sandbox';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createBashTool } from './bash-tool';
 
+async function materialize<T>(value: T | AsyncIterable<T>): Promise<T> {
+  const asyncIterator = (value as any)?.[Symbol.asyncIterator];
+  if (typeof asyncIterator === 'function') {
+    let lastChunk: T | undefined;
+    for await (const chunk of value as AsyncIterable<T>) {
+      lastChunk = chunk;
+    }
+    if (lastChunk === undefined) throw new Error('Stream yielded no values');
+    return lastChunk;
+  }
+  return value as T;
+}
+
 describe.sequential('bash-tool integration test', () => {
   const hasApiKey = !!process.env.DAYTONA_API_KEY;
   let sharedSandbox: Sandbox;
@@ -33,18 +46,23 @@ describe.sequential('bash-tool integration test', () => {
       sandbox: sharedSandbox,
     });
 
-    const result = await bashTool.execute!(
-      {
-        commands: [
-          {
-            command: `mkdir -p /tmp/${testDir} && cd /tmp/${testDir} && pwd`,
-            description: 'Create test dir and print working directory',
-          },
-          { command: `cd /tmp/${testDir} && echo "Hello from sandbox"`, description: 'Echo test' },
-          { command: `cd /tmp/${testDir} && ls -la`, description: 'List files', timeout: 5000 },
-        ],
-      },
-      { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
+    const result = await materialize(
+      await bashTool.execute!(
+        {
+          commands: [
+            {
+              command: `mkdir -p /tmp/${testDir} && cd /tmp/${testDir} && pwd`,
+              description: 'Create test dir and print working directory',
+            },
+            {
+              command: `cd /tmp/${testDir} && echo "Hello from sandbox"`,
+              description: 'Echo test',
+            },
+            { command: `cd /tmp/${testDir} && ls -la`, description: 'List files', timeout: 5000 },
+          ],
+        },
+        { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
+      )
     );
 
     expect(result.results).toHaveLength(3);
@@ -83,7 +101,7 @@ describe.sequential('bash-tool integration test', () => {
       sandbox: sharedSandbox,
     });
 
-    const result = await bashTool.execute!(
+    const rawResult = await bashTool.execute!(
       {
         commands: [
           {
@@ -95,6 +113,7 @@ describe.sequential('bash-tool integration test', () => {
       },
       { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
     );
+    const result = await materialize(rawResult);
 
     expect(result.results).toHaveLength(2);
 
@@ -123,7 +142,7 @@ describe.sequential('bash-tool integration test', () => {
     });
 
     const testFile = `test-bash-${Date.now()}.txt`;
-    const result = await bashTool.execute!(
+    const rawResult = await bashTool.execute!(
       {
         commands: [
           {
@@ -140,6 +159,7 @@ describe.sequential('bash-tool integration test', () => {
       },
       { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
     );
+    const result = await materialize(rawResult);
 
     expect(result.results).toHaveLength(4);
 
@@ -170,7 +190,7 @@ describe.sequential('bash-tool integration test', () => {
       sandbox: sharedSandbox,
     });
 
-    const result = await bashTool.execute!(
+    const rawResult = await bashTool.execute!(
       {
         commands: [
           {
@@ -182,7 +202,7 @@ describe.sequential('bash-tool integration test', () => {
       },
       { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
     );
-
+    const result = await materialize(rawResult);
     expect(result.results).toHaveLength(1);
     expect(result.results[0]?.success).toBe(false);
     expect(result.results[0]?.error).toContain('timed out');

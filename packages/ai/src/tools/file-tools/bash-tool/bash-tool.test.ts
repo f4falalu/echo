@@ -10,6 +10,19 @@ vi.mock('braintrust', () => ({
   wrapTraced: vi.fn((fn) => fn),
 }));
 
+async function materialize<T>(value: T | AsyncIterable<T>): Promise<T> {
+  const asyncIterator = (value as any)?.[Symbol.asyncIterator];
+  if (typeof asyncIterator === 'function') {
+    let lastChunk: T | undefined;
+    for await (const chunk of value as AsyncIterable<T>) {
+      lastChunk = chunk;
+    }
+    if (lastChunk === undefined) throw new Error('Stream yielded no values');
+    return lastChunk;
+  }
+  return value as T;
+}
+
 describe('createBashTool', () => {
   const mockSandbox = {
     id: 'test-sandbox',
@@ -45,7 +58,7 @@ describe('createBashTool', () => {
 
     const bashTool = createBashTool(mockContext);
 
-    const result = await bashTool.execute!(
+    const rawResult = await bashTool.execute!(
       {
         commands: [
           {
@@ -56,6 +69,7 @@ describe('createBashTool', () => {
       },
       { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
     );
+    const result = await materialize(rawResult);
 
     expect(result.results).toHaveLength(1);
     expect(result.results[0]).toMatchObject({
@@ -74,7 +88,7 @@ describe('createBashTool', () => {
 
     const bashTool = createBashTool(mockContext);
 
-    const result = await bashTool.execute!(
+    const rawResult = await bashTool.execute!(
       {
         commands: [
           {
@@ -85,6 +99,7 @@ describe('createBashTool', () => {
       },
       { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
     );
+    const result = await materialize(rawResult);
 
     expect(result.results).toHaveLength(1);
     expect(result.results[0]).toMatchObject({
@@ -109,7 +124,7 @@ describe('createBashTool', () => {
 
     const bashTool = createBashTool(mockContext);
 
-    const result = await bashTool.execute!(
+    const rawResult = await bashTool.execute!(
       {
         commands: [
           {
@@ -124,6 +139,7 @@ describe('createBashTool', () => {
       },
       { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
     );
+    const result = await materialize(rawResult);
 
     expect(result.results).toHaveLength(2);
     expect(result.results[0]?.success).toBe(true);
@@ -136,7 +152,7 @@ describe('createBashTool', () => {
 
     const bashTool = createBashTool(mockContext);
 
-    const result = await bashTool.execute!(
+    const rawResult = await bashTool.execute!(
       {
         commands: [
           {
@@ -147,6 +163,7 @@ describe('createBashTool', () => {
       },
       { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
     );
+    const result = await materialize(rawResult);
 
     expect(result.results).toHaveLength(1);
     expect(result.results[0]).toMatchObject({
@@ -159,12 +176,13 @@ describe('createBashTool', () => {
   it('should handle empty commands array', async () => {
     const bashTool = createBashTool(mockContext);
 
-    const result = await bashTool.execute!(
+    const rawResult = await bashTool.execute!(
       {
         commands: [],
       },
       { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
     );
+    const result = await materialize(rawResult);
 
     expect(result.results).toHaveLength(0);
     expect(mockSandbox.process.executeCommand).not.toHaveBeenCalled();

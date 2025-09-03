@@ -16,6 +16,20 @@ vi.mock('./create-dashboards-execute', () => ({
   createCreateDashboardsExecute: vi.fn(() => vi.fn()),
 }));
 
+// Helper to handle tools that may return a value or an AsyncIterable of values
+async function materialize<T>(value: T | AsyncIterable<T>): Promise<T> {
+  const asyncIterator = (value as any)?.[Symbol.asyncIterator];
+  if (typeof asyncIterator === 'function') {
+    let lastChunk: T | undefined;
+    for await (const chunk of value as AsyncIterable<T>) {
+      lastChunk = chunk;
+    }
+    if (lastChunk === undefined) throw new Error('Stream yielded no values');
+    return lastChunk;
+  }
+  return value as T;
+}
+
 describe('create-dashboards-tool streaming integration', () => {
   let context: CreateDashboardsContext;
   let updateMessageEntries: ReturnType<typeof vi.fn>;
@@ -95,11 +109,12 @@ describe('create-dashboards-tool streaming integration', () => {
       }
 
       // Execute the tool
-      const result = await tool.execute!(input, {
+      const rawResult = await tool.execute!(input, {
         toolCallId: 'tool-123',
         messages: [],
         abortSignal: new AbortController().signal,
       });
+      const result = await materialize(rawResult);
 
       // Verify message entries were updated
       expect(updateMessageEntries).toHaveBeenCalled();
@@ -151,11 +166,12 @@ describe('create-dashboards-tool streaming integration', () => {
         await tool.onInputAvailable({ input, toolCallId: 'tool-123', messages: [] });
       }
 
-      const result = await tool.execute!(input, {
+      const rawResult = await tool.execute!(input, {
         toolCallId: 'tool-123',
         messages: [],
         abortSignal: new AbortController().signal,
       });
+      const result = await materialize(rawResult);
 
       // Should not update database entries
       expect(updateMessageEntries).not.toHaveBeenCalled();
@@ -203,11 +219,12 @@ describe('create-dashboards-tool streaming integration', () => {
         await tool.onInputAvailable({ input, toolCallId: 'tool-123', messages: [] });
       }
 
-      const result = await tool.execute!(input, {
+      const rawResult = await tool.execute!(input, {
         toolCallId: 'tool-123',
         messages: [],
         abortSignal: new AbortController().signal,
       });
+      const result = await materialize(rawResult);
 
       expect(result.files).toHaveLength(1);
       expect(result.failed_files).toHaveLength(1);
@@ -273,11 +290,12 @@ describe('create-dashboards-tool streaming integration', () => {
       }
 
       // Should still execute successfully despite database error
-      const result = await tool.execute!(input, {
+      const rawResult = await tool.execute!(input, {
         toolCallId: 'tool-123',
         messages: [],
         abortSignal: new AbortController().signal,
       });
+      const result = await materialize(rawResult);
       expect(result.files).toHaveLength(1);
     });
   });
@@ -326,11 +344,12 @@ describe('create-dashboards-tool streaming integration', () => {
         files: [],
       };
 
-      const result = await tool.execute!(input, {
+      const rawResult = await tool.execute!(input, {
         toolCallId: 'tool-123',
         messages: [],
         abortSignal: new AbortController().signal,
       });
+      const result = await materialize(rawResult);
       expect(result.files).toHaveLength(0);
       expect(result.failed_files).toHaveLength(0);
     });
@@ -358,11 +377,12 @@ describe('create-dashboards-tool streaming integration', () => {
       });
 
       const tool = createCreateDashboardsTool(context);
-      const result = await tool.execute!(largeInput, {
+      const rawResult = await tool.execute!(largeInput, {
         toolCallId: 'tool-123',
         messages: [],
         abortSignal: new AbortController().signal,
       });
+      const result = await materialize(rawResult);
 
       expect(result.files).toHaveLength(100);
     });

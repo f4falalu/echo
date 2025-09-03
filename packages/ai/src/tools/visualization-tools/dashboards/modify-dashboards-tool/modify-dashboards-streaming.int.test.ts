@@ -11,6 +11,19 @@ vi.mock('@buster/database', () => ({
   metricFilesToDashboardFiles: {},
 }));
 
+async function materialize<T>(value: T | AsyncIterable<T>): Promise<T> {
+  const asyncIterator = (value as any)?.[Symbol.asyncIterator];
+  if (typeof asyncIterator === 'function') {
+    let lastChunk: T | undefined;
+    for await (const chunk of value as AsyncIterable<T>) {
+      lastChunk = chunk;
+    }
+    if (lastChunk === undefined) throw new Error('Stream yielded no values');
+    return lastChunk;
+  }
+  return value as T;
+}
+
 // Mock the execute function directly since it's called internally
 vi.mock('./modify-dashboards-execute', () => ({
   createModifyDashboardsExecute: vi.fn(() =>
@@ -176,10 +189,12 @@ describe('modify-dashboards-tool streaming integration', () => {
       });
     }
 
-    const result = await tool.execute!(mockInput, {
-      toolCallId: 'test-tool-call-id',
-      messages: [],
-    });
+    const result = await materialize(
+      tool.execute!(mockInput, {
+        toolCallId: 'test-tool-call-id',
+        messages: [],
+      })
+    );
 
     // Should not update database
     expect(updateMessageEntries).not.toHaveBeenCalled();
@@ -216,10 +231,12 @@ describe('modify-dashboards-tool streaming integration', () => {
 
     const tool = createModifyDashboardsTool(mockContext);
 
-    const result = await tool.execute!(mockInput, {
-      toolCallId: 'test-tool-call-id',
-      messages: [],
-    });
+    const result = await materialize(
+      tool.execute!(mockInput, {
+        toolCallId: 'test-tool-call-id',
+        messages: [],
+      })
+    );
 
     expect(result.files).toHaveLength(1); // Mock returns 1 file
     expect(result.failed_files).toHaveLength(1); // Mock returns 1 failed file
