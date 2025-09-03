@@ -1,3 +1,7 @@
+import { ReportPageController } from '@/controllers/ReportPageControllers/ReportPageController';
+import { useGetReportParams } from '../../Reports/useGetReportParams';
+
 export const component = () => {
-  return <div>Report Index</div>;
+  const params = useGetReportParams();
+  return <ReportPageController {...params} />;
 };
