@@ -67,7 +67,7 @@ export function DeployCommand(props: DeployCommandProps) {
   return (
     <Box flexDirection='column'>
       <BusterBanner showSubtitle={false} />
-      
+
       {/* Error state */}
       {status === 'error' && (
         <>
