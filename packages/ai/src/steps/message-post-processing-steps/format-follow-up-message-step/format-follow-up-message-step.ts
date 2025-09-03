@@ -151,6 +151,7 @@ Generate a concise update message for the data team.`;
       anthropic: {
         disableParallelToolCalls: true,
       },
+      gateway: { only: ['anthropic'] },
     },
   });
 

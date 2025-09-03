@@ -45,6 +45,9 @@ async function generateTitleWithLLM(messages: ModelMessage[]): Promise<string> {
           model: Haiku35,
           schema: llmOutputSchema,
           messages: titleMessages,
+          providerOptions: {
+            gateway: { only: ['anthropic'] },
+          },
         });
 
         return object;

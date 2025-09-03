@@ -67,6 +67,7 @@ async function generateAnalysisTypeWithLLM(messages: ModelMessage[]): Promise<{
               reasoningEffort: 'minimal',
               verbosity: 'low',
             },
+            gateway: { only: ['openai'] },
           },
         });
 

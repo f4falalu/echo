@@ -31,6 +31,7 @@ const DEFAULT_CACHE_OPTIONS = {
     parallelToolCalls: false,
     reasoningEffort: 'minimal',
   },
+  gateway: { only: ['anthropic'] },
 };
 
 const STOP_CONDITIONS = [stepCountIs(25), hasToolCall(DONE_TOOL_NAME)];

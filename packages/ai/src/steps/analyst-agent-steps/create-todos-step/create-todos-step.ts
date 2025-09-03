@@ -91,6 +91,9 @@ async function generateTodosWithLLM(
           schema: llmOutputSchema,
           messages: todosMessages,
           temperature: 0,
+          providerOptions: {
+            gateway: { only: ['anthropic'] },
+          },
         });
 
         // Process text deltas for optimistic updates

@@ -186,6 +186,9 @@ No conversation history available for analysis.`,
           messages,
           temperature: 0,
           maxOutputTokens: 10000,
+          providerOptions: {
+            gateway: { only: ['anthropic'] },
+          },
         });
         return object;
       },

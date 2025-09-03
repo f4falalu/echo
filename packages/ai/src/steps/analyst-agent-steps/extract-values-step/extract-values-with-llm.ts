@@ -94,6 +94,9 @@ export async function extractValuesWithLLM(
           schema: llmOutputSchema,
           messages,
           temperature: 0,
+          providerOptions: {
+            gateway: { only: ['anthropic'] },
+          },
         });
 
         return object;

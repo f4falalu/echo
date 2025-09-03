@@ -175,6 +175,7 @@ Generate a cohesive summary with title for the data team.`;
       anthropic: {
         disableParallelToolCalls: true,
       },
+      gateway: { only: ['anthropic'] },
     },
   });
 
