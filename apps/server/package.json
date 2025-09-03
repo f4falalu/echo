@@ -44,7 +44,6 @@
     "hono": "catalog:",
     "hono-pino": "^0.10.2",
     "lodash-es": "catalog:",
-    "octokit": "catalog:",
     "pino": "^9.9.1",
     "pino-pretty": "^13.1.1",
     "tsup": "catalog:",

@@ -42,9 +42,6 @@ catalogs:
     lodash-es:
       specifier: ^4.17.21
       version: 4.17.21
-    octokit:
-      specifier: ^5.0.3
-      version: 5.0.3
     pg:
       specifier: ^8.16.3
       version: 8.16.3
@@ -181,9 +178,6 @@ importers:
       lodash-es:
         specifier: 'catalog:'
         version: 4.17.21
-      octokit:
-        specifier: 'catalog:'
-        version: 5.0.3
       pino:
         specifier: ^9.9.1
         version: 9.9.1
@@ -1029,7 +1023,7 @@ importers:
         specifier: workspace:*
         version: link:../vitest-config
       octokit:
-        specifier: 'catalog:'
+        specifier: ^5.0.3
         version: 5.0.3
       zod:
         specifier: 'catalog:'

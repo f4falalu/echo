@@ -33,7 +33,7 @@
     "@buster/env-utils": "workspace:*",
     "@buster/database": "workspace:*",
     "@buster/server-shared": "workspace:*",
-    "octokit": "catalog:",
+    "octokit": "^5.0.3",
     "zod": "catalog:"
   },
   "devDependencies": {

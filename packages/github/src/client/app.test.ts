@@ -1,6 +1,6 @@
 import { App } from 'octokit';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createGitHubApp, getGitHubAppCredentials } from './github-app';
+import { createGitHubApp, getGitHubAppCredentials } from './app';
 
 // Mock the octokit module
 vi.mock('octokit', () => ({
@@ -98,7 +98,7 @@ describe('github-app', () => {
 
       // Act & Assert
       expect(() => getGitHubAppCredentials()).toThrow(
-        'Invalid GitHub App private key format. Expected PEM-encoded RSA private key or PKCS#8 private key'
+        'Invalid GitHub App private key format. Expected PEM-encoded private key'
       );
     });
   });
