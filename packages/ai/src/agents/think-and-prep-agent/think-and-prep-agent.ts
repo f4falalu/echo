@@ -134,6 +134,10 @@ export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAge
       () =>
         streamText({
           model: Sonnet4,
+          headers: {
+            'anthropic-beta':
+              'fine-grained-tool-streaming-2025-05-14,extended-cache-ttl-2025-04-11',
+          },
           providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
           tools: {
             [SEQUENTIAL_THINKING_TOOL_NAME]: sequentialThinking,

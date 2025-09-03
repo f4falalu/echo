@@ -88,6 +88,10 @@ async function generateTodosWithLLM(
         await onStreamStart();
 
         const { object, textStream } = streamObject({
+          headers: {
+            'anthropic-beta':
+              'fine-grained-tool-streaming-2025-05-14,extended-cache-ttl-2025-04-11',
+          },
           model: Sonnet4,
           schema: llmOutputSchema,
           messages: todosMessages,

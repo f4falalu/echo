@@ -6,6 +6,7 @@ export const DEFAULT_ANTHROPIC_OPTIONS = {
   gateway: {
     order: ['bedrock', 'anthropic', 'vertex'],
   },
+  headers: {},
   anthropic: { cacheControl: { type: 'ephemeral', ttl: '1h' } },
 };
 
