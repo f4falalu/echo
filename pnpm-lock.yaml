@@ -466,7 +466,7 @@ importers:
         specifier: ^4.1.12
         version: 4.1.12(vite@7.1.4(@types/node@24.0.10)(jiti@2.5.1)(lightningcss@1.30.1)(sass@1.92.0)(terser@5.43.1)(tsx@4.20.5)(yaml@2.8.0))
       '@tanstack/db':
-        specifier: ^0.1.10
+        specifier: ^0.1.11
         version: 0.1.11(typescript@5.9.2)
       '@tanstack/match-sorter-utils':
         specifier: ^8.19.4
@@ -481,8 +481,8 @@ importers:
         specifier: ^5.85.9
         version: 5.85.9
       '@tanstack/react-db':
-        specifier: 0.1.10
-        version: 0.1.10(react@19.1.1)(typescript@5.9.2)
+        specifier: 0.1.11
+        version: 0.1.11(react@19.1.1)(typescript@5.9.2)
       '@tanstack/react-devtools':
         specifier: ^0.6.1
         version: 0.6.1(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(csstype@3.1.3)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(solid-js@1.9.9)
@@ -782,7 +782,7 @@ importers:
         specifier: ^1.55.0
         version: 1.55.0
       sass:
-        specifier: ^1.91.0
+        specifier: ^1.92.0
         version: 1.92.0
       storybook:
         specifier: ^9.1.4
@@ -5131,11 +5131,6 @@ packages:
     peerDependencies:
       typescript: '>=4.7'
 
-  '@tanstack/db@0.1.10':
-    resolution: {integrity: sha512-I1EloOE4aBGcdBQqQSrR91/AjagbpImELQVfN4DM465T23dWWhADlPRsvDhOXiviRyHI7cmd70ZHJC5a4a31/Q==}
-    peerDependencies:
-      typescript: '>=4.7'
-
   '@tanstack/db@0.1.11':
     resolution: {integrity: sha512-VzDNEto4EeWGiOwpSz1PGppSgadZS8OEo72CgH85OGzkVzFfoDQ5j0xCvstL+gvTVai40aKMTqwD5a6G3KBnMg==}
     peerDependencies:
@@ -5201,8 +5196,8 @@ packages:
   '@tanstack/query-sync-storage-persister@5.85.9':
     resolution: {integrity: sha512-u68O73h869ZZWqPpSDc84CqYBXbxYOQLhueswrC9eeL9+dyYZWqrZ9MOJoFk1NZKoe5uvKRWUspbtfj7Qt6jLA==}
 
-  '@tanstack/react-db@0.1.10':
-    resolution: {integrity: sha512-N6+flH2foxwXEy31072dCczDbujtt6CvZavWcrVkeF3ezghGw+Z9xUnRFGSVRR8gQ/Goccn8qNb0Bl6BRogxzw==}
+  '@tanstack/react-db@0.1.11':
+    resolution: {integrity: sha512-S9i8J02a7wKSg2sozRQqBu2dwVzcLpaDQ2TuXyjoAHzH3DSh6yN/PkuahnPc82QrvMkL0XXEiZ/dssdL3Smvkw==}
     peerDependencies:
       react: '>=16.8.0'
 
@@ -7041,10 +7036,6 @@ packages:
   engine.io@6.5.5:
     resolution: {integrity: sha512-C5Pn8Wk+1vKBoHghJODM63yk8MvrO9EWZUfkAt5HAqIgPE4/8FF0PEGHXtEd40l223+cE5ABWuPzm38PHFXfMA==}
     engines: {node: '>=10.2.0'}
-
-  enhanced-resolve@5.18.2:
-    resolution: {integrity: sha512-6Jw4sE1maoRJo3q8MsSIn2onJFbLTOjY9hlx4DZXmOKvLRd1Ok2kXmAGXaafL2+ijsJZ1ClYbl/pmqr9+k4iUQ==}
-    engines: {node: '>=10.13.0'}
 
   enhanced-resolve@5.18.3:
     resolution: {integrity: sha512-d4lC8xfavMeBjzGr2vECC3fsGXziXZQyJxD868h2M/mBI3PwAuODxAkLkq5HYuvrPYcUtiLzsTo8U3PgX3Ocww==}
@@ -16486,12 +16477,6 @@ snapshots:
       '@tanstack/db-ivm': 0.1.0(typescript@5.9.2)
       typescript: 5.9.2
 
-  '@tanstack/db@0.1.10(typescript@5.9.2)':
-    dependencies:
-      '@standard-schema/spec': 1.0.0
-      '@tanstack/db-ivm': 0.1.2(typescript@5.9.2)
-      typescript: 5.9.2
-
   '@tanstack/db@0.1.11(typescript@5.9.2)':
     dependencies:
       '@standard-schema/spec': 1.0.0
@@ -16576,9 +16561,9 @@ snapshots:
       '@tanstack/query-core': 5.85.9
       '@tanstack/query-persist-client-core': 5.85.9
 
-  '@tanstack/react-db@0.1.10(react@19.1.1)(typescript@5.9.2)':
+  '@tanstack/react-db@0.1.11(react@19.1.1)(typescript@5.9.2)':
     dependencies:
-      '@tanstack/db': 0.1.10(typescript@5.9.2)
+      '@tanstack/db': 0.1.11(typescript@5.9.2)
       react: 19.1.1
       use-sync-external-store: 1.5.0(react@19.1.1)
     transitivePeerDependencies:
@@ -17531,7 +17516,7 @@ snapshots:
 
   '@vue/compiler-core@3.5.17':
     dependencies:
-      '@babel/parser': 7.28.0
+      '@babel/parser': 7.28.3
       '@vue/shared': 3.5.17
       entities: 4.5.0
       estree-walker: 2.0.2
@@ -17546,13 +17531,13 @@ snapshots:
 
   '@vue/compiler-sfc@3.5.17':
     dependencies:
-      '@babel/parser': 7.28.0
+      '@babel/parser': 7.28.3
       '@vue/compiler-core': 3.5.17
       '@vue/compiler-dom': 3.5.17
       '@vue/compiler-ssr': 3.5.17
       '@vue/shared': 3.5.17
       estree-walker: 2.0.2
-      magic-string: 0.30.17
+      magic-string: 0.30.18
       postcss: 8.5.6
       source-map-js: 1.2.1
     optional: true
@@ -18806,12 +18791,6 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  enhanced-resolve@5.18.2:
-    dependencies:
-      graceful-fs: 4.2.11
-      tapable: 2.2.2
-    optional: true
-
   enhanced-resolve@5.18.3:
     dependencies:
       graceful-fs: 4.2.11
@@ -19058,7 +19037,7 @@ snapshots:
 
   esrap@1.4.9:
     dependencies:
-      '@jridgewell/sourcemap-codec': 1.5.4
+      '@jridgewell/sourcemap-codec': 1.5.5
     optional: true
 
   esrecurse@4.3.0:
@@ -22984,7 +22963,7 @@ snapshots:
   svelte@5.34.9:
     dependencies:
       '@ampproject/remapping': 2.3.0
-      '@jridgewell/sourcemap-codec': 1.5.4
+      '@jridgewell/sourcemap-codec': 1.5.5
       '@sveltejs/acorn-typescript': 1.0.5(acorn@8.15.0)
       '@types/estree': 1.0.8
       acorn: 8.15.0
@@ -22995,7 +22974,7 @@ snapshots:
       esrap: 1.4.9
       is-reference: 3.0.3
       locate-character: 3.0.0
-      magic-string: 0.30.17
+      magic-string: 0.30.18
       zimmerframe: 1.1.2
     optional: true
 
@@ -24028,7 +24007,7 @@ snapshots:
       acorn: 8.15.0
       browserslist: 4.25.1
       chrome-trace-event: 1.0.4
-      enhanced-resolve: 5.18.2
+      enhanced-resolve: 5.18.3
       es-module-lexer: 1.7.0
       eslint-scope: 5.1.1
       events: 3.3.0

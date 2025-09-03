@@ -19,7 +19,6 @@
     "typescript.suggest.autoImports": true,
     "typescript.updateImportsOnFileMove.enabled": "always",
     "typescript.preferences.importTypeKeyword": "force",
-    "vitest.maximumConfigs": 25,
     
     // Enhanced TypeScript settings for monorepo
     "typescript.preferences.includePackageJsonAutoImports": "on",
@@ -31,10 +30,6 @@
     "typescript.referencesCodeLens.showOnAllFunctions": false,
     "typescript.validate.enable": true,
     "typescript.format.enable": true,
-    
-    // Force TypeScript to check all files proactively
-    "typescript.disableAutomaticTypeAcquisition": true,
-    "typescript.preferences.noSemicolons": false
   },
   "extensions": {
     "recommendations": [
