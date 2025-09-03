@@ -1,5 +1,6 @@
 import { Box, Text } from 'ink';
 import React, { useEffect, useState } from 'react';
+import { BusterBanner } from '../../components/banner';
 import { Spinner } from '../../components/spinner';
 import { DeployProgress } from './components/deploy-progress';
 import { DeploySummary } from './components/deploy-summary';
@@ -62,55 +63,54 @@ export function DeployCommand(props: DeployCommandProps) {
     }
   };
 
-  // Error state
-  if (status === 'error') {
-    // Check if it's a buster.yml not found error
-    const isBusterYmlError = error?.includes('No buster.yml found');
-
-    if (isBusterYmlError) {
-      return (
-        <Box flexDirection='column'>
-          <Text color='red'>No buster.yml found</Text>
-        </Box>
-      );
-    }
-
-    return (
-      <Box flexDirection='column'>
-        <Text color='red' bold>
-          ❌ Deployment Error
-        </Text>
-        <Text color='red'>{error}</Text>
-        <Box marginTop={1}>
-          <Text color='dim'>Please check your configuration and try again.</Text>
-        </Box>
-      </Box>
-    );
-  }
-
-  // Deploying state
-  if (status === 'deploying') {
-    return (
-      <DeployProgress
-        current={progress.current}
-        total={progress.total}
-        currentFile={progress.currentFile}
-        currentModel={progress.currentModel}
-        status={progress.statusMessage}
-        isComplete={false}
-      />
-    );
-  }
-
-  // Complete state
-  if (status === 'complete' && result) {
-    return <DeploySummary result={result} />;
-  }
-
-  // Initializing state - show spinner
+  // Always show the banner at the top
   return (
     <Box flexDirection='column'>
-      <Spinner label='Loading configuration...' />
+      <BusterBanner showSubtitle={false} />
+      
+      {/* Error state */}
+      {status === 'error' && (
+        <>
+          {/* Check if it's a buster.yml not found error */}
+          {error?.includes('No buster.yml found') ? (
+            <Box paddingX={2}>
+              <Text color='red'>No buster.yml found</Text>
+            </Box>
+          ) : (
+            <Box flexDirection='column' paddingX={2}>
+              <Text color='red' bold>
+                ❌ Deployment Error
+              </Text>
+              <Text color='red'>{error}</Text>
+              <Box marginTop={1}>
+                <Text color='dim'>Please check your configuration and try again.</Text>
+              </Box>
+            </Box>
+          )}
+        </>
+      )}
+
+      {/* Deploying state */}
+      {status === 'deploying' && (
+        <DeployProgress
+          current={progress.current}
+          total={progress.total}
+          currentFile={progress.currentFile}
+          currentModel={progress.currentModel}
+          status={progress.statusMessage}
+          isComplete={false}
+        />
+      )}
+
+      {/* Complete state */}
+      {status === 'complete' && result && <DeploySummary result={result} />}
+
+      {/* Initializing state - show spinner */}
+      {status === 'initializing' && (
+        <Box paddingX={2}>
+          <Spinner label='Loading configuration...' />
+        </Box>
+      )}
     </Box>
   );
 }

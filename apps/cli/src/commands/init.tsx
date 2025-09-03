@@ -2,10 +2,10 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { createBusterSDK } from '@buster/sdk';
 import { Box, Text, useApp, useInput } from 'ink';
-import BigText from 'ink-big-text';
 import Spinner from 'ink-spinner';
 import TextInput from 'ink-text-input';
 import React, { useState, useEffect } from 'react';
+import { BusterBanner } from '../components/banner.js';
 import { type Credentials, getCredentials, saveCredentials } from '../utils/credentials.js';
 
 interface InitProps {
@@ -292,22 +292,6 @@ metrics:
     description: Average expense per employee
 `;
 
-// Component for the welcome screen
-function WelcomeScreen() {
-  return (
-    <Box paddingY={2} paddingX={2} flexDirection='column' alignItems='center'>
-      <Box>
-        <Text color='#7C3AED'>
-          <BigText text='BUSTER' font='block' />
-        </Text>
-      </Box>
-      <Box>
-        <Text bold>Welcome to Buster</Text>
-      </Box>
-    </Box>
-  );
-}
-
 // Helper function to create project structure
 async function createProjectStructure(basePath: string): Promise<void> {
   const busterDir = join(basePath, 'buster');
@@ -453,7 +437,7 @@ export function InitCommand({ apiKey, host, local, path: providedPath }: InitPro
   // Always show the banner at the top
   return (
     <Box flexDirection='column'>
-      <WelcomeScreen />
+      <BusterBanner />
 
       {step === 'check' && (
         <Box paddingX={2}>

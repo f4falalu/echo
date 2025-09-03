@@ -1,9 +1,9 @@
 import { createBusterSDK } from '@buster/sdk';
 import { Box, Text, useApp, useInput } from 'ink';
-import BigText from 'ink-big-text';
 import Spinner from 'ink-spinner';
 import TextInput from 'ink-text-input';
 import React, { useState, useEffect } from 'react';
+import { BusterBanner } from '../components/banner.js';
 import {
   type Credentials,
   getCredentials,
@@ -14,14 +14,12 @@ import {
 const DEFAULT_HOST = 'https://api2.buster.so';
 const _LOCAL_HOST = 'http://localhost:3001';
 
-// Component for the welcome screen header
+// Component for the welcome screen header with additional help text
 function WelcomeHeader() {
   return (
     <Box paddingY={2} paddingX={2} alignItems='center'>
       <Box marginRight={4}>
-        <Text color='#7C3AED'>
-          <BigText text='BUSTER' font='block' />
-        </Text>
+        <BusterBanner showSubtitle={false} inline={true} />
       </Box>
       <Box flexDirection='column' justifyContent='center'>
         <Text bold>Welcome to Buster</Text>
