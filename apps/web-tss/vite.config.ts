@@ -42,6 +42,9 @@ const config = defineConfig(({ command, mode }) => {
           })
         : undefined,
     ],
+    worker: {
+      format: 'es',
+    },
     build: {
       chunkSizeWarningLimit: 850,
       rollupOptions: {

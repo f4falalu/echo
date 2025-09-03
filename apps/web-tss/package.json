@@ -13,7 +13,7 @@
     "deploy:wrangler": "npx wrangler deploy .output/server/index.mjs --assets .output/public",
     "build": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build -- --typecheck",
     "build:local": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build -- --typecheck --local",
-    "build:no-typecheck": "vite build",
+    "build:no-typecheck": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build",
     "build:fix": "pnpm build:no-typecheck && pnpm run build:fix-react-symlink",
     "build:fix-react-symlink": "npx tsx scripts/fix-react-symlink.ts",
     "serve": "vite preview",

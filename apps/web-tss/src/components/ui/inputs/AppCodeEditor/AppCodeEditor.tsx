@@ -4,13 +4,15 @@
 import type { EditorProps, OnMount } from '@monaco-editor/react';
 import { ClientOnly } from '@tanstack/react-router';
 import type React from 'react';
-import { forwardRef, lazy, Suspense, useCallback, useMemo } from 'react';
+import { forwardRef, lazy, Suspense, useCallback, useEffect, useMemo } from 'react';
+import { useMount } from '@/hooks/useMount';
 import { cn } from '@/lib/utils';
 import { LoadingCodeEditor } from './LoadingCodeEditor';
 import { setupMonacoWebWorker } from './setupMonacoWebWorker';
 import { configureMonacoToUseYaml } from './yamlHelper';
 
 const isServer = typeof window === 'undefined';
+let hasSetupMonacoWebWorker = false;
 
 //https://github.com/brijeshb42/monaco-ace-tokenizer
 
@@ -103,9 +105,22 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
       };
     }, [language, readOnly, readOnlyMessage, monacoEditorOptions]);
 
+    useMount(async () => {
+      if (hasSetupMonacoWebWorker || isServer) return;
+      try {
+        const setupMonacoWebWorker = await import('./setupMonacoWebWorker').then(
+          (mod) => mod.setupMonacoWebWorker
+        );
+        setupMonacoWebWorker();
+      } catch (error) {
+        console.error('Error setting up Monaco web worker:', error);
+      } finally {
+        hasSetupMonacoWebWorker = true;
+      }
+    });
+
     const onMountCodeEditor: OnMount = useCallback(
       async (editor, monaco) => {
-        // setupMonacoWebWorker();
         const isYaml = language === 'yaml';
 
         const [GithubLightTheme, NightOwlTheme] = await Promise.all([
