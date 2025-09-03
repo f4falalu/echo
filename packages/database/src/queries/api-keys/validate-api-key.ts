@@ -16,7 +16,7 @@ export interface ApiKeyValidation {
  */
 export async function validateApiKey(key: string): Promise<ApiKeyValidation | null> {
   const db = getDb();
-  
+
   try {
     const result = await db
       .select({
@@ -58,11 +58,11 @@ export async function getApiKeyDetails(apiKey: string): Promise<{
   ownerId: string;
 } | null> {
   const result = await validateApiKey(apiKey);
-  
+
   if (!result) {
     return null;
   }
-  
+
   return {
     id: result.id,
     organizationId: result.organizationId,
@@ -81,7 +81,7 @@ export async function getApiKeyOrganization(apiKeyId: string): Promise<{
   paymentRequired: boolean;
 } | null> {
   const db = getDb();
-  
+
   try {
     const result = await db
       .select({
@@ -112,7 +112,7 @@ export async function getApiKeyOwner(apiKeyId: string): Promise<{
   name: string | null;
 } | null> {
   const db = getDb();
-  
+
   try {
     const result = await db
       .select({
