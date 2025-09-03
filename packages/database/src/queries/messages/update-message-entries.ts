@@ -77,18 +77,11 @@ export async function updateMessageEntries({
       updateData.rawLlmMessages = mergedEntries.rawLlmMessages;
     }
 
-    // Fire-and-forget database update for persistence
-    // Don't await - return immediately after cache update
-    db.update(messages)
+    // Update database for persistence
+    await db
+      .update(messages)
       .set(updateData)
-      .where(and(eq(messages.id, messageId), isNull(messages.deletedAt)))
-      .catch((dbError) => {
-        // Log error but don't fail the operation - cache has the data
-        console.error('Background DB update failed for message entries:', {
-          messageId,
-          error: dbError,
-        });
-      });
+      .where(and(eq(messages.id, messageId), isNull(messages.deletedAt)));
 
     return { success: true };
   } catch (error) {
