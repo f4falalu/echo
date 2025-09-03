@@ -57,9 +57,6 @@ export async function updateMessageEntries({
         : existingEntries.rawLlmMessages,
     };
 
-    // Update cache immediately (cache is source of truth during streaming)
-    messageEntriesCache.set(messageId, mergedEntries);
-
     // Build update data
     const updateData: Record<string, unknown> = {
       updatedAt: new Date().toISOString(),
@@ -77,11 +74,14 @@ export async function updateMessageEntries({
       updateData.rawLlmMessages = mergedEntries.rawLlmMessages;
     }
 
-    // Update database for persistence
+    // Update database first for persistence
     await db
       .update(messages)
       .set(updateData)
       .where(and(eq(messages.id, messageId), isNull(messages.deletedAt)));
+
+    // Update cache after successful database write (cache reflects persisted state)
+    messageEntriesCache.set(messageId, mergedEntries);
 
     return { success: true };
   } catch (error) {
