@@ -4,6 +4,7 @@ import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { Haiku35 } from '../../../llm';
+import { DEFAULT_ANTHROPIC_OPTIONS } from '../../../llm/providers/gateway';
 
 // Zod-first: define input/output schemas and export inferred types
 export const generateChatTitleParamsSchema = z.object({
@@ -45,9 +46,7 @@ async function generateTitleWithLLM(messages: ModelMessage[]): Promise<string> {
           model: Haiku35,
           schema: llmOutputSchema,
           messages: titleMessages,
-          providerOptions: {
-            gateway: { only: ['anthropic'] },
-          },
+          providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
         });
 
         return object;

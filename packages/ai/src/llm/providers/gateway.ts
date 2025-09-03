@@ -2,6 +2,24 @@ import { createGateway } from '@ai-sdk/gateway';
 import { wrapLanguageModel } from 'ai';
 import { BraintrustMiddleware } from 'braintrust';
 
+export const DEFAULT_ANTHROPIC_OPTIONS = {
+  gateway: {
+    order: ['bedrock', 'anthropic', 'vertex'],
+  },
+  anthropic: { cacheControl: { type: 'ephemeral', ttl: '1h' } },
+};
+
+export const DEFAULT_OPENAI_OPTIONS = {
+  gateway: {
+    order: ['openai'],
+    openai: {
+      parallelToolCalls: false,
+      reasoningEffort: 'minimal',
+      verbosity: 'low',
+    },
+  },
+};
+
 // Create gateway instance with custom fetch for Anthropic headers
 const gateway = createGateway({
   ...(process.env.AI_GATEWAY_API_KEY && { apiKey: process.env.AI_GATEWAY_API_KEY }),

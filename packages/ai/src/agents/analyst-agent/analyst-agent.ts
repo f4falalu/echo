@@ -3,6 +3,7 @@ import { type ModelMessage, hasToolCall, stepCountIs, streamText } from 'ai';
 import { wrapTraced } from 'braintrust';
 import z from 'zod';
 import { Sonnet4 } from '../../llm';
+import { DEFAULT_ANTHROPIC_OPTIONS } from '../../llm/providers/gateway';
 import {
   createCreateDashboardsTool,
   createCreateMetricsTool,
@@ -24,15 +25,6 @@ import { analystAgentPrepareStep } from './analyst-agent-prepare-step';
 import { getAnalystAgentSystemPrompt } from './get-analyst-agent-system-prompt';
 
 export const ANALYST_AGENT_NAME = 'analystAgent';
-
-const DEFAULT_CACHE_OPTIONS = {
-  anthropic: { cacheControl: { type: 'ephemeral', ttl: '1h' } },
-  openai: {
-    parallelToolCalls: false,
-    reasoningEffort: 'minimal',
-  },
-  gateway: { only: ['anthropic'] },
-};
 
 const STOP_CONDITIONS = [stepCountIs(25), hasToolCall(DONE_TOOL_NAME)];
 
@@ -62,7 +54,7 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
   const systemMessage = {
     role: 'system',
     content: getAnalystAgentSystemPrompt(analystAgentOptions.dataSourceSyntax),
-    providerOptions: DEFAULT_CACHE_OPTIONS,
+    providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
   } as ModelMessage;
 
   // Create second system message with datasets information
@@ -76,7 +68,7 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
     content: datasetsContent
       ? `<database_context>\n${datasetsContent}\n</database_context>`
       : '<database_context>\nNo datasets available\n</database_context>',
-    providerOptions: DEFAULT_CACHE_OPTIONS,
+    providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
   } as ModelMessage;
 
   async function stream({ messages }: AnalystStreamOptions) {
@@ -107,6 +99,11 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
       () =>
         streamText({
           model: Sonnet4,
+          providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
+          headers: {
+            'anthropic-beta':
+              'fine-grained-tool-streaming-2025-05-14,extended-cache-ttl-2025-04-11',
+          },
           tools: {
             [CREATE_METRICS_TOOL_NAME]: createMetrics,
             [MODIFY_METRICS_TOOL_NAME]: modifyMetrics,
