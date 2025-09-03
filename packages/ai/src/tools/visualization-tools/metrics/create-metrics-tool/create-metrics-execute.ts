@@ -485,9 +485,6 @@ export function createCreateMetricsExecute(
 ) {
   return wrapTraced(
     async (input: CreateMetricsInput): Promise<CreateMetricsOutput> => {
-      // Add small delay to ensure finish handler completes its DB update
-      await new Promise((resolve) => setTimeout(resolve, 250));
-
       const startTime = Date.now();
 
       try {

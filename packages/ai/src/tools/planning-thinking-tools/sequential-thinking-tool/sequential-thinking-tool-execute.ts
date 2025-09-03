@@ -30,11 +30,7 @@ async function processSequentialThinking(
   };
 
   if (state.toolCallId) {
-    const reasoningEntry = createSequentialThinkingReasoningMessage(
-      state,
-      state.toolCallId,
-      'completed'
-    );
+    const reasoningEntry = createSequentialThinkingReasoningMessage(state, state.toolCallId);
     const rawLlmMessage = createSequentialThinkingRawLlmMessageEntry(state, state.toolCallId);
 
     const rawToolResultEntry = createRawToolResultEntry(
@@ -79,9 +75,6 @@ export function createSequentialThinkingExecute(
 ) {
   return wrapTraced(
     async (_input: SequentialThinkingInput): Promise<SequentialThinkingOutput> => {
-      // Add small delay to ensure finish handler completes its DB update
-      await new Promise((resolve) => setTimeout(resolve, 250));
-
       if (!state.toolCallId) {
         throw new Error('Tool call ID is required');
       }
