@@ -44,17 +44,23 @@ export async function updateMessageEntries({
       throw new Error(`Message not found: ${messageId}`);
     }
 
-    // Merge with new entries
+    // Merge all entries concurrently
+    const [mergedResponseMessages, mergedReasoning, mergedRawLlmMessages] = await Promise.all([
+      responseMessages
+        ? Promise.resolve(mergeResponseMessages(existingEntries.responseMessages, responseMessages))
+        : Promise.resolve(existingEntries.responseMessages),
+      reasoningMessages
+        ? Promise.resolve(mergeReasoningMessages(existingEntries.reasoning, reasoningMessages))
+        : Promise.resolve(existingEntries.reasoning),
+      rawLlmMessages
+        ? Promise.resolve(mergeRawLlmMessages(existingEntries.rawLlmMessages, rawLlmMessages))
+        : Promise.resolve(existingEntries.rawLlmMessages),
+    ]);
+
     const mergedEntries = {
-      responseMessages: responseMessages
-        ? mergeResponseMessages(existingEntries.responseMessages, responseMessages)
-        : existingEntries.responseMessages,
-      reasoning: reasoningMessages
-        ? mergeReasoningMessages(existingEntries.reasoning, reasoningMessages)
-        : existingEntries.reasoning,
-      rawLlmMessages: rawLlmMessages
-        ? mergeRawLlmMessages(existingEntries.rawLlmMessages, rawLlmMessages)
-        : existingEntries.rawLlmMessages,
+      responseMessages: mergedResponseMessages,
+      reasoning: mergedReasoning,
+      rawLlmMessages: mergedRawLlmMessages,
     };
 
     // Build update data
@@ -74,14 +80,16 @@ export async function updateMessageEntries({
       updateData.rawLlmMessages = mergedEntries.rawLlmMessages;
     }
 
-    // Update database first for persistence
-    await db
-      .update(messages)
-      .set(updateData)
-      .where(and(eq(messages.id, messageId), isNull(messages.deletedAt)));
-
-    // Update cache after successful database write (cache reflects persisted state)
-    messageEntriesCache.set(messageId, mergedEntries);
+    // Update cache and database concurrently
+    await Promise.all([
+      // Update cache immediately (cache is source of truth during streaming)
+      Promise.resolve(messageEntriesCache.set(messageId, mergedEntries)),
+      // Update database for persistence
+      db
+        .update(messages)
+        .set(updateData)
+        .where(and(eq(messages.id, messageId), isNull(messages.deletedAt))),
+    ]);
 
     return { success: true };
   } catch (error) {
