@@ -1,7 +1,7 @@
 import { ClientOnly } from '@tanstack/react-router';
 import { lazy, Suspense } from 'react';
-import { CircleSpinnerLoaderContainer } from '../../loaders/CircleSpinnerLoaderContainer';
 import type { AppCodeEditorProps } from './AppCodeEditor';
+import { LoadingCodeEditor } from './LoadingCodeEditor';
 
 const AppCodeEditor = lazy(() =>
   import('./AppCodeEditor').then((mod) => {
@@ -13,12 +13,8 @@ const AppCodeEditor = lazy(() =>
 
 export const AppCodeEditorDynamic = (props: AppCodeEditorProps) => {
   return (
-    <ClientOnly
-      fallback={<CircleSpinnerLoaderContainer className="animate-in fade-in-0 duration-300" />}
-    >
-      <Suspense
-        fallback={<CircleSpinnerLoaderContainer className="animate-in fade-in-0 duration-300" />}
-      >
+    <ClientOnly fallback={<LoadingCodeEditor />}>
+      <Suspense fallback={<LoadingCodeEditor />}>
         <AppCodeEditor {...props} />
       </Suspense>
     </ClientOnly>

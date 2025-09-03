@@ -105,7 +105,6 @@ const ROUTE_MAP: Record<string, RouteFilePaths> = {
   'chat+metric': '/app/chats/$chatId/metrics/$metricId',
   'chat+report': '/app/chats/$chatId/report/$reportId',
   'chat+dashboard+metric': '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId',
-  'chat+report+metric': '/app/chats/$chatId/report/$reportId/metrics/$metricId',
 
   // Collection combination routes
 } as const;

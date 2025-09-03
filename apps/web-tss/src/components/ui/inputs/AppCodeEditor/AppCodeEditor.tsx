@@ -6,9 +6,11 @@ import { ClientOnly } from '@tanstack/react-router';
 import type React from 'react';
 import { forwardRef, lazy, Suspense, useCallback, useMemo } from 'react';
 import { cn } from '@/lib/utils';
+import { LoadingCodeEditor } from './LoadingCodeEditor';
+import { setupMonacoWebWorker } from './setupMonacoWebWorker';
+import { configureMonacoToUseYaml } from './yamlHelper';
 
-// import { CircleSpinnerLoaderContainer } from "../../loaders/CircleSpinnerLoaderContainer";
-// import { configureMonacoToUseYaml } from "./yamlHelper";
+const isServer = typeof window === 'undefined';
 
 //https://github.com/brijeshb42/monaco-ace-tokenizer
 
@@ -63,8 +65,6 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
     },
     _ref
   ) => {
-    // const { cx, styles } = useStyles();
-
     const useDarkMode = isDarkMode;
 
     const memoizedMonacoEditorOptions: EditorProps['options'] = useMemo(() => {
@@ -105,22 +105,13 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
 
     const onMountCodeEditor: OnMount = useCallback(
       async (editor, monaco) => {
-        // Setup Monaco web workers (client-side only)
-        // if (typeof window !== 'undefined') {
-        //   try {
-        //     // Use string concatenation to avoid static analysis during build
-        //     const workerPath = './setup' + 'Monaco' + 'Workers';
-        //     const { setupMonacoWorkers } = await import(/* @vite-ignore */ workerPath);
-        //     await setupMonacoWorkers();
-        //   } catch (error) {
-        //     // Fallback for SSR or when workers can't be loaded
-        //     console.warn('Could not load Monaco workers:', error);
-        //   }
-        // }
+        // setupMonacoWebWorker();
+        const isYaml = language === 'yaml';
 
         const [GithubLightTheme, NightOwlTheme] = await Promise.all([
           (await import('./themes/github_light_theme')).default,
           (await import('./themes/tomorrow_night_theme')).default,
+          isYaml ? await configureMonacoToUseYaml(monaco) : null,
         ]);
 
         type Theme = Parameters<typeof monaco.editor.defineTheme>[1];
@@ -173,8 +164,8 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
         )}
         style={style}
       >
-        <ClientOnly fallback={<LoadingContainer />}>
-          <Suspense fallback={<LoadingContainer />}>
+        <ClientOnly fallback={<LoadingCodeEditor />}>
+          <Suspense fallback={<LoadingCodeEditor />}>
             <Editor
               key={useDarkMode ? 'dark' : 'light'}
               height={height}
@@ -194,7 +185,3 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
   }
 );
 AppCodeEditor.displayName = 'AppCodeEditor';
-
-const LoadingContainer = () => {
-  return <div className="animate-in fade-in-0 duration-300" />;
-};
