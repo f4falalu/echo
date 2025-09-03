@@ -2,8 +2,8 @@ import { cva } from 'class-variance-authority';
 import React, { forwardRef } from 'react';
 import { cn } from '@/lib/classMerge';
 import { Button } from '../buttons/Button';
+import ShapeSquare from '../icons/NucleoIconFilled/shape-square';
 import { ArrowUp } from '../icons/NucleoIconOutlined';
-import ShapeSquare from '../icons/NucleoIconOutlined/shape-square';
 import { InputTextArea, type InputTextAreaProps } from './InputTextArea';
 
 const inputTextAreaButtonVariants = cva(
