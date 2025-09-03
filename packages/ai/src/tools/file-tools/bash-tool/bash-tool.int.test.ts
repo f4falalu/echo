@@ -1,19 +1,7 @@
 import { type Sandbox, createSandbox } from '@buster/sandbox';
+import { materialize } from '@buster/test-utils';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createBashTool } from './bash-tool';
-
-async function materialize<T>(value: T | AsyncIterable<T>): Promise<T> {
-  const asyncIterator = (value as any)?.[Symbol.asyncIterator];
-  if (typeof asyncIterator === 'function') {
-    let lastChunk: T | undefined;
-    for await (const chunk of value as AsyncIterable<T>) {
-      lastChunk = chunk;
-    }
-    if (lastChunk === undefined) throw new Error('Stream yielded no values');
-    return lastChunk;
-  }
-  return value as T;
-}
 
 describe.sequential('bash-tool integration test', () => {
   const hasApiKey = !!process.env.DAYTONA_API_KEY;

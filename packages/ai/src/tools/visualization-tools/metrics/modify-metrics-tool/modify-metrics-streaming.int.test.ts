@@ -1,4 +1,5 @@
 import { updateMessageFields } from '@buster/database';
+import { materialize } from '@buster/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ModifyMetricsContext, ModifyMetricsInput } from './modify-metrics-tool';
 import { createModifyMetricsTool } from './modify-metrics-tool';
@@ -11,19 +12,6 @@ vi.mock('@buster/database', () => ({
 vi.mock('./modify-metrics-execute', () => ({
   createModifyMetricsExecute: vi.fn(() => vi.fn()),
 }));
-
-async function materialize<T>(value: T | AsyncIterable<T>): Promise<T> {
-  const asyncIterator = (value as any)?.[Symbol.asyncIterator];
-  if (typeof asyncIterator === 'function') {
-    let lastChunk: T | undefined;
-    for await (const chunk of value as AsyncIterable<T>) {
-      lastChunk = chunk;
-    }
-    if (lastChunk === undefined) throw new Error('Stream yielded no values');
-    return lastChunk;
-  }
-  return value as T;
-}
 
 describe('modify-metrics-tool streaming integration', () => {
   let context: ModifyMetricsContext;

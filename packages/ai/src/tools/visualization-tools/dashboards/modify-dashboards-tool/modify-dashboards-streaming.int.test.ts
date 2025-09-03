@@ -1,4 +1,5 @@
 import { updateMessageEntries } from '@buster/database';
+import { materialize } from '@buster/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createModifyDashboardsTool } from './modify-dashboards-tool';
 import type { ModifyDashboardsContext, ModifyDashboardsInput } from './modify-dashboards-tool';
@@ -10,19 +11,6 @@ vi.mock('@buster/database', () => ({
   metricFiles: {},
   metricFilesToDashboardFiles: {},
 }));
-
-async function materialize<T>(value: T | AsyncIterable<T>): Promise<T> {
-  const asyncIterator = (value as any)?.[Symbol.asyncIterator];
-  if (typeof asyncIterator === 'function') {
-    let lastChunk: T | undefined;
-    for await (const chunk of value as AsyncIterable<T>) {
-      lastChunk = chunk;
-    }
-    if (lastChunk === undefined) throw new Error('Stream yielded no values');
-    return lastChunk;
-  }
-  return value as T;
-}
 
 // Mock the execute function directly since it's called internally
 vi.mock('./modify-dashboards-execute', () => ({
