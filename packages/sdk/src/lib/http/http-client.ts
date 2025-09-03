@@ -1,9 +1,13 @@
 import type { SDKConfig } from '../config';
 import { NetworkError, SDKError } from '../errors';
 
-// Build URL with query params
+// Build URL with query params and /api/v2 prefix for Buster API routes
 export function buildUrl(baseUrl: string, path: string, params?: Record<string, string>): string {
-  const url = new URL(path, baseUrl);
+  // If the path doesn't start with /api, assume it's a Buster API route and add /api/v2 prefix
+  const finalPath = path.startsWith('/api')
+    ? path
+    : `/api/v2${path.startsWith('/') ? path : `/${path}`}`;
+  const url = new URL(finalPath, baseUrl);
 
   if (params) {
     Object.entries(params).forEach(([key, value]) => {

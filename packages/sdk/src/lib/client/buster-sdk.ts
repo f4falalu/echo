@@ -25,7 +25,7 @@ export function createBusterSDK(config: Partial<SDKConfig>): BusterSDK {
 
   return {
     config: validatedConfig,
-    healthcheck: () => get(validatedConfig, '/api/healthcheck'),
+    healthcheck: () => get(validatedConfig, '/healthcheck'),
     auth: {
       validateApiKey: (apiKey?: string) => validateApiKey(validatedConfig, apiKey),
       isApiKeyValid: (apiKey?: string) => isApiKeyValid(validatedConfig, apiKey),

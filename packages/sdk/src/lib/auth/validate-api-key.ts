@@ -16,9 +16,10 @@ export async function validateApiKey(
     apiKey: apiKey || config.apiKey,
   };
 
-  console.info(`Validating API key with endpoint: ${config.apiUrl}/api/v2/auth/validate-api-key`);
+  // The HTTP client will automatically add /api/v2 prefix
+  console.info(`Validating API key with host: ${config.apiUrl}`);
 
-  return post<ValidateApiKeyResponse>(config, '/api/v2/auth/validate-api-key', request);
+  return post<ValidateApiKeyResponse>(config, '/auth/validate-api-key', request);
 }
 
 /**
