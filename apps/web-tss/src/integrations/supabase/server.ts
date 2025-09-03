@@ -18,9 +18,6 @@ export function getSupabaseServerClient() {
     throw new Error('Missing Supabase environment variables for server client');
   }
 
-  console.log('supabaseUrl', supabaseUrl);
-  console.log('supabaseAnonKey', supabaseAnonKey);
-
   return createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       getAll() {

@@ -67,15 +67,12 @@ export const signInWithGoogle = createServerFn({ method: 'POST' })
 
 export const signInWithAnonymousUser = createServerFn({ method: 'POST' }).handler(async () => {
   const supabase = getSupabaseServerClient();
-  console.log('signInWithAnonymousUser', supabase.auth);
   const { data, error } = await supabase.auth.signInAnonymously();
-  console.log('signInWithAnonymousUser', data, error);
   if (error) {
     return { success: false, error: error.message };
   }
 
   const session = data.session;
-  console.log('signInWithAnonymousUser', session);
 
   if (!session) {
     return { success: false, error: 'No session found' };
