@@ -14,11 +14,7 @@ import { Main } from './commands/main.js';
 program
   .name('buster')
   .description('Buster CLI - AI-powered data analytics platform')
-  .version('0.1.0')
-  .action(() => {
-    // Default action when no subcommand is provided
-    render(<Main />);
-  });
+  .version('0.1.0');
 
 // Auth command - authentication management
 program
@@ -34,23 +30,24 @@ program
     render(<Auth {...options} />);
   });
 
-// Hello command - basic example
-program
-  .command('hello')
-  .description('Say hello')
-  .argument('[name]', 'Name to greet', 'World')
-  .option('-u, --uppercase', 'Output in uppercase')
-  .action(async (name: string, options: { uppercase?: boolean }) => {
-    render(<HelloCommand name={name} uppercase={options.uppercase || false} />);
-  });
+// Hidden commands - not shown to users but kept for development
+// Hello command - basic example (hidden)
+// program
+//   .command('hello')
+//   .description('Say hello')
+//   .argument('[name]', 'Name to greet', 'World')
+//   .option('-u, --uppercase', 'Output in uppercase')
+//   .action(async (name: string, options: { uppercase?: boolean }) => {
+//     render(<HelloCommand name={name} uppercase={options.uppercase || false} />);
+//   });
 
-// Interactive command - demonstrates Ink's capabilities
-program
-  .command('interactive')
-  .description('Run an interactive demo')
-  .action(async () => {
-    render(<InteractiveCommand />);
-  });
+// Interactive command - demonstrates Ink's capabilities (hidden)
+// program
+//   .command('interactive')
+//   .description('Run an interactive demo')
+//   .action(async () => {
+//     render(<InteractiveCommand />);
+//   });
 
 // Deploy command - deploy semantic models to Buster API
 program
