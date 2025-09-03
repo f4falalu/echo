@@ -1,41 +1,17 @@
 {
   "folders": [
     { "path": "../apps/server" },
-    { "path": "../apps/web" },
     { "path": "../apps/web-tss" },
     { "path": "../packages/access-controls" },
     { "path": "../packages/database" },
-    { "path": "../packages/server-shared" },
-    { "path": "../packages/server-utils" },
+    { "path": "../packages/server-shared" }
   ],
   "settings": {
-    "editor.defaultFormatter": "biomejs.biome",
-    "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-      "quickfix.biome": "explicit",
-      "source.organizeImports.biome": "explicit"
-    },
-    "typescript.preferences.importModuleSpecifier": "relative",
-    "typescript.suggest.autoImports": true,
-    "typescript.updateImportsOnFileMove.enabled": "always",
-    "typescript.preferences.importTypeKeyword": "force",
-    
-    // Enhanced TypeScript settings for monorepo
-    "typescript.preferences.includePackageJsonAutoImports": "on",
-    "typescript.suggest.includeCompletionsForModuleExports": true,
-    "typescript.workspaceSymbols.scope": "allOpenProjects",
-    "typescript.references.enabled": true,
-    "typescript.implementationsCodeLens.enabled": false,
-    "typescript.referencesCodeLens.enabled": false,
-    "typescript.referencesCodeLens.showOnAllFunctions": false,
-    "typescript.validate.enable": true,
-    "typescript.format.enable": true,
   },
   "extensions": {
     "recommendations": [
       "biomejs.biome",
-      "vitest.explorer",
-      "esbenp.prettier-vscode"
+      "vitest.explorer"
     ]
   }
 }

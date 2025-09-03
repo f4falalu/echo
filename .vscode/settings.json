@@ -1,26 +1,41 @@
 {
+  // ============================================================================
+  // EDITOR & FORMATTING SETTINGS
+  // ============================================================================
   "editor.defaultFormatter": "biomejs.biome",
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "quickfix.biome": "explicit",
     "source.organizeImports.biome": "explicit"
   },
+
+  // ============================================================================
+  // TYPESCRIPT CONFIGURATION
+  // ============================================================================
   "typescript.preferences.importModuleSpecifier": "relative",
   "typescript.suggest.autoImports": true,
   "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.preferences.importTypeKeyword": "force",
+  "typescript.preferences.preferTypeOnlyAutoImports": true,
+  "typescript.preferences.includePackageJsonAutoImports": "on",
+  "typescript.suggest.includeAutomaticOptionalChainCompletions": true,
+  "typescript.suggest.includeCompletionsForModuleExports": true,
+  "typescript.workspaceSymbols.scope": "allOpenProjects",
+  "typescript.implementationsCodeLens.enabled": false,
+  "typescript.referencesCodeLens.enabled": false,
+  "typescript.references.enabled": true,
+  "typescript.validate.enable": true,
+  "typescript.format.enable": true,
+  "typescript.check.npmIsInstalled": false,
+  "typescript.disableAutomaticTypeAcquisition": true,
 
-  "vitest.maximumConfigs": 35,
-
-  // CRITICAL: Enable TypeScript build mode for project references
+  // ============================================================================
+  // TYPESCRIPT BUILD & PROJECT REFERENCES
+  // ============================================================================
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.preferences.preferTypeOnlyAutoImports": true,
-  
-  // Force TypeScript to use project references
   "typescript.tsserver.useSyntaxServer": "never",
   "typescript.tsserver.experimental.enableProjectDiagnostics": true,
-  
-  // MONOREPO CRITICAL: Force real-time checking
   "typescript.tsserver.watchOptions": {
     "watchFile": "priorityPollingInterval",
     "watchDirectory": "dynamicPriorityPolling", 
@@ -29,72 +44,59 @@
     "excludeDirectories": ["**/node_modules", "**/target", "**/.turbo", "**/dist", "**/.next", "**/.git"],
     "excludeFiles": []
   },
-
-  // Enable automatic TypeScript build
   "typescript.tsc.autoDetect": "on",
-  
-  // Force TypeScript to track all project references
-
-  "json.schemaDownload.enable": true,
-  // CRITICAL: Disable syntax-only mode to get full type checking
-    
-  // Increase memory for large monorepo
   "typescript.tsserver.maxTsServerMemory": 4096,
-  
-  // Exclude build artifacts and dependencies from file watching
+
+  // ============================================================================
+  // TESTING CONFIGURATION
+  // ============================================================================
+  "vitest.maximumConfigs": 25,
+
+  // ============================================================================
+  // JSON SCHEMA SUPPORT
+  // ============================================================================
+  "json.schemaDownload.enable": true,
+
+  // ============================================================================
+  // FILE WATCHING & EXPLORER SETTINGS
+  // ============================================================================
   "files.watcherExclude": {
     "**/node_modules/**": true,
     "**/.git/objects/**": true,
     "**/.git/subtree-cache/**": true,
     "**/target/**": true,
     "**/.turbo/**": true,
-    "**/dist/**": true
+    "**/dist/**": true,
+    "**/coverage/**": true,
   },
-
-  // Exclude build artifacts and dependencies from file explorer
   "files.exclude": {
     "**/.git": true,
     "**/node_modules": false,
     "**/.turbo": true,
-    "**/dist": true
+    "**/dist": true,
+    "**/coverage": true,
+    "**/.next": true,
+    "**/.output": true,
   },
 
-  // Exclude build artifacts and dependencies from search
+  // ============================================================================
+  // SEARCH EXCLUSIONS
+  // ============================================================================
   "search.exclude": {
     "**/node_modules": true,
     "**/.git": true,
     "**/.turbo": true,
     "**/dist": true,
-    "**/build": true
+    "**/build": true,
+    "**/coverage": true,
+    "**/.next": true,
+    "**/.output": true,
   },
 
-  // Enhanced TypeScript settings for monorepo cross-package type checking
-  "typescript.preferences.includePackageJsonAutoImports": "on",
-  "typescript.suggest.includeAutomaticOptionalChainCompletions": true,
-  "typescript.workspaceSymbols.scope": "allOpenProjects",
-  "typescript.implementationsCodeLens.enabled": false,
-  "typescript.referencesCodeLens.enabled": false,
-
-  // Force proactive type checking across all files
-  "typescript.validate.enable": true,
-  "typescript.format.enable": true,
-  "typescript.check.npmIsInstalled": false,
-  "typescript.disableAutomaticTypeAcquisition": true,
-  
-  // Default Biome formatting for all file types
-  "[typescript]": {
-    "editor.defaultFormatter": "biomejs.biome"
-  },
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "biomejs.biome"
-  },
-  "[javascript]": {
-    "editor.defaultFormatter": "biomejs.biome"
-  },
-  "[javascriptreact]": {
-    "editor.defaultFormatter": "biomejs.biome"
-  },
-  "[json]": {
+  // ============================================================================
+  // UNIVERSAL FORMATTING
+  // ============================================================================
+  "[*]": {
     "editor.defaultFormatter": "biomejs.biome"
   }
 }
