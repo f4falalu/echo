@@ -1,5 +1,7 @@
+import { updateMessageEntries } from '@buster/database';
 import type { ToolCallOptions } from 'ai';
 import { normalizeEscapedText } from '../../../utils/streaming/escape-normalizer';
+import { createSequentialThinkingReasoningMessage } from './helpers/sequential-thinking-tool-transform-helper';
 import type {
   SequentialThinkingContext,
   SequentialThinkingInput,
@@ -19,13 +21,30 @@ export function createSequentialThinkingFinish(
     sequentialThinkingState.nextThoughtNeeded = options.input.nextThoughtNeeded;
     sequentialThinkingState.thoughtNumber = options.input.thoughtNumber;
 
-    // No longer update reasoning message here - let execute handle the final update
-    // This prevents race conditions between finish and execute
-    console.info('[sequential-thinking] Finished streaming sequential thinking:', {
-      messageId: context.messageId,
-      toolCallId: options.toolCallId,
-      thoughtNumber: options.input.thoughtNumber,
-      nextThoughtNeeded: options.input.nextThoughtNeeded,
-    });
+    // Update the reasoning message with completed status in finish
+    // The execute function will also update, but we need to ensure the completed status is set
+    const reasoningEntry = createSequentialThinkingReasoningMessage(
+      sequentialThinkingState,
+      options.toolCallId,
+      'completed' // Mark as completed when finish is called
+    );
+
+    try {
+      if (context.messageId && reasoningEntry) {
+        await updateMessageEntries({
+          messageId: context.messageId,
+          reasoningMessages: [reasoningEntry],
+        });
+
+        console.info('[sequential-thinking] Completed sequential thinking:', {
+          messageId: context.messageId,
+          toolCallId: options.toolCallId,
+          thoughtNumber: options.input.thoughtNumber,
+          nextThoughtNeeded: options.input.nextThoughtNeeded,
+        });
+      }
+    } catch (error) {
+      console.error('[sequential-thinking] Failed to update reasoning entry on finish:', error);
+    }
   };
 }

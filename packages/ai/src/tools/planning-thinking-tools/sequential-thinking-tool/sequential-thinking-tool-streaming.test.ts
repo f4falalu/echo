@@ -262,7 +262,7 @@ describe('Sequential Thinking Tool Streaming Tests', () => {
       expect(state.toolCallId).toBe('tool-call-789');
     });
 
-    test('should update state but not database on finish', async () => {
+    test('should update database with completed status on finish', async () => {
       const { updateMessageEntries } = await import('@buster/database');
       vi.mocked(updateMessageEntries).mockClear();
 
@@ -294,8 +294,12 @@ describe('Sequential Thinking Tool Streaming Tests', () => {
       expect(state.nextThoughtNeeded).toBe(false);
       expect(state.thoughtNumber).toBe(5);
 
-      // Should NOT update database (execute handles the final update)
-      expect(updateMessageEntries).not.toHaveBeenCalled();
+      // Should update database with completed status
+      expect(updateMessageEntries).toHaveBeenCalledWith(
+        expect.objectContaining({
+          messageId: mockContext.messageId,
+        })
+      );
     });
   });
 });
