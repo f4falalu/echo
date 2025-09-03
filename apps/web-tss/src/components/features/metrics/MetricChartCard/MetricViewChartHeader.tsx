@@ -107,9 +107,9 @@ const LinkWrapper: React.FC<{
   return (
     <Link
       unsafeRelative="path"
-      to="/app/dashboards/$dashboardId/metrics/$metricId/chart"
+      to={'./metrics/$metricId/chart' as '/app/metrics/$metricId/chart'}
       params={(prev) => ({
-        ...(prev as { dashboardId: string }),
+        ...prev,
         metricId,
       })}
       search={(prev) => ({
