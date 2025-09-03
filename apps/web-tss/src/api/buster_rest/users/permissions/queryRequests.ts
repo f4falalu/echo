@@ -68,10 +68,13 @@ export const prefetchGetUserAttributes = async (userId: string, queryClientProp?
 
 export const useGetUserTeams = ({ userId }: { userId: string }) => {
   const queryFn = async () => getUserTeams({ userId });
-  return useQuery({
+  const { data } = useQuery({
     ...userQueryKeys.userGetUserTeams(userId),
     queryFn,
+    enabled: !!userId,
+    notifyOnChangeProps: ['data'],
   });
+  return data;
 };
 
 export const prefetchGetUserTeams = async (userId: string, queryClientProp?: QueryClient) => {

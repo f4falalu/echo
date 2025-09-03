@@ -38,7 +38,7 @@ const parseGenericUrl: EmbedUrlParser = (url: string) => {
 
 const urlParsers: EmbedUrlParser[] = [parseTwitterUrl, parseVideoUrl, parseGenericUrl];
 const ACCEPTED_DOMAINS = [
-  process.env.NEXT_PUBLIC_URL,
+  process.env.VITE_PUBLIC_URL,
   'twitter.com',
   'x.com',
   'youtube.com',
