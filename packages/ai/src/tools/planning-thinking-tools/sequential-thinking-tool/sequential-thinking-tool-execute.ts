@@ -79,6 +79,9 @@ export function createSequentialThinkingExecute(
 ) {
   return wrapTraced(
     async (_input: SequentialThinkingInput): Promise<SequentialThinkingOutput> => {
+      // Add small delay to ensure finish handler completes its DB update
+      await new Promise((resolve) => setTimeout(resolve, 250));
+
       if (!state.toolCallId) {
         throw new Error('Tool call ID is required');
       }
