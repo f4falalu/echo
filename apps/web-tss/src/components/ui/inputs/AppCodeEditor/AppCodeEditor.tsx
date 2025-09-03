@@ -4,14 +4,13 @@
 import type { EditorProps, OnMount } from '@monaco-editor/react';
 import { ClientOnly } from '@tanstack/react-router';
 import type React from 'react';
-import { forwardRef, lazy, Suspense, useCallback, useEffect, useMemo } from 'react';
+import { forwardRef, lazy, Suspense, useCallback, useMemo } from 'react';
 import { useMount } from '@/hooks/useMount';
 import { cn } from '@/lib/utils';
+import { isServer } from '@/lib/window';
 import { LoadingCodeEditor } from './LoadingCodeEditor';
-import { setupMonacoWebWorker } from './setupMonacoWebWorker';
 import { configureMonacoToUseYaml } from './yamlHelper';
 
-const isServer = typeof window === 'undefined';
 let hasSetupMonacoWebWorker = false;
 
 //https://github.com/brijeshb42/monaco-ace-tokenizer
@@ -192,6 +191,7 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
               onMount={onMountCodeEditor}
               onChange={onChangeCodeEditor}
               options={memoizedMonacoEditorOptions}
+              loading={<LoadingCodeEditor />}
             />
           </Suspense>
         </ClientOnly>
