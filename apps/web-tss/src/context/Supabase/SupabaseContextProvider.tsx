@@ -1,6 +1,6 @@
 import type { User } from '@supabase/supabase-js';
 import React, { useRef, useState } from 'react';
-import { createContext, useContextSelector } from 'use-context-selector';
+import { createContext } from 'use-context-selector';
 import { useMount } from '@/hooks/useMount';
 import { getBrowserClient } from '@/integrations/supabase/client';
 
@@ -8,8 +8,7 @@ export type SupabaseContextType = {
   user: {
     id: string;
     is_anonymous: boolean;
-    email: string;
-    identities: User['identities'];
+    email?: string;
     app_metadata: User['app_metadata'];
   };
   accessToken: string;
@@ -25,7 +24,7 @@ const useSupabaseContextInternal = ({
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [supabaseUser, setSupabaseUser] = useState<Pick<
     User,
-    'id' | 'is_anonymous' | 'email' | 'identities' | 'app_metadata'
+    'id' | 'is_anonymous' | 'email' | 'app_metadata'
   > | null>(user);
   const [accessToken, setAccessToken] = useState(accessTokenProp);
 

@@ -11,6 +11,7 @@ export type AuthUserDTO = {
   created_at: string;
   role?: string;
   is_anonymous: boolean;
+  app_metadata: User['app_metadata'];
 };
 
 function transformToAuthUserDTO(user: User): AuthUserDTO {
@@ -19,6 +20,7 @@ function transformToAuthUserDTO(user: User): AuthUserDTO {
     email: user.email,
     created_at: user.created_at,
     is_anonymous: user.is_anonymous ?? false,
+    app_metadata: user.app_metadata,
   };
 }
 
@@ -41,6 +43,7 @@ export const getSupabaseUser = createServerFn({ method: 'GET' }).handler(async (
         id: anon.data.user?.id ?? '',
         email: anon.data.user?.email ?? '',
         created_at: anon.data.user?.created_at ?? '',
+        app_metadata: anon.data.user?.app_metadata ?? {},
       } satisfies AuthUserDTO,
       accessToken: anon.data.accessToken,
     } as { user: AuthUserDTO; accessToken: string };

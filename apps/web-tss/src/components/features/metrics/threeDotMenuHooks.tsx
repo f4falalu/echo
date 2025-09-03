@@ -4,17 +4,29 @@ import type { BusterMetric } from '@/api/asset_interfaces/metric';
 import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
 import {
   createDropdownItem,
+  createDropdownItems,
   DropdownContent,
   type IDropdownItem,
   type IDropdownItems,
 } from '@/components/ui/dropdown';
-import { Download4, History, Pencil, SquareChart, Star, WandSparkle } from '@/components/ui/icons';
+import {
+  Code,
+  Download4,
+  History,
+  Pencil,
+  SquareChart,
+  SquareChartPen,
+  Star,
+  Table,
+  WandSparkle,
+} from '@/components/ui/icons';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { ensureElementExists } from '@/lib/element';
 import { downloadElementToImage, exportJSONToCSV } from '@/lib/exportUtils';
 import { FollowUpWithAssetContent } from '../assets/FollowUpWithAsset';
 import { useFavoriteStar } from '../favorites';
+import { ASSET_ICONS } from '../icons/assetIcons';
 import { useListMetricVersionDropdownItems } from '../versionHistory/useListMetricVersionDropdownItems';
 import { METRIC_CHART_CONTAINER_ID } from './MetricChartCard/config';
 import { METRIC_CHART_TITLE_INPUT_ID } from './MetricChartCard/MetricViewChartHeader';
@@ -209,4 +221,84 @@ export const useDownloadPNGSelectMenu = ({
     }),
     [canDownload, metricId, name, openErrorMessage]
   );
+};
+
+export const useOpenChartItem = ({
+  metricId,
+  metricVersionNumber,
+}: {
+  metricId: string;
+  metricVersionNumber: number | undefined;
+}): IDropdownItem => {
+  return createDropdownItem({
+    value: 'open-chart',
+    label: 'Open chart',
+    icon: <ASSET_ICONS.metrics />,
+    link: {
+      to: '/app/metrics/$metricId/chart',
+      params: {
+        metricId,
+      },
+      search: {
+        metric_version_number: metricVersionNumber,
+      },
+    },
+
+    linkIcon: 'arrow-external',
+  });
+};
+
+export const useNavigatetoMetricItem = ({
+  metricId,
+  metricVersionNumber,
+}: {
+  metricId: string;
+  metricVersionNumber: number | undefined;
+}): IDropdownItem[] => {
+  return useMemo(() => {
+    return createDropdownItems([
+      {
+        value: 'edit-chart',
+        label: 'Edit chart',
+        icon: <SquareChartPen />,
+        link: {
+          to: '/app/metrics/$metricId/chart',
+          params: {
+            metricId,
+          },
+          search: {
+            metric_version_number: metricVersionNumber,
+          },
+        },
+      },
+      {
+        value: 'results-chart',
+        label: 'Results chart',
+        icon: <Table />,
+        link: {
+          to: '/app/metrics/$metricId/results',
+          params: {
+            metricId,
+          },
+          search: {
+            metric_version_number: metricVersionNumber,
+          },
+        },
+      },
+      {
+        value: 'sql-chart',
+        label: 'SQL chart',
+        icon: <Code />,
+        link: {
+          to: '/app/metrics/$metricId/sql',
+          params: {
+            metricId,
+          },
+          search: {
+            metric_version_number: metricVersionNumber,
+          },
+        },
+      },
+    ]);
+  }, [metricId, metricVersionNumber]);
 };

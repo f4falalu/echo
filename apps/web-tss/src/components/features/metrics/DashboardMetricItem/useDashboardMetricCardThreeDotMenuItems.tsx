@@ -8,6 +8,7 @@ import {
   useFavoriteMetricSelectMenu,
   useMetricDrilldownItem,
   useMetricVersionHistorySelectMenu,
+  useOpenChartItem,
 } from '@/components/features/metrics/threeDotMenuHooks';
 import { getShareAssetConfig } from '@/components/features/ShareMenu/helpers';
 import { ShareMenuContent } from '@/components/features/ShareMenu/ShareMenuContent';
@@ -113,31 +114,6 @@ const useRemoveFromDashboardItem = ({
     }),
     [dashboardId, metricId, removeMetricFromDashboard, isPending]
   );
-};
-
-const useOpenChartItem = ({
-  metricId,
-  metricVersionNumber,
-}: {
-  metricId: string;
-  metricVersionNumber: number | undefined;
-}): IDropdownItem => {
-  return createDropdownItem({
-    value: 'open-chart',
-    label: 'Open chart',
-    icon: <ASSET_ICONS.metrics />,
-    link: {
-      to: '/app/metrics/$metricId/chart',
-      params: {
-        metricId,
-      },
-      search: {
-        metric_version_number: metricVersionNumber,
-      },
-    },
-
-    linkIcon: 'arrow-external',
-  });
 };
 
 const useShareMenuSelectMenu = ({ metricId }: { metricId: string }): IDropdownItem | undefined => {

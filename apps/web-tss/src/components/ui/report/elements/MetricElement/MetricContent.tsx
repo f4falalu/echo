@@ -1,9 +1,7 @@
 import React, { useRef } from 'react';
 import { MetricChartCard } from '@/components/features/metrics/MetricChartCard';
+import { ReportMetricThreeDotMenu } from '@/components/features/metrics/ReportMetricItem';
 import { useInViewport } from '@/hooks/useInViewport';
-import { useGetChatId } from '../../../../../context/Chats/useGetChatId';
-import { useGetReportParams } from '../../../../../context/Reports/useGetReportParams';
-import { useMetricContentThreeDotMenuItems } from './useMetricContentThreeDotMenuItems';
 
 export const MetricContent = React.memo(
   ({
@@ -18,8 +16,6 @@ export const MetricContent = React.memo(
     isExportMode?: boolean;
     className?: string;
   }) => {
-    const chatId = useGetChatId();
-    const { reportId, reportVersionNumber } = useGetReportParams();
     const ref = useRef<HTMLDivElement>(null);
     const hasBeenInViewport = useRef(false);
 
@@ -31,21 +27,23 @@ export const MetricContent = React.memo(
     }
     const renderChart = inViewport || isExportMode || hasBeenInViewport.current;
 
-    const threeDotMenuItems = useMetricContentThreeDotMenuItems({
-      metricId,
-      metricVersionNumber,
-      reportId,
-      reportVersionNumber,
-      chatId,
-    });
-
     return (
       <MetricChartCard
+        ref={ref}
         metricId={metricId}
         useHeaderLink={!readOnly}
         versionNumber={metricVersionNumber}
         readOnly
-        headerSecondaryContent={!readOnly && <div>TODO: Three dot menu</div>}
+        renderChartContent={renderChart}
+        animate={!isExportMode}
+        headerSecondaryContent={
+          !readOnly && (
+            <ReportMetricThreeDotMenu
+              metricId={metricId}
+              metricVersionNumber={metricVersionNumber}
+            />
+          )
+        }
       />
     );
   }
