@@ -13,8 +13,9 @@ import {
 /**
  * Find and load buster.yml configuration file
  * Searches in the given path and parent directories
+ * @throws Error if no buster.yml is found
  */
-export async function loadBusterConfig(searchPath = '.'): Promise<BusterConfig | null> {
+export async function loadBusterConfig(searchPath = '.'): Promise<BusterConfig> {
   const absolutePath = resolve(searchPath);
   let currentPath = absolutePath;
 
@@ -23,23 +24,16 @@ export async function loadBusterConfig(searchPath = '.'): Promise<BusterConfig |
     const configPath = join(currentPath, 'buster.yml');
 
     if (existsSync(configPath)) {
-      try {
-        const content = await readFile(configPath, 'utf-8');
-        const rawConfig = yaml.load(content) as unknown;
+      const content = await readFile(configPath, 'utf-8');
+      const rawConfig = yaml.load(content) as unknown;
 
-        // Validate and parse with Zod schema
-        const result = BusterConfigSchema.safeParse(rawConfig);
+      // Validate and parse with Zod schema
+      const result = BusterConfigSchema.safeParse(rawConfig);
 
-        if (result.success) {
-          console.info(`✅ Loaded buster.yml from: ${configPath}`);
-          return result.data;
-        }
-        console.warn(`⚠️  Invalid buster.yml at ${configPath}:`, result.error.issues);
-        return null;
-      } catch (error) {
-        console.error(`❌ Error reading buster.yml at ${configPath}:`, error);
-        return null;
+      if (result.success) {
+        return result.data;
       }
+      throw new Error(`Invalid buster.yml at ${configPath}`);
     }
 
     // Move up one directory
@@ -48,8 +42,7 @@ export async function loadBusterConfig(searchPath = '.'): Promise<BusterConfig |
     currentPath = parentPath;
   }
 
-  console.info('ℹ️  No buster.yml found, using defaults');
-  return null;
+  throw new Error('No buster.yml found');
 }
 
 /**
@@ -57,36 +50,31 @@ export async function loadBusterConfig(searchPath = '.'): Promise<BusterConfig |
  * Returns a fully resolved configuration object
  */
 export function resolveConfiguration(
-  config: BusterConfig | null,
-  options: DeployOptions
+  config: BusterConfig,
+  _options: DeployOptions,
+  projectName?: string
 ): ResolvedConfig {
-  // Start with defaults
-  const resolved: ResolvedConfig = {
-    data_source_name: undefined,
-    database: undefined,
-    schema: undefined,
-    model_paths: ['.'],
-    semantic_model_paths: ['.'],
-    exclude_files: [],
-    exclude_tags: [],
-  };
+  // Select project to use
+  const project = projectName
+    ? config.projects.find((p) => p.name === projectName)
+    : config.projects[0];
 
-  // Apply config file settings
-  if (config) {
-    if (config.data_source_name) resolved.data_source_name = config.data_source_name;
-    if (config.database) resolved.database = config.database;
-    if (config.schema) resolved.schema = config.schema;
-    if (config.model_paths?.length) resolved.model_paths = config.model_paths;
-    if (config.semantic_model_paths?.length)
-      resolved.semantic_model_paths = config.semantic_model_paths;
-    if (config.exclude_files?.length) resolved.exclude_files = config.exclude_files;
-    if (config.exclude_tags?.length) resolved.exclude_tags = config.exclude_tags;
+  if (!project) {
+    throw new Error(
+      projectName
+        ? `Project '${projectName}' not found in buster.yml`
+        : 'No projects defined in buster.yml'
+    );
   }
 
-  // Apply CLI options (highest precedence)
-  if (options.dataSource) resolved.data_source_name = options.dataSource;
-  if (options.database) resolved.database = options.database;
-  if (options.schema) resolved.schema = options.schema;
+  // Build resolved config from project
+  const resolved: ResolvedConfig = {
+    data_source_name: project.data_source,
+    database: project.database,
+    schema: project.schema,
+    include: project.include,
+    exclude: project.exclude,
+  };
 
   // Validate resolved config
   const result = ResolvedConfigSchema.parse(resolved);

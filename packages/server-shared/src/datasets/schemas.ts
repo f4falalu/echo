@@ -71,27 +71,16 @@ export const MultiModelSchema = z.object({
 // ============================================================================
 
 export const ProjectContextSchema = z.object({
-  name: z.string().optional(),
-  data_source_name: z.string().optional(),
+  name: z.string(),
+  data_source: z.string(),
   database: z.string().optional(),
-  schema: z.string().optional(),
-  model_paths: z.array(z.string()).optional(),
-  semantic_model_paths: z.array(z.string()).optional(),
-  exclude_files: z.array(z.string()).optional(),
-  exclude_tags: z.array(z.string()).optional(),
+  schema: z.string(),
+  include: z.array(z.string()).default(['**/*.yml', '**/*.yaml']),
+  exclude: z.array(z.string()).default([]),
 });
 
 export const BusterConfigSchema = z.object({
-  // Top-level fields for backwards compatibility
-  data_source_name: z.string().optional(),
-  database: z.string().optional(),
-  schema: z.string().optional(),
-  model_paths: z.array(z.string()).optional(),
-  semantic_model_paths: z.array(z.string()).optional(),
-  exclude_files: z.array(z.string()).optional(),
-  exclude_tags: z.array(z.string()).optional(),
-  // Multi-project structure (for future use)
-  projects: z.array(ProjectContextSchema).optional(),
+  projects: z.array(ProjectContextSchema).min(1),
 });
 
 // ============================================================================

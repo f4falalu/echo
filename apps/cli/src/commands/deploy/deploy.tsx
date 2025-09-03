@@ -1,5 +1,6 @@
 import { Box, Text } from 'ink';
 import React, { useEffect, useState } from 'react';
+import { Spinner } from '../../components/spinner';
 import { DeployProgress } from './components/deploy-progress';
 import { DeploySummary } from './components/deploy-summary';
 import { deployHandler, validateDeployOptions } from './deploy-handler';
@@ -12,8 +13,8 @@ interface DeployCommandProps extends DeployOptions {}
  * Orchestrates the deployment process with visual feedback
  */
 export function DeployCommand(props: DeployCommandProps) {
-  const [status, setStatus] = useState<'validating' | 'deploying' | 'complete' | 'error'>(
-    'validating'
+  const [status, setStatus] = useState<'initializing' | 'deploying' | 'complete' | 'error'>(
+    'initializing'
   );
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<CLIDeploymentResult | null>(null);
@@ -33,11 +34,14 @@ export function DeployCommand(props: DeployCommandProps) {
   const runDeployment = async () => {
     try {
       // Validate options
-      setStatus('validating');
+      setStatus('initializing');
       const validation = validateDeployOptions(props);
       if (!validation.valid) {
         throw new Error(`Invalid options: ${validation.errors.join(', ')}`);
       }
+
+      // Add a small delay to show the spinner
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       // Run deployment
       setStatus('deploying');
@@ -60,6 +64,17 @@ export function DeployCommand(props: DeployCommandProps) {
 
   // Error state
   if (status === 'error') {
+    // Check if it's a buster.yml not found error
+    const isBusterYmlError = error?.includes('No buster.yml found');
+
+    if (isBusterYmlError) {
+      return (
+        <Box flexDirection='column'>
+          <Text color='red'>No buster.yml found</Text>
+        </Box>
+      );
+    }
+
     return (
       <Box flexDirection='column'>
         <Text color='red' bold>
@@ -92,10 +107,10 @@ export function DeployCommand(props: DeployCommandProps) {
     return <DeploySummary result={result} />;
   }
 
-  // Validating state
+  // Initializing state - show spinner
   return (
-    <Box>
-      <Text color='cyan'>🔍 Validating deployment options...</Text>
+    <Box flexDirection='column'>
+      <Spinner label='Loading configuration...' />
     </Box>
   );
 }

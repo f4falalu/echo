@@ -9,36 +9,14 @@ import type { DeploymentExcluded, ResolvedConfig } from '../schemas';
  */
 export async function discoverModelFiles(
   config: ResolvedConfig,
-  baseDir: string,
-  recursive = true
+  baseDir: string
 ): Promise<string[]> {
-  const patterns: string[] = [];
+  // Use include patterns directly from config
+  const patterns = config.include.map((pattern) => resolve(baseDir, pattern));
 
-  // Build glob patterns from model paths
-  const modelPaths = [...config.model_paths, ...config.semantic_model_paths];
-
-  for (const modelPath of modelPaths) {
-    const absolutePath = resolve(baseDir, modelPath);
-
-    if (recursive) {
-      // Recursive search for YAML files
-      patterns.push(`${absolutePath}/**/*.{yml,yaml}`);
-    } else {
-      // Non-recursive search
-      patterns.push(`${absolutePath}/*.{yml,yaml}`);
-    }
-  }
-
-  // Find all YAML files matching the patterns
+  // Find all files matching the include patterns
   const files = await glob(patterns, {
-    ignore: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/build/**',
-      '**/.git/**',
-      '**/buster.yml', // Don't include the config file itself
-      '**/buster.yaml',
-    ],
+    ignore: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/.git/**'],
     absolute: true,
     unique: true,
   });

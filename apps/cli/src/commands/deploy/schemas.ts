@@ -80,13 +80,11 @@ export type Metric = DatasetMetric;
 
 // Resolved config after merging CLI options, file config, and defaults
 export const ResolvedConfigSchema = z.object({
-  data_source_name: z.string().optional(),
+  data_source_name: z.string(),
   database: z.string().optional(),
-  schema: z.string().optional(),
-  model_paths: z.array(z.string()).default(['.']),
-  semantic_model_paths: z.array(z.string()).default(['.']),
-  exclude_files: z.array(z.string()).default([]),
-  exclude_tags: z.array(z.string()).default([]),
+  schema: z.string(),
+  include: z.array(z.string()).default(['**/*.yml', '**/*.yaml']),
+  exclude: z.array(z.string()).default([]),
 });
 
 // ============================================================================
@@ -95,11 +93,7 @@ export const ResolvedConfigSchema = z.object({
 
 export const DeployOptionsSchema = z.object({
   path: z.string().optional(),
-  dataSource: z.string().optional(),
-  database: z.string().optional(),
-  schema: z.string().optional(),
   dryRun: z.boolean().default(false),
-  recursive: z.boolean().default(true),
   verbose: z.boolean().default(false),
 });
 
