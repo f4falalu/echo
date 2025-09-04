@@ -90,10 +90,15 @@ export const useGetDatasetPublishStatus = () => {
 
 const stableSQLSelector = (state: ReturnType<typeof useDatasetPageContext>) => state.sql;
 const stableYmlFileSelector = (state: ReturnType<typeof useDatasetPageContext>) => state.ymlFile;
-const useGetDatasetPageSQLAndYaml = () => {
+const stableSetSQLSelector = (state: ReturnType<typeof useDatasetPageContext>) => state.setSQL;
+const stableSetYmlFileSelector = (state: ReturnType<typeof useDatasetPageContext>) =>
+  state.setYmlFile;
+export const useGetDatasetPageSQLAndYaml = () => {
   const sql = useDatasetPageContextSelector(stableSQLSelector);
   const ymlFile = useDatasetPageContextSelector(stableYmlFileSelector);
-  return { sql, ymlFile };
+  const setSQL = useDatasetPageContextSelector(stableSetSQLSelector);
+  const setYmlFile = useDatasetPageContextSelector(stableSetYmlFileSelector);
+  return { sql, ymlFile, setSQL, setYmlFile };
 };
 
 export const usePublishDataset = () => {

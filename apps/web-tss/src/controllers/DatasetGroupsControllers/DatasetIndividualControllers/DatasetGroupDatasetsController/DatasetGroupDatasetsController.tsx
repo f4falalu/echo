@@ -1,4 +1,5 @@
-import React, { lazy, useMemo, useState } from 'react';
+import type React from 'react';
+import { lazy, useMemo, useState } from 'react';
 import { useGetDatasetGroupDatasets } from '@/api/buster_rest/dataset_groups';
 import { PermissionSearchAndListWrapper } from '@/components/features/permissions';
 import { Button } from '@/components/ui/buttons';

@@ -27,8 +27,8 @@ export const useGetDatasets = (params?: Parameters<typeof getDatasets>[0]) => {
 };
 
 export const prefetchGetDatasets = async (
-  params?: Parameters<typeof getDatasets>[0],
-  queryClient: QueryClient
+  queryClient: QueryClient,
+  params?: Parameters<typeof getDatasets>[0]
 ) => {
   await queryClient.prefetchQuery({
     ...datasetQueryKeys.datasetsListQueryOptions(params),

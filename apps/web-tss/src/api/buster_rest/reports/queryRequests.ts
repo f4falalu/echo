@@ -43,7 +43,7 @@ export const useGetReportsList = (params?: Parameters<typeof getReportsList>[0])
  * Prefetch function for reports list (server-side)
  */
 export const prefetchGetReportsList = async (
-  params?: Parameters<typeof getReportsList>[0],
+  params: Parameters<typeof getReportsList>[0],
   queryClient: QueryClient
 ) => {
   await queryClient.prefetchQuery({
@@ -55,7 +55,7 @@ export const prefetchGetReportsList = async (
 };
 
 export const prefetchGetReportsListClient = async (
-  params?: Parameters<typeof getReportsList>[0],
+  params: Parameters<typeof getReportsList>[0] | undefined,
   queryClient: QueryClient
 ) => {
   await queryClient.prefetchQuery({
@@ -188,7 +188,7 @@ export const useUpdateReport = () => {
             refetchType: 'all',
           });
         } else {
-          prefetchGetReportsListClient();
+          prefetchGetReportsListClient(undefined, queryClient);
         }
       }
     },

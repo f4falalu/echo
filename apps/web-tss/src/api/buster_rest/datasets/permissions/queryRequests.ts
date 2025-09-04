@@ -45,6 +45,19 @@ export const useDatasetListPermissionGroups = (dataset_id: string) => {
   });
 };
 
+export const prefetchDatasetListPermissionGroups = async (
+  datasetId: string,
+  queryClient: QueryClient
+) => {
+  await queryClient.prefetchQuery({
+    ...datasetGroupQueryKeys.datasetPermissionGroupsList(datasetId),
+    queryFn: () => listIndividualDatasetPermissionGroups({ dataset_id: datasetId }),
+  });
+  return queryClient.getQueryData(
+    datasetGroupQueryKeys.datasetPermissionGroupsList(datasetId).queryKey
+  );
+};
+
 export const useDatasetUpdatePermissionGroups = () => {
   const queryClient = useQueryClient();
 
@@ -87,6 +100,17 @@ export const useDatasetListDatasetGroups = (dataset_id: string) => {
   });
 };
 
+export const prefetchDatasetListDatasetGroups = async (
+  datasetId: string,
+  queryClient: QueryClient
+) => {
+  await queryClient.prefetchQuery({
+    ...datasetGroupQueryKeys.datasetGroupsList,
+    queryFn: () => listDatasetDatasetGroups({ dataset_id: datasetId }),
+  });
+  return queryClient.getQueryData(datasetGroupQueryKeys.datasetGroupsList.queryKey);
+};
+
 export const useDatasetListPermissionUsers = (dataset_id: string) => {
   const queryFn = () => listDatasetPermissionUsers({ dataset_id });
 
@@ -95,6 +119,19 @@ export const useDatasetListPermissionUsers = (dataset_id: string) => {
     queryFn,
     enabled: !!dataset_id,
   });
+};
+
+export const prefetchDatasetListPermissionUsers = async (
+  datasetId: string,
+  queryClient: QueryClient
+) => {
+  await queryClient.prefetchQuery({
+    ...datasetGroupQueryKeys.datasetPermissionUsersList(datasetId),
+    queryFn: () => listDatasetPermissionUsers({ dataset_id: datasetId }),
+  });
+  return queryClient.getQueryData(
+    datasetGroupQueryKeys.datasetPermissionUsersList(datasetId).queryKey
+  );
 };
 
 export const useDatasetUpdateDatasetGroups = () => {

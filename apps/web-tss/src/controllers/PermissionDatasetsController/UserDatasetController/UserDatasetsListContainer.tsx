@@ -67,7 +67,7 @@ export const UserDatasetsListContainer: React.FC<{
           id: dataset.id,
           data: dataset,
           link: {
-            to: '/app/settings/datasets/$datasetId',
+            to: '/app/datasets/$datasetId/overview',
             params: {
               datasetId: dataset.id,
             },

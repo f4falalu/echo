@@ -5,7 +5,7 @@ import type {
 } from '@buster/server-shared/metrics';
 import React, { useMemo } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { prefetchGetCurrencies } from '@/api/buster_rest/dictionaries';
+import { prefetchGetCurrencies, useGetCurrencies } from '@/api/buster_rest/dictionaries';
 import { Text } from '@/components/ui/typography';
 import { useUpdateMetricChart } from '@/context/Metrics/useUpdateMetricChart';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
@@ -422,9 +422,8 @@ const LabelSettings: React.FC<{
     },
   ].filter(({ enabled }) => enabled);
 
-  useMount(() => {
-    prefetchGetCurrencies();
-  });
+  //essential to prefetch currencies
+  useGetCurrencies();
 
   if (ComponentsLoop.length === 0) return null;
 

@@ -17,6 +17,7 @@ export { default as BulletList } from './bullet-list';
 export { default as Calendar } from './calendar';
 export { default as Check } from './check';
 export { default as Check3 } from './check-3';
+export { default as CheckDouble } from './check-double';
 export { default as ChevronDown } from './chevron-down';
 export { default as ChevronExpandY } from './chevron-expand-y';
 export { default as ChevronLeft } from './chevron-left';
