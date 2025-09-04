@@ -20,13 +20,12 @@ export function createSequentialThinkingFinish(
     sequentialThinkingState.thought = normalizeEscapedText(options.input.thought);
     sequentialThinkingState.nextThoughtNeeded = options.input.nextThoughtNeeded;
     sequentialThinkingState.thoughtNumber = options.input.thoughtNumber;
+    sequentialThinkingState.isComplete = true;
 
-    // Update the reasoning message with completed status in finish
-    // The execute function will also update, but we need to ensure the completed status is set
+    // Update the reasoning message - status will be determined by state.isComplete
     const reasoningEntry = createSequentialThinkingReasoningMessage(
       sequentialThinkingState,
-      options.toolCallId,
-      'completed' // Mark as completed when finish is called
+      options.toolCallId
     );
 
     try {
