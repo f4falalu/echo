@@ -1,11 +1,15 @@
-import type React from 'react';
-import { useMemo, useState } from 'react';
+import React, { lazy, useMemo, useState } from 'react';
 import { useGetDatasets } from '@/api/buster_rest/datasets';
 import { useIsUserAdmin } from '@/api/buster_rest/users/useGetUserInfo';
-import { NewDatasetModal } from '@/components/features/modals/NewDatasetModal';
 import { AppPageLayout } from '@/components/ui/layouts/AppPageLayout';
 import { DatasetListContent } from './DatasetListContent';
 import { DatasetHeader } from './DatasetsHeader';
+
+const NewDatasetModal = lazy(() =>
+  import('@/components/features/modals/NewDatasetModal').then((mod) => ({
+    default: mod.NewDatasetModal,
+  }))
+);
 
 export const DatasetsListController: React.FC<Record<string, never>> = () => {
   const isAdmin = useIsUserAdmin();

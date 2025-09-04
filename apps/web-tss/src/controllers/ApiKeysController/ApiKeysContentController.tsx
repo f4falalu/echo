@@ -1,5 +1,3 @@
-'use client';
-
 import type React from 'react';
 import { useState } from 'react';
 import { useCreateApiKey, useDeleteApiKey, useGetApiKeys } from '@/api/buster_rest/api_keys';

@@ -1,5 +1,3 @@
-'use client';
-
 import type { OrganizationUser } from '@buster/server-shared/organization';
 import React, { useMemo } from 'react';
 import { ListUserItem } from '@/components/features/list/ListUserItem';

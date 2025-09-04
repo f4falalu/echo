@@ -6,7 +6,9 @@
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "quickfix.biome": "explicit",
-    "source.organizeImports.biome": "explicit"
+    "source.organizeImports.biome": "explicit",
+    "source.addMissingImports.ts": "explicit",
+    "source.fixAll.ts": "explicit"
   },
 
   // ============================================================================

@@ -1,5 +1,3 @@
-'use client';
-
 import type React from 'react';
 import type { DataSource } from '@/api/asset_interfaces/datasources';
 import { useDeleteDatasource, useGetDatasource } from '@/api/buster_rest/data_source';

@@ -4,10 +4,6 @@ import { ListPermissionGroupsController } from '@/controllers/PermissionGroupsCo
 
 export const Route = createFileRoute('/app/_settings/_permissions/settings/permission-groups/')({
   component: RouteComponent,
-  loader: async ({ context }) => {
-    const { queryClient } = context;
-    await prefetchAllPermissionGroups(queryClient);
-  },
 });
 
 function RouteComponent() {

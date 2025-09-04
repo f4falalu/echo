@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useMemo } from 'react';
 
 type SlackSharingPermission = 'shareWithWorkspace' | 'shareWithChannel' | 'noSharing';

@@ -1,5 +1,5 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { ListPermissionGroupsController } from '@/controllers/PermissionGroupsControllers/ListPermissionGroupsController';
+import { createFileRoute, Outlet } from '@tanstack/react-router';
+import { prefetchAllPermissionGroups } from '@/api/buster_rest/permission_groups';
 
 export const Route = createFileRoute('/app/_settings/_permissions/settings/permission-groups')({
   head: () => ({
@@ -11,8 +11,12 @@ export const Route = createFileRoute('/app/_settings/_permissions/settings/permi
     ],
   }),
   component: RouteComponent,
+  loader: async ({ context }) => {
+    const { queryClient } = context;
+    await prefetchAllPermissionGroups(queryClient);
+  },
 });
 
 function RouteComponent() {
-  return <div>TODO</div>;
+  return <Outlet />;
 }

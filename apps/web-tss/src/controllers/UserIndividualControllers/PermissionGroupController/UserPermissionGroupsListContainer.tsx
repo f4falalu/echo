@@ -1,5 +1,3 @@
-'use client';
-
 import pluralize from 'pluralize';
 import React, { useMemo, useState } from 'react';
 import type { BusterUserPermissionGroup } from '@/api/asset_interfaces';

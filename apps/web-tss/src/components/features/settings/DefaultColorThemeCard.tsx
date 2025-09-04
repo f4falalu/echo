@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import { Text } from '@/components/ui/typography';
 import { useGetPalettes } from '@/context/Themes/usePalettes';

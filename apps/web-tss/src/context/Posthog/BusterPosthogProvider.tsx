@@ -42,7 +42,7 @@ const options: Partial<PostHogConfig> = {
 
 const PosthogWrapper: React.FC<PropsWithChildren> = ({ children }) => {
   const user = useGetUserBasicInfo();
-  const userTeams = useGetUserTeams({ userId: user?.id ?? '' });
+  const { data: userTeams } = useGetUserTeams({ userId: user?.id ?? '' });
   const userOrganizations = useGetUserOrganization();
   const team = userTeams?.[0];
 

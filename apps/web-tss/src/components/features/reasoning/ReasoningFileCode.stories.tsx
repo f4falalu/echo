@@ -1,5 +1,3 @@
-'use client';
-
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import type { FileType } from '@/api/asset_interfaces';

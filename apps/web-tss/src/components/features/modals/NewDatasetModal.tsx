@@ -7,7 +7,6 @@ import { AppModal } from '@/components/ui/modal';
 import { Select, type SelectItem } from '@/components/ui/select';
 import { Text } from '@/components/ui/typography';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
-import { useMount } from '@/hooks/useMount';
 
 const headerConfig = {
   title: 'Create a dataset',
