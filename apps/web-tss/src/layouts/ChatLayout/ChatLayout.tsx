@@ -1,4 +1,3 @@
-import { ClientOnly } from '@tanstack/react-router';
 import type React from 'react';
 import { useRef } from 'react';
 import {
@@ -7,10 +6,9 @@ import {
   type LayoutSize,
 } from '@/components/ui/layouts/AppSplitter';
 import { useGetCurrentMessageId, useIsStreamingMessage } from '@/context/Chats';
-import type { LayoutMode } from '@/context/Chats/selected-mode-helpers';
 import { useGetChatId } from '@/context/Chats/useGetChatId';
+import type { LayoutMode } from '@/layouts/ChatLayout/config';
 import { useSelectedAssetId } from '../../context/BusterAssets/useSelectedAssetType';
-import { useMount } from '../../hooks/useMount';
 import { ChatContainer } from './ChatContainer';
 import { useAutoChatSplitter } from './ChatLayoutContext/useAutoChatSplitter';
 import { useAutoRedirectStreaming } from './ChatLayoutContext/useAutoRedirectStreaming';

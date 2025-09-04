@@ -48,6 +48,7 @@ export const ChatContent: React.FC<{ chatId: string | undefined }> = React.memo(
         <ScrollToBottomButton
           isAutoScrollEnabled={isAutoScrollEnabled}
           scrollToBottom={scrollToBottom}
+          className="absolute -top-10"
         />
       </ChatInputWrapper>
     </ClientOnly>

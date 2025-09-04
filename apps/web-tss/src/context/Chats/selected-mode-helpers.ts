@@ -1,7 +1,13 @@
 import isEmpty from 'lodash/isEmpty';
 import type { LayoutSize } from '@/components/ui/layouts/AppLayout';
-
-export type LayoutMode = 'file-only' | 'both' | 'chat-only';
+import {
+  DEFAULT_BOTH_LAYOUT,
+  DEFAULT_CHAT_ONLY_LAYOUT,
+  DEFAULT_CHAT_OPTION_SIDEBAR_SIZE,
+  DEFAULT_FILE_ONLY_LAYOUT,
+  type LayoutMode,
+  MAX_CHAT_BOTH_SIDEBAR_SIZE,
+} from '@/layouts/ChatLayout/config';
 
 export const getDefaultLayoutMode = ({
   chatId,
@@ -30,15 +36,15 @@ export const getDefaultLayoutMode = ({
 
 export const getDefaultLayout = ({ layout }: { layout: LayoutMode }): LayoutSize => {
   if (layout === 'chat-only') {
-    return ['auto', '0px'];
+    return DEFAULT_CHAT_ONLY_LAYOUT;
   }
 
   if (layout === 'file-only') {
-    return ['0px', 'auto'];
+    return DEFAULT_FILE_ONLY_LAYOUT;
   }
 
   if (layout === 'both') {
-    return ['380px', 'auto'];
+    return DEFAULT_BOTH_LAYOUT;
   }
 
   return ['0px', 'auto'];
@@ -71,6 +77,19 @@ export const chooseInitialLayout = ({
   if (layout === 'both') {
     if (firstValue === '0px' || secondValue === '0px') {
       return defaultLayout;
+    }
+
+    const isPxValue = firstValue?.toString().endsWith('px');
+    if (isPxValue) {
+      const firstValueNumber = parseInt(firstValue as string);
+      //is bigger than max size
+      if (firstValueNumber > parseInt(MAX_CHAT_BOTH_SIDEBAR_SIZE as string)) {
+        return defaultLayout;
+      }
+      //is smaller than min size
+      if (firstValueNumber < parseInt(DEFAULT_CHAT_OPTION_SIDEBAR_SIZE as string)) {
+        return defaultLayout;
+      }
     }
   }
 
