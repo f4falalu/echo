@@ -1,4 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { ApprovedEmailDomains } from '@/components/features/security/ApprovedEmailDomains';
+import { WorkspaceRestrictions } from '@/components/features/security/WorkspaceRestrictions';
+import { SettingsPageHeader } from '@/components/features/settings';
 
 export const Route = createFileRoute(
   '/app/_settings/_restricted_layout/_admin_only/settings/security'
@@ -15,5 +18,18 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
-  return <div>Hello "/app/settings/security"!</div>;
+  return (
+    <>
+      <SettingsPageHeader
+        title="Security"
+        description="Manage security and general permission settings"
+      />
+
+      <div className="flex flex-col space-y-6">
+        {/* <InviteLinks /> */}
+        <ApprovedEmailDomains />
+        <WorkspaceRestrictions />
+      </div>
+    </>
+  );
 }
