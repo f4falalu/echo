@@ -58,6 +58,7 @@ import { Route as AppAppAssetReportsReportIdLayoutContentRouteImport } from './r
 import { Route as AppAppAssetMetricsMetricIdLayoutSqlRouteImport } from './routes/app/_app/_asset/metrics.$metricId/_layout/sql'
 import { Route as AppAppAssetMetricsMetricIdLayoutResultsRouteImport } from './routes/app/_app/_asset/metrics.$metricId/_layout/results'
 import { Route as AppAppAssetMetricsMetricIdLayoutChartRouteImport } from './routes/app/_app/_asset/metrics.$metricId/_layout/chart'
+import { Route as AppAppAssetChatsChatIdReasoningMessageIdIndexRouteImport } from './routes/app/_app/_asset/chats.$chatId/reasoning.$messageId/index'
 import { Route as AppAppAssetReportsReportIdMetricsMetricIdContentRouteImport } from './routes/app/_app/_asset/reports.$reportId/metrics.$metricId/_content'
 import { Route as AppAppAssetDashboardsDashboardIdMetricsMetricIdContentRouteImport } from './routes/app/_app/_asset/dashboards.$dashboardId/metrics.$metricId/_content'
 import { Route as AppAppAssetChatsChatIdReportsReportIdLayoutRouteImport } from './routes/app/_app/_asset/chats.$chatId/reports.$reportId/_layout'
@@ -422,6 +423,12 @@ const AppAppAssetMetricsMetricIdLayoutChartRoute =
     path: '/chart',
     getParentRoute: () => AppAppAssetMetricsMetricIdLayoutRoute,
   } as any)
+const AppAppAssetChatsChatIdReasoningMessageIdIndexRoute =
+  AppAppAssetChatsChatIdReasoningMessageIdIndexRouteImport.update({
+    id: '/reasoning/$messageId/',
+    path: '/reasoning/$messageId/',
+    getParentRoute: () => AppAppAssetChatsChatIdRoute,
+  } as any)
 const AppAppAssetReportsReportIdMetricsMetricIdContentRoute =
   AppAppAssetReportsReportIdMetricsMetricIdContentRouteImport.update({
     id: '/_content',
@@ -703,6 +710,7 @@ export interface FileRoutesByFullPath {
   '/app/chats/$chatId/reports/$reportId': typeof AppAppAssetChatsChatIdReportsReportIdLayoutRouteWithChildren
   '/app/dashboards/$dashboardId/metrics/$metricId': typeof AppAppAssetDashboardsDashboardIdMetricsMetricIdContentRouteWithChildren
   '/app/reports/$reportId/metrics/$metricId': typeof AppAppAssetReportsReportIdMetricsMetricIdContentRouteWithChildren
+  '/app/chats/$chatId/reasoning/$messageId': typeof AppAppAssetChatsChatIdReasoningMessageIdIndexRoute
   '/app/chats/$chatId/metrics/$metricId/chart': typeof AppAppAssetChatsChatIdMetricsMetricIdLayoutChartRoute
   '/app/chats/$chatId/metrics/$metricId/results': typeof AppAppAssetChatsChatIdMetricsMetricIdLayoutResultsRoute
   '/app/chats/$chatId/metrics/$metricId/sql': typeof AppAppAssetChatsChatIdMetricsMetricIdLayoutSqlRoute
@@ -773,6 +781,7 @@ export interface FileRoutesByTo {
   '/app/chats/$chatId/reports/$reportId': typeof AppAppAssetChatsChatIdReportsReportIdLayoutIndexRoute
   '/app/dashboards/$dashboardId/metrics/$metricId': typeof AppAppAssetDashboardsDashboardIdMetricsMetricIdContentIndexRoute
   '/app/reports/$reportId/metrics/$metricId': typeof AppAppAssetReportsReportIdMetricsMetricIdContentIndexRoute
+  '/app/chats/$chatId/reasoning/$messageId': typeof AppAppAssetChatsChatIdReasoningMessageIdIndexRoute
   '/app/chats/$chatId/metrics/$metricId/chart': typeof AppAppAssetChatsChatIdMetricsMetricIdLayoutChartRoute
   '/app/chats/$chatId/metrics/$metricId/results': typeof AppAppAssetChatsChatIdMetricsMetricIdLayoutResultsRoute
   '/app/chats/$chatId/metrics/$metricId/sql': typeof AppAppAssetChatsChatIdMetricsMetricIdLayoutSqlRoute
@@ -853,6 +862,7 @@ export interface FileRoutesById {
   '/app/_app/_asset/dashboards/$dashboardId/metrics/$metricId/_content': typeof AppAppAssetDashboardsDashboardIdMetricsMetricIdContentRouteWithChildren
   '/app/_app/_asset/reports/$reportId/metrics/$metricId': typeof AppAppAssetReportsReportIdMetricsMetricIdRouteWithChildren
   '/app/_app/_asset/reports/$reportId/metrics/$metricId/_content': typeof AppAppAssetReportsReportIdMetricsMetricIdContentRouteWithChildren
+  '/app/_app/_asset/chats/$chatId/reasoning/$messageId/': typeof AppAppAssetChatsChatIdReasoningMessageIdIndexRoute
   '/app/_app/_asset/chats/$chatId/metrics/$metricId/_layout/chart': typeof AppAppAssetChatsChatIdMetricsMetricIdLayoutChartRoute
   '/app/_app/_asset/chats/$chatId/metrics/$metricId/_layout/results': typeof AppAppAssetChatsChatIdMetricsMetricIdLayoutResultsRoute
   '/app/_app/_asset/chats/$chatId/metrics/$metricId/_layout/sql': typeof AppAppAssetChatsChatIdMetricsMetricIdLayoutSqlRoute
@@ -932,6 +942,7 @@ export interface FileRouteTypes {
     | '/app/chats/$chatId/reports/$reportId'
     | '/app/dashboards/$dashboardId/metrics/$metricId'
     | '/app/reports/$reportId/metrics/$metricId'
+    | '/app/chats/$chatId/reasoning/$messageId'
     | '/app/chats/$chatId/metrics/$metricId/chart'
     | '/app/chats/$chatId/metrics/$metricId/results'
     | '/app/chats/$chatId/metrics/$metricId/sql'
@@ -1002,6 +1013,7 @@ export interface FileRouteTypes {
     | '/app/chats/$chatId/reports/$reportId'
     | '/app/dashboards/$dashboardId/metrics/$metricId'
     | '/app/reports/$reportId/metrics/$metricId'
+    | '/app/chats/$chatId/reasoning/$messageId'
     | '/app/chats/$chatId/metrics/$metricId/chart'
     | '/app/chats/$chatId/metrics/$metricId/results'
     | '/app/chats/$chatId/metrics/$metricId/sql'
@@ -1081,6 +1093,7 @@ export interface FileRouteTypes {
     | '/app/_app/_asset/dashboards/$dashboardId/metrics/$metricId/_content'
     | '/app/_app/_asset/reports/$reportId/metrics/$metricId'
     | '/app/_app/_asset/reports/$reportId/metrics/$metricId/_content'
+    | '/app/_app/_asset/chats/$chatId/reasoning/$messageId/'
     | '/app/_app/_asset/chats/$chatId/metrics/$metricId/_layout/chart'
     | '/app/_app/_asset/chats/$chatId/metrics/$metricId/_layout/results'
     | '/app/_app/_asset/chats/$chatId/metrics/$metricId/_layout/sql'
@@ -1520,6 +1533,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAppAssetMetricsMetricIdLayoutChartRouteImport
       parentRoute: typeof AppAppAssetMetricsMetricIdLayoutRoute
     }
+    '/app/_app/_asset/chats/$chatId/reasoning/$messageId/': {
+      id: '/app/_app/_asset/chats/$chatId/reasoning/$messageId/'
+      path: '/reasoning/$messageId'
+      fullPath: '/app/chats/$chatId/reasoning/$messageId'
+      preLoaderRoute: typeof AppAppAssetChatsChatIdReasoningMessageIdIndexRouteImport
+      parentRoute: typeof AppAppAssetChatsChatIdRoute
+    }
     '/app/_app/_asset/reports/$reportId/metrics/$metricId/_content': {
       id: '/app/_app/_asset/reports/$reportId/metrics/$metricId/_content'
       path: '/metrics/$metricId'
@@ -1949,6 +1969,7 @@ interface AppAppAssetChatsChatIdRouteChildren {
   AppAppAssetChatsChatIdDashboardsDashboardIdRoute: typeof AppAppAssetChatsChatIdDashboardsDashboardIdRouteWithChildren
   AppAppAssetChatsChatIdMetricsMetricIdRoute: typeof AppAppAssetChatsChatIdMetricsMetricIdRouteWithChildren
   AppAppAssetChatsChatIdReportsReportIdRoute: typeof AppAppAssetChatsChatIdReportsReportIdRouteWithChildren
+  AppAppAssetChatsChatIdReasoningMessageIdIndexRoute: typeof AppAppAssetChatsChatIdReasoningMessageIdIndexRoute
 }
 
 const AppAppAssetChatsChatIdRouteChildren: AppAppAssetChatsChatIdRouteChildren =
@@ -1960,6 +1981,8 @@ const AppAppAssetChatsChatIdRouteChildren: AppAppAssetChatsChatIdRouteChildren =
       AppAppAssetChatsChatIdMetricsMetricIdRouteWithChildren,
     AppAppAssetChatsChatIdReportsReportIdRoute:
       AppAppAssetChatsChatIdReportsReportIdRouteWithChildren,
+    AppAppAssetChatsChatIdReasoningMessageIdIndexRoute:
+      AppAppAssetChatsChatIdReasoningMessageIdIndexRoute,
   }
 
 const AppAppAssetChatsChatIdRouteWithChildren =

@@ -44,6 +44,8 @@ interface UseAutoScrollReturn {
   enableAutoScroll: () => void;
   /** Disable auto–scroll */
   disableAutoScroll: () => void;
+  /** Whether the auto-scroll observer is mounted */
+  isMountedAutoScrollObserver: boolean;
 }
 
 /**
@@ -79,7 +81,7 @@ export const useAutoScroll = (
     observeAttributes = false,
     animationCooldown = 500,
   } = options;
-
+  const [isMountedAutoScrollObserver, setMountedAutoScrollObserver] = useState(enabled);
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(enabled);
   const observerRef = useRef<MutationObserver | null>(null);
   const rAFIdRef = useRef<number | null>(null);
@@ -294,6 +296,7 @@ export const useAutoScroll = (
 
   const enableAutoScroll = useCallback(() => {
     setIsAutoScrollEnabled(true);
+    setMountedAutoScrollObserver(true);
   }, []);
 
   const disableAutoScroll = useCallback(() => {
@@ -302,6 +305,7 @@ export const useAutoScroll = (
 
   return {
     isAutoScrollEnabled,
+    isMountedAutoScrollObserver,
     scrollToBottom,
     scrollToTop,
     scrollToNode,

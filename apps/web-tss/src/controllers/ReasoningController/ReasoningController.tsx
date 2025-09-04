@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { ClientOnly } from '@tanstack/react-router';
 import isEmpty from 'lodash/isEmpty';
 import type React from 'react';
 import { useEffect, useMemo, useRef } from 'react';
@@ -11,6 +12,7 @@ import { FileIndeterminateLoader } from '@/components/features/loaders/FileIndet
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useGetBlackBoxMessage } from '@/context/BlackBox/blackbox-store';
 import { useAutoScroll } from '@/hooks/useAutoScroll';
+import { cn } from '@/lib/utils';
 import { ReasoningMessageSelector } from './ReasoningMessages';
 import { BlackBoxMessage } from './ReasoningMessages/ReasoningBlackBoxMessage';
 
@@ -41,10 +43,11 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
 
   const viewportRef = useRef<HTMLDivElement | null>(null);
 
-  const { isAutoScrollEnabled, scrollToBottom, enableAutoScroll } = useAutoScroll(viewportRef, {
-    observeSubTree: true,
-    enabled: !!viewportRef.current,
-  });
+  const { isAutoScrollEnabled, isMountedAutoScrollObserver, scrollToBottom, enableAutoScroll } =
+    useAutoScroll(viewportRef, {
+      observeSubTree: true,
+      enabled: !isStreamFinished,
+    });
 
   useEffect(() => {
     if (hasChat && reasoningMessageIds) {
@@ -57,7 +60,12 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
   return (
     <>
       <ScrollArea viewportRef={viewportRef} className="h-full">
-        <div className="h-full flex-col space-y-0.5 overflow-y-auto p-5">
+        <div
+          className={cn(
+            'h-full flex-col space-y-0.5 overflow-y-auto p-5',
+            !isMountedAutoScrollObserver && 'invisible'
+          )}
+        >
           {reasoningMessageIds?.map((reasoningMessageId, messageIndex) => (
             <ReasoningMessageSelector
               key={reasoningMessageId}
@@ -77,10 +85,12 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
         </div>
       </ScrollArea>
 
-      <ScrollToBottomButton
-        isAutoScrollEnabled={isAutoScrollEnabled}
-        scrollToBottom={scrollToBottom}
-      />
+      {viewportRef.current && (
+        <ScrollToBottomButton
+          isAutoScrollEnabled={isAutoScrollEnabled}
+          scrollToBottom={scrollToBottom}
+        />
+      )}
     </>
   );
 };

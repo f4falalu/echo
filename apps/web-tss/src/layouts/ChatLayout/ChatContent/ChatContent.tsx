@@ -14,12 +14,12 @@ const autoClass = 'mx-auto max-w-[600px] w-full';
 export const ChatContent: React.FC<{ chatId: string | undefined }> = React.memo(({ chatId }) => {
   const chatMessageIds = useGetChatMessageIds(chatId);
   const containerRef = useRef<HTMLElement>(null);
-  const [isMounted, setIsMounted] = useState(false);
 
-  const { isAutoScrollEnabled, scrollToBottom, enableAutoScroll } = useAutoScroll(containerRef, {
-    observeSubTree: true,
-    enabled: false,
-  });
+  const { isAutoScrollEnabled, isMountedAutoScrollObserver, scrollToBottom, enableAutoScroll } =
+    useAutoScroll(containerRef, {
+      observeSubTree: true,
+      enabled: false,
+    });
 
   useMount(() => {
     const container = document
@@ -28,14 +28,19 @@ export const ChatContent: React.FC<{ chatId: string | undefined }> = React.memo(
     if (!container) return;
     containerRef.current = container;
     enableAutoScroll();
-    setIsMounted(true);
+    console.log('mounted chat content', isMountedAutoScrollObserver);
   });
 
-  const showScrollToBottomButton = isMounted && containerRef.current;
+  const showScrollToBottomButton = isMountedAutoScrollObserver && containerRef.current;
 
   return (
     <>
-      <div className={cn('mb-48 flex h-full w-full flex-col', !isMounted && 'invisible')}>
+      <div
+        className={cn(
+          'mb-48 flex h-full w-full flex-col',
+          !isMountedAutoScrollObserver && 'invisible'
+        )}
+      >
         <ClientOnly>
           {chatMessageIds?.map((messageId, index) => (
             <div key={messageId} className={autoClass}>
