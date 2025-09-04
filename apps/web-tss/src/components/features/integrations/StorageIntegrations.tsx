@@ -1,4 +1,4 @@
-import { useNavigate } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import React, { useMemo } from 'react';
 import { useDeleteS3Integration, useGetS3Integration } from '@/api/buster_rest/s3-integrations';
 import { Button } from '@/components/ui/buttons';
@@ -52,10 +52,6 @@ const ConnectStorageCard = React.memo(() => {
 
   const isConnected = s3Integration !== null;
 
-  const handleConnect = () => {
-    navigate({ to: '/app/settings/storage/add' });
-  };
-
   return (
     <div className="flex items-center justify-between gap-x-2">
       <div className="flex space-x-2">
@@ -73,9 +69,11 @@ const ConnectStorageCard = React.memo(() => {
       {isConnected ? (
         <ConnectedDropdown />
       ) : (
-        <Button prefix={<Bucket strokewidth={1.5} />} onClick={handleConnect} size={'tall'}>
-          Connect Storage
-        </Button>
+        <Link to={'/app/settings/storage/add'}>
+          <Button prefix={<Bucket strokewidth={1.5} />} size={'tall'}>
+            Connect Storage
+          </Button>
+        </Link>
       )}
     </div>
   );
