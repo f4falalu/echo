@@ -14,6 +14,12 @@ export const Route = createFileRoute('/app/_app/_asset')({
       assetType,
     };
   },
+  loader: async ({ context }) => {
+    const { assetType } = context;
+    return {
+      assetType,
+    };
+  },
 });
 
 const stableCtxSelector = (ctx: RouteContext) => ctx.assetType;

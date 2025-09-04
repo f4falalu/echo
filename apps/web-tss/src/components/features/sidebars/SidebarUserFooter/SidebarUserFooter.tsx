@@ -19,7 +19,7 @@ import {
   COLLAPSED_WIDTH_FIT,
 } from '@/components/ui/sidebar/config';
 import { BUSTER_DOCS_URL } from '@/config/externalRoutes';
-import { toggleContactSupportModal } from '@/context/BusterAppLayout/useContactSupportModalStore';
+import { toggleContactSupportModal } from '@/context/GlobalStore/useContactSupportModalStore';
 import { cn } from '@/lib/classMerge';
 
 export const SidebarUserFooter: React.FC = React.memo(() => {

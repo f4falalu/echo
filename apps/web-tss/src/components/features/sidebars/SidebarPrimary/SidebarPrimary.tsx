@@ -1,6 +1,6 @@
+import type { AssetType } from '@buster/server-shared/assets';
 import { Link, useNavigate } from '@tanstack/react-router';
-import type React from 'react';
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import {
   useIsAnonymousUser,
@@ -26,6 +26,7 @@ import {
 import {
   createSidebarGroup,
   createSidebarItem,
+  createSidebarItems,
   createSidebarList,
 } from '@/components/ui/sidebar/create-sidebar-item';
 import { Sidebar } from '@/components/ui/sidebar/SidebarComponent';
@@ -34,12 +35,13 @@ import {
   closeContactSupportModal,
   toggleContactSupportModal,
   useContactSupportModalStore,
-} from '@/context/BusterAppLayout/useContactSupportModalStore';
+} from '@/context/GlobalStore/useContactSupportModalStore';
 import {
   closeInviteModal,
   toggleInviteModal,
   useInviteModalStore,
-} from '@/context/BusterAppLayout/useInviteModalStore';
+} from '@/context/GlobalStore/useInviteModalStore';
+import { useGetSelectedAssetTypeLoose } from '@/context/Routes/useAppRoutes';
 import { cn } from '@/lib/classMerge';
 import { InvitePeopleModal } from '../../modals/InvitePeopleModal';
 import { SupportModal } from '../../modals/SupportModal';
@@ -71,41 +73,55 @@ const topItems: ISidebarList = createSidebarList({
   ],
 });
 
-const yourStuff: ISidebarGroup = createSidebarGroup({
-  label: 'Your stuff',
-  id: 'your-stuff',
-  items: [
-    {
-      label: 'Metrics',
-      icon: <ASSET_ICONS.metrics />,
-      link: { to: '/app/metrics', preload: 'intent', preloadDelay: 500 },
-      id: '/app/metrics',
-    },
-    {
-      label: 'Dashboards',
-      icon: <ASSET_ICONS.dashboards />,
-      link: { to: '/app/dashboards', preload: 'intent', preloadDelay: 500 },
-      id: '/app/dashboards/',
-    },
-    {
-      label: 'Collections',
-      icon: <ASSET_ICONS.collections />,
-      link: { to: '/app/collections', preload: 'intent', preloadDelay: 500 },
-      id: '/app/collections/',
-    },
-    {
-      label: 'Reports',
-      icon: <ASSET_ICONS.reports />,
-      link: { to: '/app/reports', preload: 'intent', preloadDelay: 500 },
-      id: '/app/reports/',
-    },
-  ],
-});
+const yourStuff = (selectedAssetType?: AssetType): ISidebarGroup =>
+  createSidebarGroup({
+    label: 'Your stuff',
+    id: 'your-stuff',
+    items: createSidebarItems(
+      [
+        {
+          label: 'Metrics',
+          assetType: 'metric' satisfies AssetType,
+          icon: <ASSET_ICONS.metrics />,
+          link: { to: '/app/metrics' },
+          id: '/app/metrics',
+        },
+        {
+          label: 'Dashboards',
+          assetType: 'dashboard' satisfies AssetType,
+          icon: <ASSET_ICONS.dashboards />,
+          link: { to: '/app/dashboards' },
+          id: '/app/dashboards/',
+        },
+        {
+          label: 'Collections',
+          assetType: 'collection' satisfies AssetType,
+          icon: <ASSET_ICONS.collections />,
+          link: { to: '/app/collections' },
+          id: '/app/collections/',
+        },
+        {
+          label: 'Reports',
+          assetType: 'report' satisfies AssetType,
+          icon: <ASSET_ICONS.reports />,
+          link: { to: '/app/reports' },
+          id: '/app/reports/',
+        },
+      ].map(({ assetType, ...item }) => ({
+        ...item,
+        link: {
+          ...item.link,
+          activeOptions: { exact: true },
+        },
+        active: selectedAssetType === assetType,
+      }))
+    ),
+  });
 
 const adminTools: ISidebarGroup = createSidebarGroup({
   label: 'Admin tools',
   id: 'admin-tools',
-  items: [
+  items: createSidebarItems([
     {
       label: 'Logs',
       icon: <UnorderedList2 />,
@@ -120,7 +136,7 @@ const adminTools: ISidebarGroup = createSidebarGroup({
       id: '/app/datasets/',
       collapsedTooltip: 'Datasets',
     },
-  ],
+  ]),
 });
 
 const tryGroup = (showInvitePeople: boolean): ISidebarGroup => ({
@@ -146,37 +162,58 @@ const tryGroup = (showInvitePeople: boolean): ISidebarGroup => ({
   }, [] as ISidebarItem[]),
 });
 
-export const SidebarPrimary = () => {
+const makeSidebarItems = ({
+  isUserRegistered,
+  isAdmin,
+  favoritesDropdownItems,
+  tryGroupMemoized,
+  selectedAssetType,
+}: {
+  isUserRegistered: boolean;
+  isAdmin: boolean;
+  favoritesDropdownItems: ISidebarGroup | null;
+  tryGroupMemoized: ISidebarGroup;
+  selectedAssetType?: AssetType;
+}) => {
+  if (!isUserRegistered) return [];
+
+  const items = [topItems];
+
+  if (isAdmin) {
+    items.push(adminTools);
+  }
+
+  items.push(yourStuff(selectedAssetType));
+
+  if (favoritesDropdownItems) {
+    items.push(favoritesDropdownItems);
+  }
+
+  items.push(tryGroupMemoized);
+
+  return items;
+};
+
+export const SidebarPrimary = React.memo(() => {
   const isAdmin = useIsUserAdmin();
   const restrictNewUserInvitations = useRestrictNewUserInvitations();
   const isUserRegistered = useIsUserRegistered();
 
   const favoritesDropdownItems = useFavoriteSidebarPanel();
+  const selectedAssetType = useGetSelectedAssetTypeLoose();
 
   const tryGroupMemoized = useMemo(
     () => tryGroup(!restrictNewUserInvitations),
     [restrictNewUserInvitations]
   );
 
-  const sidebarItems: SidebarProps['content'] = useMemo(() => {
-    if (!isUserRegistered) return [];
-
-    const items = [topItems];
-
-    if (isAdmin) {
-      items.push(adminTools);
-    }
-
-    items.push(yourStuff);
-
-    if (favoritesDropdownItems) {
-      items.push(favoritesDropdownItems);
-    }
-
-    items.push(tryGroupMemoized);
-
-    return items;
-  }, [isUserRegistered, restrictNewUserInvitations, favoritesDropdownItems, isAdmin]);
+  const sidebarItems: SidebarProps['content'] = makeSidebarItems({
+    isUserRegistered,
+    isAdmin,
+    favoritesDropdownItems,
+    tryGroupMemoized,
+    selectedAssetType,
+  });
 
   return (
     <>
@@ -193,7 +230,7 @@ export const SidebarPrimary = () => {
       <GlobalModals />
     </>
   );
-};
+});
 
 SidebarPrimary.displayName = 'SidebarPrimary';
 
