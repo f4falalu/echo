@@ -11,10 +11,10 @@ import { CircleSpinnerLoaderContainer } from '../../../components/ui/loaders';
 
 const defaultLayoutClosed: LayoutSize = ['auto', '0px'];
 const defaultLayoutOpen: LayoutSize = ['auto', '300px'];
+const autoSaveId = `metric-chart-layout`;
 
 export const component = () => {
   const { metricId, metricVersionNumber } = useGetMetricParams();
-  const autoSaveId = `metric-chart-layout-${metricId}`;
   const isMetricEditMode = useIsMetricEditMode();
   const splitterRef = useMetricEditSplitter();
 
