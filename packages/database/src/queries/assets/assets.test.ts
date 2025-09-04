@@ -51,8 +51,7 @@ describe('Asset Queries', () => {
         limit: vi.fn().mockResolvedValue([mockReport]),
       };
 
-      // @ts-expect-error - Mock type doesn't match Drizzle's complex type chain
-      vi.mocked(db).select.mockReturnValue(mockDbChain);
+      vi.mocked(db).select.mockReturnValue(mockDbChain as unknown as ReturnType<typeof db.select>);
 
       const result = await getAssetDetailsById({
         assetId: '123e4567-e89b-12d3-a456-426614174000',
@@ -92,8 +91,7 @@ describe('Asset Queries', () => {
         limit: vi.fn().mockResolvedValue([mockReport]),
       };
 
-      // @ts-expect-error - Mock type doesn't match Drizzle's complex type chain
-      vi.mocked(db).select.mockReturnValue(mockDbChain);
+      vi.mocked(db).select.mockReturnValue(mockDbChain as unknown as ReturnType<typeof db.select>);
 
       const result = await getAssetDetailsById({
         assetId: '223e4567-e89b-12d3-a456-426614174000',
@@ -111,8 +109,7 @@ describe('Asset Queries', () => {
         limit: vi.fn().mockResolvedValue([]),
       };
 
-      // @ts-expect-error - Mock type doesn't match Drizzle's complex type chain
-      vi.mocked(db).select.mockReturnValue(mockDbChain);
+      vi.mocked(db).select.mockReturnValue(mockDbChain as unknown as ReturnType<typeof db.select>);
 
       const result = await getAssetDetailsById({
         assetId: '323e4567-e89b-12d3-a456-426614174000',
@@ -138,8 +135,7 @@ describe('Asset Queries', () => {
         limit: vi.fn().mockResolvedValue([mockMetric]),
       };
 
-      // @ts-expect-error - Mock type doesn't match Drizzle's complex type chain
-      vi.mocked(db).select.mockReturnValue(mockDbChain);
+      vi.mocked(db).select.mockReturnValue(mockDbChain as unknown as ReturnType<typeof db.select>);
 
       const result = await getAssetDetailsById({
         assetId: '423e4567-e89b-12d3-a456-426614174000',
@@ -182,8 +178,7 @@ describe('Asset Queries', () => {
         limit: vi.fn().mockResolvedValue([mockDashboard]),
       };
 
-      // @ts-expect-error - Mock type doesn't match Drizzle's complex type chain
-      vi.mocked(db).select.mockReturnValue(mockDbChain);
+      vi.mocked(db).select.mockReturnValue(mockDbChain as unknown as ReturnType<typeof db.select>);
 
       const result = await getAssetDetailsById({
         assetId: '523e4567-e89b-12d3-a456-426614174000',
@@ -241,10 +236,8 @@ describe('Asset Queries', () => {
         ]),
       };
 
-      // @ts-expect-error - Mock type doesn't match Drizzle's complex type chain
-      vi.mocked(db).select.mockReturnValue(selectMock);
-      // @ts-expect-error - Mock type doesn't match Drizzle's complex type chain
-      vi.mocked(db).insert.mockReturnValue(insertMock);
+      vi.mocked(db).select.mockReturnValue(selectMock as unknown as ReturnType<typeof db.select>);
+      vi.mocked(db).insert.mockReturnValue(insertMock as unknown as ReturnType<typeof db.insert>);
 
       const result = await generateAssetMessages({
         assetId: '623e4567-e89b-12d3-a456-426614174000',
@@ -282,8 +275,7 @@ describe('Asset Queries', () => {
         limit: vi.fn().mockResolvedValue([]),
       };
 
-      // @ts-expect-error - Mock type doesn't match Drizzle's complex type chain
-      vi.mocked(db).select.mockReturnValue(selectMock);
+      vi.mocked(db).select.mockReturnValue(selectMock as unknown as ReturnType<typeof db.select>);
 
       await expect(
         generateAssetMessages({
@@ -331,10 +323,8 @@ describe('Asset Queries', () => {
         ]),
       };
 
-      // @ts-expect-error - Mock type doesn't match Drizzle's complex type chain
-      vi.mocked(db).select.mockReturnValue(selectMock);
-      // @ts-expect-error - Mock type doesn't match Drizzle's complex type chain
-      vi.mocked(db).insert.mockReturnValue(insertMock);
+      vi.mocked(db).select.mockReturnValue(selectMock as unknown as ReturnType<typeof db.select>);
+      vi.mocked(db).insert.mockReturnValue(insertMock as unknown as ReturnType<typeof db.insert>);
 
       await generateAssetMessages({
         assetId: 'c23e4567-e89b-12d3-a456-426614174000',
