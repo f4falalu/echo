@@ -54,6 +54,8 @@ import { Route as AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesIndex
 import { Route as AppAppAssetReportsReportIdLayoutIndexRouteImport } from './routes/app/_app/_asset/reports.$reportId/_layout/index'
 import { Route as AppAppAssetMetricsMetricIdLayoutIndexRouteImport } from './routes/app/_app/_asset/metrics.$metricId/_layout/index'
 import { Route as AppAppAssetDashboardsDashboardIdLayoutIndexRouteImport } from './routes/app/_app/_asset/dashboards.$dashboardId/_layout/index'
+import { Route as AppSettingsRestricted_layoutAdmin_onlySettingsStorageStorageIdRouteImport } from './routes/app/_settings/_restricted_layout/_admin_only/settings.storage.storageId'
+import { Route as AppSettingsRestricted_layoutAdmin_onlySettingsStorageAddRouteImport } from './routes/app/_settings/_restricted_layout/_admin_only/settings.storage.add'
 import { Route as AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesAddRouteImport } from './routes/app/_settings/_restricted_layout/_admin_only/settings.datasources.add'
 import { Route as AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesDatasourceIdRouteImport } from './routes/app/_settings/_restricted_layout/_admin_only/settings.datasources.$datasourceId'
 import { Route as AppAppAssetReportsReportIdLayoutContentRouteImport } from './routes/app/_app/_asset/reports.$reportId/_layout/content'
@@ -401,6 +403,20 @@ const AppAppAssetDashboardsDashboardIdLayoutIndexRoute =
     path: '/',
     getParentRoute: () => AppAppAssetDashboardsDashboardIdLayoutRoute,
   } as any)
+const AppSettingsRestricted_layoutAdmin_onlySettingsStorageStorageIdRoute =
+  AppSettingsRestricted_layoutAdmin_onlySettingsStorageStorageIdRouteImport.update(
+    {
+      id: '/settings/storage/storageId',
+      path: '/settings/storage/storageId',
+      getParentRoute: () => AppSettingsRestricted_layoutAdmin_onlyRoute,
+    } as any,
+  )
+const AppSettingsRestricted_layoutAdmin_onlySettingsStorageAddRoute =
+  AppSettingsRestricted_layoutAdmin_onlySettingsStorageAddRouteImport.update({
+    id: '/settings/storage/add',
+    path: '/settings/storage/add',
+    getParentRoute: () => AppSettingsRestricted_layoutAdmin_onlyRoute,
+  } as any)
 const AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesAddRoute =
   AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesAddRouteImport.update(
     {
@@ -719,6 +735,8 @@ export interface FileRoutesByFullPath {
   '/app/reports/$reportId/content': typeof AppAppAssetReportsReportIdLayoutContentRoute
   '/app/settings/datasources/$datasourceId': typeof AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesDatasourceIdRoute
   '/app/settings/datasources/add': typeof AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesAddRoute
+  '/app/settings/storage/add': typeof AppSettingsRestricted_layoutAdmin_onlySettingsStorageAddRoute
+  '/app/settings/storage/storageId': typeof AppSettingsRestricted_layoutAdmin_onlySettingsStorageStorageIdRoute
   '/app/dashboards/$dashboardId/': typeof AppAppAssetDashboardsDashboardIdLayoutIndexRoute
   '/app/metrics/$metricId/': typeof AppAppAssetMetricsMetricIdLayoutIndexRoute
   '/app/reports/$reportId/': typeof AppAppAssetReportsReportIdLayoutIndexRoute
@@ -794,6 +812,8 @@ export interface FileRoutesByTo {
   '/app/reports/$reportId/content': typeof AppAppAssetReportsReportIdLayoutContentRoute
   '/app/settings/datasources/$datasourceId': typeof AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesDatasourceIdRoute
   '/app/settings/datasources/add': typeof AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesAddRoute
+  '/app/settings/storage/add': typeof AppSettingsRestricted_layoutAdmin_onlySettingsStorageAddRoute
+  '/app/settings/storage/storageId': typeof AppSettingsRestricted_layoutAdmin_onlySettingsStorageStorageIdRoute
   '/app/settings/datasources': typeof AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesIndexRoute
   '/app/chats/$chatId/dashboards/$dashboardId': typeof AppAppAssetChatsChatIdDashboardsDashboardIdLayoutIndexRoute
   '/app/chats/$chatId/metrics/$metricId': typeof AppAppAssetChatsChatIdMetricsMetricIdLayoutIndexRoute
@@ -869,6 +889,8 @@ export interface FileRoutesById {
   '/app/_app/_asset/reports/$reportId/_layout/content': typeof AppAppAssetReportsReportIdLayoutContentRoute
   '/app/_settings/_restricted_layout/_admin_only/settings/datasources/$datasourceId': typeof AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesDatasourceIdRoute
   '/app/_settings/_restricted_layout/_admin_only/settings/datasources/add': typeof AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesAddRoute
+  '/app/_settings/_restricted_layout/_admin_only/settings/storage/add': typeof AppSettingsRestricted_layoutAdmin_onlySettingsStorageAddRoute
+  '/app/_settings/_restricted_layout/_admin_only/settings/storage/storageId': typeof AppSettingsRestricted_layoutAdmin_onlySettingsStorageStorageIdRoute
   '/app/_app/_asset/dashboards/$dashboardId/_layout/': typeof AppAppAssetDashboardsDashboardIdLayoutIndexRoute
   '/app/_app/_asset/metrics/$metricId/_layout/': typeof AppAppAssetMetricsMetricIdLayoutIndexRoute
   '/app/_app/_asset/reports/$reportId/_layout/': typeof AppAppAssetReportsReportIdLayoutIndexRoute
@@ -954,6 +976,8 @@ export interface FileRouteTypes {
     | '/app/reports/$reportId/content'
     | '/app/settings/datasources/$datasourceId'
     | '/app/settings/datasources/add'
+    | '/app/settings/storage/add'
+    | '/app/settings/storage/storageId'
     | '/app/dashboards/$dashboardId/'
     | '/app/metrics/$metricId/'
     | '/app/reports/$reportId/'
@@ -1029,6 +1053,8 @@ export interface FileRouteTypes {
     | '/app/reports/$reportId/content'
     | '/app/settings/datasources/$datasourceId'
     | '/app/settings/datasources/add'
+    | '/app/settings/storage/add'
+    | '/app/settings/storage/storageId'
     | '/app/settings/datasources'
     | '/app/chats/$chatId/dashboards/$dashboardId'
     | '/app/chats/$chatId/metrics/$metricId'
@@ -1103,6 +1129,8 @@ export interface FileRouteTypes {
     | '/app/_app/_asset/reports/$reportId/_layout/content'
     | '/app/_settings/_restricted_layout/_admin_only/settings/datasources/$datasourceId'
     | '/app/_settings/_restricted_layout/_admin_only/settings/datasources/add'
+    | '/app/_settings/_restricted_layout/_admin_only/settings/storage/add'
+    | '/app/_settings/_restricted_layout/_admin_only/settings/storage/storageId'
     | '/app/_app/_asset/dashboards/$dashboardId/_layout/'
     | '/app/_app/_asset/metrics/$metricId/_layout/'
     | '/app/_app/_asset/reports/$reportId/_layout/'
@@ -1528,6 +1556,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/dashboards/$dashboardId/'
       preLoaderRoute: typeof AppAppAssetDashboardsDashboardIdLayoutIndexRouteImport
       parentRoute: typeof AppAppAssetDashboardsDashboardIdLayoutRoute
+    }
+    '/app/_settings/_restricted_layout/_admin_only/settings/storage/storageId': {
+      id: '/app/_settings/_restricted_layout/_admin_only/settings/storage/storageId'
+      path: '/settings/storage/storageId'
+      fullPath: '/app/settings/storage/storageId'
+      preLoaderRoute: typeof AppSettingsRestricted_layoutAdmin_onlySettingsStorageStorageIdRouteImport
+      parentRoute: typeof AppSettingsRestricted_layoutAdmin_onlyRoute
+    }
+    '/app/_settings/_restricted_layout/_admin_only/settings/storage/add': {
+      id: '/app/_settings/_restricted_layout/_admin_only/settings/storage/add'
+      path: '/settings/storage/add'
+      fullPath: '/app/settings/storage/add'
+      preLoaderRoute: typeof AppSettingsRestricted_layoutAdmin_onlySettingsStorageAddRouteImport
+      parentRoute: typeof AppSettingsRestricted_layoutAdmin_onlyRoute
     }
     '/app/_settings/_restricted_layout/_admin_only/settings/datasources/add': {
       id: '/app/_settings/_restricted_layout/_admin_only/settings/datasources/add'
@@ -2286,6 +2328,8 @@ interface AppSettingsRestricted_layoutAdmin_onlyRouteChildren {
   AppSettingsRestricted_layoutAdmin_onlySettingsWorkspaceRoute: typeof AppSettingsRestricted_layoutAdmin_onlySettingsWorkspaceRoute
   AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesDatasourceIdRoute: typeof AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesDatasourceIdRoute
   AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesAddRoute: typeof AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesAddRoute
+  AppSettingsRestricted_layoutAdmin_onlySettingsStorageAddRoute: typeof AppSettingsRestricted_layoutAdmin_onlySettingsStorageAddRoute
+  AppSettingsRestricted_layoutAdmin_onlySettingsStorageStorageIdRoute: typeof AppSettingsRestricted_layoutAdmin_onlySettingsStorageStorageIdRoute
   AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesIndexRoute: typeof AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesIndexRoute
 }
 
@@ -2303,6 +2347,10 @@ const AppSettingsRestricted_layoutAdmin_onlyRouteChildren: AppSettingsRestricted
       AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesDatasourceIdRoute,
     AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesAddRoute:
       AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesAddRoute,
+    AppSettingsRestricted_layoutAdmin_onlySettingsStorageAddRoute:
+      AppSettingsRestricted_layoutAdmin_onlySettingsStorageAddRoute,
+    AppSettingsRestricted_layoutAdmin_onlySettingsStorageStorageIdRoute:
+      AppSettingsRestricted_layoutAdmin_onlySettingsStorageStorageIdRoute,
     AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesIndexRoute:
       AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesIndexRoute,
   }

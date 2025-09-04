@@ -1,4 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { SlackIntegrations } from '@/components/features/integrations/SlackIntegrations';
+import { StorageIntegrations } from '@/components/features/integrations/StorageIntegrations';
+import { SettingsPageHeader } from '@/components/features/settings';
 
 export const Route = createFileRoute(
   '/app/_settings/_restricted_layout/_admin_only/settings/integrations'
@@ -15,5 +18,17 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
-  return <div>Hello "/app/settings/integrations"!</div>;
+  return (
+    <>
+      <SettingsPageHeader
+        title="Integrations"
+        description="Connect Buster with other apps and services"
+      />
+
+      <div className="flex flex-col space-y-6">
+        <SlackIntegrations />
+        <StorageIntegrations />
+      </div>
+    </>
+  );
 }
