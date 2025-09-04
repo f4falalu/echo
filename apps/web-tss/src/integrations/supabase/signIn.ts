@@ -1,4 +1,3 @@
-import { redirect } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { env } from '@/env';
@@ -12,6 +11,37 @@ const isValidRedirectUrl = (url: string): boolean => {
   } catch {
     return false;
   }
+};
+
+// Common OAuth handler to reduce code duplication
+const handleOAuthSignIn = async (
+  provider: 'google' | 'github' | 'azure',
+  redirectTo?: string | null,
+  options?: Record<string, string>
+) => {
+  const supabase = getSupabaseServerClient();
+
+  const callbackUrl = new URL(AuthCallbackRoute.to, env.VITE_PUBLIC_URL);
+
+  if (redirectTo && isValidRedirectUrl(redirectTo)) {
+    callbackUrl.searchParams.set('next', redirectTo);
+  }
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: {
+      redirectTo: callbackUrl.toString(),
+      ...options,
+    },
+  });
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  console.log(`OAuth ${provider} data:`, data);
+
+  return { success: true, url: data.url };
 };
 
 export const signInWithEmailAndPassword = createServerFn({ method: 'POST' })
@@ -38,33 +68,6 @@ export const signInWithEmailAndPassword = createServerFn({ method: 'POST' })
     return {
       error: false as const,
     };
-  });
-
-export const signInWithGoogle = createServerFn({ method: 'POST' })
-  .validator(z.object({ redirectTo: z.string().nullable().optional() }))
-  .handler(async ({ data: { redirectTo } }) => {
-    const supabase = getSupabaseServerClient();
-
-    const callbackUrl = new URL(AuthCallbackRoute.to, env.VITE_PUBLIC_URL);
-
-    if (redirectTo && isValidRedirectUrl(redirectTo)) {
-      callbackUrl.searchParams.set('next', redirectTo);
-    }
-
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: callbackUrl.toString(),
-      },
-    });
-
-    if (error) {
-      return { success: false, error: error.message };
-    }
-
-    console.log('OAuth data:', data);
-
-    return { success: true, url: data.url };
   });
 
 export const signInWithAnonymousUser = createServerFn({ method: 'POST' }).handler(async () => {
@@ -111,55 +114,24 @@ export const signInWithAnonymousUser = createServerFn({ method: 'POST' }).handle
   };
 });
 
-export const signInWithGithub = createServerFn({ method: 'POST' })
-  .validator(z.object({ redirectTo: z.string().nullable().optional() }))
+const oAuthRedirectValidator = z.object({ redirectTo: z.string().nullable().optional() });
+
+export const signInWithGoogle = createServerFn({ method: 'POST' })
+  .validator(oAuthRedirectValidator)
   .handler(async ({ data: { redirectTo } }) => {
-    const supabase = getSupabaseServerClient();
+    return handleOAuthSignIn('google', redirectTo);
+  });
 
-    const callbackUrl = new URL(AuthCallbackRoute.to, env.VITE_PUBLIC_URL);
-
-    if (redirectTo && isValidRedirectUrl(redirectTo)) {
-      callbackUrl.searchParams.set('next', redirectTo);
-    }
-
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'github',
-      options: {
-        redirectTo: callbackUrl.toString(),
-      },
-    });
-
-    if (error) {
-      return { success: false, error: error.message };
-    }
-
-    throw redirect({ to: data.url });
+export const signInWithGithub = createServerFn({ method: 'POST' })
+  .validator(oAuthRedirectValidator)
+  .handler(async ({ data: { redirectTo } }) => {
+    return handleOAuthSignIn('github', redirectTo);
   });
 
 export const signInWithAzure = createServerFn({ method: 'POST' })
-  .validator(z.object({ redirectTo: z.string().nullable().optional() }))
+  .validator(oAuthRedirectValidator)
   .handler(async ({ data: { redirectTo } }) => {
-    const supabase = getSupabaseServerClient();
-
-    const callbackUrl = new URL(AuthCallbackRoute.to, env.VITE_PUBLIC_URL);
-
-    if (redirectTo && isValidRedirectUrl(redirectTo)) {
-      callbackUrl.searchParams.set('next', redirectTo);
-    }
-
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'azure',
-      options: {
-        redirectTo: callbackUrl.toString(),
-        scopes: 'email',
-      },
-    });
-
-    if (error) {
-      return { success: false, error: error.message };
-    }
-
-    throw redirect({ to: data.url });
+    return handleOAuthSignIn('azure', redirectTo, { scopes: 'email' });
   });
 
 export const signUpWithEmailAndPassword = createServerFn({ method: 'POST' })
@@ -173,9 +145,7 @@ export const signUpWithEmailAndPassword = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     const supabase = getSupabaseServerClient();
 
-    const authURLFull = `${AuthCallbackRoute.to}`;
-
-    console.log(data);
+    console.log('Sign up data:', data);
 
     const { error } = await supabase.auth.signUp({
       email: data.email,
@@ -185,7 +155,7 @@ export const signUpWithEmailAndPassword = createServerFn({ method: 'POST' })
       },
     });
 
-    console.log('error', error);
+    console.log('Sign up error:', error);
 
     if (error) {
       return {
@@ -194,7 +164,8 @@ export const signUpWithEmailAndPassword = createServerFn({ method: 'POST' })
       };
     }
 
-    console.log('authURLFull', authURLFull);
-
-    throw redirect({ to: authURLFull });
+    return {
+      success: true,
+      redirectTo: AuthCallbackRoute.to,
+    };
   });

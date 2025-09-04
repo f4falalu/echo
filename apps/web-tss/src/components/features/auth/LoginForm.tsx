@@ -39,6 +39,35 @@ export const LoginForm: React.FC<{
   );
   const [signUpSuccess, setSignUpSuccess] = useState(false);
 
+  // Reusable OAuth handler to reduce code duplication
+  const handleOAuthSignIn = async (
+    provider: 'google' | 'github' | 'azure',
+    signInFn: (data: {
+      data: { redirectTo?: string | null };
+    }) => Promise<{ success: boolean; url?: string; error?: string }>
+  ) => {
+    setLoading(provider);
+    try {
+      const result = await signInFn({ data: { redirectTo } });
+      console.log(`${provider} result:`, result);
+
+      if (result && 'success' in result && !result.success) {
+        setErrorMessages([result.error || `An error occurred during ${provider} sign-in`]);
+        setLoading(null);
+        return;
+      }
+
+      if (result && 'success' in result && result.success && result.url) {
+        // Redirect to OAuth provider's URL
+        window.location.href = result.url;
+      }
+    } catch (error: unknown) {
+      console.error(error);
+      setErrorMessages(['An unexpected error occurred. Please try again.']);
+      setLoading(null);
+    }
+  };
+
   const onSignInWithUsernameAndPassword = useMemoizedFn(
     async ({ email, password }: { email: string; password: string }) => {
       setLoading('email');
@@ -61,63 +90,15 @@ export const LoginForm: React.FC<{
   );
 
   const onSignInWithGoogle = useMemoizedFn(async () => {
-    setLoading('google');
-    try {
-      const result = await signInWithGoogle({ data: { redirectTo } });
-      console.log('result', result);
-      if (result && 'success' in result && !result.success) {
-        setErrorMessages([result.error || 'An error occurred during sign-in']);
-        setLoading(null);
-        return;
-      }
-
-      if (result && 'success' in result && result.success && result.url) {
-        // Redirect to OAuth provider's URL
-        window.location.href = result.url;
-      }
-    } catch (error: unknown) {
-      console.error(error);
-      setErrorMessages(['An unexpected error occurred. Please try again.']);
-      setLoading(null);
-    }
+    return handleOAuthSignIn('google', signInWithGoogle);
   });
 
   const onSignInWithGithub = useMemoizedFn(async () => {
-    setLoading('github');
-    try {
-      const result = await signInWithGithub({ data: { redirectTo } });
-      if (result && 'success' in result && !result.success) {
-        setErrorMessages([result.error]);
-        setLoading(null);
-      }
-
-      if (!result?.error) {
-        navigate({ to: redirectTo || '/' });
-      }
-    } catch (error: unknown) {
-      console.error(error);
-      setErrorMessages(['An unexpected error occurred. Please try again.']);
-      setLoading(null);
-    }
+    return handleOAuthSignIn('github', signInWithGithub);
   });
 
   const onSignInWithAzure = useMemoizedFn(async () => {
-    setLoading('azure');
-    try {
-      const result = await signInWithAzure({ data: { redirectTo } });
-      if (result && 'success' in result && !result.success) {
-        setErrorMessages([result.error]);
-        setLoading(null);
-      }
-
-      if (!result?.error) {
-        navigate({ to: redirectTo || '/' });
-      }
-    } catch (error: unknown) {
-      console.error(error);
-      setErrorMessages(['An unexpected error occurred. Please try again.']);
-      setLoading(null);
-    }
+    return handleOAuthSignIn('azure', signInWithAzure);
   });
 
   const onSignUp = useMemoizedFn(async (d: { email: string; password: string }) => {
@@ -127,15 +108,17 @@ export const LoginForm: React.FC<{
         data: { ...d, redirectTo },
       });
 
-      if ((result && 'success' in result && !result.success) || result.error) {
-        setErrorMessages([result.error]);
+      if (result && 'success' in result && !result.success) {
+        setErrorMessages([result.error || 'An error occurred during sign-up']);
         setLoading(null);
-      } else {
-        setSignUpSuccess(true);
+        return;
       }
 
-      if (!result?.error) {
-        navigate({ to: redirectTo || '/' });
+      if (result && 'success' in result && result.success) {
+        setSignUpSuccess(true);
+        setLoading(null);
+        // For sign-up, we don't need to navigate immediately as the user
+        // needs to check their email for verification
       }
     } catch (error: unknown) {
       console.error(error);
