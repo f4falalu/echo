@@ -103,7 +103,7 @@ const ROUTE_MAP: Record<string, RouteFilePaths> = {
   // Chat combination routes
   'chat+dashboard': '/app/chats/$chatId/dashboards/$dashboardId',
   'chat+metric': '/app/chats/$chatId/metrics/$metricId',
-  'chat+report': '/app/chats/$chatId/report/$reportId',
+  'chat+report': '/app/chats/$chatId/reports/$reportId',
   'chat+dashboard+metric': '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId',
 
   // Collection combination routes

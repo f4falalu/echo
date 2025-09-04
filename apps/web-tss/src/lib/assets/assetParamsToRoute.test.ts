@@ -52,7 +52,7 @@ describe('assetParamsToRoute', () => {
         .withChat('chat-123')
         .withReport('report-456')
         .build();
-      expect(chatReportRoute).toBe('/app/chats/$chatId/report/$reportId');
+      expect(chatReportRoute).toBe('/app/chats/$chatId/reports/$reportId');
 
       // Chat + Dashboard + Metric
       const chatDashMetricRoute = createRouteBuilder()
@@ -70,7 +70,7 @@ describe('assetParamsToRoute', () => {
         .withReport('report-456')
         .withMetric('metric-789')
         .build();
-      expect(chatReportMetricRoute).toBe('/app/chats/$chatId/report/$reportId/metrics/$metricId');
+      expect(chatReportMetricRoute).toBe('/app/chats/$chatId/reports/$reportId/metrics/$metricId');
     });
 
     it('should build collection combination routes correctly', () => {
@@ -319,7 +319,7 @@ describe('assetParamsToRoute', () => {
         chatId: 'chat-456',
       });
       expect(reportChatRoute).toEqual({
-        to: '/app/chats/$chatId/report/$reportId',
+        to: '/app/chats/$chatId/reports/$reportId',
         params: {
           chatId: 'chat-456',
           reportId: 'report-123',
@@ -334,7 +334,7 @@ describe('assetParamsToRoute', () => {
         metricId: 'metric-789',
       });
       expect(reportChatMetricRoute).toEqual({
-        to: '/app/chats/$chatId/report/$reportId/metrics/$metricId',
+        to: '/app/chats/$chatId/reports/$reportId/metrics/$metricId',
         params: {
           chatId: 'chat-456',
           reportId: 'report-123',
@@ -658,7 +658,7 @@ describe('assetParamsToRoute', () => {
       });
 
       expect(chatWithReportAndVersions).toEqual({
-        to: '/app/chats/$chatId/report/$reportId/metrics/$metricId',
+        to: '/app/chats/$chatId/reports/$reportId/metrics/$metricId',
         params: {
           chatId: 'chat-123',
           reportId: 'report-456',
