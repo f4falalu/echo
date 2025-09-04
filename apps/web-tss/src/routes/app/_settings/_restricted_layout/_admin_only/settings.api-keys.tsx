@@ -1,6 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { ApiKeyController } from '@/controllers/ApiKeysController/ApiKeyController';
 
-export const Route = createFileRoute('/app/_settings/settings/api-keys')({
+export const Route = createFileRoute(
+  '/app/_settings/_restricted_layout/_admin_only/settings/api-keys'
+)({
   head: () => ({
     meta: [
       { title: 'API Keys' },
@@ -9,9 +12,5 @@ export const Route = createFileRoute('/app/_settings/settings/api-keys')({
       { name: 'og:description', content: 'Manage your API keys and integrations' },
     ],
   }),
-  component: RouteComponent,
+  component: ApiKeyController,
 });
-
-function RouteComponent() {
-  return <div>Hello "/app/settings/api-keys"!</div>;
-}

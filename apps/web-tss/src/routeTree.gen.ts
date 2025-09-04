@@ -23,6 +23,7 @@ import { Route as AppAppRouteImport } from './routes/app/_app'
 import { Route as EmbedReportReportIdRouteImport } from './routes/embed.report.$reportId'
 import { Route as EmbedMetricMetricIdRouteImport } from './routes/embed.metric.$metricId'
 import { Route as EmbedDashboardDashboardIdRouteImport } from './routes/embed.dashboard.$dashboardId'
+import { Route as AppSettingsRestricted_layoutRouteImport } from './routes/app/_settings/_restricted_layout'
 import { Route as AppAppHomeRouteImport } from './routes/app/_app/home'
 import { Route as AppAppAssetRouteImport } from './routes/app/_app/_asset'
 import { Route as AppAppReportsIndexRouteImport } from './routes/app/_app/reports.index'
@@ -32,28 +33,29 @@ import { Route as AppAppDatasetsIndexRouteImport } from './routes/app/_app/datas
 import { Route as AppAppDashboardsIndexRouteImport } from './routes/app/_app/dashboards.index'
 import { Route as AppAppCollectionsIndexRouteImport } from './routes/app/_app/collections.index'
 import { Route as AppAppChatsIndexRouteImport } from './routes/app/_app/chats.index'
-import { Route as AppSettingsSettingsWorkspaceRouteImport } from './routes/app/_settings/settings.workspace'
-import { Route as AppSettingsSettingsUsersRouteImport } from './routes/app/_settings/settings.users'
-import { Route as AppSettingsSettingsSecurityRouteImport } from './routes/app/_settings/settings.security'
-import { Route as AppSettingsSettingsProfileRouteImport } from './routes/app/_settings/settings.profile'
-import { Route as AppSettingsSettingsPermissionGroupsRouteImport } from './routes/app/_settings/settings.permission-groups'
-import { Route as AppSettingsSettingsIntegrationsRouteImport } from './routes/app/_settings/settings.integrations'
-import { Route as AppSettingsSettingsDatasourcesRouteImport } from './routes/app/_settings/settings.datasources'
-import { Route as AppSettingsSettingsDatasetGroupsRouteImport } from './routes/app/_settings/settings.dataset-groups'
-import { Route as AppSettingsSettingsApiKeysRouteImport } from './routes/app/_settings/settings.api-keys'
+import { Route as AppSettingsRestricted_layoutAdmin_onlyRouteImport } from './routes/app/_settings/_restricted_layout/_admin_only'
 import { Route as AppAppDatasetsDatasetIdRouteImport } from './routes/app/_app/datasets.$datasetId'
-import { Route as AppSettingsSettingsDatasourcesIndexRouteImport } from './routes/app/_settings/settings.datasources.index'
-import { Route as AppSettingsSettingsDatasourcesAddRouteImport } from './routes/app/_settings/settings.datasources.add'
+import { Route as AppSettingsRestricted_layoutSettingsProfileRouteImport } from './routes/app/_settings/_restricted_layout/settings.profile'
+import { Route as AppSettingsPermissionsSettingsUsersRouteImport } from './routes/app/_settings/_permissions/settings.users'
+import { Route as AppSettingsPermissionsSettingsPermissionGroupsRouteImport } from './routes/app/_settings/_permissions/settings.permission-groups'
+import { Route as AppSettingsPermissionsSettingsDatasetGroupsRouteImport } from './routes/app/_settings/_permissions/settings.dataset-groups'
 import { Route as AppAppDatasetsDatasetIdOverviewRouteImport } from './routes/app/_app/datasets.$datasetId.overview'
 import { Route as AppAppAssetChatsChatIdRouteImport } from './routes/app/_app/_asset/chats.$chatId'
 import { Route as AppAppAssetCollectionsCollectionIdIndexRouteImport } from './routes/app/_app/_asset/collections.$collectionId/index'
 import { Route as AppAppAssetChatsChatIdIndexRouteImport } from './routes/app/_app/_asset/chats.$chatId/index'
+import { Route as AppSettingsRestricted_layoutAdmin_onlySettingsWorkspaceRouteImport } from './routes/app/_settings/_restricted_layout/_admin_only/settings.workspace'
+import { Route as AppSettingsRestricted_layoutAdmin_onlySettingsSecurityRouteImport } from './routes/app/_settings/_restricted_layout/_admin_only/settings.security'
+import { Route as AppSettingsRestricted_layoutAdmin_onlySettingsIntegrationsRouteImport } from './routes/app/_settings/_restricted_layout/_admin_only/settings.integrations'
+import { Route as AppSettingsRestricted_layoutAdmin_onlySettingsApiKeysRouteImport } from './routes/app/_settings/_restricted_layout/_admin_only/settings.api-keys'
 import { Route as AppAppAssetReportsReportIdLayoutRouteImport } from './routes/app/_app/_asset/reports.$reportId/_layout'
 import { Route as AppAppAssetMetricsMetricIdLayoutRouteImport } from './routes/app/_app/_asset/metrics.$metricId/_layout'
 import { Route as AppAppAssetDashboardsDashboardIdLayoutRouteImport } from './routes/app/_app/_asset/dashboards.$dashboardId/_layout'
+import { Route as AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesIndexRouteImport } from './routes/app/_settings/_restricted_layout/_admin_only/settings.datasources.index'
 import { Route as AppAppAssetReportsReportIdLayoutIndexRouteImport } from './routes/app/_app/_asset/reports.$reportId/_layout/index'
 import { Route as AppAppAssetMetricsMetricIdLayoutIndexRouteImport } from './routes/app/_app/_asset/metrics.$metricId/_layout/index'
 import { Route as AppAppAssetDashboardsDashboardIdLayoutIndexRouteImport } from './routes/app/_app/_asset/dashboards.$dashboardId/_layout/index'
+import { Route as AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesAddRouteImport } from './routes/app/_settings/_restricted_layout/_admin_only/settings.datasources.add'
+import { Route as AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesDatasourceIdRouteImport } from './routes/app/_settings/_restricted_layout/_admin_only/settings.datasources.$datasourceId'
 import { Route as AppAppAssetReportsReportIdLayoutContentRouteImport } from './routes/app/_app/_asset/reports.$reportId/_layout/content'
 import { Route as AppAppAssetMetricsMetricIdLayoutSqlRouteImport } from './routes/app/_app/_asset/metrics.$metricId/_layout/sql'
 import { Route as AppAppAssetMetricsMetricIdLayoutResultsRouteImport } from './routes/app/_app/_asset/metrics.$metricId/_layout/results'
@@ -180,6 +182,11 @@ const EmbedDashboardDashboardIdRoute =
     path: '/embed/dashboard/$dashboardId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AppSettingsRestricted_layoutRoute =
+  AppSettingsRestricted_layoutRouteImport.update({
+    id: '/_restricted_layout',
+    getParentRoute: () => AppSettingsRoute,
+  } as any)
 const AppAppHomeRoute = AppAppHomeRouteImport.update({
   id: '/home',
   path: '/home',
@@ -224,59 +231,10 @@ const AppAppChatsIndexRoute = AppAppChatsIndexRouteImport.update({
   path: '/chats/',
   getParentRoute: () => AppAppRoute,
 } as any)
-const AppSettingsSettingsWorkspaceRoute =
-  AppSettingsSettingsWorkspaceRouteImport.update({
-    id: '/settings/workspace',
-    path: '/settings/workspace',
-    getParentRoute: () => AppSettingsRoute,
-  } as any)
-const AppSettingsSettingsUsersRoute =
-  AppSettingsSettingsUsersRouteImport.update({
-    id: '/settings/users',
-    path: '/settings/users',
-    getParentRoute: () => AppSettingsRoute,
-  } as any)
-const AppSettingsSettingsSecurityRoute =
-  AppSettingsSettingsSecurityRouteImport.update({
-    id: '/settings/security',
-    path: '/settings/security',
-    getParentRoute: () => AppSettingsRoute,
-  } as any)
-const AppSettingsSettingsProfileRoute =
-  AppSettingsSettingsProfileRouteImport.update({
-    id: '/settings/profile',
-    path: '/settings/profile',
-    getParentRoute: () => AppSettingsRoute,
-  } as any)
-const AppSettingsSettingsPermissionGroupsRoute =
-  AppSettingsSettingsPermissionGroupsRouteImport.update({
-    id: '/settings/permission-groups',
-    path: '/settings/permission-groups',
-    getParentRoute: () => AppSettingsRoute,
-  } as any)
-const AppSettingsSettingsIntegrationsRoute =
-  AppSettingsSettingsIntegrationsRouteImport.update({
-    id: '/settings/integrations',
-    path: '/settings/integrations',
-    getParentRoute: () => AppSettingsRoute,
-  } as any)
-const AppSettingsSettingsDatasourcesRoute =
-  AppSettingsSettingsDatasourcesRouteImport.update({
-    id: '/settings/datasources',
-    path: '/settings/datasources',
-    getParentRoute: () => AppSettingsRoute,
-  } as any)
-const AppSettingsSettingsDatasetGroupsRoute =
-  AppSettingsSettingsDatasetGroupsRouteImport.update({
-    id: '/settings/dataset-groups',
-    path: '/settings/dataset-groups',
-    getParentRoute: () => AppSettingsRoute,
-  } as any)
-const AppSettingsSettingsApiKeysRoute =
-  AppSettingsSettingsApiKeysRouteImport.update({
-    id: '/settings/api-keys',
-    path: '/settings/api-keys',
-    getParentRoute: () => AppSettingsRoute,
+const AppSettingsRestricted_layoutAdmin_onlyRoute =
+  AppSettingsRestricted_layoutAdmin_onlyRouteImport.update({
+    id: '/_admin_only',
+    getParentRoute: () => AppSettingsRestricted_layoutRoute,
   } as any)
 const AppAppDatasetsDatasetIdRoute = AppAppDatasetsDatasetIdRouteImport.update({
   id: '/datasets/$datasetId',
@@ -301,17 +259,29 @@ const AppAppAssetDashboardsDashboardIdRoute =
     path: '/dashboards/$dashboardId',
     getParentRoute: () => AppAppAssetRoute,
   } as any)
-const AppSettingsSettingsDatasourcesIndexRoute =
-  AppSettingsSettingsDatasourcesIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AppSettingsSettingsDatasourcesRoute,
+const AppSettingsRestricted_layoutSettingsProfileRoute =
+  AppSettingsRestricted_layoutSettingsProfileRouteImport.update({
+    id: '/settings/profile',
+    path: '/settings/profile',
+    getParentRoute: () => AppSettingsRestricted_layoutRoute,
   } as any)
-const AppSettingsSettingsDatasourcesAddRoute =
-  AppSettingsSettingsDatasourcesAddRouteImport.update({
-    id: '/add',
-    path: '/add',
-    getParentRoute: () => AppSettingsSettingsDatasourcesRoute,
+const AppSettingsPermissionsSettingsUsersRoute =
+  AppSettingsPermissionsSettingsUsersRouteImport.update({
+    id: '/_permissions/settings/users',
+    path: '/settings/users',
+    getParentRoute: () => AppSettingsRoute,
+  } as any)
+const AppSettingsPermissionsSettingsPermissionGroupsRoute =
+  AppSettingsPermissionsSettingsPermissionGroupsRouteImport.update({
+    id: '/_permissions/settings/permission-groups',
+    path: '/settings/permission-groups',
+    getParentRoute: () => AppSettingsRoute,
+  } as any)
+const AppSettingsPermissionsSettingsDatasetGroupsRoute =
+  AppSettingsPermissionsSettingsDatasetGroupsRouteImport.update({
+    id: '/_permissions/settings/dataset-groups',
+    path: '/settings/dataset-groups',
+    getParentRoute: () => AppSettingsRoute,
   } as any)
 const AppAppDatasetsDatasetIdOverviewRoute =
   AppAppDatasetsDatasetIdOverviewRouteImport.update({
@@ -335,6 +305,30 @@ const AppAppAssetChatsChatIdIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => AppAppAssetChatsChatIdRoute,
+  } as any)
+const AppSettingsRestricted_layoutAdmin_onlySettingsWorkspaceRoute =
+  AppSettingsRestricted_layoutAdmin_onlySettingsWorkspaceRouteImport.update({
+    id: '/settings/workspace',
+    path: '/settings/workspace',
+    getParentRoute: () => AppSettingsRestricted_layoutAdmin_onlyRoute,
+  } as any)
+const AppSettingsRestricted_layoutAdmin_onlySettingsSecurityRoute =
+  AppSettingsRestricted_layoutAdmin_onlySettingsSecurityRouteImport.update({
+    id: '/settings/security',
+    path: '/settings/security',
+    getParentRoute: () => AppSettingsRestricted_layoutAdmin_onlyRoute,
+  } as any)
+const AppSettingsRestricted_layoutAdmin_onlySettingsIntegrationsRoute =
+  AppSettingsRestricted_layoutAdmin_onlySettingsIntegrationsRouteImport.update({
+    id: '/settings/integrations',
+    path: '/settings/integrations',
+    getParentRoute: () => AppSettingsRestricted_layoutAdmin_onlyRoute,
+  } as any)
+const AppSettingsRestricted_layoutAdmin_onlySettingsApiKeysRoute =
+  AppSettingsRestricted_layoutAdmin_onlySettingsApiKeysRouteImport.update({
+    id: '/settings/api-keys',
+    path: '/settings/api-keys',
+    getParentRoute: () => AppSettingsRestricted_layoutAdmin_onlyRoute,
   } as any)
 const AppAppAssetReportsReportIdLayoutRoute =
   AppAppAssetReportsReportIdLayoutRouteImport.update({
@@ -381,6 +375,14 @@ const AppAppAssetChatsChatIdDashboardsDashboardIdRoute =
     path: '/dashboards/$dashboardId',
     getParentRoute: () => AppAppAssetChatsChatIdRoute,
   } as any)
+const AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesIndexRoute =
+  AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesIndexRouteImport.update(
+    {
+      id: '/settings/datasources/',
+      path: '/settings/datasources/',
+      getParentRoute: () => AppSettingsRestricted_layoutAdmin_onlyRoute,
+    } as any,
+  )
 const AppAppAssetReportsReportIdLayoutIndexRoute =
   AppAppAssetReportsReportIdLayoutIndexRouteImport.update({
     id: '/',
@@ -399,6 +401,22 @@ const AppAppAssetDashboardsDashboardIdLayoutIndexRoute =
     path: '/',
     getParentRoute: () => AppAppAssetDashboardsDashboardIdLayoutRoute,
   } as any)
+const AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesAddRoute =
+  AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesAddRouteImport.update(
+    {
+      id: '/settings/datasources/add',
+      path: '/settings/datasources/add',
+      getParentRoute: () => AppSettingsRestricted_layoutAdmin_onlyRoute,
+    } as any,
+  )
+const AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesDatasourceIdRoute =
+  AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesDatasourceIdRouteImport.update(
+    {
+      id: '/settings/datasources/$datasourceId',
+      path: '/settings/datasources/$datasourceId',
+      getParentRoute: () => AppSettingsRestricted_layoutAdmin_onlyRoute,
+    } as any,
+  )
 const AppAppAssetReportsReportIdLayoutContentRoute =
   AppAppAssetReportsReportIdLayoutContentRouteImport.update({
     id: '/content',
@@ -663,7 +681,7 @@ const AuthCallbackServerRoute = AuthCallbackServerRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/app': typeof AppAppAssetRouteWithChildren
+  '/app': typeof AppSettingsRestricted_layoutAdmin_onlyRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
@@ -673,15 +691,6 @@ export interface FileRoutesByFullPath {
   '/embed/metric/$metricId': typeof EmbedMetricMetricIdRoute
   '/embed/report/$reportId': typeof EmbedReportReportIdRoute
   '/app/datasets/$datasetId': typeof AppAppDatasetsDatasetIdRouteWithChildren
-  '/app/settings/api-keys': typeof AppSettingsSettingsApiKeysRoute
-  '/app/settings/dataset-groups': typeof AppSettingsSettingsDatasetGroupsRoute
-  '/app/settings/datasources': typeof AppSettingsSettingsDatasourcesRouteWithChildren
-  '/app/settings/integrations': typeof AppSettingsSettingsIntegrationsRoute
-  '/app/settings/permission-groups': typeof AppSettingsSettingsPermissionGroupsRoute
-  '/app/settings/profile': typeof AppSettingsSettingsProfileRoute
-  '/app/settings/security': typeof AppSettingsSettingsSecurityRoute
-  '/app/settings/users': typeof AppSettingsSettingsUsersRoute
-  '/app/settings/workspace': typeof AppSettingsSettingsWorkspaceRoute
   '/app/chats': typeof AppAppChatsIndexRoute
   '/app/collections': typeof AppAppCollectionsIndexRoute
   '/app/dashboards': typeof AppAppDashboardsIndexRoute
@@ -691,20 +700,29 @@ export interface FileRoutesByFullPath {
   '/app/reports': typeof AppAppReportsIndexRoute
   '/app/chats/$chatId': typeof AppAppAssetChatsChatIdRouteWithChildren
   '/app/datasets/$datasetId/overview': typeof AppAppDatasetsDatasetIdOverviewRoute
-  '/app/settings/datasources/add': typeof AppSettingsSettingsDatasourcesAddRoute
-  '/app/settings/datasources/': typeof AppSettingsSettingsDatasourcesIndexRoute
+  '/app/settings/dataset-groups': typeof AppSettingsPermissionsSettingsDatasetGroupsRoute
+  '/app/settings/permission-groups': typeof AppSettingsPermissionsSettingsPermissionGroupsRoute
+  '/app/settings/users': typeof AppSettingsPermissionsSettingsUsersRoute
+  '/app/settings/profile': typeof AppSettingsRestricted_layoutSettingsProfileRoute
   '/app/dashboards/$dashboardId': typeof AppAppAssetDashboardsDashboardIdLayoutRouteWithChildren
   '/app/metrics/$metricId': typeof AppAppAssetMetricsMetricIdLayoutRouteWithChildren
   '/app/reports/$reportId': typeof AppAppAssetReportsReportIdLayoutRouteWithChildren
+  '/app/settings/api-keys': typeof AppSettingsRestricted_layoutAdmin_onlySettingsApiKeysRoute
+  '/app/settings/integrations': typeof AppSettingsRestricted_layoutAdmin_onlySettingsIntegrationsRoute
+  '/app/settings/security': typeof AppSettingsRestricted_layoutAdmin_onlySettingsSecurityRoute
+  '/app/settings/workspace': typeof AppSettingsRestricted_layoutAdmin_onlySettingsWorkspaceRoute
   '/app/chats/$chatId/': typeof AppAppAssetChatsChatIdIndexRoute
   '/app/collections/$collectionId': typeof AppAppAssetCollectionsCollectionIdIndexRoute
   '/app/metrics/$metricId/chart': typeof AppAppAssetMetricsMetricIdLayoutChartRoute
   '/app/metrics/$metricId/results': typeof AppAppAssetMetricsMetricIdLayoutResultsRoute
   '/app/metrics/$metricId/sql': typeof AppAppAssetMetricsMetricIdLayoutSqlRoute
   '/app/reports/$reportId/content': typeof AppAppAssetReportsReportIdLayoutContentRoute
+  '/app/settings/datasources/$datasourceId': typeof AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesDatasourceIdRoute
+  '/app/settings/datasources/add': typeof AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesAddRoute
   '/app/dashboards/$dashboardId/': typeof AppAppAssetDashboardsDashboardIdLayoutIndexRoute
   '/app/metrics/$metricId/': typeof AppAppAssetMetricsMetricIdLayoutIndexRoute
   '/app/reports/$reportId/': typeof AppAppAssetReportsReportIdLayoutIndexRoute
+  '/app/settings/datasources': typeof AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesIndexRoute
   '/app/chats/$chatId/dashboards/$dashboardId': typeof AppAppAssetChatsChatIdDashboardsDashboardIdLayoutRouteWithChildren
   '/app/chats/$chatId/metrics/$metricId': typeof AppAppAssetChatsChatIdMetricsMetricIdLayoutRouteWithChildren
   '/app/chats/$chatId/reports/$reportId': typeof AppAppAssetChatsChatIdReportsReportIdLayoutRouteWithChildren
@@ -739,7 +757,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/app': typeof AppAppAssetRouteWithChildren
+  '/app': typeof AppSettingsRestricted_layoutAdmin_onlyRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
@@ -749,14 +767,6 @@ export interface FileRoutesByTo {
   '/embed/metric/$metricId': typeof EmbedMetricMetricIdRoute
   '/embed/report/$reportId': typeof EmbedReportReportIdRoute
   '/app/datasets/$datasetId': typeof AppAppDatasetsDatasetIdRouteWithChildren
-  '/app/settings/api-keys': typeof AppSettingsSettingsApiKeysRoute
-  '/app/settings/dataset-groups': typeof AppSettingsSettingsDatasetGroupsRoute
-  '/app/settings/integrations': typeof AppSettingsSettingsIntegrationsRoute
-  '/app/settings/permission-groups': typeof AppSettingsSettingsPermissionGroupsRoute
-  '/app/settings/profile': typeof AppSettingsSettingsProfileRoute
-  '/app/settings/security': typeof AppSettingsSettingsSecurityRoute
-  '/app/settings/users': typeof AppSettingsSettingsUsersRoute
-  '/app/settings/workspace': typeof AppSettingsSettingsWorkspaceRoute
   '/app/chats': typeof AppAppChatsIndexRoute
   '/app/collections': typeof AppAppCollectionsIndexRoute
   '/app/dashboards': typeof AppAppDashboardsIndexRoute
@@ -765,17 +775,26 @@ export interface FileRoutesByTo {
   '/app/metrics': typeof AppAppMetricsIndexRoute
   '/app/reports': typeof AppAppReportsIndexRoute
   '/app/datasets/$datasetId/overview': typeof AppAppDatasetsDatasetIdOverviewRoute
-  '/app/settings/datasources/add': typeof AppSettingsSettingsDatasourcesAddRoute
-  '/app/settings/datasources': typeof AppSettingsSettingsDatasourcesIndexRoute
+  '/app/settings/dataset-groups': typeof AppSettingsPermissionsSettingsDatasetGroupsRoute
+  '/app/settings/permission-groups': typeof AppSettingsPermissionsSettingsPermissionGroupsRoute
+  '/app/settings/users': typeof AppSettingsPermissionsSettingsUsersRoute
+  '/app/settings/profile': typeof AppSettingsRestricted_layoutSettingsProfileRoute
   '/app/dashboards/$dashboardId': typeof AppAppAssetDashboardsDashboardIdLayoutIndexRoute
   '/app/metrics/$metricId': typeof AppAppAssetMetricsMetricIdLayoutIndexRoute
   '/app/reports/$reportId': typeof AppAppAssetReportsReportIdLayoutIndexRoute
+  '/app/settings/api-keys': typeof AppSettingsRestricted_layoutAdmin_onlySettingsApiKeysRoute
+  '/app/settings/integrations': typeof AppSettingsRestricted_layoutAdmin_onlySettingsIntegrationsRoute
+  '/app/settings/security': typeof AppSettingsRestricted_layoutAdmin_onlySettingsSecurityRoute
+  '/app/settings/workspace': typeof AppSettingsRestricted_layoutAdmin_onlySettingsWorkspaceRoute
   '/app/chats/$chatId': typeof AppAppAssetChatsChatIdIndexRoute
   '/app/collections/$collectionId': typeof AppAppAssetCollectionsCollectionIdIndexRoute
   '/app/metrics/$metricId/chart': typeof AppAppAssetMetricsMetricIdLayoutChartRoute
   '/app/metrics/$metricId/results': typeof AppAppAssetMetricsMetricIdLayoutResultsRoute
   '/app/metrics/$metricId/sql': typeof AppAppAssetMetricsMetricIdLayoutSqlRoute
   '/app/reports/$reportId/content': typeof AppAppAssetReportsReportIdLayoutContentRoute
+  '/app/settings/datasources/$datasourceId': typeof AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesDatasourceIdRoute
+  '/app/settings/datasources/add': typeof AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesAddRoute
+  '/app/settings/datasources': typeof AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesIndexRoute
   '/app/chats/$chatId/dashboards/$dashboardId': typeof AppAppAssetChatsChatIdDashboardsDashboardIdLayoutIndexRoute
   '/app/chats/$chatId/metrics/$metricId': typeof AppAppAssetChatsChatIdMetricsMetricIdLayoutIndexRoute
   '/app/chats/$chatId/reports/$reportId': typeof AppAppAssetChatsChatIdReportsReportIdLayoutIndexRoute
@@ -813,19 +832,12 @@ export interface FileRoutesById {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/app/_app/_asset': typeof AppAppAssetRouteWithChildren
   '/app/_app/home': typeof AppAppHomeRoute
+  '/app/_settings/_restricted_layout': typeof AppSettingsRestricted_layoutRouteWithChildren
   '/embed/dashboard/$dashboardId': typeof EmbedDashboardDashboardIdRoute
   '/embed/metric/$metricId': typeof EmbedMetricMetricIdRoute
   '/embed/report/$reportId': typeof EmbedReportReportIdRoute
   '/app/_app/datasets/$datasetId': typeof AppAppDatasetsDatasetIdRouteWithChildren
-  '/app/_settings/settings/api-keys': typeof AppSettingsSettingsApiKeysRoute
-  '/app/_settings/settings/dataset-groups': typeof AppSettingsSettingsDatasetGroupsRoute
-  '/app/_settings/settings/datasources': typeof AppSettingsSettingsDatasourcesRouteWithChildren
-  '/app/_settings/settings/integrations': typeof AppSettingsSettingsIntegrationsRoute
-  '/app/_settings/settings/permission-groups': typeof AppSettingsSettingsPermissionGroupsRoute
-  '/app/_settings/settings/profile': typeof AppSettingsSettingsProfileRoute
-  '/app/_settings/settings/security': typeof AppSettingsSettingsSecurityRoute
-  '/app/_settings/settings/users': typeof AppSettingsSettingsUsersRoute
-  '/app/_settings/settings/workspace': typeof AppSettingsSettingsWorkspaceRoute
+  '/app/_settings/_restricted_layout/_admin_only': typeof AppSettingsRestricted_layoutAdmin_onlyRouteWithChildren
   '/app/_app/chats/': typeof AppAppChatsIndexRoute
   '/app/_app/collections/': typeof AppAppCollectionsIndexRoute
   '/app/_app/dashboards/': typeof AppAppDashboardsIndexRoute
@@ -835,23 +847,32 @@ export interface FileRoutesById {
   '/app/_app/reports/': typeof AppAppReportsIndexRoute
   '/app/_app/_asset/chats/$chatId': typeof AppAppAssetChatsChatIdRouteWithChildren
   '/app/_app/datasets/$datasetId/overview': typeof AppAppDatasetsDatasetIdOverviewRoute
-  '/app/_settings/settings/datasources/add': typeof AppSettingsSettingsDatasourcesAddRoute
-  '/app/_settings/settings/datasources/': typeof AppSettingsSettingsDatasourcesIndexRoute
+  '/app/_settings/_permissions/settings/dataset-groups': typeof AppSettingsPermissionsSettingsDatasetGroupsRoute
+  '/app/_settings/_permissions/settings/permission-groups': typeof AppSettingsPermissionsSettingsPermissionGroupsRoute
+  '/app/_settings/_permissions/settings/users': typeof AppSettingsPermissionsSettingsUsersRoute
+  '/app/_settings/_restricted_layout/settings/profile': typeof AppSettingsRestricted_layoutSettingsProfileRoute
   '/app/_app/_asset/dashboards/$dashboardId': typeof AppAppAssetDashboardsDashboardIdRouteWithChildren
   '/app/_app/_asset/dashboards/$dashboardId/_layout': typeof AppAppAssetDashboardsDashboardIdLayoutRouteWithChildren
   '/app/_app/_asset/metrics/$metricId': typeof AppAppAssetMetricsMetricIdRouteWithChildren
   '/app/_app/_asset/metrics/$metricId/_layout': typeof AppAppAssetMetricsMetricIdLayoutRouteWithChildren
   '/app/_app/_asset/reports/$reportId': typeof AppAppAssetReportsReportIdRouteWithChildren
   '/app/_app/_asset/reports/$reportId/_layout': typeof AppAppAssetReportsReportIdLayoutRouteWithChildren
+  '/app/_settings/_restricted_layout/_admin_only/settings/api-keys': typeof AppSettingsRestricted_layoutAdmin_onlySettingsApiKeysRoute
+  '/app/_settings/_restricted_layout/_admin_only/settings/integrations': typeof AppSettingsRestricted_layoutAdmin_onlySettingsIntegrationsRoute
+  '/app/_settings/_restricted_layout/_admin_only/settings/security': typeof AppSettingsRestricted_layoutAdmin_onlySettingsSecurityRoute
+  '/app/_settings/_restricted_layout/_admin_only/settings/workspace': typeof AppSettingsRestricted_layoutAdmin_onlySettingsWorkspaceRoute
   '/app/_app/_asset/chats/$chatId/': typeof AppAppAssetChatsChatIdIndexRoute
   '/app/_app/_asset/collections/$collectionId/': typeof AppAppAssetCollectionsCollectionIdIndexRoute
   '/app/_app/_asset/metrics/$metricId/_layout/chart': typeof AppAppAssetMetricsMetricIdLayoutChartRoute
   '/app/_app/_asset/metrics/$metricId/_layout/results': typeof AppAppAssetMetricsMetricIdLayoutResultsRoute
   '/app/_app/_asset/metrics/$metricId/_layout/sql': typeof AppAppAssetMetricsMetricIdLayoutSqlRoute
   '/app/_app/_asset/reports/$reportId/_layout/content': typeof AppAppAssetReportsReportIdLayoutContentRoute
+  '/app/_settings/_restricted_layout/_admin_only/settings/datasources/$datasourceId': typeof AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesDatasourceIdRoute
+  '/app/_settings/_restricted_layout/_admin_only/settings/datasources/add': typeof AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesAddRoute
   '/app/_app/_asset/dashboards/$dashboardId/_layout/': typeof AppAppAssetDashboardsDashboardIdLayoutIndexRoute
   '/app/_app/_asset/metrics/$metricId/_layout/': typeof AppAppAssetMetricsMetricIdLayoutIndexRoute
   '/app/_app/_asset/reports/$reportId/_layout/': typeof AppAppAssetReportsReportIdLayoutIndexRoute
+  '/app/_settings/_restricted_layout/_admin_only/settings/datasources/': typeof AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesIndexRoute
   '/app/_app/_asset/chats/$chatId/dashboards/$dashboardId': typeof AppAppAssetChatsChatIdDashboardsDashboardIdRouteWithChildren
   '/app/_app/_asset/chats/$chatId/dashboards/$dashboardId/_layout': typeof AppAppAssetChatsChatIdDashboardsDashboardIdLayoutRouteWithChildren
   '/app/_app/_asset/chats/$chatId/metrics/$metricId': typeof AppAppAssetChatsChatIdMetricsMetricIdRouteWithChildren
@@ -905,15 +926,6 @@ export interface FileRouteTypes {
     | '/embed/metric/$metricId'
     | '/embed/report/$reportId'
     | '/app/datasets/$datasetId'
-    | '/app/settings/api-keys'
-    | '/app/settings/dataset-groups'
-    | '/app/settings/datasources'
-    | '/app/settings/integrations'
-    | '/app/settings/permission-groups'
-    | '/app/settings/profile'
-    | '/app/settings/security'
-    | '/app/settings/users'
-    | '/app/settings/workspace'
     | '/app/chats'
     | '/app/collections'
     | '/app/dashboards'
@@ -923,20 +935,29 @@ export interface FileRouteTypes {
     | '/app/reports'
     | '/app/chats/$chatId'
     | '/app/datasets/$datasetId/overview'
-    | '/app/settings/datasources/add'
-    | '/app/settings/datasources/'
+    | '/app/settings/dataset-groups'
+    | '/app/settings/permission-groups'
+    | '/app/settings/users'
+    | '/app/settings/profile'
     | '/app/dashboards/$dashboardId'
     | '/app/metrics/$metricId'
     | '/app/reports/$reportId'
+    | '/app/settings/api-keys'
+    | '/app/settings/integrations'
+    | '/app/settings/security'
+    | '/app/settings/workspace'
     | '/app/chats/$chatId/'
     | '/app/collections/$collectionId'
     | '/app/metrics/$metricId/chart'
     | '/app/metrics/$metricId/results'
     | '/app/metrics/$metricId/sql'
     | '/app/reports/$reportId/content'
+    | '/app/settings/datasources/$datasourceId'
+    | '/app/settings/datasources/add'
     | '/app/dashboards/$dashboardId/'
     | '/app/metrics/$metricId/'
     | '/app/reports/$reportId/'
+    | '/app/settings/datasources'
     | '/app/chats/$chatId/dashboards/$dashboardId'
     | '/app/chats/$chatId/metrics/$metricId'
     | '/app/chats/$chatId/reports/$reportId'
@@ -981,14 +1002,6 @@ export interface FileRouteTypes {
     | '/embed/metric/$metricId'
     | '/embed/report/$reportId'
     | '/app/datasets/$datasetId'
-    | '/app/settings/api-keys'
-    | '/app/settings/dataset-groups'
-    | '/app/settings/integrations'
-    | '/app/settings/permission-groups'
-    | '/app/settings/profile'
-    | '/app/settings/security'
-    | '/app/settings/users'
-    | '/app/settings/workspace'
     | '/app/chats'
     | '/app/collections'
     | '/app/dashboards'
@@ -997,17 +1010,26 @@ export interface FileRouteTypes {
     | '/app/metrics'
     | '/app/reports'
     | '/app/datasets/$datasetId/overview'
-    | '/app/settings/datasources/add'
-    | '/app/settings/datasources'
+    | '/app/settings/dataset-groups'
+    | '/app/settings/permission-groups'
+    | '/app/settings/users'
+    | '/app/settings/profile'
     | '/app/dashboards/$dashboardId'
     | '/app/metrics/$metricId'
     | '/app/reports/$reportId'
+    | '/app/settings/api-keys'
+    | '/app/settings/integrations'
+    | '/app/settings/security'
+    | '/app/settings/workspace'
     | '/app/chats/$chatId'
     | '/app/collections/$collectionId'
     | '/app/metrics/$metricId/chart'
     | '/app/metrics/$metricId/results'
     | '/app/metrics/$metricId/sql'
     | '/app/reports/$reportId/content'
+    | '/app/settings/datasources/$datasourceId'
+    | '/app/settings/datasources/add'
+    | '/app/settings/datasources'
     | '/app/chats/$chatId/dashboards/$dashboardId'
     | '/app/chats/$chatId/metrics/$metricId'
     | '/app/chats/$chatId/reports/$reportId'
@@ -1044,19 +1066,12 @@ export interface FileRouteTypes {
     | '/auth/reset-password'
     | '/app/_app/_asset'
     | '/app/_app/home'
+    | '/app/_settings/_restricted_layout'
     | '/embed/dashboard/$dashboardId'
     | '/embed/metric/$metricId'
     | '/embed/report/$reportId'
     | '/app/_app/datasets/$datasetId'
-    | '/app/_settings/settings/api-keys'
-    | '/app/_settings/settings/dataset-groups'
-    | '/app/_settings/settings/datasources'
-    | '/app/_settings/settings/integrations'
-    | '/app/_settings/settings/permission-groups'
-    | '/app/_settings/settings/profile'
-    | '/app/_settings/settings/security'
-    | '/app/_settings/settings/users'
-    | '/app/_settings/settings/workspace'
+    | '/app/_settings/_restricted_layout/_admin_only'
     | '/app/_app/chats/'
     | '/app/_app/collections/'
     | '/app/_app/dashboards/'
@@ -1066,23 +1081,32 @@ export interface FileRouteTypes {
     | '/app/_app/reports/'
     | '/app/_app/_asset/chats/$chatId'
     | '/app/_app/datasets/$datasetId/overview'
-    | '/app/_settings/settings/datasources/add'
-    | '/app/_settings/settings/datasources/'
+    | '/app/_settings/_permissions/settings/dataset-groups'
+    | '/app/_settings/_permissions/settings/permission-groups'
+    | '/app/_settings/_permissions/settings/users'
+    | '/app/_settings/_restricted_layout/settings/profile'
     | '/app/_app/_asset/dashboards/$dashboardId'
     | '/app/_app/_asset/dashboards/$dashboardId/_layout'
     | '/app/_app/_asset/metrics/$metricId'
     | '/app/_app/_asset/metrics/$metricId/_layout'
     | '/app/_app/_asset/reports/$reportId'
     | '/app/_app/_asset/reports/$reportId/_layout'
+    | '/app/_settings/_restricted_layout/_admin_only/settings/api-keys'
+    | '/app/_settings/_restricted_layout/_admin_only/settings/integrations'
+    | '/app/_settings/_restricted_layout/_admin_only/settings/security'
+    | '/app/_settings/_restricted_layout/_admin_only/settings/workspace'
     | '/app/_app/_asset/chats/$chatId/'
     | '/app/_app/_asset/collections/$collectionId/'
     | '/app/_app/_asset/metrics/$metricId/_layout/chart'
     | '/app/_app/_asset/metrics/$metricId/_layout/results'
     | '/app/_app/_asset/metrics/$metricId/_layout/sql'
     | '/app/_app/_asset/reports/$reportId/_layout/content'
+    | '/app/_settings/_restricted_layout/_admin_only/settings/datasources/$datasourceId'
+    | '/app/_settings/_restricted_layout/_admin_only/settings/datasources/add'
     | '/app/_app/_asset/dashboards/$dashboardId/_layout/'
     | '/app/_app/_asset/metrics/$metricId/_layout/'
     | '/app/_app/_asset/reports/$reportId/_layout/'
+    | '/app/_settings/_restricted_layout/_admin_only/settings/datasources/'
     | '/app/_app/_asset/chats/$chatId/dashboards/$dashboardId'
     | '/app/_app/_asset/chats/$chatId/dashboards/$dashboardId/_layout'
     | '/app/_app/_asset/chats/$chatId/metrics/$metricId'
@@ -1232,6 +1256,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmbedDashboardDashboardIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/_settings/_restricted_layout': {
+      id: '/app/_settings/_restricted_layout'
+      path: ''
+      fullPath: '/app'
+      preLoaderRoute: typeof AppSettingsRestricted_layoutRouteImport
+      parentRoute: typeof AppSettingsRoute
+    }
     '/app/_app/home': {
       id: '/app/_app/home'
       path: '/home'
@@ -1295,68 +1326,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAppChatsIndexRouteImport
       parentRoute: typeof AppAppRoute
     }
-    '/app/_settings/settings/workspace': {
-      id: '/app/_settings/settings/workspace'
-      path: '/settings/workspace'
-      fullPath: '/app/settings/workspace'
-      preLoaderRoute: typeof AppSettingsSettingsWorkspaceRouteImport
-      parentRoute: typeof AppSettingsRoute
-    }
-    '/app/_settings/settings/users': {
-      id: '/app/_settings/settings/users'
-      path: '/settings/users'
-      fullPath: '/app/settings/users'
-      preLoaderRoute: typeof AppSettingsSettingsUsersRouteImport
-      parentRoute: typeof AppSettingsRoute
-    }
-    '/app/_settings/settings/security': {
-      id: '/app/_settings/settings/security'
-      path: '/settings/security'
-      fullPath: '/app/settings/security'
-      preLoaderRoute: typeof AppSettingsSettingsSecurityRouteImport
-      parentRoute: typeof AppSettingsRoute
-    }
-    '/app/_settings/settings/profile': {
-      id: '/app/_settings/settings/profile'
-      path: '/settings/profile'
-      fullPath: '/app/settings/profile'
-      preLoaderRoute: typeof AppSettingsSettingsProfileRouteImport
-      parentRoute: typeof AppSettingsRoute
-    }
-    '/app/_settings/settings/permission-groups': {
-      id: '/app/_settings/settings/permission-groups'
-      path: '/settings/permission-groups'
-      fullPath: '/app/settings/permission-groups'
-      preLoaderRoute: typeof AppSettingsSettingsPermissionGroupsRouteImport
-      parentRoute: typeof AppSettingsRoute
-    }
-    '/app/_settings/settings/integrations': {
-      id: '/app/_settings/settings/integrations'
-      path: '/settings/integrations'
-      fullPath: '/app/settings/integrations'
-      preLoaderRoute: typeof AppSettingsSettingsIntegrationsRouteImport
-      parentRoute: typeof AppSettingsRoute
-    }
-    '/app/_settings/settings/datasources': {
-      id: '/app/_settings/settings/datasources'
-      path: '/settings/datasources'
-      fullPath: '/app/settings/datasources'
-      preLoaderRoute: typeof AppSettingsSettingsDatasourcesRouteImport
-      parentRoute: typeof AppSettingsRoute
-    }
-    '/app/_settings/settings/dataset-groups': {
-      id: '/app/_settings/settings/dataset-groups'
-      path: '/settings/dataset-groups'
-      fullPath: '/app/settings/dataset-groups'
-      preLoaderRoute: typeof AppSettingsSettingsDatasetGroupsRouteImport
-      parentRoute: typeof AppSettingsRoute
-    }
-    '/app/_settings/settings/api-keys': {
-      id: '/app/_settings/settings/api-keys'
-      path: '/settings/api-keys'
-      fullPath: '/app/settings/api-keys'
-      preLoaderRoute: typeof AppSettingsSettingsApiKeysRouteImport
-      parentRoute: typeof AppSettingsRoute
+    '/app/_settings/_restricted_layout/_admin_only': {
+      id: '/app/_settings/_restricted_layout/_admin_only'
+      path: ''
+      fullPath: '/app'
+      preLoaderRoute: typeof AppSettingsRestricted_layoutAdmin_onlyRouteImport
+      parentRoute: typeof AppSettingsRestricted_layoutRoute
     }
     '/app/_app/datasets/$datasetId': {
       id: '/app/_app/datasets/$datasetId'
@@ -1386,19 +1361,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAppAssetDashboardsDashboardIdRouteImport
       parentRoute: typeof AppAppAssetRoute
     }
-    '/app/_settings/settings/datasources/': {
-      id: '/app/_settings/settings/datasources/'
-      path: '/'
-      fullPath: '/app/settings/datasources/'
-      preLoaderRoute: typeof AppSettingsSettingsDatasourcesIndexRouteImport
-      parentRoute: typeof AppSettingsSettingsDatasourcesRoute
+    '/app/_settings/_restricted_layout/settings/profile': {
+      id: '/app/_settings/_restricted_layout/settings/profile'
+      path: '/settings/profile'
+      fullPath: '/app/settings/profile'
+      preLoaderRoute: typeof AppSettingsRestricted_layoutSettingsProfileRouteImport
+      parentRoute: typeof AppSettingsRestricted_layoutRoute
     }
-    '/app/_settings/settings/datasources/add': {
-      id: '/app/_settings/settings/datasources/add'
-      path: '/add'
-      fullPath: '/app/settings/datasources/add'
-      preLoaderRoute: typeof AppSettingsSettingsDatasourcesAddRouteImport
-      parentRoute: typeof AppSettingsSettingsDatasourcesRoute
+    '/app/_settings/_permissions/settings/users': {
+      id: '/app/_settings/_permissions/settings/users'
+      path: '/settings/users'
+      fullPath: '/app/settings/users'
+      preLoaderRoute: typeof AppSettingsPermissionsSettingsUsersRouteImport
+      parentRoute: typeof AppSettingsRoute
+    }
+    '/app/_settings/_permissions/settings/permission-groups': {
+      id: '/app/_settings/_permissions/settings/permission-groups'
+      path: '/settings/permission-groups'
+      fullPath: '/app/settings/permission-groups'
+      preLoaderRoute: typeof AppSettingsPermissionsSettingsPermissionGroupsRouteImport
+      parentRoute: typeof AppSettingsRoute
+    }
+    '/app/_settings/_permissions/settings/dataset-groups': {
+      id: '/app/_settings/_permissions/settings/dataset-groups'
+      path: '/settings/dataset-groups'
+      fullPath: '/app/settings/dataset-groups'
+      preLoaderRoute: typeof AppSettingsPermissionsSettingsDatasetGroupsRouteImport
+      parentRoute: typeof AppSettingsRoute
     }
     '/app/_app/datasets/$datasetId/overview': {
       id: '/app/_app/datasets/$datasetId/overview'
@@ -1427,6 +1416,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/chats/$chatId/'
       preLoaderRoute: typeof AppAppAssetChatsChatIdIndexRouteImport
       parentRoute: typeof AppAppAssetChatsChatIdRoute
+    }
+    '/app/_settings/_restricted_layout/_admin_only/settings/workspace': {
+      id: '/app/_settings/_restricted_layout/_admin_only/settings/workspace'
+      path: '/settings/workspace'
+      fullPath: '/app/settings/workspace'
+      preLoaderRoute: typeof AppSettingsRestricted_layoutAdmin_onlySettingsWorkspaceRouteImport
+      parentRoute: typeof AppSettingsRestricted_layoutAdmin_onlyRoute
+    }
+    '/app/_settings/_restricted_layout/_admin_only/settings/security': {
+      id: '/app/_settings/_restricted_layout/_admin_only/settings/security'
+      path: '/settings/security'
+      fullPath: '/app/settings/security'
+      preLoaderRoute: typeof AppSettingsRestricted_layoutAdmin_onlySettingsSecurityRouteImport
+      parentRoute: typeof AppSettingsRestricted_layoutAdmin_onlyRoute
+    }
+    '/app/_settings/_restricted_layout/_admin_only/settings/integrations': {
+      id: '/app/_settings/_restricted_layout/_admin_only/settings/integrations'
+      path: '/settings/integrations'
+      fullPath: '/app/settings/integrations'
+      preLoaderRoute: typeof AppSettingsRestricted_layoutAdmin_onlySettingsIntegrationsRouteImport
+      parentRoute: typeof AppSettingsRestricted_layoutAdmin_onlyRoute
+    }
+    '/app/_settings/_restricted_layout/_admin_only/settings/api-keys': {
+      id: '/app/_settings/_restricted_layout/_admin_only/settings/api-keys'
+      path: '/settings/api-keys'
+      fullPath: '/app/settings/api-keys'
+      preLoaderRoute: typeof AppSettingsRestricted_layoutAdmin_onlySettingsApiKeysRouteImport
+      parentRoute: typeof AppSettingsRestricted_layoutAdmin_onlyRoute
     }
     '/app/_app/_asset/reports/$reportId/_layout': {
       id: '/app/_app/_asset/reports/$reportId/_layout'
@@ -1484,6 +1501,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAppAssetChatsChatIdDashboardsDashboardIdRouteImport
       parentRoute: typeof AppAppAssetChatsChatIdRoute
     }
+    '/app/_settings/_restricted_layout/_admin_only/settings/datasources/': {
+      id: '/app/_settings/_restricted_layout/_admin_only/settings/datasources/'
+      path: '/settings/datasources'
+      fullPath: '/app/settings/datasources'
+      preLoaderRoute: typeof AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesIndexRouteImport
+      parentRoute: typeof AppSettingsRestricted_layoutAdmin_onlyRoute
+    }
     '/app/_app/_asset/reports/$reportId/_layout/': {
       id: '/app/_app/_asset/reports/$reportId/_layout/'
       path: '/'
@@ -1504,6 +1528,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/dashboards/$dashboardId/'
       preLoaderRoute: typeof AppAppAssetDashboardsDashboardIdLayoutIndexRouteImport
       parentRoute: typeof AppAppAssetDashboardsDashboardIdLayoutRoute
+    }
+    '/app/_settings/_restricted_layout/_admin_only/settings/datasources/add': {
+      id: '/app/_settings/_restricted_layout/_admin_only/settings/datasources/add'
+      path: '/settings/datasources/add'
+      fullPath: '/app/settings/datasources/add'
+      preLoaderRoute: typeof AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesAddRouteImport
+      parentRoute: typeof AppSettingsRestricted_layoutAdmin_onlyRoute
+    }
+    '/app/_settings/_restricted_layout/_admin_only/settings/datasources/$datasourceId': {
+      id: '/app/_settings/_restricted_layout/_admin_only/settings/datasources/$datasourceId'
+      path: '/settings/datasources/$datasourceId'
+      fullPath: '/app/settings/datasources/$datasourceId'
+      preLoaderRoute: typeof AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesDatasourceIdRouteImport
+      parentRoute: typeof AppSettingsRestricted_layoutAdmin_onlyRoute
     }
     '/app/_app/_asset/reports/$reportId/_layout/content': {
       id: '/app/_app/_asset/reports/$reportId/_layout/content'
@@ -2241,48 +2279,73 @@ const AppAppRouteChildren: AppAppRouteChildren = {
 const AppAppRouteWithChildren =
   AppAppRoute._addFileChildren(AppAppRouteChildren)
 
-interface AppSettingsSettingsDatasourcesRouteChildren {
-  AppSettingsSettingsDatasourcesAddRoute: typeof AppSettingsSettingsDatasourcesAddRoute
-  AppSettingsSettingsDatasourcesIndexRoute: typeof AppSettingsSettingsDatasourcesIndexRoute
+interface AppSettingsRestricted_layoutAdmin_onlyRouteChildren {
+  AppSettingsRestricted_layoutAdmin_onlySettingsApiKeysRoute: typeof AppSettingsRestricted_layoutAdmin_onlySettingsApiKeysRoute
+  AppSettingsRestricted_layoutAdmin_onlySettingsIntegrationsRoute: typeof AppSettingsRestricted_layoutAdmin_onlySettingsIntegrationsRoute
+  AppSettingsRestricted_layoutAdmin_onlySettingsSecurityRoute: typeof AppSettingsRestricted_layoutAdmin_onlySettingsSecurityRoute
+  AppSettingsRestricted_layoutAdmin_onlySettingsWorkspaceRoute: typeof AppSettingsRestricted_layoutAdmin_onlySettingsWorkspaceRoute
+  AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesDatasourceIdRoute: typeof AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesDatasourceIdRoute
+  AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesAddRoute: typeof AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesAddRoute
+  AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesIndexRoute: typeof AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesIndexRoute
 }
 
-const AppSettingsSettingsDatasourcesRouteChildren: AppSettingsSettingsDatasourcesRouteChildren =
+const AppSettingsRestricted_layoutAdmin_onlyRouteChildren: AppSettingsRestricted_layoutAdmin_onlyRouteChildren =
   {
-    AppSettingsSettingsDatasourcesAddRoute:
-      AppSettingsSettingsDatasourcesAddRoute,
-    AppSettingsSettingsDatasourcesIndexRoute:
-      AppSettingsSettingsDatasourcesIndexRoute,
+    AppSettingsRestricted_layoutAdmin_onlySettingsApiKeysRoute:
+      AppSettingsRestricted_layoutAdmin_onlySettingsApiKeysRoute,
+    AppSettingsRestricted_layoutAdmin_onlySettingsIntegrationsRoute:
+      AppSettingsRestricted_layoutAdmin_onlySettingsIntegrationsRoute,
+    AppSettingsRestricted_layoutAdmin_onlySettingsSecurityRoute:
+      AppSettingsRestricted_layoutAdmin_onlySettingsSecurityRoute,
+    AppSettingsRestricted_layoutAdmin_onlySettingsWorkspaceRoute:
+      AppSettingsRestricted_layoutAdmin_onlySettingsWorkspaceRoute,
+    AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesDatasourceIdRoute:
+      AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesDatasourceIdRoute,
+    AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesAddRoute:
+      AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesAddRoute,
+    AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesIndexRoute:
+      AppSettingsRestricted_layoutAdmin_onlySettingsDatasourcesIndexRoute,
   }
 
-const AppSettingsSettingsDatasourcesRouteWithChildren =
-  AppSettingsSettingsDatasourcesRoute._addFileChildren(
-    AppSettingsSettingsDatasourcesRouteChildren,
+const AppSettingsRestricted_layoutAdmin_onlyRouteWithChildren =
+  AppSettingsRestricted_layoutAdmin_onlyRoute._addFileChildren(
+    AppSettingsRestricted_layoutAdmin_onlyRouteChildren,
+  )
+
+interface AppSettingsRestricted_layoutRouteChildren {
+  AppSettingsRestricted_layoutAdmin_onlyRoute: typeof AppSettingsRestricted_layoutAdmin_onlyRouteWithChildren
+  AppSettingsRestricted_layoutSettingsProfileRoute: typeof AppSettingsRestricted_layoutSettingsProfileRoute
+}
+
+const AppSettingsRestricted_layoutRouteChildren: AppSettingsRestricted_layoutRouteChildren =
+  {
+    AppSettingsRestricted_layoutAdmin_onlyRoute:
+      AppSettingsRestricted_layoutAdmin_onlyRouteWithChildren,
+    AppSettingsRestricted_layoutSettingsProfileRoute:
+      AppSettingsRestricted_layoutSettingsProfileRoute,
+  }
+
+const AppSettingsRestricted_layoutRouteWithChildren =
+  AppSettingsRestricted_layoutRoute._addFileChildren(
+    AppSettingsRestricted_layoutRouteChildren,
   )
 
 interface AppSettingsRouteChildren {
-  AppSettingsSettingsApiKeysRoute: typeof AppSettingsSettingsApiKeysRoute
-  AppSettingsSettingsDatasetGroupsRoute: typeof AppSettingsSettingsDatasetGroupsRoute
-  AppSettingsSettingsDatasourcesRoute: typeof AppSettingsSettingsDatasourcesRouteWithChildren
-  AppSettingsSettingsIntegrationsRoute: typeof AppSettingsSettingsIntegrationsRoute
-  AppSettingsSettingsPermissionGroupsRoute: typeof AppSettingsSettingsPermissionGroupsRoute
-  AppSettingsSettingsProfileRoute: typeof AppSettingsSettingsProfileRoute
-  AppSettingsSettingsSecurityRoute: typeof AppSettingsSettingsSecurityRoute
-  AppSettingsSettingsUsersRoute: typeof AppSettingsSettingsUsersRoute
-  AppSettingsSettingsWorkspaceRoute: typeof AppSettingsSettingsWorkspaceRoute
+  AppSettingsRestricted_layoutRoute: typeof AppSettingsRestricted_layoutRouteWithChildren
+  AppSettingsPermissionsSettingsDatasetGroupsRoute: typeof AppSettingsPermissionsSettingsDatasetGroupsRoute
+  AppSettingsPermissionsSettingsPermissionGroupsRoute: typeof AppSettingsPermissionsSettingsPermissionGroupsRoute
+  AppSettingsPermissionsSettingsUsersRoute: typeof AppSettingsPermissionsSettingsUsersRoute
 }
 
 const AppSettingsRouteChildren: AppSettingsRouteChildren = {
-  AppSettingsSettingsApiKeysRoute: AppSettingsSettingsApiKeysRoute,
-  AppSettingsSettingsDatasetGroupsRoute: AppSettingsSettingsDatasetGroupsRoute,
-  AppSettingsSettingsDatasourcesRoute:
-    AppSettingsSettingsDatasourcesRouteWithChildren,
-  AppSettingsSettingsIntegrationsRoute: AppSettingsSettingsIntegrationsRoute,
-  AppSettingsSettingsPermissionGroupsRoute:
-    AppSettingsSettingsPermissionGroupsRoute,
-  AppSettingsSettingsProfileRoute: AppSettingsSettingsProfileRoute,
-  AppSettingsSettingsSecurityRoute: AppSettingsSettingsSecurityRoute,
-  AppSettingsSettingsUsersRoute: AppSettingsSettingsUsersRoute,
-  AppSettingsSettingsWorkspaceRoute: AppSettingsSettingsWorkspaceRoute,
+  AppSettingsRestricted_layoutRoute:
+    AppSettingsRestricted_layoutRouteWithChildren,
+  AppSettingsPermissionsSettingsDatasetGroupsRoute:
+    AppSettingsPermissionsSettingsDatasetGroupsRoute,
+  AppSettingsPermissionsSettingsPermissionGroupsRoute:
+    AppSettingsPermissionsSettingsPermissionGroupsRoute,
+  AppSettingsPermissionsSettingsUsersRoute:
+    AppSettingsPermissionsSettingsUsersRoute,
 }
 
 const AppSettingsRouteWithChildren = AppSettingsRoute._addFileChildren(

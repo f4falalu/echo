@@ -25,13 +25,12 @@ export const useGetMyUserInfo = <TData = UserResponse>(
   });
 };
 
-export const prefetchGetMyUserInfo = async (queryClientProp?: QueryClient) => {
-  const queryClient = queryClientProp || new QueryClient();
+export const prefetchGetMyUserInfo = async (queryClient: QueryClient) => {
   await queryClient.ensureQueryData({
     ...userQueryKeys.userGetUserMyself,
     queryFn: () => getMyUserInfo(),
   });
-  return queryClient;
+  return queryClient.getQueryData(userQueryKeys.userGetUserMyself.queryKey);
 };
 
 export const useGetUser = (params: Parameters<typeof getUser>[0]) => {

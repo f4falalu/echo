@@ -1,4 +1,4 @@
-import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { type QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { DataSourceTypes } from '@/api/asset_interfaces/datasources/interfaces';
 import { datasourceQueryKeys } from '@/api/query_keys/datasources';
 import { useBusterNotifications } from '@/context/BusterNotifications';
@@ -46,6 +46,14 @@ export const useListDatasources = (enabled = true) => {
   });
 };
 
+export const prefetchListDatasources = async (queryClient: QueryClient) => {
+  await queryClient.prefetchQuery({
+    ...datasourceQueryKeys.datasourceGetList,
+    queryFn: listDatasources,
+  });
+  return queryClient.getQueryData(datasourceQueryKeys.datasourceGetList.queryKey);
+};
+
 export const useGetDatasource = (id: string | undefined) => {
   return useQuery({
     ...datasourceQueryKeys.datasourceGet(id || ''),
@@ -54,9 +62,7 @@ export const useGetDatasource = (id: string | undefined) => {
   });
 };
 
-export const prefetchGetDatasource = async (id: string, queryClientProp?: QueryClient) => {
-  const queryClient = queryClientProp || new QueryClient();
-
+export const prefetchGetDatasource = async (id: string, queryClient: QueryClient) => {
   await queryClient.prefetchQuery({
     ...datasourceQueryKeys.datasourceGet(id),
     queryFn: () => getDatasource(id),

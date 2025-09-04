@@ -9,7 +9,6 @@ import type {
   SnowflakeCredentials,
   SQLServerCredentials,
 } from '@/api/asset_interfaces/datasources';
-import { DataSourceSchema } from '@/api/asset_interfaces/datasources';
 import mainApi from '../instances';
 
 export const listDatasources = async () => {
@@ -17,9 +16,7 @@ export const listDatasources = async () => {
 };
 
 export const getDatasource = async (id: string) => {
-  return await mainApi
-    .get<DataSource>(`/data_sources/${id}`)
-    .then((res) => DataSourceSchema.parse(res.data));
+  return await mainApi.get<DataSource>(`/data_sources/${id}`).then((res) => res.data);
 };
 
 export const deleteDatasource = async (id: string) => {

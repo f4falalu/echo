@@ -1,6 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/app/_settings/settings/security')({
+export const Route = createFileRoute(
+  '/app/_settings/_restricted_layout/_admin_only/settings/security'
+)({
   head: () => ({
     meta: [
       { title: 'Security Settings' },

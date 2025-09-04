@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/app/_settings/settings/dataset-groups')({
+export const Route = createFileRoute('/app/_settings/_permissions/settings/dataset-groups')({
   head: () => ({
     meta: [
       { title: 'Dataset Groups' },
