@@ -1,44 +1,154 @@
 import { ZodError } from 'zod';
 
 /**
- * Custom error class for configuration errors
+ * Error type definitions
  */
-export class ConfigurationError extends Error {
-  constructor(
-    message: string,
-    public path?: string
-  ) {
-    super(message);
-    this.name = 'ConfigurationError';
-  }
+export interface ConfigurationError {
+  name: 'ConfigurationError';
+  message: string;
+  path?: string;
+}
+
+export interface ModelValidationError {
+  name: 'ModelValidationError';
+  message: string;
+  model: string;
+  field?: string;
+}
+
+export interface DeploymentError {
+  name: 'DeploymentError';
+  message: string;
+  model: string;
+  response?: unknown;
 }
 
 /**
- * Custom error class for model validation errors
+ * Deployment validation error class for backwards compatibility with tests
  */
-export class ModelValidationError extends Error {
+export class DeploymentValidationError extends Error {
+  public parseFailures: Array<{ file: string; error: string }>;
+  public todoFiles: Array<{ file: string }>;
+  public exitCode: number;
+
   constructor(
     message: string,
-    public model: string,
-    public field?: string
+    parseFailures: Array<{ file: string; error: string }>,
+    todoFiles: Array<{ file: string }>,
+    exitCode = 1
   ) {
     super(message);
-    this.name = 'ModelValidationError';
+    this.name = 'DeploymentValidationError';
+    this.parseFailures = parseFailures;
+    this.todoFiles = todoFiles;
+    this.exitCode = exitCode;
   }
 }
 
+export type DeployError =
+  | ConfigurationError
+  | ModelValidationError
+  | DeploymentError
+  | DeploymentValidationError
+  | Error;
+
 /**
- * Custom error class for deployment errors
+ * Functional factory for configuration errors
  */
-export class DeploymentError extends Error {
-  constructor(
-    message: string,
-    public model: string,
-    public response?: unknown
-  ) {
-    super(message);
-    this.name = 'DeploymentError';
+export function createConfigurationError(
+  message: string,
+  path?: string
+): ConfigurationError & Error {
+  const error = new Error(message) as ConfigurationError & Error;
+  error.name = 'ConfigurationError';
+  if (path) {
+    error.path = path;
   }
+  return error;
+}
+
+/**
+ * Functional factory for model validation errors
+ */
+export function createModelValidationError(
+  message: string,
+  model: string,
+  field?: string
+): ModelValidationError & Error {
+  const error = new Error(message) as ModelValidationError & Error;
+  error.name = 'ModelValidationError';
+  error.model = model;
+  if (field) {
+    error.field = field;
+  }
+  return error;
+}
+
+/**
+ * Functional factory for deployment errors
+ */
+export function createDeploymentError(
+  message: string,
+  model: string,
+  response?: unknown
+): DeploymentError & Error {
+  const error = new Error(message) as DeploymentError & Error;
+  error.name = 'DeploymentError';
+  error.model = model;
+  error.response = response;
+  return error;
+}
+
+/**
+ * Functional factory for deployment validation errors (keeps same signature for existing code)
+ */
+export function createDeploymentValidationError(
+  message: string,
+  parseFailures: Array<{ file: string; error: string }>,
+  todoFiles: Array<{ file: string }>,
+  exitCode = 1
+): DeploymentValidationError {
+  return new DeploymentValidationError(message, parseFailures, todoFiles, exitCode);
+}
+
+/**
+ * Type guard for ConfigurationError
+ */
+export function isConfigurationError(error: unknown): error is ConfigurationError & Error {
+  return (
+    error instanceof Error &&
+    'name' in error &&
+    (error as Error & { name: string }).name === 'ConfigurationError'
+  );
+}
+
+/**
+ * Type guard for ModelValidationError
+ */
+export function isModelValidationError(error: unknown): error is ModelValidationError & Error {
+  return (
+    error instanceof Error &&
+    'name' in error &&
+    (error as Error & { name: string }).name === 'ModelValidationError'
+  );
+}
+
+/**
+ * Type guard for DeploymentError
+ */
+export function isDeploymentError(error: unknown): error is DeploymentError & Error {
+  return (
+    error instanceof Error &&
+    'name' in error &&
+    (error as Error & { name: string }).name === 'DeploymentError'
+  );
+}
+
+/**
+ * Type guard for DeploymentValidationError
+ */
+export function isDeploymentValidationError(error: unknown): error is DeploymentValidationError {
+  return error instanceof DeploymentValidationError;
 }
 
 /**
@@ -58,7 +168,7 @@ export function formatDeployError(error: unknown): string {
   }
 
   // Handle configuration errors
-  if (error instanceof ConfigurationError) {
+  if (isConfigurationError(error)) {
     let message = `Configuration Error: ${error.message}`;
     if (error.path) {
       message += `\n  File: ${error.path}`;
@@ -71,7 +181,7 @@ export function formatDeployError(error: unknown): string {
   }
 
   // Handle model validation errors
-  if (error instanceof ModelValidationError) {
+  if (isModelValidationError(error)) {
     let message = `Model Validation Error in ${error.model}: ${error.message}`;
     if (error.field) {
       message += `\n  Field: ${error.field}`;
@@ -84,7 +194,7 @@ export function formatDeployError(error: unknown): string {
   }
 
   // Handle deployment errors
-  if (error instanceof DeploymentError) {
+  if (isDeploymentError(error)) {
     let message = `Deployment Error for model ${error.model}: ${error.message}`;
     if (error.response) {
       message += `\n  API Response: ${JSON.stringify(error.response, null, 2)}`;
@@ -93,6 +203,32 @@ export function formatDeployError(error: unknown): string {
     message += '  1. Check your authentication: buster auth\n';
     message += '  2. Verify the data source exists in Buster\n';
     message += '  3. Check that schema and database values are correct';
+    return message;
+  }
+
+  // Handle deployment validation errors
+  if (isDeploymentValidationError(error)) {
+    let message = '';
+
+    if (error.parseFailures.length > 0) {
+      message += '\nValidation Errors:\n';
+      for (const failure of error.parseFailures) {
+        message += `  ✗ ${failure.file}: ${failure.error}\n`;
+      }
+    }
+
+    if (error.todoFiles.length > 0) {
+      message += '\nFiles with incomplete TODOs:\n';
+      for (const todo of error.todoFiles) {
+        message += `  ⚠ ${todo.file} - contains {{TODO}} markers\n`;
+      }
+    }
+
+    message += '\n💡 Fix all errors and complete TODOs before deploying:\n';
+    message += '  • Replace {{TODO}} markers with actual values\n';
+    message += '  • Ensure all models have required fields\n';
+    message += '  • Verify YAML syntax is correct\n';
+    message += '  • Run with --dry-run to validate without deploying';
     return message;
   }
 
@@ -155,16 +291,20 @@ export function getExitCode(error: unknown): number {
     return 2; // Misuse of shell command
   }
 
-  if (error instanceof ConfigurationError) {
+  if (isConfigurationError(error)) {
     return 78; // Configuration error
   }
 
-  if (error instanceof ModelValidationError) {
+  if (isModelValidationError(error)) {
     return 65; // Data format error
   }
 
-  if (error instanceof DeploymentError) {
+  if (isDeploymentError(error)) {
     return 75; // Temporary failure
+  }
+
+  if (isDeploymentValidationError(error)) {
+    return error.exitCode; // Use the custom exit code (default 1)
   }
 
   if (error instanceof Error) {

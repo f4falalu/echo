@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { formatZodIssuesWithContext } from './parsing';
 import type { ZodIssue } from 'zod';
+import { formatZodIssuesWithContext } from './parsing';
 
 describe('formatZodIssuesWithContext', () => {
   it('should format dimension errors with dimension names', () => {
@@ -10,12 +10,12 @@ describe('formatZodIssuesWithContext', () => {
         { name: 'id', type: 'string' },
         { name: 'name', type: 'string' },
         { name: 'category', type: 'string' },
-        { 
-          name: 'status', 
+        {
+          name: 'status',
           type: 'string',
           options: [
-            { invalid: 'field' } // This will cause an error
-          ]
+            { invalid: 'field' }, // This will cause an error
+          ],
         },
       ],
     };
@@ -30,7 +30,7 @@ describe('formatZodIssuesWithContext', () => {
     ];
 
     const formatted = formatZodIssuesWithContext(issues, data);
-    
+
     expect(formatted[0]).toBe(`dimension 'status'.options.option 1: Invalid input`);
   });
 
@@ -54,7 +54,7 @@ describe('formatZodIssuesWithContext', () => {
     ];
 
     const formatted = formatZodIssuesWithContext(issues, data);
-    
+
     expect(formatted[0]).toBe(`measure 'avg_price'.type: Invalid type`);
   });
 
@@ -79,8 +79,10 @@ describe('formatZodIssuesWithContext', () => {
     ];
 
     const formatted = formatZodIssuesWithContext(issues, data);
-    
-    expect(formatted[0]).toBe(`metric 'profit_margin'.expr: String must contain at least 1 character(s)`);
+
+    expect(formatted[0]).toBe(
+      `metric 'profit_margin'.expr: String must contain at least 1 character(s)`
+    );
   });
 
   it('should format filter errors with filter names', () => {
@@ -103,7 +105,7 @@ describe('formatZodIssuesWithContext', () => {
     ];
 
     const formatted = formatZodIssuesWithContext(issues, data);
-    
+
     expect(formatted[0]).toBe(`filter 'premium'.expr: Required`);
   });
 
@@ -111,7 +113,7 @@ describe('formatZodIssuesWithContext', () => {
     const data = {
       name: 'orders',
       relationships: [
-        { 
+        {
           name: 'customer',
           ref_table: 'customers',
           ref_col: 'id',
@@ -131,7 +133,7 @@ describe('formatZodIssuesWithContext', () => {
     ];
 
     const formatted = formatZodIssuesWithContext(issues, data);
-    
+
     expect(formatted[0]).toBe(`relationship 'customer'.source_col: Required`);
   });
 
@@ -139,7 +141,7 @@ describe('formatZodIssuesWithContext', () => {
     const data = {
       name: 'products',
       dimensions: [
-        { 
+        {
           name: 'size',
           type: 'string',
           options: [
@@ -162,7 +164,7 @@ describe('formatZodIssuesWithContext', () => {
     ];
 
     const formatted = formatZodIssuesWithContext(issues, data);
-    
+
     expect(formatted[0]).toBe(`dimension 'size'.options.option 4: Invalid option format`);
   });
 
@@ -183,7 +185,7 @@ describe('formatZodIssuesWithContext', () => {
     ];
 
     const formatted = formatZodIssuesWithContext(issues, data);
-    
+
     expect(formatted[0]).toBe('name: Required');
   });
 
@@ -199,7 +201,7 @@ describe('formatZodIssuesWithContext', () => {
     ];
 
     const formatted = formatZodIssuesWithContext(issues, data);
-    
+
     expect(formatted[0]).toBe('Invalid model structure');
   });
 });

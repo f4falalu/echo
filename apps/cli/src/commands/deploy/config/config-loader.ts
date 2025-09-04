@@ -112,7 +112,6 @@ async function loadSingleBusterConfig(configPath: string): Promise<BusterConfig 
   }
 }
 
-
 /**
  * Find and load the buster.yml configuration file
  * Only loads a single buster.yml file (no merging of multiple files)
@@ -206,11 +205,14 @@ export function resolveConfiguration(
  * Get the base directory for a buster.yml file
  * Used for resolving relative paths in the config
  */
-export function getConfigBaseDir(configPath: string): string {
+export async function getConfigBaseDir(configPath: string): Promise<string> {
   // If configPath is a directory, use it directly
   // Otherwise, use its parent directory
-  if (existsSync(configPath) && require('node:fs').statSync(configPath).isDirectory()) {
-    return resolve(configPath);
+  if (existsSync(configPath)) {
+    const stats = await stat(configPath);
+    if (stats.isDirectory()) {
+      return resolve(configPath);
+    }
   }
   return resolve(join(configPath, '..'));
 }

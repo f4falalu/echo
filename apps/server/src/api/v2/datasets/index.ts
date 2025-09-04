@@ -23,22 +23,8 @@ app.post('/deploy', requireAuth, zValidator('json', DeployRequestSchema), async 
   const user = c.get('busterUser');
   const request = c.req.valid('json');
 
-  try {
-    const response = await deployDatasetsHandler(request, user);
-    return c.json(response);
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('Insufficient permissions')) {
-      throw new HTTPException(403, { message: error.message });
-    }
-    if (error instanceof Error && error.message.includes('not found')) {
-      throw new HTTPException(404, { message: error.message });
-    }
-
-    console.error('Dataset deployment error:', error);
-    throw new HTTPException(500, {
-      message: error instanceof Error ? error.message : 'Failed to deploy datasets',
-    });
-  }
+  const response = await deployDatasetsHandler(request, user);
+  return c.json(response);
 });
 
 // Get organization datasets endpoint

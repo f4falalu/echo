@@ -24,6 +24,18 @@ interface AuthProps {
 const DEFAULT_HOST = 'api2.buster.so';
 const LOCAL_HOST = 'localhost:3001';
 
+// Normalize host URL (add https:// if missing, unless localhost)
+const normalizeHost = (h: string): string => {
+  const trimmed = h.trim();
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  if (trimmed.includes('localhost') || trimmed.includes('127.0.0.1')) {
+    return `http://${trimmed}`;
+  }
+  return `https://${trimmed}`;
+};
+
 export function Auth({ apiKey, host, local, cloud, clear, noSave, show }: AuthProps) {
   const { exit } = useApp();
   const [step, setStep] = useState<'clear' | 'host' | 'apikey' | 'validate' | 'save' | 'done'>(
@@ -35,18 +47,6 @@ export function Auth({ apiKey, host, local, cloud, clear, noSave, show }: AuthPr
   const [_existingCreds, setExistingCreds] = useState<Credentials | null>(null);
   const [finalCreds, setFinalCreds] = useState<Credentials | null>(null);
   const [_promptStage, setPromptStage] = useState<'host' | 'apikey'>('host');
-
-  // Normalize host URL (add https:// if missing, unless localhost)
-  const normalizeHost = (h: string): string => {
-    const trimmed = h.trim();
-    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
-      return trimmed;
-    }
-    if (trimmed.includes('localhost') || trimmed.includes('127.0.0.1')) {
-      return `http://${trimmed}`;
-    }
-    return `https://${trimmed}`;
-  };
 
   // Handle clear and show flags
   useEffect(() => {

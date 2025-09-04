@@ -547,8 +547,6 @@ describe('parsing', () => {
     // Note: Duplicate name validation is now handled by ModelSchema
     // These tests have been moved to schemas.test.ts
 
-
-
     it('should require metric expressions', () => {
       const model: Model = {
         name: 'test',
@@ -564,7 +562,6 @@ describe('parsing', () => {
       expect(result.valid).toBe(false);
       expect(result.errors).toContain('Metric empty_metric must have an expression');
     });
-
 
     it('should require filter expressions', () => {
       const model: Model = {
@@ -606,7 +603,7 @@ describe('parsing', () => {
         metrics: [{ name: 'metric1', expr: '' }],
         filters: [
           { name: 'filter1', expr: 'valid' },
-          { name: 'filter2', expr: '' },  // Changed to test empty expression instead of duplicate
+          { name: 'filter2', expr: '' }, // Changed to test empty expression instead of duplicate
         ],
         relationships: [],
       };
@@ -873,7 +870,7 @@ dimensions:
       await writeFile(testFile, content);
 
       const result = await parseModelFile(testFile);
-      
+
       expect(result.models).toHaveLength(0);
       expect(result.errors).toHaveLength(1);
       expect(result.errors[0].issues[0].message).toContain('{{TODO}} markers and will be skipped');
@@ -890,7 +887,7 @@ dimensions:
       await writeFile(testFile, content);
 
       const result = await parseModelFile(testFile);
-      
+
       expect(result.models).toHaveLength(1);
       expect(result.errors).toHaveLength(0);
       expect(result.models[0].name).toBe('test_model');

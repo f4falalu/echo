@@ -57,16 +57,23 @@ export async function filterModelFiles(
   const included: string[] = [];
   const excluded: DeploymentExcluded[] = [];
 
-  if (excludePatterns.length === 0) {
-    return { included: files, excluded: [] };
-  }
-
   for (const file of files) {
     // Get path relative to the buster.yml directory for pattern matching
     const relativePath = relative(baseDir, file);
 
+    // Always exclude buster.yml and buster.yaml files
+    const baseName = relativePath.split('/').pop();
+    if (baseName === 'buster.yml' || baseName === 'buster.yaml') {
+      excluded.push({
+        file: relativePath,
+        reason: 'buster.yml/buster.yaml files are configuration files, not models',
+      });
+      continue;
+    }
+
     // Check if file matches any exclusion pattern
-    const matchedPattern = findMatchingPattern(relativePath, excludePatterns);
+    const matchedPattern =
+      excludePatterns.length > 0 ? findMatchingPattern(relativePath, excludePatterns) : null;
 
     if (matchedPattern) {
       excluded.push({

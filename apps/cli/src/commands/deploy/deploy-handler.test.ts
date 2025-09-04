@@ -5,6 +5,7 @@ import yaml from 'js-yaml';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { deployHandler, validateDeployOptions } from './deploy-handler';
 import type { BusterConfig, DeployOptions, DeployRequest, DeployResponse, Model } from './schemas';
+import { isDeploymentValidationError } from './utils/errors';
 
 // Mock the deployment strategies module
 vi.mock('./deployment/strategies', () => ({
@@ -192,7 +193,7 @@ describe('deploy-handler', () => {
         database: 'warehouse',
         schema: 'external_data',
         dimensions: [{ name: 'external_id', searchable: false }],
-        measures: [],
+        measures: [{ name: 'count' }], // Must have at least one measure
       };
       await writeFile(join(testDir, 'models', 'external.yml'), yaml.dump(model3));
 
@@ -292,11 +293,11 @@ describe('deploy-handler', () => {
         verbose: false,
       };
 
-      const result = await deployHandler(options);
+      // Should throw error because models key is not supported
+      await expect(deployHandler(options)).rejects.toThrow('Cannot deploy');
 
-      // Should fail to parse because models key is not supported
-      expect(result.failures.length).toBeGreaterThan(0);
-      expect(result.success).toHaveLength(0);
+      // Should not reach deployment
+      expect(mockDeploy).not.toHaveBeenCalled();
     });
 
     it('should handle multiple projects with different configs', async () => {
@@ -358,15 +359,23 @@ describe('deploy-handler', () => {
       // Each project should have deployed the model with its own config
       expect(capturedRequests).toHaveLength(2);
 
-      // First project deployment
-      expect(capturedRequests[0].models[0].data_source_name).toBe('postgres');
-      expect(capturedRequests[0].models[0].database).toBe('pg_db');
-      expect(capturedRequests[0].models[0].schema).toBe('public');
+      // Since projects run in parallel, we need to check both deployments regardless of order
+      const postgresDeployment = capturedRequests.find(
+        (r) => r.models[0].data_source_name === 'postgres'
+      );
+      const bigqueryDeployment = capturedRequests.find(
+        (r) => r.models[0].data_source_name === 'bigquery'
+      );
 
-      // Second project deployment
-      expect(capturedRequests[1].models[0].data_source_name).toBe('bigquery');
-      expect(capturedRequests[1].models[0].database).toBe('analytics');
-      expect(capturedRequests[1].models[0].schema).toBe('events');
+      // Check postgres deployment
+      expect(postgresDeployment).toBeDefined();
+      expect(postgresDeployment!.models[0].database).toBe('pg_db');
+      expect(postgresDeployment!.models[0].schema).toBe('public');
+
+      // Check bigquery deployment
+      expect(bigqueryDeployment).toBeDefined();
+      expect(bigqueryDeployment!.models[0].database).toBe('analytics');
+      expect(bigqueryDeployment!.models[0].schema).toBe('events');
     });
   });
 
@@ -477,24 +486,25 @@ describe('deploy-handler', () => {
       const { createDryRunDeployer } = await import('./deployment/strategies');
       (createDryRunDeployer as any).mockReturnValue(mockDeploy);
 
-      // Run deploy
-      const result = await deployHandler({
-        path: testDir,
-        dryRun: true,
-        verbose: true,
-      });
+      // Run deploy - should throw validation error with all errors collected
+      let validationError: unknown;
+      try {
+        await deployHandler({
+          path: testDir,
+          dryRun: true,
+          verbose: true,
+        });
+        expect.fail('Should have thrown DeploymentValidationError');
+      } catch (error) {
+        expect(isDeploymentValidationError(error)).toBe(true);
+        validationError = error;
+      }
 
       // Should have collected errors from ALL models
-      expect(result.failures.length).toBeGreaterThan(0);
+      expect((validationError as any).parseFailures.length).toBeGreaterThan(3);
 
       // Get all error messages
-      const allErrors = result.failures.flatMap((f) => f.errors);
-
-      // Debug: Log errors to see what we're getting
-      if (allErrors.length === 0) {
-        console.log('No errors collected!');
-        console.log('Failures:', JSON.stringify(result.failures, null, 2));
-      }
+      const allErrors = (validationError as any).parseFailures.map((f: any) => f.error);
 
       // Should have collected multiple errors from different models
       expect(allErrors.length).toBeGreaterThan(3); // At least some errors from each model
@@ -524,7 +534,7 @@ describe('deploy-handler', () => {
       expect(hasDuplicateErrors).toBe(true);
 
       // Should have failures from multiple files
-      const filesWithErrors = new Set(result.failures.map((f) => f.file));
+      const filesWithErrors = new Set(validationError!.parseFailures.map((f) => f.file));
       expect(filesWithErrors.size).toBeGreaterThanOrEqual(2); // At least 2 different files had errors
 
       // Verify error output was logged
@@ -532,7 +542,7 @@ describe('deploy-handler', () => {
       expect(errorCalls.some((msg) => msg.includes('validation error'))).toBe(true);
     });
 
-    it('should continue processing valid models when some have errors', async () => {
+    it('should fail fast when any model has errors (not continue with valid models)', async () => {
       // Create buster.yml
       const busterConfig: BusterConfig = {
         projects: [
@@ -578,18 +588,18 @@ describe('deploy-handler', () => {
       const { createDryRunDeployer } = await import('./deployment/strategies');
       (createDryRunDeployer as any).mockReturnValue(mockDeploy);
 
-      const result = await deployHandler({
-        path: testDir,
-        dryRun: true,
-        verbose: false,
-      });
+      // Should throw error and NOT deploy any models
+      await expect(
+        deployHandler({
+          path: testDir,
+          dryRun: true,
+          verbose: false,
+        })
+      ).rejects.toThrow('Cannot deploy');
 
-      // Should have processed the valid model
-      expect(deployedModels).toHaveLength(1);
-      expect(deployedModels[0].name).toBe('valid_model');
-
-      // Should have failure for invalid model
-      expect(result.failures.some((f) => f.file.includes('invalid.yml'))).toBe(true);
+      // Should NOT have deployed any models (fail-fast behavior)
+      expect(mockDeploy).not.toHaveBeenCalled();
+      expect(deployedModels).toHaveLength(0);
     });
   });
 
@@ -639,10 +649,10 @@ describe('deploy-handler', () => {
         verbose: false,
       };
 
-      const result = await deployHandler(options);
+      // Should throw validation error for invalid files
+      await expect(deployHandler(options)).rejects.toThrow('Cannot deploy');
 
-      // Should handle the error gracefully
-      expect(result.failures.length).toBeGreaterThan(0);
+      // Should log errors
       expect(consoleErrorSpy).toHaveBeenCalled();
     });
 
@@ -660,11 +670,12 @@ describe('deploy-handler', () => {
       };
       await writeFile(join(testDir, 'buster.yml'), yaml.dump(busterConfig));
 
-      // Create valid model
+      // Create valid model with both dimensions and measures
       await mkdir(join(testDir, 'models'), { recursive: true });
       const model = {
         name: 'users',
         dimensions: [{ name: 'id', searchable: false }],
+        measures: [{ name: 'count', type: 'count' }], // Add measure to make it valid
       };
       await writeFile(join(testDir, 'models', 'users.yml'), yaml.dump(model));
 
@@ -684,9 +695,9 @@ describe('deploy-handler', () => {
 
       const result = await deployHandler(options);
 
-      // Should handle the error and return failure result
+      // Should handle the deployment error and return failure result
       expect(result.failures).toHaveLength(1);
-      expect(result.failures[0].errors[0]).toContain('Deployment error: Deployment failed');
+      expect(result.failures[0].errors[0]).toContain('Deployment error');
       expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Deployment failed'));
     });
   });

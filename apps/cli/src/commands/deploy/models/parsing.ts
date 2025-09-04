@@ -35,22 +35,26 @@ export async function fileContainsTodo(filePath: string): Promise<boolean> {
 export async function parseModelFile(filePath: string): Promise<ParseModelResult> {
   try {
     const content = await readFile(filePath, 'utf-8');
-    
+
     // Check for {{TODO}} markers before parsing YAML
     // This avoids YAML parsing errors when {{TODO}} appears in complex structures
     if (content.includes('{{TODO}}')) {
       return {
         models: [],
-        errors: [{
-          issues: [{
-            code: 'custom',
-            path: [],
-            message: 'File contains {{TODO}} markers and will be skipped',
-          } as ZodIssue],
-        }],
+        errors: [
+          {
+            issues: [
+              {
+                code: 'custom',
+                path: [],
+                message: 'File contains {{TODO}} markers and will be skipped',
+              } as ZodIssue,
+            ],
+          },
+        ],
       };
     }
-    
+
     const rawData = yaml.load(content) as unknown;
 
     if (!rawData || typeof rawData !== 'object') {
@@ -69,7 +73,7 @@ export async function parseModelFile(filePath: string): Promise<ParseModelResult
     // Extract and return detailed validation errors with raw data
     const errors = extractModelValidationErrors(rawData, parseResult.error);
     // Add raw data to errors for better formatting
-    const errorsWithData = errors.map(e => ({ ...e, rawData }));
+    const errorsWithData = errors.map((e) => ({ ...e, rawData }));
 
     return {
       models: [],
@@ -296,16 +300,17 @@ export function generateDefaultSQL(model: Model): string {
 }
 
 /**
- * Custom error class for model parsing errors
+ * Model parsing error class for backwards compatibility with tests
  */
 export class ModelParsingError extends Error {
-  constructor(
-    message: string,
-    public file: string,
-    public zodError?: ZodError
-  ) {
+  public file: string;
+  public zodError?: ZodError;
+
+  constructor(message: string, file: string, zodError?: ZodError) {
     super(message);
     this.name = 'ModelParsingError';
+    this.file = file;
+    this.zodError = zodError;
   }
 
   getDetailedMessage(): string {
@@ -321,6 +326,17 @@ export class ModelParsingError extends Error {
 
     return message;
   }
+}
+
+/**
+ * Functional factory for model parsing errors (keeps same signature for existing code)
+ */
+export function createModelParsingError(
+  message: string,
+  file: string,
+  zodError?: ZodError
+): ModelParsingError {
+  return new ModelParsingError(message, file, zodError);
 }
 
 /**
@@ -351,32 +367,37 @@ export function formatZodIssuesWithContext(issues: ZodIssue[], data: unknown): s
  */
 function formatPathWithNames(path: (string | number)[], data: unknown): string {
   if (path.length === 0) return '';
-  
-  let current: any = data;
+
+  let current: unknown = data;
   const parts: string[] = [];
-  
+
   for (let i = 0; i < path.length; i++) {
     const segment = path[i];
-    
+
     if (typeof segment === 'number' && Array.isArray(current)) {
       // Handle array index
       const item = current[segment];
       const prevSegment = i > 0 ? path[i - 1] : null;
-      
+
       if (prevSegment === 'dimensions' && item && typeof item === 'object' && 'name' in item) {
-        parts.push(`dimension '${item.name}'`);
+        parts.push(`dimension '${(item as { name: string }).name}'`);
         current = item;
       } else if (prevSegment === 'measures' && item && typeof item === 'object' && 'name' in item) {
-        parts.push(`measure '${item.name}'`);
+        parts.push(`measure '${(item as { name: string }).name}'`);
         current = item;
       } else if (prevSegment === 'metrics' && item && typeof item === 'object' && 'name' in item) {
-        parts.push(`metric '${item.name}'`);
+        parts.push(`metric '${(item as { name: string }).name}'`);
         current = item;
       } else if (prevSegment === 'filters' && item && typeof item === 'object' && 'name' in item) {
-        parts.push(`filter '${item.name}'`);
+        parts.push(`filter '${(item as { name: string }).name}'`);
         current = item;
-      } else if (prevSegment === 'relationships' && item && typeof item === 'object' && 'name' in item) {
-        parts.push(`relationship '${item.name}'`);
+      } else if (
+        prevSegment === 'relationships' &&
+        item &&
+        typeof item === 'object' &&
+        'name' in item
+      ) {
+        parts.push(`relationship '${(item as { name: string }).name}'`);
         current = item;
       } else if (prevSegment === 'options') {
         parts.push(`option ${segment + 1}`);
@@ -387,13 +408,20 @@ function formatPathWithNames(path: (string | number)[], data: unknown): string {
       }
     } else if (typeof segment === 'string') {
       // Skip redundant field names after we've already identified the item
-      if (i > 0 && parts[parts.length - 1]?.includes(`'`) && 
-          (segment === 'name' || segment === 'type' || segment === 'description')) {
+      if (
+        i > 0 &&
+        parts[parts.length - 1]?.includes(`'`) &&
+        (segment === 'name' || segment === 'type' || segment === 'description')
+      ) {
         // Don't add field name if we already have the item name
         parts.push(segment);
-      } else if (segment === 'dimensions' || segment === 'measures' || 
-                 segment === 'metrics' || segment === 'filters' || 
-                 segment === 'relationships') {
+      } else if (
+        segment === 'dimensions' ||
+        segment === 'measures' ||
+        segment === 'metrics' ||
+        segment === 'filters' ||
+        segment === 'relationships'
+      ) {
         // Skip these as they'll be handled by the array index
         if (i === path.length - 1) {
           parts.push(segment);
@@ -401,7 +429,10 @@ function formatPathWithNames(path: (string | number)[], data: unknown): string {
       } else {
         parts.push(segment);
       }
-      current = current?.[segment];
+      current =
+        current && typeof current === 'object'
+          ? (current as Record<string, unknown>)[segment]
+          : undefined;
     } else {
       parts.push(String(segment));
       if (current && typeof current === 'object' && segment !== undefined && segment in current) {
@@ -411,21 +442,20 @@ function formatPathWithNames(path: (string | number)[], data: unknown): string {
       }
     }
   }
-  
+
   // Clean up the path by joining with dots but handling special cases
   let result = '';
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i];
     const prevPart = i > 0 ? parts[i - 1] : undefined;
-    
+
     if (!part) continue;
-    
+
     if (i === 0) {
       result = part;
-    } else if (part.startsWith('[') || part.startsWith('option ') || 
-               part.includes(`'`)) {
+    } else if (part.startsWith('[') || part.startsWith('option ') || part.includes(`'`)) {
       // These are already formatted
-      if (prevPart && prevPart.includes(`'`)) {
+      if (prevPart?.includes(`'`)) {
         result += `.${part}`;
       } else {
         result += result ? `.${part}` : part;
@@ -434,6 +464,6 @@ function formatPathWithNames(path: (string | number)[], data: unknown): string {
       result += `.${part}`;
     }
   }
-  
+
   return result;
 }

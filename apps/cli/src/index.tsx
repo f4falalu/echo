@@ -78,8 +78,21 @@ program
         await deployHandler(parsedOptions);
       }
     } catch (error) {
-      console.error('Invalid options:', error);
-      process.exit(1);
+      // Import the error formatter and type guard
+      const { isDeploymentValidationError, formatDeployError, getExitCode } = await import(
+        './commands/deploy/utils/errors.js'
+      );
+
+      // Check if it's a DeploymentValidationError to handle it specially
+      if (isDeploymentValidationError(error)) {
+        // The error message already contains the formatted output
+        console.error(formatDeployError(error));
+        process.exit(getExitCode(error));
+      } else {
+        // For other errors, still show them but formatted properly
+        console.error(formatDeployError(error));
+        process.exit(getExitCode(error));
+      }
     }
   });
 

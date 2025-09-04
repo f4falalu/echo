@@ -40,7 +40,7 @@ function isPostgresError(error: unknown): error is PostgresError {
     error !== null &&
     typeof error === 'object' &&
     'code' in error &&
-    typeof (error as any).code === 'string'
+    typeof (error as Record<string, unknown>).code === 'string'
   );
 }
 
@@ -53,7 +53,7 @@ function parsePostgresError(error: PostgresError): ParsedDatabaseError {
     message: error.message || 'Database error',
     originalError: error as Error,
   };
-  
+
   // Add optional fields only if they exist
   if (error.detail) base.detail = error.detail;
   if (error.hint) base.hint = error.hint;
@@ -97,7 +97,7 @@ function parsePostgresError(error: PostgresError): ParsedDatabaseError {
  */
 function parseGenericError(error: Error): ParsedDatabaseError {
   const message = error.message.toLowerCase();
-  
+
   // Try to detect error type from message
   let type: ParsedDatabaseError['type'] = 'unknown';
   let parsedMessage = error.message;
@@ -130,17 +130,19 @@ function formatForeignKeyError(error: PostgresError): string {
   if (error.detail) {
     // Extract the referenced value from detail
     // Example: Key (data_source_id)=(xxx) is not present in table "data_sources"
-    const match = error.detail.match(/Key \(([^)]+)\)=\(([^)]+)\) is not present in table "([^"]+)"/);
+    const match = error.detail.match(
+      /Key \(([^)]+)\)=\(([^)]+)\) is not present in table "([^"]+)"/
+    );
     if (match) {
-      const [, column, value, table] = match;
+      const [, column, _value, table] = match;
       if (table === 'data_sources' || column === 'data_source_id') {
         return `Data source not found. Ensure the data source exists and you have access to it.`;
       }
       return `Referenced ${table} not found for ${column}`;
     }
   }
-  
-  return error.constraint_name 
+
+  return error.constraint_name
     ? `Foreign key constraint '${error.constraint_name}' violated`
     : 'Foreign key constraint violation - referenced record does not exist';
 }
@@ -155,12 +157,12 @@ function formatUniqueError(error: PostgresError): string {
     const match = error.detail.match(/Key \(([^)]+)\)=\(([^)]+)\) already exists/);
     if (match) {
       const [, columns] = match;
-      if (columns && columns.includes('name')) {
+      if (columns?.includes('name')) {
         return 'A model with this name already exists in this data source';
       }
     }
   }
-  
+
   return error.constraint_name
     ? `Unique constraint '${error.constraint_name}' violated - duplicate value`
     : 'Duplicate value - this record already exists';
@@ -174,18 +176,18 @@ function formatNotNullError(error: PostgresError): string {
     const column = error.column_name;
     // Provide user-friendly names for common columns
     const friendlyNames: Record<string, string> = {
-      'data_source_id': 'data source',
-      'organization_id': 'organization',
-      'user_id': 'user',
-      'name': 'model name',
-      'schema': 'schema name',
-      'database_name': 'database name',
+      data_source_id: 'data source',
+      organization_id: 'organization',
+      user_id: 'user',
+      name: 'model name',
+      schema: 'schema name',
+      database_name: 'database name',
     };
-    
+
     const fieldName = friendlyNames[column] || column;
     return `Required field '${fieldName}' is missing`;
   }
-  
+
   return 'Required field is missing';
 }
 
@@ -204,7 +206,7 @@ function formatCheckError(error: PostgresError): string {
     }
     return `Validation failed for constraint '${constraint}'`;
   }
-  
+
   return 'Data validation failed';
 }
 

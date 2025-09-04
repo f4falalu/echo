@@ -214,20 +214,12 @@ describe('config-loader', () => {
 
         await writeFile(join(testDir, 'buster.yml'), yaml.dump(config));
 
-        await loadBusterConfig(testDir);
+        const result = await loadBusterConfig(testDir);
 
-        // Should log search message
-        expect(consoleInfoSpy).toHaveBeenCalledWith(
-          expect.stringContaining('Searching for buster.yml file')
-        );
-
-        // Should log found file
-        expect(consoleInfoSpy).toHaveBeenCalledWith(
-          expect.stringContaining('Found buster.yml at:')
-        );
-
-        // Should log project count
-        expect(consoleInfoSpy).toHaveBeenCalledWith(expect.stringContaining('Found 1 project(s)'));
+        // Should return the config without logging (console.info calls were removed)
+        expect(result.config).toBeDefined();
+        expect(result.configPath).toContain('buster.yml');
+        expect(result.config.projects).toHaveLength(1);
       });
     });
   });

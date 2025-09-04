@@ -83,9 +83,13 @@ export function processDeploymentResponse(
 /**
  * Pure function to format deployment summary for display
  */
-export function formatDeploymentSummary(result: CLIDeploymentResult, verbose = false, isDryRun = false): string {
+export function formatDeploymentSummary(
+  result: CLIDeploymentResult,
+  verbose = false,
+  isDryRun = false
+): string {
   const lines: string[] = [];
-  
+
   // Calculate totals
   const totalSuccess = result.success.length + result.updated.length + result.noChange.length;
   const totalFailed = result.failures.length;
@@ -96,7 +100,7 @@ export function formatDeploymentSummary(result: CLIDeploymentResult, verbose = f
   lines.push('');
   lines.push(isDryRun ? 'Deployment Results (DRY RUN)' : 'Deployment Results');
   lines.push('─'.repeat(29));
-  
+
   // Models deployed summary
   if (totalSuccess > 0) {
     lines.push(`  ${totalSuccess} models deployed`);
@@ -112,85 +116,88 @@ export function formatDeploymentSummary(result: CLIDeploymentResult, verbose = f
   } else if (totalFailed === 0 && totalTodos === 0) {
     lines.push('  No models to deploy');
   }
-  
+
   // Failures section
   if (totalFailed > 0) {
     lines.push('');
     lines.push(`  ${totalFailed} models failed:`);
-    
+
     // Group failures by error message for better readability
     const failuresByError = groupFailuresByError(result.failures);
-    
+
     // Sort by number of occurrences (most common errors first)
-    const sortedErrors = Array.from(failuresByError.entries())
-      .sort((a, b) => b[1].length - a[1].length);
-    
+    const sortedErrors = Array.from(failuresByError.entries()).sort(
+      (a, b) => b[1].length - a[1].length
+    );
+
     // Show grouped errors
     const maxErrors = verbose ? sortedErrors.length : 3;
     let errorCount = 0;
-    
+
     for (const [errorMsg, affectedModels] of sortedErrors) {
       if (errorCount >= maxErrors) break;
       errorCount++;
-      
+
       lines.push('');
       lines.push(`    ${errorMsg}`);
       lines.push(`    Affected models (${affectedModels.length}):`);
-      
+
       // Show affected models
       const maxModels = verbose ? affectedModels.length : 5;
       for (let i = 0; i < Math.min(maxModels, affectedModels.length); i++) {
         const model = affectedModels[i];
         if (!model) continue;
-        const displayName = verbose ? model.file : (model.file.split('/').pop() || model.file);
+        const displayName = verbose ? model.file : model.file.split('/').pop() || model.file;
         lines.push(`      • ${model.modelName} (${displayName})`);
       }
-      
+
       if (affectedModels.length > maxModels) {
         lines.push(`      ... and ${affectedModels.length - maxModels} more`);
       }
     }
-    
+
     if (sortedErrors.length > maxErrors) {
-      const remainingCount = sortedErrors.slice(maxErrors).reduce((sum, [, models]) => sum + models.length, 0);
+      const remainingCount = sortedErrors
+        .slice(maxErrors)
+        .reduce((sum, [, models]) => sum + models.length, 0);
       lines.push('');
-      lines.push(`    ... and ${remainingCount} more failures with ${sortedErrors.length - maxErrors} different error${sortedErrors.length - maxErrors === 1 ? '' : 's'}`);
+      lines.push(
+        `    ... and ${remainingCount} more failures with ${sortedErrors.length - maxErrors} different error${sortedErrors.length - maxErrors === 1 ? '' : 's'}`
+      );
     }
   }
-  
+
   // TODOs section
   if (totalTodos > 0) {
     lines.push('');
     lines.push(`  ${totalTodos} files need completion:`);
-    
+
     const maxTodos = verbose ? result.todos.length : 5;
     for (let i = 0; i < Math.min(maxTodos, result.todos.length); i++) {
       const todo = result.todos[i];
       if (!todo) continue;
       // Show full paths in verbose mode, just filename otherwise
-      const displayPath = verbose 
-        ? todo.file
-        : (todo.file.split('/').pop() || todo.file);
+      const displayPath = verbose ? todo.file : todo.file.split('/').pop() || todo.file;
       lines.push(`    ${displayPath}`);
     }
-    
+
     if (result.todos.length > maxTodos) {
       lines.push(`    ... and ${result.todos.length - maxTodos} more`);
     }
   }
-  
+
   // Excluded section (only in verbose mode)
   if (verbose && totalExcluded > 0) {
     lines.push('');
     lines.push(`  ${totalExcluded} files excluded:`);
-    
+
     for (const excluded of result.excluded) {
       // Show full paths in verbose mode
-      const displayName = verbose ? excluded.file : (excluded.file.split('/').pop() || excluded.file);
+      const displayName = verbose ? excluded.file : excluded.file.split('/').pop() || excluded.file;
       lines.push(`    ${displayName}: ${excluded.reason}`);
     }
   }
-  
+
   // Final status line
   lines.push('');
   if (totalFailed > 0) {
@@ -201,23 +208,27 @@ export function formatDeploymentSummary(result: CLIDeploymentResult, verbose = f
     }
   } else if (totalTodos > 0) {
     const mode = isDryRun ? 'Dry run' : 'Deployment';
-    lines.push(`⚠ ${mode} completed with ${totalTodos} file${totalTodos === 1 ? '' : 's'} needing completion`);
+    lines.push(
+      `⚠ ${mode} completed with ${totalTodos} file${totalTodos === 1 ? '' : 's'} needing completion`
+    );
   } else if (totalSuccess === 0) {
     lines.push('⚠ No models found to deploy');
   } else {
     const mode = isDryRun ? 'Dry run' : 'Deployment';
     lines.push(`✓ ${mode} completed successfully`);
   }
-  
+
   return lines.join('\n');
 }
 
 /**
  * Group failures by error message for better readability
  */
-function groupFailuresByError(failures: Array<{ file: string; modelName: string; errors: string[] }>): Map<string, Array<{ file: string; modelName: string }>> {
+function groupFailuresByError(
+  failures: Array<{ file: string; modelName: string; errors: string[] }>
+): Map<string, Array<{ file: string; modelName: string }>> {
   const grouped = new Map<string, Array<{ file: string; modelName: string }>>();
-  
+
   for (const failure of failures) {
     for (const error of failure.errors) {
       const key = extractErrorMessage(error);
@@ -226,7 +237,7 @@ function groupFailuresByError(failures: Array<{ file: string; modelName: string;
       grouped.set(key, existing);
     }
   }
-  
+
   return grouped;
 }
 
@@ -244,7 +255,7 @@ function extractErrorMessage(error: string): string {
   if (error.includes('Contact your administrator')) {
     return error; // Already user-friendly
   }
-  
+
   // Handle SQL update errors with large parameter lists
   if (error.includes('Failed query:')) {
     // Try to extract just the error reason after the params
@@ -271,14 +282,14 @@ function extractErrorMessage(error: string): string {
     const lines = error.split('\n');
     const firstLine = lines[0];
     if (firstLine && firstLine.length > 100) {
-      return firstLine.substring(0, 100) + '...';
+      return `${firstLine.substring(0, 100)}...`;
     }
     return firstLine || 'Database error';
   }
 
   // For other errors, truncate if too long
   if (error.length > 150) {
-    return error.substring(0, 150) + '...';
+    return `${error.substring(0, 150)}...`;
   }
 
   return error;
@@ -287,7 +298,11 @@ function extractErrorMessage(error: string): string {
 /**
  * Display deployment result in CLI
  */
-export function displayDeploymentResults(result: CLIDeploymentResult, verbose = false, isDryRun = false): void {
+export function displayDeploymentResults(
+  result: CLIDeploymentResult,
+  verbose = false,
+  isDryRun = false
+): void {
   const summary = formatDeploymentSummary(result, verbose, isDryRun);
   console.info(summary);
 }

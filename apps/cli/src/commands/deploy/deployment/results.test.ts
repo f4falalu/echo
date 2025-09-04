@@ -15,19 +15,15 @@ describe('formatDeploymentSummary', () => {
         { file: 'models/users.yml', modelName: 'users', dataSource: 'postgres' },
         { file: 'models/orders.yml', modelName: 'orders', dataSource: 'postgres' },
       ],
-      updated: [
-        { file: 'models/products.yml', modelName: 'products', dataSource: 'postgres' },
-      ],
-      noChange: [
-        { file: 'models/customers.yml', modelName: 'customers', dataSource: 'postgres' },
-      ],
+      updated: [{ file: 'models/products.yml', modelName: 'products', dataSource: 'postgres' }],
+      noChange: [{ file: 'models/customers.yml', modelName: 'customers', dataSource: 'postgres' }],
       failures: [],
       excluded: [],
       todos: [],
     };
 
     const summary = formatDeploymentSummary(result, false, false);
-    
+
     expect(summary).toContain('Deployment Results');
     expect(summary).toContain('4 models deployed');
     expect(summary).toContain('• 2 new');
@@ -60,20 +56,18 @@ describe('formatDeploymentSummary', () => {
     };
 
     const summary = formatDeploymentSummary(result, false, false);
-    
+
     expect(summary).toContain('2 models failed');
     expect(summary).toContain('users.yml');
-    expect(summary).toContain('• Missing required field: data_source_name');
+    expect(summary).toContain('Missing required field: data_source_name');
     expect(summary).toContain('orders.yml');
-    expect(summary).toContain('• Duplicate dimension name: id');
+    expect(summary).toContain('Duplicate dimension name: id');
     expect(summary).toContain('✗ Deployment completed with 2 errors');
   });
 
   it('should format deployment with TODO files', () => {
     const result: CLIDeploymentResult = {
-      success: [
-        { file: 'models/users.yml', modelName: 'users', dataSource: 'postgres' },
-      ],
+      success: [{ file: 'models/users.yml', modelName: 'users', dataSource: 'postgres' }],
       updated: [],
       noChange: [],
       failures: [],
@@ -86,7 +80,7 @@ describe('formatDeploymentSummary', () => {
     };
 
     const summary = formatDeploymentSummary(result, false, false);
-    
+
     expect(summary).toContain('3 files need completion');
     expect(summary).toContain('products.yml');
     expect(summary).toContain('inventory.yml');
@@ -96,12 +90,8 @@ describe('formatDeploymentSummary', () => {
 
   it('should format mixed results with failures and TODOs', () => {
     const result: CLIDeploymentResult = {
-      success: [
-        { file: 'models/users.yml', modelName: 'users', dataSource: 'postgres' },
-      ],
-      updated: [
-        { file: 'models/orders.yml', modelName: 'orders', dataSource: 'postgres' },
-      ],
+      success: [{ file: 'models/users.yml', modelName: 'users', dataSource: 'postgres' }],
+      updated: [{ file: 'models/orders.yml', modelName: 'orders', dataSource: 'postgres' }],
       noChange: [],
       failures: [
         {
@@ -110,22 +100,18 @@ describe('formatDeploymentSummary', () => {
           errors: ['Invalid type for dimension'],
         },
       ],
-      excluded: [
-        { file: 'models/test.yml', reason: 'Excluded by pattern: **/test.yml' },
-      ],
-      todos: [
-        { file: 'models/inventory.yml' },
-        { file: 'models/shipping.yml' },
-      ],
+      excluded: [{ file: 'models/test.yml', reason: 'Excluded by pattern: **/test.yml' }],
+      todos: [{ file: 'models/inventory.yml' }, { file: 'models/shipping.yml' }],
     };
 
     const summary = formatDeploymentSummary(result);
-    
-    expect(summary).toContain('✅ Success:     2 models');
-    expect(summary).toContain('❌ Failed:      1 models');
-    expect(summary).toContain('📝 TODO:        2 files');
-    expect(summary).toContain('⛔ Excluded:    1 files');
-    expect(summary).toContain('⚠️  Action required: fix 1 error and complete 2 TODOs');
+
+    expect(summary).toContain('2 models deployed');
+    expect(summary).toContain('1 models failed');
+    expect(summary).toContain('2 files need completion');
+    expect(summary).not.toContain('files excluded'); // excluded only shown in verbose mode
+    expect(summary).toContain('✗'); // failure indicator
+    expect(summary).toContain('completed with 1 error');
   });
 
   it('should limit output in non-verbose mode', () => {
@@ -145,25 +131,23 @@ describe('formatDeploymentSummary', () => {
     };
 
     const summary = formatDeploymentSummary(result, false);
-    
-    // Should show max 5 files in non-verbose
-    expect(summary).toContain('models/model0.yml');
-    expect(summary).toContain('models/model4.yml');
-    expect(summary).not.toContain('models/model5.yml');
-    expect(summary).toContain('...and 5 more files with errors');
-    expect(summary).toContain('💡 Run with --verbose to see all errors');
-    
-    // Should show max 3 errors per model
+
+    // Should show grouped errors with model counts
     expect(summary).toContain('Error 1');
-    expect(summary).toContain('Error 3');
-    expect(summary).not.toContain('Error 4');
-    expect(summary).toContain('...and 2 more errors');
-    
-    // Should show max 10 TODOs
-    expect(summary).toContain('models/todo0.yml');
-    expect(summary).toContain('models/todo9.yml');
-    expect(summary).not.toContain('models/todo10.yml');
-    expect(summary).toContain('...and 5 more files');
+    expect(summary).toContain('Affected models');
+    expect(summary).toContain('model0');
+    expect(summary).toContain('model4');
+    expect(summary).not.toContain('model5'); // Limited to 5 in non-verbose
+    expect(summary).toContain('... and 5 more');
+
+    // Should show max 5 TODO files in non-verbose
+    expect(summary).toContain('todo0.yml');
+    expect(summary).toContain('todo4.yml');
+    expect(summary).not.toContain('todo5.yml');
+    expect(summary).toContain('... and 10 more');
+
+    // Should show run with verbose hint
+    expect(summary).toContain('Run with --verbose for full error details');
   });
 
   it('should show all details in verbose mode', () => {
@@ -186,18 +170,18 @@ describe('formatDeploymentSummary', () => {
     };
 
     const summary = formatDeploymentSummary(result, true, false);
-    
+
     // Should show all files in verbose mode with full paths
     expect(summary).toContain('models/model0.yml');
     expect(summary).toContain('models/model9.yml');
     expect(summary).not.toContain('... and');
-    
+
     // Should show all errors
     expect(summary).toContain('Error 5');
-    
+
     // Should show all TODOs with full paths
     expect(summary).toContain('models/todo14.yml');
-    
+
     // Should show excluded files in verbose mode
     expect(summary).toContain('2 files excluded:');
     expect(summary).toContain('models/test1.yml: Excluded by pattern');
@@ -255,15 +239,9 @@ describe('processDeploymentResponse', () => {
         { name: 'users', dataSource: 'postgres' },
         { name: 'orders', dataSource: 'postgres' },
       ],
-      updated: [
-        { name: 'products', dataSource: 'postgres' },
-      ],
-      noChange: [
-        { name: 'customers', dataSource: 'postgres' },
-      ],
-      failures: [
-        { name: 'inventory', errors: ['Error 1', 'Error 2'] },
-      ],
+      updated: [{ name: 'products', dataSource: 'postgres' }],
+      noChange: [{ name: 'customers', dataSource: 'postgres' }],
+      failures: [{ name: 'inventory', errors: ['Error 1', 'Error 2'] }],
       deleted: [],
     };
 
@@ -306,9 +284,7 @@ describe('createModelFileMap', () => {
     const fileModels = [
       {
         file: 'models/users.yml',
-        models: [
-          { name: 'users', data_source_name: 'pg' } as any,
-        ],
+        models: [{ name: 'users', data_source_name: 'pg' } as any],
       },
       {
         file: 'models/orders.yml',

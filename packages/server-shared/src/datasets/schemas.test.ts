@@ -432,10 +432,7 @@ describe('ModelSchema', () => {
         metrics: [],
         filters: [],
         relationships: [],
-        clarifications: [
-          'Normal clarification',
-          '{{TODO}} verify this assumption',
-        ],
+        clarifications: ['Normal clarification', '{{TODO}} verify this assumption'],
       };
 
       const result = ModelSchema.safeParse(modelData);
@@ -522,9 +519,7 @@ describe('ModelSchema', () => {
     it('should allow same names across different arrays', () => {
       const modelData = {
         name: 'test_model',
-        dimensions: [
-          { name: 'total', type: 'integer' },
-        ],
+        dimensions: [{ name: 'total', type: 'integer' }],
         measures: [
           { name: 'count', type: 'integer' }, // Different from dimension name
         ],

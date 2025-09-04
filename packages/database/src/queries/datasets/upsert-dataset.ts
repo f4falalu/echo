@@ -1,6 +1,6 @@
 import { and, eq, isNull, sql } from 'drizzle-orm';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import { parseDatabaseError, getErrorHint } from '../../helpers/error-parser';
+import { getErrorHint, parseDatabaseError } from '../../helpers/error-parser';
 import { datasetColumns, datasets } from '../../schema';
 
 // Local type definitions to avoid circular dependency
@@ -40,7 +40,7 @@ export async function upsertDataset(
   dataSourceId: string
 ): Promise<{ datasetId: string; updated: boolean }> {
   const debug = process.env.BUSTER_DEBUG === 'true';
-  
+
   if (debug) {
     console.info(`[upsertDataset] Starting upsert for model: ${model.name}`);
     console.info(`[upsertDataset] Data source: ${model.data_source_name} (${dataSourceId})`);
@@ -56,7 +56,9 @@ export async function upsertDataset(
         and(
           eq(datasets.name, model.name),
           eq(datasets.schema, model.schema),
-          model.database ? eq(datasets.databaseIdentifier, model.database) : isNull(datasets.databaseIdentifier),
+          model.database
+            ? eq(datasets.databaseIdentifier, model.database)
+            : isNull(datasets.databaseIdentifier),
           eq(datasets.dataSourceId, dataSourceId),
           eq(datasets.organizationId, organizationId),
           isNull(datasets.deletedAt)
@@ -65,7 +67,7 @@ export async function upsertDataset(
       .limit(1);
 
     const isUpdate = existingDataset.length > 0;
-    
+
     if (debug) {
       console.info(`[upsertDataset] Dataset exists: ${isUpdate}`);
     }
@@ -97,17 +99,17 @@ export async function upsertDataset(
         throw new Error('Dataset not found');
       }
       datasetId = dataset.id;
-      
+
       if (debug) {
         console.info(`[upsertDataset] Updating existing dataset: ${datasetId}`);
       }
-      
+
       await db.update(datasets).set(datasetData).where(eq(datasets.id, datasetId));
     } else {
       if (debug) {
         console.info(`[upsertDataset] Creating new dataset`);
       }
-      
+
       const result = await db
         .insert(datasets)
         .values({
@@ -123,7 +125,7 @@ export async function upsertDataset(
         throw new Error('Failed to insert dataset');
       }
       datasetId = insertedDataset.id;
-      
+
       if (debug) {
         console.info(`[upsertDataset] Created dataset: ${datasetId}`);
       }
@@ -133,7 +135,7 @@ export async function upsertDataset(
     if (debug) {
       console.info(`[upsertDataset] Upserting ${model.columns.length} columns`);
     }
-    
+
     await upsertDatasetColumns(db, datasetId, model.columns);
 
     if (debug) {
@@ -144,7 +146,7 @@ export async function upsertDataset(
   } catch (error) {
     const parsed = parseDatabaseError(error);
     const hint = getErrorHint(parsed);
-    
+
     // Log detailed error information
     console.error(`[upsertDataset] Failed to upsert model: ${model.name}`);
     console.error(`[upsertDataset] Error type: ${parsed.type}`);
@@ -155,20 +157,20 @@ export async function upsertDataset(
     if (hint) {
       console.error(`[upsertDataset] Hint: ${hint}`);
     }
-    
+
     if (debug) {
       console.error(`[upsertDataset] Full error:`, parsed.originalError);
       console.error(`[upsertDataset] Model data:`, JSON.stringify(model, null, 2));
     }
-    
+
     // Create enhanced error message
     let errorMessage = parsed.message;
     if (hint) {
       errorMessage += `. ${hint}`;
     }
-    
-    const enhancedError = new Error(errorMessage);
-    (enhancedError as any).parsedError = parsed;
+
+    const enhancedError = new Error(errorMessage) as Error & { parsedError: typeof parsed };
+    enhancedError.parsedError = parsed;
     throw enhancedError;
   }
 }
