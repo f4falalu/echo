@@ -1,7 +1,20 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, matchByPath, Outlet, redirect } from '@tanstack/react-router';
 import { prefetchGetDatasetMetadata } from '@/api/buster_rest/datasets/queryRequests';
+import { DatasetsIndividualLayout } from '@/controllers/DatasetsControllers/DatasetIndividual/DatasetsIndividualLayout/DatasetsLayout';
 
 export const Route = createFileRoute('/app/_app/datasets/$datasetId')({
+  beforeLoad: async ({ params, location }) => {
+    const isDatasetRoot = matchByPath('', location.pathname, {
+      to: '/app/datasets/$datasetId',
+    });
+
+    if (isDatasetRoot) {
+      throw redirect({
+        to: '/app/datasets/$datasetId/overview',
+        params,
+      });
+    }
+  },
   loader: async ({ params, context }) => {
     const queryClient = context.queryClient;
     const { dataset } = await prefetchGetDatasetMetadata(params.datasetId, queryClient);
@@ -21,5 +34,10 @@ export const Route = createFileRoute('/app/_app/datasets/$datasetId')({
 });
 
 function RouteComponent() {
-  return <div>Hello "/app/datasets/$datasetId"!</div>;
+  const { datasetId } = Route.useParams();
+  return (
+    <DatasetsIndividualLayout datasetId={datasetId}>
+      <Outlet />
+    </DatasetsIndividualLayout>
+  );
 }

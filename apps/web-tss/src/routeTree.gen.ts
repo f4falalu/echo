@@ -40,7 +40,9 @@ import { Route as AppSettingsRestricted_layoutSettingsProfileRouteImport } from 
 import { Route as AppSettingsPermissionsSettingsUsersRouteImport } from './routes/app/_settings/_permissions/settings.users'
 import { Route as AppSettingsPermissionsSettingsPermissionGroupsRouteImport } from './routes/app/_settings/_permissions/settings.permission-groups'
 import { Route as AppSettingsPermissionsSettingsDatasetGroupsRouteImport } from './routes/app/_settings/_permissions/settings.dataset-groups'
+import { Route as AppAppDatasetsDatasetIdPermissionsRouteImport } from './routes/app/_app/datasets.$datasetId.permissions'
 import { Route as AppAppDatasetsDatasetIdOverviewRouteImport } from './routes/app/_app/datasets.$datasetId.overview'
+import { Route as AppAppDatasetsDatasetIdEditorRouteImport } from './routes/app/_app/datasets.$datasetId.editor'
 import { Route as AppAppAssetChatsChatIdRouteImport } from './routes/app/_app/_asset/chats.$chatId'
 import { Route as AppSettingsPermissionsSettingsUsersIndexRouteImport } from './routes/app/_settings/_permissions/settings.users.index'
 import { Route as AppSettingsPermissionsSettingsPermissionGroupsIndexRouteImport } from './routes/app/_settings/_permissions/settings.permission-groups.index'
@@ -309,10 +311,22 @@ const AppSettingsPermissionsSettingsDatasetGroupsRoute =
     path: '/settings/dataset-groups',
     getParentRoute: () => AppSettingsPermissionsRoute,
   } as any)
+const AppAppDatasetsDatasetIdPermissionsRoute =
+  AppAppDatasetsDatasetIdPermissionsRouteImport.update({
+    id: '/permissions',
+    path: '/permissions',
+    getParentRoute: () => AppAppDatasetsDatasetIdRoute,
+  } as any)
 const AppAppDatasetsDatasetIdOverviewRoute =
   AppAppDatasetsDatasetIdOverviewRouteImport.update({
     id: '/overview',
     path: '/overview',
+    getParentRoute: () => AppAppDatasetsDatasetIdRoute,
+  } as any)
+const AppAppDatasetsDatasetIdEditorRoute =
+  AppAppDatasetsDatasetIdEditorRouteImport.update({
+    id: '/editor',
+    path: '/editor',
     getParentRoute: () => AppAppDatasetsDatasetIdRoute,
   } as any)
 const AppAppAssetChatsChatIdRoute = AppAppAssetChatsChatIdRouteImport.update({
@@ -876,7 +890,9 @@ export interface FileRoutesByFullPath {
   '/app/metrics': typeof AppAppMetricsIndexRoute
   '/app/reports': typeof AppAppReportsIndexRoute
   '/app/chats/$chatId': typeof AppAppAssetChatsChatIdRouteWithChildren
+  '/app/datasets/$datasetId/editor': typeof AppAppDatasetsDatasetIdEditorRoute
   '/app/datasets/$datasetId/overview': typeof AppAppDatasetsDatasetIdOverviewRoute
+  '/app/datasets/$datasetId/permissions': typeof AppAppDatasetsDatasetIdPermissionsRoute
   '/app/settings/dataset-groups': typeof AppSettingsPermissionsSettingsDatasetGroupsRouteWithChildren
   '/app/settings/permission-groups': typeof AppSettingsPermissionsSettingsPermissionGroupsRouteWithChildren
   '/app/settings/users': typeof AppSettingsPermissionsSettingsUsersRouteWithChildren
@@ -972,7 +988,9 @@ export interface FileRoutesByTo {
   '/app/logs': typeof AppAppLogsIndexRoute
   '/app/metrics': typeof AppAppMetricsIndexRoute
   '/app/reports': typeof AppAppReportsIndexRoute
+  '/app/datasets/$datasetId/editor': typeof AppAppDatasetsDatasetIdEditorRoute
   '/app/datasets/$datasetId/overview': typeof AppAppDatasetsDatasetIdOverviewRoute
+  '/app/datasets/$datasetId/permissions': typeof AppAppDatasetsDatasetIdPermissionsRoute
   '/app/settings/profile': typeof AppSettingsRestricted_layoutSettingsProfileRoute
   '/app/dashboards/$dashboardId': typeof AppAppAssetDashboardsDashboardIdLayoutIndexRoute
   '/app/metrics/$metricId': typeof AppAppAssetMetricsMetricIdLayoutIndexRoute
@@ -1061,7 +1079,9 @@ export interface FileRoutesById {
   '/app/_app/metrics/': typeof AppAppMetricsIndexRoute
   '/app/_app/reports/': typeof AppAppReportsIndexRoute
   '/app/_app/_asset/chats/$chatId': typeof AppAppAssetChatsChatIdRouteWithChildren
+  '/app/_app/datasets/$datasetId/editor': typeof AppAppDatasetsDatasetIdEditorRoute
   '/app/_app/datasets/$datasetId/overview': typeof AppAppDatasetsDatasetIdOverviewRoute
+  '/app/_app/datasets/$datasetId/permissions': typeof AppAppDatasetsDatasetIdPermissionsRoute
   '/app/_settings/_permissions/settings/dataset-groups': typeof AppSettingsPermissionsSettingsDatasetGroupsRouteWithChildren
   '/app/_settings/_permissions/settings/permission-groups': typeof AppSettingsPermissionsSettingsPermissionGroupsRouteWithChildren
   '/app/_settings/_permissions/settings/users': typeof AppSettingsPermissionsSettingsUsersRouteWithChildren
@@ -1170,7 +1190,9 @@ export interface FileRouteTypes {
     | '/app/metrics'
     | '/app/reports'
     | '/app/chats/$chatId'
+    | '/app/datasets/$datasetId/editor'
     | '/app/datasets/$datasetId/overview'
+    | '/app/datasets/$datasetId/permissions'
     | '/app/settings/dataset-groups'
     | '/app/settings/permission-groups'
     | '/app/settings/users'
@@ -1266,7 +1288,9 @@ export interface FileRouteTypes {
     | '/app/logs'
     | '/app/metrics'
     | '/app/reports'
+    | '/app/datasets/$datasetId/editor'
     | '/app/datasets/$datasetId/overview'
+    | '/app/datasets/$datasetId/permissions'
     | '/app/settings/profile'
     | '/app/dashboards/$dashboardId'
     | '/app/metrics/$metricId'
@@ -1354,7 +1378,9 @@ export interface FileRouteTypes {
     | '/app/_app/metrics/'
     | '/app/_app/reports/'
     | '/app/_app/_asset/chats/$chatId'
+    | '/app/_app/datasets/$datasetId/editor'
     | '/app/_app/datasets/$datasetId/overview'
+    | '/app/_app/datasets/$datasetId/permissions'
     | '/app/_settings/_permissions/settings/dataset-groups'
     | '/app/_settings/_permissions/settings/permission-groups'
     | '/app/_settings/_permissions/settings/users'
@@ -1691,11 +1717,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsPermissionsSettingsDatasetGroupsRouteImport
       parentRoute: typeof AppSettingsPermissionsRoute
     }
+    '/app/_app/datasets/$datasetId/permissions': {
+      id: '/app/_app/datasets/$datasetId/permissions'
+      path: '/permissions'
+      fullPath: '/app/datasets/$datasetId/permissions'
+      preLoaderRoute: typeof AppAppDatasetsDatasetIdPermissionsRouteImport
+      parentRoute: typeof AppAppDatasetsDatasetIdRoute
+    }
     '/app/_app/datasets/$datasetId/overview': {
       id: '/app/_app/datasets/$datasetId/overview'
       path: '/overview'
       fullPath: '/app/datasets/$datasetId/overview'
       preLoaderRoute: typeof AppAppDatasetsDatasetIdOverviewRouteImport
+      parentRoute: typeof AppAppDatasetsDatasetIdRoute
+    }
+    '/app/_app/datasets/$datasetId/editor': {
+      id: '/app/_app/datasets/$datasetId/editor'
+      path: '/editor'
+      fullPath: '/app/datasets/$datasetId/editor'
+      preLoaderRoute: typeof AppAppDatasetsDatasetIdEditorRouteImport
       parentRoute: typeof AppAppDatasetsDatasetIdRoute
     }
     '/app/_app/_asset/chats/$chatId': {
@@ -2686,12 +2726,17 @@ const AppAppAssetRouteWithChildren = AppAppAssetRoute._addFileChildren(
 )
 
 interface AppAppDatasetsDatasetIdRouteChildren {
+  AppAppDatasetsDatasetIdEditorRoute: typeof AppAppDatasetsDatasetIdEditorRoute
   AppAppDatasetsDatasetIdOverviewRoute: typeof AppAppDatasetsDatasetIdOverviewRoute
+  AppAppDatasetsDatasetIdPermissionsRoute: typeof AppAppDatasetsDatasetIdPermissionsRoute
 }
 
 const AppAppDatasetsDatasetIdRouteChildren: AppAppDatasetsDatasetIdRouteChildren =
   {
+    AppAppDatasetsDatasetIdEditorRoute: AppAppDatasetsDatasetIdEditorRoute,
     AppAppDatasetsDatasetIdOverviewRoute: AppAppDatasetsDatasetIdOverviewRoute,
+    AppAppDatasetsDatasetIdPermissionsRoute:
+      AppAppDatasetsDatasetIdPermissionsRoute,
   }
 
 const AppAppDatasetsDatasetIdRouteWithChildren =

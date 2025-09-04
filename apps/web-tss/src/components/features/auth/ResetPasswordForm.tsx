@@ -8,13 +8,13 @@ import { SuccessCard } from '@/components/ui/card/SuccessCard';
 import { Input } from '@/components/ui/inputs';
 import { Title } from '@/components/ui/typography';
 import { useBusterNotifications } from '@/context/BusterNotifications';
+import { resetPassword } from '@/integrations/supabase/resetPassword';
 import { PolicyCheck } from './PolicyCheck';
 
 export const ResetPasswordForm: React.FC<{
-  supabaseUser: User;
+  supabaseUser: Pick<User, 'email'>;
   busterUser: UserResponse;
-  resetPassword: (d: { password: string }) => Promise<{ error: string } | undefined>;
-}> = ({ supabaseUser, busterUser, resetPassword }) => {
+}> = ({ supabaseUser, busterUser }) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
@@ -46,7 +46,7 @@ export const ResetPasswordForm: React.FC<{
     setLoading(true);
     setResetSuccess(false);
     try {
-      const res = await resetPassword({ password });
+      const res = await resetPassword({ data: { password } });
       setLoading(false);
       if (res?.error) {
         throw res;

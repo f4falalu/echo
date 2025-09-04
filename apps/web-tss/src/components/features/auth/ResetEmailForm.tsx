@@ -6,14 +6,14 @@ import { SuccessCard } from '@/components/ui/card/SuccessCard';
 import { Input } from '@/components/ui/inputs';
 import { Text, Title } from '@/components/ui/typography';
 import { useBusterNotifications } from '@/context/BusterNotifications';
+import { resetPasswordEmailSend } from '@/integrations/supabase/resetPassword';
 import { cn } from '@/lib/classMerge';
 import { isValidEmail } from '@/lib/email';
 import { timeout } from '@/lib/timeout';
 
 export const ResetEmailForm: React.FC<{
   queryEmail: string;
-  resetPasswordEmailSend: (d: { email: string }) => Promise<{ error: string } | undefined>;
-}> = ({ queryEmail, resetPasswordEmailSend }) => {
+}> = ({ queryEmail }) => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState(queryEmail);
   const [emailSent, setEmailSent] = useState(false);
@@ -24,7 +24,7 @@ export const ResetEmailForm: React.FC<{
   const handleResetPassword = async () => {
     if (disabled) return;
     setLoading(true);
-    const [res] = await Promise.all([resetPasswordEmailSend({ email }), timeout(450)]);
+    const [res] = await Promise.all([resetPasswordEmailSend({ data: { email } }), timeout(450)]);
     if (res?.error) {
       openErrorNotification(res.error);
     } else {
