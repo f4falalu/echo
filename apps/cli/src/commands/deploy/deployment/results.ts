@@ -118,42 +118,43 @@ export function formatDeploymentSummary(result: CLIDeploymentResult, verbose = f
     lines.push('');
     lines.push(`  ${totalFailed} models failed:`);
     
-    // Group failures by file
-    const failuresByFile = new Map<string, typeof result.failures>();
-    for (const failure of result.failures) {
-      const existing = failuresByFile.get(failure.file) || [];
-      existing.push(failure);
-      failuresByFile.set(failure.file, existing);
-    }
+    // Group failures by error message for better readability
+    const failuresByError = groupFailuresByError(result.failures);
     
-    // Show failures
-    const maxFiles = verbose ? failuresByFile.size : 3;
-    let fileCount = 0;
+    // Sort by number of occurrences (most common errors first)
+    const sortedErrors = Array.from(failuresByError.entries())
+      .sort((a, b) => b[1].length - a[1].length);
     
-    for (const [file, failures] of failuresByFile) {
-      if (fileCount >= maxFiles) break;
-      fileCount++;
+    // Show grouped errors
+    const maxErrors = verbose ? sortedErrors.length : 3;
+    let errorCount = 0;
+    
+    for (const [errorMsg, affectedModels] of sortedErrors) {
+      if (errorCount >= maxErrors) break;
+      errorCount++;
       
-      // Extract just the filename for cleaner output (unless verbose)
-      const displayName = verbose ? file : (file.split('/').pop() || file);
-      lines.push(`    ${displayName}`);
+      lines.push('');
+      lines.push(`    ${errorMsg}`);
+      lines.push(`    Affected models (${affectedModels.length}):`);
       
-      for (const failure of failures) {
-        // Show first error per model in non-verbose mode
-        const maxErrors = verbose ? failure.errors.length : 1;
-        for (let i = 0; i < maxErrors; i++) {
-          const error = extractErrorMessage(failure.errors[i]);
-          lines.push(`      • ${error}`);
-        }
-        
-        if (!verbose && failure.errors.length > 1) {
-          lines.push(`      ... and ${failure.errors.length - 1} more error${failure.errors.length - 1 === 1 ? '' : 's'}`);
-        }
+      // Show affected models
+      const maxModels = verbose ? affectedModels.length : 5;
+      for (let i = 0; i < Math.min(maxModels, affectedModels.length); i++) {
+        const model = affectedModels[i];
+        if (!model) continue;
+        const displayName = verbose ? model.file : (model.file.split('/').pop() || model.file);
+        lines.push(`      • ${model.modelName} (${displayName})`);
+      }
+      
+      if (affectedModels.length > maxModels) {
+        lines.push(`      ... and ${affectedModels.length - maxModels} more`);
       }
     }
     
-    if (failuresByFile.size > maxFiles) {
-      lines.push(`    ... and ${failuresByFile.size - maxFiles} more`);
+    if (sortedErrors.length > maxErrors) {
+      const remainingCount = sortedErrors.slice(maxErrors).reduce((sum, [, models]) => sum + models.length, 0);
+      lines.push('');
+      lines.push(`    ... and ${remainingCount} more failures with ${sortedErrors.length - maxErrors} different error${sortedErrors.length - maxErrors === 1 ? '' : 's'}`);
     }
   }
   
@@ -164,10 +165,12 @@ export function formatDeploymentSummary(result: CLIDeploymentResult, verbose = f
     
     const maxTodos = verbose ? result.todos.length : 5;
     for (let i = 0; i < Math.min(maxTodos, result.todos.length); i++) {
+      const todo = result.todos[i];
+      if (!todo) continue;
       // Show full paths in verbose mode, just filename otherwise
       const displayPath = verbose 
-        ? result.todos[i].file
-        : (result.todos[i].file.split('/').pop() || result.todos[i].file);
+        ? todo.file
+        : (todo.file.split('/').pop() || todo.file);
       lines.push(`    ${displayPath}`);
     }
     
@@ -210,9 +213,38 @@ export function formatDeploymentSummary(result: CLIDeploymentResult, verbose = f
 }
 
 /**
+ * Group failures by error message for better readability
+ */
+function groupFailuresByError(failures: Array<{ file: string; modelName: string; errors: string[] }>): Map<string, Array<{ file: string; modelName: string }>> {
+  const grouped = new Map<string, Array<{ file: string; modelName: string }>>();
+  
+  for (const failure of failures) {
+    for (const error of failure.errors) {
+      const key = extractErrorMessage(error);
+      const existing = grouped.get(key) || [];
+      existing.push({ file: failure.file, modelName: failure.modelName });
+      grouped.set(key, existing);
+    }
+  }
+  
+  return grouped;
+}
+
+/**
  * Extract meaningful error message from verbose database errors
  */
 function extractErrorMessage(error: string): string {
+  // Already parsed errors from the server
+  if (error.includes('Data source') && error.includes('not found')) {
+    return error; // Already user-friendly
+  }
+  if (error.includes('No access to data source')) {
+    return error; // Already user-friendly
+  }
+  if (error.includes('Contact your administrator')) {
+    return error; // Already user-friendly
+  }
+  
   // Handle SQL update errors with large parameter lists
   if (error.includes('Failed query:')) {
     // Try to extract just the error reason after the params
@@ -237,10 +269,11 @@ function extractErrorMessage(error: string): string {
 
     // If it's a long query error, just show the first part
     const lines = error.split('\n');
-    if (lines[0].length > 100) {
-      return lines[0].substring(0, 100) + '...';
+    const firstLine = lines[0];
+    if (firstLine && firstLine.length > 100) {
+      return firstLine.substring(0, 100) + '...';
     }
-    return lines[0];
+    return firstLine || 'Database error';
   }
 
   // For other errors, truncate if too long

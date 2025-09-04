@@ -1,4 +1,4 @@
-import { upsertDataset } from '@buster/database';
+import { upsertDataset, type ParsedDatabaseError } from '@buster/database';
 import type { DeployModel, DeploymentFailure, DeploymentItem } from '@buster/server-shared';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { validateModel } from './validate-model';
@@ -22,9 +22,16 @@ export async function deploySingleModel(
   organizationId: string,
   db: PostgresJsDatabase
 ): Promise<DeployModelResult> {
+  const debug = process.env.BUSTER_DEBUG === 'true';
+  
+  if (debug) {
+    console.info(`[deploySingleModel] Starting deployment for model: ${model.name}`);
+  }
+
   // Validate model first
   const validationErrors = validateModel(model);
   if (validationErrors.length > 0) {
+    console.warn(`[deploySingleModel] Validation failed for model ${model.name}:`, validationErrors);
     return {
       success: false,
       failure: {
@@ -54,18 +61,48 @@ export async function deploySingleModel(
       database: model.database,
     };
 
+    if (debug) {
+      console.info(`[deploySingleModel] Successfully deployed model ${model.name} (${result.updated ? 'updated' : 'created'})`);
+    }
+
     return {
       success: true,
       item,
       updated: result.updated,
     };
   } catch (error) {
+    // Extract parsed error if available
+    const parsedError = (error as any)?.parsedError as ParsedDatabaseError | undefined;
+    
+    // Log the error with context
+    console.error(`[deploySingleModel] Failed to deploy model ${model.name}:`, {
+      modelName: model.name,
+      dataSource: dataSourceName,
+      errorType: parsedError?.type || 'unknown',
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
+      constraint: parsedError?.constraint,
+      table: parsedError?.table,
+      column: parsedError?.column,
+    });
+
+    if (debug && error instanceof Error) {
+      console.error(`[deploySingleModel] Full error stack:`, error.stack);
+    }
+
+    // Create user-friendly error messages
+    const errorMessages: string[] = [];
+    if (error instanceof Error) {
+      errorMessages.push(error.message);
+    } else {
+      errorMessages.push('Unknown deployment error');
+    }
+
     return {
       success: false,
       failure: {
         name: model.name,
         dataSource: dataSourceName,
-        errors: [error instanceof Error ? error.message : 'Unknown error'],
+        errors: errorMessages,
       },
     };
   }

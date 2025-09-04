@@ -57,6 +57,7 @@ program
   )
   .option('--dry-run', 'Validate models without deploying')
   .option('--verbose', 'Show detailed output')
+  .option('--debug', 'Enable debug mode with detailed SQL logging')
   .option('--interactive', 'Use interactive UI mode')
   .action(async (options) => {
     try {
@@ -65,6 +66,7 @@ program
         path: options.path,
         dryRun: options.dryRun || false,
         verbose: options.verbose || false,
+        debug: options.debug || false,
       });
 
       // Use interactive UI mode only if explicitly requested

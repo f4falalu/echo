@@ -91,6 +91,7 @@ export const DeployOptionsSchema = z.object({
   path: z.string().optional(),
   dryRun: z.boolean().default(false),
   verbose: z.boolean().default(false),
+  debug: z.boolean().default(false),
 });
 
 // ============================================================================

@@ -1,5 +1,6 @@
 import { and, eq, isNull, sql } from 'drizzle-orm';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import { parseDatabaseError, getErrorHint } from '../../helpers/error-parser';
 import { datasetColumns, datasets } from '../../schema';
 
 // Local type definitions to avoid circular dependency
@@ -38,72 +39,138 @@ export async function upsertDataset(
   organizationId: string,
   dataSourceId: string
 ): Promise<{ datasetId: string; updated: boolean }> {
-  // First, check if the dataset exists
-  const existingDataset = await db
-    .select()
-    .from(datasets)
-    .where(
-      and(
-        eq(datasets.name, model.name),
-        eq(datasets.dataSourceId, dataSourceId),
-        eq(datasets.organizationId, organizationId),
-        isNull(datasets.deletedAt)
-      )
-    )
-    .limit(1);
-
-  const isUpdate = existingDataset.length > 0;
-
-  // Prepare the dataset data
-  const datasetData = {
-    name: model.name,
-    databaseName: model.database || model.schema, // Use schema as fallback for database
-    schema: model.schema,
-    type: 'view' as const,
-    definition: model.sql_definition || `SELECT * FROM ${model.schema}.${model.name}`,
-    enabled: true,
-    imported: true,
-    dataSourceId,
-    organizationId,
-    updatedBy: userId,
-    model: model.name,
-    ymlFile: model.yml_file,
-    databaseIdentifier: model.database,
-    updatedAt: sql`now()`,
-  };
-
-  let datasetId: string;
-
-  if (isUpdate) {
-    // Update existing dataset
-    const dataset = existingDataset[0];
-    if (!dataset) {
-      throw new Error('Dataset not found');
-    }
-    datasetId = dataset.id;
-    await db.update(datasets).set(datasetData).where(eq(datasets.id, datasetId));
-  } else {
-    // Insert new dataset
-    const result = await db
-      .insert(datasets)
-      .values({
-        ...datasetData,
-        createdBy: userId,
-        createdAt: sql`now()`,
-      })
-      .returning({ id: datasets.id });
-
-    const insertedDataset = result[0];
-    if (!insertedDataset) {
-      throw new Error('Failed to insert dataset');
-    }
-    datasetId = insertedDataset.id;
+  const debug = process.env.BUSTER_DEBUG === 'true';
+  
+  if (debug) {
+    console.info(`[upsertDataset] Starting upsert for model: ${model.name}`);
+    console.info(`[upsertDataset] Data source: ${model.data_source_name} (${dataSourceId})`);
   }
 
-  // Upsert columns
-  await upsertDatasetColumns(db, datasetId, model.columns);
+  try {
+    // First check if dataset exists (needed for soft delete handling)
+    // Must check all fields that are part of the unique constraint
+    const existingDataset = await db
+      .select({ id: datasets.id })
+      .from(datasets)
+      .where(
+        and(
+          eq(datasets.name, model.name),
+          eq(datasets.schema, model.schema),
+          model.database ? eq(datasets.databaseIdentifier, model.database) : isNull(datasets.databaseIdentifier),
+          eq(datasets.dataSourceId, dataSourceId),
+          eq(datasets.organizationId, organizationId),
+          isNull(datasets.deletedAt)
+        )
+      )
+      .limit(1);
 
-  return { datasetId, updated: isUpdate };
+    const isUpdate = existingDataset.length > 0;
+    
+    if (debug) {
+      console.info(`[upsertDataset] Dataset exists: ${isUpdate}`);
+    }
+
+    // Prepare the dataset data
+    const datasetData = {
+      name: model.name,
+      databaseName: model.database || model.schema,
+      schema: model.schema,
+      type: 'view' as const,
+      definition: model.sql_definition || `SELECT * FROM ${model.schema}.${model.name}`,
+      enabled: true,
+      imported: true,
+      dataSourceId,
+      organizationId,
+      updatedBy: userId,
+      model: model.name,
+      ymlFile: model.yml_file,
+      databaseIdentifier: model.database,
+      updatedAt: sql`now()`,
+      deletedAt: null, // Ensure we're not soft-deleted
+    };
+
+    let datasetId: string;
+
+    if (isUpdate) {
+      const dataset = existingDataset[0];
+      if (!dataset) {
+        throw new Error('Dataset not found');
+      }
+      datasetId = dataset.id;
+      
+      if (debug) {
+        console.info(`[upsertDataset] Updating existing dataset: ${datasetId}`);
+      }
+      
+      await db.update(datasets).set(datasetData).where(eq(datasets.id, datasetId));
+    } else {
+      if (debug) {
+        console.info(`[upsertDataset] Creating new dataset`);
+      }
+      
+      const result = await db
+        .insert(datasets)
+        .values({
+          id: crypto.randomUUID(),
+          ...datasetData,
+          createdBy: userId,
+          createdAt: sql`now()`,
+        })
+        .returning({ id: datasets.id });
+
+      const insertedDataset = result[0];
+      if (!insertedDataset) {
+        throw new Error('Failed to insert dataset');
+      }
+      datasetId = insertedDataset.id;
+      
+      if (debug) {
+        console.info(`[upsertDataset] Created dataset: ${datasetId}`);
+      }
+    }
+
+    // Upsert columns
+    if (debug) {
+      console.info(`[upsertDataset] Upserting ${model.columns.length} columns`);
+    }
+    
+    await upsertDatasetColumns(db, datasetId, model.columns);
+
+    if (debug) {
+      console.info(`[upsertDataset] Successfully upserted model: ${model.name}`);
+    }
+
+    return { datasetId, updated: isUpdate };
+  } catch (error) {
+    const parsed = parseDatabaseError(error);
+    const hint = getErrorHint(parsed);
+    
+    // Log detailed error information
+    console.error(`[upsertDataset] Failed to upsert model: ${model.name}`);
+    console.error(`[upsertDataset] Error type: ${parsed.type}`);
+    console.error(`[upsertDataset] Error message: ${parsed.message}`);
+    if (parsed.detail) {
+      console.error(`[upsertDataset] Detail: ${parsed.detail}`);
+    }
+    if (hint) {
+      console.error(`[upsertDataset] Hint: ${hint}`);
+    }
+    
+    if (debug) {
+      console.error(`[upsertDataset] Full error:`, parsed.originalError);
+      console.error(`[upsertDataset] Model data:`, JSON.stringify(model, null, 2));
+    }
+    
+    // Create enhanced error message
+    let errorMessage = parsed.message;
+    if (hint) {
+      errorMessage += `. ${hint}`;
+    }
+    
+    const enhancedError = new Error(errorMessage);
+    (enhancedError as any).parsedError = parsed;
+    throw enhancedError;
+  }
 }
 
 /**

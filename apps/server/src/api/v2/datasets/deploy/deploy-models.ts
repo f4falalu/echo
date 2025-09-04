@@ -13,6 +13,11 @@ export async function deployModels(
   organizationId: string,
   db: PostgresJsDatabase
 ): Promise<DeployResponse> {
+  const startTime = Date.now();
+  const debug = process.env.BUSTER_DEBUG === 'true';
+  
+  console.info(`[deployModels] Starting deployment of ${request.models.length} models for organization ${organizationId}`);
+  
   const result: DeployResponse = {
     success: [],
     updated: [],
@@ -31,9 +36,20 @@ export async function deployModels(
 
   // Group models by data source
   const modelsByDataSource = groupModelsByDataSource(request.models);
+  
+  console.info(`[deployModels] Processing ${modelsByDataSource.size} data source(s)`);
+  if (debug) {
+    for (const [dsName, models] of modelsByDataSource) {
+      console.info(`[deployModels]   - ${dsName}: ${models.length} models`);
+    }
+  }
 
   // Process each data source group
+  let dataSourceIndex = 0;
   for (const [dataSourceName, models] of modelsByDataSource) {
+    dataSourceIndex++;
+    console.info(`[deployModels] Processing data source ${dataSourceIndex}/${modelsByDataSource.size}: ${dataSourceName}`);
+    
     const groupResult = await processDataSourceGroup(
       dataSourceName,
       models,
@@ -55,6 +71,10 @@ export async function deployModels(
     result.summary.failureCount += groupResult.failures.length;
     result.summary.deletedCount += groupResult.deleted.length;
   }
+
+  const duration = Date.now() - startTime;
+  console.info(`[deployModels] Deployment completed in ${duration}ms`);
+  console.info(`[deployModels] Summary: ${result.summary.successCount} created, ${result.summary.updateCount} updated, ${result.summary.failureCount} failed, ${result.summary.deletedCount} deleted`);
 
   return result;
 }

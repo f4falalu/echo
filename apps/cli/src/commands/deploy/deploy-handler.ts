@@ -31,6 +31,12 @@ import type { CLIDeploymentResult, DeployOptions, Model, ProjectContext } from '
  * using functional composition
  */
 export async function deployHandler(options: DeployOptions): Promise<CLIDeploymentResult> {
+  // Set debug environment variable if debug mode is enabled
+  if (options.debug) {
+    process.env.BUSTER_DEBUG = 'true';
+    console.info('Debug mode enabled - detailed logging will be shown');
+  }
+
   // 1. Determine base directory
   const baseDir = resolve(options.path || '.');
 
@@ -203,6 +209,7 @@ async function processProject(
         errors: [`Deployment error: ${errorMessage}`],
       })),
       excluded,
+      todos: [],
     };
   }
 }

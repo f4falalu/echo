@@ -404,25 +404,34 @@ function formatPathWithNames(path: (string | number)[], data: unknown): string {
       current = current?.[segment];
     } else {
       parts.push(String(segment));
-      current = current?.[segment];
+      if (current && typeof current === 'object' && segment !== undefined && segment in current) {
+        current = current[segment as keyof typeof current];
+      } else {
+        current = undefined;
+      }
     }
   }
   
   // Clean up the path by joining with dots but handling special cases
   let result = '';
   for (let i = 0; i < parts.length; i++) {
+    const part = parts[i];
+    const prevPart = i > 0 ? parts[i - 1] : undefined;
+    
+    if (!part) continue;
+    
     if (i === 0) {
-      result = parts[i];
-    } else if (parts[i].startsWith('[') || parts[i].startsWith('option ') || 
-               parts[i].includes(`'`)) {
+      result = part;
+    } else if (part.startsWith('[') || part.startsWith('option ') || 
+               part.includes(`'`)) {
       // These are already formatted
-      if (parts[i - 1].includes(`'`)) {
-        result += `.${parts[i]}`;
+      if (prevPart && prevPart.includes(`'`)) {
+        result += `.${part}`;
       } else {
-        result += result ? `.${parts[i]}` : parts[i];
+        result += result ? `.${part}` : part;
       }
     } else {
-      result += `.${parts[i]}`;
+      result += `.${part}`;
     }
   }
   
