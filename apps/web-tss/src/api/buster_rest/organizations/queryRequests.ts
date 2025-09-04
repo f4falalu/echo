@@ -1,4 +1,4 @@
-import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { type QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { create } from 'mutative';
 import { organizationQueryKeys } from '@/api/query_keys/organization';
 import { userQueryKeys } from '../../query_keys/users';

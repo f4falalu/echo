@@ -1,4 +1,4 @@
-import { QueryClient, useQuery } from '@tanstack/react-query';
+import { type QueryClient, useQuery } from '@tanstack/react-query';
 import { dictionariesQueryKeys } from '@/api/query_keys/dictionaries';
 import { useIsAnonymousSupabaseUser } from '@/context/Supabase';
 import { getColorPalettes, getCurrencies } from './requests';

@@ -1,4 +1,4 @@
-import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { type QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { datasetGroupQueryKeys } from '@/api/query_keys/dataset_groups';
 import { userQueryKeys } from '@/api/query_keys/users';
 import { timeout } from '@/lib/timeout';

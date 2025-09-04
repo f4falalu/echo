@@ -1,4 +1,4 @@
-import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { type QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { GetPermissionGroupResponse } from '@/api/asset_interfaces/permission_groups';
 import { permissionGroupQueryKeys } from '@/api/query_keys/permission_groups';
 import { userQueryKeys } from '@/api/query_keys/users';

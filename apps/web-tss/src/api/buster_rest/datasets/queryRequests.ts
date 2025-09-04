@@ -1,4 +1,4 @@
-import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { type QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { datasetQueryKeys } from '@/api/query_keys/datasets';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import {

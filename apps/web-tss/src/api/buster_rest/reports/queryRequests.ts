@@ -1,6 +1,6 @@
 import type { GetReportResponse, UpdateReportResponse } from '@buster/server-shared/reports';
 import {
-  QueryClient,
+  type QueryClient,
   type UseQueryOptions,
   useMutation,
   useQuery,
