@@ -116,7 +116,7 @@ export const processSyncJob: ReturnType<
 
       // Step 4: Ensure Turbopuffer namespace exists
       const namespace = generateNamespace(payload.dataSourceId);
-      const namespaceExists = await checkNamespaceExists(namespace);
+      const namespaceExists = await checkNamespaceExists(payload.dataSourceId);
       if (!namespaceExists) {
         logger.info('Creating Turbopuffer namespace', { namespace });
         await createNamespaceIfNotExists(payload.dataSourceId);

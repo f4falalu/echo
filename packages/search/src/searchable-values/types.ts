@@ -228,7 +228,7 @@ export function parseUniqueKey(key: string): Omit<SearchableValue, 'embedding' |
  * Generate namespace for Turbopuffer based on data source ID
  */
 export function generateNamespace(dataSourceId: string): string {
-  return `ds_${dataSourceId}`;
+  return dataSourceId;
 }
 
 /**

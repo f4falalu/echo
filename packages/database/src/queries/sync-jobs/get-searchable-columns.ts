@@ -1,7 +1,7 @@
-import { and, eq, isNull } from 'drizzle-orm';
+import { and, eq, isNull, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
-import { dataSources, datasetColumns, datasets } from '../../schema';
+import { dataSources, storedValuesSyncJobs } from '../../schema';
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -13,32 +13,18 @@ export const GetSearchableColumnsInputSchema = z.object({
 
 export const SearchableColumnSchema = z.object({
   id: z.string().uuid(),
-  datasetId: z.string().uuid(),
-  datasetName: z.string(),
   databaseName: z.string(),
   schemaName: z.string(),
   tableName: z.string(),
   columnName: z.string(),
-  columnType: z.string(),
-  description: z.string().nullable(),
-  semanticType: z.string().nullable(),
-  storedValuesStatus: z.string().nullable(),
-  storedValuesError: z.string().nullable(),
-  storedValuesCount: z.number().int().min(0).nullable(),
-  storedValuesLastSynced: z.string().datetime().nullable(),
+  status: z.string(),
+  errorMessage: z.string().nullable(),
+  lastSyncedAt: z.string().datetime().nullable(),
 });
 
 export const GetSearchableColumnsOutputSchema = z.object({
   columns: z.array(SearchableColumnSchema),
   totalCount: z.number().int().min(0),
-  byDataset: z.record(
-    z.string(),
-    z.object({
-      datasetName: z.string(),
-      columns: z.array(SearchableColumnSchema),
-      count: z.number().int().min(0),
-    })
-  ),
 });
 
 export const GetColumnsNeedingSyncInputSchema = z.object({
@@ -69,7 +55,7 @@ export type ColumnsNeedingSyncOutput = z.infer<typeof ColumnsNeedingSyncOutputSc
 
 /**
  * Get all searchable columns for a data source
- * Returns columns where stored_values = true
+ * Returns columns from the stored_values_sync_jobs table
  */
 export async function getSearchableColumns(
   input: GetSearchableColumnsInput
@@ -77,66 +63,31 @@ export async function getSearchableColumns(
   try {
     const validated = GetSearchableColumnsInputSchema.parse(input);
 
-    // Query all searchable columns for the data source
+    // Query all sync jobs for the data source
     const columns = await db
       .select({
-        id: datasetColumns.id,
-        datasetId: datasetColumns.datasetId,
-        datasetName: datasets.name,
-        databaseName: datasets.databaseName,
-        schemaName: datasets.schema,
-        tableName: datasets.name, // Using dataset name as table name
-        columnName: datasetColumns.name,
-        columnType: datasetColumns.type,
-        description: datasetColumns.description,
-        semanticType: datasetColumns.semanticType,
-        storedValuesStatus: datasetColumns.storedValuesStatus,
-        storedValuesError: datasetColumns.storedValuesError,
-        storedValuesCount: datasetColumns.storedValuesCount,
-        storedValuesLastSynced: datasetColumns.storedValuesLastSynced,
+        id: storedValuesSyncJobs.id,
+        databaseName: storedValuesSyncJobs.databaseName,
+        schemaName: storedValuesSyncJobs.schemaName,
+        tableName: storedValuesSyncJobs.tableName,
+        columnName: storedValuesSyncJobs.columnName,
+        status: storedValuesSyncJobs.status,
+        errorMessage: storedValuesSyncJobs.errorMessage,
+        lastSyncedAt: storedValuesSyncJobs.lastSyncedAt,
       })
-      .from(datasetColumns)
-      .innerJoin(datasets, eq(datasets.id, datasetColumns.datasetId))
-      .innerJoin(dataSources, eq(dataSources.id, datasets.dataSourceId))
+      .from(storedValuesSyncJobs)
+      .innerJoin(dataSources, eq(dataSources.id, storedValuesSyncJobs.dataSourceId))
       .where(
         and(
-          eq(dataSources.id, validated.dataSourceId),
+          eq(storedValuesSyncJobs.dataSourceId, validated.dataSourceId),
           isNull(dataSources.deletedAt),
-          eq(dataSources.onboardingStatus, 'completed'),
-          isNull(datasets.deletedAt),
-          eq(datasets.enabled, true),
-          isNull(datasetColumns.deletedAt),
-          eq(datasetColumns.storedValues, true)
+          eq(dataSources.onboardingStatus, 'completed')
         )
       );
-
-    // Group by dataset for easier consumption
-    const byDataset: Record<
-      string,
-      {
-        datasetName: string;
-        columns: SearchableColumn[];
-        count: number;
-      }
-    > = {};
-
-    for (const column of columns) {
-      const datasetId = column.datasetId;
-      if (!byDataset[datasetId]) {
-        byDataset[datasetId] = {
-          datasetName: column.datasetName,
-          columns: [],
-          count: 0,
-        };
-      }
-      byDataset[datasetId].columns.push(column as SearchableColumn);
-      byDataset[datasetId].count++;
-    }
 
     return GetSearchableColumnsOutputSchema.parse({
       columns,
       totalCount: columns.length,
-      byDataset,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -174,17 +125,17 @@ export async function getColumnsNeedingSync(
     // Filter columns that need syncing
     const columnsNeedingSync = allColumns.columns.filter((column) => {
       // Never synced
-      if (!column.storedValuesLastSynced) {
+      if (!column.lastSyncedAt) {
         return true;
       }
 
       // Check if stale
-      return column.storedValuesLastSynced < thresholdTimestamp;
+      return column.lastSyncedAt < thresholdTimestamp;
     });
 
     // Count never synced vs stale
-    const neverSynced = columnsNeedingSync.filter((c) => !c.storedValuesLastSynced).length;
-    const stale = columnsNeedingSync.filter((c) => c.storedValuesLastSynced).length;
+    const neverSynced = columnsNeedingSync.filter((c) => !c.lastSyncedAt).length;
+    const stale = columnsNeedingSync.filter((c) => c.lastSyncedAt).length;
 
     return ColumnsNeedingSyncOutputSchema.parse({
       columns: columnsNeedingSync,
@@ -211,25 +162,20 @@ export async function getColumnDetailsForSync(dataSourceId: string) {
 
     const columns = await db
       .select({
-        databaseName: datasets.databaseName,
-        schemaName: datasets.schema,
-        tableName: datasets.name,
-        columnName: datasetColumns.name,
-        columnId: datasetColumns.id,
-        lastSynced: datasetColumns.storedValuesLastSynced,
+        databaseName: storedValuesSyncJobs.databaseName,
+        schemaName: storedValuesSyncJobs.schemaName,
+        tableName: storedValuesSyncJobs.tableName,
+        columnName: storedValuesSyncJobs.columnName,
+        columnId: storedValuesSyncJobs.id,
+        lastSynced: storedValuesSyncJobs.lastSyncedAt,
       })
-      .from(datasetColumns)
-      .innerJoin(datasets, eq(datasets.id, datasetColumns.datasetId))
-      .innerJoin(dataSources, eq(dataSources.id, datasets.dataSourceId))
+      .from(storedValuesSyncJobs)
+      .innerJoin(dataSources, eq(dataSources.id, storedValuesSyncJobs.dataSourceId))
       .where(
         and(
-          eq(dataSources.id, validated),
+          eq(storedValuesSyncJobs.dataSourceId, validated),
           isNull(dataSources.deletedAt),
-          eq(dataSources.onboardingStatus, 'completed'),
-          isNull(datasets.deletedAt),
-          eq(datasets.enabled, true),
-          isNull(datasetColumns.deletedAt),
-          eq(datasetColumns.storedValues, true)
+          eq(dataSources.onboardingStatus, 'completed')
         )
       );
 
@@ -245,40 +191,35 @@ export async function getColumnDetailsForSync(dataSourceId: string) {
 
 /**
  * Update column sync metadata after successful sync
- * Updates the stored_values columns tracking fields
+ * Updates the stored_values_sync_jobs table
  */
 export async function updateColumnSyncMetadata(
-  columnId: string,
+  syncJobId: string,
   metadata: {
-    status: 'syncing' | 'success' | 'failed';
+    status: 'syncing' | 'success' | 'failed' | 'error';
     error?: string | null;
-    count?: number;
     lastSynced?: string;
   }
 ): Promise<void> {
   try {
-    const validatedId = z.string().uuid().parse(columnId);
+    const validatedId = z.string().uuid().parse(syncJobId);
 
     const updateData: Record<string, unknown> = {
-      storedValuesStatus: metadata.status,
+      status: metadata.status,
     };
 
     if (metadata.error !== undefined) {
-      updateData.storedValuesError = metadata.error;
-    }
-
-    if (metadata.count !== undefined) {
-      updateData.storedValuesCount = metadata.count;
+      updateData.errorMessage = metadata.error;
     }
 
     if (metadata.lastSynced !== undefined) {
-      updateData.storedValuesLastSynced = metadata.lastSynced;
+      updateData.lastSyncedAt = metadata.lastSynced;
     }
 
-    await db.update(datasetColumns).set(updateData).where(eq(datasetColumns.id, validatedId));
+    await db.update(storedValuesSyncJobs).set(updateData).where(eq(storedValuesSyncJobs.id, validatedId));
   } catch (error) {
     if (error instanceof z.ZodError) {
-      throw new Error(`Invalid columnId: ${error.message}`);
+      throw new Error(`Invalid syncJobId: ${error.message}`);
     }
 
     if (error instanceof Error) {

@@ -243,7 +243,7 @@ describe('Searchable Values Types', () => {
         const dataSourceId = '123e4567-e89b-12d3-a456-426614174000';
         const namespace = generateNamespace(dataSourceId);
 
-        expect(namespace).toBe('ds_123e4567-e89b-12d3-a456-426614174000');
+        expect(namespace).toBe('123e4567-e89b-12d3-a456-426614174000');
       });
     });
 

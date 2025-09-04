@@ -131,6 +131,9 @@ export async function updateSyncJobStatus(
 
     return UpdateSyncJobOutputSchema.parse({
       ...updated,
+      lastSyncedAt: updated.lastSyncedAt
+        ? new Date(updated.lastSyncedAt).toISOString()
+        : null,
       updatedAt: new Date().toISOString(),
     });
   } catch (error) {
@@ -177,7 +180,13 @@ export async function getSyncJobStatus(
       throw new Error(`Sync job not found: ${validated.jobId}`);
     }
 
-    return GetSyncJobStatusOutputSchema.parse(job);
+    return GetSyncJobStatusOutputSchema.parse({
+      ...job,
+      lastSyncedAt: job.lastSyncedAt
+        ? new Date(job.lastSyncedAt).toISOString()
+        : null,
+      createdAt: new Date(job.createdAt).toISOString(),
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       throw new Error(`Validation error in getSyncJobStatus: ${error.message}`);

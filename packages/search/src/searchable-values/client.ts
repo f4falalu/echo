@@ -149,10 +149,12 @@ export const chunk = <T>(arr: T[], size: number): T[][] => {
 // ============================================================================
 
 /**
- * Create a Turbopuffer client with validated API key
+ * Create a Turbopuffer client with validated API key and region
  */
 export const createClient = (): Turbopuffer => {
   const apiKey = process.env.TURBOPUFFER_API_KEY;
+  const region = process.env.TURBOPUFFER_REGION || 'aws-us-east-1';
+  
   if (!apiKey) {
     throw new TurbopufferError(
       'TURBOPUFFER_API_KEY environment variable is not set',
@@ -160,7 +162,11 @@ export const createClient = (): Turbopuffer => {
       false
     );
   }
-  return new Turbopuffer({ apiKey });
+  
+  return new Turbopuffer({ 
+    apiKey,
+    region 
+  });
 };
 
 /**

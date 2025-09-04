@@ -123,7 +123,7 @@ describe('processSyncJob', () => {
         rows: mockDistinctValues.map((v) => ({ value: v })),
         fields: [],
       });
-      vi.mocked(generateNamespace).mockReturnValue('ds_ds-456');
+      vi.mocked(generateNamespace).mockReturnValue('ds-456');
       vi.mocked(checkNamespaceExists).mockResolvedValue(true);
       vi.mocked(queryExistingKeys).mockResolvedValue(mockExistingKeys);
       vi.mocked(deduplicateValues).mockResolvedValue({
@@ -148,7 +148,7 @@ describe('processSyncJob', () => {
       });
       vi.mocked(generateSearchableValueEmbeddings).mockResolvedValue(mockEmbeddings);
       vi.mocked(upsertSearchableValues).mockResolvedValue({
-        namespace: 'ds_ds-456',
+        namespace: 'ds-456',
         upserted: 2,
         errors: [],
       });
@@ -175,7 +175,7 @@ describe('processSyncJob', () => {
       expect(mockAdapter.query).toHaveBeenCalledWith(
         expect.stringContaining('SELECT DISTINCT "company_name"')
       );
-      expect(checkNamespaceExists).toHaveBeenCalledWith('ds_ds-456');
+      expect(checkNamespaceExists).toHaveBeenCalledWith('ds-456');
       expect(queryExistingKeys).toHaveBeenCalledWith({
         dataSourceId: 'ds-456',
         query: {
@@ -271,7 +271,7 @@ describe('processSyncJob', () => {
         rows: mockDistinctValues.map((v) => ({ value: v })),
         fields: [],
       });
-      vi.mocked(generateNamespace).mockReturnValue('ds_ds-456');
+      vi.mocked(generateNamespace).mockReturnValue('ds-456');
       vi.mocked(checkNamespaceExists).mockResolvedValue(true);
       vi.mocked(queryExistingKeys).mockResolvedValue(mockExistingKeys);
       vi.mocked(deduplicateValues).mockResolvedValue({
@@ -315,7 +315,7 @@ describe('processSyncJob', () => {
         rows: [{ value: 'Test Company' }],
         fields: [],
       });
-      vi.mocked(generateNamespace).mockReturnValue('ds_ds-456');
+      vi.mocked(generateNamespace).mockReturnValue('ds-456');
       vi.mocked(checkNamespaceExists).mockResolvedValue(false); // Namespace doesn't exist
       vi.mocked(queryExistingKeys).mockResolvedValue([]);
       vi.mocked(deduplicateValues).mockResolvedValue({
@@ -333,7 +333,7 @@ describe('processSyncJob', () => {
       });
       vi.mocked(generateSearchableValueEmbeddings).mockResolvedValue([[0.1, 0.2, 0.3]]);
       vi.mocked(upsertSearchableValues).mockResolvedValue({
-        namespace: 'ds_ds-456',
+        namespace: 'ds-456',
         upserted: 1,
         errors: [],
       });
@@ -342,7 +342,7 @@ describe('processSyncJob', () => {
       const result = await runTask(mockPayload);
 
       // Verify namespace creation
-      expect(checkNamespaceExists).toHaveBeenCalledWith('ds_ds-456');
+      expect(checkNamespaceExists).toHaveBeenCalledWith('ds-456');
       expect(createNamespaceIfNotExists).toHaveBeenCalledWith('ds-456');
       expect(result.success).toBe(true);
     });
@@ -416,7 +416,7 @@ describe('processSyncJob', () => {
         rows: [{ value: 'Test Company' }],
         fields: [],
       });
-      vi.mocked(generateNamespace).mockReturnValue('ds_ds-456');
+      vi.mocked(generateNamespace).mockReturnValue('ds-456');
       vi.mocked(checkNamespaceExists).mockResolvedValue(true);
       vi.mocked(queryExistingKeys).mockResolvedValue([]);
       vi.mocked(deduplicateValues).mockResolvedValue({
@@ -460,7 +460,7 @@ describe('processSyncJob', () => {
         rows: [{ value: 'Test Company' }],
         fields: [],
       });
-      vi.mocked(generateNamespace).mockReturnValue('ds_ds-456');
+      vi.mocked(generateNamespace).mockReturnValue('ds-456');
       vi.mocked(checkNamespaceExists).mockResolvedValue(true);
       vi.mocked(queryExistingKeys).mockResolvedValue([]);
       vi.mocked(deduplicateValues).mockResolvedValue({
@@ -521,7 +521,7 @@ describe('processSyncJob', () => {
         rows: specialValues.map((v) => ({ value: v })),
         fields: [],
       });
-      vi.mocked(generateNamespace).mockReturnValue('ds_ds-456');
+      vi.mocked(generateNamespace).mockReturnValue('ds-456');
       vi.mocked(checkNamespaceExists).mockResolvedValue(true);
       vi.mocked(queryExistingKeys).mockResolvedValue([]);
       vi.mocked(deduplicateValues).mockResolvedValue({
@@ -539,7 +539,7 @@ describe('processSyncJob', () => {
         specialValues.map(() => [0.1, 0.2, 0.3])
       );
       vi.mocked(upsertSearchableValues).mockResolvedValue({
-        namespace: 'ds_ds-456',
+        namespace: 'ds-456',
         upserted: specialValues.length,
         errors: [],
       });
@@ -567,7 +567,7 @@ describe('processSyncJob', () => {
         ],
         fields: [],
       });
-      vi.mocked(generateNamespace).mockReturnValue('ds_ds-456');
+      vi.mocked(generateNamespace).mockReturnValue('ds-456');
       vi.mocked(checkNamespaceExists).mockResolvedValue(true);
       vi.mocked(queryExistingKeys).mockResolvedValue([]);
       vi.mocked(deduplicateValues).mockResolvedValue({
@@ -595,7 +595,7 @@ describe('processSyncJob', () => {
         [0.4, 0.5, 0.6],
       ]);
       vi.mocked(upsertSearchableValues).mockResolvedValue({
-        namespace: 'ds_ds-456',
+        namespace: 'ds-456',
         upserted: 2,
         errors: [],
       });
@@ -626,7 +626,7 @@ describe('processSyncJob', () => {
         rows: [{ value: 'Company 1' }, { value: 'Company 2' }],
         fields: [],
       });
-      vi.mocked(generateNamespace).mockReturnValue('ds_ds-456');
+      vi.mocked(generateNamespace).mockReturnValue('ds-456');
       vi.mocked(checkNamespaceExists).mockResolvedValue(true);
       vi.mocked(queryExistingKeys).mockResolvedValue([]);
       vi.mocked(deduplicateValues).mockResolvedValue({
@@ -654,7 +654,7 @@ describe('processSyncJob', () => {
         [0.4, 0.5, 0.6],
       ]);
       vi.mocked(upsertSearchableValues).mockResolvedValue({
-        namespace: 'ds_ds-456',
+        namespace: 'ds-456',
         upserted: 2,
         errors: [],
       });

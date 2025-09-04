@@ -234,7 +234,7 @@ describe('Turbopuffer Client', () => {
       const result = await upsertSearchableValues({ dataSourceId: mockDataSourceId, values });
 
       expect(result.upserted).toBe(2);
-      expect(result.namespace).toBe(`ds_${mockDataSourceId}`);
+      expect(result.namespace).toBe(mockDataSourceId);
       expect(result.errors).toBeUndefined();
 
       expect(mockNamespace.write).toHaveBeenCalledTimes(1);
@@ -256,7 +256,7 @@ describe('Turbopuffer Client', () => {
       const result = await upsertSearchableValues({ dataSourceId: mockDataSourceId, values: [] });
 
       expect(result.upserted).toBe(0);
-      expect(result.namespace).toBe(`ds_${mockDataSourceId}`);
+      expect(result.namespace).toBe(mockDataSourceId);
     });
 
     it('should handle invalid embeddings', async () => {

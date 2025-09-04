@@ -5,6 +5,7 @@ import {
   markSyncJobFailed,
   markSyncJobInProgress,
 } from '@buster/database';
+import { checkNamespaceExists, createNamespaceIfNotExists } from '@buster/search';
 import { logger, schedules } from '@trigger.dev/sdk';
 import { processSyncJob } from './process-sync-job';
 import type { DailySyncReport, DataSourceSyncSummary, SyncJobPayload } from './types';
@@ -61,7 +62,37 @@ export const syncSearchableValues = schedules.task({
         return createReport(executionId, startTime, [], errors);
       }
 
-      // Step 2: Process each data source
+      // Step 2: Ensure TurboPuffer namespaces exist for all data sources
+      logger.info('Checking TurboPuffer namespaces', {
+        executionId,
+        dataSourceCount: dataSourcesResult.totalCount,
+      });
+
+      for (const dataSource of dataSourcesResult.dataSources) {
+        try {
+          const namespaceExists = await checkNamespaceExists(dataSource.id);
+          if (!namespaceExists) {
+            logger.info('Creating TurboPuffer namespace', {
+              executionId,
+              dataSourceId: dataSource.id,
+              dataSourceName: dataSource.name,
+            });
+            // Namespace will be created automatically on first write
+            await createNamespaceIfNotExists(dataSource.id);
+          }
+        } catch (error) {
+          const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+          logger.error('Failed to check/create namespace', {
+            executionId,
+            dataSourceId: dataSource.id,
+            dataSourceName: dataSource.name,
+            error: errorMsg,
+          });
+          errors.push(`Failed to check/create namespace for ${dataSource.name}: ${errorMsg}`);
+        }
+      }
+
+      // Step 3: Process each data source
       for (const dataSource of dataSourcesResult.dataSources) {
         const summary: DataSourceSyncSummary = {
           dataSourceId: dataSource.id,
@@ -98,7 +129,7 @@ export const syncSearchableValues = schedules.task({
             continue;
           }
 
-          // Step 3: Create sync jobs for all columns
+          // Step 4: Create sync jobs for all columns
           const columnsToSync = columnsResult.columns.map((col) => ({
             databaseName: col.databaseName,
             schemaName: col.schemaName,
@@ -127,7 +158,7 @@ export const syncSearchableValues = schedules.task({
             summary.failedSyncs++;
           }
 
-          // Step 4: Process each sync job
+          // Step 5: Process each sync job
           const batchSize = 10; // Process in batches
           const jobs = batchResult.created;
 
@@ -211,7 +242,7 @@ export const syncSearchableValues = schedules.task({
         }
       }
 
-      // Step 5: Generate and return report
+      // Step 6: Generate and return report
       const report = createReport(executionId, startTime, dataSourceSummaries, errors);
 
       logger.info('Daily sync completed', {

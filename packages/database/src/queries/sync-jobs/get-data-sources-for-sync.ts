@@ -1,7 +1,7 @@
-import { and, eq, gt, isNull } from 'drizzle-orm';
+import { and, eq, gt, isNull, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
-import { dataSources, datasetColumns, datasets } from '../../schema';
+import { dataSources, storedValuesSyncJobs } from '../../schema';
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -32,12 +32,12 @@ export type GetDataSourcesForSyncOutput = z.infer<typeof GetDataSourcesForSyncOu
 // ============================================================================
 
 /**
- * Get all data sources that have columns with stored_values = true
+ * Get all data sources that have sync jobs in the stored_values_sync_jobs table
  * These are the data sources that need to be synced to Turbopuffer
  */
 export async function getDataSourcesForSync(): Promise<GetDataSourcesForSyncOutput> {
   try {
-    // Query data sources that have at least one column with stored_values = true
+    // Query data sources that have sync jobs
     const results = await db
       .selectDistinct({
         id: dataSources.id,
@@ -46,46 +46,29 @@ export async function getDataSourcesForSync(): Promise<GetDataSourcesForSyncOutp
         organizationId: dataSources.organizationId,
       })
       .from(dataSources)
-      .innerJoin(datasets, eq(datasets.dataSourceId, dataSources.id))
-      .innerJoin(datasetColumns, eq(datasetColumns.datasetId, datasets.id))
+      .innerJoin(storedValuesSyncJobs, eq(storedValuesSyncJobs.dataSourceId, dataSources.id))
       .where(
         and(
           // Only active data sources
           isNull(dataSources.deletedAt),
-          // Only active datasets
-          isNull(datasets.deletedAt),
-          eq(datasets.enabled, true),
-          // Only active columns
-          isNull(datasetColumns.deletedAt),
-          // Only columns with stored_values enabled
-          eq(datasetColumns.storedValues, true),
           // Only successfully onboarded data sources
           eq(dataSources.onboardingStatus, 'completed')
         )
       );
 
-    // Count columns with stored_values for each data source
+    // Count sync jobs for each data source
     const dataSourcesWithCounts = await Promise.all(
       results.map(async (ds) => {
         const columnCount = await db
           .select({
-            count: datasetColumns.id,
+            count: sql<number>`COUNT(DISTINCT ${storedValuesSyncJobs.columnName})`,
           })
-          .from(datasetColumns)
-          .innerJoin(datasets, eq(datasets.id, datasetColumns.datasetId))
-          .where(
-            and(
-              eq(datasets.dataSourceId, ds.id),
-              isNull(datasets.deletedAt),
-              eq(datasets.enabled, true),
-              isNull(datasetColumns.deletedAt),
-              eq(datasetColumns.storedValues, true)
-            )
-          );
+          .from(storedValuesSyncJobs)
+          .where(eq(storedValuesSyncJobs.dataSourceId, ds.id));
 
         return {
           ...ds,
-          columnsWithStoredValues: columnCount.length,
+          columnsWithStoredValues: Number(columnCount[0]?.count || 0),
         };
       })
     );
@@ -122,20 +105,15 @@ export async function dataSourceNeedsSync(dataSourceId: string): Promise<boolean
 
     const result = await db
       .select({
-        id: datasetColumns.id,
+        id: storedValuesSyncJobs.id,
       })
-      .from(datasetColumns)
-      .innerJoin(datasets, eq(datasets.id, datasetColumns.datasetId))
-      .innerJoin(dataSources, eq(dataSources.id, datasets.dataSourceId))
+      .from(storedValuesSyncJobs)
+      .innerJoin(dataSources, eq(dataSources.id, storedValuesSyncJobs.dataSourceId))
       .where(
         and(
           eq(dataSources.id, validatedId),
           isNull(dataSources.deletedAt),
-          eq(dataSources.onboardingStatus, 'completed'),
-          isNull(datasets.deletedAt),
-          eq(datasets.enabled, true),
-          isNull(datasetColumns.deletedAt),
-          eq(datasetColumns.storedValues, true)
+          eq(dataSources.onboardingStatus, 'completed')
         )
       )
       .limit(1);
