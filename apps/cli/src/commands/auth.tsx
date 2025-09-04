@@ -18,12 +18,13 @@ interface AuthProps {
   cloud?: boolean;
   clear?: boolean;
   noSave?: boolean;
+  show?: boolean;
 }
 
 const DEFAULT_HOST = 'api2.buster.so';
 const LOCAL_HOST = 'localhost:3001';
 
-export function Auth({ apiKey, host, local, cloud, clear, noSave }: AuthProps) {
+export function Auth({ apiKey, host, local, cloud, clear, noSave, show }: AuthProps) {
   const { exit } = useApp();
   const [step, setStep] = useState<'clear' | 'host' | 'apikey' | 'validate' | 'save' | 'done'>(
     'clear'
@@ -47,9 +48,27 @@ export function Auth({ apiKey, host, local, cloud, clear, noSave }: AuthProps) {
     return `https://${trimmed}`;
   };
 
-  // Handle clear flag
+  // Handle clear and show flags
   useEffect(() => {
-    if (clear) {
+    if (show) {
+      loadCredentials()
+        .then((creds) => {
+          if (creds) {
+            const masked = creds.apiKey.length > 6 ? `****${creds.apiKey.slice(-6)}` : '****';
+            const displayHost = creds.apiUrl.replace(/^https?:\/\//, '');
+            console.log('\nCurrent Buster credentials:');
+            console.log(`  Host: ${displayHost}`);
+            console.log(`  API Key: ${masked}\n`);
+          } else {
+            console.log('\n❌ No credentials found. Run `buster auth` to configure.\n');
+          }
+          exit();
+        })
+        .catch((err: Error) => {
+          console.error('❌ Failed to load credentials:', err.message);
+          exit();
+        });
+    } else if (clear) {
       deleteCredentials()
         .then(() => {
           console.log('✅ Credentials cleared successfully');
@@ -94,7 +113,7 @@ export function Auth({ apiKey, host, local, cloud, clear, noSave }: AuthProps) {
         }
       });
     }
-  }, [clear, apiKey, host, local, cloud, exit]);
+  }, [show, clear, apiKey, host, local, cloud, exit]);
 
   // Handle input completion
   useInput((_input, key) => {

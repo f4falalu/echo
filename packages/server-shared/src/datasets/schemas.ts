@@ -4,18 +4,35 @@ import { z } from 'zod';
 // Model Schemas - Define the structure of semantic layer models
 // ============================================================================
 
+// Helper to allow {{TODO}} as a placeholder in any string field
+const TODO_MARKER = '{{TODO}}';
+const stringWithTodo = z.union([z.string(), z.literal(TODO_MARKER)]);
+
 export const ArgumentSchema = z.object({
   name: z.string(),
   type: z.string(),
   description: z.string().optional(),
 });
 
+// Support string, number, boolean, {{TODO}}, or object for dimension options
+// YAML automatically converts true/false to booleans
+const DimensionOptionSchema = z.union([
+  z.string(),
+  z.number(),
+  z.boolean(),
+  z.literal(TODO_MARKER),
+  z.object({
+    value: z.union([z.string(), z.number(), z.boolean(), z.literal(TODO_MARKER)]),
+    description: z.string().optional(),
+  }),
+]);
+
 export const DimensionSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
   type: z.string().optional(),
-  searchable: z.boolean().default(false),
-  options: z.array(z.string()).optional(),
+  searchable: z.boolean().optional().default(false),
+  options: z.array(DimensionOptionSchema).optional().nullable(),
 });
 
 export const MeasureSchema = z.object({
@@ -53,12 +70,69 @@ export const ModelSchema = z.object({
   data_source_name: z.string().optional(),
   database: z.string().optional(),
   schema: z.string().optional(),
-  dimensions: z.array(DimensionSchema).default([]),
-  measures: z.array(MeasureSchema).default([]),
-  metrics: z.array(DatasetMetricSchema).default([]),
-  filters: z.array(FilterSchema).default([]),
-  relationships: z.array(RelationshipSchema).default([]),
-});
+  dimensions: z.array(DimensionSchema).optional().default([]),
+  measures: z.array(MeasureSchema).optional().default([]),
+  metrics: z.array(DatasetMetricSchema).optional().default([]),
+  filters: z.array(FilterSchema).optional().default([]),
+  relationships: z.array(RelationshipSchema).optional().default([]),
+  clarifications: z.array(z.string()).optional().default([]),
+}).refine(
+  (data) => {
+    // Check for duplicate dimension names
+    const dimensionNames = data.dimensions.map(d => d.name);
+    return dimensionNames.length === new Set(dimensionNames).size;
+  },
+  (data) => {
+    const dimensionNames = data.dimensions.map(d => d.name);
+    const duplicates = dimensionNames.filter((name, index) => dimensionNames.indexOf(name) !== index);
+    return {
+      message: `Duplicate dimension name: ${duplicates[0]}`,
+      path: ['dimensions'],
+    };
+  }
+).refine(
+  (data) => {
+    // Check for duplicate measure names
+    const measureNames = data.measures.map(m => m.name);
+    return measureNames.length === new Set(measureNames).size;
+  },
+  (data) => {
+    const measureNames = data.measures.map(m => m.name);
+    const duplicates = measureNames.filter((name, index) => measureNames.indexOf(name) !== index);
+    return {
+      message: `Duplicate measure name: ${duplicates[0]}`,
+      path: ['measures'],
+    };
+  }
+).refine(
+  (data) => {
+    // Check for duplicate metric names
+    const metricNames = data.metrics.map(m => m.name);
+    return metricNames.length === new Set(metricNames).size;
+  },
+  (data) => {
+    const metricNames = data.metrics.map(m => m.name);
+    const duplicates = metricNames.filter((name, index) => metricNames.indexOf(name) !== index);
+    return {
+      message: `Duplicate metric name: ${duplicates[0]}`,
+      path: ['metrics'],
+    };
+  }
+).refine(
+  (data) => {
+    // Check for duplicate filter names
+    const filterNames = data.filters.map(f => f.name);
+    return filterNames.length === new Set(filterNames).size;
+  },
+  (data) => {
+    const filterNames = data.filters.map(f => f.name);
+    const duplicates = filterNames.filter((name, index) => filterNames.indexOf(name) !== index);
+    return {
+      message: `Duplicate filter name: ${duplicates[0]}`,
+      path: ['filters'],
+    };
+  }
+);
 
 // Support both single model and multi-model YAML files
 export const SingleModelSchema = ModelSchema;
@@ -110,6 +184,7 @@ export const DeployModelSchema = z.object({
   metrics: z.array(DatasetMetricSchema).optional(),
   filters: z.array(FilterSchema).optional(),
   relationships: z.array(RelationshipSchema).optional(),
+  clarifications: z.array(z.string()).optional(),
 });
 
 export const DeployRequestSchema = z.object({

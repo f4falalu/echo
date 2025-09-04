@@ -6,6 +6,8 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { Model } from '../schemas';
 import {
   ModelParsingError,
+  fileContainsTodo,
+  findTodoMarkers,
   formatZodIssues,
   generateDefaultSQL,
   parseModelFile,
@@ -542,59 +544,10 @@ describe('parsing', () => {
       expect(result.errors).toContain('Model must have at least one dimension or measure');
     });
 
-    it('should detect duplicate dimension names', () => {
-      const model: Model = {
-        name: 'test',
-        dimensions: [
-          { name: 'duplicate', searchable: false },
-          { name: 'duplicate', searchable: true },
-        ],
-        measures: [],
-        metrics: [],
-        filters: [],
-        relationships: [],
-      };
+    // Note: Duplicate name validation is now handled by ModelSchema
+    // These tests have been moved to schemas.test.ts
 
-      const result = validateModel(model);
 
-      expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Duplicate dimension name: duplicate');
-    });
-
-    it('should detect duplicate measure names', () => {
-      const model: Model = {
-        name: 'test',
-        dimensions: [{ name: 'id', searchable: false }],
-        measures: [{ name: 'count' }, { name: 'count' }],
-        metrics: [],
-        filters: [],
-        relationships: [],
-      };
-
-      const result = validateModel(model);
-
-      expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Duplicate measure name: count');
-    });
-
-    it('should detect duplicate metric names', () => {
-      const model: Model = {
-        name: 'test',
-        dimensions: [{ name: 'id', searchable: false }],
-        measures: [],
-        metrics: [
-          { name: 'total', expr: 'sum(amount)' },
-          { name: 'total', expr: 'count(*)' },
-        ],
-        filters: [],
-        relationships: [],
-      };
-
-      const result = validateModel(model);
-
-      expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Duplicate metric name: total');
-    });
 
     it('should require metric expressions', () => {
       const model: Model = {
@@ -612,24 +565,6 @@ describe('parsing', () => {
       expect(result.errors).toContain('Metric empty_metric must have an expression');
     });
 
-    it('should detect duplicate filter names', () => {
-      const model: Model = {
-        name: 'test',
-        dimensions: [{ name: 'id', searchable: false }],
-        measures: [],
-        metrics: [],
-        filters: [
-          { name: 'active', expr: 'status = "active"' },
-          { name: 'active', expr: 'deleted_at IS NULL' },
-        ],
-        relationships: [],
-      };
-
-      const result = validateModel(model);
-
-      expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Duplicate filter name: active');
-    });
 
     it('should require filter expressions', () => {
       const model: Model = {
@@ -671,7 +606,7 @@ describe('parsing', () => {
         metrics: [{ name: 'metric1', expr: '' }],
         filters: [
           { name: 'filter1', expr: 'valid' },
-          { name: 'filter1', expr: 'duplicate' },
+          { name: 'filter2', expr: '' },  // Changed to test empty expression instead of duplicate
         ],
         relationships: [],
       };
@@ -683,7 +618,319 @@ describe('parsing', () => {
       expect(result.errors).toContain('Model name is required');
       expect(result.errors).toContain('Model must have at least one dimension or measure');
       expect(result.errors).toContain('Metric metric1 must have an expression');
-      expect(result.errors).toContain('Duplicate filter name: filter1');
+      expect(result.errors).toContain('Filter filter2 must have an expression');
+    });
+  });
+
+  describe('findTodoMarkers', () => {
+    it('should detect TODO markers in model description', () => {
+      const model: Model = {
+        name: 'test',
+        description: 'This model has a {{TODO}} marker in description',
+        dimensions: [{ name: 'id', searchable: false }],
+        measures: [],
+        metrics: [],
+        filters: [],
+        relationships: [],
+      };
+
+      const todos = findTodoMarkers(model);
+      expect(todos).toContain('description contains {{TODO}}');
+    });
+
+    it('should detect TODO markers in dimension fields', () => {
+      const model: Model = {
+        name: 'test',
+        dimensions: [
+          {
+            name: 'status',
+            description: 'Status field {{TODO}} add more detail',
+            type: 'string',
+            searchable: false,
+          },
+          {
+            name: 'type',
+            type: '{{TODO}}',
+            searchable: false,
+          },
+          {
+            name: 'category',
+            options: ['active', '{{TODO}}', 'pending'],
+            searchable: false,
+          },
+        ],
+        measures: [],
+        metrics: [],
+        filters: [],
+        relationships: [],
+      };
+
+      const todos = findTodoMarkers(model);
+      expect(todos).toContain("dimension 'status' description contains {{TODO}}");
+      expect(todos).toContain("dimension 'type' type contains {{TODO}}");
+      expect(todos).toContain("dimension 'category' options contains {{TODO}}");
+    });
+
+    it('should detect TODO markers in measures', () => {
+      const model: Model = {
+        name: 'test',
+        dimensions: [{ name: 'id', searchable: false }],
+        measures: [
+          {
+            name: 'total',
+            description: '{{TODO}} calculate properly',
+            type: 'numeric',
+          },
+          {
+            name: 'count',
+            type: '{{TODO}}',
+          },
+        ],
+        metrics: [],
+        filters: [],
+        relationships: [],
+      };
+
+      const todos = findTodoMarkers(model);
+      expect(todos).toContain("measure 'total' description contains {{TODO}}");
+      expect(todos).toContain("measure 'count' type contains {{TODO}}");
+    });
+
+    it('should detect TODO markers in metrics and filters', () => {
+      const model: Model = {
+        name: 'test',
+        dimensions: [{ name: 'id', searchable: false }],
+        measures: [],
+        metrics: [
+          {
+            name: 'metric1',
+            expr: 'sum({{TODO}})',
+            description: 'Metric {{TODO}}',
+          },
+        ],
+        filters: [
+          {
+            name: 'filter1',
+            expr: 'status = {{TODO}}',
+            description: '{{TODO}} add description',
+          },
+        ],
+        relationships: [],
+      };
+
+      const todos = findTodoMarkers(model);
+      expect(todos).toContain("metric 'metric1' description contains {{TODO}}");
+      expect(todos).toContain("metric 'metric1' expression contains {{TODO}}");
+      expect(todos).toContain("filter 'filter1' description contains {{TODO}}");
+      expect(todos).toContain("filter 'filter1' expression contains {{TODO}}");
+    });
+
+    it('should detect TODO markers in relationships', () => {
+      const model: Model = {
+        name: 'test',
+        dimensions: [{ name: 'id', searchable: false }],
+        measures: [],
+        metrics: [],
+        filters: [],
+        relationships: [
+          {
+            name: 'user',
+            description: '{{TODO}} verify cardinality',
+            source_col: 'user_id',
+            ref_col: '{{TODO}}',
+          },
+          {
+            name: 'product',
+            source_col: '{{TODO}}',
+            ref_col: 'products.id',
+          },
+        ],
+      };
+
+      const todos = findTodoMarkers(model);
+      expect(todos).toContain("relationship 'user' description contains {{TODO}}");
+      expect(todos).toContain("relationship 'user' ref_col contains {{TODO}}");
+      expect(todos).toContain("relationship 'product' source_col contains {{TODO}}");
+    });
+
+    it('should detect TODO markers in clarifications', () => {
+      const model: Model = {
+        name: 'test',
+        dimensions: [{ name: 'id', searchable: false }],
+        measures: [],
+        metrics: [],
+        filters: [],
+        relationships: [],
+        clarifications: [
+          'This is a normal clarification',
+          '{{TODO}} verify this assumption',
+          'Another normal one',
+        ],
+      };
+
+      const todos = findTodoMarkers(model);
+      expect(todos).toContain('clarification #2 contains {{TODO}}');
+      expect(todos).not.toContain('clarification #1 contains {{TODO}}');
+      expect(todos).not.toContain('clarification #3 contains {{TODO}}');
+    });
+
+    it('should detect TODO markers in complex option objects', () => {
+      const model: Model = {
+        name: 'test',
+        dimensions: [
+          {
+            name: 'status',
+            options: [
+              { value: 1, description: 'Active' },
+              { value: 2, description: '{{TODO}} determine status' },
+              'pending',
+            ],
+            searchable: false,
+          },
+        ],
+        measures: [],
+        metrics: [],
+        filters: [],
+        relationships: [],
+      };
+
+      const todos = findTodoMarkers(model);
+      expect(todos).toContain("dimension 'status' options contains {{TODO}}");
+    });
+
+    it('should return empty array when no TODOs exist', () => {
+      const model: Model = {
+        name: 'clean_model',
+        description: 'A model with no TODOs',
+        dimensions: [
+          {
+            name: 'id',
+            description: 'Primary key',
+            type: 'integer',
+            searchable: false,
+          },
+        ],
+        measures: [
+          {
+            name: 'count',
+            description: 'Row count',
+            type: 'integer',
+          },
+        ],
+        metrics: [],
+        filters: [],
+        relationships: [],
+      };
+
+      const todos = findTodoMarkers(model);
+      expect(todos).toEqual([]);
+    });
+  });
+
+  describe('fileContainsTodo', () => {
+    it('should detect {{TODO}} in file content', async () => {
+      const testFile = join(testDir, 'todo-model.yml');
+      await writeFile(
+        testFile,
+        yaml.dump({
+          name: 'test_model',
+          description: 'Model with {{TODO}} in description',
+          dimensions: [],
+        })
+      );
+
+      const hasTodo = await fileContainsTodo(testFile);
+      expect(hasTodo).toBe(true);
+    });
+
+    it('should return false for files without {{TODO}}', async () => {
+      const testFile = join(testDir, 'clean-model.yml');
+      await writeFile(
+        testFile,
+        yaml.dump({
+          name: 'test_model',
+          description: 'Clean model',
+          dimensions: [],
+        })
+      );
+
+      const hasTodo = await fileContainsTodo(testFile);
+      expect(hasTodo).toBe(false);
+    });
+  });
+
+  describe('parseModelFile with {{TODO}} markers', () => {
+    it('should skip file parsing when {{TODO}} is detected', async () => {
+      const testFile = join(testDir, 'todo-skip.yml');
+      const content = `
+name: test_model
+description: >
+  This model has {{TODO}} in description
+dimensions:
+  - name: field1
+    type: {{TODO}}
+`;
+      await writeFile(testFile, content);
+
+      const result = await parseModelFile(testFile);
+      
+      expect(result.models).toHaveLength(0);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].issues[0].message).toContain('{{TODO}} markers and will be skipped');
+    });
+
+    it('should parse normally when no {{TODO}} exists', async () => {
+      const testFile = join(testDir, 'normal-model.yml');
+      const content = yaml.dump({
+        name: 'test_model',
+        description: 'Normal model',
+        dimensions: [{ name: 'id', type: 'integer' }],
+        measures: [],
+      });
+      await writeFile(testFile, content);
+
+      const result = await parseModelFile(testFile);
+      
+      expect(result.models).toHaveLength(1);
+      expect(result.errors).toHaveLength(0);
+      expect(result.models[0].name).toBe('test_model');
+    });
+  });
+
+  describe('validateModel with TODOs', () => {
+    it('should mark model as invalid when TODOs are present', () => {
+      const model: Model = {
+        name: 'test',
+        description: 'Model with {{TODO}} marker',
+        dimensions: [{ name: 'id', searchable: false }],
+        measures: [],
+        metrics: [],
+        filters: [],
+        relationships: [],
+      };
+
+      const result = validateModel(model);
+      expect(result.valid).toBe(false);
+      expect(result.todos).toHaveLength(1);
+      expect(result.todos).toContain('description contains {{TODO}}');
+    });
+
+    it('should return both errors and todos', () => {
+      const model: Model = {
+        name: '', // This will cause an error
+        description: '{{TODO}} add description',
+        dimensions: [],
+        measures: [],
+        metrics: [],
+        filters: [],
+        relationships: [],
+      };
+
+      const result = validateModel(model);
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Model name is required');
+      expect(result.errors).toContain('Model must have at least one dimension or measure');
+      expect(result.todos).toContain('description contains {{TODO}}');
     });
   });
 

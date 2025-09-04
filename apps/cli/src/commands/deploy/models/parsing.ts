@@ -11,7 +11,20 @@ export interface ParseModelResult {
   errors: Array<{
     modelName?: string;
     issues: ZodIssue[];
+    rawData?: unknown; // Include raw data for better error formatting
   }>;
+}
+
+/**
+ * Check if a file contains any {{TODO}} markers
+ */
+export async function fileContainsTodo(filePath: string): Promise<boolean> {
+  try {
+    const content = await readFile(filePath, 'utf-8');
+    return content.includes('{{TODO}}');
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -22,6 +35,22 @@ export interface ParseModelResult {
 export async function parseModelFile(filePath: string): Promise<ParseModelResult> {
   try {
     const content = await readFile(filePath, 'utf-8');
+    
+    // Check for {{TODO}} markers before parsing YAML
+    // This avoids YAML parsing errors when {{TODO}} appears in complex structures
+    if (content.includes('{{TODO}}')) {
+      return {
+        models: [],
+        errors: [{
+          issues: [{
+            code: 'custom',
+            path: [],
+            message: 'File contains {{TODO}} markers and will be skipped',
+          } as ZodIssue],
+        }],
+      };
+    }
+    
     const rawData = yaml.load(content) as unknown;
 
     if (!rawData || typeof rawData !== 'object') {
@@ -37,12 +66,14 @@ export async function parseModelFile(filePath: string): Promise<ParseModelResult
       };
     }
 
-    // Extract and return detailed validation errors
+    // Extract and return detailed validation errors with raw data
     const errors = extractModelValidationErrors(rawData, parseResult.error);
+    // Add raw data to errors for better formatting
+    const errorsWithData = errors.map(e => ({ ...e, rawData }));
 
     return {
       models: [],
-      errors,
+      errors: errorsWithData,
     };
   } catch (error) {
     if (error instanceof Error) {
@@ -87,14 +118,111 @@ function extractModelValidationErrors(
 }
 
 /**
+ * Check if a value contains a TODO marker
+ */
+function containsTodoMarker(value: unknown): boolean {
+  if (typeof value === 'string') {
+    return value.includes('{{TODO}}');
+  }
+  if (Array.isArray(value)) {
+    return value.some(containsTodoMarker);
+  }
+  if (value && typeof value === 'object') {
+    return Object.values(value).some(containsTodoMarker);
+  }
+  return false;
+}
+
+/**
+ * Find all TODO markers in a model
+ */
+export function findTodoMarkers(model: Model): string[] {
+  const todos: string[] = [];
+
+  // Check description
+  if (model.description && containsTodoMarker(model.description)) {
+    todos.push(`description contains {{TODO}}`);
+  }
+
+  // Check dimensions
+  model.dimensions.forEach((dim) => {
+    if (dim.description && containsTodoMarker(dim.description)) {
+      todos.push(`dimension '${dim.name}' description contains {{TODO}}`);
+    }
+    if (dim.type && containsTodoMarker(dim.type)) {
+      todos.push(`dimension '${dim.name}' type contains {{TODO}}`);
+    }
+    if (dim.options && containsTodoMarker(dim.options)) {
+      todos.push(`dimension '${dim.name}' options contains {{TODO}}`);
+    }
+  });
+
+  // Check measures
+  model.measures.forEach((measure) => {
+    if (measure.description && containsTodoMarker(measure.description)) {
+      todos.push(`measure '${measure.name}' description contains {{TODO}}`);
+    }
+    if (measure.type && containsTodoMarker(measure.type)) {
+      todos.push(`measure '${measure.name}' type contains {{TODO}}`);
+    }
+  });
+
+  // Check metrics
+  model.metrics.forEach((metric) => {
+    if (metric.description && containsTodoMarker(metric.description)) {
+      todos.push(`metric '${metric.name}' description contains {{TODO}}`);
+    }
+    if (containsTodoMarker(metric.expr)) {
+      todos.push(`metric '${metric.name}' expression contains {{TODO}}`);
+    }
+  });
+
+  // Check filters
+  model.filters.forEach((filter) => {
+    if (filter.description && containsTodoMarker(filter.description)) {
+      todos.push(`filter '${filter.name}' description contains {{TODO}}`);
+    }
+    if (containsTodoMarker(filter.expr)) {
+      todos.push(`filter '${filter.name}' expression contains {{TODO}}`);
+    }
+  });
+
+  // Check relationships
+  model.relationships.forEach((rel) => {
+    if (rel.description && containsTodoMarker(rel.description)) {
+      todos.push(`relationship '${rel.name}' description contains {{TODO}}`);
+    }
+    if (containsTodoMarker(rel.source_col)) {
+      todos.push(`relationship '${rel.name}' source_col contains {{TODO}}`);
+    }
+    if (containsTodoMarker(rel.ref_col)) {
+      todos.push(`relationship '${rel.name}' ref_col contains {{TODO}}`);
+    }
+  });
+
+  // Check clarifications
+  if (model.clarifications) {
+    model.clarifications.forEach((clarification, index) => {
+      if (containsTodoMarker(clarification)) {
+        todos.push(`clarification #${index + 1} contains {{TODO}}`);
+      }
+    });
+  }
+
+  return todos;
+}
+
+/**
  * Validate a model against business rules
  * Returns ALL validation errors (doesn't stop at first error)
  */
 export function validateModel(model: Model): {
   valid: boolean;
   errors: string[];
+  todos: string[];
 } {
   const errors: string[] = [];
+  const todos = findTodoMarkers(model);
 
   // Validate model name
   if (!model.name || model.name.trim().length === 0) {
@@ -106,47 +234,18 @@ export function validateModel(model: Model): {
     errors.push('Model must have at least one dimension or measure');
   }
 
-  // Check for duplicate dimension names
-  const dimensionNames = new Set<string>();
-  for (const dim of model.dimensions) {
-    if (dimensionNames.has(dim.name)) {
-      errors.push(`Duplicate dimension name: ${dim.name}`);
-    }
-    dimensionNames.add(dim.name);
-  }
+  // Note: Duplicate name validation is now handled by the ModelSchema itself
+  // via Zod refinements, so we don't need to check for duplicates here
 
-  // Check for duplicate measure names
-  const measureNames = new Set<string>();
-  for (const measure of model.measures) {
-    if (measureNames.has(measure.name)) {
-      errors.push(`Duplicate measure name: ${measure.name}`);
-    }
-    measureNames.add(measure.name);
-  }
-
-  // Check for duplicate metric names
-  const metricNames = new Set<string>();
+  // Validate metric expressions
   for (const metric of model.metrics) {
-    if (metricNames.has(metric.name)) {
-      errors.push(`Duplicate metric name: ${metric.name}`);
-    }
-    metricNames.add(metric.name);
-
-    // Validate metric expression
     if (!metric.expr || metric.expr.trim().length === 0) {
       errors.push(`Metric ${metric.name} must have an expression`);
     }
   }
 
-  // Check for duplicate filter names
-  const filterNames = new Set<string>();
+  // Validate filter expressions
   for (const filter of model.filters) {
-    if (filterNames.has(filter.name)) {
-      errors.push(`Duplicate filter name: ${filter.name}`);
-    }
-    filterNames.add(filter.name);
-
-    // Validate filter expression
     if (!filter.expr || filter.expr.trim().length === 0) {
       errors.push(`Filter ${filter.name} must have an expression`);
     }
@@ -160,8 +259,9 @@ export function validateModel(model: Model): {
   }
 
   return {
-    valid: errors.length === 0,
+    valid: errors.length === 0 && todos.length === 0,
     errors,
+    todos,
   };
 }
 
@@ -231,4 +331,100 @@ export function formatZodIssues(issues: ZodIssue[]): string[] {
     const path = issue.path.length > 0 ? `${issue.path.join('.')}: ` : '';
     return `${path}${issue.message}`;
   });
+}
+
+/**
+ * Format Zod issues with context about field names
+ * @param issues - The Zod validation issues
+ * @param data - The raw data being validated to extract field names
+ */
+export function formatZodIssuesWithContext(issues: ZodIssue[], data: unknown): string[] {
+  return issues.map((issue) => {
+    const formattedPath = formatPathWithNames(issue.path, data);
+    const prefix = formattedPath ? `${formattedPath}: ` : '';
+    return `${prefix}${issue.message}`;
+  });
+}
+
+/**
+ * Convert numeric array indices to named fields where possible
+ */
+function formatPathWithNames(path: (string | number)[], data: unknown): string {
+  if (path.length === 0) return '';
+  
+  let current: any = data;
+  const parts: string[] = [];
+  
+  for (let i = 0; i < path.length; i++) {
+    const segment = path[i];
+    
+    if (typeof segment === 'number' && Array.isArray(current)) {
+      // Handle array index
+      const item = current[segment];
+      const prevSegment = i > 0 ? path[i - 1] : null;
+      
+      if (prevSegment === 'dimensions' && item && typeof item === 'object' && 'name' in item) {
+        parts.push(`dimension '${item.name}'`);
+        current = item;
+      } else if (prevSegment === 'measures' && item && typeof item === 'object' && 'name' in item) {
+        parts.push(`measure '${item.name}'`);
+        current = item;
+      } else if (prevSegment === 'metrics' && item && typeof item === 'object' && 'name' in item) {
+        parts.push(`metric '${item.name}'`);
+        current = item;
+      } else if (prevSegment === 'filters' && item && typeof item === 'object' && 'name' in item) {
+        parts.push(`filter '${item.name}'`);
+        current = item;
+      } else if (prevSegment === 'relationships' && item && typeof item === 'object' && 'name' in item) {
+        parts.push(`relationship '${item.name}'`);
+        current = item;
+      } else if (prevSegment === 'options') {
+        parts.push(`option ${segment + 1}`);
+        current = item;
+      } else {
+        parts.push(`[${segment}]`);
+        current = item;
+      }
+    } else if (typeof segment === 'string') {
+      // Skip redundant field names after we've already identified the item
+      if (i > 0 && parts[parts.length - 1]?.includes(`'`) && 
+          (segment === 'name' || segment === 'type' || segment === 'description')) {
+        // Don't add field name if we already have the item name
+        parts.push(segment);
+      } else if (segment === 'dimensions' || segment === 'measures' || 
+                 segment === 'metrics' || segment === 'filters' || 
+                 segment === 'relationships') {
+        // Skip these as they'll be handled by the array index
+        if (i === path.length - 1) {
+          parts.push(segment);
+        }
+      } else {
+        parts.push(segment);
+      }
+      current = current?.[segment];
+    } else {
+      parts.push(String(segment));
+      current = current?.[segment];
+    }
+  }
+  
+  // Clean up the path by joining with dots but handling special cases
+  let result = '';
+  for (let i = 0; i < parts.length; i++) {
+    if (i === 0) {
+      result = parts[i];
+    } else if (parts[i].startsWith('[') || parts[i].startsWith('option ') || 
+               parts[i].includes(`'`)) {
+      // These are already formatted
+      if (parts[i - 1].includes(`'`)) {
+        result += `.${parts[i]}`;
+      } else {
+        result += result ? `.${parts[i]}` : parts[i];
+      }
+    } else {
+      result += `.${parts[i]}`;
+    }
+  }
+  
+  return result;
 }

@@ -6,19 +6,34 @@ import type { DeploymentExcluded, ResolvedConfig } from '../schemas';
 /**
  * Discover YAML model files based on configuration
  * Uses fast-glob for efficient file discovery
+ * @param config - The resolved configuration with include patterns
+ * @param baseDir - The directory where buster.yml is located (paths are relative to this)
  */
 export async function discoverModelFiles(
   config: ResolvedConfig,
   baseDir: string
 ): Promise<string[]> {
-  // Use include patterns directly from config
-  const patterns = config.include.map((pattern) => resolve(baseDir, pattern));
+  // Resolve include patterns relative to the buster.yml location
+  const patterns = config.include.map((pattern) => {
+    // If pattern is absolute, use it directly
+    if (pattern.startsWith('/')) {
+      return pattern;
+    }
+    // Otherwise, resolve relative to the buster.yml directory
+    return resolve(baseDir, pattern);
+  });
+
+  console.info(`  Searching from base directory: ${baseDir}`);
+  if (config.include.length > 0) {
+    console.info(`  Include patterns: ${config.include.join(', ')}`);
+  }
 
   // Find all files matching the include patterns
   const files = await glob(patterns, {
     ignore: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/.git/**'],
     absolute: true,
     unique: true,
+    cwd: baseDir, // Set the working directory for glob patterns
   });
 
   return files.sort(); // Sort for consistent ordering
@@ -27,6 +42,9 @@ export async function discoverModelFiles(
 /**
  * Filter model files based on exclusion patterns
  * Returns both included files and excluded files with reasons
+ * @param files - Absolute paths to files discovered
+ * @param excludePatterns - Exclusion patterns from config (relative to buster.yml)
+ * @param baseDir - The directory where buster.yml is located
  */
 export async function filterModelFiles(
   files: string[],
@@ -44,7 +62,7 @@ export async function filterModelFiles(
   }
 
   for (const file of files) {
-    // Get relative path for pattern matching
+    // Get path relative to the buster.yml directory for pattern matching
     const relativePath = relative(baseDir, file);
 
     // Check if file matches any exclusion pattern

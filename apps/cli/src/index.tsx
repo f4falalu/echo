@@ -22,6 +22,7 @@ program
   .option('--local', 'Use local development server (http://localhost:3001)')
   .option('--cloud', 'Use cloud instance (https://api2.buster.so)')
   .option('--clear', 'Clear saved credentials')
+  .option('--show', 'Show current credentials')
   .option('--no-save', "Don't save credentials to disk")
   .action(async (options) => {
     render(<Auth {...options} />);
@@ -56,6 +57,7 @@ program
   )
   .option('--dry-run', 'Validate models without deploying')
   .option('--verbose', 'Show detailed output')
+  .option('--interactive', 'Use interactive UI mode')
   .action(async (options) => {
     try {
       // Parse and validate options
@@ -65,7 +67,14 @@ program
         verbose: options.verbose || false,
       });
 
-      render(<DeployCommand {...parsedOptions} />);
+      // Use interactive UI mode only if explicitly requested
+      if (options.interactive) {
+        render(<DeployCommand {...parsedOptions} />);
+      } else {
+        // Direct execution for cleaner CLI output
+        const { deployHandler } = await import('./commands/deploy/deploy-handler.js');
+        await deployHandler(parsedOptions);
+      }
     } catch (error) {
       console.error('Invalid options:', error);
       process.exit(1);

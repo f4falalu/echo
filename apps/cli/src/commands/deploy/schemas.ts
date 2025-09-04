@@ -116,12 +116,19 @@ export const DeploymentExcludedSchema = z.object({
   reason: z.string(),
 });
 
+// TODO files that were skipped (not errors)
+export const TodoFileSchema = z.object({
+  file: z.string(),
+  modelName: z.string().optional(),
+});
+
 export const CLIDeploymentResultSchema = z.object({
   success: z.array(CLIDeploymentItemSchema).default([]),
   updated: z.array(CLIDeploymentItemSchema).default([]),
   noChange: z.array(CLIDeploymentItemSchema).default([]),
   failures: z.array(CLIDeploymentFailureSchema).default([]),
   excluded: z.array(DeploymentExcludedSchema).default([]),
+  todos: z.array(TodoFileSchema).default([]), // New field for TODO files
 });
 
 // ============================================================================

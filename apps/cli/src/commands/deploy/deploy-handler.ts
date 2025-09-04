@@ -19,6 +19,7 @@ import {
 import { discoverModelFiles, filterModelFiles } from './models/discovery';
 import {
   formatZodIssues,
+  formatZodIssuesWithContext,
   parseModelFile,
   resolveModelConfig,
   validateModel,
@@ -33,8 +34,11 @@ export async function deployHandler(options: DeployOptions): Promise<CLIDeployme
   // 1. Determine base directory
   const baseDir = resolve(options.path || '.');
 
+  console.info(`Deploying from ${baseDir}`);
+
   // 2. Load configuration (required)
-  const busterConfig = await loadBusterConfig(baseDir);
+  const { config: busterConfig, configPath } = await loadBusterConfig(baseDir);
+  const configBaseDir = getConfigBaseDir(configPath);
 
   // 3. Create deployment function based on mode
   const deploy = options.dryRun
@@ -43,15 +47,15 @@ export async function deployHandler(options: DeployOptions): Promise<CLIDeployme
 
   // 4. Process all projects in parallel
   const projectResults = await Promise.all(
-    busterConfig.projects.map((project) => processProject(project, baseDir, deploy, options))
+    busterConfig.projects.map((project) => processProject(project, configBaseDir, deploy, options))
   );
 
   // 5. Merge results from all projects (pure function)
   const finalResult = mergeDeploymentResults(projectResults);
 
   // 6. Display summary
-  const summary = formatDeploymentSummary(finalResult, options.verbose);
-  console.info(`\n${summary}`);
+  const summary = formatDeploymentSummary(finalResult, options.verbose, options.dryRun);
+  console.info(summary);
 
   return finalResult;
 }
@@ -61,19 +65,17 @@ export async function deployHandler(options: DeployOptions): Promise<CLIDeployme
  */
 async function processProject(
   project: ProjectContext,
-  baseDir: string,
+  configBaseDir: string,
   deploy: DeployFunction,
   options: DeployOptions
 ): Promise<CLIDeploymentResult> {
-  console.info(`\n📦 Processing project: ${project.name}`);
+  console.info(`\nProcessing ${project.name} project...`);
 
-  const configBaseDir = getConfigBaseDir(baseDir);
   const resolvedConfig = resolveConfiguration({ projects: [project] }, options, project.name);
 
   // 1. Discover model files (I/O)
-  console.info(`  📁 Discovering model files for ${project.name}...`);
   const allFiles = await discoverModelFiles(resolvedConfig, configBaseDir);
-  console.info(`  Found ${allFiles.length} files`);
+  console.info(`  ✓ Found ${allFiles.length} model files`);
 
   // 2. Apply exclusion filters (pure)
   const { included, excluded } = await filterModelFiles(
@@ -83,30 +85,41 @@ async function processProject(
   );
 
   if (excluded.length > 0 && options.verbose) {
-    console.info(`  Excluded ${excluded.length} files based on patterns`);
+    console.info(`  ⛔ Excluded ${excluded.length} files based on patterns`);
     for (const ex of excluded) {
-      console.info(`    ⛔ ${ex.file}: ${ex.reason}`);
+      console.info(`    - ${ex.file}: ${ex.reason}`);
     }
   }
 
   // 3. Parse and collect models (I/O + pure validation)
-  const { models, parseFailures } = await parseAndCollectModels(
+  const { models, parseFailures, todoFiles } = await parseAndCollectModels(
     included,
     resolvedConfig,
-    configBaseDir
+    configBaseDir,
+    options
   );
 
-  console.info(`  Successfully parsed ${models.length} models from ${included.length} files`);
+  if (parseFailures.length > 0 && !options.verbose) {
+    console.info(`  ✗ Failed to parse ${parseFailures.length} files`);
+  }
+  
+  console.info(`  ✓ Parsed ${models.length} models successfully`);
+  if (todoFiles.length > 0) {
+    console.info(`  ⚠ Skipped ${todoFiles.length} files with TODOs`);
+  }
 
   // 4. Check if we have models to deploy
   if (models.length === 0) {
-    console.warn(`  ⚠️  No valid models found for project ${project.name}`);
+    if (!parseFailures.length && !todoFiles.length) {
+      console.warn(`  ⚠ No models found`);
+    }
     return {
       success: [],
       updated: [],
       noChange: [],
       failures: createParseFailures(parseFailures, configBaseDir),
       excluded,
+      todos: todoFiles.map(tf => ({ file: relative(configBaseDir, tf.file) })),
     };
   }
 
@@ -129,6 +142,7 @@ async function processProject(
       noChange: [],
       failures: createParseFailures(allFailures, configBaseDir),
       excluded,
+      todos: todoFiles.map(tf => ({ file: relative(configBaseDir, tf.file) })),
     };
   }
 
@@ -150,7 +164,7 @@ async function processProject(
   );
 
   // 8. Execute deployment (I/O via strategy function)
-  console.info(`  🚀 Deploying ${validModels.length} models for ${project.name}...`);
+  // Deployment happens in the background, summary will show results
 
   try {
     const response = await deploy(deployRequest);
@@ -158,19 +172,18 @@ async function processProject(
     // 9. Process response (pure)
     const result = processDeploymentResponse(response, modelFileMap);
 
-    // Add parse failures and exclusions
+    // Add parse failures, exclusions, and TODO files
     result.failures.push(...createParseFailures(allFailures, configBaseDir));
     result.excluded.push(...excluded);
+    result.todos = todoFiles.map(tf => ({ file: relative(configBaseDir, tf.file) }));
 
-    // Log deleted models if any
-    if (response.deleted && response.deleted.length > 0) {
+    // Log deleted models if any (only in verbose mode)
+    if (options.verbose && response.deleted && response.deleted.length > 0) {
       console.info(
-        `  🗑️  Soft-deleted ${response.deleted.length} models not included in deployment`
+        `  ℹ Soft-deleted ${response.deleted.length} models not included in deployment`
       );
-      if (options.verbose) {
-        for (const name of response.deleted) {
-          console.info(`     - ${name}`);
-        }
+      for (const name of response.deleted) {
+        console.info(`    - ${name}`);
       }
     }
 
@@ -178,7 +191,7 @@ async function processProject(
   } catch (error) {
     // Handle deployment error
     const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error(`  ❌ Deployment failed: ${errorMessage}`);
+    console.error(`  ✗ Deployment failed: ${errorMessage}`);
 
     return {
       success: [],
@@ -205,10 +218,16 @@ async function parseAndCollectModels(
     database?: string | undefined;
     schema?: string | undefined;
   },
-  baseDir: string
-): Promise<{ models: Model[]; parseFailures: Array<{ file: string; error: string }> }> {
+  baseDir: string,
+  options?: DeployOptions
+): Promise<{ 
+  models: Model[]; 
+  parseFailures: Array<{ file: string; error: string }>; 
+  todoFiles: Array<{ file: string }> 
+}> {
   const models: Model[] = [];
   const parseFailures: Array<{ file: string; error: string }> = [];
+  const todoFiles: Array<{ file: string }> = [];
 
   // Process all files and collect all errors
   await Promise.all(
@@ -221,14 +240,22 @@ async function parseAndCollectModels(
         // Collect Zod validation errors
         if (parseResult.errors.length > 0) {
           for (const errorGroup of parseResult.errors) {
-            const formattedIssues = formatZodIssues(errorGroup.issues);
-            const modelPrefix = errorGroup.modelName ? `Model '${errorGroup.modelName}': ` : '';
-
-            for (const issue of formattedIssues) {
-              parseFailures.push({
-                file: relativeFile,
-                error: `${modelPrefix}${issue}`,
-              });
+            // Use context-aware formatting if raw data is available
+            const formattedIssues = errorGroup.rawData 
+              ? formatZodIssuesWithContext(errorGroup.issues, errorGroup.rawData)
+              : formatZodIssues(errorGroup.issues);
+            
+            // Check if this is a TODO skip message
+            if (formattedIssues.length === 1 && formattedIssues[0]?.includes('{{TODO}} markers')) {
+              todoFiles.push({ file: relativeFile });
+            } else {
+              const modelPrefix = errorGroup.modelName ? `Model '${errorGroup.modelName}': ` : '';
+              for (const issue of formattedIssues) {
+                parseFailures.push({
+                  file: relativeFile,
+                  error: `${modelPrefix}${issue}`,
+                });
+              }
             }
           }
         }
@@ -248,6 +275,13 @@ async function parseAndCollectModels(
                 error: `Model '${resolved.name}': ${error}`,
               });
             }
+            // Add TODO markers as special errors
+            for (const todo of validation.todos) {
+              parseFailures.push({
+                file: relativeFile,
+                error: `Model '${resolved.name}': TODO - ${todo}`,
+              });
+            }
           } else {
             models.push(resolved);
           }
@@ -260,17 +294,17 @@ async function parseAndCollectModels(
     })
   );
 
-  // Log all errors at once for better visibility
-  if (parseFailures.length > 0) {
+  // Log all errors at once for better visibility (only in verbose mode)
+  if (parseFailures.length > 0 && options?.verbose) {
     console.error(
-      `\n  ❌ Found ${parseFailures.length} validation error${parseFailures.length === 1 ? '' : 's'}:`
+      `  ✗ Found ${parseFailures.length} validation error${parseFailures.length === 1 ? '' : 's'}:`
     );
     for (const failure of parseFailures) {
-      console.error(`     ${failure.file}: ${failure.error}`);
+      console.error(`    ${failure.file}: ${failure.error}`);
     }
   }
 
-  return { models, parseFailures };
+  return { models, parseFailures, todoFiles };
 }
 
 /**

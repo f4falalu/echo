@@ -12,48 +12,69 @@ import {
 } from '../schemas';
 
 /**
- * Recursively find all buster.yml files in a directory and its subdirectories
+ * Recursively search for buster.yml file in a directory and its subdirectories
+ * Returns the first buster.yml or buster.yaml file found
  */
-async function findBusterYmlFiles(dir: string): Promise<string[]> {
-  const files: string[] = [];
+async function findBusterYmlFile(startDir: string): Promise<string | null> {
+  // First normalize the path
+  const searchDir = resolve(startDir);
 
-  try {
-    const entries = await readdir(dir, { withFileTypes: true });
+  // If the path doesn't exist, return null
+  if (!existsSync(searchDir)) {
+    return null;
+  }
 
-    for (const entry of entries) {
-      const fullPath = join(dir, entry.name);
-
-      if (entry.isDirectory()) {
-        // Skip common directories that shouldn't be scanned
-        if (
-          entry.name === 'node_modules' ||
-          entry.name === '.git' ||
-          entry.name === 'dist' ||
-          entry.name === 'build' ||
-          entry.name === '.next' ||
-          entry.name === 'coverage' ||
-          entry.name === '.turbo'
-        ) {
-          continue;
-        }
-        // Recursively search subdirectory
-        const subFiles = await findBusterYmlFiles(fullPath);
-        files.push(...subFiles);
-      } else if (entry.name === 'buster.yml' || entry.name === 'buster.yaml') {
-        files.push(fullPath);
-      }
+  // If startDir is a file (e.g., if someone passed path to buster.yml directly),
+  // check if it's a buster.yml file
+  const stats = await stat(searchDir);
+  if (stats.isFile()) {
+    const filename = searchDir.split('/').pop();
+    if (filename === 'buster.yml' || filename === 'buster.yaml') {
+      return searchDir;
     }
-  } catch (error) {
-    // Silently skip directories we can't read
-    if (
-      (error as NodeJS.ErrnoException).code !== 'EACCES' &&
-      (error as NodeJS.ErrnoException).code !== 'EPERM'
-    ) {
-      console.warn(`Warning: Error reading directory ${dir}:`, error);
+    // If it's a different file, return null (don't search)
+    return null;
+  }
+
+  // Check for buster.yml or buster.yaml in the current directory first
+  const ymlPath = join(searchDir, 'buster.yml');
+  const yamlPath = join(searchDir, 'buster.yaml');
+
+  if (existsSync(ymlPath)) {
+    return ymlPath;
+  }
+  if (existsSync(yamlPath)) {
+    return yamlPath;
+  }
+
+  // Now recursively search subdirectories
+  const entries = await readdir(searchDir, { withFileTypes: true });
+
+  for (const entry of entries) {
+    if (entry.isDirectory()) {
+      // Skip common directories that shouldn't be searched
+      if (
+        entry.name === 'node_modules' ||
+        entry.name === '.git' ||
+        entry.name === 'dist' ||
+        entry.name === 'build' ||
+        entry.name === '.next' ||
+        entry.name === 'coverage' ||
+        entry.name === '.turbo'
+      ) {
+        continue;
+      }
+
+      // Recursively search this subdirectory
+      const subDirPath = join(searchDir, entry.name);
+      const found = await findBusterYmlFile(subDirPath);
+      if (found) {
+        return found;
+      }
     }
   }
 
-  return files;
+  return null;
 }
 
 /**
@@ -63,6 +84,18 @@ async function loadSingleBusterConfig(configPath: string): Promise<BusterConfig 
   try {
     const content = await readFile(configPath, 'utf-8');
     const rawConfig = yaml.load(content) as unknown;
+
+    // Check for empty projects array before validation
+    if (
+      rawConfig &&
+      typeof rawConfig === 'object' &&
+      'projects' in rawConfig &&
+      Array.isArray((rawConfig as Record<string, unknown>).projects) &&
+      ((rawConfig as Record<string, unknown>).projects as unknown[]).length === 0
+    ) {
+      // Return a special indicator for empty projects
+      return { projects: [] } as BusterConfig;
+    }
 
     // Validate and parse with Zod schema
     const result = BusterConfigSchema.safeParse(rawConfig);
@@ -79,24 +112,16 @@ async function loadSingleBusterConfig(configPath: string): Promise<BusterConfig 
   }
 }
 
-/**
- * Check if two projects are duplicates (same name and data source)
- */
-function areProjectsDuplicate(p1: ProjectContext, p2: ProjectContext): boolean {
-  return (
-    p1.name === p2.name &&
-    p1.data_source === p2.data_source &&
-    p1.database === p2.database &&
-    p1.schema === p2.schema
-  );
-}
 
 /**
- * Find and load all buster.yml configuration files recursively
- * Merges all found configurations and checks for duplicates
+ * Find and load the buster.yml configuration file
+ * Only loads a single buster.yml file (no merging of multiple files)
+ * @returns The loaded config and the path to the config file
  * @throws Error if no buster.yml is found
  */
-export async function loadBusterConfig(searchPath = '.'): Promise<BusterConfig> {
+export async function loadBusterConfig(
+  searchPath = '.'
+): Promise<{ config: BusterConfig; configPath: string }> {
   const absolutePath = resolve(searchPath);
 
   // Check if the path exists
@@ -104,62 +129,40 @@ export async function loadBusterConfig(searchPath = '.'): Promise<BusterConfig> 
     throw new Error(`Path does not exist: ${absolutePath}`);
   }
 
-  // Check if it's a directory
-  const pathStat = await stat(absolutePath);
-  if (!pathStat.isDirectory()) {
-    throw new Error(`Path is not a directory: ${absolutePath}`);
+  // Searching for buster.yml file
+
+  // Find the buster.yml file (searches current dir and all subdirs)
+  const configFile = await findBusterYmlFile(absolutePath);
+
+  if (!configFile) {
+    throw new Error(`No buster.yml found in ${absolutePath} or any of its subdirectories`);
   }
 
-  console.info(`🔍 Searching for buster.yml files in ${absolutePath}...`);
+  // Found buster.yml
 
-  // Find all buster.yml files recursively
-  const configFiles = await findBusterYmlFiles(absolutePath);
+  // Load the configuration
+  const config = await loadSingleBusterConfig(configFile);
 
-  if (configFiles.length === 0) {
-    throw new Error('No buster.yml found in the repository');
+  if (!config) {
+    throw new Error(`Failed to parse buster.yml at ${configFile}`);
   }
 
-  console.info(`📄 Found ${configFiles.length} buster.yml file(s):`);
-  for (const file of configFiles) {
-    console.info(`   - ${relative(absolutePath, file)}`);
+  // Check for empty projects after successful parse
+  if (config.projects && config.projects.length === 0) {
+    throw new Error('No projects defined in buster.yml');
   }
 
-  // Load all configurations
-  const allProjects: ProjectContext[] = [];
-  const configSources = new Map<ProjectContext, string>();
-
-  for (const configFile of configFiles) {
-    const config = await loadSingleBusterConfig(configFile);
-    if (config?.projects) {
-      for (const project of config.projects) {
-        // Check for duplicates
-        const existingProject = allProjects.find((p) => areProjectsDuplicate(p, project));
-        if (existingProject) {
-          const existingSource = configSources.get(existingProject);
-          console.warn(
-            `⚠️  Warning: Duplicate project '${project.name}' found:
-   First defined in: ${existingSource}
-   Also defined in: ${relative(absolutePath, configFile)}
-   Using the first definition.`
-          );
-          continue;
-        }
-
-        allProjects.push(project);
-        configSources.set(project, relative(absolutePath, configFile));
-      }
-    }
+  // If projects is undefined or null, it failed validation
+  if (!config.projects) {
+    throw new Error(`Failed to parse buster.yml at ${configFile}`);
   }
 
-  if (allProjects.length === 0) {
-    throw new Error('No valid projects found in any buster.yml files');
-  }
+  // Loaded configuration successfully
 
-  console.info(`✅ Found ${allProjects.length} unique project(s)`);
-
-  // Return merged configuration
+  // Return both the config and its path
   return {
-    projects: allProjects,
+    config,
+    configPath: configFile,
   };
 }
 

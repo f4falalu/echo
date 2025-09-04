@@ -12,6 +12,7 @@ export function mergeDeploymentResults(results: CLIDeploymentResult[]): CLIDeplo
       noChange: [...acc.noChange, ...result.noChange],
       failures: [...acc.failures, ...result.failures],
       excluded: [...acc.excluded, ...result.excluded],
+      todos: [...acc.todos, ...(result.todos || [])],
     }),
     {
       success: [],
@@ -19,6 +20,7 @@ export function mergeDeploymentResults(results: CLIDeploymentResult[]): CLIDeplo
       noChange: [],
       failures: [],
       excluded: [],
+      todos: [],
     }
   );
 }
@@ -36,6 +38,7 @@ export function processDeploymentResponse(
     noChange: [],
     failures: [],
     excluded: [],
+    todos: [],
   };
 
   // Process successful deployments
@@ -80,96 +83,129 @@ export function processDeploymentResponse(
 /**
  * Pure function to format deployment summary for display
  */
-export function formatDeploymentSummary(result: CLIDeploymentResult, verbose = false): string {
+export function formatDeploymentSummary(result: CLIDeploymentResult, verbose = false, isDryRun = false): string {
   const lines: string[] = [];
+  
+  // Calculate totals
+  const totalSuccess = result.success.length + result.updated.length + result.noChange.length;
+  const totalFailed = result.failures.length;
+  const totalTodos = result.todos?.length || 0;
+  const totalExcluded = result.excluded.length;
 
-  lines.push('📊 Deployment Summary');
-  lines.push('='.repeat(40));
-
-  const totalDeployed = result.success.length + result.updated.length;
-  lines.push(`✅ Successfully deployed: ${totalDeployed} models`);
-
-  if (result.success.length > 0) {
-    lines.push(`  ✨ New models: ${result.success.length}`);
+  // Header with mode indicator
+  lines.push('');
+  lines.push(isDryRun ? 'Deployment Results (DRY RUN)' : 'Deployment Results');
+  lines.push('─'.repeat(29));
+  
+  // Models deployed summary
+  if (totalSuccess > 0) {
+    lines.push(`  ${totalSuccess} models deployed`);
+    if (result.success.length > 0) {
+      lines.push(`    • ${result.success.length} new`);
+    }
+    if (result.updated.length > 0) {
+      lines.push(`    • ${result.updated.length} updated`);
+    }
+    if (result.noChange.length > 0) {
+      lines.push(`    • ${result.noChange.length} unchanged`);
+    }
+  } else if (totalFailed === 0 && totalTodos === 0) {
+    lines.push('  No models to deploy');
   }
-
-  if (result.updated.length > 0) {
-    lines.push(`  🔄 Updated models: ${result.updated.length}`);
-  }
-
-  if (result.noChange.length > 0) {
-    lines.push(`  ➖ No changes: ${result.noChange.length}`);
-  }
-
-  if (result.excluded.length > 0) {
-    lines.push(`⛔ Excluded: ${result.excluded.length} files`);
-  }
-
-  if (result.failures.length > 0) {
-    lines.push(`❌ Failed: ${result.failures.length} models`);
-    lines.push('-'.repeat(40));
-
-    // Group failures by file for better readability
+  
+  // Failures section
+  if (totalFailed > 0) {
+    lines.push('');
+    lines.push(`  ${totalFailed} models failed:`);
+    
+    // Group failures by file
     const failuresByFile = new Map<string, typeof result.failures>();
     for (const failure of result.failures) {
       const existing = failuresByFile.get(failure.file) || [];
       existing.push(failure);
       failuresByFile.set(failure.file, existing);
     }
-
-    // Show first 5 files with failures in detail, then summarize the rest
-    const maxDetailedFiles = verbose ? failuresByFile.size : 5;
-    const fileEntries = Array.from(failuresByFile.entries());
-    const detailedFiles = fileEntries.slice(0, maxDetailedFiles);
-    const remainingFileCount = fileEntries.length - maxDetailedFiles;
-
-    for (const [file, failures] of detailedFiles) {
-      lines.push('');
-      lines.push(`  📄 File: ${file}`);
-
+    
+    // Show failures
+    const maxFiles = verbose ? failuresByFile.size : 3;
+    let fileCount = 0;
+    
+    for (const [file, failures] of failuresByFile) {
+      if (fileCount >= maxFiles) break;
+      fileCount++;
+      
+      // Extract just the filename for cleaner output (unless verbose)
+      const displayName = verbose ? file : (file.split('/').pop() || file);
+      lines.push(`    ${displayName}`);
+      
       for (const failure of failures) {
-        if (failure.modelName !== 'parse_error') {
-          lines.push(`     Model: ${failure.modelName}`);
+        // Show first error per model in non-verbose mode
+        const maxErrors = verbose ? failure.errors.length : 1;
+        for (let i = 0; i < maxErrors; i++) {
+          const error = extractErrorMessage(failure.errors[i]);
+          lines.push(`      • ${error}`);
         }
-
-        // Show all errors for this model/file
-        for (const error of failure.errors) {
-          if (verbose) {
-            // Show full error in verbose mode
-            lines.push(`       • ${error}`);
-          } else {
-            // Extract meaningful error message
-            const cleanedError = extractErrorMessage(error);
-            lines.push(`       • ${cleanedError}`);
-          }
+        
+        if (!verbose && failure.errors.length > 1) {
+          lines.push(`      ... and ${failure.errors.length - 1} more error${failure.errors.length - 1 === 1 ? '' : 's'}`);
         }
       }
     }
-
-    if (remainingFileCount > 0) {
-      lines.push('');
-      lines.push(`  ...and ${remainingFileCount} more files with errors`);
-      if (!verbose) {
-        lines.push('  (Run with --verbose to see all error details)');
-      }
+    
+    if (failuresByFile.size > maxFiles) {
+      lines.push(`    ... and ${failuresByFile.size - maxFiles} more`);
     }
   }
-
-  lines.push('='.repeat(40));
-
-  if (result.failures.length === 0) {
-    lines.push('🎉 All models processed successfully!');
-  } else {
+  
+  // TODOs section
+  if (totalTodos > 0) {
     lines.push('');
-    const totalErrors = result.failures.reduce((sum, f) => sum + f.errors.length, 0);
-    lines.push(
-      `⚠️  Found ${totalErrors} validation error${totalErrors === 1 ? '' : 's'} across ${result.failures.length} model${result.failures.length === 1 ? '' : 's'}.`
-    );
-    if (!verbose && result.failures.length > 0) {
-      lines.push('💡 Tip: Run with --verbose flag to see full error details');
+    lines.push(`  ${totalTodos} files need completion:`);
+    
+    const maxTodos = verbose ? result.todos.length : 5;
+    for (let i = 0; i < Math.min(maxTodos, result.todos.length); i++) {
+      // Show full paths in verbose mode, just filename otherwise
+      const displayPath = verbose 
+        ? result.todos[i].file
+        : (result.todos[i].file.split('/').pop() || result.todos[i].file);
+      lines.push(`    ${displayPath}`);
+    }
+    
+    if (result.todos.length > maxTodos) {
+      lines.push(`    ... and ${result.todos.length - maxTodos} more`);
     }
   }
-
+  
+  // Excluded section (only in verbose mode)
+  if (verbose && totalExcluded > 0) {
+    lines.push('');
+    lines.push(`  ${totalExcluded} files excluded:`);
+    
+    for (const excluded of result.excluded) {
+      // Show full paths in verbose mode
+      const displayName = verbose ? excluded.file : (excluded.file.split('/').pop() || excluded.file);
+      lines.push(`    ${displayName}: ${excluded.reason}`);
+    }
+  }
+  
+  // Final status line
+  lines.push('');
+  if (totalFailed > 0) {
+    const mode = isDryRun ? 'Dry run' : 'Deployment';
+    lines.push(`✗ ${mode} completed with ${totalFailed} error${totalFailed === 1 ? '' : 's'}`);
+    if (!verbose) {
+      lines.push('  Run with --verbose for full error details');
+    }
+  } else if (totalTodos > 0) {
+    const mode = isDryRun ? 'Dry run' : 'Deployment';
+    lines.push(`⚠ ${mode} completed with ${totalTodos} file${totalTodos === 1 ? '' : 's'} needing completion`);
+  } else if (totalSuccess === 0) {
+    lines.push('⚠ No models found to deploy');
+  } else {
+    const mode = isDryRun ? 'Dry run' : 'Deployment';
+    lines.push(`✓ ${mode} completed successfully`);
+  }
+  
   return lines.join('\n');
 }
 
@@ -198,122 +234,58 @@ function extractErrorMessage(error: string): string {
     if (error.includes('unique constraint')) {
       return 'Unique constraint violation';
     }
-    if (error.includes('syntax error')) {
-      return 'SQL syntax error in model definition';
-    }
-    if (error.includes('permission denied')) {
-      return 'Permission denied for database operation';
-    }
-    if (error.includes('connection')) {
-      return 'Database connection error';
-    }
 
-    // If we can't extract a specific error, show a generic message
-    return 'Database update failed - check model definition and permissions';
+    // If it's a long query error, just show the first part
+    const lines = error.split('\n');
+    if (lines[0].length > 100) {
+      return lines[0].substring(0, 100) + '...';
+    }
+    return lines[0];
   }
 
-  // For non-SQL errors, truncate if too long
-  if (error.length > 200) {
-    // Try to find the actual error message part
-    const errorParts = error.split(':');
-    if (errorParts.length > 1) {
-      // Return the last meaningful part (often the actual error)
-      const lastPart = errorParts[errorParts.length - 1];
-      if (lastPart) {
-        return `${lastPart.trim().substring(0, 150)}...`;
-      }
-    }
-    return `${error.substring(0, 150)}...`;
+  // For other errors, truncate if too long
+  if (error.length > 150) {
+    return error.substring(0, 150) + '...';
   }
 
   return error;
 }
 
 /**
- * Pure function to create parse failure entries
+ * Display deployment result in CLI
  */
-export function createParseFailures(
-  failures: Array<{ file: string; error: string }>,
-  baseDir: string
-): CLIDeploymentResult['failures'] {
-  return failures.map(({ file, error }) => ({
-    file: relative(baseDir, file),
-    modelName: 'parse_error',
-    errors: [error],
-  }));
+export function displayDeploymentResults(result: CLIDeploymentResult, verbose = false, isDryRun = false): void {
+  const summary = formatDeploymentSummary(result, verbose, isDryRun);
+  console.info(summary);
 }
 
 /**
- * Pure function to create exclusion entries
+ * Create model-to-file mapping from deployment data
  */
-export function createExclusions(
-  excluded: DeploymentExcluded[],
-  baseDir: string
-): DeploymentExcluded[] {
-  return excluded.map((item) => ({
-    file: relative(baseDir, item.file),
-    reason: item.reason,
-  }));
-}
+export function createModelFileMap(
+  fileModels: Array<{ file: string; models: Model[] }>
+): Map<string, string> {
+  const map = new Map<string, string>();
 
-/**
- * Pure function to calculate deployment statistics
- */
-export function calculateDeploymentStats(result: CLIDeploymentResult): {
-  totalModels: number;
-  successRate: number;
-  hasFailures: boolean;
-  hasExclusions: boolean;
-} {
-  const totalModels =
-    result.success.length + result.updated.length + result.noChange.length + result.failures.length;
-
-  const successCount = result.success.length + result.updated.length + result.noChange.length;
-
-  return {
-    totalModels,
-    successRate: totalModels > 0 ? (successCount / totalModels) * 100 : 0,
-    hasFailures: result.failures.length > 0,
-    hasExclusions: result.excluded.length > 0,
-  };
-}
-
-/**
- * Pure function to group results by project
- */
-export function groupResultsByProject(
-  results: Array<{ project: string; result: CLIDeploymentResult }>
-): Map<string, CLIDeploymentResult> {
-  const map = new Map<string, CLIDeploymentResult>();
-
-  for (const { project, result } of results) {
-    map.set(project, result);
+  for (const { file, models } of fileModels) {
+    for (const model of models) {
+      map.set(model.name, file);
+    }
   }
 
   return map;
 }
 
 /**
- * Pure function to filter successful deployments
+ * Convert parse failures to CLI deployment failures
  */
-export function filterSuccessfulDeployments(
-  result: CLIDeploymentResult
-): Pick<CLIDeploymentResult, 'success' | 'updated' | 'noChange'> {
-  return {
-    success: result.success,
-    updated: result.updated,
-    noChange: result.noChange,
-  };
-}
-
-/**
- * Pure function to filter failed deployments
- */
-export function filterFailedDeployments(
-  result: CLIDeploymentResult
-): Pick<CLIDeploymentResult, 'failures' | 'excluded'> {
-  return {
-    failures: result.failures,
-    excluded: result.excluded,
-  };
+export function createParseFailures(
+  failures: Array<{ file: string; error: string }>,
+  baseDir: string
+): Array<{ file: string; modelName: string; errors: string[] }> {
+  return failures.map((failure) => ({
+    file: failure.file.includes('/') ? relative(baseDir, failure.file) : failure.file,
+    modelName: 'parse_error',
+    errors: [failure.error],
+  }));
 }
