@@ -26,7 +26,7 @@ import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import { FileText, Refresh3 } from '@/components/ui/icons/NucleoIconOutlined';
 import { useStartChatFromAsset } from '@/context/BusterAssets/useStartChatFromAsset';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useReportPageExport } from '@/controllers/ReportPageControllers/useReportPageExport';
+import { useReportPageExport } from '@/context/Reports/useReportPageExport';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { canEdit, getIsEffectiveOwner } from '@/lib/share';
 import { useGetChatId } from '../../../context/Chats/useGetChatId';
