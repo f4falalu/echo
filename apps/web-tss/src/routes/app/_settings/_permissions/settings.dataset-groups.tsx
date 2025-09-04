@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Outlet } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/app/_settings/_permissions/settings/dataset-groups')({
   head: () => ({
@@ -13,5 +13,5 @@ export const Route = createFileRoute('/app/_settings/_permissions/settings/datas
 });
 
 function RouteComponent() {
-  return <div>Hello "/app/settings/dataset-groups"!</div>;
+  return <Outlet />;
 }

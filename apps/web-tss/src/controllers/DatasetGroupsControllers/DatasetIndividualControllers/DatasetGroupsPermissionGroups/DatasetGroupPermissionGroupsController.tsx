@@ -1,23 +1,22 @@
+'use client';
+
 import type React from 'react';
-import { lazy, useMemo, useState } from 'react';
-import { useGetPermissionGroupDatasetGroups } from '@/api/buster_rest/permission_groups';
-import { PermissionSearchAndListWrapper } from '@/components/features/permissions';
+import { useMemo, useState } from 'react';
+import { useGetDatasetGroupPermissionGroups } from '@/api/buster_rest/dataset_groups';
+import {
+  NewDatasetGroupModal,
+  PermissionSearchAndListWrapper,
+} from '@/components/features/permissions';
 import { Button } from '@/components/ui/buttons';
 import { Plus } from '@/components/ui/icons';
 import { useDebounceSearch } from '@/hooks/useDebounceSearch';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
-import { PermissionGroupDatasetGroupsListContainer } from './PermissionGroupDatasetsListContainer';
+import { DatasetGroupPermissionGroupsListContainer } from './DatasetGroupPermissionGroupsListContainer';
 
-const NewDatasetGroupModal = lazy(() =>
-  import('@/components/features/permissions/NewDatasetGroupModal').then((mod) => ({
-    default: mod.NewDatasetGroupModal,
-  }))
-);
-
-export const PermissionGroupDatasetGroupsController: React.FC<{
-  permissionGroupId: string;
-}> = ({ permissionGroupId }) => {
-  const { data } = useGetPermissionGroupDatasetGroups(permissionGroupId);
+export const DatasetGroupPermissionGroupsController: React.FC<{
+  datasetGroupId: string;
+}> = ({ datasetGroupId }) => {
+  const { data } = useGetDatasetGroupPermissionGroups(datasetGroupId);
   const [isNewDatasetGroupModalOpen, setIsNewDatasetGroupModalOpen] = useState(false);
 
   const { filteredItems, handleSearchChange, searchText } = useDebounceSearch({
@@ -47,12 +46,12 @@ export const PermissionGroupDatasetGroupsController: React.FC<{
       <PermissionSearchAndListWrapper
         searchText={searchText}
         handleSearchChange={handleSearchChange}
-        searchPlaceholder="Search by permission group name..."
+        searchPlaceholder="Search by dataset group name..."
         searchChildren={NewDatasetGroupButton}
       >
-        <PermissionGroupDatasetGroupsListContainer
+        <DatasetGroupPermissionGroupsListContainer
           filteredDatasetGroups={filteredItems}
-          permissionGroupId={permissionGroupId}
+          datasetGroupId={datasetGroupId}
         />
       </PermissionSearchAndListWrapper>
 

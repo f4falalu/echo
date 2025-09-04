@@ -1,15 +1,17 @@
-import type React from 'react';
-import { useMemo, useState } from 'react';
+import React, { lazy, useMemo, useState } from 'react';
 import { useGetUserDatasetGroups } from '@/api/buster_rest/users/permissions';
-import {
-  NewDatasetGroupModal,
-  PermissionSearchAndListWrapper,
-} from '@/components/features/permissions';
+import { PermissionSearchAndListWrapper } from '@/components/features/permissions';
 import { Button } from '@/components/ui/buttons';
 import { Plus } from '@/components/ui/icons';
 import { useDebounceSearch } from '@/hooks/useDebounceSearch';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { UserDatasetGroupListContainer } from './UserDatasetGroupListContainer';
+
+const NewDatasetGroupModal = lazy(() =>
+  import('@/components/features/permissions/NewDatasetGroupModal').then((mod) => ({
+    default: mod.NewDatasetGroupModal,
+  }))
+);
 
 export const UserDatasetGroupsController: React.FC<{ userId: string }> = ({ userId }) => {
   const { data: datasetGroups } = useGetUserDatasetGroups({ userId });

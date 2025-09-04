@@ -29,6 +29,15 @@ export const useListDatasetGroups = () => {
   });
 };
 
+export const prefetchListDatasetGroups = async (queryClient: QueryClient) => {
+  await queryClient.prefetchQuery({
+    queryKey: datasetGroupQueryKeys.datasetGroupsList.queryKey,
+    queryFn: listDatasetGroups,
+  });
+
+  return queryClient.getQueryData(datasetGroupQueryKeys.datasetGroupsList.queryKey);
+};
+
 export const useDeleteDatasetGroup = () => {
   const queryClient = useQueryClient();
   return useMutation({
