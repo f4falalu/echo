@@ -45,7 +45,7 @@ export const signInWithGoogle = createServerFn({ method: 'POST' })
   .handler(async ({ data: { redirectTo } }) => {
     const supabase = getSupabaseServerClient();
 
-    const callbackUrl = new URL(AuthCallbackRoute.to);
+    const callbackUrl = new URL(AuthCallbackRoute.to, env.VITE_PUBLIC_URL);
 
     if (redirectTo && isValidRedirectUrl(redirectTo)) {
       callbackUrl.searchParams.set('next', redirectTo);
@@ -62,7 +62,9 @@ export const signInWithGoogle = createServerFn({ method: 'POST' })
       return { success: false, error: error.message };
     }
 
-    throw redirect({ to: data.url });
+    console.log('data', data);
+
+    throw redirect({ href: data.url });
   });
 
 export const signInWithAnonymousUser = createServerFn({ method: 'POST' }).handler(async () => {
@@ -114,7 +116,7 @@ export const signInWithGithub = createServerFn({ method: 'POST' })
   .handler(async ({ data: { redirectTo } }) => {
     const supabase = getSupabaseServerClient();
 
-    const callbackUrl = new URL(AuthCallbackRoute.to);
+    const callbackUrl = new URL(AuthCallbackRoute.to, env.VITE_PUBLIC_URL);
 
     if (redirectTo && isValidRedirectUrl(redirectTo)) {
       callbackUrl.searchParams.set('next', redirectTo);
@@ -139,7 +141,7 @@ export const signInWithAzure = createServerFn({ method: 'POST' })
   .handler(async ({ data: { redirectTo } }) => {
     const supabase = getSupabaseServerClient();
 
-    const callbackUrl = new URL(AuthCallbackRoute.to);
+    const callbackUrl = new URL(AuthCallbackRoute.to, env.VITE_PUBLIC_URL);
 
     if (redirectTo && isValidRedirectUrl(redirectTo)) {
       callbackUrl.searchParams.set('next', redirectTo);

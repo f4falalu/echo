@@ -64,6 +64,7 @@ export const LoginForm: React.FC<{
     setLoading('google');
     try {
       const result = await signInWithGoogle({ data: { redirectTo } });
+      console.log('result', result);
       if (result && 'success' in result && !result.success) {
         setErrorMessages([result.error]);
         setLoading(null);
