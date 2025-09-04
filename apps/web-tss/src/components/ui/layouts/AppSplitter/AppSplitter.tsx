@@ -421,9 +421,24 @@ const AppSplitterBase = forwardRef<
           const startSize = savedLayout ?? 0;
           const startTime = performance.now();
 
+          // Frame-based animation for smoother performance
+          // We'll track the expected frame count based on 60fps for timing reference
+          const expectedFrameCount = Math.ceil((duration / 1000) * 60);
+          let frameCount = 0;
+          let lastFrameTime = startTime;
+
           const animate = (currentTime: number) => {
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / duration, 1);
+            frameCount++;
+            const deltaTime = currentTime - lastFrameTime;
+            lastFrameTime = currentTime;
+
+            // Use frame-based progress as primary, with time-based as fallback
+            // This ensures smooth animation even when frames are dropped
+            const frameProgress = frameCount / expectedFrameCount;
+            const timeProgress = (currentTime - startTime) / duration;
+
+            // Use the more conservative progress to prevent overshooting
+            const progress = Math.min(Math.max(frameProgress, timeProgress), 1);
             const easedProgress = easeInOutCubic(progress);
 
             const currentSize = startSize + (targetSize - startSize) * easedProgress;

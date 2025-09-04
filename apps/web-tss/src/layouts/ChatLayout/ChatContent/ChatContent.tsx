@@ -1,5 +1,5 @@
 import { ClientOnly } from '@tanstack/react-router';
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { ScrollToBottomButton } from '@/components/features/buttons/ScrollToBottomButton';
 import { useGetChatMessageIds } from '@/context/Chats';
 import { useAutoScroll } from '@/hooks/useAutoScroll';
@@ -14,6 +14,7 @@ const autoClass = 'mx-auto max-w-[600px] w-full';
 export const ChatContent: React.FC<{ chatId: string | undefined }> = React.memo(({ chatId }) => {
   const chatMessageIds = useGetChatMessageIds(chatId);
   const containerRef = useRef<HTMLElement>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   const { isAutoScrollEnabled, scrollToBottom, enableAutoScroll } = useAutoScroll(containerRef, {
     observeSubTree: true,
@@ -27,31 +28,38 @@ export const ChatContent: React.FC<{ chatId: string | undefined }> = React.memo(
     if (!container) return;
     containerRef.current = container;
     enableAutoScroll();
+    setIsMounted(true);
   });
 
+  const showScrollToBottomButton = isMounted && containerRef.current;
+
   return (
-    <ClientOnly>
-      <div className="mb-48 flex h-full w-full flex-col">
-        {chatMessageIds?.map((messageId, index) => (
-          <div key={messageId} className={autoClass}>
-            <ChatMessageBlock
-              key={messageId}
-              messageId={messageId}
-              chatId={chatId || ''}
-              messageIndex={index}
-            />
-          </div>
-        ))}
+    <>
+      <div className={cn('mb-48 flex h-full w-full flex-col', !isMounted && 'invisible')}>
+        <ClientOnly>
+          {chatMessageIds?.map((messageId, index) => (
+            <div key={messageId} className={autoClass}>
+              <ChatMessageBlock
+                key={messageId}
+                messageId={messageId}
+                chatId={chatId || ''}
+                messageIndex={index}
+              />
+            </div>
+          ))}
+        </ClientOnly>
       </div>
 
       <ChatInputWrapper>
-        <ScrollToBottomButton
-          isAutoScrollEnabled={isAutoScrollEnabled}
-          scrollToBottom={scrollToBottom}
-          className="absolute -top-10"
-        />
+        {showScrollToBottomButton && (
+          <ScrollToBottomButton
+            isAutoScrollEnabled={isAutoScrollEnabled}
+            scrollToBottom={scrollToBottom}
+            className={'absolute -top-10'}
+          />
+        )}
       </ChatInputWrapper>
-    </ClientOnly>
+    </>
   );
 });
 
