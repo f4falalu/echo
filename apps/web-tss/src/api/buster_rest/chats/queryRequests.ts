@@ -48,11 +48,9 @@ export const useGetListChats = (
 };
 
 export const prefetchGetChatsList = async (
-  queryClientProp?: QueryClient,
+  queryClient: QueryClient,
   params?: Parameters<typeof getListChats>[0]
 ) => {
-  const queryClient = queryClientProp || new QueryClient();
-
   await queryClient.prefetchQuery({
     ...chatQueryKeys.chatsGetList(params),
     queryFn: () => getListChats(params),

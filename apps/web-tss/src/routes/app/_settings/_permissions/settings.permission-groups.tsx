@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { ListPermissionGroupsController } from '@/controllers/PermissionGroupsControllers/ListPermissionGroupsController';
 
 export const Route = createFileRoute('/app/_settings/_permissions/settings/permission-groups')({
   head: () => ({
@@ -13,5 +14,5 @@ export const Route = createFileRoute('/app/_settings/_permissions/settings/permi
 });
 
 function RouteComponent() {
-  return <div>Hello "/app/settings/permission-groups"!</div>;
+  return <div>TODO</div>;
 }

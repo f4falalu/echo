@@ -17,8 +17,7 @@ export const useGetUserFavorites = () => {
   });
 };
 
-export const prefetchGetUserFavorites = async (queryClientProp?: QueryClient) => {
-  const queryClient = queryClientProp || new QueryClient();
+export const prefetchGetUserFavorites = async (queryClient: QueryClient) => {
   await queryClient.prefetchQuery({
     ...userQueryKeys.favoritesGetList,
     queryFn: getUserFavorites,

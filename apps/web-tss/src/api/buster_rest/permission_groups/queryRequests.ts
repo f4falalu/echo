@@ -25,6 +25,14 @@ export const useListAllPermissionGroups = () => {
   });
 };
 
+export const prefetchAllPermissionGroups = async (queryClient: QueryClient) => {
+  await queryClient.prefetchQuery({
+    ...permissionGroupQueryKeys.permissionGroupList,
+    queryFn: listAllPermissionGroups,
+  });
+  return queryClient.getQueryData(permissionGroupQueryKeys.permissionGroupList.queryKey);
+};
+
 export const useCreatePermissionGroup = (userId?: string) => {
   const queryClient = useQueryClient();
   const { mutateAsync: updatePermissionGroups } = useUpdatePermissionGroupDatasets();
@@ -98,9 +106,8 @@ export const useGetPermissionGroup = (permissionGroupId: string) => {
 
 export const prefetchPermissionGroup = async (
   permissionGroupId: string,
-  queryClientProp?: QueryClient
+  queryClient: QueryClient
 ) => {
-  const queryClient = queryClientProp || new QueryClient();
   await queryClient.prefetchQuery({
     ...permissionGroupQueryKeys.permissionGroup(permissionGroupId),
     queryFn: () => getPermissionGroup({ id: permissionGroupId }),
@@ -147,9 +154,8 @@ export const useGetPermissionGroupUsers = (permissionGroupId: string) => {
 
 export const prefetchPermissionGroupUsers = async (
   permissionGroupId: string,
-  queryClientProp?: QueryClient
+  queryClient: QueryClient
 ) => {
-  const queryClient = queryClientProp || new QueryClient();
   await queryClient.prefetchQuery({
     ...permissionGroupQueryKeys.permissionGroupUsers(permissionGroupId),
     queryFn: () => getPermissionGroupUsers({ id: permissionGroupId }),
@@ -167,9 +173,8 @@ export const useGetPermissionGroupDatasets = (permissionGroupId: string) => {
 
 export const prefetchPermissionGroupDatasets = async (
   permissionGroupId: string,
-  queryClientProp?: QueryClient
+  queryClient: QueryClient
 ) => {
-  const queryClient = queryClientProp || new QueryClient();
   await queryClient.prefetchQuery({
     ...permissionGroupQueryKeys.permissionGroupDatasets(permissionGroupId),
     queryFn: () => getPermissionGroupDatasets({ id: permissionGroupId }),
@@ -187,9 +192,8 @@ export const useGetPermissionGroupDatasetGroups = (permissionGroupId: string) =>
 
 export const prefetchPermissionGroupDatasetGroups = async (
   permissionGroupId: string,
-  queryClientProp?: QueryClient
+  queryClient: QueryClient
 ) => {
-  const queryClient = queryClientProp || new QueryClient();
   await queryClient.prefetchQuery({
     ...permissionGroupQueryKeys.permissionGroupDatasetGroups(permissionGroupId),
     queryFn: () => getPermissionGroupDatasetGroups({ id: permissionGroupId }),

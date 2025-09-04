@@ -13,9 +13,7 @@ export const useColorDictionaryThemes = () => {
   });
 };
 
-export const prefetchColorPalettes = async (queryClientProp?: QueryClient) => {
-  const queryClient = queryClientProp || new QueryClient();
-
+export const prefetchColorPalettes = async (queryClient: QueryClient) => {
   await queryClient.prefetchQuery({
     ...dictionariesQueryKeys.colorPalettes,
     queryFn: getColorPalettes,
@@ -31,9 +29,7 @@ export const useGetCurrencies = () => {
   });
 };
 
-export const prefetchGetCurrencies = async (queryClientProp?: QueryClient) => {
-  const queryClient = queryClientProp || new QueryClient();
-
+export const prefetchGetCurrencies = async (queryClient: QueryClient) => {
   await queryClient.prefetchQuery({
     ...dictionariesQueryKeys.getCurrencies,
     queryFn: getCurrencies,

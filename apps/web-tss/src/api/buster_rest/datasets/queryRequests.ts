@@ -28,10 +28,8 @@ export const useGetDatasets = (params?: Parameters<typeof getDatasets>[0]) => {
 
 export const prefetchGetDatasets = async (
   params?: Parameters<typeof getDatasets>[0],
-  queryClientProp?: QueryClient
+  queryClient: QueryClient
 ) => {
-  const queryClient = queryClientProp || new QueryClient();
-
   await queryClient.prefetchQuery({
     ...datasetQueryKeys.datasetsListQueryOptions(params),
     queryFn: () => getDatasets(params),
@@ -62,11 +60,7 @@ export const useGetDatasetMetadata = (datasetId: string | undefined) => {
   return res;
 };
 
-export const prefetchGetDatasetMetadata = async (
-  datasetId: string,
-  queryClientProp?: QueryClient
-) => {
-  const queryClient = queryClientProp || new QueryClient();
+export const prefetchGetDatasetMetadata = async (datasetId: string, queryClient: QueryClient) => {
   await queryClient.prefetchQuery({
     ...datasetQueryKeys.datasetMetadata(datasetId),
     queryFn: () => getDatasetMetadata(datasetId),
@@ -137,11 +131,7 @@ export const useIndividualDataset = ({ datasetId }: { datasetId: string | undefi
   return { dataset, datasetData };
 };
 
-export const prefetchIndividualDataset = async (
-  datasetId: string,
-  queryClientProp?: QueryClient
-) => {
-  const queryClient = queryClientProp || new QueryClient();
+export const prefetchIndividualDataset = async (datasetId: string, queryClient: QueryClient) => {
   await queryClient.prefetchQuery({
     ...datasetQueryKeys.datasetMetadata(datasetId),
     queryFn: () => getDatasetMetadata(datasetId),

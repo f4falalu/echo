@@ -1,4 +1,4 @@
-import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { type QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { userQueryKeys } from '@/api/query_keys/users';
 import {
   getUserAttributes,
@@ -20,11 +20,7 @@ export const useGetUserDatasetGroups = ({ userId }: { userId: string }) => {
   });
 };
 
-export const prefetchGetUserDatasetGroups = async (
-  userId: string,
-  queryClientProp?: QueryClient
-) => {
-  const queryClient = queryClientProp || new QueryClient();
+export const prefetchGetUserDatasetGroups = async (userId: string, queryClient: QueryClient) => {
   await queryClient.prefetchQuery({
     ...userQueryKeys.userGetUserDatasetGroups(userId),
     queryFn: () => getUserDatasetGroups({ userId }),
@@ -40,8 +36,7 @@ export const useGetUserDatasets = ({ userId }: { userId: string }) => {
   });
 };
 
-export const prefetchGetUserDatasets = async (userId: string, queryClientProp?: QueryClient) => {
-  const queryClient = queryClientProp || new QueryClient();
+export const prefetchGetUserDatasets = async (userId: string, queryClient: QueryClient) => {
   await queryClient.prefetchQuery({
     ...userQueryKeys.userGetUserDatasets(userId),
     queryFn: () => getUserDatasets({ userId }),
@@ -57,8 +52,7 @@ export const useGetUserAttributes = ({ userId }: { userId: string }) => {
   });
 };
 
-export const prefetchGetUserAttributes = async (userId: string, queryClientProp?: QueryClient) => {
-  const queryClient = queryClientProp || new QueryClient();
+export const prefetchGetUserAttributes = async (userId: string, queryClient: QueryClient) => {
   await queryClient.prefetchQuery({
     ...userQueryKeys.userGetUserAttributes(userId),
     queryFn: () => getUserAttributes({ userId }),
@@ -77,8 +71,7 @@ export const useGetUserTeams = ({ userId }: { userId: string }) => {
   return data;
 };
 
-export const prefetchGetUserTeams = async (userId: string, queryClientProp?: QueryClient) => {
-  const queryClient = queryClientProp || new QueryClient();
+export const prefetchGetUserTeams = async (userId: string, queryClient: QueryClient) => {
   await queryClient.prefetchQuery({
     ...userQueryKeys.userGetUserTeams(userId),
     queryFn: () => getUserTeams({ userId }),
@@ -94,11 +87,7 @@ export const useGetUserPermissionGroups = ({ userId }: { userId: string }) => {
   });
 };
 
-export const prefetchGetUserPermissionGroups = async (
-  userId: string,
-  queryClientProp?: QueryClient
-) => {
-  const queryClient = queryClientProp || new QueryClient();
+export const prefetchGetUserPermissionGroups = async (userId: string, queryClient: QueryClient) => {
   await queryClient.prefetchQuery({
     ...userQueryKeys.userGetUserPermissionsGroups(userId),
     queryFn: () => getUserPermissionGroups({ userId }),

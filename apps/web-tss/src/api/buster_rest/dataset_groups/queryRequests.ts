@@ -65,11 +65,7 @@ export const useGetDatasetGroup = (datasetId: string) => {
   });
 };
 
-export const prefetchDatasetGroup = async (
-  datasetGroupId: string,
-  queryClientProp?: QueryClient
-) => {
-  const queryClient = queryClientProp || new QueryClient();
+export const prefetchDatasetGroup = async (datasetGroupId: string, queryClient: QueryClient) => {
   const { queryKey } = datasetGroupQueryKeys.datasetGroupsGet(datasetGroupId);
   await queryClient.prefetchQuery({
     queryKey,
@@ -133,9 +129,8 @@ export const useGetDatasetGroupUsers = (datasetGroupId: string) => {
 
 export const prefetchDatasetGroupUsers = async (
   datasetGroupId: string,
-  queryClientProp?: QueryClient
+  queryClient: QueryClient
 ) => {
-  const queryClient = queryClientProp || new QueryClient();
   const { queryKey } = datasetGroupQueryKeys.datasetGroupsGetUsers(datasetGroupId);
   await queryClient.prefetchQuery({
     queryKey,
@@ -154,9 +149,8 @@ export const useGetDatasetGroupDatasets = (datasetGroupId: string) => {
 
 export const prefetchDatasetGroupDatasets = async (
   datasetGroupId: string,
-  queryClientProp?: QueryClient
+  queryClient: QueryClient
 ) => {
-  const queryClient = queryClientProp || new QueryClient();
   const { queryKey } = datasetGroupQueryKeys.datasetGroupsGetDatasets(datasetGroupId);
   await queryClient.prefetchQuery({
     queryKey,
@@ -175,9 +169,8 @@ export const useGetDatasetGroupPermissionGroups = (datasetGroupId: string) => {
 
 export const prefetchDatasetGroupPermissionGroups = async (
   datasetGroupId: string,
-  queryClientProp?: QueryClient
+  queryClient: QueryClient
 ) => {
-  const queryClient = queryClientProp || new QueryClient();
   const { queryKey } = datasetGroupQueryKeys.datasetGroupsGetPermissionGroups(datasetGroupId);
   await queryClient.prefetchQuery({
     queryKey,

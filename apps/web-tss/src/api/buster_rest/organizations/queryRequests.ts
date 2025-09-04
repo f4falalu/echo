@@ -18,9 +18,8 @@ export const useGetOrganizationUsers = (organizationId: string) => {
 
 export const prefetchGetOrganizationUsers = async (
   organizationId: string,
-  queryClientProp?: QueryClient
+  queryClient: QueryClient
 ) => {
-  const queryClient = queryClientProp || new QueryClient();
   const queryOptions = organizationQueryKeys.organizationUsers(organizationId);
 
   await queryClient.prefetchQuery({

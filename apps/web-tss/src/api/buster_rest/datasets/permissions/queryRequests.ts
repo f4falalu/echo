@@ -24,9 +24,8 @@ export const useGetDatasetPermissionsOverview = (dataset_id: string) => {
 
 export const prefetchGetDatasetPermissionsOverview = async (
   datasetId: string,
-  queryClientProp?: QueryClient
+  queryClient: QueryClient
 ) => {
-  const queryClient = queryClientProp || new QueryClient();
   await queryClient.prefetchQuery({
     ...datasetGroupQueryKeys.datasetPermissionsOverview(datasetId),
     queryFn: () => getDatasetPermissionsOverview({ dataset_id: datasetId }),

@@ -44,10 +44,8 @@ export const useGetReportsList = (params?: Parameters<typeof getReportsList>[0])
  */
 export const prefetchGetReportsList = async (
   params?: Parameters<typeof getReportsList>[0],
-  queryClientProp?: QueryClient
+  queryClient: QueryClient
 ) => {
-  const queryClient = queryClientProp || new QueryClient();
-
   await queryClient.prefetchQuery({
     ...reportsQueryKeys.reportsGetList(params),
     queryFn: () => getReportsList(params),
@@ -58,10 +56,8 @@ export const prefetchGetReportsList = async (
 
 export const prefetchGetReportsListClient = async (
   params?: Parameters<typeof getReportsList>[0],
-  queryClientProp?: QueryClient
+  queryClient: QueryClient
 ) => {
-  const queryClient = queryClientProp || new QueryClient();
-
   await queryClient.prefetchQuery({
     ...reportsQueryKeys.reportsGetList(params),
     queryFn: () => getReportsList(params),
@@ -112,9 +108,7 @@ export const useGetReport = <T = GetReportResponse>(
 /**
  * Prefetch function for individual report (server-side)
  */
-export const prefetchGetReportById = async (reportId: string, queryClientProp?: QueryClient) => {
-  const queryClient = queryClientProp || new QueryClient();
-
+export const prefetchGetReportById = async (reportId: string, queryClient: QueryClient) => {
   await queryClient.prefetchQuery({
     ...reportsQueryKeys.reportsGetReport(reportId, 'LATEST'),
     queryFn: () => getReportById(reportId),
