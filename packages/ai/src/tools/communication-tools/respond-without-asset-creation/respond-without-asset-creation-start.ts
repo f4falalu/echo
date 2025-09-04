@@ -1,5 +1,6 @@
 import { updateMessage, updateMessageEntries } from '@buster/database';
 import type { ToolCallOptions } from 'ai';
+import type { UpdateMessageEntriesParams } from '../../../../../database/src/queries/messages/update-message-entries';
 import {
   createRespondWithoutAssetCreationRawLlmMessageEntry,
   createRespondWithoutAssetCreationResponseMessage,
@@ -14,9 +15,7 @@ export function createRespondWithoutAssetCreationStart(
   context: RespondWithoutAssetCreationContext,
   state: RespondWithoutAssetCreationState
 ) {
-  return async function respondWithoutAssetCreationStart(
-    options: Pick<ToolCallOptions, 'toolCallId'>
-  ): Promise<void> {
+  return async function respondWithoutAssetCreationStart(options: ToolCallOptions): Promise<void> {
     // Reset state for new tool call to prevent contamination from previous calls
     state.toolCallId = options.toolCallId;
     state.args = undefined;
@@ -31,18 +30,27 @@ export function createRespondWithoutAssetCreationStart(
       options.toolCallId
     );
 
-    // Only update database if we have a valid messageId
-    if (context.messageId) {
-      try {
-        if (rawLlmMessage) {
-          await updateMessageEntries({
-            messageId: context.messageId,
-            responseMessages: responseEntry ? [responseEntry] : undefined,
-            rawLlmMessages: [rawLlmMessage],
-          });
-        }
+    const entries: UpdateMessageEntriesParams = {
+      messageId: context.messageId,
+    };
 
-        // Mark message as completed and add final reasoning message with workflow time
+    if (responseEntry) {
+      entries.responseMessages = [responseEntry];
+    }
+
+    // Only include the tool call message, not the result
+    // The result will be added in the execute function
+    if (rawLlmMessage) {
+      entries.rawLlmMessages = [rawLlmMessage];
+    }
+
+    try {
+      if (entries.responseMessages || entries.rawLlmMessages) {
+        await updateMessageEntries(entries);
+      }
+
+      // Mark message as completed and add final reasoning message with workflow time
+      if (context.messageId) {
         const currentTime = Date.now();
         const elapsedTimeMs = currentTime - context.workflowStartTime;
         const elapsedSeconds = Math.floor(elapsedTimeMs / 1000);
@@ -59,9 +67,9 @@ export function createRespondWithoutAssetCreationStart(
           isCompleted: true,
           finalReasoningMessage: `Reasoned for ${timeString}`,
         });
-      } catch (error) {
-        console.error('[respond-without-asset-creation] Failed to update initial entries:', error);
       }
+    } catch (error) {
+      console.error('[respond-without-asset-creation] Failed to update message entries:', error);
     }
   };
 }
