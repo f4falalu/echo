@@ -23,53 +23,126 @@ describe('Sync Jobs Query Helpers', () => {
     vi.clearAllMocks();
   });
 
-  describe('getDataSourcesForSync', () => {
-    it('should validate and return data sources with searchable columns', async () => {
+  describe('getExistingSyncJobs', () => {
+    it('should validate and return existing sync jobs grouped by data source', async () => {
       // This test validates the schema structure
-      const mockOutput: syncJobs.GetDataSourcesForSyncOutput = {
-        dataSources: [
+      const mockOutput: syncJobs.GetExistingSyncJobsOutput = {
+        syncJobs: [
           {
             id: '123e4567-e89b-12d3-a456-426614174000',
-            name: 'Test Data Source',
-            type: 'postgresql',
-            organizationId: '123e4567-e89b-12d3-a456-426614174001',
-            columnsWithStoredValues: 5,
+            dataSourceId: '123e4567-e89b-12d3-a456-426614174001',
+            dataSourceName: 'Test Data Source',
+            dataSourceType: 'postgresql',
+            organizationId: '123e4567-e89b-12d3-a456-426614174002',
+            databaseName: 'test_db',
+            schemaName: 'public',
+            tableName: 'users',
+            columnName: 'name',
+            status: 'pending',
+            errorMessage: null,
+            lastSyncedAt: null,
+            createdAt: '2024-01-01T00:00:00.000Z',
+          },
+          {
+            id: '123e4567-e89b-12d3-a456-426614174003',
+            dataSourceId: '123e4567-e89b-12d3-a456-426614174001',
+            dataSourceName: 'Test Data Source',
+            dataSourceType: 'postgresql',
+            organizationId: '123e4567-e89b-12d3-a456-426614174002',
+            databaseName: 'test_db',
+            schemaName: 'public',
+            tableName: 'users',
+            columnName: 'email',
+            status: 'failed',
+            errorMessage: 'Connection timeout',
+            lastSyncedAt: '2024-01-01T00:00:00.000Z',
+            createdAt: '2024-01-01T00:00:00.000Z',
           },
         ],
-        totalCount: 1,
+        totalCount: 2,
+        byDataSource: {
+          '123e4567-e89b-12d3-a456-426614174001': {
+            dataSourceId: '123e4567-e89b-12d3-a456-426614174001',
+            dataSourceName: 'Test Data Source',
+            dataSourceType: 'postgresql',
+            organizationId: '123e4567-e89b-12d3-a456-426614174002',
+            jobCount: 2,
+            jobs: [
+              {
+                id: '123e4567-e89b-12d3-a456-426614174000',
+                dataSourceId: '123e4567-e89b-12d3-a456-426614174001',
+                dataSourceName: 'Test Data Source',
+                dataSourceType: 'postgresql',
+                organizationId: '123e4567-e89b-12d3-a456-426614174002',
+                databaseName: 'test_db',
+                schemaName: 'public',
+                tableName: 'users',
+                columnName: 'name',
+                status: 'pending',
+                errorMessage: null,
+                lastSyncedAt: null,
+                createdAt: '2024-01-01T00:00:00.000Z',
+              },
+              {
+                id: '123e4567-e89b-12d3-a456-426614174003',
+                dataSourceId: '123e4567-e89b-12d3-a456-426614174001',
+                dataSourceName: 'Test Data Source',
+                dataSourceType: 'postgresql',
+                organizationId: '123e4567-e89b-12d3-a456-426614174002',
+                databaseName: 'test_db',
+                schemaName: 'public',
+                tableName: 'users',
+                columnName: 'email',
+                status: 'failed',
+                errorMessage: 'Connection timeout',
+                lastSyncedAt: '2024-01-01T00:00:00.000Z',
+                createdAt: '2024-01-01T00:00:00.000Z',
+              },
+            ],
+          },
+        },
       };
 
       // Validate output schema
-      const validated = syncJobs.GetDataSourcesForSyncOutputSchema.parse(mockOutput);
-      expect(validated.dataSources).toHaveLength(1);
-      expect(validated.dataSources[0]?.columnsWithStoredValues).toBe(5);
+      const validated = syncJobs.GetExistingSyncJobsOutputSchema.parse(mockOutput);
+      expect(validated.syncJobs).toHaveLength(2);
+      expect(validated.totalCount).toBe(2);
+      expect(Object.keys(validated.byDataSource)).toHaveLength(1);
+      expect(validated.byDataSource['123e4567-e89b-12d3-a456-426614174001']?.jobCount).toBe(2);
     });
 
-    it('should reject invalid data source data', () => {
+    it('should reject invalid sync job data', () => {
       const invalidData = {
-        dataSources: [
+        syncJobs: [
           {
             id: 'not-a-uuid',
-            name: 'Test',
-            type: 'postgresql',
-            organizationId: '123e4567-e89b-12d3-a456-426614174001',
-            columnsWithStoredValues: -1, // Invalid: negative count
+            dataSourceId: '123e4567-e89b-12d3-a456-426614174001',
+            dataSourceName: 'Test',
+            dataSourceType: 'postgresql',
+            organizationId: '123e4567-e89b-12d3-a456-426614174002',
+            databaseName: 'test_db',
+            schemaName: 'public',
+            tableName: 'users',
+            columnName: 'name',
+            status: 'pending',
+            errorMessage: null,
+            lastSyncedAt: null,
+            createdAt: '2024-01-01T00:00:00.000Z',
           },
         ],
         totalCount: 1,
+        byDataSource: {},
       };
 
-      expect(() => syncJobs.GetDataSourcesForSyncOutputSchema.parse(invalidData)).toThrow(
-        z.ZodError
-      );
+      expect(() => syncJobs.GetExistingSyncJobsOutputSchema.parse(invalidData)).toThrow(z.ZodError);
     });
   });
 
   describe('createSearchableValuesSyncJob', () => {
-    it('should validate sync job input', () => {
+    it('should validate sync job creation input', () => {
       const validInput: syncJobs.CreateSyncJobInput = {
         dataSourceId: '123e4567-e89b-12d3-a456-426614174000',
-        databaseName: 'analytics',
+        databaseName: 'test_db',
         schemaName: 'public',
         tableName: 'users',
         columnName: 'email',
@@ -77,14 +150,14 @@ describe('Sync Jobs Query Helpers', () => {
       };
 
       const validated = syncJobs.CreateSyncJobInputSchema.parse(validInput);
+      expect(validated.dataSourceId).toBe('123e4567-e89b-12d3-a456-426614174000');
       expect(validated.syncType).toBe('daily');
-      expect(validated.databaseName).toBe('analytics');
     });
 
-    it('should reject empty strings in required fields', () => {
+    it('should reject invalid creation input', () => {
       const invalidInput = {
-        dataSourceId: '123e4567-e89b-12d3-a456-426614174000',
-        databaseName: '', // Invalid: empty string
+        dataSourceId: 'not-a-uuid',
+        databaseName: '',
         schemaName: 'public',
         tableName: 'users',
         columnName: 'email',
@@ -92,89 +165,135 @@ describe('Sync Jobs Query Helpers', () => {
 
       expect(() => syncJobs.CreateSyncJobInputSchema.parse(invalidInput)).toThrow(z.ZodError);
     });
-
-    it('should validate batch create input', () => {
-      const batchInput: syncJobs.BatchCreateSyncJobsInput = {
-        dataSourceId: '123e4567-e89b-12d3-a456-426614174000',
-        syncType: 'manual',
-        columns: [
-          {
-            databaseName: 'analytics',
-            schemaName: 'public',
-            tableName: 'users',
-            columnName: 'email',
-          },
-          {
-            databaseName: 'analytics',
-            schemaName: 'public',
-            tableName: 'users',
-            columnName: 'name',
-          },
-        ],
-      };
-
-      const validated = syncJobs.BatchCreateSyncJobsInputSchema.parse(batchInput);
-      expect(validated.columns).toHaveLength(2);
-      expect(validated.syncType).toBe('manual');
-    });
   });
 
   describe('updateSyncJobStatus', () => {
     it('should validate status update input', () => {
       const validInput: syncJobs.UpdateSyncJobStatusInput = {
         jobId: '123e4567-e89b-12d3-a456-426614174000',
-        status: 'completed',
+        status: 'success',
         metadata: {
           processedCount: 100,
-          existingCount: 20,
-          newCount: 80,
+          existingCount: 50,
+          newCount: 50,
           duration: 5000,
-          syncedAt: new Date().toISOString(),
+          syncedAt: '2024-01-01T00:00:00.000Z',
         },
       };
 
       const validated = syncJobs.UpdateSyncJobStatusInputSchema.parse(validInput);
-      expect(validated.status).toBe('completed');
+      expect(validated.status).toBe('success');
       expect(validated.metadata?.processedCount).toBe(100);
     });
 
-    it('should validate all sync job statuses', () => {
-      const validStatuses: syncJobs.SyncJobStatus[] = [
+    it('should accept valid status values', () => {
+      const statuses = [
         'pending',
         'pending_manual',
         'pending_initial',
         'in_progress',
-        'completed',
+        'success',
         'failed',
         'cancelled',
         'skipped',
       ];
 
-      for (const status of validStatuses) {
-        const validated = syncJobs.SyncJobStatusSchema.parse(status);
-        expect(validated).toBe(status);
+      for (const status of statuses) {
+        const input = {
+          jobId: '123e4567-e89b-12d3-a456-426614174000',
+          status,
+        };
+        expect(() => syncJobs.UpdateSyncJobStatusInputSchema.parse(input)).not.toThrow();
       }
     });
 
-    it('should reject invalid status', () => {
-      expect(() => syncJobs.SyncJobStatusSchema.parse('invalid_status')).toThrow(z.ZodError);
-    });
-
-    it('should validate bulk update input', () => {
-      const bulkInput: syncJobs.BulkUpdateSyncJobsInput = {
-        jobIds: ['123e4567-e89b-12d3-a456-426614174000', '123e4567-e89b-12d3-a456-426614174001'],
-        status: 'cancelled',
-        errorMessage: 'Batch operation cancelled by user',
+    it('should reject invalid status values', () => {
+      const invalidInput = {
+        jobId: '123e4567-e89b-12d3-a456-426614174000',
+        status: 'invalid_status',
       };
 
-      const validated = syncJobs.BulkUpdateSyncJobsInputSchema.parse(bulkInput);
-      expect(validated.jobIds).toHaveLength(2);
-      expect(validated.status).toBe('cancelled');
+      expect(() => syncJobs.UpdateSyncJobStatusInputSchema.parse(invalidInput)).toThrow(z.ZodError);
+    });
+  });
+
+  describe('batchCreateSyncJobs', () => {
+    it('should validate batch creation input', () => {
+      const validInput: syncJobs.BatchCreateSyncJobsInput = {
+        dataSourceId: '123e4567-e89b-12d3-a456-426614174000',
+        syncType: 'manual',
+        columns: [
+          {
+            databaseName: 'test_db',
+            schemaName: 'public',
+            tableName: 'users',
+            columnName: 'name',
+          },
+          {
+            databaseName: 'test_db',
+            schemaName: 'public',
+            tableName: 'users',
+            columnName: 'email',
+          },
+        ],
+      };
+
+      const validated = syncJobs.BatchCreateSyncJobsInputSchema.parse(validInput);
+      expect(validated.columns).toHaveLength(2);
+      expect(validated.syncType).toBe('manual');
     });
 
-    it('should reject empty jobIds array', () => {
+    it('should validate batch creation output', () => {
+      const validOutput: syncJobs.BatchCreateSyncJobsOutput = {
+        created: [
+          {
+            id: '123e4567-e89b-12d3-a456-426614174000',
+            dataSourceId: '123e4567-e89b-12d3-a456-426614174001',
+            databaseName: 'test_db',
+            schemaName: 'public',
+            tableName: 'users',
+            columnName: 'name',
+            status: 'pending',
+            createdAt: '2024-01-01T00:00:00.000Z',
+          },
+        ],
+        totalCreated: 1,
+        errors: [
+          {
+            column: {
+              databaseName: 'test_db',
+              schemaName: 'public',
+              tableName: 'users',
+              columnName: 'email',
+            },
+            error: 'Duplicate entry',
+          },
+        ],
+      };
+
+      const validated = syncJobs.BatchCreateSyncJobsOutputSchema.parse(validOutput);
+      expect(validated.totalCreated).toBe(1);
+      expect(validated.errors).toHaveLength(1);
+    });
+  });
+
+  describe('bulkUpdateSyncJobs', () => {
+    it('should validate bulk update input', () => {
+      const validInput: syncJobs.BulkUpdateSyncJobsInput = {
+        jobIds: ['123e4567-e89b-12d3-a456-426614174000', '123e4567-e89b-12d3-a456-426614174001'],
+        status: 'cancelled',
+        errorMessage: 'Batch cancelled by user',
+      };
+
+      const validated = syncJobs.BulkUpdateSyncJobsInputSchema.parse(validInput);
+      expect(validated.jobIds).toHaveLength(2);
+      expect(validated.status).toBe('cancelled');
+      expect(validated.errorMessage).toBe('Batch cancelled by user');
+    });
+
+    it('should reject empty job IDs array', () => {
       const invalidInput = {
-        jobIds: [], // Invalid: empty array
+        jobIds: [],
         status: 'cancelled',
       };
 
@@ -182,188 +301,33 @@ describe('Sync Jobs Query Helpers', () => {
     });
   });
 
-  describe('getSearchableColumns', () => {
-    it('should validate searchable columns output', () => {
-      const mockColumn: syncJobs.SearchableColumn = {
+  describe('getSyncJobStatus', () => {
+    it('should validate get status input', () => {
+      const validInput: syncJobs.GetSyncJobStatusInput = {
+        jobId: '123e4567-e89b-12d3-a456-426614174000',
+      };
+
+      const validated = syncJobs.GetSyncJobStatusInputSchema.parse(validInput);
+      expect(validated.jobId).toBe('123e4567-e89b-12d3-a456-426614174000');
+    });
+
+    it('should validate get status output', () => {
+      const validOutput: syncJobs.GetSyncJobStatusOutput = {
         id: '123e4567-e89b-12d3-a456-426614174000',
-        datasetId: '123e4567-e89b-12d3-a456-426614174001',
-        datasetName: 'users_dataset',
-        databaseName: 'analytics',
+        dataSourceId: '123e4567-e89b-12d3-a456-426614174001',
+        databaseName: 'test_db',
         schemaName: 'public',
-        tableName: 'users_dataset',
+        tableName: 'users',
         columnName: 'email',
-        columnType: 'varchar',
-        description: null,
-        semanticType: null,
-        storedValuesStatus: 'success',
-        storedValuesError: null,
-        storedValuesCount: 1000,
-        storedValuesLastSynced: new Date().toISOString(),
+        status: 'in_progress',
+        lastSyncedAt: null,
+        errorMessage: null,
+        createdAt: '2024-01-01T00:00:00.000Z',
       };
 
-      const validated = syncJobs.SearchableColumnSchema.parse(mockColumn);
-      expect(validated.columnName).toBe('email');
-      expect(validated.storedValuesCount).toBe(1000);
-    });
-
-    it('should validate columns needing sync output', () => {
-      const mockOutput: syncJobs.ColumnsNeedingSyncOutput = {
-        columns: [],
-        totalCount: 0,
-        neverSynced: 0,
-        stale: 0,
-      };
-
-      const validated = syncJobs.ColumnsNeedingSyncOutputSchema.parse(mockOutput);
-      expect(validated.totalCount).toBe(0);
-      expect(validated.neverSynced).toBe(0);
-    });
-
-    it('should validate get searchable columns output with grouping', () => {
-      const mockColumn: syncJobs.SearchableColumn = {
-        id: '123e4567-e89b-12d3-a456-426614174000',
-        datasetId: '123e4567-e89b-12d3-a456-426614174001',
-        datasetName: 'users_dataset',
-        databaseName: 'analytics',
-        schemaName: 'public',
-        tableName: 'users_dataset',
-        columnName: 'email',
-        columnType: 'varchar',
-        description: null,
-        semanticType: null,
-        storedValuesStatus: null,
-        storedValuesError: null,
-        storedValuesCount: null,
-        storedValuesLastSynced: null,
-      };
-
-      const mockOutput: syncJobs.GetSearchableColumnsOutput = {
-        columns: [mockColumn],
-        totalCount: 1,
-        byDataset: {
-          '123e4567-e89b-12d3-a456-426614174001': {
-            datasetName: 'users_dataset',
-            columns: [mockColumn],
-            count: 1,
-          },
-        },
-      };
-
-      const validated = syncJobs.GetSearchableColumnsOutputSchema.parse(mockOutput);
-      expect(validated.totalCount).toBe(1);
-      expect(validated.byDataset).toHaveProperty('123e4567-e89b-12d3-a456-426614174001');
-    });
-  });
-
-  describe('Schema Edge Cases', () => {
-    it('should handle nullable fields correctly', () => {
-      const column: syncJobs.SearchableColumn = {
-        id: '123e4567-e89b-12d3-a456-426614174000',
-        datasetId: '123e4567-e89b-12d3-a456-426614174001',
-        datasetName: 'test',
-        databaseName: 'db',
-        schemaName: 'schema',
-        tableName: 'table',
-        columnName: 'col',
-        columnType: 'text',
-        description: null,
-        semanticType: null,
-        storedValuesStatus: null,
-        storedValuesError: null,
-        storedValuesCount: null,
-        storedValuesLastSynced: null,
-      };
-
-      const validated = syncJobs.SearchableColumnSchema.parse(column);
-      expect(validated.description).toBeNull();
-      expect(validated.storedValuesCount).toBeNull();
-    });
-
-    it('should validate datetime strings', () => {
-      const validDatetime = '2024-01-01T12:00:00.000Z';
-      const invalidDatetime = '2024-01-01 12:00:00'; // Missing T and Z
-
-      const column = {
-        id: '123e4567-e89b-12d3-a456-426614174000',
-        datasetId: '123e4567-e89b-12d3-a456-426614174001',
-        datasetName: 'test',
-        databaseName: 'db',
-        schemaName: 'schema',
-        tableName: 'table',
-        columnName: 'col',
-        columnType: 'text',
-        description: null,
-        semanticType: null,
-        storedValuesStatus: null,
-        storedValuesError: null,
-        storedValuesCount: null,
-        storedValuesLastSynced: validDatetime,
-      };
-
-      // Should accept valid datetime
-      const validated = syncJobs.SearchableColumnSchema.parse(column);
-      expect(validated.storedValuesLastSynced).toBe(validDatetime);
-
-      // Should reject invalid datetime
-      column.storedValuesLastSynced = invalidDatetime;
-      expect(() => syncJobs.SearchableColumnSchema.parse(column)).toThrow(z.ZodError);
-    });
-
-    it('should validate UUID formats', () => {
-      const validUuid = '123e4567-e89b-12d3-a456-426614174000';
-      const invalidUuid = '123-456-789';
-
-      // Valid UUID
-      const validInput = { dataSourceId: validUuid };
-      const validated = syncJobs.GetSearchableColumnsInputSchema.parse(validInput);
-      expect(validated.dataSourceId).toBe(validUuid);
-
-      // Invalid UUID
-      const invalidInput = { dataSourceId: invalidUuid };
-      expect(() => syncJobs.GetSearchableColumnsInputSchema.parse(invalidInput)).toThrow(
-        z.ZodError
-      );
-    });
-  });
-
-  describe('Type Exports', () => {
-    it('should export all required types', () => {
-      // Verify type exports exist (TypeScript will check at compile time)
-      const _dataSourceType: syncJobs.DataSourceForSync = {
-        id: '123e4567-e89b-12d3-a456-426614174000',
-        name: 'Test',
-        type: 'postgresql',
-        organizationId: '123e4567-e89b-12d3-a456-426614174001',
-        columnsWithStoredValues: 0,
-      };
-
-      const _syncJobInput: syncJobs.CreateSyncJobInput = {
-        dataSourceId: '123e4567-e89b-12d3-a456-426614174000',
-        databaseName: 'db',
-        schemaName: 'schema',
-        tableName: 'table',
-        columnName: 'column',
-      };
-
-      const _searchableColumn: syncJobs.SearchableColumn = {
-        id: '123e4567-e89b-12d3-a456-426614174000',
-        datasetId: '123e4567-e89b-12d3-a456-426614174001',
-        datasetName: 'test',
-        databaseName: 'db',
-        schemaName: 'schema',
-        tableName: 'table',
-        columnName: 'col',
-        columnType: 'text',
-        description: null,
-        semanticType: null,
-        storedValuesStatus: null,
-        storedValuesError: null,
-        storedValuesCount: null,
-        storedValuesLastSynced: null,
-      };
-
-      // Types are valid if this compiles
-      expect(true).toBe(true);
+      const validated = syncJobs.GetSyncJobStatusOutputSchema.parse(validOutput);
+      expect(validated.status).toBe('in_progress');
+      expect(validated.lastSyncedAt).toBeNull();
     });
   });
 });

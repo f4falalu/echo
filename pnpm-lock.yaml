@@ -880,6 +880,9 @@ importers:
       '@ai-sdk/gateway':
         specifier: ^1.0.15
         version: 1.0.15(zod@3.25.76)
+      '@ai-sdk/openai':
+        specifier: 2.0.0-beta.16
+        version: 2.0.0-beta.16(zod@3.25.76)
       '@ai-sdk/provider':
         specifier: ^2.0.0
         version: 2.0.0
@@ -12538,13 +12541,27 @@ snapshots:
       '@ai-sdk/provider-utils': 3.0.0-beta.10(zod@3.25.1)
       zod: 3.25.1
 
+  '@ai-sdk/openai@2.0.0-beta.16(zod@3.25.76)':
+    dependencies:
+      '@ai-sdk/provider': 2.0.0-beta.2
+      '@ai-sdk/provider-utils': 3.0.0-beta.10(zod@3.25.76)
+      zod: 3.25.76
+
   '@ai-sdk/provider-utils@3.0.0-beta.10(zod@3.25.1)':
     dependencies:
       '@ai-sdk/provider': 2.0.0-beta.2
       '@standard-schema/spec': 1.0.0
-      eventsource-parser: 3.0.3
+      eventsource-parser: 3.0.6
       zod: 3.25.1
       zod-to-json-schema: 3.24.6(zod@3.25.1)
+
+  '@ai-sdk/provider-utils@3.0.0-beta.10(zod@3.25.76)':
+    dependencies:
+      '@ai-sdk/provider': 2.0.0-beta.2
+      '@standard-schema/spec': 1.0.0
+      eventsource-parser: 3.0.6
+      zod: 3.25.76
+      zod-to-json-schema: 3.24.6(zod@3.25.76)
 
   '@ai-sdk/provider-utils@3.0.1(zod@3.25.1)':
     dependencies:
@@ -20689,7 +20706,7 @@ snapshots:
 
   eventsource@3.0.7:
     dependencies:
-      eventsource-parser: 3.0.3
+      eventsource-parser: 3.0.6
 
   evp_bytestokey@1.0.3:
     dependencies:

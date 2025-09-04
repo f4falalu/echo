@@ -12,7 +12,7 @@ export const SyncJobStatusSchema = z.enum([
   'pending_manual',
   'pending_initial',
   'in_progress',
-  'completed',
+  'success',
   'failed',
   'cancelled',
   'skipped',
@@ -103,7 +103,7 @@ export async function updateSyncJobStatus(
     };
 
     // Handle success case
-    if (validated.status === 'completed' && validated.metadata?.syncedAt) {
+    if (validated.status === 'success' && validated.metadata?.syncedAt) {
       updateData.lastSyncedAt = validated.metadata.syncedAt;
       updateData.errorMessage = null; // Clear any previous error
     }
@@ -131,9 +131,7 @@ export async function updateSyncJobStatus(
 
     return UpdateSyncJobOutputSchema.parse({
       ...updated,
-      lastSyncedAt: updated.lastSyncedAt
-        ? new Date(updated.lastSyncedAt).toISOString()
-        : null,
+      lastSyncedAt: updated.lastSyncedAt ? new Date(updated.lastSyncedAt).toISOString() : null,
       updatedAt: new Date().toISOString(),
     });
   } catch (error) {
@@ -182,9 +180,7 @@ export async function getSyncJobStatus(
 
     return GetSyncJobStatusOutputSchema.parse({
       ...job,
-      lastSyncedAt: job.lastSyncedAt
-        ? new Date(job.lastSyncedAt).toISOString()
-        : null,
+      lastSyncedAt: job.lastSyncedAt ? new Date(job.lastSyncedAt).toISOString() : null,
       createdAt: new Date(job.createdAt).toISOString(),
     });
   } catch (error) {
@@ -225,7 +221,7 @@ export async function markSyncJobCompleted(
 ): Promise<UpdateSyncJobOutput> {
   return updateSyncJobStatus({
     jobId,
-    status: 'completed',
+    status: 'success',
     metadata: {
       ...metadata,
       syncedAt: new Date().toISOString(),

@@ -17,14 +17,14 @@ import {
   validateEmbeddingDimensions,
 } from './generate-embeddings';
 
-// Mock the AI SDK and OpenAI provider
+// Mock the AI SDK and Gateway provider
 vi.mock('ai', () => ({
   embedMany: vi.fn(),
 }));
 
-vi.mock('@ai-sdk/openai', () => ({
-  createOpenAI: vi.fn(() => ({
-    embedding: vi.fn(() => 'mocked-embedding-model'),
+vi.mock('@ai-sdk/gateway', () => ({
+  createGateway: vi.fn(() => ({
+    textEmbeddingModel: vi.fn(() => 'mocked-embedding-model'),
   })),
 }));
 

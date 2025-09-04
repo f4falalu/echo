@@ -1,11 +1,4 @@
-import {
-  batchCreateSyncJobs,
-  getDataSourcesForSync,
-  getSearchableColumns,
-  markSyncJobFailed,
-  markSyncJobInProgress,
-} from '@buster/database';
-import { checkNamespaceExists, createNamespaceIfNotExists } from '@buster/search';
+import { getExistingSyncJobs } from '@buster/database';
 import { logger, schedules } from '@trigger.dev/sdk';
 import { processSyncJob } from './process-sync-job';
 import type { DailySyncReport, DataSourceSyncSummary, SyncJobPayload } from './types';
@@ -14,12 +7,11 @@ import type { DailySyncReport, DataSourceSyncSummary, SyncJobPayload } from './t
  * Daily scheduled task to sync searchable values from data sources
  *
  * This task runs every day at 2 AM UTC and:
- * 1. Identifies data sources with searchable columns
- * 2. Creates sync jobs for each column that needs syncing
- * 3. Queues individual sync tasks for processing
- * 4. Tracks and reports on the overall sync status
+ * 1. Retrieves existing sync jobs from stored_values_sync_jobs table
+ * 2. Triggers sync jobs for processing (fire and forget)
+ * 3. Reports on the number of jobs triggered
  *
- * The actual sync logic is delegated to process-sync-job.ts (Ticket 8)
+ * The actual sync logic is handled asynchronously by process-sync-job.ts
  */
 export const syncSearchableValues = schedules.task({
   id: 'sync-searchable-values',
@@ -44,60 +36,31 @@ export const syncSearchableValues = schedules.task({
     });
 
     try {
-      // Step 1: Get all data sources that have searchable columns
-      const dataSourcesResult = await getDataSourcesForSync();
-
-      logger.info('Found data sources for sync', {
-        executionId,
-        totalDataSources: dataSourcesResult.totalCount,
-        dataSources: dataSourcesResult.dataSources.map((ds) => ({
-          id: ds.id,
-          name: ds.name,
-          columnsWithStoredValues: ds.columnsWithStoredValues,
-        })),
+      // Step 1: Get all existing sync jobs from the stored_values_sync_jobs table
+      const syncJobsResult = await getExistingSyncJobs({
+        statuses: ['pending', 'success'],
       });
 
-      if (dataSourcesResult.totalCount === 0) {
-        logger.info('No data sources found with searchable columns', { executionId });
+      logger.info('Found existing sync jobs', {
+        executionId,
+        totalJobs: syncJobsResult.totalCount,
+        dataSourceCount: Object.keys(syncJobsResult.byDataSource).length,
+      });
+
+      if (syncJobsResult.totalCount === 0) {
+        logger.info('No sync jobs found to process', { executionId });
         return createReport(executionId, startTime, [], errors);
       }
 
-      // Step 2: Ensure TurboPuffer namespaces exist for all data sources
-      logger.info('Checking TurboPuffer namespaces', {
-        executionId,
-        dataSourceCount: dataSourcesResult.totalCount,
-      });
+      // Step 2: Process sync jobs grouped by data source
+      for (const dataSourceId in syncJobsResult.byDataSource) {
+        const dataSourceInfo = syncJobsResult.byDataSource[dataSourceId];
+        if (!dataSourceInfo) continue;
 
-      for (const dataSource of dataSourcesResult.dataSources) {
-        try {
-          const namespaceExists = await checkNamespaceExists(dataSource.id);
-          if (!namespaceExists) {
-            logger.info('Creating TurboPuffer namespace', {
-              executionId,
-              dataSourceId: dataSource.id,
-              dataSourceName: dataSource.name,
-            });
-            // Namespace will be created automatically on first write
-            await createNamespaceIfNotExists(dataSource.id);
-          }
-        } catch (error) {
-          const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-          logger.error('Failed to check/create namespace', {
-            executionId,
-            dataSourceId: dataSource.id,
-            dataSourceName: dataSource.name,
-            error: errorMsg,
-          });
-          errors.push(`Failed to check/create namespace for ${dataSource.name}: ${errorMsg}`);
-        }
-      }
-
-      // Step 3: Process each data source
-      for (const dataSource of dataSourcesResult.dataSources) {
         const summary: DataSourceSyncSummary = {
-          dataSourceId: dataSource.id,
-          dataSourceName: dataSource.name,
-          totalColumns: 0,
+          dataSourceId,
+          dataSourceName: dataSourceInfo.dataSourceName,
+          totalColumns: dataSourceInfo.jobCount,
           successfulSyncs: 0,
           failedSyncs: 0,
           skippedSyncs: 0,
@@ -108,141 +71,78 @@ export const syncSearchableValues = schedules.task({
         try {
           logger.info('Processing data source', {
             executionId,
-            dataSourceId: dataSource.id,
-            dataSourceName: dataSource.name,
+            dataSourceId,
+            dataSourceName: dataSourceInfo.dataSourceName,
+            jobCount: dataSourceInfo.jobCount,
           });
 
-          // Get searchable columns for this data source
-          const columnsResult = await getSearchableColumns({
-            dataSourceId: dataSource.id,
-          });
+          // Step 3: Trigger sync jobs for this data source (fire and forget)
+          const jobs = dataSourceInfo.jobs;
+          let triggeredCount = 0;
+          let triggerFailureCount = 0;
 
-          summary.totalColumns = columnsResult.totalCount;
+          for (const job of jobs) {
+            try {
+              // Prepare payload for processing
+              const syncPayload: SyncJobPayload = {
+                jobId: job.id,
+                dataSourceId: job.dataSourceId,
+                databaseName: job.databaseName,
+                schemaName: job.schemaName,
+                tableName: job.tableName,
+                columnName: job.columnName,
+                maxValues: 1000,
+              };
 
-          if (columnsResult.totalCount === 0) {
-            logger.info('No searchable columns found for data source', {
-              executionId,
-              dataSourceId: dataSource.id,
-            });
-            summary.skippedSyncs = summary.totalColumns;
-            dataSourceSummaries.push(summary);
-            continue;
+              // Trigger the sync job without waiting
+              await processSyncJob.trigger(syncPayload);
+              triggeredCount++;
+
+              logger.info('Sync job triggered', {
+                executionId,
+                jobId: job.id,
+                table: job.tableName,
+                column: job.columnName,
+              });
+            } catch (error) {
+              triggerFailureCount++;
+              const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+              summary.errors.push(
+                `Failed to trigger job ${job.tableName}.${job.columnName}: ${errorMsg}`
+              );
+
+              logger.error('Failed to trigger sync job', {
+                executionId,
+                jobId: job.id,
+                table: job.tableName,
+                column: job.columnName,
+                error: errorMsg,
+              });
+            }
           }
 
-          // Step 4: Create sync jobs for all columns
-          const columnsToSync = columnsResult.columns.map((col) => ({
-            databaseName: col.databaseName,
-            schemaName: col.schemaName,
-            tableName: col.tableName,
-            columnName: col.columnName,
-          }));
-
-          const batchResult = await batchCreateSyncJobs({
-            dataSourceId: dataSource.id,
-            syncType: 'daily',
-            columns: columnsToSync,
-          });
-
-          logger.info('Created sync jobs', {
-            executionId,
-            dataSourceId: dataSource.id,
-            totalCreated: batchResult.totalCreated,
-            errors: batchResult.errors.length,
-          });
-
-          // Track any errors from job creation
-          for (const error of batchResult.errors) {
-            summary.errors.push(
-              `Failed to create job for ${error.column.tableName}.${error.column.columnName}: ${error.error}`
-            );
-            summary.failedSyncs++;
-          }
-
-          // Step 5: Process each sync job
-          const batchSize = 10; // Process in batches
-          const jobs = batchResult.created;
-
-          for (let i = 0; i < jobs.length; i += batchSize) {
-            const batch = jobs.slice(i, i + batchSize);
-            const batchPromises = batch.map(async (job) => {
-              try {
-                // Mark job as in progress
-                await markSyncJobInProgress(job.id);
-
-                // Prepare payload for processing
-                const syncPayload: SyncJobPayload = {
-                  jobId: job.id,
-                  dataSourceId: job.dataSourceId,
-                  databaseName: job.databaseName,
-                  schemaName: job.schemaName,
-                  tableName: job.tableName,
-                  columnName: job.columnName,
-                  maxValues: 1000,
-                };
-
-                // Process the sync job (stub implementation for now)
-                const result = await processSyncJob.triggerAndWait(syncPayload);
-
-                if (result.ok && result.output.success) {
-                  summary.successfulSyncs++;
-                  summary.totalValuesProcessed += result.output.processedCount || 0;
-                  logger.info('Sync job completed successfully', {
-                    executionId,
-                    jobId: job.id,
-                    processedCount: result.output.processedCount,
-                  });
-                } else {
-                  summary.failedSyncs++;
-                  const errorMsg = result.ok
-                    ? result.output.error || 'Unknown error'
-                    : 'Task execution failed';
-                  summary.errors.push(`Job ${job.id} failed: ${errorMsg}`);
-
-                  // Mark job as failed in database
-                  await markSyncJobFailed(job.id, errorMsg);
-
-                  logger.error('Sync job failed', {
-                    executionId,
-                    jobId: job.id,
-                    error: errorMsg,
-                  });
-                }
-              } catch (error) {
-                summary.failedSyncs++;
-                const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-                summary.errors.push(`Job ${job.id} failed: ${errorMsg}`);
-
-                // Mark job as failed in database
-                await markSyncJobFailed(job.id, errorMsg);
-
-                logger.error('Error processing sync job', {
-                  executionId,
-                  jobId: job.id,
-                  error: errorMsg,
-                });
-              }
-            });
-
-            // Wait for batch to complete before starting next batch
-            await Promise.allSettled(batchPromises);
-          }
+          summary.successfulSyncs = triggeredCount;
+          summary.failedSyncs = triggerFailureCount;
 
           dataSourceSummaries.push(summary);
         } catch (error) {
           const errorMsg = error instanceof Error ? error.message : 'Unknown error';
           summary.errors.push(`Data source processing failed: ${errorMsg}`);
-          errors.push(`Failed to process data source ${dataSource.name}: ${errorMsg}`);
+          errors.push(
+            `Failed to process data source ${dataSourceInfo.dataSourceName}: ${errorMsg}`
+          );
           dataSourceSummaries.push(summary);
 
           logger.error('Error processing data source', {
             executionId,
-            dataSourceId: dataSource.id,
+            dataSourceId,
+            dataSourceName: dataSourceInfo.dataSourceName,
             error: errorMsg,
           });
         }
       }
 
-      // Step 6: Generate and return report
+      // Step 3: Generate and return report
       const report = createReport(executionId, startTime, dataSourceSummaries, errors);
 
       logger.info('Daily sync completed', {

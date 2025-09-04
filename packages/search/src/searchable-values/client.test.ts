@@ -144,7 +144,7 @@ describe('Turbopuffer Client', () => {
       expect(keys[1]).toBe('db1:public:users:email:john@example.com');
 
       expect(mockNamespace.query).toHaveBeenCalledWith({
-        top_k: 10000,
+        top_k: 1200,
         filters: ['database', 'Eq', 'db1'],
         include_attributes: ['database', 'schema', 'table', 'column', 'value'],
       });
@@ -186,7 +186,7 @@ describe('Turbopuffer Client', () => {
       await queryExistingKeys({ dataSourceId: mockDataSourceId, query });
 
       expect(mockNamespace.query).toHaveBeenCalledWith({
-        top_k: 10000,
+        top_k: 1200,
         filters: [
           'And',
           [
@@ -249,6 +249,7 @@ describe('Turbopuffer Client', () => {
           value: ['John', 'john@example.com'],
           synced_at: expect.arrayContaining([expect.any(String)]),
         },
+        distance_metric: 'cosine_distance',
       });
     });
 

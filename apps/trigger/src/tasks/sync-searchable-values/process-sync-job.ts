@@ -7,8 +7,6 @@ import {
 } from '@buster/database';
 import {
   type SearchableValue,
-  checkNamespaceExists,
-  createNamespaceIfNotExists,
   deduplicateValues,
   generateNamespace,
   queryExistingKeys,
@@ -35,6 +33,9 @@ export const processSyncJob: ReturnType<
   id: 'process-sync-job',
   schema: SyncJobPayloadSchema,
   maxDuration: 300, // 5 minutes per job
+  machine: {
+    preset: 'large-1x', // 4 vCPU, 8 GB RAM for handling large datasets
+  },
   retry: {
     maxAttempts: 3,
     factor: 2,
@@ -114,15 +115,10 @@ export const processSyncJob: ReturnType<
         return result;
       }
 
-      // Step 4: Ensure Turbopuffer namespace exists
+      // Step 4: Query existing keys from Turbopuffer
+      // Note: If namespace doesn't exist, it means no data has been written yet
+      // and we should treat it as having no existing keys
       const namespace = generateNamespace(payload.dataSourceId);
-      const namespaceExists = await checkNamespaceExists(payload.dataSourceId);
-      if (!namespaceExists) {
-        logger.info('Creating Turbopuffer namespace', { namespace });
-        await createNamespaceIfNotExists(payload.dataSourceId);
-      }
-
-      // Step 5: Query existing keys from Turbopuffer
       logger.info('Querying existing values from Turbopuffer', {
         namespace,
         database: payload.databaseName,
@@ -131,22 +127,38 @@ export const processSyncJob: ReturnType<
         column: payload.columnName,
       });
 
-      const existingKeys = await queryExistingKeys({
-        dataSourceId: payload.dataSourceId,
-        query: {
-          database: payload.databaseName,
-          schema: payload.schemaName,
-          table: payload.tableName,
-          column: payload.columnName,
-        },
-      });
+      let existingKeys: string[] = [];
+      try {
+        existingKeys = await queryExistingKeys({
+          dataSourceId: payload.dataSourceId,
+          query: {
+            database: payload.databaseName,
+            schema: payload.schemaName,
+            table: payload.tableName,
+            column: payload.columnName,
+          },
+        });
+      } catch (error) {
+        // Check if this is a namespace not found error (404)
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        if (errorMessage.includes('namespace') && errorMessage.includes('was not found')) {
+          logger.info('Namespace does not exist yet, treating as empty', {
+            namespace,
+            jobId: payload.jobId,
+          });
+          existingKeys = [];
+        } else {
+          // Re-throw if it's not a namespace not found error
+          throw error;
+        }
+      }
 
       logger.info('Retrieved existing keys', {
         jobId: payload.jobId,
         existingCount: existingKeys.length,
       });
 
-      // Step 6: Prepare searchable values for deduplication
+      // Step 5: Prepare searchable values for deduplication
       const searchableValues: SearchableValue[] = distinctValues.map((value) => ({
         database: payload.databaseName,
         schema: payload.schemaName,
@@ -155,7 +167,7 @@ export const processSyncJob: ReturnType<
         value,
       }));
 
-      // Step 7: Deduplicate using DuckDB
+      // Step 6: Deduplicate using DuckDB
       logger.info('Deduplicating values', {
         jobId: payload.jobId,
         totalValues: searchableValues.length,
@@ -202,42 +214,88 @@ export const processSyncJob: ReturnType<
         return result;
       }
 
-      // Step 8: Generate embeddings for new values
+      // Step 7: Generate embeddings for new values in batches to manage memory
       logger.info('Generating embeddings for new values', {
         jobId: payload.jobId,
         newCount: deduplicationResult.newCount,
       });
 
-      const newValueTexts = deduplicationResult.newValues.map((v) => v.value);
-      const embeddings = await generateSearchableValueEmbeddings(newValueTexts);
+      // Process embeddings in batches to avoid memory issues
+      const EMBEDDING_BATCH_SIZE = 1000; // Process 1000 values at a time
+      const allValuesWithEmbeddings: SearchableValue[] = [];
 
-      // Step 9: Combine values with embeddings
-      const valuesWithEmbeddings: SearchableValue[] = deduplicationResult.newValues.map(
-        (value, index) => ({
+      for (let i = 0; i < deduplicationResult.newValues.length; i += EMBEDDING_BATCH_SIZE) {
+        const batch = deduplicationResult.newValues.slice(i, i + EMBEDDING_BATCH_SIZE);
+        const batchTexts = batch.map((v) => v.value);
+
+        logger.info('Processing embedding batch', {
+          jobId: payload.jobId,
+          batchStart: i,
+          batchSize: batch.length,
+          totalValues: deduplicationResult.newValues.length,
+        });
+
+        // Generate embeddings for this batch
+        const batchEmbeddings = await generateSearchableValueEmbeddings(batchTexts);
+
+        // Combine values with embeddings for this batch
+        const batchWithEmbeddings = batch.map((value, index) => ({
           ...value,
-          embedding: embeddings[index],
+          embedding: batchEmbeddings[index],
           synced_at: new Date().toISOString(),
-        })
-      );
+        }));
 
-      // Step 10: Upsert to Turbopuffer
+        allValuesWithEmbeddings.push(...batchWithEmbeddings);
+      }
+
+      // Step 8: Upsert to Turbopuffer in batches to manage memory
       logger.info('Upserting values to Turbopuffer', {
         jobId: payload.jobId,
-        count: valuesWithEmbeddings.length,
+        count: allValuesWithEmbeddings.length,
       });
 
-      const upsertResult = await upsertSearchableValues({
-        dataSourceId: payload.dataSourceId,
-        values: valuesWithEmbeddings,
-      });
+      // Process upserts in batches to avoid memory and API limits
+      const UPSERT_BATCH_SIZE = 500; // Upsert 500 values at a time
+      let totalUpserted = 0;
 
-      logger.info('Upsert complete', {
+      for (let i = 0; i < allValuesWithEmbeddings.length; i += UPSERT_BATCH_SIZE) {
+        const batch = allValuesWithEmbeddings.slice(i, i + UPSERT_BATCH_SIZE);
+
+        logger.info('Processing upsert batch', {
+          jobId: payload.jobId,
+          batchStart: i,
+          batchSize: batch.length,
+          totalValues: allValuesWithEmbeddings.length,
+        });
+
+        const batchResult = await upsertSearchableValues({
+          dataSourceId: payload.dataSourceId,
+          values: batch,
+        });
+
+        totalUpserted += batchResult.upserted;
+        if (batchResult.errors && batchResult.errors.length > 0) {
+          // Log and throw error for any upsert failures
+          logger.error('Upsert batch failed', {
+            jobId: payload.jobId,
+            batchStart: i,
+            batchSize: batch.length,
+            errorsInBatch: batchResult.errors.length,
+            errors: batchResult.errors,
+          });
+          
+          throw new Error(
+            `Failed to upsert ${batchResult.errors.length} values to Turbopuffer: ${batchResult.errors.slice(0, 3).join(', ')}${batchResult.errors.length > 3 ? '...' : ''}`
+          );
+        }
+      }
+
+      logger.info('All upserts completed successfully', {
         jobId: payload.jobId,
-        upserted: upsertResult.upserted,
-        errors: upsertResult.errors,
+        totalUpserted: totalUpserted,
       });
 
-      // Step 11: Update sync job status
+      // Step 9: Update sync job status
       const metadata = {
         processedCount: searchableValues.length,
         existingCount: deduplicationResult.existingCount,

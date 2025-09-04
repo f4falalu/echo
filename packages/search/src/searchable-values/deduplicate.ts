@@ -3,7 +3,7 @@
  * Uses functional composition and Zod validation
  */
 
-import * as duckdb from 'duckdb';
+import duckdb from 'duckdb';
 import { z } from 'zod';
 import {
   type DeduplicationResult,
@@ -59,32 +59,74 @@ export const formatSqlInClause = (values: string[]): string => {
 export interface DuckDBConnection {
   db: duckdb.Database;
   conn: duckdb.Connection;
+  dbPath?: string; // Store path for cleanup
 }
 
 /**
- * Create an in-memory DuckDB connection
+ * Create a DuckDB connection with optimized settings for large datasets
+ * Uses disk storage for better memory management
  */
-export const createConnection = (): Promise<DuckDBConnection> => {
+export const createConnection = (useDisk = true): Promise<DuckDBConnection> => {
   return new Promise((resolve, reject) => {
-    const db = new duckdb.Database(':memory:', (err) => {
+    // Use disk storage for large datasets to avoid memory issues
+    // The database file will be automatically cleaned up
+    const dbPath = useDisk ? `/tmp/duckdb-dedupe-${Date.now()}.db` : ':memory:';
+
+    const db = new duckdb.Database(dbPath, (err) => {
       if (err) {
         reject(new Error(`Failed to create DuckDB database: ${err.message}`));
         return;
       }
 
       const conn = db.connect();
-      resolve({ db, conn });
+
+      // Configure DuckDB for optimal performance with large datasets
+      if (useDisk) {
+        conn.exec("SET memory_limit='2GB';", (err) => {
+          if (err) console.warn('Failed to set memory limit:', err);
+        });
+        conn.exec('SET threads=4;', (err) => {
+          if (err) console.warn('Failed to set thread count:', err);
+        });
+      }
+
+      const connection: DuckDBConnection = { db, conn };
+      if (useDisk && dbPath) {
+        connection.dbPath = dbPath;
+      }
+      resolve(connection);
     });
   });
 };
 
 /**
  * Close DuckDB connection and database
+ * Also cleans up temporary database files if using disk storage
  */
 export const closeConnection = (connection: DuckDBConnection): Promise<void> => {
   return new Promise((resolve) => {
     connection.conn.close(() => {
       connection.db.close(() => {
+        // Clean up temporary database file if it exists
+        if (connection.dbPath && connection.dbPath !== ':memory:') {
+          const fs = require('node:fs');
+          try {
+            // DuckDB creates additional WAL and temporary files
+            const files = [
+              connection.dbPath,
+              `${connection.dbPath}.wal`,
+              `${connection.dbPath}.tmp`,
+            ];
+
+            files.forEach((file) => {
+              if (fs.existsSync(file)) {
+                fs.unlinkSync(file);
+              }
+            });
+          } catch (err) {
+            console.warn(`Failed to clean up temporary DuckDB file: ${err}`);
+          }
+        }
         resolve();
       });
     });
@@ -112,44 +154,72 @@ export const executeQuery = <T = unknown>(conn: duckdb.Connection, sql: string):
 
 /**
  * Create and populate temporary tables for deduplication
+ * Optimized for large datasets with increased batch sizes and indexes
  */
 const setupTables = async (
   conn: duckdb.Connection,
   existingKeys: string[],
   newKeys: string[]
 ): Promise<void> => {
-  // Create tables
+  // Create tables without primary key constraint initially for faster bulk loading
   await executeQuery(
     conn,
     `
-    CREATE TABLE existing_keys (key VARCHAR PRIMARY KEY)
+    CREATE TABLE existing_keys (key VARCHAR)
   `
   );
 
   await executeQuery(
     conn,
     `
-    CREATE TABLE new_keys (key VARCHAR PRIMARY KEY)
+    CREATE TABLE new_keys (key VARCHAR)
   `
   );
+
+  // Use larger batches for better performance with disk-based storage
+  const BATCH_SIZE = 10000; // Increased from 1000 to 10000
 
   // Insert existing keys in batches
   if (existingKeys.length > 0) {
-    const batches = batchArray(existingKeys, 1000);
-    for (const batch of batches) {
+    console.info(`Inserting ${existingKeys.length} existing keys in batches of ${BATCH_SIZE}`);
+    const batches = batchArray(existingKeys, BATCH_SIZE);
+    for (let i = 0; i < batches.length; i++) {
+      const batch = batches[i];
+      if (!batch) continue;
       const values = batch.map((key) => `('${escapeSqlString(key)}')`).join(',');
       await executeQuery(conn, `INSERT INTO existing_keys VALUES ${values}`);
+
+      // Log progress for large datasets
+      if (i > 0 && i % 10 === 0) {
+        console.info(
+          `Inserted ${Math.min((i + 1) * BATCH_SIZE, existingKeys.length)}/${existingKeys.length} existing keys`
+        );
+      }
     }
   }
 
   // Insert new keys in batches
   if (newKeys.length > 0) {
-    const batches = batchArray(newKeys, 1000);
-    for (const batch of batches) {
+    console.info(`Inserting ${newKeys.length} new keys in batches of ${BATCH_SIZE}`);
+    const batches = batchArray(newKeys, BATCH_SIZE);
+    for (let i = 0; i < batches.length; i++) {
+      const batch = batches[i];
+      if (!batch) continue;
       const values = batch.map((key) => `('${escapeSqlString(key)}')`).join(',');
       await executeQuery(conn, `INSERT INTO new_keys VALUES ${values}`);
+
+      // Log progress for large datasets
+      if (i > 0 && i % 10 === 0) {
+        console.info(
+          `Inserted ${Math.min((i + 1) * BATCH_SIZE, newKeys.length)}/${newKeys.length} new keys`
+        );
+      }
     }
   }
+
+  // Create indexes after bulk loading for better query performance
+  await executeQuery(conn, `CREATE INDEX idx_existing_keys ON existing_keys(key)`);
+  await executeQuery(conn, `CREATE INDEX idx_new_keys ON new_keys(key)`);
 };
 
 /**
@@ -170,6 +240,7 @@ const findUniqueNewKeys = async (conn: duckdb.Connection): Promise<string[]> => 
 
 /**
  * Core deduplication logic using DuckDB
+ * Automatically switches to disk-based storage for large datasets
  */
 const performDeduplication = async (
   existingKeys: string[],
@@ -198,8 +269,17 @@ const performDeduplication = async (
   let connection: DuckDBConnection | null = null;
 
   try {
+    // Determine whether to use disk based on dataset size
+    // Use disk for large datasets to avoid memory issues
+    const totalKeys = existingKeys.length + newKeys.length;
+    const useDisk = totalKeys > 50000; // Switch to disk for datasets over 50k keys
+
+    if (useDisk) {
+      console.info(`Using disk-based DuckDB for deduplication (${totalKeys} total keys)`);
+    }
+
     // Create DuckDB connection
-    connection = await createConnection();
+    connection = await createConnection(useDisk);
 
     // Setup tables and insert data
     await setupTables(connection.conn, existingKeys, newKeys);

@@ -21,8 +21,6 @@ vi.mock('@buster/database', () => ({
 }));
 
 vi.mock('@buster/search', () => ({
-  checkNamespaceExists: vi.fn(),
-  createNamespaceIfNotExists: vi.fn(),
   deduplicateValues: vi.fn(),
   generateNamespace: vi.fn(),
   queryExistingKeys: vi.fn(),
@@ -49,8 +47,6 @@ import {
   markSyncJobFailed,
 } from '@buster/database';
 import {
-  checkNamespaceExists,
-  createNamespaceIfNotExists,
   deduplicateValues,
   generateNamespace,
   queryExistingKeys,
@@ -85,7 +81,7 @@ describe('processSyncJob', () => {
     vi.mocked(createAdapter).mockResolvedValue(mockAdapter as any);
     vi.mocked(markSyncJobCompleted).mockResolvedValue({
       id: 'test-job-123',
-      status: 'completed',
+      status: 'success',
       updatedAt: new Date().toISOString(),
       lastSyncedAt: new Date().toISOString(),
       errorMessage: null,
@@ -124,7 +120,6 @@ describe('processSyncJob', () => {
         fields: [],
       });
       vi.mocked(generateNamespace).mockReturnValue('ds-456');
-      vi.mocked(checkNamespaceExists).mockResolvedValue(true);
       vi.mocked(queryExistingKeys).mockResolvedValue(mockExistingKeys);
       vi.mocked(deduplicateValues).mockResolvedValue({
         newValues: [
@@ -175,7 +170,6 @@ describe('processSyncJob', () => {
       expect(mockAdapter.query).toHaveBeenCalledWith(
         expect.stringContaining('SELECT DISTINCT "company_name"')
       );
-      expect(checkNamespaceExists).toHaveBeenCalledWith('ds-456');
       expect(queryExistingKeys).toHaveBeenCalledWith({
         dataSourceId: 'ds-456',
         query: {
@@ -272,7 +266,6 @@ describe('processSyncJob', () => {
         fields: [],
       });
       vi.mocked(generateNamespace).mockReturnValue('ds-456');
-      vi.mocked(checkNamespaceExists).mockResolvedValue(true);
       vi.mocked(queryExistingKeys).mockResolvedValue(mockExistingKeys);
       vi.mocked(deduplicateValues).mockResolvedValue({
         newValues: [],
@@ -316,7 +309,6 @@ describe('processSyncJob', () => {
         fields: [],
       });
       vi.mocked(generateNamespace).mockReturnValue('ds-456');
-      vi.mocked(checkNamespaceExists).mockResolvedValue(false); // Namespace doesn't exist
       vi.mocked(queryExistingKeys).mockResolvedValue([]);
       vi.mocked(deduplicateValues).mockResolvedValue({
         newValues: [
@@ -342,8 +334,6 @@ describe('processSyncJob', () => {
       const result = await runTask(mockPayload);
 
       // Verify namespace creation
-      expect(checkNamespaceExists).toHaveBeenCalledWith('ds-456');
-      expect(createNamespaceIfNotExists).toHaveBeenCalledWith('ds-456');
       expect(result.success).toBe(true);
     });
   });
@@ -417,7 +407,6 @@ describe('processSyncJob', () => {
         fields: [],
       });
       vi.mocked(generateNamespace).mockReturnValue('ds-456');
-      vi.mocked(checkNamespaceExists).mockResolvedValue(true);
       vi.mocked(queryExistingKeys).mockResolvedValue([]);
       vi.mocked(deduplicateValues).mockResolvedValue({
         newValues: [
@@ -461,7 +450,6 @@ describe('processSyncJob', () => {
         fields: [],
       });
       vi.mocked(generateNamespace).mockReturnValue('ds-456');
-      vi.mocked(checkNamespaceExists).mockResolvedValue(true);
       vi.mocked(queryExistingKeys).mockResolvedValue([]);
       vi.mocked(deduplicateValues).mockResolvedValue({
         newValues: [
@@ -522,7 +510,6 @@ describe('processSyncJob', () => {
         fields: [],
       });
       vi.mocked(generateNamespace).mockReturnValue('ds-456');
-      vi.mocked(checkNamespaceExists).mockResolvedValue(true);
       vi.mocked(queryExistingKeys).mockResolvedValue([]);
       vi.mocked(deduplicateValues).mockResolvedValue({
         newValues: specialValues.map((value) => ({
@@ -568,7 +555,6 @@ describe('processSyncJob', () => {
         fields: [],
       });
       vi.mocked(generateNamespace).mockReturnValue('ds-456');
-      vi.mocked(checkNamespaceExists).mockResolvedValue(true);
       vi.mocked(queryExistingKeys).mockResolvedValue([]);
       vi.mocked(deduplicateValues).mockResolvedValue({
         newValues: [
@@ -627,7 +613,6 @@ describe('processSyncJob', () => {
         fields: [],
       });
       vi.mocked(generateNamespace).mockReturnValue('ds-456');
-      vi.mocked(checkNamespaceExists).mockResolvedValue(true);
       vi.mocked(queryExistingKeys).mockResolvedValue([]);
       vi.mocked(deduplicateValues).mockResolvedValue({
         newValues: [

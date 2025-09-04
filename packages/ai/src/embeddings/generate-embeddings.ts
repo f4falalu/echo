@@ -1,9 +1,10 @@
 /**
  * Functional embedding generation for searchable values
- * Uses OpenAI text-embedding-3-small model (1536 dimensions)
+ * Uses openai/text-embedding-3-small model (1536 dimensions) via AI Gateway
  */
 
-import { createOpenAI } from '@ai-sdk/openai';
+import { createGateway } from '@ai-sdk/gateway';
+import type { EmbeddingModel } from 'ai';
 import { embedMany } from 'ai';
 import { z } from 'zod';
 
@@ -51,7 +52,7 @@ export const EMBEDDING_CONFIG = {
   BATCH_SIZE: 100,
   MAX_RETRIES: 3,
   RATE_LIMIT_DELAY: 1000,
-  MODEL: 'text-embedding-3-small',
+  MODEL: 'openai/text-embedding-3-small',
   DIMENSIONS: 1536,
 } as const;
 
@@ -112,13 +113,14 @@ export const isRetryableError = (error: unknown): boolean => {
 // ============================================================================
 
 /**
- * Get OpenAI embedding model
+ * Get embedding model via gateway
  */
-const getEmbeddingModel = (modelName: string = EMBEDDING_CONFIG.MODEL) => {
-  const openai = createOpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+const getEmbeddingModel = (modelName: string = EMBEDDING_CONFIG.MODEL): EmbeddingModel<string> => {
+  const gateway = createGateway({
+    ...(process.env.AI_GATEWAY_API_KEY && { apiKey: process.env.AI_GATEWAY_API_KEY }),
   });
-  return openai.embedding(modelName);
+  // Use the textEmbeddingModel method to create an embedding model
+  return gateway.textEmbeddingModel(modelName);
 };
 
 /**

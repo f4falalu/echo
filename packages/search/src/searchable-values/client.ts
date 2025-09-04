@@ -45,7 +45,7 @@ const QueryInputSchema = z.object({
 
 const GetAllInputSchema = z.object({
   dataSourceId: DataSourceIdSchema,
-  limit: z.number().int().min(1).max(10000).optional().default(1000),
+  limit: z.number().int().min(1).max(1200).optional().default(1000),
 });
 
 // ============================================================================
@@ -154,7 +154,7 @@ export const chunk = <T>(arr: T[], size: number): T[][] => {
 export const createClient = (): Turbopuffer => {
   const apiKey = process.env.TURBOPUFFER_API_KEY;
   const region = process.env.TURBOPUFFER_REGION || 'aws-us-east-1';
-  
+
   if (!apiKey) {
     throw new TurbopufferError(
       'TURBOPUFFER_API_KEY environment variable is not set',
@@ -162,10 +162,10 @@ export const createClient = (): Turbopuffer => {
       false
     );
   }
-  
-  return new Turbopuffer({ 
+
+  return new Turbopuffer({
     apiKey,
-    region 
+    region,
   });
 };
 
@@ -242,6 +242,8 @@ export const checkNamespaceExists = async (dataSourceId: string): Promise<boolea
 
 /**
  * Query existing keys with validation
+ * Note: Turbopuffer has a maximum top_k limit of 1200
+ * For larger datasets, this will return up to 1200 most recent values
  */
 export const queryExistingKeys = async (
   input: z.infer<typeof QueryInputSchema>
@@ -252,7 +254,7 @@ export const queryExistingKeys = async (
 
   return withRetry(async () => {
     const response = await ns.query({
-      top_k: 10000,
+      top_k: 1200, // Maximum allowed by Turbopuffer
       ...(filter && { filters: filter }),
       include_attributes: ['database', 'schema', 'table', 'column', 'value'],
     });
@@ -285,7 +287,10 @@ const processBatch = async (
     }
 
     const columns = valuesToColumns(batch);
-    await ns.write({ upsert_columns: columns });
+    await ns.write({ 
+      upsert_columns: columns,
+      distance_metric: 'cosine_distance' 
+    });
 
     return { success: true, count: batch.length };
   } catch (error) {
@@ -461,11 +466,29 @@ export const searchSimilarValues = async (
 // ============================================================================
 
 /**
- * Legacy function signatures for compatibility
+ * Ensure namespace exists (namespaces are auto-created on first write in TurboPuffer)
+ * This function verifies the namespace can be accessed and logs the status
  */
 export const createNamespaceIfNotExists = async (dataSourceId: string): Promise<void> => {
-  const exists = await checkNamespaceExists(dataSourceId);
-  if (!exists) {
-    console.info(`Namespace ${generateNamespace(dataSourceId)} will be created on first write`);
+  const validatedId = DataSourceIdSchema.parse(dataSourceId);
+  const namespaceName = generateNamespace(validatedId);
+
+  try {
+    const exists = await checkNamespaceExists(validatedId);
+    if (exists) {
+      console.info(`TurboPuffer namespace ${namespaceName} already exists`);
+    } else {
+      console.info(`TurboPuffer namespace ${namespaceName} will be created on first write`);
+      // Note: TurboPuffer auto-creates namespaces on first write
+      // We cannot explicitly create empty namespaces
+    }
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+    console.error(`Failed to check TurboPuffer namespace ${namespaceName}: ${errorMsg}`);
+    throw new TurbopufferError(
+      `Failed to verify namespace ${namespaceName}: ${errorMsg}`,
+      'NAMESPACE_CHECK_FAILED',
+      true
+    );
   }
 };

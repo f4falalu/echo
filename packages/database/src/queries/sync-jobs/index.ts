@@ -7,19 +7,22 @@
  */
 
 // ============================================================================
-// DATA SOURCE QUERIES
+// EXISTING SYNC JOBS QUERIES
 // ============================================================================
 export {
   // Functions
-  getDataSourcesForSync,
-  dataSourceNeedsSync,
+  getExistingSyncJobs,
+  getSyncJobsForDataSource,
+  countPendingSyncJobs,
   // Types
-  type DataSourceForSync,
-  type GetDataSourcesForSyncOutput,
+  type GetExistingSyncJobsInput,
+  type ExistingSyncJob,
+  type GetExistingSyncJobsOutput,
   // Schemas
-  DataSourceForSyncSchema,
-  GetDataSourcesForSyncOutputSchema,
-} from './get-data-sources-for-sync';
+  GetExistingSyncJobsInputSchema,
+  ExistingSyncJobSchema,
+  GetExistingSyncJobsOutputSchema,
+} from './get-existing-jobs';
 
 // ============================================================================
 // SYNC JOB CREATION
@@ -69,26 +72,3 @@ export {
   BulkUpdateSyncJobsInputSchema,
   BulkUpdateSyncJobsOutputSchema,
 } from './update-sync-job';
-
-// ============================================================================
-// SEARCHABLE COLUMNS QUERIES
-// ============================================================================
-export {
-  // Functions
-  getSearchableColumns,
-  getColumnsNeedingSync,
-  getColumnDetailsForSync,
-  updateColumnSyncMetadata,
-  // Types
-  type GetSearchableColumnsInput,
-  type SearchableColumn,
-  type GetSearchableColumnsOutput,
-  type GetColumnsNeedingSyncInput,
-  type ColumnsNeedingSyncOutput,
-  // Schemas
-  GetSearchableColumnsInputSchema,
-  SearchableColumnSchema,
-  GetSearchableColumnsOutputSchema,
-  GetColumnsNeedingSyncInputSchema,
-  ColumnsNeedingSyncOutputSchema,
-} from './get-searchable-columns';
