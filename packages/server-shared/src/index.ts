@@ -5,8 +5,10 @@ export * as AccessControls from './access-controls';
 
 // Export other modules
 export * from './assets';
+export * from './auth';
 export * from './chats';
 export * from './dashboards';
+export * from './datasets';
 export * from './dictionary';
 export * from './github';
 export * from './message';

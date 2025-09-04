@@ -2,6 +2,7 @@ export * from './api-keys';
 export * from './messages';
 export * from './users';
 export * from './dataSources';
+export * from './datasets';
 export * from './assets';
 export * from './asset-permissions';
 export * from './dataset-permissions';
