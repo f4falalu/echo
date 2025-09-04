@@ -1,5 +1,8 @@
+import { isServer } from '@tanstack/react-query';
+import { ClientOnly } from '@tanstack/react-router';
 import React from 'react';
 import { BusterLogo } from '@/assets/svg/BusterLogo';
+import { useMounted } from '@/hooks/useMount';
 import { getFirstTwoCapitalizedLetters } from '@/lib/text';
 import { cn } from '@/lib/utils';
 import { Tooltip } from '../tooltip/Tooltip';
@@ -20,6 +23,7 @@ export const Avatar: React.FC<AvatarProps> = React.memo(
     const hasName = !!name;
     const nameLetters = createNameLetters(name);
     const hasImage = !!image;
+    const mounted = useMounted();
 
     return (
       <Tooltip delayDuration={300} title={useToolTip ? tooltipTitle || name || '' : ''}>
@@ -30,7 +34,7 @@ export const Avatar: React.FC<AvatarProps> = React.memo(
             height: size,
           }}
         >
-          {image && <AvatarImage src={image} />}
+          {mounted && image && <AvatarImage src={image} />}
           {hasName ? (
             <NameLettersFallback
               fallbackClassName={fallbackClassName}
@@ -51,17 +55,13 @@ const NameLettersFallback: React.FC<{
   fallbackClassName?: string;
   nameLetters: string;
   hasImage: boolean;
-}> = ({ fallbackClassName, hasImage, nameLetters }) => {
-  return (
-    <AvatarFallback className={cn(fallbackClassName)} delayMs={hasImage ? 300 : 0}>
-      {nameLetters}
-    </AvatarFallback>
-  );
+}> = ({ fallbackClassName, nameLetters }) => {
+  return <AvatarFallback className={cn(fallbackClassName)}>{nameLetters}</AvatarFallback>;
 };
 
 const BusterAvatarFallback: React.FC<{ fallbackClassName?: string }> = ({ fallbackClassName }) => {
   return (
-    <AvatarFallback className={cn('border bg-white', fallbackClassName)} delayMs={0}>
+    <AvatarFallback className={cn('border  bg-white', fallbackClassName)} delayMs={0}>
       <div className="text-foreground flex h-full w-full items-center justify-center">
         <BusterLogo className="h-full w-full translate-x-[1px] p-1" />
       </div>
