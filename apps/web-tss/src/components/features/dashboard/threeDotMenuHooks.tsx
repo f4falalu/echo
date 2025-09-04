@@ -177,7 +177,7 @@ export const useRenameDashboardSelectMenu = ({
         onClick: async () => {
           await navigate({
             unsafeRelative: 'path',
-            to: '../content' as '/app/dashboards/$dashboardId/content',
+            to: '../content' as '/app/dashboards/$dashboardId',
             params: (prev) => ({ ...prev, dashboardId }),
             search: dashboardVersionNumber
               ? { dashboard_version_number: dashboardVersionNumber }

@@ -30,7 +30,7 @@ export const useStartChatFromAsset = ({
         });
       } else if (assetType === 'dashboard') {
         await navigate({
-          to: '/app/chats/$chatId/dashboards/$dashboardId/content',
+          to: '/app/chats/$chatId/dashboards/$dashboardId',
           params: {
             dashboardId: assetId,
             chatId: result.id,
