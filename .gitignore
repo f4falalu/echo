@@ -90,3 +90,5 @@ drizzle/meta/
 /packages/aTest/.mastra
 **/*.private.*
 apps/web-tss/.env.prod
+apps/web-tss/.env.production
+apps/web-tss/.env.staging
