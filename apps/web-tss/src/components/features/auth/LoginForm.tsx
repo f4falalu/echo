@@ -12,133 +12,38 @@ import { AppTooltip } from '@/components/ui/tooltip';
 import { Text, Title } from '@/components/ui/typography';
 import { env } from '@/env';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
-import {
-  signInWithAzure,
-  signInWithEmailAndPassword,
-  signInWithGithub,
-  signInWithGoogle,
-  signUpWithEmailAndPassword,
-} from '@/integrations/supabase/signIn';
 import { cn } from '@/lib/classMerge';
 import { isValidEmail } from '@/lib/email';
 import { inputHasText, truncateText } from '@/lib/text';
 import { PolicyCheck } from './PolicyCheck';
+import { useAuthMutations } from './useAuthMutations';
 import { type LastUsedReturnType, useLastUsed } from './useLastUsed';
 
 export const LoginForm: React.FC<{
   redirectTo: string | null | undefined;
   isAnonymousUser?: boolean;
 }> = ({ redirectTo }) => {
-  const navigate = useNavigate();
   const lastUsedProps = useLastUsed();
 
-  const [loading, setLoading] = useState<'google' | 'github' | 'azure' | 'email' | null>(null);
-  const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const [signUpFlow, setSignUpFlow] = useState(
     lastUsedProps.isAnonymousUser && !env.VITE_PUBLIC_USER
   );
   const [signUpSuccess, setSignUpSuccess] = useState(false);
 
-  // Reusable OAuth handler to reduce code duplication
-  const handleOAuthSignIn = async (
-    provider: 'google' | 'github' | 'azure',
-    signInFn: (data: {
-      data: { redirectTo?: string | null };
-    }) => Promise<{ success: boolean; url?: string; error?: string }>
-  ) => {
-    setLoading(provider);
-    try {
-      const result = await signInFn({ data: { redirectTo } });
-      console.log(`${provider} result:`, result);
+  // Use the centralized auth mutations hook
+  const {
+    onSignInWithGoogle,
+    onSignInWithGithub,
+    onSignInWithAzure,
+    onSubmitClick,
+    loadingType,
+    errorMessages,
+    clearErrors,
+  } = useAuthMutations(redirectTo, () => setSignUpSuccess(true));
 
-      if (result && 'success' in result && !result.success) {
-        setErrorMessages([result.error || `An error occurred during ${provider} sign-in`]);
-        setLoading(null);
-        return;
-      }
-
-      if (result && 'success' in result && result.success && result.url) {
-        // Redirect to OAuth provider's URL
-        window.location.href = result.url;
-      }
-    } catch (error: unknown) {
-      console.error(error);
-      setErrorMessages(['An unexpected error occurred. Please try again.']);
-      setLoading(null);
-    }
-  };
-
-  const onSignInWithUsernameAndPassword = useMemoizedFn(
-    async ({ email, password }: { email: string; password: string }) => {
-      setLoading('email');
-      try {
-        const result = await signInWithEmailAndPassword({
-          data: { email, password, redirectUrl: redirectTo },
-        });
-        if (result?.error) {
-          setErrorMessages([result.message]);
-          setLoading(null);
-        } else {
-          navigate({ to: redirectTo || '/' });
-        }
-      } catch (error: unknown) {
-        console.error(error);
-        setErrorMessages(['An unexpected error occurred. Please try again.']);
-        setLoading(null);
-      }
-    }
-  );
-
-  const onSignInWithGoogle = useMemoizedFn(async () => {
-    return handleOAuthSignIn('google', signInWithGoogle);
-  });
-
-  const onSignInWithGithub = useMemoizedFn(async () => {
-    return handleOAuthSignIn('github', signInWithGithub);
-  });
-
-  const onSignInWithAzure = useMemoizedFn(async () => {
-    return handleOAuthSignIn('azure', signInWithAzure);
-  });
-
-  const onSignUp = useMemoizedFn(async (d: { email: string; password: string }) => {
-    setLoading('email');
-    try {
-      const result = await signUpWithEmailAndPassword({
-        data: { ...d, redirectTo },
-      });
-
-      if (result && 'success' in result && !result.success) {
-        setErrorMessages([result.error || 'An error occurred during sign-up']);
-        setLoading(null);
-        return;
-      }
-
-      if (result && 'success' in result && result.success) {
-        setSignUpSuccess(true);
-        setLoading(null);
-        // For sign-up, we don't need to navigate immediately as the user
-        // needs to check their email for verification
-      }
-    } catch (error: unknown) {
-      console.error(error);
-      setErrorMessages(['An unexpected error occurred. Please try again.']);
-      setLoading(null);
-    }
-  });
-
-  const onSubmitClick = useMemoizedFn(async (d: { email: string; password: string }) => {
-    try {
-      setErrorMessages([]);
-      setLoading('email');
-
-      if (signUpFlow) await onSignUp(d);
-      else await onSignInWithUsernameAndPassword(d);
-    } catch (error: unknown) {
-      console.error(error);
-      setErrorMessages(['An unexpected error occurred. Please try again.']);
-      setLoading(null);
-    }
+  // Wrapper for submit to handle sign up flow
+  const handleSubmitClick = useMemoizedFn((d: { email: string; password: string }) => {
+    onSubmitClick(d, signUpFlow);
   });
 
   return (
@@ -148,11 +53,11 @@ export const LoginForm: React.FC<{
           <SignUpSuccess setSignUpSuccess={setSignUpSuccess} setSignUpFlow={setSignUpFlow} />
         ) : (
           <LoginOptions
-            onSubmitClick={onSubmitClick}
+            onSubmitClick={handleSubmitClick}
             setSignUpFlow={setSignUpFlow}
             errorMessages={errorMessages}
-            loading={loading}
-            setErrorMessages={setErrorMessages}
+            loading={loadingType}
+            setErrorMessages={clearErrors}
             signUpFlow={signUpFlow}
             onSignInWithGoogle={onSignInWithGoogle}
             onSignInWithGithub={onSignInWithGithub}
@@ -194,7 +99,7 @@ const LoginOptions: React.FC<{
   const [password, setPassword] = useState(env.VITE_PUBLIC_USER_PASSWORD || '');
   const [password2, setPassword2] = useState('');
   const [passwordCheck, setPasswordCheck] = useState(false);
-  const navigate = useNavigate();
+
   const disableSubmitButton =
     !inputHasText(password) || !inputHasText(password2) || password !== password2 || !passwordCheck;
 
