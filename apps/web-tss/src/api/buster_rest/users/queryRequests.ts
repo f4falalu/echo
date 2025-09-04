@@ -1,6 +1,6 @@
 import type { UserResponse } from '@buster/server-shared/user';
 import {
-  QueryClient,
+  type QueryClient,
   type UseQueryOptions,
   useMutation,
   useQuery,
@@ -61,13 +61,12 @@ export const useUpdateUser = () => {
   });
 };
 
-export const prefetchGetUser = async (userId: string, queryClientProp?: QueryClient) => {
-  const queryClient = queryClientProp || new QueryClient();
+export const prefetchGetUser = async (userId: string, queryClient: QueryClient) => {
   await queryClient.prefetchQuery({
     ...userQueryKeys.userGetUser(userId),
     queryFn: () => getUser({ userId }),
   });
-  return queryClient;
+  return queryClient.getQueryData(userQueryKeys.userGetUser(userId).queryKey);
 };
 
 export const useInviteUser = () => {

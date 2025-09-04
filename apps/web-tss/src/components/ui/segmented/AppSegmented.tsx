@@ -320,3 +320,23 @@ SegmentedTriggerComponent.displayName = 'SegmentedTrigger';
 
 const SegmentedTrigger = React.memo(SegmentedTriggerComponent) as typeof SegmentedTriggerComponent;
 SegmentedTrigger.displayName = 'SegmentedTrigger';
+
+export function createSegmentedItem<T extends string | number = string>() {
+  return <
+    TRouter extends RegisteredRouter = RegisteredRouter,
+    TOptions = Record<string, unknown>,
+    TFrom extends string = string,
+  >(
+    item: SegmentedItem<T, TRouter, TOptions, TFrom>
+  ) => item as SegmentedItem<T, TRouter, TOptions, TFrom>;
+}
+
+export function createSegmentedItems<T extends string | number = string>() {
+  return <
+    TRouter extends RegisteredRouter = RegisteredRouter,
+    TOptions = Record<string, unknown>,
+    TFrom extends string = string,
+  >(
+    items: SegmentedItem<T, TRouter, TOptions, TFrom>[]
+  ) => items as SegmentedItem<T, TRouter, TOptions, TFrom>[];
+}

@@ -1,7 +1,7 @@
-import type { LinkProps } from '@tanstack/react-router';
+import { Link, type LinkProps } from '@tanstack/react-router';
 import React, { useMemo } from 'react';
 import type { SegmentedItem } from '@/components/ui/segmented';
-import { AppSegmented } from '@/components/ui/segmented';
+import { AppSegmented, createSegmentedItem, createSegmentedItems } from '@/components/ui/segmented';
 import { Separator } from '@/components/ui/separator';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { defineLink } from '@/lib/routes';
@@ -16,75 +16,81 @@ export enum UserSegmentsApps {
   TEAMS = 'Teams',
 }
 
-export const SegmentToApp = {
-  // [BusterRoutes.SETTINGS_USERS]: UserSegmentsApps.OVERVIEW,
-  // [BusterRoutes.SETTINGS_USERS_ID]: UserSegmentsApps.OVERVIEW,
-  // [BusterRoutes.SETTINGS_USERS_ID_PERMISSION_GROUPS]: UserSegmentsApps.PERMISSION_GROUPS,
-  // [BusterRoutes.SETTINGS_USERS_ID_DATASET_GROUPS]: UserSegmentsApps.DATASET_GROUPS,
-  // [BusterRoutes.SETTINGS_USERS_ID_DATASETS]: UserSegmentsApps.DATASETS,
-  // [BusterRoutes.SETTINGS_USERS_ID_ATTRIBUTES]: UserSegmentsApps.ATTRIBUTES,
-  // [BusterRoutes.SETTINGS_USERS_ID_TEAMS]: UserSegmentsApps.TEAMS,
-};
-
 export const UserSegments: React.FC<{
   isAdmin: boolean;
   selectedApp: UserSegmentsApps;
   onSelectApp: (app: UserSegmentsApps) => void;
   userId: string;
-}> = React.memo(({ isAdmin, selectedApp, onSelectApp, userId }) => {
+}> = React.memo(({ selectedApp, onSelectApp, userId }) => {
   const onChange = useMemoizedFn((value: SegmentedItem<UserSegmentsApps>) => {
     onSelectApp(value.value);
   });
-  const options: SegmentedItem<UserSegmentsApps>[] = useMemo(
+  const createUserSegmentedItems = createSegmentedItems<UserSegmentsApps>();
+
+  const options = useMemo(
     () =>
-      [
+      createUserSegmentedItems([
         {
           label: 'Overview',
           value: UserSegmentsApps.OVERVIEW,
-          link: defineLink({
+          link: {
             to: `/app/settings/users/$userId`,
             params: {
               userId,
             },
-          }),
-          hide: false,
+          },
         },
-        // {
-        //   label: 'Permissions groups',
-        //   value: UserSegmentsApps.PERMISSION_GROUPS,
-        //   link: createBusterRoute({
-        //     route: BusterRoutes.SETTINGS_USERS_ID_PERMISSION_GROUPS,
-        //     userId,
-        //   }),
-        //   hide: !isAdmin,
-        // },
-        // {
-        //   label: 'Dataset groups',
-        //   value: UserSegmentsApps.DATASET_GROUPS,
-        //   link: createBusterRoute({
-        //     route: BusterRoutes.SETTINGS_USERS_ID_DATASET_GROUPS,
-        //     userId,
-        //   }),
-        // },
-        // {
-        //   label: 'Datasets',
-        //   value: UserSegmentsApps.DATASETS,
-        //   link: createBusterRoute({ route: BusterRoutes.SETTINGS_USERS_ID_DATASETS, userId }),
-        // },
+        {
+          label: 'Permissions groups',
+          value: UserSegmentsApps.PERMISSION_GROUPS,
+          link: {
+            to: `/app/settings/users/$userId/permission-groups`,
+            params: {
+              userId,
+            },
+          },
+        },
+        {
+          label: 'Dataset groups',
+          value: UserSegmentsApps.DATASET_GROUPS,
+          link: {
+            to: `/app/settings/users/$userId/dataset-groups`,
+            params: {
+              userId,
+            },
+          },
+        },
+        {
+          label: 'Datasets',
+          value: UserSegmentsApps.DATASETS,
+          link: {
+            to: `/app/settings/users/$userId/datasets`,
+            params: {
+              userId,
+            },
+          },
+        },
         // {
         //   label: 'Attributes',
         //   value: UserSegmentsApps.ATTRIBUTES,
-        //   link: createBusterRoute({ route: BusterRoutes.SETTINGS_USERS_ID_ATTRIBUTES, userId }),
-        //   hide: true,
+        //   link: {
+        //     to: `/app/settings/users/$userId/attributes`,
+        //     params: {
+        //       userId,
+        //     },
+        //   },
         // },
-        // {
-        //   label: 'Teams',
-        //   value: UserSegmentsApps.TEAMS,
-        //   link: createBusterRoute({ route: BusterRoutes.SETTINGS_USERS_ID_TEAMS, userId }),
-        // },
-      ]
-        .filter((x) => !x.hide)
-        .map((x) => ({ ...x, hide: undefined })),
+        {
+          label: 'Teams',
+          value: UserSegmentsApps.TEAMS,
+          link: {
+            to: `/app/settings/users/$userId/teams`,
+            params: {
+              userId,
+            },
+          },
+        },
+      ]),
     [userId]
   );
 

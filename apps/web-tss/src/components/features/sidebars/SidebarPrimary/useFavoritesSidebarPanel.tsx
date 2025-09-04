@@ -1,4 +1,3 @@
-import { useMatchRoute } from '@tanstack/react-router';
 import { useMemo } from 'react';
 import {
   useDeleteUserFavorite,
@@ -14,7 +13,6 @@ export const useFavoriteSidebarPanel = (): ISidebarGroup | null => {
   const { data: favorites } = useGetUserFavorites();
   const { mutateAsync: updateUserFavorites } = useUpdateUserFavorites();
   const { mutateAsync: deleteUserFavorite } = useDeleteUserFavorite();
-  const matcher = useMatchRoute();
 
   return useMemo(() => {
     if (!favorites || favorites.length === 0) return null;
@@ -37,5 +35,5 @@ export const useFavoriteSidebarPanel = (): ISidebarGroup | null => {
         });
       }),
     } satisfies ISidebarGroup;
-  }, [favorites, matcher, deleteUserFavorite]);
+  }, [favorites, deleteUserFavorite]);
 };
