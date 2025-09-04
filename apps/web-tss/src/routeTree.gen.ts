@@ -15,6 +15,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
 import { Route as AuthLogoutRouteImport } from './routes/auth.logout'
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
@@ -170,6 +171,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
 } as any)
 const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -903,6 +909,7 @@ export interface FileRoutesByFullPath {
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/app/': typeof AppIndexRoute
   '/app/home': typeof AppAppHomeRoute
   '/embed/dashboard/$dashboardId': typeof EmbedDashboardDashboardIdRoute
   '/embed/metric/$metricId': typeof EmbedMetricMetricIdRoute
@@ -1001,8 +1008,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/app': typeof AppSettingsRestricted_layoutAdmin_onlyRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
+  '/app': typeof AppSettingsRestricted_layoutAdmin_onlyRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
@@ -1095,6 +1102,7 @@ export interface FileRoutesById {
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/app/': typeof AppIndexRoute
   '/app/_app/_asset': typeof AppAppAssetRouteWithChildren
   '/app/_app/home': typeof AppAppHomeRoute
   '/app/_settings/_permissions': typeof AppSettingsPermissionsRouteWithChildren
@@ -1214,6 +1222,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/logout'
     | '/auth/reset-password'
+    | '/app/'
     | '/app/home'
     | '/embed/dashboard/$dashboardId'
     | '/embed/metric/$metricId'
@@ -1312,8 +1321,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/app'
     | '/auth'
+    | '/app'
     | '/auth/login'
     | '/auth/logout'
     | '/auth/reset-password'
@@ -1405,6 +1414,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/logout'
     | '/auth/reset-password'
+    | '/app/'
     | '/app/_app/_asset'
     | '/app/_app/home'
     | '/app/_settings/_permissions'
@@ -1568,6 +1578,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
     }
     '/auth/reset-password': {
       id: '/auth/reset-password'
@@ -3098,11 +3115,13 @@ const AppSettingsRouteWithChildren = AppSettingsRoute._addFileChildren(
 interface AppRouteChildren {
   AppAppRoute: typeof AppAppRouteWithChildren
   AppSettingsRoute: typeof AppSettingsRouteWithChildren
+  AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppAppRoute: AppAppRouteWithChildren,
   AppSettingsRoute: AppSettingsRouteWithChildren,
+  AppIndexRoute: AppIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

@@ -16,6 +16,7 @@ export const Route = createFileRoute('/app')({
     const isAnonymous = context.user?.is_anonymous;
 
     if (!hasUser || isAnonymous) {
+      //Hmmmm... maybe this is weird... maybe i'll remove it
       const isAssetRoute = matches.some((match) => match.routeId === '/app/_app/_asset');
       if (isAssetRoute) {
         const route = embedAssetToRegularAsset(matches);
@@ -24,11 +25,6 @@ export const Route = createFileRoute('/app')({
         }
       }
       throw redirect({ to: '/auth/login' });
-    }
-
-    // Only redirect if landing directly on /app (not on nested routes)
-    if (matches.length === 2 && matches[1].fullPath === '/app') {
-      throw redirect({ to: '/app/home' });
     }
   },
   loader: async ({ context }) => {

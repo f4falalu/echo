@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
 import { prefetchGetMyUserInfo } from '@/api/buster_rest/users';
 import { ResetEmailForm } from '@/components/features/auth/ResetEmailForm';
@@ -18,12 +18,6 @@ export const Route = createFileRoute('/auth/reset-password')({
   validateSearch: z.object({
     email: z.string(),
   }),
-  beforeLoad: async ({ context }) => {
-    const { user, accessToken } = context;
-    if (!user || !accessToken || user.is_anonymous || !user.email) {
-      throw redirect({ to: '/auth/login' });
-    }
-  },
   loader: async ({ context }) => {
     const user = await prefetchGetMyUserInfo(context.queryClient);
     return {

@@ -382,7 +382,7 @@ const ResetPasswordLink: React.FC<{ email: string; tabIndex?: number }> = ({ ema
   const scrubbedEmail = useMemo(() => {
     if (!email || !isValidEmail(email)) return '';
     try {
-      return encodeURIComponent(email.trim());
+      return email.trim();
     } catch (error) {
       console.error('Error encoding email:', error);
       return '';
