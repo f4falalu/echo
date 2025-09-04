@@ -21,7 +21,7 @@ import {
 } from '@/integrations/supabase/signIn';
 import { cn } from '@/lib/classMerge';
 import { isValidEmail } from '@/lib/email';
-import { inputHasText } from '@/lib/text';
+import { inputHasText, truncateText } from '@/lib/text';
 import { PolicyCheck } from './PolicyCheck';
 import { type LastUsedReturnType, useLastUsed } from './useLastUsed';
 
@@ -377,7 +377,7 @@ const LoginOptions: React.FC<{
         {lastUsedProps.isCurrentlySignedIn && !signUpFlow && (
           <Link to="/app/home">
             <Button size={'tall'} block={true} type="button" className="truncate" variant="black">
-              Continue with {lastUsedProps.supabaseUser?.email}
+              Continue with {truncateText(lastUsedProps.supabaseUser?.email || '', 35)}
             </Button>
           </Link>
         )}
