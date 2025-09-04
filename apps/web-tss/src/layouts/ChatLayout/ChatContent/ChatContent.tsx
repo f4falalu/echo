@@ -1,5 +1,5 @@
 import { ClientOnly } from '@tanstack/react-router';
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { ScrollToBottomButton } from '@/components/features/buttons/ScrollToBottomButton';
 import { useGetChatMessageIds } from '@/context/Chats';
 import { useAutoScroll } from '@/hooks/useAutoScroll';
@@ -28,7 +28,6 @@ export const ChatContent: React.FC<{ chatId: string | undefined }> = React.memo(
     if (!container) return;
     containerRef.current = container;
     enableAutoScroll();
-    console.log('mounted chat content', isMountedAutoScrollObserver);
   });
 
   const showScrollToBottomButton = isMountedAutoScrollObserver && containerRef.current;

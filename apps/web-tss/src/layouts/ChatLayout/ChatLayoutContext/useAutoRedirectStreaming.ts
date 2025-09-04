@@ -40,7 +40,7 @@ export const useAutoRedirectStreaming = ({
 
   //streaming logic to redirect
   useEffect(() => {
-    if (!hasLoadedChat || !chatId) {
+    if (!hasLoadedChat || !chatId || isStreamFinished) {
       return;
     }
 
@@ -71,22 +71,20 @@ export const useAutoRedirectStreaming = ({
     //this will trigger when the chat is streaming and is has not completed yet (new chat)
     else if (!isStreamFinished && !isFinishedReasoning && hasReasoning && chatId) {
       previousLastMessageId.current = lastMessageId;
-
-      if (!lastMessageId) {
-        navigate({
-          to: '/app/chats/$chatId/reasoning/$messageId',
-          params: {
-            chatId,
-            messageId: lastMessageId,
-          },
-          replace: true,
-        });
-      }
+      navigate({
+        to: '/app/chats/$chatId/reasoning/$messageId',
+        params: {
+          chatId,
+          messageId: lastMessageId,
+        },
+        replace: true,
+      });
     }
 
     //this happen will when the chat is completed and it WAS streaming
     else if (isStreamFinished && previousIsCompletedStream.current === false && !firstFileId) {
       //no file is found, so we need to collapse the chat
+
       navigate({
         to: '/app/chats/$chatId',
         params: {
