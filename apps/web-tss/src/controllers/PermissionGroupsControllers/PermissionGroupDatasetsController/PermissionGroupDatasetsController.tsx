@@ -1,7 +1,12 @@
 import type React from 'react';
 import { lazy, useMemo, useState } from 'react';
-import { useGetUserDatasets } from '@/api/buster_rest/users/permissions';
+import { useGetPermissionGroupDatasets } from '@/api/buster_rest/permission_groups';
 import { PermissionSearchAndListWrapper } from '@/components/features/permissions';
+import { Button } from '@/components/ui/buttons';
+import { Plus } from '@/components/ui/icons';
+import { useDebounceSearch } from '@/hooks/useDebounceSearch';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { PermissionGroupDatasetsListContainer } from './PermissionGroupDatasetsListContainer';
 
 const NewDatasetModal = lazy(() =>
   import('@/components/features/modals/NewDatasetModal').then((mod) => ({
@@ -9,18 +14,15 @@ const NewDatasetModal = lazy(() =>
   }))
 );
 
-import { Button } from '@/components/ui/buttons';
-import { Plus } from '@/components/ui/icons';
-import { useDebounceSearch } from '@/hooks/useDebounceSearch';
-import { useMemoizedFn } from '@/hooks/useMemoizedFn';
-import { UserDatasetsListContainer } from './UserDatasetsListContainer';
-
-export const UserDatasetsController: React.FC<{ userId: string }> = ({ userId }) => {
-  const { data: datasets } = useGetUserDatasets({ userId });
+export const PermissionGroupDatasetsController: React.FC<{
+  permissionGroupId: string;
+}> = ({ permissionGroupId }) => {
+  const { data } = useGetPermissionGroupDatasets(permissionGroupId);
   const [isNewDatasetModalOpen, setIsNewDatasetModalOpen] = useState(false);
-  const { filteredItems, searchText, handleSearchChange } = useDebounceSearch({
-    items: datasets || [],
-    searchPredicate: (item, searchText) => item.name.toLowerCase().includes(searchText),
+
+  const { filteredItems, handleSearchChange, searchText } = useDebounceSearch({
+    items: data || [],
+    searchPredicate: (item, searchText) => item.name.includes(searchText),
   });
 
   const onCloseNewDatasetModal = useMemoizedFn(() => {
@@ -44,10 +46,13 @@ export const UserDatasetsController: React.FC<{ userId: string }> = ({ userId })
       <PermissionSearchAndListWrapper
         searchText={searchText}
         handleSearchChange={handleSearchChange}
-        searchPlaceholder="Search by dataset group"
+        searchPlaceholder="Search by dataset name..."
         searchChildren={NewDatasetButton}
       >
-        <UserDatasetsListContainer filteredDatasets={filteredItems} userId={userId} />
+        <PermissionGroupDatasetsListContainer
+          filteredDatasets={filteredItems}
+          permissionGroupId={permissionGroupId}
+        />
       </PermissionSearchAndListWrapper>
 
       <NewDatasetModal open={isNewDatasetModalOpen} onClose={onCloseNewDatasetModal} />

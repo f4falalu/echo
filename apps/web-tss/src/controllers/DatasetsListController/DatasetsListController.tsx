@@ -1,4 +1,5 @@
-import React, { lazy, useMemo, useState } from 'react';
+import type React from 'react';
+import { lazy, useMemo, useState } from 'react';
 import { useGetDatasets } from '@/api/buster_rest/datasets';
 import { useIsUserAdmin } from '@/api/buster_rest/users/useGetUserInfo';
 import { AppPageLayout } from '@/components/ui/layouts/AppPageLayout';
