@@ -62,9 +62,9 @@ export const signInWithGoogle = createServerFn({ method: 'POST' })
       return { success: false, error: error.message };
     }
 
-    console.log('data', data);
+    console.log('OAuth data:', data);
 
-    throw redirect({ href: data.url });
+    return { success: true, url: data.url };
   });
 
 export const signInWithAnonymousUser = createServerFn({ method: 'POST' }).handler(async () => {

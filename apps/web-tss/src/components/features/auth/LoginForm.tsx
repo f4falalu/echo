@@ -66,12 +66,14 @@ export const LoginForm: React.FC<{
       const result = await signInWithGoogle({ data: { redirectTo } });
       console.log('result', result);
       if (result && 'success' in result && !result.success) {
-        setErrorMessages([result.error]);
+        setErrorMessages([result.error || 'An error occurred during sign-in']);
         setLoading(null);
+        return;
       }
 
-      if (!result?.error) {
-        navigate({ to: redirectTo || '/' });
+      if (result && 'success' in result && result.success && result.url) {
+        // Redirect to OAuth provider's URL
+        window.location.href = result.url;
       }
     } catch (error: unknown) {
       console.error(error);
