@@ -49,9 +49,6 @@ const DashboardSegments: React.FC<DashboardContainerHeaderSegmentProps> = React.
         {
           label: 'Dashboard',
           value: 'content' satisfies DashboardView,
-          link: {
-            to: '../content' as './content', //not super happy about this, but I am lazy
-          },
         },
       ]}
       value={selectedView}

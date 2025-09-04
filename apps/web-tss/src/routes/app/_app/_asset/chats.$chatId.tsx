@@ -1,14 +1,13 @@
 import type { AssetType } from '@buster/server-shared/assets';
 import { createFileRoute, Outlet } from '@tanstack/react-router';
 import omit from 'lodash/omit';
-import { getAppLayout } from '@/api/server-functions/getAppLayout';
+import { prefetchGetChat } from '@/api/buster_rest/chats';
 import {
   chooseInitialLayout,
   getDefaultLayout,
   getDefaultLayoutMode,
 } from '@/context/Chats/selected-mode-helpers';
 import { ChatLayout } from '@/layouts/ChatLayout';
-import { prefetchGetChat } from '../../../../api/buster_rest/chats';
 
 export const Route = createFileRoute('/app/_app/_asset/chats/$chatId')({
   loader: async ({ params, context }) => {
@@ -25,7 +24,7 @@ export const Route = createFileRoute('/app/_app/_asset/chats/$chatId')({
     });
 
     const [chatLayout, title, chat] = await Promise.all([
-      getAppLayout({ data: { id: autoSaveId } }),
+      context.getAppLayout({ data: { id: autoSaveId } }),
       context.getAssetTitle({
         assetId: params.chatId,
         assetType: 'chat',

@@ -10,6 +10,7 @@ const PRIMARY_APP_LAYOUT_ID = 'primary-sidebar';
 const DEFAULT_LAYOUT: LayoutSize = ['230px', 'auto'];
 
 export const Route = createFileRoute('/app')({
+  context: () => ({ getAppLayout }),
   beforeLoad: async ({ context, matches }) => {
     const hasUser = context.user;
     const isAnonymous = context.user?.is_anonymous;
@@ -33,7 +34,7 @@ export const Route = createFileRoute('/app')({
   loader: async ({ context }) => {
     const { queryClient } = context;
     const [initialLayout] = await Promise.all([
-      getAppLayout({ data: { id: PRIMARY_APP_LAYOUT_ID } }),
+      context.getAppLayout({ data: { id: PRIMARY_APP_LAYOUT_ID } }),
       prefetchGetMyUserInfo(queryClient),
       prefetchGetUserFavorites(queryClient),
     ]);

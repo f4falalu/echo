@@ -9,7 +9,7 @@ export const beforeLoad = ({
 }) => {
   throw redirect({
     to: 'chart',
-    from: undefined as unknown as '/app/metrics/$metricId/',
+    from: undefined as unknown as '/app/metrics/$metricId',
     params,
     search,
     unsafeRelative: 'path',
