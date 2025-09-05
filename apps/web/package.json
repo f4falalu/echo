@@ -6,8 +6,8 @@
   "scripts": {
     "prebuild": "[ \"$SKIP_ENV_CHECK\" = \"true\" ] || tsx scripts/validate-env.ts",
     "build": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build -- --typecheck",
-    "build:staging": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build -- --typecheck --env staging",
-    "build:production": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build -- --typecheck --env production",
+    "build:staging": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build --mode staging -- --typecheck",
+    "build:production": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build --mode production -- --typecheck",
     "build:local": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build -- --typecheck --local",
     "build-storybook": "storybook build",
     "build:visualize": "npx vite-bundle-visualizer",
@@ -31,9 +31,9 @@
   },
   "dependencies": {
     "@ariakit/react": "^0.4.18",
+    "@buster/env-utils": "workspace:*",
     "@buster/server-shared": "workspace:*",
     "@buster/typescript-config": "workspace:*",
-    "@buster/env-utils": "workspace:*",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/modifiers": "^9.0.0",
     "@dnd-kit/sortable": "^10.0.0",
@@ -214,6 +214,7 @@
     "vite-plugin-monaco-editor": "^1.1.0",
     "vite-tsconfig-paths": "catalog:",
     "vitest": "catalog:",
-    "web-vitals": "^5.1.0"
+    "web-vitals": "^5.1.0",
+    "wrangler": "^4.34.0"
   }
 }
