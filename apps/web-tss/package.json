@@ -4,6 +4,7 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
+    "prebuild": "[ \"$SKIP_ENV_CHECK\" = \"true\" ] || tsx scripts/validate-env.ts",
     "build": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build -- --typecheck",
     "build:local": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build -- --typecheck --local",
     "build:no-typecheck": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build",
@@ -24,7 +25,7 @@
     "test:ui": "vitest --ui",
     "test:unit": "pnpm run test",
     "test:watch": "vitest --watch",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "cross-env NODE_OPTIONS=--max-old-space-size=8192 tsc --noEmit",
     "typecheck:watch": "tsc --noEmit --watch"
   },
   "peerDependencies": {
