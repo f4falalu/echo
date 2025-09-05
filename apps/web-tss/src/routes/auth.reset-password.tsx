@@ -6,6 +6,12 @@ import { ResetPasswordForm } from '@/components/features/auth/ResetPasswordForm'
 import { useGetSupabaseUser } from '@/context/Supabase';
 
 export const Route = createFileRoute('/auth/reset-password')({
+  loader: async ({ context }) => {
+    const user = await prefetchGetMyUserInfo(context.queryClient);
+    return {
+      user,
+    };
+  },
   head: () => ({
     meta: [
       { title: 'Reset Password' },
@@ -18,12 +24,6 @@ export const Route = createFileRoute('/auth/reset-password')({
   validateSearch: z.object({
     email: z.string(),
   }),
-  loader: async ({ context }) => {
-    const user = await prefetchGetMyUserInfo(context.queryClient);
-    return {
-      user,
-    };
-  },
 });
 
 function RouteComponent() {

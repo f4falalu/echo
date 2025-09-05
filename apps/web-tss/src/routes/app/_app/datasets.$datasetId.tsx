@@ -18,13 +18,14 @@ export const Route = createFileRoute('/app/_app/datasets/$datasetId')({
   loader: async ({ params, context }) => {
     const queryClient = context.queryClient;
     const { dataset } = await prefetchGetDatasetMetadata(params.datasetId, queryClient);
+    const title = dataset?.name;
     return {
-      dataset,
+      title,
     };
   },
   head: ({ loaderData }) => ({
     meta: [
-      { title: loaderData?.dataset?.name || 'Dataset' },
+      { title: loaderData?.title || 'Dataset' },
       { name: 'description', content: 'Explore and analyze your dataset' },
       { name: 'og:title', content: 'Dataset' },
       { name: 'og:description', content: 'Explore and analyze your dataset' },
