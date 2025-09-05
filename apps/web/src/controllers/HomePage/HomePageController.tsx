@@ -1,8 +1,10 @@
+import { ClientOnly } from '@tanstack/react-router';
 import type React from 'react';
 import { useMemo } from 'react';
 import { useGetUserBasicInfo } from '@/api/buster_rest/users/useGetUserInfo';
 import { Title } from '@/components/ui/typography';
 import { cn } from '@/lib/classMerge';
+import { isServer } from '@/lib/window';
 import { NewChatInput } from './NewChatInput';
 import { NewChatWarning } from './NewChatWarning';
 import { useNewChatWarning } from './useNewChatWarning';
@@ -29,18 +31,20 @@ export const HomePageController: React.FC<{
           <NewChatWarning {...newChatWarningProps} />
         </div>
       ) : (
-        <div className="mt-[150px] flex w-full max-w-[650px] flex-col space-y-6">
-          <div className="flex flex-col justify-center gap-y-1 text-center">
-            <Title as="h1" className="mb-0!">
-              {greeting}
-            </Title>
-            <Title as="h2" variant={'secondary'} className="mb-0! text-4xl!">
-              How can I help you today?
-            </Title>
-          </div>
+        <ClientOnly>
+          <div className="mt-[150px] flex w-full max-w-[650px] flex-col space-y-6">
+            <div className="flex flex-col justify-center gap-y-1 text-center">
+              <Title as="h1" className="mb-0!">
+                {greeting}
+              </Title>
+              <Title as="h2" variant={'secondary'} className="mb-0! text-4xl!">
+                How can I help you today?
+              </Title>
+            </div>
 
-          <NewChatInput initialValue={initialValue} autoSubmit={autoSubmit} />
-        </div>
+            <NewChatInput initialValue={initialValue} autoSubmit={autoSubmit} />
+          </div>
+        </ClientOnly>
       )}
     </div>
   );
@@ -54,11 +58,13 @@ const useGreeting = () => {
     const now = new Date();
     const hours = now.getHours();
 
-    if (hours >= 5 && hours < 12) {
+    console.log('hours', isServer, hours);
+
+    if (hours >= 4 && hours < 12) {
       return TimeOfDay.MORNING;
-    } else if (hours >= 12 && hours < 18) {
+    } else if (hours >= 12 && hours <= 19) {
       return TimeOfDay.AFTERNOON;
-    } else if (hours >= 18 && hours < 21) {
+    } else if (hours >= 19 && hours <= 22) {
       return TimeOfDay.EVENING;
     } else {
       return TimeOfDay.NIGHT;

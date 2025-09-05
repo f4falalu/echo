@@ -33,8 +33,12 @@ export const ReportPageHeader = React.forwardRef<
         {name}
       </EditableTitle>
       <Paragraph size={'base'} variant={'tertiary'} className="select-none">
-        <span className="select-text">{updatedAtFormatted}</span>
-        <span className="select-none"> • </span>
+        {updatedAtFormatted && (
+          <>
+            <span className="select-text">{updatedAtFormatted}</span>
+            <span className="select-none"> • </span>
+          </>
+        )}
         <span className="select-text">{DEFAULT_CREATED_BY}</span>
       </Paragraph>
     </div>
