@@ -27,7 +27,7 @@ const createCspHeader = (isEmbed = false) => {
     // Default directives
     "default-src 'self'",
     // Scripts
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live https://*.vercel.app https://cdn.jsdelivr.net https://*.cloudflareinsights.com https://*.posthog.com",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://*.cloudflareinsights.com https://*.posthog.com",
     // Styles
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
     // Images
@@ -103,11 +103,13 @@ export const securityMiddleware = createMiddleware({ type: 'function' }).server(
     const url = new URL(request.url);
     const isEmbed = url.pathname.startsWith('/embed/');
 
+    const cspHeader = createCspHeader(isEmbed);
+
     // Set security headers for all server function responses
     setHeaders({
       // Content Security Policy using your comprehensive policy
       // Use different CSP for embed routes vs regular routes
-      'Content-Security-Policy': createCspHeader(isEmbed),
+      'Content-Security-Policy': cspHeader,
 
       // Other security headers
       // For embed routes, allow framing; for regular routes, deny framing
