@@ -1,4 +1,6 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
+import { prefetchListDatasources } from '@/api/buster_rest/data_source';
+import { prefetchGetDatasets } from '@/api/buster_rest/datasets';
 import { prefetchGetUserFavorites } from '@/api/buster_rest/users/favorites/queryRequests';
 import { prefetchGetMyUserInfo } from '@/api/buster_rest/users/queryRequests';
 import { getAppLayout } from '@/api/server-functions/getAppLayout';
@@ -31,6 +33,8 @@ export const Route = createFileRoute('/app')({
       getSupabaseUser(),
       prefetchGetMyUserInfo(queryClient),
       prefetchGetUserFavorites(queryClient),
+      prefetchListDatasources(queryClient),
+      prefetchGetDatasets(queryClient),
     ]);
 
     if (!user) {
@@ -54,7 +58,7 @@ export const Route = createFileRoute('/app')({
       </AppProviders>
     );
   },
-  staleTime: 60 * 60 * 1000, // 60 minutes
-  preloadStaleTime: 60 * 60 * 1000, // 60 minutes
+  staleTime: Infinity,
+  preloadStaleTime: Infinity,
   gcTime: 10 * 60 * 1000, // 10 minutes
 });
