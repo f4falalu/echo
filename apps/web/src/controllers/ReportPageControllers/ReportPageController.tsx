@@ -82,7 +82,7 @@ export const ReportPageController: React.FC<{
             value={content}
             placeholder="Start typing..."
             className={commonClassName}
-            containerClassName="pt-9"
+            containerClassName="mt-9"
             variant="default"
             useFixedToolbarKit={false}
             onValueChange={onChangeContent}
