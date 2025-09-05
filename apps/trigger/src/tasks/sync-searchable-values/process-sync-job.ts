@@ -1,5 +1,6 @@
 import { generateSearchableValueEmbeddings } from '@buster/ai';
 import { type DatabaseAdapter, createAdapter } from '@buster/data-source';
+import { getDefaultProvider } from '@buster/data-source';
 import {
   getDataSourceCredentials,
   markSyncJobCompleted,
@@ -7,9 +8,8 @@ import {
 } from '@buster/database';
 import {
   type SearchableValue,
-  deduplicateValues,
-  generateNamespace,
-  queryExistingKeys,
+  processWithCache,
+  updateCache,
   upsertSearchableValues,
 } from '@buster/search';
 import { logger, schemaTask } from '@trigger.dev/sdk';
@@ -21,10 +21,10 @@ import { type SyncJobPayload, SyncJobPayloadSchema, type SyncJobResult } from '.
  * This task orchestrates the complete sync workflow:
  * 1. Fetches credentials and connects to the data source
  * 2. Queries distinct values from the specified column
- * 3. Queries existing values from Turbopuffer
- * 4. Deduplicates to find new values
- * 5. Generates embeddings for new values
- * 6. Upserts values with embeddings to Turbopuffer
+ * 3. Uses R2-based parquet cache to find existing vs new values
+ * 4. Generates embeddings only for new values
+ * 5. Upserts new values with embeddings to Turbopuffer
+ * 6. Updates parquet cache with complete set of values
  * 7. Updates sync job and column metadata
  */
 export const processSyncJob: ReturnType<
@@ -54,7 +54,7 @@ export const processSyncJob: ReturnType<
         table: payload.tableName,
         column: payload.columnName,
       },
-      maxValues: payload.maxValues,
+      maxValues: payload.maxValues || 'no limit',
     });
 
     let adapter: DatabaseAdapter | null = null;
@@ -76,7 +76,7 @@ export const processSyncJob: ReturnType<
       logger.info('Querying distinct values from source', {
         table: `${payload.databaseName}.${payload.schemaName}.${payload.tableName}`,
         column: payload.columnName,
-        limit: payload.maxValues,
+        limit: payload.maxValues || 'no limit',
       });
 
       const distinctValues = await queryDistinctColumnValues({
@@ -85,7 +85,7 @@ export const processSyncJob: ReturnType<
         schemaName: payload.schemaName,
         tableName: payload.tableName,
         columnName: payload.columnName,
-        limit: payload.maxValues,
+        ...(payload.maxValues && { limit: payload.maxValues }), // Only include limit if provided
       });
 
       logger.info('Retrieved distinct values', {
@@ -115,51 +115,63 @@ export const processSyncJob: ReturnType<
         return result;
       }
 
-      // Step 4: Query existing keys from Turbopuffer
-      // Note: If namespace doesn't exist, it means no data has been written yet
-      // and we should treat it as having no existing keys
-      const namespace = generateNamespace(payload.dataSourceId);
-      logger.info('Querying existing values from Turbopuffer', {
-        namespace,
+      // Step 4: Use parquet cache to find existing and new values
+      // This replaces the Turbopuffer query with R2-based caching
+      logger.info('Processing with parquet cache', {
+        jobId: payload.jobId,
         database: payload.databaseName,
         schema: payload.schemaName,
         table: payload.tableName,
         column: payload.columnName,
       });
 
-      let existingKeys: string[] = [];
-      try {
-        existingKeys = await queryExistingKeys({
-          dataSourceId: payload.dataSourceId,
-          query: {
-            database: payload.databaseName,
-            schema: payload.schemaName,
-            table: payload.tableName,
-            column: payload.columnName,
-          },
-        });
-      } catch (error) {
-        // Check if this is a namespace not found error (404)
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        if (errorMessage.includes('namespace') && errorMessage.includes('was not found')) {
-          logger.info('Namespace does not exist yet, treating as empty', {
-            namespace,
-            jobId: payload.jobId,
-          });
-          existingKeys = [];
-        } else {
-          // Re-throw if it's not a namespace not found error
-          throw error;
-        }
-      }
+      // Get storage provider (default R2)
+      const storageProvider = getDefaultProvider();
 
-      logger.info('Retrieved existing keys', {
+      // Process with cache to find new vs existing values
+      const cacheResult = await processWithCache(
+        payload.dataSourceId,
+        payload.databaseName,
+        payload.schemaName,
+        payload.tableName,
+        payload.columnName,
+        distinctValues,
+        storageProvider
+      );
+
+      logger.info('Cache processing complete', {
         jobId: payload.jobId,
-        existingCount: existingKeys.length,
+        cacheHit: cacheResult.cacheHit,
+        existingCount: cacheResult.existingValues.length,
+        newCount: cacheResult.newValues.length,
+        totalCount: cacheResult.totalValues,
       });
 
-      // Step 5: Prepare searchable values for deduplication
-      const searchableValues: SearchableValue[] = distinctValues.map((value) => ({
+      // Step 5: Check if there are any new values to process
+      if (cacheResult.newValues.length === 0) {
+        // All values already exist
+        const result: SyncJobResult = {
+          jobId: payload.jobId,
+          success: true,
+          processedCount: distinctValues.length,
+          existingCount: cacheResult.existingValues.length,
+          newCount: 0,
+          duration: Date.now() - startTime,
+        };
+
+        await markSyncJobCompleted(payload.jobId, {
+          processedCount: distinctValues.length,
+          existingCount: cacheResult.existingValues.length,
+          newCount: 0,
+          duration: result.duration || 0,
+        });
+
+        logger.info('All values already exist (cache hit)', { jobId: payload.jobId });
+        return result;
+      }
+
+      // Step 6: Prepare searchable values for new values only
+      const newSearchableValues: SearchableValue[] = cacheResult.newValues.map((value) => ({
         database: payload.databaseName,
         schema: payload.schemaName,
         table: payload.tableName,
@@ -167,76 +179,39 @@ export const processSyncJob: ReturnType<
         value,
       }));
 
-      // Step 6: Deduplicate using DuckDB
-      logger.info('Deduplicating values', {
-        jobId: payload.jobId,
-        totalValues: searchableValues.length,
-        existingKeys: existingKeys.length,
-      });
-
-      const deduplicationResult = await deduplicateValues({
-        existingKeys,
-        newValues: searchableValues,
-      });
-
-      logger.info('Deduplication complete', {
-        jobId: payload.jobId,
-        newCount: deduplicationResult.newCount,
-        existingCount: deduplicationResult.existingCount,
-      });
-
-      if (deduplicationResult.newCount === 0) {
-        // All values already exist
-        const result: SyncJobResult = {
-          jobId: payload.jobId,
-          success: true,
-          processedCount: searchableValues.length,
-          existingCount: deduplicationResult.existingCount,
-          newCount: 0,
-          duration: Date.now() - startTime,
-        };
-
-        await markSyncJobCompleted(payload.jobId, {
-          processedCount: searchableValues.length,
-          existingCount: deduplicationResult.existingCount,
-          newCount: 0,
-          duration: result.duration || 0,
-        });
-
-        // TODO: Update column sync metadata when we have column ID
-        // await updateColumnSyncMetadata(columnId, {
-        //   status: 'success',
-        //   count: searchableValues.length,
-        //   lastSynced: new Date().toISOString(),
-        // });
-
-        logger.info('All values already exist in Turbopuffer', { jobId: payload.jobId });
-        return result;
-      }
-
       // Step 7: Generate embeddings for new values in batches to manage memory
       logger.info('Generating embeddings for new values', {
         jobId: payload.jobId,
-        newCount: deduplicationResult.newCount,
+        newCount: cacheResult.newValues.length,
       });
 
       // Process embeddings in batches to avoid memory issues
       const EMBEDDING_BATCH_SIZE = 1000; // Process 1000 values at a time
       const allValuesWithEmbeddings: SearchableValue[] = [];
 
-      for (let i = 0; i < deduplicationResult.newValues.length; i += EMBEDDING_BATCH_SIZE) {
-        const batch = deduplicationResult.newValues.slice(i, i + EMBEDDING_BATCH_SIZE);
+      for (let i = 0; i < newSearchableValues.length; i += EMBEDDING_BATCH_SIZE) {
+        const batch = newSearchableValues.slice(i, i + EMBEDDING_BATCH_SIZE);
         const batchTexts = batch.map((v) => v.value);
 
         logger.info('Processing embedding batch', {
           jobId: payload.jobId,
           batchStart: i,
           batchSize: batch.length,
-          totalValues: deduplicationResult.newValues.length,
+          totalValues: newSearchableValues.length,
         });
 
         // Generate embeddings for this batch
         const batchEmbeddings = await generateSearchableValueEmbeddings(batchTexts);
+
+        // Log embedding dimensions for debugging
+        if (batchEmbeddings.length > 0 && batchEmbeddings[0]) {
+          logger.info('Embedding dimensions check', {
+            jobId: payload.jobId,
+            firstEmbeddingLength: batchEmbeddings[0].length,
+            expectedDimensions: 512,
+            allEmbeddingLengths: batchEmbeddings.slice(0, 5).map((e) => e?.length), // Log first 5 for sample
+          });
+        }
 
         // Combine values with embeddings for this batch
         const batchWithEmbeddings = batch.map((value, index) => ({
@@ -283,7 +258,7 @@ export const processSyncJob: ReturnType<
             errorsInBatch: batchResult.errors.length,
             errors: batchResult.errors,
           });
-          
+
           throw new Error(
             `Failed to upsert ${batchResult.errors.length} values to Turbopuffer: ${batchResult.errors.slice(0, 3).join(', ')}${batchResult.errors.length > 3 ? '...' : ''}`
           );
@@ -295,11 +270,33 @@ export const processSyncJob: ReturnType<
         totalUpserted: totalUpserted,
       });
 
+      // Step 9: Update parquet cache with all values (existing + new)
+      logger.info('Updating parquet cache', {
+        jobId: payload.jobId,
+        totalValues: distinctValues.length,
+      });
+
+      const cacheUpdated = await updateCache(
+        payload.dataSourceId,
+        payload.databaseName,
+        payload.schemaName,
+        payload.tableName,
+        payload.columnName,
+        distinctValues, // All distinct values from the source
+        storageProvider
+      );
+
+      if (!cacheUpdated) {
+        logger.warn('Failed to update parquet cache, but sync completed', {
+          jobId: payload.jobId,
+        });
+      }
+
       // Step 9: Update sync job status
       const metadata = {
-        processedCount: searchableValues.length,
-        existingCount: deduplicationResult.existingCount,
-        newCount: deduplicationResult.newCount,
+        processedCount: distinctValues.length,
+        existingCount: cacheResult.existingValues.length,
+        newCount: cacheResult.newValues.length,
         duration: Date.now() - startTime,
       };
 
@@ -393,7 +390,7 @@ async function queryDistinctColumnValues({
   schemaName: string;
   tableName: string;
   columnName: string;
-  limit: number;
+  limit?: number; // Optional - when not provided, query all distinct values
 }): Promise<string[]> {
   // Build the fully qualified table name
   const fullyQualifiedTable = `${databaseName}.${schemaName}.${tableName}`;
@@ -405,14 +402,18 @@ async function queryDistinctColumnValues({
     FROM ${fullyQualifiedTable}
     WHERE "${columnName}" IS NOT NULL
       AND TRIM("${columnName}") != ''
-    ORDER BY "${columnName}"
-    LIMIT ${limit}
+    ORDER BY "${columnName}"${
+      limit
+        ? `
+    LIMIT ${limit}`
+        : ''
+    }
   `;
 
   logger.info('Executing distinct values query', {
     table: fullyQualifiedTable,
     column: columnName,
-    limit,
+    limit: limit || 'no limit',
   });
 
   try {

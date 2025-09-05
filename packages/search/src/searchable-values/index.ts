@@ -90,3 +90,21 @@ export {
   // Types
   type DuckDBConnection,
 } from './deduplicate';
+
+// Export parquet caching functionality
+export {
+  // Cache operations
+  processWithCache,
+  updateCache,
+  downloadParquetCache,
+  uploadParquetCache,
+  // Parquet operations
+  exportValuesToParquet,
+  readValuesFromParquet,
+  findNewValues,
+  // Utility functions
+  generateColumnHash,
+  generateStorageKey,
+  // Types
+  type ParquetCacheResult,
+} from './parquet-cache';

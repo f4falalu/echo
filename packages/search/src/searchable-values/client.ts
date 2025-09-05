@@ -26,6 +26,42 @@ import {
 // VALIDATION SCHEMAS
 // ============================================================================
 
+/**
+ * Schema for a single row returned from Turbopuffer query
+ */
+const TurbopufferRowSchema = z.object({
+  id: z.string(),
+  $dist: z.number().optional(),
+  value: z.string(),
+  database: z.string(),
+  schema: z.string(),
+  table: z.string(),
+  column: z.string(),
+  synced_at: z.string(),
+});
+
+/**
+ * Schema for fused result after reciprocal rank fusion
+ */
+const FusedResultSchema = TurbopufferRowSchema.extend({
+  fusedScore: z.number(),
+});
+
+/**
+ * Schema for multiQuery response from Turbopuffer
+ */
+const TurbopufferMultiQueryResponseSchema = z.object({
+  results: z.array(
+    z.object({
+      rows: z.array(TurbopufferRowSchema),
+    })
+  ),
+});
+
+// Inferred types from schemas
+type TurbopufferRow = z.infer<typeof TurbopufferRowSchema>;
+type FusedResult = z.infer<typeof FusedResultSchema>;
+
 const DataSourceIdSchema = z.string().uuid();
 
 const DeleteKeysInputSchema = z.object({
@@ -281,15 +317,24 @@ const processBatch = async (
 ): Promise<{ success: boolean; count: number; error?: string }> => {
   try {
     // Validate all values have embeddings
-    const invalidValues = batch.filter((v) => !v.embedding || v.embedding.length !== 1536);
+    const invalidValues = batch.filter((v) => !v.embedding || v.embedding.length === 0);
     if (invalidValues.length > 0) {
       throw new Error(`${invalidValues.length} values missing valid embeddings`);
     }
 
     const columns = valuesToColumns(batch);
-    await ns.write({ 
+    await ns.write({
       upsert_columns: columns,
-      distance_metric: 'cosine_distance' 
+      distance_metric: 'cosine_distance',
+      // Enable full-text search on the value field for BM25 search
+      schema: {
+        value: { type: 'string', full_text_search: true },
+        database: { type: 'string' },
+        schema: { type: 'string' },
+        table: { type: 'string' },
+        column: { type: 'string' },
+        synced_at: { type: 'string' },
+      },
     });
 
     return { success: true, count: batch.length };
@@ -405,7 +450,48 @@ export const getAllSearchableValues = async (
 };
 
 /**
- * Search for similar values (requires embedding generation)
+ * Reciprocal Rank Fusion for combining multiple result lists
+ * Combines results from different ranking methods (vector similarity and BM25)
+ */
+const reciprocalRankFusion = (resultLists: TurbopufferRow[][], k = 60): FusedResult[] => {
+  const scores: Map<string, number> = new Map();
+  const allResults: Map<string, TurbopufferRow> = new Map();
+
+  for (const results of resultLists) {
+    for (let rank = 1; rank <= results.length; rank++) {
+      const item = results[rank - 1];
+      if (!item) continue; // Skip if item doesn't exist
+
+      const id = item.id;
+
+      // Calculate RRF score
+      const currentScore = scores.get(id) || 0;
+      scores.set(id, currentScore + 1.0 / (k + rank));
+
+      // Store the full result object
+      if (!allResults.has(id)) {
+        allResults.set(id, item);
+      }
+    }
+  }
+
+  // Sort by RRF score and return combined results
+  const fusedResults: FusedResult[] = [];
+
+  Array.from(scores.entries())
+    .sort(([, a], [, b]) => b - a)
+    .forEach(([id, score]) => {
+      const result = allResults.get(id);
+      if (result) {
+        fusedResults.push({ ...result, fusedScore: score });
+      }
+    });
+
+  return fusedResults;
+};
+
+/**
+ * Search for similar values using hybrid search (vector + BM25)
  */
 export const searchSimilarValues = async (
   request: SearchRequest,
@@ -415,7 +501,7 @@ export const searchSimilarValues = async (
 
   if (!queryEmbedding || queryEmbedding.length !== 1536) {
     throw new TurbopufferError(
-      'Query embedding is required for similarity search',
+      'Query embedding is required for similarity search (1536 dimensions)',
       'MISSING_EMBEDDING',
       false
     );
@@ -425,31 +511,58 @@ export const searchSimilarValues = async (
   const filter = buildFilter(validated.filters || {});
   const startTime = Date.now();
 
+  // Use 30 as default limit (as mentioned for stored values)
+  const topK = validated.limit || 30;
+
   return withRetry(async () => {
-    const response = await ns.query({
-      rank_by: ['vector', 'ANN', queryEmbedding],
-      top_k: validated.limit || 10,
-      ...(filter && { filters: filter }),
-      include_attributes: ['database', 'schema', 'table', 'column', 'value', 'synced_at'],
+    // Perform hybrid search with both vector and BM25
+    const response = await ns.multiQuery({
+      queries: [
+        // Vector similarity search
+        {
+          rank_by: ['vector', 'ANN', queryEmbedding],
+          top_k: topK,
+          ...(filter && { filters: filter }),
+          include_attributes: ['database', 'schema', 'table', 'column', 'value', 'synced_at'],
+        },
+        // BM25 full-text search on the value field
+        {
+          rank_by: ['value', 'BM25', validated.query],
+          top_k: topK,
+          ...(filter && { filters: filter }),
+          include_attributes: ['database', 'schema', 'table', 'column', 'value', 'synced_at'],
+        },
+      ],
     });
 
-    const results = (response.rows || [])
-      .filter((row: unknown) => {
-        const similarity = 1 - (((row as Record<string, unknown>).dist as number) || 0);
-        return !validated.similarityThreshold || similarity >= validated.similarityThreshold;
-      })
-      .map((row: unknown) => {
-        const r = row as Record<string, unknown>;
-        const attrs = r.attributes as Record<string, unknown> | undefined;
+    // Validate and extract results from both queries
+    const parsedResponse = TurbopufferMultiQueryResponseSchema.parse(response);
+    const vectorResults = parsedResponse.results[0]?.rows || [];
+    const bm25Results = parsedResponse.results[1]?.rows || [];
+
+    // Apply reciprocal rank fusion to combine results
+    const fusedResults = reciprocalRankFusion([vectorResults, bm25Results]);
+
+    // Process and format the fused results with proper types
+    const results = fusedResults
+      .slice(0, topK) // Limit to requested number of results
+      .map((row) => {
+        // For fused results, use the fused score as similarity
+        const similarity = row.fusedScore || (row.$dist ? 1 - row.$dist : 0);
+
         return {
-          value: attrs?.value as string,
-          database: attrs?.database as string,
-          schema: attrs?.schema as string,
-          table: attrs?.table as string,
-          column: attrs?.column as string,
-          similarity: 1 - ((r.dist as number) || 0),
-          synced_at: attrs?.synced_at as string,
+          value: row.value,
+          database: row.database,
+          schema: row.schema,
+          table: row.table,
+          column: row.column,
+          similarity,
+          synced_at: row.synced_at,
         };
+      })
+      .filter((result) => {
+        // Apply similarity threshold if specified
+        return !validated.similarityThreshold || result.similarity >= validated.similarityThreshold;
       });
 
     return {

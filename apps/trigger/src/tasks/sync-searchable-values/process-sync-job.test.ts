@@ -12,6 +12,7 @@ vi.mock('@buster/ai', () => ({
 
 vi.mock('@buster/data-source', () => ({
   createAdapter: vi.fn(),
+  getDefaultProvider: vi.fn(),
 }));
 
 vi.mock('@buster/database', () => ({
@@ -25,12 +26,17 @@ vi.mock('@buster/search', () => ({
   generateNamespace: vi.fn(),
   queryExistingKeys: vi.fn(),
   upsertSearchableValues: vi.fn(),
+  processWithCache: vi.fn(),
+  updateCache: vi.fn(),
 }));
 
 vi.mock('@trigger.dev/sdk', () => ({
   logger: {
     info: vi.fn(),
     error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+    log: vi.fn(),
   },
   schemaTask: vi.fn((config) => ({
     ...config,
@@ -40,7 +46,7 @@ vi.mock('@trigger.dev/sdk', () => ({
 
 // Import mocked modules
 import { generateSearchableValueEmbeddings } from '@buster/ai';
-import { createAdapter } from '@buster/data-source';
+import { createAdapter, getDefaultProvider } from '@buster/data-source';
 import {
   getDataSourceCredentials,
   markSyncJobCompleted,
@@ -49,7 +55,9 @@ import {
 import {
   deduplicateValues,
   generateNamespace,
+  processWithCache,
   queryExistingKeys,
+  updateCache,
   upsertSearchableValues,
 } from '@buster/search';
 
@@ -107,39 +115,36 @@ describe('processSyncJob', () => {
       // Setup mocks for successful flow
       const mockCredentials = { type: 'postgresql', host: 'localhost' };
       const mockDistinctValues = ['Apple Inc.', 'Google LLC', 'Microsoft Corp'];
-      const mockExistingKeys = ['test_db:public:customers:company_name:Apple Inc.'];
       const mockEmbeddings = [
         [0.1, 0.2, 0.3], // Google LLC embedding
         [0.4, 0.5, 0.6], // Microsoft Corp embedding
       ];
 
+      const mockStorageProvider = {
+        getFile: vi.fn(),
+        putFile: vi.fn(),
+        deleteFile: vi.fn(),
+        listFiles: vi.fn(),
+        upload: vi.fn(),
+        download: vi.fn(),
+        getSignedUrl: vi.fn(),
+        delete: vi.fn(),
+        exists: vi.fn(),
+        list: vi.fn(),
+      } as any;
+
       vi.mocked(getDataSourceCredentials).mockResolvedValue(mockCredentials);
       vi.mocked(createAdapter).mockResolvedValue(mockAdapter as any);
+      vi.mocked(getDefaultProvider).mockReturnValue(mockStorageProvider);
       mockAdapter.query.mockResolvedValue({
         rows: mockDistinctValues.map((v) => ({ value: v })),
         fields: [],
       });
-      vi.mocked(generateNamespace).mockReturnValue('ds-456');
-      vi.mocked(queryExistingKeys).mockResolvedValue(mockExistingKeys);
-      vi.mocked(deduplicateValues).mockResolvedValue({
-        newValues: [
-          {
-            database: 'test_db',
-            schema: 'public',
-            table: 'customers',
-            column: 'company_name',
-            value: 'Google LLC',
-          },
-          {
-            database: 'test_db',
-            schema: 'public',
-            table: 'customers',
-            column: 'company_name',
-            value: 'Microsoft Corp',
-          },
-        ],
-        existingCount: 1,
-        newCount: 2,
+      vi.mocked(processWithCache).mockResolvedValue({
+        cacheHit: false,
+        existingValues: ['Apple Inc.'],
+        newValues: ['Google LLC', 'Microsoft Corp'],
+        totalValues: 3,
       });
       vi.mocked(generateSearchableValueEmbeddings).mockResolvedValue(mockEmbeddings);
       vi.mocked(upsertSearchableValues).mockResolvedValue({
@@ -147,6 +152,7 @@ describe('processSyncJob', () => {
         upserted: 2,
         errors: [],
       });
+      vi.mocked(updateCache).mockResolvedValue(true);
 
       // Execute the task
       const result = await runTask(mockPayload);
@@ -170,23 +176,15 @@ describe('processSyncJob', () => {
       expect(mockAdapter.query).toHaveBeenCalledWith(
         expect.stringContaining('SELECT DISTINCT "company_name"')
       );
-      expect(queryExistingKeys).toHaveBeenCalledWith({
-        dataSourceId: 'ds-456',
-        query: {
-          database: 'test_db',
-          schema: 'public',
-          table: 'customers',
-          column: 'company_name',
-        },
-      });
-      expect(deduplicateValues).toHaveBeenCalledWith({
-        existingKeys: mockExistingKeys,
-        newValues: expect.arrayContaining([
-          expect.objectContaining({ value: 'Apple Inc.' }),
-          expect.objectContaining({ value: 'Google LLC' }),
-          expect.objectContaining({ value: 'Microsoft Corp' }),
-        ]),
-      });
+      expect(processWithCache).toHaveBeenCalledWith(
+        'ds-456',
+        'test_db',
+        'public',
+        'customers',
+        'company_name',
+        mockDistinctValues,
+        mockStorageProvider
+      );
       expect(generateSearchableValueEmbeddings).toHaveBeenCalledWith([
         'Google LLC',
         'Microsoft Corp',
@@ -246,7 +244,7 @@ describe('processSyncJob', () => {
           newCount: 0,
         })
       );
-      expect(queryExistingKeys).not.toHaveBeenCalled();
+      expect(processWithCache).not.toHaveBeenCalled();
       expect(generateSearchableValueEmbeddings).not.toHaveBeenCalled();
       expect(mockAdapter.close).toHaveBeenCalled();
     });
@@ -254,23 +252,31 @@ describe('processSyncJob', () => {
     it('should handle case when all values already exist', async () => {
       // Setup mocks for all existing values
       const mockDistinctValues = ['Apple Inc.', 'Google LLC'];
-      const mockExistingKeys = [
-        'test_db:public:customers:company_name:Apple Inc.',
-        'test_db:public:customers:company_name:Google LLC',
-      ];
+      const mockStorageProvider = {
+        getFile: vi.fn(),
+        putFile: vi.fn(),
+        deleteFile: vi.fn(),
+        listFiles: vi.fn(),
+        upload: vi.fn(),
+        download: vi.fn(),
+        getSignedUrl: vi.fn(),
+        delete: vi.fn(),
+        exists: vi.fn(),
+        list: vi.fn(),
+      } as any;
 
       vi.mocked(getDataSourceCredentials).mockResolvedValue({ type: 'postgresql' });
       vi.mocked(createAdapter).mockResolvedValue(mockAdapter as any);
+      vi.mocked(getDefaultProvider).mockReturnValue(mockStorageProvider);
       mockAdapter.query.mockResolvedValue({
         rows: mockDistinctValues.map((v) => ({ value: v })),
         fields: [],
       });
-      vi.mocked(generateNamespace).mockReturnValue('ds-456');
-      vi.mocked(queryExistingKeys).mockResolvedValue(mockExistingKeys);
-      vi.mocked(deduplicateValues).mockResolvedValue({
+      vi.mocked(processWithCache).mockResolvedValue({
+        cacheHit: true,
+        existingValues: ['Apple Inc.', 'Google LLC'],
         newValues: [],
-        existingCount: 2,
-        newCount: 0,
+        totalValues: 2,
       });
 
       // Execute the task
@@ -302,26 +308,31 @@ describe('processSyncJob', () => {
 
     it('should create namespace if it does not exist', async () => {
       // Setup mocks with non-existing namespace
+      const mockStorageProvider = {
+        getFile: vi.fn(),
+        putFile: vi.fn(),
+        deleteFile: vi.fn(),
+        listFiles: vi.fn(),
+        upload: vi.fn(),
+        download: vi.fn(),
+        getSignedUrl: vi.fn(),
+        delete: vi.fn(),
+        exists: vi.fn(),
+        list: vi.fn(),
+      } as any;
+
       vi.mocked(getDataSourceCredentials).mockResolvedValue({ type: 'postgresql' });
       vi.mocked(createAdapter).mockResolvedValue(mockAdapter as any);
+      vi.mocked(getDefaultProvider).mockReturnValue(mockStorageProvider);
       mockAdapter.query.mockResolvedValue({
         rows: [{ value: 'Test Company' }],
         fields: [],
       });
-      vi.mocked(generateNamespace).mockReturnValue('ds-456');
-      vi.mocked(queryExistingKeys).mockResolvedValue([]);
-      vi.mocked(deduplicateValues).mockResolvedValue({
-        newValues: [
-          {
-            database: 'test_db',
-            schema: 'public',
-            table: 'customers',
-            column: 'company_name',
-            value: 'Test Company',
-          },
-        ],
-        existingCount: 0,
-        newCount: 1,
+      vi.mocked(processWithCache).mockResolvedValue({
+        cacheHit: false,
+        existingValues: [],
+        newValues: ['Test Company'],
+        totalValues: 1,
       });
       vi.mocked(generateSearchableValueEmbeddings).mockResolvedValue([[0.1, 0.2, 0.3]]);
       vi.mocked(upsertSearchableValues).mockResolvedValue({
@@ -329,6 +340,7 @@ describe('processSyncJob', () => {
         upserted: 1,
         errors: [],
       });
+      vi.mocked(updateCache).mockResolvedValue(true);
 
       // Execute the task
       const result = await runTask(mockPayload);
@@ -400,26 +412,31 @@ describe('processSyncJob', () => {
 
     it('should handle embedding generation errors', async () => {
       // Setup mocks up to embedding generation
+      const mockStorageProvider = {
+        getFile: vi.fn(),
+        putFile: vi.fn(),
+        deleteFile: vi.fn(),
+        listFiles: vi.fn(),
+        upload: vi.fn(),
+        download: vi.fn(),
+        getSignedUrl: vi.fn(),
+        delete: vi.fn(),
+        exists: vi.fn(),
+        list: vi.fn(),
+      } as any;
+
       vi.mocked(getDataSourceCredentials).mockResolvedValue({ type: 'postgresql' });
       vi.mocked(createAdapter).mockResolvedValue(mockAdapter as any);
+      vi.mocked(getDefaultProvider).mockReturnValue(mockStorageProvider);
       mockAdapter.query.mockResolvedValue({
         rows: [{ value: 'Test Company' }],
         fields: [],
       });
-      vi.mocked(generateNamespace).mockReturnValue('ds-456');
-      vi.mocked(queryExistingKeys).mockResolvedValue([]);
-      vi.mocked(deduplicateValues).mockResolvedValue({
-        newValues: [
-          {
-            database: 'test_db',
-            schema: 'public',
-            table: 'customers',
-            column: 'company_name',
-            value: 'Test Company',
-          },
-        ],
-        existingCount: 0,
-        newCount: 1,
+      vi.mocked(processWithCache).mockResolvedValue({
+        cacheHit: false,
+        existingValues: [],
+        newValues: ['Test Company'],
+        totalValues: 1,
       });
       vi.mocked(generateSearchableValueEmbeddings).mockRejectedValue(
         new Error('OpenAI API rate limit exceeded')
@@ -443,26 +460,31 @@ describe('processSyncJob', () => {
 
     it('should handle Turbopuffer upsert errors', async () => {
       // Setup mocks up to upsert
+      const mockStorageProvider = {
+        getFile: vi.fn(),
+        putFile: vi.fn(),
+        deleteFile: vi.fn(),
+        listFiles: vi.fn(),
+        upload: vi.fn(),
+        download: vi.fn(),
+        getSignedUrl: vi.fn(),
+        delete: vi.fn(),
+        exists: vi.fn(),
+        list: vi.fn(),
+      } as any;
+
       vi.mocked(getDataSourceCredentials).mockResolvedValue({ type: 'postgresql' });
       vi.mocked(createAdapter).mockResolvedValue(mockAdapter as any);
+      vi.mocked(getDefaultProvider).mockReturnValue(mockStorageProvider);
       mockAdapter.query.mockResolvedValue({
         rows: [{ value: 'Test Company' }],
         fields: [],
       });
-      vi.mocked(generateNamespace).mockReturnValue('ds-456');
-      vi.mocked(queryExistingKeys).mockResolvedValue([]);
-      vi.mocked(deduplicateValues).mockResolvedValue({
-        newValues: [
-          {
-            database: 'test_db',
-            schema: 'public',
-            table: 'customers',
-            column: 'company_name',
-            value: 'Test Company',
-          },
-        ],
-        existingCount: 0,
-        newCount: 1,
+      vi.mocked(processWithCache).mockResolvedValue({
+        cacheHit: false,
+        existingValues: [],
+        newValues: ['Test Company'],
+        totalValues: 1,
       });
       vi.mocked(generateSearchableValueEmbeddings).mockResolvedValue([[0.1, 0.2, 0.3]]);
       vi.mocked(upsertSearchableValues).mockRejectedValue(new Error('Turbopuffer API error'));
@@ -503,24 +525,31 @@ describe('processSyncJob', () => {
     it('should handle values with special characters', async () => {
       // Setup mocks with special characters
       const specialValues = ["O'Reilly Media", 'AT&T', '"Quoted" Company', 'Line\nBreak Corp'];
+      const mockStorageProvider = {
+        getFile: vi.fn(),
+        putFile: vi.fn(),
+        deleteFile: vi.fn(),
+        listFiles: vi.fn(),
+        upload: vi.fn(),
+        download: vi.fn(),
+        getSignedUrl: vi.fn(),
+        delete: vi.fn(),
+        exists: vi.fn(),
+        list: vi.fn(),
+      } as any;
+
       vi.mocked(getDataSourceCredentials).mockResolvedValue({ type: 'postgresql' });
       vi.mocked(createAdapter).mockResolvedValue(mockAdapter as any);
+      vi.mocked(getDefaultProvider).mockReturnValue(mockStorageProvider);
       mockAdapter.query.mockResolvedValue({
         rows: specialValues.map((v) => ({ value: v })),
         fields: [],
       });
-      vi.mocked(generateNamespace).mockReturnValue('ds-456');
-      vi.mocked(queryExistingKeys).mockResolvedValue([]);
-      vi.mocked(deduplicateValues).mockResolvedValue({
-        newValues: specialValues.map((value) => ({
-          database: 'test_db',
-          schema: 'public',
-          table: 'customers',
-          column: 'company_name',
-          value,
-        })),
-        existingCount: 0,
-        newCount: specialValues.length,
+      vi.mocked(processWithCache).mockResolvedValue({
+        cacheHit: false,
+        existingValues: [],
+        newValues: specialValues,
+        totalValues: specialValues.length,
       });
       vi.mocked(generateSearchableValueEmbeddings).mockResolvedValue(
         specialValues.map(() => [0.1, 0.2, 0.3])
@@ -530,6 +559,7 @@ describe('processSyncJob', () => {
         upserted: specialValues.length,
         errors: [],
       });
+      vi.mocked(updateCache).mockResolvedValue(true);
 
       // Execute the task
       const result = await runTask(mockPayload);
@@ -542,8 +572,22 @@ describe('processSyncJob', () => {
 
     it('should filter out null and empty values from query results', async () => {
       // Setup mocks with mixed valid/invalid values
+      const mockStorageProvider = {
+        getFile: vi.fn(),
+        putFile: vi.fn(),
+        deleteFile: vi.fn(),
+        listFiles: vi.fn(),
+        upload: vi.fn(),
+        download: vi.fn(),
+        getSignedUrl: vi.fn(),
+        delete: vi.fn(),
+        exists: vi.fn(),
+        list: vi.fn(),
+      } as any;
+
       vi.mocked(getDataSourceCredentials).mockResolvedValue({ type: 'postgresql' });
       vi.mocked(createAdapter).mockResolvedValue(mockAdapter as any);
+      vi.mocked(getDefaultProvider).mockReturnValue(mockStorageProvider);
       mockAdapter.query.mockResolvedValue({
         rows: [
           { value: 'Valid Company' },
@@ -554,27 +598,11 @@ describe('processSyncJob', () => {
         ],
         fields: [],
       });
-      vi.mocked(generateNamespace).mockReturnValue('ds-456');
-      vi.mocked(queryExistingKeys).mockResolvedValue([]);
-      vi.mocked(deduplicateValues).mockResolvedValue({
-        newValues: [
-          {
-            database: 'test_db',
-            schema: 'public',
-            table: 'customers',
-            column: 'company_name',
-            value: 'Valid Company',
-          },
-          {
-            database: 'test_db',
-            schema: 'public',
-            table: 'customers',
-            column: 'company_name',
-            value: 'Another Valid',
-          },
-        ],
-        existingCount: 0,
-        newCount: 2,
+      vi.mocked(processWithCache).mockResolvedValue({
+        cacheHit: false,
+        existingValues: [],
+        newValues: ['Valid Company', 'Another Valid'],
+        totalValues: 2,
       });
       vi.mocked(generateSearchableValueEmbeddings).mockResolvedValue([
         [0.1, 0.2, 0.3],
@@ -585,6 +613,7 @@ describe('processSyncJob', () => {
         upserted: 2,
         errors: [],
       });
+      vi.mocked(updateCache).mockResolvedValue(true);
 
       // Execute the task
       const result = await runTask(mockPayload);
@@ -592,47 +621,46 @@ describe('processSyncJob', () => {
       // Verify only valid values were processed
       expect(result.success).toBe(true);
       expect(result.processedCount).toBe(2); // Only valid values
-      expect(deduplicateValues).toHaveBeenCalledWith({
-        existingKeys: [],
-        newValues: expect.arrayContaining([
-          expect.objectContaining({ value: 'Valid Company' }),
-          expect.objectContaining({ value: 'Another Valid' }),
-        ]),
-      });
+      expect(processWithCache).toHaveBeenCalledWith(
+        'ds-456',
+        'test_db',
+        'public',
+        'customers',
+        'company_name',
+        ['Valid Company', 'Another Valid'],
+        mockStorageProvider
+      );
     });
 
     it('should respect maxValues limit', async () => {
       // Setup payload with small limit
       const limitedPayload = { ...mockPayload, maxValues: 2 };
+      const mockStorageProvider = {
+        getFile: vi.fn(),
+        putFile: vi.fn(),
+        deleteFile: vi.fn(),
+        listFiles: vi.fn(),
+        upload: vi.fn(),
+        download: vi.fn(),
+        getSignedUrl: vi.fn(),
+        delete: vi.fn(),
+        exists: vi.fn(),
+        list: vi.fn(),
+      } as any;
 
       // Setup mocks
       vi.mocked(getDataSourceCredentials).mockResolvedValue({ type: 'postgresql' });
       vi.mocked(createAdapter).mockResolvedValue(mockAdapter as any);
+      vi.mocked(getDefaultProvider).mockReturnValue(mockStorageProvider);
       mockAdapter.query.mockResolvedValue({
         rows: [{ value: 'Company 1' }, { value: 'Company 2' }],
         fields: [],
       });
-      vi.mocked(generateNamespace).mockReturnValue('ds-456');
-      vi.mocked(queryExistingKeys).mockResolvedValue([]);
-      vi.mocked(deduplicateValues).mockResolvedValue({
-        newValues: [
-          {
-            database: 'test_db',
-            schema: 'public',
-            table: 'customers',
-            column: 'company_name',
-            value: 'Company 1',
-          },
-          {
-            database: 'test_db',
-            schema: 'public',
-            table: 'customers',
-            column: 'company_name',
-            value: 'Company 2',
-          },
-        ],
-        existingCount: 0,
-        newCount: 2,
+      vi.mocked(processWithCache).mockResolvedValue({
+        cacheHit: false,
+        existingValues: [],
+        newValues: ['Company 1', 'Company 2'],
+        totalValues: 2,
       });
       vi.mocked(generateSearchableValueEmbeddings).mockResolvedValue([
         [0.1, 0.2, 0.3],
@@ -643,6 +671,7 @@ describe('processSyncJob', () => {
         upserted: 2,
         errors: [],
       });
+      vi.mocked(updateCache).mockResolvedValue(true);
 
       // Execute the task
       const result = await runTask(limitedPayload);

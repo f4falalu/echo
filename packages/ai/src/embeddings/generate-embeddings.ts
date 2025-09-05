@@ -1,6 +1,6 @@
 /**
  * Functional embedding generation for searchable values
- * Uses openai/text-embedding-3-small model (1536 dimensions) via AI Gateway
+ * Uses openai/text-embedding-3-small model via AI Gateway
  */
 
 import { createGateway } from '@ai-sdk/gateway';
@@ -53,7 +53,6 @@ export const EMBEDDING_CONFIG = {
   MAX_RETRIES: 3,
   RATE_LIMIT_DELAY: 1000,
   MODEL: 'openai/text-embedding-3-small',
-  DIMENSIONS: 1536,
 } as const;
 
 // ============================================================================
@@ -120,6 +119,7 @@ const getEmbeddingModel = (modelName: string = EMBEDDING_CONFIG.MODEL): Embeddin
     ...(process.env.AI_GATEWAY_API_KEY && { apiKey: process.env.AI_GATEWAY_API_KEY }),
   });
   // Use the textEmbeddingModel method to create an embedding model
+
   return gateway.textEmbeddingModel(modelName);
 };
 
@@ -145,8 +145,18 @@ const generateBatchEmbeddingsWithRetry = async (
         values: batch,
       });
 
+      // Convert embeddings and log dimensions for debugging
+      const embeddingArrays = embeddings.map((e) => Array.from(e));
+
+      // Log the actual dimensions received
+      if (embeddingArrays.length > 0 && embeddingArrays[0]) {
+        console.info(
+          `[Embeddings] Generated embeddings with dimensions: ${embeddingArrays[0].length}`
+        );
+      }
+
       return {
-        embeddings: embeddings.map((e) => Array.from(e)),
+        embeddings: embeddingArrays,
         errors: [],
       };
     } catch (error) {
@@ -302,8 +312,14 @@ export const generateEmbeddingsWithDetails = async (
  */
 export const validateEmbeddingDimensions = (
   embeddings: number[][],
-  expectedDimensions: number = EMBEDDING_CONFIG.DIMENSIONS
+  expectedDimensions?: number
 ): boolean => {
+  if (!expectedDimensions) {
+    // If no expected dimensions, just check they all have the same dimensions
+    if (embeddings.length === 0) return true;
+    const firstLength = embeddings[0]?.length ?? 0;
+    return embeddings.every((embedding) => embedding.length === firstLength);
+  }
   return embeddings.every((embedding) => embedding.length === expectedDimensions);
 };
 

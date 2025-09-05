@@ -16,7 +16,7 @@ export const SyncJobPayloadSchema = z.object({
   tableName: z.string().min(1, 'Table name is required'),
   columnName: z.string().min(1, 'Column name is required'),
   columnType: z.string().optional(),
-  maxValues: z.number().int().min(1).max(10000).default(1000),
+  maxValues: z.number().int().min(1).optional(), // Optional - when not provided, sync all values
 });
 
 export type SyncJobPayload = z.infer<typeof SyncJobPayloadSchema>;

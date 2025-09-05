@@ -10,7 +10,7 @@ export const SearchableValueSchema = z.object({
   table: z.string().min(1),
   column: z.string().min(1),
   value: z.string().min(1),
-  embedding: z.array(z.number()).length(1536).optional(),
+  embedding: z.array(z.number()).optional(),
   synced_at: z.string().datetime().optional(),
 });
 
@@ -48,7 +48,7 @@ export type DeduplicationResult = z.infer<typeof DeduplicationResultSchema>;
  */
 export const TurbopufferDocumentSchema = z.object({
   id: z.string(),
-  vector: z.array(z.number()).length(1536),
+  vector: z.array(z.number()),
   attributes: z.object({
     database: z.string(),
     schema: z.string(),
@@ -194,34 +194,77 @@ export const SyncErrorSchema = z.object({
 export type SyncError = z.infer<typeof SyncErrorSchema>;
 
 /**
- * Create a unique key for deduplication
- * Format: "${database}:${schema}:${table}:${column}:${value}"
+ * Create a unique key for deduplication that fits within Turbopuffer's 64-byte limit
+ * Uses a hash of the value to ensure uniqueness while keeping metadata readable
+ * Format: "${db}:${schema}:${table}:${col}:${hash}"
  */
 export function createUniqueKey(
   value: SearchableValue | Omit<SearchableValue, 'embedding' | 'synced_at'>
 ): string {
-  return `${value.database}:${value.schema}:${value.table}:${value.column}:${value.value}`;
+  // Create a simple hash of the value for uniqueness
+  const valueHash = hashString(value.value);
+
+  // Truncate components if needed to fit within 64 bytes
+  // Reserve space for colons (4) and hash (8 chars)
+  const maxComponentLength = 12; // Conservative to ensure we stay under 64 bytes
+
+  const db = truncate(value.database, maxComponentLength);
+  const schema = truncate(value.schema, maxComponentLength);
+  const table = truncate(value.table, maxComponentLength);
+  const col = truncate(value.column, maxComponentLength);
+
+  // Format: db:schema:table:col:hash
+  return `${db}:${schema}:${table}:${col}:${valueHash}`;
+}
+
+/**
+ * Simple hash function to create a short, consistent hash
+ */
+function hashString(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  // Convert to base36 for shorter string and take first 8 chars
+  return Math.abs(hash).toString(36).substring(0, 8).padStart(8, '0');
+}
+
+/**
+ * Truncate string to max length, preserving start and end for readability
+ */
+function truncate(str: string, maxLength: number): string {
+  if (str.length <= maxLength) return str;
+
+  // For very short max lengths, just truncate
+  if (maxLength <= 3) return str.substring(0, maxLength);
+
+  // Otherwise, keep start and end with ellipsis in middle
+  const keepChars = Math.floor((maxLength - 2) / 2);
+  return `${str.substring(0, keepChars)}..${str.substring(str.length - keepChars)}`;
 }
 
 /**
  * Parse a unique key back into its components
+ * Note: The value will be a hash, not the original value
+ * This is primarily used for filtering and metadata, not for retrieving the original value
  */
 export function parseUniqueKey(key: string): Omit<SearchableValue, 'embedding' | 'synced_at'> {
   const parts = key.split(':');
-  if (parts.length < 5) {
+  if (parts.length !== 5) {
     throw new Error(`Invalid unique key format: ${key}`);
   }
 
-  // Handle case where value contains colons
-  const [database, schema, table, column, ...valueParts] = parts;
+  const [database, schema, table, column, valueHash] = parts;
 
-  if (!database || !schema || !table || !column) {
+  if (!database || !schema || !table || !column || !valueHash) {
     throw new Error(`Invalid unique key format: ${key}`);
   }
 
-  const value = valueParts.join(':');
-
-  return { database, schema, table, column, value };
+  // Note: We return the hash as the value since we can't reverse it
+  // The actual value is stored in the Turbopuffer attributes
+  return { database, schema, table, column, value: valueHash };
 }
 
 /**

@@ -42,7 +42,7 @@ describe('Searchable Values Types', () => {
         table: 'users',
         column: 'name',
         value: 'John Doe',
-        embedding: new Array(1536).fill(0.1),
+        embedding: new Array(512).fill(0.1),
         synced_at: '2024-01-01T00:00:00Z',
       };
 
@@ -50,18 +50,30 @@ describe('Searchable Values Types', () => {
       expect(result.success).toBe(true);
     });
 
-    it('should reject invalid embedding length', () => {
-      const invalidValue = {
+    it('should accept embeddings of any length', () => {
+      const value100 = {
         database: 'mydb',
         schema: 'public',
         table: 'users',
         column: 'name',
         value: 'John Doe',
-        embedding: new Array(100).fill(0.1), // Wrong length
+        embedding: new Array(100).fill(0.1), // 100 dimensions
       };
 
-      const result = SearchableValueSchema.safeParse(invalidValue);
-      expect(result.success).toBe(false);
+      const value1536 = {
+        database: 'mydb',
+        schema: 'public',
+        table: 'users',
+        column: 'name',
+        value: 'John Doe',
+        embedding: new Array(1536).fill(0.1), // 1536 dimensions (default for text-embedding-3-small)
+      };
+
+      const result100 = SearchableValueSchema.safeParse(value100);
+      const result1536 = SearchableValueSchema.safeParse(value1536);
+
+      expect(result100.success).toBe(true);
+      expect(result1536.success).toBe(true);
     });
 
     it('should reject empty required fields', () => {
@@ -178,7 +190,7 @@ describe('Searchable Values Types', () => {
 
   describe('Utility Functions', () => {
     describe('createUniqueKey', () => {
-      it('should create a proper unique key', () => {
+      it('should create a hashed key under 64 bytes', () => {
         const value = {
           database: 'mydb',
           schema: 'public',
@@ -188,10 +200,70 @@ describe('Searchable Values Types', () => {
         };
 
         const key = createUniqueKey(value);
-        expect(key).toBe('mydb:public:users:name:John Doe');
+        // Key should be in format: db:schema:table:col:hash
+        expect(key).toMatch(/^[^:]+:[^:]+:[^:]+:[^:]+:[a-z0-9]{8}$/);
+        // Must be under 64 bytes
+        expect(key.length).toBeLessThanOrEqual(64);
       });
 
-      it('should handle values with colons', () => {
+      it('should stay under 64 bytes even with long names', () => {
+        const value = {
+          database: 'postgres',
+          schema: 'ont_ont',
+          table: 'customer',
+          column: 'filter_technical_knowledge',
+          value: 'Intermediate',
+        };
+
+        const key = createUniqueKey(value);
+        // This was the problematic case that was 65 bytes
+        expect(key.length).toBeLessThanOrEqual(64);
+        expect(key).toMatch(/^[^:]+:[^:]+:[^:]+:[^:]+:[a-z0-9]{8}$/);
+      });
+
+      it('should truncate very long component names', () => {
+        const value = {
+          database: 'very_long_database_name_that_exceeds_limits',
+          schema: 'extremely_long_schema_name_with_many_characters',
+          table: 'super_duper_long_table_name_here',
+          column: 'this_is_a_very_long_column_name_that_should_be_truncated',
+          value: 'Some value with a long description here',
+        };
+
+        const key = createUniqueKey(value);
+        expect(key.length).toBeLessThanOrEqual(64);
+        // Should contain truncation indicators
+        expect(key).toContain('..');
+      });
+
+      it('should generate different hashes for different values', () => {
+        const value1 = {
+          database: 'db',
+          schema: 'schema',
+          table: 'table',
+          column: 'col',
+          value: 'Value 1',
+        };
+
+        const value2 = {
+          database: 'db',
+          schema: 'schema',
+          table: 'table',
+          column: 'col',
+          value: 'Value 2',
+        };
+
+        const key1 = createUniqueKey(value1);
+        const key2 = createUniqueKey(value2);
+
+        // Same metadata but different values should produce different keys
+        expect(key1).not.toBe(key2);
+        // Both should be valid and under limit
+        expect(key1.length).toBeLessThanOrEqual(64);
+        expect(key2.length).toBeLessThanOrEqual(64);
+      });
+
+      it('should handle values with colons by hashing', () => {
         const value = {
           database: 'mydb',
           schema: 'public',
@@ -201,13 +273,15 @@ describe('Searchable Values Types', () => {
         };
 
         const key = createUniqueKey(value);
-        expect(key).toBe('mydb:public:users:url:https://example.com:8080/path');
+        // Should create a hashed key, not include the actual value
+        expect(key).toMatch(/^mydb:public:users:url:[a-z0-9]{8}$/);
+        expect(key.length).toBeLessThanOrEqual(64);
       });
     });
 
     describe('parseUniqueKey', () => {
-      it('should parse a simple unique key', () => {
-        const key = 'mydb:public:users:name:John Doe';
+      it('should parse a hashed unique key', () => {
+        const key = 'mydb:public:users:name:abc12345';
         const parsed = parseUniqueKey(key);
 
         expect(parsed).toEqual({
@@ -215,26 +289,29 @@ describe('Searchable Values Types', () => {
           schema: 'public',
           table: 'users',
           column: 'name',
-          value: 'John Doe',
+          value: 'abc12345', // This is the hash, not the original value
         });
       });
 
-      it('should handle values with colons', () => {
-        const key = 'mydb:public:users:url:https://example.com:8080/path';
+      it('should parse keys with truncated components', () => {
+        const key = 'very..name:extr..ters:supe..here:this..ated:12345678';
         const parsed = parseUniqueKey(key);
 
         expect(parsed).toEqual({
-          database: 'mydb',
-          schema: 'public',
-          table: 'users',
-          column: 'url',
-          value: 'https://example.com:8080/path',
+          database: 'very..name',
+          schema: 'extr..ters',
+          table: 'supe..here',
+          column: 'this..ated',
+          value: '12345678',
         });
       });
 
       it('should throw on invalid key format', () => {
         expect(() => parseUniqueKey('invalid')).toThrow('Invalid unique key format');
         expect(() => parseUniqueKey('only:three:parts')).toThrow('Invalid unique key format');
+        expect(() => parseUniqueKey('too:many:parts:here:is:extra')).toThrow(
+          'Invalid unique key format'
+        );
       });
     });
 

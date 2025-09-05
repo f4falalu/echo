@@ -91,7 +91,7 @@ export const syncSearchableValues = schedules.task({
                 schemaName: job.schemaName,
                 tableName: job.tableName,
                 columnName: job.columnName,
-                maxValues: 1000,
+                // No limit on values - process all distinct values
               };
 
               // Trigger the sync job without waiting

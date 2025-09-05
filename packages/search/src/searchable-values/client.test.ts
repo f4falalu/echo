@@ -140,8 +140,9 @@ describe('Turbopuffer Client', () => {
       const keys = await queryExistingKeys({ dataSourceId: mockDataSourceId, query });
 
       expect(keys).toHaveLength(2);
-      expect(keys[0]).toBe('db1:public:users:name:John');
-      expect(keys[1]).toBe('db1:public:users:email:john@example.com');
+      // Keys now use hashes of the values, not the actual values
+      expect(keys[0]).toMatch(/^db1:public:users:name:[a-z0-9]{8}$/);
+      expect(keys[1]).toMatch(/^db1:public:users:email:[a-z0-9]{8}$/);
 
       expect(mockNamespace.query).toHaveBeenCalledWith({
         top_k: 1200,
@@ -219,7 +220,7 @@ describe('Turbopuffer Client', () => {
           table: 'users',
           column: 'name',
           value: 'John',
-          embedding: new Array(1536).fill(0.1),
+          embedding: new Array(512).fill(0.1),
         },
         {
           database: 'db1',
@@ -227,7 +228,7 @@ describe('Turbopuffer Client', () => {
           table: 'users',
           column: 'email',
           value: 'john@example.com',
-          embedding: new Array(1536).fill(0.2),
+          embedding: new Array(512).fill(0.2),
         },
       ];
 
@@ -238,19 +239,36 @@ describe('Turbopuffer Client', () => {
       expect(result.errors).toBeUndefined();
 
       expect(mockNamespace.write).toHaveBeenCalledTimes(1);
-      expect(mockNamespace.write).toHaveBeenCalledWith({
+      const callArgs = mockNamespace.write.mock.calls[0][0];
+      expect(callArgs).toMatchObject({
         upsert_columns: {
-          id: ['db1:public:users:name:John', 'db1:public:users:email:john@example.com'],
-          vector: expect.any(Array),
+          // id array should have hashed values, not original values
           database: ['db1', 'db1'],
           schema: ['public', 'public'],
           table: ['users', 'users'],
           column: ['name', 'email'],
           value: ['John', 'john@example.com'],
-          synced_at: expect.arrayContaining([expect.any(String)]),
         },
         distance_metric: 'cosine_distance',
+        schema: {
+          value: { type: 'string', full_text_search: true },
+          database: { type: 'string' },
+          schema: { type: 'string' },
+          table: { type: 'string' },
+          column: { type: 'string' },
+          synced_at: { type: 'string' },
+        },
       });
+      // Check ID field with hashed values
+      expect(callArgs.upsert_columns.id).toHaveLength(2);
+      expect(callArgs.upsert_columns.id[0]).toMatch(/^db1:public:users:name:[a-z0-9]{8}$/);
+      expect(callArgs.upsert_columns.id[1]).toMatch(/^db1:public:users:email:[a-z0-9]{8}$/);
+      // Check vector field separately
+      expect(callArgs.upsert_columns.vector).toHaveLength(2);
+      expect(callArgs.upsert_columns.vector[0]).toHaveLength(512);
+      expect(callArgs.upsert_columns.vector[1]).toHaveLength(512);
+      // Check synced_at separately
+      expect(callArgs.upsert_columns.synced_at).toHaveLength(2);
     });
 
     it('should handle empty values array', async () => {
@@ -304,7 +322,7 @@ describe('Turbopuffer Client', () => {
         table: 'users',
         column: 'name',
         value: `User${i}`,
-        embedding: new Array(1536).fill(0.1),
+        embedding: new Array(512).fill(0.1),
       }));
 
       const result = await upsertSearchableValues({ dataSourceId: mockDataSourceId, values });
@@ -333,7 +351,7 @@ describe('Turbopuffer Client', () => {
         table: 'users',
         column: 'name',
         value: `User${i}`,
-        embedding: new Array(1536).fill(0.1),
+        embedding: new Array(512).fill(0.1),
       }));
 
       const result = await upsertSearchableValues({ dataSourceId: mockDataSourceId, values });
@@ -513,7 +531,7 @@ describe('Turbopuffer Client', () => {
           table: 'users',
           column: 'name',
           value: 'John',
-          embedding: new Array(1536).fill(0.1),
+          embedding: new Array(512).fill(0.1),
         },
       ];
 
