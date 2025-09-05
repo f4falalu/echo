@@ -42,10 +42,10 @@
     "production": {
       "name": "web-production",
       "routes": [
-        {
-          "pattern": "app.buster.so",
-          "custom_domain": true
-        }
+        // {
+        //   "pattern": "app.buster.so",
+        //   "custom_domain": true
+        // }
       ],
       "vars": {
         // Production-specific variables can be set here
