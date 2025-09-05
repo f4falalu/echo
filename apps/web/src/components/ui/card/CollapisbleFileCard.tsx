@@ -21,255 +21,251 @@ interface CollapisbleFileCardProps {
 
 const MIN_COLLAPSIBLE_HEIGHT = 150;
 
-export const CollapisbleFileCard = React.memo(
-  ({
-    fileName,
-    className,
-    children,
-    collapsible,
-    icon,
-    collapseContent = true,
-    headerClassName,
-    collapseDefaultIcon,
-    bodyClassName,
-    headerWrapper,
-    selected,
-    onCollapse,
-  }: CollapisbleFileCardProps) => {
-    const [isCollapsed, setIsCollapsed] = useState(collapseContent);
-    const [isHeaderHovered, setIsHeaderHovered] = useState(false);
-    const lastClickTime = useRef<number>(0);
+export const CollapisbleFileCard = ({
+  fileName,
+  className,
+  children,
+  collapsible,
+  icon,
+  collapseContent = true,
+  headerClassName,
+  collapseDefaultIcon,
+  bodyClassName,
+  headerWrapper,
+  selected,
+  onCollapse,
+}: CollapisbleFileCardProps) => {
+  const [isCollapsed, setIsCollapsed] = useState(collapseContent);
+  const [isHeaderHovered, setIsHeaderHovered] = useState(false);
+  const lastClickTime = useRef<number>(0);
 
-    const isChevronCollapsible = collapsible === 'chevron' && !!children;
-    const showHeader = !!fileName || collapsible;
+  const isChevronCollapsible = collapsible === 'chevron' && !!children;
+  const showHeader = !!fileName || collapsible;
 
-    // Memoize the collapse click handler to avoid unnecessary re-renders and stale closures
-    const handleCollapseClick = React.useMemo(
-      () => (e: React.MouseEvent<HTMLDivElement>) => {
-        if (!collapsible) return;
+  // Memoize the collapse click handler to avoid unnecessary re-renders and stale closures
+  const handleCollapseClick = React.useMemo(
+    () => (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!collapsible) return;
 
-        e.preventDefault();
-        e.stopPropagation();
+      e.preventDefault();
+      e.stopPropagation();
 
-        const now = Date.now();
-        if (now - lastClickTime.current < 50) {
-          return;
-        }
-        lastClickTime.current = now;
-
-        const newCollapsedState = !isCollapsed;
-        setIsCollapsed(newCollapsedState);
-        onCollapse?.(newCollapsedState);
-      },
-      [collapsible, isCollapsed, onCollapse]
-    );
-
-    const handleHeaderMouseEnter = () => {
-      if (collapsible) {
-        setIsHeaderHovered(true);
+      const now = Date.now();
+      if (now - lastClickTime.current < 50) {
+        return;
       }
-    };
+      lastClickTime.current = now;
 
-    const handleHeaderMouseLeave = () => {
-      if (collapsible) {
-        setIsHeaderHovered(false);
-      }
-    };
+      const newCollapsedState = !isCollapsed;
+      setIsCollapsed(newCollapsedState);
+      onCollapse?.(newCollapsedState);
+    },
+    [collapsible, isCollapsed, onCollapse]
+  );
 
-    const HeaderWrapperComponent = headerWrapper || React.Fragment;
+  const handleHeaderMouseEnter = () => {
+    if (collapsible) {
+      setIsHeaderHovered(true);
+    }
+  };
 
-    const Content = children && (
-      <div className={cn('bg-background relative h-full overflow-hidden p-0', bodyClassName)}>
-        {children}
-      </div>
-    );
+  const handleHeaderMouseLeave = () => {
+    if (collapsible) {
+      setIsHeaderHovered(false);
+    }
+  };
 
-    return (
-      <div
-        className={cn(
-          'bg-background text-foreground border-border overflow-hidden rounded border shadow transition',
-          !selected ? 'hover:border-gray-light' : 'border-foreground shadow-md',
-          className
-        )}
-      >
-        {showHeader && (
-          <HeaderWrapperComponent>
-            <div
-              className={cn(
-                //Blake was insisting on 11px padding... not the standard 12px
-                'item-center flex h-8 w-full border-b px-[11px] py-1 transition-all duration-200',
-                isChevronCollapsible && 'cursor-pointer select-none',
-                ((isChevronCollapsible && isCollapsed) || !children) && 'border-b-transparent',
-                headerClassName
-              )}
-              onMouseEnter={handleHeaderMouseEnter}
-              onMouseLeave={handleHeaderMouseLeave}
-            >
-              <div className="flex w-full items-center gap-x-1.5 overflow-hidden whitespace-nowrap">
-                {isChevronCollapsible && (
-                  <CollapseToggleIcon
-                    isCollapsed={isCollapsed}
-                    isHovered={isHeaderHovered}
-                    collapseDefaultIcon={collapseDefaultIcon}
-                    onClick={handleCollapseClick}
-                  />
-                )}
-                {icon}
-                {typeof fileName === 'string' ? <Text truncate>{fileName}</Text> : fileName}
-              </div>
-            </div>
-          </HeaderWrapperComponent>
-        )}
+  const HeaderWrapperComponent = headerWrapper || React.Fragment;
 
-        {collapsible && Content ? (
-          <CollapseContent
-            collapsible={collapsible}
-            isCollapsed={isCollapsed}
-            onCollapseClick={handleCollapseClick}
+  const Content = children && (
+    <div className={cn('bg-background relative h-full overflow-hidden p-0', bodyClassName)}>
+      {children}
+    </div>
+  );
+
+  return (
+    <div
+      className={cn(
+        'bg-background text-foreground border-border overflow-hidden rounded border shadow transition',
+        !selected ? 'hover:border-gray-light' : 'border-foreground shadow-md',
+        className
+      )}
+    >
+      {showHeader && (
+        <HeaderWrapperComponent>
+          <div
+            className={cn(
+              //Blake was insisting on 11px padding... not the standard 12px
+              'item-center flex h-8 w-full border-b px-[11px] py-1 transition-all duration-200',
+              isChevronCollapsible && 'cursor-pointer select-none',
+              ((isChevronCollapsible && isCollapsed) || !children) && 'border-b-transparent',
+              headerClassName
+            )}
+            onMouseEnter={handleHeaderMouseEnter}
+            onMouseLeave={handleHeaderMouseLeave}
           >
-            {Content}
-          </CollapseContent>
-        ) : (
-          Content
-        )}
-      </div>
-    );
-  }
-);
+            <div className="flex w-full items-center gap-x-1.5 overflow-hidden whitespace-nowrap">
+              {isChevronCollapsible && (
+                <CollapseToggleIcon
+                  isCollapsed={isCollapsed}
+                  isHovered={isHeaderHovered}
+                  collapseDefaultIcon={collapseDefaultIcon}
+                  onClick={handleCollapseClick}
+                />
+              )}
+              {icon}
+              {typeof fileName === 'string' ? <Text truncate>{fileName}</Text> : fileName}
+            </div>
+          </div>
+        </HeaderWrapperComponent>
+      )}
+
+      {collapsible && Content ? (
+        <CollapseContent
+          collapsible={collapsible}
+          isCollapsed={isCollapsed}
+          onCollapseClick={handleCollapseClick}
+        >
+          {Content}
+        </CollapseContent>
+      ) : (
+        Content
+      )}
+    </div>
+  );
+};
 
 CollapisbleFileCard.displayName = 'CollapisbleFileCard';
 
-const CollapseContent = React.memo(
-  ({
-    children,
-    isCollapsed,
-    collapsible,
-    onCollapseClick,
-  }: {
-    children: React.ReactNode;
-    isCollapsed: boolean;
-    collapsible: NonNullable<CollapisbleFileCardProps['collapsible']>;
-    onCollapseClick: (e: React.MouseEvent<HTMLDivElement>) => void;
-  }) => {
-    const contentRef = useRef<HTMLDivElement>(null);
-    const [fullHeight, setFullHeight] = useState<number | null>(null);
-    const [isInitialMount, setIsInitialMount] = useState(true);
+const CollapseContent = ({
+  children,
+  isCollapsed,
+  collapsible,
+  onCollapseClick,
+}: {
+  children: React.ReactNode;
+  isCollapsed: boolean;
+  collapsible: NonNullable<CollapisbleFileCardProps['collapsible']>;
+  onCollapseClick: (e: React.MouseEvent<HTMLDivElement>) => void;
+}) => {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [fullHeight, setFullHeight] = useState<number | null>(null);
+  const [isInitialMount, setIsInitialMount] = useState(true);
 
-    const collapsedHeight = useMemo(() => {
-      if (!fullHeight) return 32; // fallback
-      const sixtyFivePercent = Math.floor(fullHeight * 0.65);
-      return Math.min(sixtyFivePercent, 200);
-    }, [fullHeight]);
+  const collapsedHeight = useMemo(() => {
+    if (!fullHeight) return 32; // fallback
+    const sixtyFivePercent = Math.floor(fullHeight * 0.65);
+    return Math.min(sixtyFivePercent, 200);
+  }, [fullHeight]);
 
-    // Check if content is too small to warrant collapsing (for overlay-peek only)
-    const isTooSmallToCollapse = useMemo(() => {
-      return (
-        collapsible === 'overlay-peek' && fullHeight !== null && fullHeight < MIN_COLLAPSIBLE_HEIGHT
-      );
-    }, [collapsible, fullHeight]);
-
-    // Measure content height when it changes
-    useEffect(() => {
-      if (collapsible === 'overlay-peek' && contentRef.current) {
-        const resizeObserver = new ResizeObserver(() => {
-          if (contentRef.current) {
-            setFullHeight(contentRef.current.scrollHeight);
-          }
-        });
-
-        resizeObserver.observe(contentRef.current);
-        // Initial measurement
-        setFullHeight(contentRef.current.scrollHeight);
-
-        if (isInitialMount) {
-          setTimeout(() => {
-            setIsInitialMount(false);
-          }, 220);
-        }
-
-        return () => resizeObserver.disconnect();
-      }
-    }, [collapsible, children]);
-
-    const ExpandButton = useMemo(() => {
-      return collapsible === 'overlay-peek' && !isTooSmallToCollapse ? (
-        <div
-          onClick={onCollapseClick}
-          className="bg-background hover:bg-item-hover absolute inset-x-0 bottom-0 m-1 flex h-7 scale-95 cursor-pointer items-center justify-center gap-x-1 rounded border bg-gradient-to-b opacity-0 shadow transition-all delay-75 duration-200 group-hover:scale-100 group-hover:opacity-100"
-        >
-          <div>{isCollapsed ? <ChevronExpandY /> : <ChevronReduceY />}</div>
-          <Text>{isCollapsed ? 'Click to expand' : 'Click to collapse'}</Text>
-        </div>
-      ) : null;
-    }, [collapsible, isCollapsed, onCollapseClick, isTooSmallToCollapse]);
-
-    const ContentWrapper = useMemo(
-      () => (
-        <div ref={contentRef} className="w-full">
-          {children}
-        </div>
-      ),
-      [children]
+  // Check if content is too small to warrant collapsing (for overlay-peek only)
+  const isTooSmallToCollapse = useMemo(() => {
+    return (
+      collapsible === 'overlay-peek' && fullHeight !== null && fullHeight < MIN_COLLAPSIBLE_HEIGHT
     );
+  }, [collapsible, fullHeight]);
 
-    // Handle overlay-peek differently
-    if (collapsible === 'overlay-peek') {
-      // If content is too small, just render it without collapse functionality
-      if (isTooSmallToCollapse) {
-        return <div className="relative overflow-hidden">{ContentWrapper}</div>;
+  // Measure content height when it changes
+  useEffect(() => {
+    if (collapsible === 'overlay-peek' && contentRef.current) {
+      const resizeObserver = new ResizeObserver(() => {
+        if (contentRef.current) {
+          setFullHeight(contentRef.current.scrollHeight);
+        }
+      });
+
+      resizeObserver.observe(contentRef.current);
+      // Initial measurement
+      setFullHeight(contentRef.current.scrollHeight);
+
+      if (isInitialMount) {
+        setTimeout(() => {
+          setIsInitialMount(false);
+        }, 220);
       }
 
-      // Normal overlay-peek behavior for larger content
-      return (
-        <AnimatePresence initial={false}>
-          <motion.div
-            className="group relative overflow-hidden"
-            initial={{
-              height: isCollapsed ? collapsedHeight : 'auto',
-              filter: 'blur(0px)',
-            }}
-            animate={{
-              height: isCollapsed ? collapsedHeight : 'auto',
-              filter: 'blur(0px)',
-            }}
-            transition={{
-              duration: isInitialMount ? 0 : 0.25,
-              ease: 'easeInOut',
-              filter: {
-                duration: 0.15,
-              },
-            }}
-            data-testid="collapse-content"
-          >
-            {ContentWrapper}
-            {ExpandButton}
-          </motion.div>
-        </AnimatePresence>
-      );
+      return () => resizeObserver.disconnect();
+    }
+  }, [collapsible, children]);
+
+  const ExpandButton = useMemo(() => {
+    return collapsible === 'overlay-peek' && !isTooSmallToCollapse ? (
+      <div
+        onClick={onCollapseClick}
+        className="bg-background hover:bg-item-hover absolute inset-x-0 bottom-0 m-1 flex h-7 scale-95 cursor-pointer items-center justify-center gap-x-1 rounded border bg-gradient-to-b opacity-0 shadow transition-all delay-75 duration-200 group-hover:scale-100 group-hover:opacity-100"
+      >
+        <div>{isCollapsed ? <ChevronExpandY /> : <ChevronReduceY />}</div>
+        <Text>{isCollapsed ? 'Click to expand' : 'Click to collapse'}</Text>
+      </div>
+    ) : null;
+  }, [collapsible, isCollapsed, onCollapseClick, isTooSmallToCollapse]);
+
+  const ContentWrapper = useMemo(
+    () => (
+      <div ref={contentRef} className="w-full">
+        {children}
+      </div>
+    ),
+    [children]
+  );
+
+  // Handle overlay-peek differently
+  if (collapsible === 'overlay-peek') {
+    // If content is too small, just render it without collapse functionality
+    if (isTooSmallToCollapse) {
+      return <div className="relative overflow-hidden">{ContentWrapper}</div>;
     }
 
-    // Handle chevron collapse
+    // Normal overlay-peek behavior for larger content
     return (
       <AnimatePresence initial={false}>
-        {!isCollapsed && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{
-              duration: 0.2,
-              ease: 'easeInOut',
-            }}
-            className="group relative overflow-hidden"
-            data-testid="collapse-content"
-          >
-            {children}
-          </motion.div>
-        )}
+        <motion.div
+          className="group relative overflow-hidden"
+          initial={{
+            height: isCollapsed ? collapsedHeight : 'auto',
+            filter: 'blur(0px)',
+          }}
+          animate={{
+            height: isCollapsed ? collapsedHeight : 'auto',
+            filter: 'blur(0px)',
+          }}
+          transition={{
+            duration: isInitialMount ? 0 : 0.25,
+            ease: 'easeInOut',
+            filter: {
+              duration: 0.15,
+            },
+          }}
+          data-testid="collapse-content"
+        >
+          {ContentWrapper}
+          {ExpandButton}
+        </motion.div>
       </AnimatePresence>
     );
   }
-);
+
+  // Handle chevron collapse
+  return (
+    <AnimatePresence initial={false}>
+      {!isCollapsed && (
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{
+            duration: 0.2,
+            ease: 'easeInOut',
+          }}
+          className="group relative overflow-hidden"
+          data-testid="collapse-content"
+        >
+          {children}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
 
 CollapseContent.displayName = 'CollapseContent';
 

@@ -1,5 +1,5 @@
 import { type ChartType, DEFAULT_CHART_CONFIG } from '@buster/server-shared/metrics';
-import { Link, type LinkProps, type RegisteredRouter } from '@tanstack/react-router';
+import { Link, type RegisteredRouter } from '@tanstack/react-router';
 import { AnimatePresence, type MotionProps, motion } from 'framer-motion';
 import React, { useMemo } from 'react';
 import type { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat/chatMessageInterfaces';
@@ -19,7 +19,6 @@ import { useGetDashboardParams } from '@/context/Dashboards/useGetDashboardParam
 import { useGetMetricParams } from '@/context/Metrics/useGetMetricParams';
 import { getSelectedChartTypeConfig } from '@/lib/metrics/selectedChartType';
 import type { ILinkProps } from '@/types/routes';
-import { defineLink } from '../../../../../lib/routes';
 
 const itemAnimationConfig: MotionProps = {
   initial: { opacity: 0 },
@@ -49,21 +48,6 @@ export const ChatResponseMessage_DashboardFile: React.FC<{
   );
 
   const hasMetrics = Object.keys(dashboardResponse?.metrics || {}).length > 0;
-
-  const HeaderWrapper = useMemo(() => {
-    if (metricId) {
-      return React.Fragment;
-    }
-
-    // biome-ignore lint/correctness/noNestedComponentDefinitions: just easier
-    const Component = ({ children }: { children: React.ReactNode }) => (
-      <Link {...linkParams} preload="viewport">
-        {children}
-      </Link>
-    );
-    Component.displayName = 'HeaderWrapper';
-    return Component;
-  }, [linkParams, metricId]);
 
   const FileInfo = useMemo(() => {
     if (metricId) {
@@ -95,7 +79,7 @@ export const ChatResponseMessage_DashboardFile: React.FC<{
           selected={isSelectedFile}
           collapseDefaultIcon={<HeaderIcon isLoading={isLoading} isError={isError} />}
           fileName={FileInfo}
-          headerWrapper={HeaderWrapper}
+          headerWrapper={LinkHeaderWrapper({ linkProps: linkParams, metricId })}
         >
           {!hasMetrics ? null : dashboardResponse ? (
             <Content
@@ -283,3 +267,22 @@ const SelectDashboardButtonAndText: React.FC<{
 });
 
 SelectDashboardButtonAndText.displayName = 'SelectDashboardButtonAndText';
+
+const LinkHeaderWrapper = ({
+  linkProps,
+  metricId,
+}: {
+  linkProps: ILinkProps;
+  metricId: string | undefined;
+}): React.ComponentType<{ children: React.ReactNode }> => {
+  if (!metricId) {
+    return ({ children }: { children: React.ReactNode }) => children;
+  }
+
+  return ({ children }: { children: React.ReactNode }) => (
+    <Link {...linkProps}>
+      {/** biome-ignore lint/complexity/noUselessFragments: weird error */}
+      <>{children}</>
+    </Link>
+  );
+};
