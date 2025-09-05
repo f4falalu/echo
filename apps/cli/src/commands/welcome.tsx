@@ -1,5 +1,5 @@
 import { Box, Text, useApp } from 'ink';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { AnimatedLogo } from '../components/animated-logo.js';
 
 export function Welcome() {

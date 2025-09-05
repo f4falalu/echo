@@ -4,7 +4,7 @@ import { createBusterSDK } from '@buster/sdk';
 import { Box, Text, useApp, useInput } from 'ink';
 import Spinner from 'ink-spinner';
 import TextInput from 'ink-text-input';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BusterBanner } from '../components/banner.js';
 import { type Credentials, getCredentials, saveCredentials } from '../utils/credentials.js';
 

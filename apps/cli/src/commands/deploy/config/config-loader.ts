@@ -1,12 +1,11 @@
 import { existsSync } from 'node:fs';
 import { readdir, readFile, stat } from 'node:fs/promises';
-import { join, relative, resolve } from 'node:path';
+import { join, resolve } from 'node:path';
 import yaml from 'js-yaml';
 import {
   type BusterConfig,
   BusterConfigSchema,
   type DeployOptions,
-  type ProjectContext,
   type ResolvedConfig,
   ResolvedConfigSchema,
 } from '../schemas';

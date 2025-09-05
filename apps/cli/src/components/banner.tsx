@@ -1,6 +1,5 @@
 import { Box, Text } from 'ink';
 import BigText from 'ink-big-text';
-import React from 'react';
 
 interface BannerProps {
   showSubtitle?: boolean;

@@ -24,6 +24,12 @@ catalog:
   lodash-es: ^4.17.21
   hono: ^4.9.6
   pg: ^8.16.3
+  react: ^19.1.1
+  react-dom: ^19.1.1
+  '@types/react': ^19.1.12
+  '@types/react-dom': ^19.1.9
+  '@types/js-yaml': ^4.0.9
+  js-yaml: ^4.1.0
   tsup: ^8.5.0
   tsx: ^4.20.5
   uuid: ^11.1.0

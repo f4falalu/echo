@@ -1,7 +1,6 @@
 import { relative, resolve } from 'node:path';
 import { getConfigBaseDir, loadBusterConfig, resolveConfiguration } from './config/config-loader';
 import {
-  createParseFailures,
   formatDeploymentSummary,
   mergeDeploymentResults,
   processDeploymentResponse,

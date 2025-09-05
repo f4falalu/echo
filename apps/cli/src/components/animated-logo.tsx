@@ -1,5 +1,5 @@
 import { Box, Text } from 'ink';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 // ASCII art for the Buster "b" logo - compact version
 const BUSTER_LOGO_FRAMES = [

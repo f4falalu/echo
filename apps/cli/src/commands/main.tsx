@@ -2,14 +2,9 @@ import { createBusterSDK } from '@buster/sdk';
 import { Box, render, Text, useApp, useInput } from 'ink';
 import Spinner from 'ink-spinner';
 import TextInput from 'ink-text-input';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BusterBanner } from '../components/banner.js';
-import {
-  type Credentials,
-  getCredentials,
-  hasCredentials,
-  saveCredentials,
-} from '../utils/credentials.js';
+import { type Credentials, getCredentials, saveCredentials } from '../utils/credentials.js';
 import { DeployCommand } from './deploy/deploy.js';
 import { DeployOptionsSchema } from './deploy/schemas.js';
 import { InitCommand } from './init.js';

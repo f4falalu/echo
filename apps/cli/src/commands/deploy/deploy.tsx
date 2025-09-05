@@ -1,5 +1,5 @@
 import { Box, Text } from 'ink';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BusterBanner } from '../../components/banner';
 import { Spinner } from '../../components/spinner';
 import { DeployProgress } from './components/deploy-progress';
