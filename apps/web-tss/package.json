@@ -4,9 +4,7 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "prebuild": "[ \"$SKIP_ENV_CHECK\" = \"true\" ] || (tsx scripts/validate-env.ts && pnpm run typecheck)",
     "build": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build -- --typecheck",
-    "build:fix": "pnpm build:no-typecheck && pnpm run build:fix-react-symlink",
     "build:local": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build -- --typecheck --local",
     "build:no-typecheck": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build",
     "build-storybook": "storybook build",
