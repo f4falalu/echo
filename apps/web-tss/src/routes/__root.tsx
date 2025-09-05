@@ -1,9 +1,9 @@
 import { createRootRouteWithContext, HeadContent, Link, Scripts } from '@tanstack/react-router';
 import { RootProviders } from '@/context/Providers';
-import { getBrowserClient } from '@/integrations/supabase/client';
 import shareImage from '../assets/png/default_preview.png';
 import favicon from '../assets/png/favicon.ico';
 import { TanstackDevtools } from '../integrations/tanstack-dev-tools/tanstack-devtools';
+import { createSecurityHeaders } from '../middleware/csp-helper';
 import type { AppRouterContext } from '../router';
 import appCss from '../styles/styles.css?url';
 
@@ -29,6 +29,10 @@ export const Route = createRootRouteWithContext<AppRouterContext>()({
       { rel: 'manifest', href: '/manifest.json' },
     ],
   }),
+  headers: ({ matches }) => {
+    const isEmbed = matches.some((match) => match.pathname.startsWith('/embed/'));
+    return createSecurityHeaders(isEmbed);
+  },
   staleTime: 30 * 60 * 1000,
   shellComponent: RootDocument,
 });

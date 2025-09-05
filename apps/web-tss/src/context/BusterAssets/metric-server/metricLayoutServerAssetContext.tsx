@@ -26,10 +26,10 @@ export const loader = async <T extends { metricId: string }>({
 }): Promise<{
   title: string | undefined;
 }> => {
-  const data = await prefetchGetMetric(
-    { id: metricId, version_number: metric_version_number },
-    queryClient
-  );
+  const data = await prefetchGetMetric(queryClient, {
+    id: metricId,
+    version_number: metric_version_number,
+  });
   return {
     title: data?.name,
   };

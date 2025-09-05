@@ -23,7 +23,11 @@ export const loader = async ({
   deps: { dashboard_version_number?: number };
   context: { queryClient: QueryClient };
 }): Promise<{ title: string | undefined }> => {
-  const data = await prefetchGetDashboard(dashboardId, dashboard_version_number, queryClient);
+  const data = await prefetchGetDashboard({
+    queryClient,
+    id: dashboardId,
+    version_number: dashboard_version_number,
+  });
   return {
     title: data?.dashboard?.name,
   };

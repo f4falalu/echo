@@ -130,11 +130,11 @@ export const prefetchGetDashboardsList = async (
   return queryClient;
 };
 
-export const prefetchGetDashboard = async (
-  id: string,
-  version_number: number | undefined,
-  queryClient: QueryClient
-) => {
+export const prefetchGetDashboard = async ({
+  queryClient,
+  id,
+  version_number,
+}: Parameters<typeof getDashboardAndInitializeMetrics>[0]) => {
   const chosenVersionNumber = version_number || 'LATEST';
   const queryFn = async () =>
     getDashboardAndInitializeMetrics({

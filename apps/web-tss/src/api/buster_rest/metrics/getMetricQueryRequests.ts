@@ -107,14 +107,14 @@ export const usePrefetchGetMetricClient = () => {
   const queryClient = useQueryClient();
   return useMemoizedFn(
     async ({ id, versionNumber }: { id: string; versionNumber: number | undefined }) => {
-      return prefetchGetMetric({ id, version_number: versionNumber }, queryClient);
+      return prefetchGetMetric(queryClient, { id, version_number: versionNumber });
     }
   );
 };
 
 export const prefetchGetMetric = async (
-  params: Parameters<typeof getMetric>[0],
-  queryClient: QueryClient
+  queryClient: QueryClient,
+  params: Parameters<typeof getMetric>[0]
 ): Promise<BusterMetric | undefined> => {
   const { id, version_number } = params;
   const queryKey = metricsQueryKeys.metricsGetMetric(id, version_number || 'LATEST')?.queryKey;

@@ -108,13 +108,13 @@ export const useGetReport = <T = GetReportResponse>(
 /**
  * Prefetch function for individual report (server-side)
  */
-export const prefetchGetReportById = async (reportId: string, queryClient: QueryClient) => {
+export const prefetchGetReportById = async (queryClient: QueryClient, reportId: string) => {
   await queryClient.prefetchQuery({
     ...reportsQueryKeys.reportsGetReport(reportId, 'LATEST'),
     queryFn: () => getReportById(reportId),
   });
 
-  return queryClient;
+  return queryClient.getQueryData(reportsQueryKeys.reportsGetReport(reportId, 'LATEST').queryKey);
 };
 
 export const useUpdateReport = () => {

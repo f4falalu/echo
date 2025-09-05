@@ -99,7 +99,7 @@ export const getDashboardAndInitializeMetrics = async ({
   prefetchMetricsData = false,
 }: {
   id: string;
-  version_number: number | 'LATEST';
+  version_number?: number | 'LATEST' | undefined;
   password?: string;
   queryClient: QueryClient;
   shouldInitializeMetrics?: boolean;
