@@ -280,7 +280,6 @@ const InlineComboboxItem = ({
   const store = useComboboxContext()!;
 
   // Optimization: Do not subscribe to value if filter is false
-  // biome-ignore lint/correctness/useHookAtTopLevel: it's cool
   const search = filter && store.useState('value');
 
   const visible = React.useMemo(

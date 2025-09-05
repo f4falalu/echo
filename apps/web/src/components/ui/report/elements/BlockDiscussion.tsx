@@ -48,7 +48,6 @@ export const BlockDiscussion: RenderNodeWrapper<AnyPluginConfig> = (props) => {
     return;
   }
 
-  // biome-ignore lint/correctness/noNestedComponentDefinitions: meh
   const Component = (props: PlateElementProps) => (
     <BlockCommentContent
       blockPath={blockPath}

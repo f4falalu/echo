@@ -65,7 +65,6 @@ export const BlockDraggable: RenderNodeWrapper = (props) => {
 
   if (!enabled) return;
 
-  // biome-ignore lint/correctness/noNestedComponentDefinitions: meh
   const Component = (props: PlateElementProps) => <Draggable {...props} />;
   Component.displayName = 'BlockDraggable';
   return Component;
