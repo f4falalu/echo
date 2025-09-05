@@ -1,5 +1,5 @@
 import { and, eq, isNull } from 'drizzle-orm';
-import { db } from '../../connection';
+import { getDb } from '../../connection';
 import { apiKeys, organizations, users } from '../../schema';
 
 export interface ApiKeyValidation {
@@ -15,6 +15,8 @@ export interface ApiKeyValidation {
  * @returns The API key data if valid, null otherwise
  */
 export async function validateApiKey(key: string): Promise<ApiKeyValidation | null> {
+  const db = getDb();
+
   try {
     const result = await db
       .select({
@@ -35,6 +37,40 @@ export async function validateApiKey(key: string): Promise<ApiKeyValidation | nu
 }
 
 /**
+ * Simple boolean validation check for API keys
+ * @param apiKey - The API key string to validate
+ * @returns Promise<boolean> - true if the API key is valid, false otherwise
+ */
+export async function isApiKeyValid(apiKey: string): Promise<boolean> {
+  const result = await validateApiKey(apiKey);
+  return result !== null;
+}
+
+/**
+ * Gets the API key details if it exists and is not soft-deleted
+ * This is a compatibility wrapper around validateApiKey
+ * @param apiKey - The API key string to validate
+ * @returns Promise<{id: string; organizationId: string; ownerId: string} | null>
+ */
+export async function getApiKeyDetails(apiKey: string): Promise<{
+  id: string;
+  organizationId: string;
+  ownerId: string;
+} | null> {
+  const result = await validateApiKey(apiKey);
+
+  if (!result) {
+    return null;
+  }
+
+  return {
+    id: result.id,
+    organizationId: result.organizationId,
+    ownerId: result.ownerId,
+  };
+}
+
+/**
  * Gets the organization associated with an API key
  * @param apiKeyId The API key ID
  * @returns The organization data if found, null otherwise
@@ -44,6 +80,8 @@ export async function getApiKeyOrganization(apiKeyId: string): Promise<{
   name: string;
   paymentRequired: boolean;
 } | null> {
+  const db = getDb();
+
   try {
     const result = await db
       .select({
@@ -73,6 +111,8 @@ export async function getApiKeyOwner(apiKeyId: string): Promise<{
   email: string;
   name: string | null;
 } | null> {
+  const db = getDb();
+
   try {
     const result = await db
       .select({
