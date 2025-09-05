@@ -38,6 +38,7 @@ const LazyMetricStoreDevtools = !import.meta.env.SSR
 // The actual devtools component implementation
 const TanstackDevtoolsImpl: React.FC = React.memo(() => {
   if (import.meta.env.SSR || isServer) {
+    console.log('Is SSR or Server');
     return null;
   } // never render on SSR
 
