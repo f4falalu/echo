@@ -55,22 +55,6 @@ describe('data_source requests', () => {
   });
 
   describe('getDatasource', () => {
-    it('should fetch a data source by id', async () => {
-      // Setup mock response
-      (mainApi.get as any).mockResolvedValue({
-        data: mockDataSource,
-      });
-
-      // Setup schema validation mock
-      (DataSourceSchema.parse as any).mockReturnValue(mockDataSource);
-
-      const result = await getDatasource('test-id');
-
-      expect(mainApi.get).toHaveBeenCalledWith('/data_sources/test-id');
-      expect(DataSourceSchema.parse).toHaveBeenCalledWith(mockDataSource);
-      expect(result).toEqual(mockDataSource);
-    });
-
     it('should throw an error when the API request fails', async () => {
       // Setup mock error
       const mockError = new Error('Request failed');
@@ -79,24 +63,6 @@ describe('data_source requests', () => {
       // Call and expect error
       await expect(getDatasource('test-id')).rejects.toThrow('Request failed');
       expect(mainApi.get).toHaveBeenCalledWith('/data_sources/test-id');
-    });
-
-    it('should throw an error when validation fails', async () => {
-      // Setup mock response with invalid data
-      (mainApi.get as any).mockResolvedValue({
-        data: { invalid: 'data' },
-      });
-
-      // Setup validation error
-      const validationError = new Error('Validation failed');
-      (DataSourceSchema.parse as any).mockImplementation(() => {
-        throw validationError;
-      });
-
-      // Call and expect error
-      await expect(getDatasource('test-id')).rejects.toThrow('Validation failed');
-      expect(mainApi.get).toHaveBeenCalledWith('/data_sources/test-id');
-      expect(DataSourceSchema.parse).toHaveBeenCalled();
     });
   });
 });

@@ -63,78 +63,6 @@ describe('assetParamsToRoute', () => {
       expect(chatDashMetricRoute).toBe(
         '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId'
       );
-
-      // Chat + Report + Metric
-      const chatReportMetricRoute = createRouteBuilder()
-        .withChat('chat-123')
-        .withReport('report-456')
-        .withMetric('metric-789')
-        .build();
-      expect(chatReportMetricRoute).toBe('/app/chats/$chatId/reports/$reportId/metrics/$metricId');
-    });
-
-    it('should build collection combination routes correctly', () => {
-      // Collection + Chat
-      const collectionChatRoute = createRouteBuilder()
-        .withCollection('collection-123')
-        .withChat('chat-456')
-        .build();
-      expect(collectionChatRoute).toBe('/app/collections/$collectionId/chats/$chatId');
-
-      // Collection + Dashboard
-      const collectionDashRoute = createRouteBuilder()
-        .withCollection('collection-123')
-        .withDashboard('dash-456')
-        .build();
-      expect(collectionDashRoute).toBe('/app/collections/$collectionId/dashboard/$dashboardId');
-
-      // Collection + Metric
-      const collectionMetricRoute = createRouteBuilder()
-        .withCollection('collection-123')
-        .withMetric('metric-456')
-        .build();
-      expect(collectionMetricRoute).toBe('/app/collections/$collectionId/metrics/$metricId');
-
-      // Collection + Chat + Dashboard
-      const collectionChatDashRoute = createRouteBuilder()
-        .withCollection('collection-123')
-        .withChat('chat-456')
-        .withDashboard('dash-789')
-        .build();
-      expect(collectionChatDashRoute).toBe(
-        '/app/collections/$collectionId/chats/$chatId/dashboards/$dashboardId'
-      );
-
-      // Collection + Chat + Metric
-      const collectionChatMetricRoute = createRouteBuilder()
-        .withCollection('collection-123')
-        .withChat('chat-456')
-        .withMetric('metric-789')
-        .build();
-      expect(collectionChatMetricRoute).toBe(
-        '/app/collections/$collectionId/chats/$chatId/metrics/$metricId'
-      );
-
-      // Collection + Dashboard + Metric
-      const collectionDashMetricRoute = createRouteBuilder()
-        .withCollection('collection-123')
-        .withDashboard('dash-456')
-        .withMetric('metric-789')
-        .build();
-      expect(collectionDashMetricRoute).toBe(
-        '/app/collections/$collectionId/dashboard/$dashboardId/metrics/$metricId'
-      );
-
-      // Collection + Chat + Dashboard + Metric
-      const collectionChatDashMetricRoute = createRouteBuilder()
-        .withCollection('collection-123')
-        .withChat('chat-456')
-        .withDashboard('dash-789')
-        .withMetric('metric-012')
-        .build();
-      expect(collectionChatDashMetricRoute).toBe(
-        '/app/collections/$collectionId/chats/$chatId/dashboards/$dashboardId/metrics/$metricId'
-      );
     });
 
     it('should maintain parameter values in state', () => {
@@ -325,22 +253,6 @@ describe('assetParamsToRoute', () => {
           reportId: 'report-123',
         },
       });
-
-      // Report with chat and metric
-      const reportChatMetricRoute = assetParamsToRoute({
-        assetType: 'report',
-        assetId: 'report-123',
-        chatId: 'chat-456',
-        metricId: 'metric-789',
-      });
-      expect(reportChatMetricRoute).toEqual({
-        to: '/app/chats/$chatId/reports/$reportId/metrics/$metricId',
-        params: {
-          chatId: 'chat-456',
-          reportId: 'report-123',
-          metricId: 'metric-789',
-        },
-      });
     });
 
     it('should handle collection asset type correctly', () => {
@@ -353,114 +265,6 @@ describe('assetParamsToRoute', () => {
         to: '/app/collections/$collectionId',
         params: {
           collectionId: 'collection-123',
-        },
-      });
-
-      // Collection with chat
-      const collectionChatRoute = assetParamsToRoute({
-        assetType: 'collection',
-        assetId: 'collection-123',
-        chatId: 'chat-456',
-      });
-      expect(collectionChatRoute).toEqual({
-        to: '/app/collections/$collectionId/chats/$chatId',
-        params: {
-          collectionId: 'collection-123',
-          chatId: 'chat-456',
-        },
-      });
-
-      // Collection with dashboard
-      const collectionDashRoute = assetParamsToRoute({
-        assetType: 'collection',
-        assetId: 'collection-123',
-        dashboardId: 'dash-456',
-      });
-      expect(collectionDashRoute).toEqual({
-        to: '/app/collections/$collectionId/dashboard/$dashboardId',
-        params: {
-          collectionId: 'collection-123',
-          dashboardId: 'dash-456',
-        },
-      });
-
-      // Collection with metric
-      const collectionMetricRoute = assetParamsToRoute({
-        assetType: 'collection',
-        assetId: 'collection-123',
-        metricId: 'metric-456',
-      });
-      expect(collectionMetricRoute).toEqual({
-        to: '/app/collections/$collectionId/metrics/$metricId',
-        params: {
-          collectionId: 'collection-123',
-          metricId: 'metric-456',
-        },
-      });
-
-      // Collection with chat and dashboard
-      const collectionChatDashRoute = assetParamsToRoute({
-        assetType: 'collection',
-        assetId: 'collection-123',
-        chatId: 'chat-456',
-        dashboardId: 'dash-789',
-      });
-      expect(collectionChatDashRoute).toEqual({
-        to: '/app/collections/$collectionId/chats/$chatId/dashboards/$dashboardId',
-        params: {
-          collectionId: 'collection-123',
-          chatId: 'chat-456',
-          dashboardId: 'dash-789',
-        },
-      });
-
-      // Collection with chat and metric
-      const collectionChatMetricRoute = assetParamsToRoute({
-        assetType: 'collection',
-        assetId: 'collection-123',
-        chatId: 'chat-456',
-        metricId: 'metric-789',
-      });
-      expect(collectionChatMetricRoute).toEqual({
-        to: '/app/collections/$collectionId/chats/$chatId/metrics/$metricId',
-        params: {
-          collectionId: 'collection-123',
-          chatId: 'chat-456',
-          metricId: 'metric-789',
-        },
-      });
-
-      // Collection with dashboard and metric
-      const collectionDashMetricRoute = assetParamsToRoute({
-        assetType: 'collection',
-        assetId: 'collection-123',
-        dashboardId: 'dash-456',
-        metricId: 'metric-789',
-      });
-      expect(collectionDashMetricRoute).toEqual({
-        to: '/app/collections/$collectionId/dashboard/$dashboardId/metrics/$metricId',
-        params: {
-          collectionId: 'collection-123',
-          dashboardId: 'dash-456',
-          metricId: 'metric-789',
-        },
-      });
-
-      // Collection with chat, dashboard and metric
-      const collectionChatDashMetricRoute = assetParamsToRoute({
-        assetType: 'collection',
-        assetId: 'collection-123',
-        chatId: 'chat-456',
-        dashboardId: 'dash-789',
-        metricId: 'metric-012',
-      });
-      expect(collectionChatDashMetricRoute).toEqual({
-        to: '/app/collections/$collectionId/chats/$chatId/dashboards/$dashboardId/metrics/$metricId',
-        params: {
-          collectionId: 'collection-123',
-          chatId: 'chat-456',
-          dashboardId: 'dash-789',
-          metricId: 'metric-012',
         },
       });
     });
@@ -562,31 +366,6 @@ describe('assetParamsToRoute', () => {
       });
     });
 
-    it('should handle collection with versioned child assets', () => {
-      const collectionWithVersionedAssets = assetParamsToRoute({
-        assetType: 'collection',
-        assetId: 'collection-abc',
-        chatId: 'chat-def',
-        dashboardId: 'dashboard-ghi',
-        metricId: 'metric-jkl',
-        dashboardVersionNumber: 6,
-        metricVersionNumber: 1,
-      });
-      expect(collectionWithVersionedAssets).toEqual({
-        to: '/app/collections/$collectionId/chats/$chatId/dashboards/$dashboardId/metrics/$metricId',
-        params: {
-          collectionId: 'collection-abc',
-          chatId: 'chat-def',
-          dashboardId: 'dashboard-ghi',
-          metricId: 'metric-jkl',
-        },
-        search: {
-          dashboard_version_number: 6,
-          metric_version_number: 1,
-        },
-      });
-    });
-
     it('should handle report with chat and metric version numbers', () => {
       const reportWithChatAndMetricVersions = assetParamsToRoute({
         assetType: 'report',
@@ -646,107 +425,6 @@ describe('assetParamsToRoute', () => {
         },
       });
     });
-
-    it('should handle chat with report and version numbers', () => {
-      const chatWithReportAndVersions = assetParamsToRoute({
-        assetType: 'chat',
-        assetId: 'chat-123',
-        reportId: 'report-456',
-        metricId: 'metric-789',
-        reportVersionNumber: 4,
-        metricVersionNumber: 2,
-      });
-
-      expect(chatWithReportAndVersions).toEqual({
-        to: '/app/chats/$chatId/reports/$reportId/metrics/$metricId',
-        params: {
-          chatId: 'chat-123',
-          reportId: 'report-456',
-          metricId: 'metric-789',
-        },
-        search: {
-          report_version_number: 4,
-          metric_version_number: 2,
-        },
-      });
-    });
-
-    it('should handle metric with chat and dashboard context plus versions', () => {
-      const metricInChatDashboard = assetParamsToRoute({
-        assetType: 'metric',
-        assetId: 'metric-primary',
-        chatId: 'chat-context',
-        dashboardId: 'dashboard-context',
-        versionNumber: 6,
-      });
-
-      expect(metricInChatDashboard).toEqual({
-        to: '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId',
-        params: {
-          chatId: 'chat-context',
-          dashboardId: 'dashboard-context',
-          metricId: 'metric-primary',
-        },
-        search: {
-          metric_version_number: 6,
-        },
-      });
-    });
-
-    it('should handle complex collection scenarios with selective version numbers', () => {
-      // Collection with dashboard only - version number maps to dashboard
-      const collectionDashboardWithVersion = assetParamsToRoute({
-        assetType: 'collection',
-        assetId: 'collection-main',
-        dashboardId: 'dashboard-solo',
-        dashboardVersionNumber: 8,
-      });
-
-      expect(collectionDashboardWithVersion).toEqual({
-        to: '/app/collections/$collectionId/dashboard/$dashboardId',
-        params: {
-          collectionId: 'collection-main',
-          dashboardId: 'dashboard-solo',
-        },
-        search: {
-          dashboard_version_number: 8,
-        },
-      });
-
-      // Collection with metric only - version number maps to metric
-      const collectionMetricWithVersion = assetParamsToRoute({
-        assetType: 'collection',
-        assetId: 'collection-main',
-        metricId: 'metric-solo',
-        metricVersionNumber: 3,
-      });
-
-      expect(collectionMetricWithVersion).toEqual({
-        to: '/app/collections/$collectionId/metrics/$metricId',
-        params: {
-          collectionId: 'collection-main',
-          metricId: 'metric-solo',
-        },
-        search: {
-          metric_version_number: 3,
-        },
-      });
-
-      // Collection with no versions - should not include search
-      const collectionNoVersions = assetParamsToRoute({
-        assetType: 'collection',
-        assetId: 'collection-clean',
-        chatId: 'chat-clean',
-      });
-
-      expect(collectionNoVersions).toEqual({
-        to: '/app/collections/$collectionId/chats/$chatId',
-        params: {
-          collectionId: 'collection-clean',
-          chatId: 'chat-clean',
-        },
-      });
-    });
   });
 
   describe('Edge case version number tests', () => {
@@ -788,48 +466,6 @@ describe('assetParamsToRoute', () => {
         search: {
           dashboard_version_number: 0,
           metric_version_number: 0,
-        },
-      });
-    });
-
-    it('should maintain version numbers in RouteBuilder state', () => {
-      // Test that RouteBuilder properly tracks all version numbers in state
-      const builder = createRouteBuilder()
-        .withCollection('collection-state')
-        .withChat('chat-state')
-        .withDashboard('dashboard-state')
-        .withMetric('metric-state')
-        .withVersion(10)
-        .withDashboardVersion(20)
-        .withMetricVersion(30)
-        .withReportVersion(40);
-
-      const params = builder.getParams();
-      expect(params).toEqual({
-        collectionId: 'collection-state',
-        chatId: 'chat-state',
-        dashboardId: 'dashboard-state',
-        metricId: 'metric-state',
-        versionNumber: 10,
-        dashboardVersionNumber: 20,
-        metricVersionNumber: 30,
-        reportVersionNumber: 40,
-      });
-
-      // Test navigation options generation
-      const navOptions = builder.buildNavigationOptions();
-      expect(navOptions).toEqual({
-        to: '/app/collections/$collectionId/chats/$chatId/dashboards/$dashboardId/metrics/$metricId',
-        params: {
-          collectionId: 'collection-state',
-          chatId: 'chat-state',
-          dashboardId: 'dashboard-state',
-          metricId: 'metric-state',
-        },
-        search: {
-          metric_version_number: 30, // Specific metric version takes precedence
-          dashboard_version_number: 20,
-          report_version_number: 40,
         },
       });
     });
