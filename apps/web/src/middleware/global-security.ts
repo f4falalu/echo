@@ -4,16 +4,15 @@ import { createSecurityHeaders } from './csp-helper';
 
 export const securityMiddleware = createMiddleware({ type: 'function' }).server(
   async ({ next }) => {
-    const result = await next();
-
     // Check if this is an embed route by examining the request URL
     const request = getWebRequest();
     const url = new URL(request.url);
     const isEmbed = url.pathname.startsWith('/embed/');
 
-    // Set security headers for all server function responses using shared helper
+    // Set security headers BEFORE calling next() to ensure they're set only once
     setHeaders(createSecurityHeaders(isEmbed));
 
+    const result = await next();
     return result;
   }
 );

@@ -13,6 +13,8 @@ const isValidRedirectUrl = (url: string): boolean => {
   }
 };
 
+const fallbackCallbackUrl = `${env.VITE_PUBLIC_URL}/auth/callback`;
+
 // Common OAuth handler to reduce code duplication
 const handleOAuthSignIn = async (
   provider: 'google' | 'github' | 'azure',
@@ -21,7 +23,7 @@ const handleOAuthSignIn = async (
 ) => {
   const supabase = getSupabaseServerClient();
 
-  const callbackUrl = new URL(AuthCallbackRoute.to, env.VITE_PUBLIC_URL);
+  const callbackUrl = new URL(AuthCallbackRoute.to || '/auth/callback', env.VITE_PUBLIC_URL);
 
   if (redirectTo && isValidRedirectUrl(redirectTo)) {
     callbackUrl.searchParams.set('next', redirectTo);
@@ -36,10 +38,9 @@ const handleOAuthSignIn = async (
   });
 
   if (error) {
+    console.error('error-signInWithOAuth', error);
     return { success: false, error: error.message };
   }
-
-  console.log(`OAuth ${provider} data:`, data);
 
   return { success: true, url: data.url };
 };
@@ -145,8 +146,6 @@ export const signUpWithEmailAndPassword = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     const supabase = getSupabaseServerClient();
 
-    console.log('Sign up data:', data);
-
     const { error } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
@@ -154,8 +153,6 @@ export const signUpWithEmailAndPassword = createServerFn({ method: 'POST' })
         emailRedirectTo: data.redirectTo || `${env.VITE_PUBLIC_URL}`,
       },
     });
-
-    console.log('Sign up error:', error);
 
     if (error) {
       return {

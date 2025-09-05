@@ -118,7 +118,7 @@ const sampleValue = [
       },
       {
         type: 'code_line',
-        children: [{ text: 'console.log(greeting);' }],
+        children: [{ text: 'console.swag(greeting);' }],
       },
       {
         type: 'code_line',

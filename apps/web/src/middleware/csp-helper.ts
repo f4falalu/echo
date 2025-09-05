@@ -29,7 +29,7 @@ export const createCspHeader = (isEmbed = false): string => {
     // Default directives
     "default-src 'self'",
     // Scripts
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://*.cloudflareinsights.com https://*.posthog.com",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://*.cloudflareinsights.com https://*.posthog.com https://us-assets.i.posthog.com https://eu-assets.i.posthog.com",
     // Styles
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
     // Images
@@ -56,6 +56,12 @@ export const createCspHeader = (isEmbed = false): string => {
         'https://*.supabase.co',
         'wss://*.supabase.co',
         'https://*.posthog.com',
+        'https://us.i.posthog.com',
+        'https://eu.i.posthog.com',
+        'https://app.posthog.com',
+        'https://us-assets.i.posthog.com',
+        'https://eu-assets.i.posthog.com',
+        'https://*.cloudflareinsights.com',
         'https://*.slack.com',
         // Social media and video platform APIs for embeds
         'https://*.twitter.com',
@@ -84,21 +90,21 @@ export const createCspHeader = (isEmbed = false): string => {
     // Object
     "object-src 'none'",
     // Form actions
-    "form-action 'self' https://*.slack.com",
+    "form-action 'self' https://*.slack.com https://*.posthog.com",
     // Base URI
     "base-uri 'self'",
     // Manifest
     "manifest-src 'self'",
     // Worker sources
-    "worker-src 'self' blob: data:",
+    "worker-src 'self' blob: data: https://*.posthog.com https://us-assets.i.posthog.com https://eu-assets.i.posthog.com",
     // Child sources
-    "child-src 'self' blob: data:",
+    "child-src 'self' blob: data: https://*.posthog.com https://us-assets.i.posthog.com https://eu-assets.i.posthog.com",
   ].join('; ');
 };
 
 /**
  * Creates a complete set of security headers
- * @param isEmbed - Whether this is for an embed route
+ * @param isEr s for an embed route
  * @returns Object with security headers
  */
 export const createSecurityHeaders = (isEmbed = false) => {
