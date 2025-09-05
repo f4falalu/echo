@@ -13,6 +13,8 @@ const requiredEnv = {
   VITE_PUBLIC_URL: process.env.VITE_PUBLIC_URL,
 };
 
+console.log('🐓 The app will use this API URL:', process.env.VITE_PUBLIC_API_URL);
+
 // Validate environment variables
 const { hasErrors } = validateEnv(requiredEnv);
 
