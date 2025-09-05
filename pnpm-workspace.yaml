@@ -3,7 +3,6 @@ packages:
   - "packages/*"
 
   # Applications
-  - "apps/web"
   - "apps/server"
   - "apps/electric-server"
   - "apps/trigger"
