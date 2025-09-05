@@ -1,20 +1,10 @@
 import { createServerFn } from '@tanstack/react-start';
 import { getCookie } from '@tanstack/react-start/server';
 import Cookies from 'js-cookie';
-import { z } from 'zod';
 import type { LayoutSize } from '@/components/ui/layouts/AppLayout';
 import { createAutoSaveId } from '@/components/ui/layouts/AppSplitter/create-auto-save-id';
 import { isServer } from '@/lib/window';
-
-const getServerCookie = createServerFn({ method: 'GET' })
-  .validator(
-    z.object({
-      cookieName: z.string(),
-    })
-  )
-  .handler(async ({ data }) => {
-    return getCookie(data.cookieName);
-  });
+import { getServerCookie } from './getServerCookie';
 
 export const getAppLayout = async ({
   id,
