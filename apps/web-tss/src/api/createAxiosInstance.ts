@@ -2,10 +2,10 @@ import { isServer } from '@tanstack/react-query';
 import type { AxiosRequestHeaders } from 'axios';
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import { Route as AuthRoute } from '@/routes/auth.login';
-import { checkTokenValidity } from './checkTokenValidity';
+import { checkTokenValidity } from './auth_helpers/check-token-validity';
 import { BASE_URL_V2 } from './config';
-import { getSupabaseAccessTokenServerFn } from './createServerInstance';
 import { rustErrorHandler } from './errors';
+import { getSupabaseSessionServerFn } from './server-functions/getSupabaseSession';
 
 const AXIOS_TIMEOUT = 120000; // 2 minutes
 
@@ -66,7 +66,9 @@ export const defaultAxiosRequestHandler = async (config: InternalAxiosRequestCon
 
   try {
     if (isServer) {
-      token = await getSupabaseAccessTokenServerFn();
+      token = await getSupabaseSessionServerFn().then(
+        ({ data: { session } }) => session.access_token
+      );
     } else {
       // Always check token validity before making requests
       const tokenResult = await checkTokenValidity();

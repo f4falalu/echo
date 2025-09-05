@@ -5,12 +5,7 @@ import { useMount } from '@/hooks/useMount';
 import { getBrowserClient } from '@/integrations/supabase/client';
 
 export type SupabaseContextType = {
-  user: {
-    id: string;
-    is_anonymous: boolean;
-    email?: string;
-    app_metadata: User['app_metadata'];
-  };
+  user: Pick<User, 'id' | 'is_anonymous' | 'email'>;
   accessToken: string;
 };
 
@@ -22,10 +17,7 @@ const useSupabaseContextInternal = ({
   accessToken: accessTokenProp,
 }: SupabaseContextType) => {
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const [supabaseUser, setSupabaseUser] = useState<Pick<
-    User,
-    'id' | 'is_anonymous' | 'email' | 'app_metadata'
-  > | null>(user);
+  const [supabaseUser, setSupabaseUser] = useState<SupabaseContextType['user'] | null>(user);
   const [accessToken, setAccessToken] = useState(accessTokenProp);
 
   const isAnonymousUser: boolean = !user?.id || user?.is_anonymous === true;

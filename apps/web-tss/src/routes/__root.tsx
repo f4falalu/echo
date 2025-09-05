@@ -1,8 +1,8 @@
 import { createRootRouteWithContext, HeadContent, Link, Scripts } from '@tanstack/react-router';
 import { RootProviders } from '@/context/Providers';
+import { getBrowserClient } from '@/integrations/supabase/client';
 import shareImage from '../assets/png/default_preview.png';
 import favicon from '../assets/png/favicon.ico';
-import { getSupabaseUser } from '../integrations/supabase/getSupabaseUserServer';
 import { TanstackDevtools } from '../integrations/tanstack-dev-tools/tanstack-devtools';
 import type { AppRouterContext } from '../router';
 import appCss from '../styles/styles.css?url';
@@ -29,25 +29,18 @@ export const Route = createRootRouteWithContext<AppRouterContext>()({
       { rel: 'manifest', href: '/manifest.json' },
     ],
   }),
+  staleTime: 30 * 60 * 1000,
   shellComponent: RootDocument,
-  beforeLoad: async () => {
-    const supabaseConfig = await getSupabaseUser();
-    return supabaseConfig;
-  },
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-  const { user, accessToken, queryClient } = Route.useRouteContext();
-
   return (
     <html lang="en">
       <head>
         <HeadContent />
       </head>
       <body>
-        <RootProviders user={user} accessToken={accessToken} queryClient={queryClient}>
-          {children}
-        </RootProviders>
+        <RootProviders>{children}</RootProviders>
         <TanstackDevtools />
         <Scripts />
       </body>

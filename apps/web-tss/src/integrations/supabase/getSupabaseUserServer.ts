@@ -11,7 +11,6 @@ export type AuthUserDTO = {
   created_at: string;
   role?: string;
   is_anonymous: boolean;
-  app_metadata: User['app_metadata'];
 };
 
 function transformToAuthUserDTO(user: User): AuthUserDTO {
@@ -20,44 +19,5 @@ function transformToAuthUserDTO(user: User): AuthUserDTO {
     email: user.email,
     created_at: user.created_at,
     is_anonymous: user.is_anonymous ?? false,
-    app_metadata: user.app_metadata,
   };
 }
-
-export const getSupabaseUser = createServerFn({ method: 'GET' }).handler(async () => {
-  const supabase = getSupabaseServerClient();
-  const { data: userData } = await supabase.auth.getUser();
-
-  if (!userData.user) {
-    const anon = await signInWithAnonymousUser();
-
-    if (!anon || !anon.success || !anon.data) {
-      const anonError = anon && !anon.success ? anon.error : 'Unknown anonymous sign-in error';
-      console.error('Error creating anon session:', anonError);
-      throw new Error('Error creating anon session');
-    }
-
-    return {
-      user: {
-        is_anonymous: true,
-        id: anon.data.user?.id ?? '',
-        email: anon.data.user?.email ?? '',
-        created_at: anon.data.user?.created_at ?? '',
-        app_metadata: anon.data.user?.app_metadata ?? {},
-      } satisfies AuthUserDTO,
-      accessToken: anon.data.accessToken,
-    } as { user: AuthUserDTO; accessToken: string };
-  }
-
-  // Get the session first
-  const sessionResult = await supabase.auth.getSession();
-  const sessionData = sessionResult.data;
-
-  const user = transformToAuthUserDTO(userData.user);
-  const accessToken = sessionData.session?.access_token;
-
-  return {
-    user,
-    accessToken,
-  } as { user: AuthUserDTO; accessToken: string };
-});

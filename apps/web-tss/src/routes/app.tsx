@@ -3,48 +3,58 @@ import { prefetchGetUserFavorites } from '@/api/buster_rest/users/favorites/quer
 import { prefetchGetMyUserInfo } from '@/api/buster_rest/users/queryRequests';
 import { getAppLayout } from '@/api/server-functions/getAppLayout';
 import { AppProviders } from '@/context/Providers';
-import { embedAssetToRegularAsset } from '@/context/Routes/embedAssetToRegularAsset';
+import { getSupabaseSession, getSupabaseUser } from '@/integrations/supabase/getSupabaseUserClient';
 import type { LayoutSize } from '../components/ui/layouts/AppLayout';
 
 const PRIMARY_APP_LAYOUT_ID = 'primary-sidebar';
 const DEFAULT_LAYOUT: LayoutSize = ['230px', 'auto'];
 
 export const Route = createFileRoute('/app')({
-  context: () => ({ getAppLayout }),
-  beforeLoad: async ({ context, matches }) => {
-    const hasUser = context.user;
-    const isAnonymous = context.user?.is_anonymous;
+  context: ({ context }) => ({ ...context, getAppLayout }),
+  ssr: true,
+  beforeLoad: async () => {
+    const { isExpired, accessToken = '' } = await getSupabaseSession();
 
-    if (!hasUser || isAnonymous) {
-      //Hmmmm... maybe this is weird... maybe i'll remove it
-      const isAssetRoute = matches.some((match) => match.routeId === '/app/_app/_asset');
-      if (isAssetRoute) {
-        const route = embedAssetToRegularAsset(matches);
-        if (route) {
-          throw redirect(route);
-        }
-      }
+    if (isExpired || !accessToken) {
+      console.log('redirecting to login');
       throw redirect({ to: '/auth/login' });
     }
+
+    return {
+      accessToken,
+    };
   },
   loader: async ({ context }) => {
-    const { queryClient } = context;
-    const [initialLayout] = await Promise.all([
-      context.getAppLayout({ data: { id: PRIMARY_APP_LAYOUT_ID } }),
+    const { queryClient, accessToken } = context;
+    const [initialLayout, user] = await Promise.all([
+      getAppLayout({ id: PRIMARY_APP_LAYOUT_ID }),
+      getSupabaseUser(),
       prefetchGetMyUserInfo(queryClient),
       prefetchGetUserFavorites(queryClient),
     ]);
+
+    if (!user) {
+      throw redirect({ to: '/auth/login' });
+    }
+
     return {
       initialLayout,
       layoutId: PRIMARY_APP_LAYOUT_ID,
       defaultLayout: DEFAULT_LAYOUT,
+      accessToken,
+      user,
     };
   },
   component: () => {
+    const { user, accessToken } = Route.useLoaderData();
+
     return (
-      <AppProviders>
+      <AppProviders user={user} accessToken={accessToken}>
         <Outlet />
       </AppProviders>
     );
   },
+  staleTime: 60 * 60 * 1000, // 60 minutes
+  preloadStaleTime: 60 * 60 * 1000, // 60 minutes
+  gcTime: 10 * 60 * 1000, // 10 minutes
 });

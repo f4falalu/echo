@@ -75,9 +75,9 @@ export const useAuthMutations = (redirectTo?: string | null, onSignUpSuccess?: (
   const emailSignInMutation = useMutation({
     mutationFn: ({ email, password }: { email: string; password: string }) =>
       signInWithEmailAndPassword({ data: { email, password, redirectUrl: redirectTo } }),
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       if (!data.error) {
-        navigate({ to: redirectTo || '/' });
+        await navigate({ to: redirectTo || '/app/home' });
       }
     },
   });

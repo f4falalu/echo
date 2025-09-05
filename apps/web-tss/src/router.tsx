@@ -1,6 +1,5 @@
-import type { User } from '@supabase/supabase-js';
 import type { QueryClient } from '@tanstack/react-query';
-import { createRouteMask, createRouter as createTanstackRouter } from '@tanstack/react-router';
+import { createRouter as createTanstackRouter } from '@tanstack/react-router';
 import { routerWithQueryClient } from '@tanstack/react-router-with-query';
 import {
   LazyCatchErrorCard,
@@ -13,7 +12,6 @@ import { routeTree } from './routeTree.gen';
 
 export interface AppRouterContext {
   queryClient: QueryClient;
-  user: User | null;
 }
 
 // Create a new router instance
@@ -23,7 +21,7 @@ export const createRouter = () => {
   const router = routerWithQueryClient(
     createTanstackRouter({
       routeTree,
-      context: { queryClient, user: null }, //context is defined in the root route
+      context: { queryClient },
       scrollRestoration: true,
       defaultPreload: 'intent',
       defaultPendingComponent: FileIndeterminateLoader,

@@ -1,6 +1,16 @@
+import type { AssetType } from '@buster/server-shared/assets';
 import type { LinkProps, MakeRouteMatchUnion } from '@tanstack/react-router';
 
-export const embedAssetToRegularAsset = (matches: MakeRouteMatchUnion[]) => {
+export const getLastMatchAssetType = (
+  matches: MakeRouteMatchUnion[]
+): AssetType | 'reasoning' | null => {
+  const lastMatch = matches[matches.length - 1];
+  const staticData = lastMatch.staticData;
+  const assetType = staticData?.assetType;
+  return (assetType || null) as AssetType | 'reasoning' | null;
+};
+
+export const embedAssetToRegularAsset = (matches: MakeRouteMatchUnion[]): LinkProps | null => {
   const lastMatch = matches[matches.length - 1];
   const staticData = lastMatch.staticData;
   const assetType = staticData?.assetType;
