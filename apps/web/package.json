@@ -8,7 +8,9 @@
     "build": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build -- --typecheck",
     "build:staging": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build --mode staging",
     "build:production": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build --mode production -- --typecheck",
-    "build:local": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build -- --typecheck --local",
+    "build:cloudflare": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192 --max-semi-space-size=256\" TYPECHECK=false vite build --mode production",
+    "build:cf-optimized": "cross-env NODE_OPTIONS=\"--max-old-space-size=7680 --optimize-for-size\" TYPECHECK=false vite build --mode production",
+    "build:local": "cross-env NODE_OPTIONS=--max-old-space-size=12288 vite build -- --typecheck --local",
     "build-storybook": "storybook build",
     "build:visualize": "npx vite-bundle-visualizer",
     "deploy:dev": "pnpm run build && npx wrangler deploy .output/server/index.mjs --env dev --assets .output/public",
@@ -26,7 +28,7 @@
     "test:ui": "vitest --ui",
     "test:unit": "pnpm run test",
     "test:watch": "vitest --watch",
-    "typecheck": "cross-env NODE_OPTIONS=--max-old-space-size=8192 tsc --noEmit",
+    "typecheck": "cross-env NODE_OPTIONS=--max-old-space-size=12288 tsc --noEmit",
     "typecheck:watch": "tsc --noEmit --watch"
   },
   "dependencies": {

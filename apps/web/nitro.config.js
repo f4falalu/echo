@@ -39,15 +39,17 @@ function shouldSuppressWarning(warning) {
 }
 
 export default {
-  sourcemap: false,
-  rollupConfig: {
-    onwarn(warning, defaultHandler) {
-      if (shouldSuppressWarning(warning)) {
-        return;
-      }
+  // rollupConfig: {
+  //   onwarn(warning, defaultHandler) {
+  //     if (shouldSuppressWarning(warning)) {
+  //       return;
+  //     }
       
-      // Handle all other warnings normally
-      defaultHandler(warning);
-    },
-  },
+  //     // Handle all other warnings normally
+  //     defaultHandler(warning);
+  //   },
+  //   onerror: (id) => {
+  //     console.error(`Big nate: Error in ${id}`);
+  //   },
+  // },
 };

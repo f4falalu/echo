@@ -1,5 +1,6 @@
 import { ClientOnly } from '@tanstack/react-router';
 import React, { lazy, Suspense } from 'react';
+import { useMount } from '@/hooks/useMount';
 import { isServer } from '@/lib/window';
 
 // Only create lazy components if we're in the browser
@@ -37,12 +38,14 @@ const LazyMetricStoreDevtools = !import.meta.env.SSR
 
 // The actual devtools component implementation
 const TanstackDevtoolsImpl: React.FC = React.memo(() => {
-  if (import.meta.env.SSR || isServer) {
-    console.log('Is SSR or Server');
-    return null;
-  } // never render on SSR
+  useMount(() => {
+    console.log('🐓 Rendering TanstackDevtoolsImpl');
+  });
+  const isServerOrSSR = isServer && import.meta.env.SSR;
 
-  console.log('🐓 Rendering TanstackDevtoolsImpl');
+  if (isServerOrSSR) {
+    return null;
+  }
 
   return (
     <ClientOnly>
