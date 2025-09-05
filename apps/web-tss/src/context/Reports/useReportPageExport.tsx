@@ -1,5 +1,5 @@
 import { lazy, useRef, useState } from 'react';
-import { DynamicReportPageController } from '@/controllers/ReportPageControllers/DynamicReportPageController';
+import { ReportPageController } from '@/controllers/ReportPageControllers/ReportPageController';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { printHTMLPage } from '@/lib/print';
 import { timeout } from '@/lib/timeout';
@@ -28,7 +28,7 @@ const ExportContainerComponent: React.FC<{
         zIndex: -1,
       }}
     >
-      <DynamicReportPageController
+      <ReportPageController
         reportId={reportId}
         readOnly={true}
         mode="export"

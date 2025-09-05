@@ -104,7 +104,7 @@ export const ReportPageController: React.FC<{
                 <GeneratingContent messageId={messageId || ''} className={commonClassName} />
               ) : null
             }
-          ></DynamicReportEditor>
+          />
         ) : (
           <ReportEditorSkeleton />
         )}
