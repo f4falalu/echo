@@ -8,7 +8,7 @@ const autoSaveId = 'dataset-editor';
 export const Route = createFileRoute('/app/_app/datasets/$datasetId/editor')({
   component: RouteComponent,
   loader: async ({ context }) => {
-    const initialLayout = await context.getAppLayout({ data: { id: 'dataset-editor' } });
+    const initialLayout = await context.getAppLayout({ id: 'dataset-editor' });
     return {
       initialLayout,
     };

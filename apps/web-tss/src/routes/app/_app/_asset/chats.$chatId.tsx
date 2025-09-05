@@ -24,7 +24,7 @@ export const Route = createFileRoute('/app/_app/_asset/chats/$chatId')({
     });
 
     const [chatLayout, title, chat] = await Promise.all([
-      context.getAppLayout({ data: { id: autoSaveId } }),
+      context.getAppLayout({ id: autoSaveId }),
       context.getAssetTitle({
         assetId: params.chatId,
         assetType: 'chat',
