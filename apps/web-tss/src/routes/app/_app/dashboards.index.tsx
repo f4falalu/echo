@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { prefetchGetDashboardsList } from '@/api/buster_rest/dashboards';
 import { DashboardListController } from '@/controllers/DashboardListController';
 
 export const Route = createFileRoute('/app/_app/dashboards/')({
@@ -10,5 +11,8 @@ export const Route = createFileRoute('/app/_app/dashboards/')({
       { name: 'og:description', content: 'View and manage your data dashboards' },
     ],
   }),
+  loader: async ({ context }) => {
+    prefetchGetDashboardsList(context.queryClient); //do not wait
+  },
   component: DashboardListController,
 });

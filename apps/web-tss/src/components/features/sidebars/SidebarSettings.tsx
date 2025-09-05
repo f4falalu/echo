@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { useIsUserAdmin, useIsUserRegistered } from '@/api/buster_rest/users/useGetUserInfo';
 import { BackButton } from '@/components/ui/buttons/BackButton';
 import ApartmentBuilding from '@/components/ui/icons/NucleoIconOutlined/apartment-building';
@@ -72,22 +72,22 @@ const permissionAndSecurityItems: ISidebarGroup = createSidebarGroup({
   items: [
     {
       label: 'Security',
-      link: { to: '/app/settings/security', preload: false },
+      link: { to: '/app/settings/security' },
       id: '/app/settings/security',
     },
     {
       label: 'Users',
-      link: { to: '/app/settings/users', preload: false },
+      link: { to: '/app/settings/users' },
       id: '/app/settings/users',
     },
     {
       label: 'Dataset groups',
-      link: { to: '/app/settings/dataset-groups', preload: false },
+      link: { to: '/app/settings/dataset-groups' },
       id: '/app/settings/dataset-groups',
     },
     {
       label: 'Permission groups',
-      link: { to: '/app/settings/permission-groups', preload: false },
+      link: { to: '/app/settings/permission-groups' },
       id: '/app/settings/permission-groups',
     },
   ],

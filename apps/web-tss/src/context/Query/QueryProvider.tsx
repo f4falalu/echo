@@ -11,7 +11,4 @@ export const QueryPersister = ({
   queryClient: QueryClient;
 }) => {
   return children;
-
-  // </TanstackPersistQueryClientProvider>
-  //  );
 };

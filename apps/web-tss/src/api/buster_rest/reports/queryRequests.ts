@@ -43,8 +43,8 @@ export const useGetReportsList = (params?: Parameters<typeof getReportsList>[0])
  * Prefetch function for reports list (server-side)
  */
 export const prefetchGetReportsList = async (
-  params: Parameters<typeof getReportsList>[0],
-  queryClient: QueryClient
+  queryClient: QueryClient,
+  params?: Parameters<typeof getReportsList>[0]
 ) => {
   await queryClient.prefetchQuery({
     ...reportsQueryKeys.reportsGetList(params),

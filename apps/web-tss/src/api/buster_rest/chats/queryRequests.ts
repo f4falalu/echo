@@ -75,6 +75,16 @@ export const useGetListLogs = (
   });
 };
 
+export const prefetchGetLogsList = async (
+  queryClient: QueryClient,
+  params?: Parameters<typeof getListLogs>[0]
+) => {
+  await queryClient.prefetchQuery({
+    ...chatQueryKeys.logsGetList(params),
+    queryFn: () => getListLogs(params),
+  });
+};
+
 const getChatQueryFn = (params: Parameters<typeof getChat>[0], queryClient: QueryClient) => {
   return getChat(params).then((chat) => {
     const { iChat, iChatMessages } = updateChatToIChat(chat);

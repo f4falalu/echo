@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { prefetchGetLogsList } from '@/api/buster_rest/chats';
 import { AppPageLayout } from '@/components/ui/layouts/AppPageLayout';
 import { ChatListContainer } from '@/controllers/ChatsListController/ChatListController';
 import { ChatListHeader } from '@/controllers/ChatsListController/ChatListHeader';
@@ -13,6 +14,9 @@ export const Route = createFileRoute('/app/_app/logs/')({
     ],
   }),
   component: RouteComponent,
+  loader: async ({ context }) => {
+    prefetchGetLogsList(context.queryClient); //do not wait
+  },
 });
 
 const type = 'logs';
