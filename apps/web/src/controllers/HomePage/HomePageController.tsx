@@ -1,10 +1,8 @@
 import type React from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useGetUserBasicInfo } from '@/api/buster_rest/users/useGetUserInfo';
 import { Title } from '@/components/ui/typography';
-import { useAsyncEffect } from '@/hooks/useAsyncEffect';
 import { cn } from '@/lib/classMerge';
-import { getCurrentTimeInClientTimezone, initializeClientTimezone } from '@/lib/timezone';
 import { NewChatInput } from './NewChatInput';
 import { NewChatWarning } from './NewChatWarning';
 import { useNewChatWarning } from './useNewChatWarning';
@@ -51,30 +49,20 @@ export const HomePageController: React.FC<{
 const useGreeting = () => {
   const user = useGetUserBasicInfo();
   const userName = user?.name;
-  const [timeOfDay, setTimeOfDay] = useState<TimeOfDay | null>(null);
 
-  // Initialize timezone detection on client mount
-  useEffect(() => {
-    initializeClientTimezone();
-  }, []);
+  const timeOfDay = useMemo(() => {
+    const now = new Date();
+    const hours = now.getHours();
 
-  useAsyncEffect(async () => {
-    const now = await getCurrentTimeInClientTimezone();
-    const hours = now.hour();
-
-    let calculatedTimeOfDay: TimeOfDay;
     if (hours >= 5 && hours < 12) {
-      calculatedTimeOfDay = TimeOfDay.MORNING;
+      return TimeOfDay.MORNING;
     } else if (hours >= 12 && hours < 18) {
-      calculatedTimeOfDay = TimeOfDay.AFTERNOON;
-    } else if (hours >= 18 && hours < 22) {
-      calculatedTimeOfDay = TimeOfDay.EVENING;
+      return TimeOfDay.AFTERNOON;
+    } else if (hours >= 18 && hours < 21) {
+      return TimeOfDay.EVENING;
     } else {
-      calculatedTimeOfDay = TimeOfDay.NIGHT;
+      return TimeOfDay.NIGHT;
     }
-
-    setTimeOfDay(calculatedTimeOfDay);
-    return undefined;
   }, []);
 
   const greeting = useMemo(() => {
