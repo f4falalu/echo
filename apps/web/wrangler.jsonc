@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "web-tss",
+  "name": "web",
   "main": "./.output/server/index.mjs",
   "compatibility_date": "2025-09-04",
   "compatibility_flags": ["nodejs_compat", "no_nodejs_compat_v2"],
@@ -16,7 +16,7 @@
   "env": {
     // Development Environment
     "dev": {
-      "name": "web-tss-dev",
+      "name": "web-dev",
       "vars": {
         // Development-specific variables can be set here
         // Or loaded from .env.dev file
@@ -25,7 +25,7 @@
     
     // Staging Environment
     "staging": {
-      "name": "web-tss-staging",
+      "name": "web-staging",
       "vars": {
         // Staging-specific variables can be set here
         // Or loaded from .env.staging file
@@ -34,7 +34,7 @@
     
     // Production Environment
     "production": {
-      "name": "web-tss-production",
+      "name": "web-production",
       "vars": {
         // Production-specific variables can be set here
         // Or loaded from .env.production file

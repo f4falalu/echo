@@ -9,7 +9,7 @@ packages:
   - "apps/trigger"
   - "apps/api"
   - "apps/cli"
-  - "apps/web-tss"
+  - "apps/web"
 
 catalog:
   '@aws-sdk/client-s3': ^3.873.0

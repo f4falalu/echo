@@ -347,7 +347,7 @@ importers:
         specifier: 'catalog:'
         version: 4.0.2(typescript@5.9.2)
 
-  apps/web-tss:
+  apps/web:
     dependencies:
       '@ariakit/react':
         specifier: ^0.4.18
