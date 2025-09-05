@@ -178,6 +178,9 @@ importers:
       '@buster/vitest-config':
         specifier: workspace:*
         version: link:../../packages/vitest-config
+      '@types/bun':
+        specifier: ^1.2.21
+        version: 1.2.21(@types/react@19.1.12)
       '@types/js-yaml':
         specifier: 'catalog:'
         version: 4.0.9
@@ -4829,6 +4832,9 @@ packages:
 
   '@types/braces@3.0.5':
     resolution: {integrity: sha512-SQFof9H+LXeWNz8wDe7oN5zu7ket0qwMu5vZubW4GCJ8Kkeh6nBWUz87+KTz/G3Kqsrp0j/W253XJb3KMEeg3w==}
+
+  '@types/bun@1.2.21':
+    resolution: {integrity: sha512-NiDnvEqmbfQ6dmZ3EeUO577s4P5bf4HCTXtI6trMc6f6RzirY5IrF3aIookuSpyslFzrnvv2lmEWv5HyC1X79A==}
 
   '@types/canvas-confetti@1.9.0':
     resolution: {integrity: sha512-aBGj/dULrimR1XDZLtG9JwxX1b4HPRF6CX9Yfwh3NvstZEm1ZL7RBnel4keCPSqs1ANRu1u2Aoz9R+VmtjYuTg==}
@@ -15012,6 +15018,12 @@ snapshots:
 
   '@types/braces@3.0.5': {}
 
+  '@types/bun@1.2.21(@types/react@19.1.12)':
+    dependencies:
+      bun-types: 1.2.21(@types/react@19.1.12)
+    transitivePeerDependencies:
+      - '@types/react'
+
   '@types/canvas-confetti@1.9.0': {}
 
   '@types/caseless@0.12.5': {}
@@ -15752,7 +15764,6 @@ snapshots:
     dependencies:
       '@types/node': 22.18.1
       '@types/react': 19.1.12
-    optional: true
 
   bundle-name@4.1.0:
     dependencies:

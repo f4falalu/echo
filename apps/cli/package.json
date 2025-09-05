@@ -48,7 +48,8 @@
     "@types/react": "catalog:",
     "ink-testing-library": "^4.0.0",
     "react-devtools-core": "^6.1.5",
-    "tsx": "catalog:"
+    "tsx": "catalog:",
+    "@types/bun": "^1.2.21"
   },
   "engines": {
     "bun": ">=1.0.0"
