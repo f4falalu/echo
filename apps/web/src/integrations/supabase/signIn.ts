@@ -146,8 +146,6 @@ export const signUpWithEmailAndPassword = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     const supabase = getSupabaseServerClient();
 
-    console.log('Sign up data:', data);
-
     const { error } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
@@ -155,8 +153,6 @@ export const signUpWithEmailAndPassword = createServerFn({ method: 'POST' })
         emailRedirectTo: data.redirectTo || `${env.VITE_PUBLIC_URL}`,
       },
     });
-
-    console.log('Sign up error:', error);
 
     if (error) {
       return {

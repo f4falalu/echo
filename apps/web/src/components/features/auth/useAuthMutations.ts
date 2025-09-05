@@ -17,7 +17,6 @@ export const useOAuthMutation = (
   return useMutation({
     mutationFn,
     onSuccess: (data) => {
-      console.log(`${provider} OAuth result:`, data);
       if (data.success && data.url) {
         window.location.href = data.url;
       }

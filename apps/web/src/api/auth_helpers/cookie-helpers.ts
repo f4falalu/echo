@@ -5,7 +5,6 @@ import { getExpiresAtMilliseconds } from './expiration-helpers';
 
 export const checkTokenValidityFromToken = (token: string | undefined) => {
   const decoded = decodeJwtToken(token);
-  console.log('decoded', decoded);
 };
 
 export const decodeJwtToken = (token: string | undefined) => {
