@@ -51,6 +51,7 @@ export { default as EyeSlash } from './eye-slash'; // Eye with slash (hide) icon
 export { default as FaceGrin } from './face-grin';
 export { default as File } from './file';
 export { default as FileCloud } from './file-cloud';
+export { default as FileContent } from './file-content';
 export { default as FileText } from './file-text'; // File text icon
 export { default as Film } from './film';
 export { default as FilmPlay } from './film-play';
@@ -105,7 +106,7 @@ export { default as Plus } from './plus'; // Plus/add icon
 export { default as Quote } from './quote';
 export { default as RectArrowDownLeft } from './rect-arrow-down-left';
 export { default as Redo } from './redo';
-export { default as Refresh3 } from './refresh-3';
+export { default as Refresh } from './refresh';
 export { default as ReturnKey } from './return-key';
 export { default as SearchContent } from './search-content';
 export { default as SelectDropdown } from './select-dropdown';

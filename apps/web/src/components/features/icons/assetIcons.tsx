@@ -1,6 +1,6 @@
 import type { ShareAssetType } from '@buster/server-shared/share';
 import {
-  FileText,
+  FileContent,
   Folder5,
   FolderPlus,
   Grid,
@@ -18,7 +18,7 @@ export const ASSET_ICONS = {
   dashboardAdd: GridPlus,
   collectionAdd: FolderPlus,
   table: Table,
-  reports: FileText,
+  reports: FileContent,
 };
 
 export const assetTypeToIcon = (assetType: ShareAssetType) => {

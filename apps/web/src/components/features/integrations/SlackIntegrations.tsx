@@ -21,7 +21,7 @@ import {
 import { ChevronDown } from '@/components/ui/icons';
 import { SlackIcon } from '@/components/ui/icons/customIcons/SlackIcon';
 import LinkSlash from '@/components/ui/icons/NucleoIconOutlined/link-slash';
-import Refresh2 from '@/components/ui/icons/NucleoIconOutlined/refresh-2';
+import Refresh from '@/components/ui/icons/NucleoIconOutlined/refresh';
 import { Text } from '@/components/ui/typography';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { SettingsCards } from '../settings/SettingsCard';
@@ -188,7 +188,7 @@ const ConnectedSlackChannels = React.memo(() => {
                 suffix={
                   !showLoadingButton && (
                     <span className="flex items-center justify-center text-base">
-                      <Refresh2 />
+                      <Refresh />
                     </span>
                   )
                 }

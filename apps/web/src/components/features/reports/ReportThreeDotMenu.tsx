@@ -23,13 +23,13 @@ import {
 } from '@/components/ui/dropdown';
 import { Dots, History, ShareRight, Star, WandSparkle } from '@/components/ui/icons';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
-import { FileText, Refresh3 } from '@/components/ui/icons/NucleoIconOutlined';
+import { Download4, Refresh } from '@/components/ui/icons/NucleoIconOutlined';
 import { useStartChatFromAsset } from '@/context/BusterAssets/useStartChatFromAsset';
 import { useBusterNotifications } from '@/context/BusterNotifications';
+import { useGetChatId } from '@/context/Chats/useGetChatId';
 import { useReportPageExport } from '@/context/Reports/useReportPageExport';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { canEdit, getIsEffectiveOwner } from '@/lib/share';
-import { useGetChatId } from '../../../context/Chats/useGetChatId';
 
 export const ReportThreeDotMenu = React.memo(
   ({
@@ -130,7 +130,7 @@ const useShareMenuSelectMenu = ({ reportId }: { reportId: string }) => {
 
   return useMemo(
     () => ({
-      label: 'Share report',
+      label: 'Share',
       value: 'share-report',
       icon: <ShareRight />,
       disabled: !isEffectiveOwner,
@@ -311,7 +311,7 @@ const useRefreshReportSelectMenu = ({ reportId }: { reportId: string }): IDropdo
     () => ({
       label: 'Refresh report',
       value: 'refresh-report',
-      icon: <Refresh3 />,
+      icon: <Refresh />,
       onClick,
       loading: isPending,
     }),
@@ -367,7 +367,7 @@ const useDownloadPdfSelectMenu = ({
       dropdownItem: {
         label: 'Download as PDF',
         value: 'download-pdf',
-        icon: <FileText />,
+        icon: <Download4 />,
         onClick,
       },
       exportPdfContainer: ExportContainer,
