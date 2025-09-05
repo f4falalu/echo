@@ -1,9 +1,8 @@
 import { createBusterSDK } from '@buster/sdk';
-import { Box, Text, useApp, useInput } from 'ink';
-import { render } from 'ink';
+import { Box, render, Text, useApp, useInput } from 'ink';
 import Spinner from 'ink-spinner';
 import TextInput from 'ink-text-input';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BusterBanner } from '../components/banner.js';
 import {
   type Credentials,
@@ -21,11 +20,11 @@ const _LOCAL_HOST = 'http://localhost:3001';
 // Component for the welcome screen header with additional help text
 function WelcomeHeader() {
   return (
-    <Box paddingY={2} paddingX={2} alignItems='center'>
+    <Box paddingY={2} paddingX={2} alignItems="center">
       <Box marginRight={4}>
         <BusterBanner showSubtitle={false} inline={true} />
       </Box>
-      <Box flexDirection='column' justifyContent='center'>
+      <Box flexDirection="column" justifyContent="center">
         <Text bold>Welcome to Buster</Text>
         <Box marginTop={1}>
           <Text dimColor>Type / to use slash commands</Text>
@@ -40,7 +39,7 @@ function WelcomeHeader() {
           <Text dimColor>/help for more</Text>
         </Box>
         <Box marginTop={2}>
-          <Text color='#7C3AED'>"Run `buster` and fix all the errors"</Text>
+          <Text color="#7C3AED">"Run `buster` and fix all the errors"</Text>
         </Box>
       </Box>
     </Box>
@@ -115,21 +114,21 @@ function CommandInput({ onSubmit }: { onSubmit: (input: string) => void }) {
   });
 
   return (
-    <Box flexDirection='column' paddingX={2} paddingBottom={1}>
-      <Box borderStyle='single' borderColor='#7C3AED' paddingX={1} width='100%'>
-        <Text color='#7C3AED'>❯ </Text>
+    <Box flexDirection="column" paddingX={2} paddingBottom={1}>
+      <Box borderStyle="single" borderColor="#7C3AED" paddingX={1} width="100%">
+        <Text color="#7C3AED">❯ </Text>
         <TextInput
           value={input}
           onChange={handleChange}
           onSubmit={handleSubmit}
-          placeholder='Enter a command or question...'
+          placeholder="Enter a command or question..."
         />
       </Box>
 
       {/* Show command suggestions */}
       {showSuggestions && filteredCommands.length > 0 && (
-        <Box flexDirection='column' marginTop={1} paddingX={1}>
-          <Text color='#7C3AED' bold>
+        <Box flexDirection="column" marginTop={1} paddingX={1}>
+          <Text color="#7C3AED" bold>
             Available Commands:
           </Text>
           {filteredCommands.map((cmd, index) => (
@@ -194,21 +193,21 @@ function AuthPrompt({ onAuth }: { onAuth: (creds: Credentials) => void }) {
     return (
       <Box paddingX={2}>
         <Text>
-          <Spinner type='dots' /> Validating your API key...
+          <Spinner type="dots" /> Validating your API key...
         </Text>
       </Box>
     );
   }
 
   return (
-    <Box flexDirection='column' paddingX={2}>
+    <Box flexDirection="column" paddingX={2}>
       <Box marginBottom={1}>
         <Text>Let's get you connected to Buster.</Text>
       </Box>
 
       {error && (
         <Box marginBottom={1}>
-          <Text color='red'>❌ {error}</Text>
+          <Text color="red">❌ {error}</Text>
         </Box>
       )}
 
@@ -216,13 +215,13 @@ function AuthPrompt({ onAuth }: { onAuth: (creds: Credentials) => void }) {
         <Text>Enter your API key: </Text>
       </Box>
 
-      <Box borderStyle='single' borderColor='#7C3AED' paddingX={1}>
+      <Box borderStyle="single" borderColor="#7C3AED" paddingX={1}>
         <TextInput
           value={apiKey}
           onChange={setApiKey}
           onSubmit={handleSubmit}
-          mask='*'
-          placeholder='sk_...'
+          mask="*"
+          placeholder="sk_..."
         />
       </Box>
 
@@ -334,11 +333,11 @@ export function Main() {
 
   if (checkingAuth) {
     return (
-      <Box flexDirection='column'>
+      <Box flexDirection="column">
         <WelcomeHeader />
         <Box paddingX={2}>
           <Text>
-            <Spinner type='dots' /> Checking configuration...
+            <Spinner type="dots" /> Checking configuration...
           </Text>
         </Box>
       </Box>
@@ -346,12 +345,12 @@ export function Main() {
   }
 
   return (
-    <Box flexDirection='column'>
+    <Box flexDirection="column">
       <WelcomeHeader />
 
       {/* Show command history if authenticated */}
       {isAuthenticated && commandHistory.length > 0 && (
-        <Box flexDirection='column' paddingX={2} marginBottom={1}>
+        <Box flexDirection="column" paddingX={2} marginBottom={1}>
           {commandHistory.slice(-5).map((cmd, idx) => (
             <Box key={`cmd-${idx}-${cmd}`}>
               <Text dimColor>❯ {cmd}</Text>

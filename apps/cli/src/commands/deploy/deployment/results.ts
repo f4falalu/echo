@@ -1,5 +1,5 @@
 import { relative } from 'node:path';
-import type { CLIDeploymentResult, DeployResponse, DeploymentExcluded, Model } from '../schemas';
+import type { CLIDeploymentResult, DeploymentExcluded, DeployResponse, Model } from '../schemas';
 
 /**
  * Pure function to merge multiple deployment results into one

@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import { Box, Text } from 'ink';
-import React, { useEffect } from 'react';
+import type React from 'react';
+import { useEffect } from 'react';
 
 interface HelloCommandProps {
   name: string;
@@ -19,8 +20,8 @@ export const HelloCommand: React.FC<HelloCommandProps> = ({ name, uppercase }) =
   }, []);
 
   return (
-    <Box flexDirection='column'>
-      <Text color='green'>{chalk.bold('🚀 Buster CLI')}</Text>
+    <Box flexDirection="column">
+      <Text color="green">{chalk.bold('🚀 Buster CLI')}</Text>
       <Text>{displayText}</Text>
     </Box>
   );
