@@ -6,88 +6,88 @@ const theme = {
   rules: [
     {
       background: 'FFFFFF',
-      token: ''
+      token: '',
     },
     {
       foreground: '008e00',
-      token: 'comment'
+      token: 'comment',
     },
     {
       foreground: '7d4726',
-      token: 'meta.preprocessor'
+      token: 'meta.preprocessor',
     },
     {
       foreground: '7d4726',
-      token: 'keyword.control.import'
+      token: 'keyword.control.import',
     },
     {
       foreground: 'df0002',
-      token: 'string'
+      token: 'string',
     },
     {
       foreground: '3a00dc',
-      token: 'constant.numeric'
+      token: 'constant.numeric',
     },
     {
       foreground: primaryColor,
-      token: 'constant.language'
+      token: 'constant.language',
     },
     {
       foreground: '275a5e',
-      token: 'constant.character'
+      token: 'constant.character',
     },
     {
       foreground: '275a5e',
-      token: 'constant.other'
+      token: 'constant.other',
     },
     {
       foreground: primaryColor,
-      token: 'variable.language'
+      token: 'variable.language',
     },
     {
       foreground: primaryColor,
-      token: 'variable.other'
+      token: 'variable.other',
     },
     {
       foreground: primaryColor,
-      token: 'keyword'
+      token: 'keyword',
     },
     {
       foreground: 'c900a4',
-      token: 'storage'
+      token: 'storage',
     },
     {
       foreground: '438288',
-      token: 'entity.name.class'
+      token: 'entity.name.class',
     },
     {
       foreground: '790ead',
-      token: 'entity.name.tag'
+      token: 'entity.name.tag',
     },
     {
       foreground: '450084',
-      token: 'entity.other.attribute-name'
+      token: 'entity.other.attribute-name',
     },
     {
       foreground: '450084',
-      token: 'support.function'
+      token: 'support.function',
     },
     {
       foreground: '450084',
-      token: 'support.constant'
+      token: 'support.constant',
     },
     {
       foreground: '790ead',
-      token: 'support.type'
+      token: 'support.type',
     },
     {
       foreground: '790ead',
-      token: 'support.class'
+      token: 'support.class',
     },
     {
       foreground: '790ead',
-      token: 'support.other.variable'
-    }
+      token: 'support.other.variable',
+    },
   ],
   colors: {
     'editor.foreground': '#000000',
@@ -98,9 +98,9 @@ const theme = {
     'editorWhitespace.foreground': '#BFBFBF',
     'inputValidation.infoBorder': '#000000',
     'editorHoverWidget.background': '#FFF',
-    'editorHoverWidget.foreground': '#000'
+    'editorHoverWidget.foreground': '#000',
     //--vscode-inputValidation-infoBorder
-  }
+  },
 };
 
 export default theme;

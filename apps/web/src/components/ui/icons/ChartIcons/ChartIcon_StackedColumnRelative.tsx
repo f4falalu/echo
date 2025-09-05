@@ -1,5 +1,5 @@
-import { DEFAULT_CHART_COLORS, DISABLED_CHART_COLORS } from './config';
 import type React from 'react';
+import { DEFAULT_CHART_COLORS, DISABLED_CHART_COLORS } from './config';
 
 export const ChartIcon_StackedColumnRelative: React.FC<{
   colors?: string[];
@@ -16,7 +16,8 @@ export const ChartIcon_StackedColumnRelative: React.FC<{
       width="1em"
       height="1em"
       viewBox="0 0 23 22"
-      fill="none">
+      fill="none"
+    >
       <title>Stacked Column Relative Chart Icon</title>
       <path
         d="M16.834 11C16.834 10.4477 17.2817 10 17.834 10H19.834C20.3863 10 20.834 10.4477 20.834 11V22H16.834V11Z"

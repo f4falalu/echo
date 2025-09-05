@@ -1,5 +1,3 @@
-'use client';
-
 import type { DropAnimation, Modifier } from '@dnd-kit/core';
 import { DragOverlay, defaultDropAnimationSideEffects } from '@dnd-kit/core';
 import { snapCenterToCursor } from '@dnd-kit/modifiers';
@@ -13,10 +11,10 @@ const dropAnimationConfig: DropAnimation = {
   sideEffects: defaultDropAnimationSideEffects({
     styles: {
       active: {
-        opacity: '0.4'
-      }
-    }
-  })
+        opacity: '0.4',
+      },
+    },
+  }),
 };
 
 export const BusterSortableOverlay: React.FC<{
@@ -30,7 +28,7 @@ export const BusterSortableOverlay: React.FC<{
     if (activeId === null)
       return {
         widthOfItem: undefined,
-        useSnapToCenter: false
+        useSnapToCenter: false,
       };
 
     const r = rows.find((row) => row.items.some((item) => item.id === activeId));
@@ -59,7 +57,7 @@ export const BusterSortableOverlay: React.FC<{
       animate(scale, 1.0, {
         duration: 0.25,
         onUpdate: setScale,
-        ease: [0.18, 0.67, 0.6, 1.22]
+        ease: [0.18, 0.67, 0.6, 1.22],
       });
     } else {
       setScale(1);
@@ -69,7 +67,8 @@ export const BusterSortableOverlay: React.FC<{
   return (
     <DragOverlay
       dropAnimation={dropAnimationConfig}
-      modifiers={[useSnapToCenter ? snapCenterToCursor : adjustTranslate]}>
+      modifiers={[useSnapToCenter ? snapCenterToCursor : adjustTranslate]}
+    >
       {activeId && (
         <BusterSortableItemContent
           itemId={activeId}
@@ -80,9 +79,10 @@ export const BusterSortableOverlay: React.FC<{
               maxWidth: widthOfItem,
               height: '100%',
               width: '100%',
-              '--scale': scale
+              '--scale': scale,
             } as React.CSSProperties
-          }>
+          }
+        >
           {overlayComponent}
         </BusterSortableItemContent>
       )}

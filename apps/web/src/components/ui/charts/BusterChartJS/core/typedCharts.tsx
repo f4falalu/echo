@@ -1,5 +1,3 @@
-'use client';
-
 import type { ChartComponentLike, ChartType } from 'chart.js';
 import {
   BarController,
@@ -10,10 +8,10 @@ import {
   PieController,
   PolarAreaController,
   RadarController,
-  ScatterController
+  ScatterController,
 } from 'chart.js';
 import { forwardRef } from 'react';
-import { Chart } from './chart';
+import { Chart } from './chart.js';
 import type { ChartJSOrUndefined, ChartProps, TypedChartComponent } from './types.js';
 
 function createTypedChart<T extends ChartType>(type: T, registerables: ChartComponentLike) {

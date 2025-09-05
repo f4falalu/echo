@@ -11,6 +11,7 @@ export const UpdateReportRequestSchema = z
   .object({
     name: z.string().optional(),
     update_version: z.boolean().optional(),
+    restore_to_version: z.number().optional(),
     content: z.string().optional(), //content will be validated as string in the database
   })
   .partial();

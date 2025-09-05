@@ -9,3 +9,6 @@ export * from './envHelpers';
 
 // Mock helpers
 export * from './mock-helpers';
+
+// Streaming utilities
+export * from './streaming-utils';

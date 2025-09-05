@@ -1,17 +1,12 @@
-'use client';
-
-import * as React from 'react';
-
 import { useCalloutEmojiPicker } from '@platejs/callout/react';
 import { useEmojiDropdownMenuState } from '@platejs/emoji/react';
-import { PlateElement } from 'platejs/react';
+import type { TCalloutElement } from 'platejs';
 import type { PlateElementProps } from 'platejs/react';
-
+import { PlateElement } from 'platejs/react';
+import * as React from 'react';
 import { Button } from '@/components/ui/buttons';
 import { cn } from '@/lib/utils';
-
 import { EmojiPicker, EmojiPopover } from './EmojiToolbarButton';
-import type { TCalloutElement } from 'platejs';
 
 export function CalloutElement({
   attributes,
@@ -20,12 +15,12 @@ export function CalloutElement({
 }: PlateElementProps<TCalloutElement>) {
   const { element } = props;
   const { emojiPickerState, isOpen, setIsOpen } = useEmojiDropdownMenuState({
-    closeOnSelect: true
+    closeOnSelect: true,
   });
 
   const { emojiToolbarDropdownProps, props: calloutProps } = useCalloutEmojiPicker({
     isOpen,
-    setIsOpen
+    setIsOpen,
   });
 
   return (
@@ -33,13 +28,14 @@ export function CalloutElement({
       className={cn('bg-muted flex rounded-sm p-4 pl-3', attributes.className)}
       style={{
         ...attributes.style,
-        backgroundColor: element.backgroundColor
+        backgroundColor: element.backgroundColor,
       }}
       attributes={{
         ...attributes,
-        'data-plate-open-context-menu': true
+        'data-plate-open-context-menu': true,
       }}
-      {...props}>
+      {...props}
+    >
       <div className="flex w-full gap-2 rounded-md">
         <EmojiPopover
           {...emojiToolbarDropdownProps}
@@ -50,12 +46,13 @@ export function CalloutElement({
               className="hover:bg-muted-foreground/15 size-6 max-h-none p-1 text-[18px] select-none"
               style={{
                 fontFamily:
-                  '"Apple Color Emoji", "Segoe UI Emoji", NotoColorEmoji, "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji", EmojiSymbols'
+                  '"Apple Color Emoji", "Segoe UI Emoji", NotoColorEmoji, "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji", EmojiSymbols',
               }}
               prefix={<div className="text-lg">{(element.icon || '💡').trim()}</div>}
               contentEditable={false}
             />
-          }>
+          }
+        >
           <EmojiPicker {...emojiPickerState} {...calloutProps} />
         </EmojiPopover>
         <div className="mt-0.5 w-full">{children}</div>

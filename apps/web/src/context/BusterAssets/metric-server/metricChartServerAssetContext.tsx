@@ -1,0 +1,65 @@
+import { ClientOnly, Outlet } from '@tanstack/react-router';
+import { lazy, Suspense, useRef } from 'react';
+import { AppSplitter, type LayoutSize } from '@/components/ui/layouts/AppSplitter';
+import { useGetMetricParams } from '@/context/Metrics/useGetMetricParams';
+import { MetricViewChartController } from '@/controllers/MetricController/MetricViewChartController';
+import {
+  useIsMetricEditMode,
+  useMetricEditSplitter,
+} from '@/layouts/AssetContainer/MetricAssetContainer/MetricContextProvider';
+import { CircleSpinnerLoaderContainer } from '../../../components/ui/loaders';
+
+const defaultLayoutClosed: LayoutSize = ['auto', '0px'];
+const defaultLayoutOpen: LayoutSize = ['auto', '300px'];
+const autoSaveId = `metric-chart-layout`;
+
+export const component = () => {
+  const { metricId, metricVersionNumber } = useGetMetricParams();
+  const isMetricEditMode = useIsMetricEditMode();
+  const splitterRef = useMetricEditSplitter();
+
+  const hasSeenMetricEditMode = useRef(false);
+
+  const defaultLayout = isMetricEditMode ? defaultLayoutOpen : defaultLayoutClosed;
+
+  if (isMetricEditMode && !hasSeenMetricEditMode.current) {
+    hasSeenMetricEditMode.current = true;
+  }
+
+  return (
+    <ClientOnly>
+      <AppSplitter
+        ref={splitterRef}
+        autoSaveId={autoSaveId}
+        defaultLayout={defaultLayout}
+        initialLayout={defaultLayout}
+        preserveSide="right"
+        leftChildren={
+          <MetricViewChartController metricId={metricId} versionNumber={metricVersionNumber} />
+        }
+        rightChildren={
+          <RightChildren metricId={metricId} renderChart={hasSeenMetricEditMode.current} />
+        }
+        rightPanelMinSize={'250px'}
+        rightPanelMaxSize={'500px'}
+        allowResize={isMetricEditMode}
+      />
+      <Outlet />
+    </ClientOnly>
+  );
+};
+
+const MetricEditController = lazy(() =>
+  import('@/controllers/MetricController/MetricViewChartController/MetricEditController').then(
+    (x) => ({
+      default: x.MetricEditController,
+    })
+  )
+);
+const RightChildren = ({ metricId, renderChart }: { metricId: string; renderChart: boolean }) => {
+  return renderChart ? (
+    <Suspense fallback={<CircleSpinnerLoaderContainer />}>
+      <MetricEditController metricId={metricId} />
+    </Suspense>
+  ) : null;
+};

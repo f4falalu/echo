@@ -8,10 +8,10 @@ type WithDateField<K extends string> = {
 
 export const useCreateListByDate = <
   K extends string = 'last_edited',
-  T extends WithDateField<K> = WithDateField<K>
+  T extends WithDateField<K> = WithDateField<K>,
 >({
   data,
-  dateKey = 'last_edited' as K
+  dateKey = 'last_edited' as K,
 }: {
   data: T[];
   dateKey?: K;

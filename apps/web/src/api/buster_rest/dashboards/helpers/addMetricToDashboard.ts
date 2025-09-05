@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { BusterDashboard } from '@/api/asset_interfaces/dashboard';
-import { MAX_NUMBER_OF_ITEMS, NUMBER_OF_COLUMNS } from '../../../../components/ui/grid/helpers';
+import { MAX_NUMBER_OF_ITEMS, NUMBER_OF_COLUMNS } from '../../../asset_interfaces/dashboard/config';
 
 export const addMetricToDashboardConfig = (
   metricIds: string[],
@@ -9,7 +9,7 @@ export const addMetricToDashboardConfig = (
   // Create a new config object to avoid mutating the original
   const newConfig = {
     ...existingConfig,
-    rows: [...(existingConfig.rows || [])]
+    rows: [...(existingConfig.rows || [])],
   };
 
   // Filter out metrics that are already in the dashboard
@@ -41,7 +41,7 @@ export const addMetricToDashboardConfig = (
       id: uuidv4(),
       items: metricsInThisRow.map((id) => ({ id })),
       columnSizes,
-      rowHeight: 320 // Default row height
+      rowHeight: 320, // Default row height
     };
 
     newConfig.rows.push(newRow);

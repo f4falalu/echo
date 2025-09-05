@@ -1,24 +1,24 @@
-'use client';
-
-import React, { useEffect, useMemo, useState } from 'react';
 import type { DataResult } from '@buster/server-shared/metrics';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
-import { AppVerticalCodeSplitter } from '@/components/features/layouts/AppVerticalCodeSplitter';
-import type { AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
-import { useMemoizedFn } from '@/hooks';
+import type { AppSplitterRef, LayoutSize } from '@/components/ui/layouts/AppSplitter';
+import { AppVerticalCodeSplitter } from '@/components/ui/layouts/AppVerticalCodeSplitter';
+import { useChatIsVersionHistoryMode } from '@/context/Chats/useIsVersionHistoryMode';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useMetricResultsLayout } from './useMetricResultsLayout';
 import { useMetricRunSQL } from './useMetricRunSQL';
-import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 
 export const MetricViewSQLController: React.FC<{
   metricId: string;
-}> = React.memo(({ metricId }) => {
+  versionNumber: number | undefined;
+  initialLayout: LayoutSize | null;
+}> = React.memo(({ metricId, versionNumber, initialLayout }) => {
   const appSplitterRef = React.useRef<AppSplitterRef>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   const autoSaveId = `view-sql-${metricId}`;
 
-  const isVersionHistoryMode = useChatLayoutContextSelector((x) => x.isVersionHistoryMode);
+  const isVersionHistoryMode = useChatIsVersionHistoryMode({ type: 'metric' });
 
   const {
     runSQL,
@@ -27,20 +27,20 @@ export const MetricViewSQLController: React.FC<{
     saveMetricError,
     runSQLError,
     isSavingMetric,
-    isRunningSQL
+    isRunningSQL,
   } = useMetricRunSQL();
 
   const { data: metric } = useGetMetric(
-    { id: metricId },
+    { id: metricId, versionNumber },
     {
       select: ({ sql, data_source_id }) => ({
         sql,
-        data_source_id
-      })
+        data_source_id,
+      }),
     }
   );
   const { data: metricData, isFetched: isFetchedInitialData } = useGetMetricData(
-    { id: metricId },
+    { id: metricId, versionNumber },
     { enabled: false }
   );
 
@@ -58,7 +58,7 @@ export const MetricViewSQLController: React.FC<{
       const res = await runSQL({
         dataSourceId,
         sql,
-        metricId
+        metricId,
       });
 
       if (res?.data && res.data.length > 0) {
@@ -80,13 +80,13 @@ export const MetricViewSQLController: React.FC<{
     await saveSQL({
       metricId,
       sql,
-      dataSourceId
+      dataSourceId,
     });
   });
 
   const { defaultLayout } = useMetricResultsLayout({
     appSplitterRef,
-    autoSaveId
+    autoSaveId,
   });
 
   useEffect(() => {
@@ -111,6 +111,7 @@ export const MetricViewSQLController: React.FC<{
         fetchingData={isRunningSQL || isSavingMetric || !isFetchedInitialData}
         defaultLayout={defaultLayout}
         topHidden={false}
+        initialLayout={initialLayout}
       />
     </div>
   );

@@ -1,4 +1,4 @@
-'use client';
+/** biome-ignore-all lint/correctness/noNestedComponentDefinitions: shadcn does it. good enough for me. */
 
 import type * as React from 'react';
 import { DayPicker } from 'react-day-picker';
@@ -46,7 +46,7 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
         day_disabled: 'text-gray-light opacity-50 cursor-not-allowed!',
         day_range_middle: 'aria-selected:bg-item-select aria-selected:text-accent-foreground',
         day_hidden: 'invisible',
-        ...classNames
+        ...classNames,
       }}
       components={{
         IconLeft: ({ className, ...props }) => (
@@ -58,7 +58,7 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
           <div className={cn(className)} {...props}>
             <ChevronRight />
           </div>
-        )
+        ),
       }}
       {...props}
     />

@@ -1,19 +1,19 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
-import { fn } from 'storybook/test';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
-import { NewThemePopup } from './NewThemePopup';
+import { fn } from 'storybook/test';
 import type { IColorPalette } from '../ThemeList';
+import { NewThemePopup } from './NewThemePopup';
 
 const mockTheme: IColorPalette = {
   id: '1',
   name: 'Ocean Breeze',
-  colors: ['#1E88E5', '#00ACC1', '#00897B', '#43A047', '#7CB342', '#673AB7', '#3F51B5']
+  colors: ['#1E88E5', '#00ACC1', '#00897B', '#43A047', '#7CB342', '#673AB7', '#3F51B5'],
 };
 
 const longNameTheme: IColorPalette = {
   id: '2',
   name: 'Super Long Theme Name That Might Wrap Around',
-  colors: ['#FF7043', '#FFB74D', '#FFA726', '#FF5722', '#F4511E']
+  colors: ['#FF7043', '#FFB74D', '#FFA726', '#FF5722', '#F4511E'],
 };
 
 const manyColorsTheme: IColorPalette = {
@@ -34,27 +34,27 @@ const manyColorsTheme: IColorPalette = {
     '#C0CA33',
     '#FFEE58',
     '#FFA726',
-    '#FF7043'
-  ]
+    '#FF7043',
+  ],
 };
 
 const meta: Meta<typeof NewThemePopup> = {
   title: 'Features/Colors/NewThemePopup',
   component: NewThemePopup,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
   args: {
     onSave: fn(),
-    onDelete: fn()
+    onDelete: fn(),
   },
   decorators: [
     (Story) => (
       <div className="">
         <Story />
       </div>
-    )
-  ]
+    ),
+  ],
 };
 
 export default meta;
@@ -62,24 +62,24 @@ type Story = StoryObj<typeof NewThemePopup>;
 
 export const NewTheme: Story = {
   args: {
-    selectedTheme: undefined
-  }
+    selectedTheme: undefined,
+  },
 };
 
 export const EditingExistingTheme: Story = {
   args: {
-    selectedTheme: mockTheme
-  }
+    selectedTheme: mockTheme,
+  },
 };
 
 export const EditingThemeWithLongName: Story = {
   args: {
-    selectedTheme: longNameTheme
-  }
+    selectedTheme: longNameTheme,
+  },
 };
 
 export const EditingThemeWithManyColors: Story = {
   args: {
-    selectedTheme: manyColorsTheme
-  }
+    selectedTheme: manyColorsTheme,
+  },
 };

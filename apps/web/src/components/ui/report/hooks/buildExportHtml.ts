@@ -1,6 +1,4 @@
-import { EditorStatic } from '../elements/EditorStatic';
 import type { PlateEditor } from 'platejs/react';
-import { createSlateEditor, serializeHtml } from 'platejs';
 
 // Build a complete HTML document string for export, inlining
 // computed CSS styles so no external CSS is required. Additionally,
@@ -13,8 +11,8 @@ type BuildExportHtmlOptions = {
 };
 
 export const buildExportHtml = async (
-  editor: PlateEditor,
-  options?: BuildExportHtmlOptions
+  _editor: PlateEditor,
+  _options?: BuildExportHtmlOptions
 ): Promise<string> => {
   alert('TODO');
 

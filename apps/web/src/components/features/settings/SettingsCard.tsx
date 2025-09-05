@@ -1,5 +1,5 @@
 import React from 'react';
-import { Title, Paragraph } from '@/components/ui/typography';
+import { Paragraph, Title } from '@/components/ui/typography';
 import { cn } from '@/lib/classMerge';
 
 interface SettingsCardsProps {

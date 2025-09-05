@@ -8,7 +8,7 @@ import { formatLabelForDataset, formatLabelForPieLegend } from './labelHelpers';
 
 // Mock the formatLabel function
 vi.mock('@/lib/columnFormatter', () => ({
-  formatLabel: vi.fn((value, format, useKey) => `formatted_${value}`)
+  formatLabel: vi.fn((value, format, useKey) => `formatted_${value}`),
 }));
 
 describe('labelHelpers', () => {
@@ -24,17 +24,17 @@ describe('labelHelpers', () => {
         id: 'test-id',
         label: [
           { key: 'key1', value: 'value1' },
-          { key: 'key2', value: 'value2' }
+          { key: 'key2', value: 'value2' },
         ],
         data: [1, 2, 3],
         dataKey: 'test-key',
         axisType: 'y',
-        tooltipData: [[{ key: 'key1', value: 'value1' }], [{ key: 'key2', value: 'value2' }]]
+        tooltipData: [[{ key: 'key1', value: 'value1' }], [{ key: 'key2', value: 'value2' }]],
       };
 
       const columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']> = {
         key1: { columnType: 'text', style: 'string' } as ColumnLabelFormat,
-        key2: { columnType: 'text', style: 'string' } as ColumnLabelFormat
+        key2: { columnType: 'text', style: 'string' } as ColumnLabelFormat,
       };
 
       const result = formatLabelForDataset(dataset, columnLabelFormats);
@@ -48,17 +48,17 @@ describe('labelHelpers', () => {
         id: 'test-id',
         label: [
           { key: 'key1', value: null },
-          { key: 'key2', value: 'value2' }
+          { key: 'key2', value: 'value2' },
         ],
         data: [1, 2, 3],
         dataKey: 'test-key',
         axisType: 'y',
-        tooltipData: [[{ key: 'key1', value: null }], [{ key: 'key2', value: 'value2' }]]
+        tooltipData: [[{ key: 'key1', value: null }], [{ key: 'key2', value: 'value2' }]],
       };
 
       const columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']> = {
         key1: { columnType: 'text', style: 'string' } as ColumnLabelFormat,
-        key2: { columnType: 'text', style: 'string' } as ColumnLabelFormat
+        key2: { columnType: 'text', style: 'string' } as ColumnLabelFormat,
       };
 
       const result = formatLabelForDataset(dataset, columnLabelFormats);

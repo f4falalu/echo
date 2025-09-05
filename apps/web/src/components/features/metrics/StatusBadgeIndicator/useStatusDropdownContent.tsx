@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
 import type { VerificationStatus } from '@buster/server-shared/share';
-import type { DropdownItem, DropdownProps } from '@/components/ui/dropdown';
+import { useMemo } from 'react';
+import type { DropdownProps, IDropdownItem } from '@/components/ui/dropdown';
 import { getTooltipText } from './helpers';
 import { StatusBadgeIndicator } from './StatusBadgeIndicator';
 
@@ -9,7 +9,7 @@ const statuses: VerificationStatus[] = [
   'requested',
   'inReview',
   'verified',
-  'backlogged'
+  'backlogged',
 ];
 
 const requiresAdminItems = ['inReview', 'verified', 'backlogged'];
@@ -17,7 +17,7 @@ const requiresAdminItems = ['inReview', 'verified', 'backlogged'];
 export const useStatusDropdownContent = ({
   isAdmin,
   selectedStatus,
-  onChangeStatus
+  onChangeStatus,
 }: {
   isAdmin: boolean;
   selectedStatus: VerificationStatus;
@@ -27,7 +27,7 @@ export const useStatusDropdownContent = ({
   'showIndex' | 'items' | 'emptyStateText' | 'menuHeader' | 'selectType'
 > => {
   const items = useMemo(() => {
-    return statuses.map<DropdownItem<VerificationStatus>>((status) => {
+    return statuses.map<IDropdownItem<VerificationStatus>>((status) => {
       const requiresAdmin = requiresAdminItems.includes(status);
       return {
         label: getTooltipText(status),
@@ -39,7 +39,7 @@ export const useStatusDropdownContent = ({
           if (!requiresAdmin || isAdmin) {
             onChangeStatus(status);
           }
-        }
+        },
       };
     });
   }, [isAdmin, selectedStatus, onChangeStatus]);
@@ -50,7 +50,7 @@ export const useStatusDropdownContent = ({
       menuHeader: 'Verification status...',
       items,
       selectType: 'single',
-      showIndex: true
+      showIndex: true,
     }),
     [items]
   );

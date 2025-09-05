@@ -1,10 +1,9 @@
-'use client';
-
-import React, { useMemo } from 'react';
+import type React from 'react';
+import { useMemo } from 'react';
 import type { BusterChatMessageReasoning_file } from '@/api/asset_interfaces';
+import { StreamingMessageCode } from '@/components/ui/streaming/StreamingMessageCode';
 import { Text } from '@/components/ui/typography';
 import { TextAndVersionPill } from '@/components/ui/typography/TextAndVersionPill';
-import { StreamingMessageCode } from '@/components/ui/streaming/StreamingMessageCode';
 
 export const ReasoningFileCode: React.FC<
   BusterChatMessageReasoning_file & {
@@ -19,7 +18,7 @@ export const ReasoningFileCode: React.FC<
   file_name,
   version_number,
   buttons,
-  collapsible = false
+  collapsible = false,
 }) => {
   const { text = '', modified } = file;
 

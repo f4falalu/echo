@@ -1,3 +1,4 @@
+import { materialize } from '@buster/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createBashTool } from './bash-tool';
 
@@ -45,7 +46,7 @@ describe('createBashTool', () => {
 
     const bashTool = createBashTool(mockContext);
 
-    const result = await bashTool.execute!(
+    const rawResult = await bashTool.execute!(
       {
         commands: [
           {
@@ -56,6 +57,7 @@ describe('createBashTool', () => {
       },
       { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
     );
+    const result = await materialize(rawResult);
 
     expect(result.results).toHaveLength(1);
     expect(result.results[0]).toMatchObject({
@@ -74,7 +76,7 @@ describe('createBashTool', () => {
 
     const bashTool = createBashTool(mockContext);
 
-    const result = await bashTool.execute!(
+    const rawResult = await bashTool.execute!(
       {
         commands: [
           {
@@ -85,6 +87,7 @@ describe('createBashTool', () => {
       },
       { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
     );
+    const result = await materialize(rawResult);
 
     expect(result.results).toHaveLength(1);
     expect(result.results[0]).toMatchObject({
@@ -109,7 +112,7 @@ describe('createBashTool', () => {
 
     const bashTool = createBashTool(mockContext);
 
-    const result = await bashTool.execute!(
+    const rawResult = await bashTool.execute!(
       {
         commands: [
           {
@@ -124,6 +127,7 @@ describe('createBashTool', () => {
       },
       { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
     );
+    const result = await materialize(rawResult);
 
     expect(result.results).toHaveLength(2);
     expect(result.results[0]?.success).toBe(true);
@@ -136,7 +140,7 @@ describe('createBashTool', () => {
 
     const bashTool = createBashTool(mockContext);
 
-    const result = await bashTool.execute!(
+    const rawResult = await bashTool.execute!(
       {
         commands: [
           {
@@ -147,6 +151,7 @@ describe('createBashTool', () => {
       },
       { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
     );
+    const result = await materialize(rawResult);
 
     expect(result.results).toHaveLength(1);
     expect(result.results[0]).toMatchObject({
@@ -159,12 +164,13 @@ describe('createBashTool', () => {
   it('should handle empty commands array', async () => {
     const bashTool = createBashTool(mockContext);
 
-    const result = await bashTool.execute!(
+    const rawResult = await bashTool.execute!(
       {
         commands: [],
       },
       { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
     );
+    const result = await materialize(rawResult);
 
     expect(result.results).toHaveLength(0);
     expect(mockSandbox.process.executeCommand).not.toHaveBeenCalled();

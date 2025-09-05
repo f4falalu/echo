@@ -1,15 +1,15 @@
-import { Button } from '@/components/ui/buttons';
-import { Input } from '@/components/ui/inputs';
-import { Text } from '@/components/ui/typography';
-import React, { useEffect, useRef, useState } from 'react';
-import type { IColorPalette } from '../ThemeList';
-import { useMemoizedFn } from '@/hooks';
-import { v4 as uuidv4 } from 'uuid';
-import { Plus, Trash, FloppyDisk } from '../../../ui/icons';
-import { ColorPickButton } from './DraggableColorPicker';
-import { inputHasText } from '@/lib/text';
 import { DEFAULT_CHART_THEME } from '@buster/server-shared/metrics';
-import { Popover } from '../../../ui/popover';
+import React, { useEffect, useRef, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import { Button } from '@/components/ui/buttons';
+import { Plus, Trash } from '@/components/ui/icons';
+import FloppyDisk from '@/components/ui/icons/NucleoIconOutlined/floppy-disk';
+import { Input } from '@/components/ui/inputs';
+import { Popover } from '@/components/ui/popover';
+import { Text } from '@/components/ui/typography';
+import { inputHasText } from '@/lib/text';
+import type { IColorPalette } from '../ThemeList';
+import { ColorPickButton } from './DraggableColorPicker';
 
 interface NewThemePopupProps {
   selectedTheme?: IColorPalette;
@@ -24,9 +24,9 @@ const NewThemePopupContent = React.memo(
     onDelete,
     onUpdate,
     onSave,
-    triggerRef
+    triggerRef,
   }: NewThemePopupProps & {
-    triggerRef: React.RefObject<HTMLSpanElement>;
+    triggerRef: React.RefObject<HTMLSpanElement | null>;
   }) => {
     const [title, setTitle] = useState('');
     const [colors, setColors] = useState<string[]>(DEFAULT_CHART_THEME);
@@ -35,39 +35,39 @@ const NewThemePopupContent = React.memo(
     const isNewTheme = !selectedTheme;
     const disableCreateTheme = isNewTheme ? !inputHasText(title) || colors.length <= 0 : false;
 
-    const reset = useMemoizedFn(() => {
+    const reset = () => {
       setTitle('');
       setColors(DEFAULT_CHART_THEME);
       setId(uuidv4());
-    });
+    };
 
-    const closePopover = useMemoizedFn(() => {
+    const closePopover = () => {
       triggerRef.current?.click();
-    });
+    };
 
-    const onDeleteClick = useMemoizedFn(async () => {
+    const onDeleteClick = async () => {
       if (selectedTheme) await onDelete?.(id);
       closePopover();
       setTimeout(() => {
         reset();
       }, 350);
-    });
+    };
 
-    const onSaveClick = useMemoizedFn(async () => {
+    const onSaveClick = async () => {
       await onSave({ id, name: title, colors });
       closePopover();
       setTimeout(() => {
         reset();
       }, 350);
-    });
+    };
 
-    const onUpdateClick = useMemoizedFn(async () => {
+    const onUpdateClick = async () => {
       await onUpdate?.({ id, name: title, colors });
       closePopover();
       setTimeout(() => {
         reset();
       }, 350);
-    });
+    };
 
     useEffect(() => {
       if (selectedTheme) {
@@ -97,7 +97,8 @@ const NewThemePopupContent = React.memo(
               block
               disabled={disableCreateTheme}
               onClick={isNewTheme ? onSaveClick : onDeleteClick}
-              prefix={<Trash />}>
+              prefix={<Trash />}
+            >
               {'Delete theme'}
             </Button>
           )}
@@ -105,7 +106,8 @@ const NewThemePopupContent = React.memo(
             block
             disabled={disableCreateTheme}
             onClick={isNewTheme ? onSaveClick : onUpdateClick}
-            prefix={isNewTheme ? <Plus /> : <FloppyDisk />}>
+            prefix={isNewTheme ? <Plus /> : <FloppyDisk />}
+          >
             {isNewTheme || !onUpdate ? 'Create theme' : 'Update theme'}
           </Button>
         </div>
@@ -126,7 +128,8 @@ export const NewThemePopup = ({
       content={<NewThemePopupContent {...props} triggerRef={triggerRef} />}
       trigger="click"
       className="max-w-[320px] p-0"
-      sideOffset={12}>
+      sideOffset={12}
+    >
       <span data-testid="new-theme-popup-trigger" ref={triggerRef}>
         {children}
       </span>

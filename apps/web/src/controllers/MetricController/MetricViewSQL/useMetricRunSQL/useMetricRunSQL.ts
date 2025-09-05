@@ -1,15 +1,19 @@
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
-import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import type { BusterMetricData } from '@/api/asset_interfaces/metric';
 import type { RunSQLResponse } from '@/api/asset_interfaces/sql';
+import {
+  useGetMetricDataMemoized,
+  useGetMetricMemoized,
+} from '@/api/buster_rest/metrics/metricQueryHelpers';
+import { useGetLatestMetricVersionMemoized } from '@/api/buster_rest/metrics/metricVersionNumber';
+import { useUpdateMetric } from '@/api/buster_rest/metrics/queryRequests';
 import { useRunSQL as useRunSQLQuery } from '@/api/buster_rest/sql';
-import { useGetLatestMetricVersionMemoized, useUpdateMetric } from '@/api/buster_rest/metrics';
-import { queryKeys } from '@/api/query_keys';
+import { metricsQueryKeys } from '@/api/query_keys/metric';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useGetMetricDataMemoized, useGetMetricMemoized } from '@/context/Metrics';
-import { useMemoizedFn } from '@/hooks';
-import { timeout } from '@/lib';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { timeout } from '@/lib/timeout';
 import { didColumnDataChange, simplifyChatConfigForSQLChange } from './helpers';
 
 export const useMetricRunSQL = () => {
@@ -19,21 +23,21 @@ export const useMetricRunSQL = () => {
   const { mutateAsync: stageMetric } = useUpdateMetric({
     updateVersion: false,
     saveToServer: false,
-    updateOnSave: false
+    updateOnSave: false,
   });
   const {
     mutateAsync: saveMetric,
     error: saveMetricError,
-    isPending: isSavingMetric
+    isPending: isSavingMetric,
   } = useUpdateMetric({
     updateOnSave: true,
     updateVersion: true,
-    saveToServer: true
+    saveToServer: true,
   });
   const {
     mutateAsync: runSQLMutation,
     error: runSQLError,
-    isPending: isRunningSQL
+    isPending: isRunningSQL,
   } = useRunSQLQuery();
   const { openSuccessNotification } = useBusterNotifications();
   const getLatestMetricVersion = useGetLatestMetricVersionMemoized();
@@ -49,16 +53,15 @@ export const useMetricRunSQL = () => {
     metricId,
     data,
     data_metadata,
-    isDataFromRerun
+    isDataFromRerun,
   }: {
     metricId: string;
     data: BusterMetricData['data'];
     data_metadata: BusterMetricData['data_metadata'];
     isDataFromRerun: boolean;
   }) => {
-    const latestVersionNumber = getLatestMetricVersion(metricId);
-    const options = queryKeys.metricsGetData(metricId, latestVersionNumber as number);
-    const currentData = getMetricDataMemoized(metricId, latestVersionNumber as number);
+    const options = metricsQueryKeys.metricsGetData(metricId, 'LATEST');
+    const currentData = getMetricDataMemoized(metricId, 'LATEST');
     if (!currentData) return;
     const setter = isDataFromRerun ? 'dataFromRerun' : 'data';
 
@@ -66,12 +69,12 @@ export const useMetricRunSQL = () => {
       ...currentData,
       [setter]: data,
       data_metadata,
-      ...(!isDataFromRerun && { dataFromRerun: undefined })
+      ...(!isDataFromRerun && { dataFromRerun: undefined }),
     });
   };
 
   const onResponseRunSQL = useMemoizedFn(
-    (d: RunSQLResponse, sql: string, { metricId }: { metricId?: string }) => {
+    (d: RunSQLResponse, _sql: string, { metricId }: { metricId?: string }) => {
       if (metricId) {
         const { data, data_metadata } = d;
         const metricMessage = getMetricMemoized(metricId);
@@ -81,7 +84,7 @@ export const useMetricRunSQL = () => {
             chartConfig: metricMessage?.chart_config,
             sql: metricMessage?.sql,
             data: currentMessageData?.data,
-            dataMetadata: currentMessageData?.data_metadata
+            dataMetadata: currentMessageData?.data_metadata,
           };
         }
 
@@ -97,11 +100,11 @@ export const useMetricRunSQL = () => {
           metricId,
           data,
           isDataFromRerun: true,
-          data_metadata
+          data_metadata,
         });
         stageMetric({
           id: metricId,
-          chart_config: totallyDefaultChartConfig
+          chart_config: totallyDefaultChartConfig,
         });
       }
 
@@ -113,7 +116,7 @@ export const useMetricRunSQL = () => {
     async ({
       dataSourceId,
       sql,
-      metricId
+      metricId,
     }: {
       dataSourceId: string;
       metricId?: string;
@@ -121,7 +124,7 @@ export const useMetricRunSQL = () => {
     }) => {
       const result = await runSQLMutation({
         data_source_id: dataSourceId,
-        sql
+        sql,
       });
       onResponseRunSQL(result, sql, { metricId });
       return result;
@@ -133,13 +136,13 @@ export const useMetricRunSQL = () => {
     const oldConfig = originalConfigs.current?.chartConfig;
     stageMetric({
       id: metricId,
-      chart_config: oldConfig
+      chart_config: oldConfig,
     });
     onSetDataForMetric({
       metricId,
       data: originalConfigs.current?.data,
       data_metadata: originalConfigs.current?.dataMetadata,
-      isDataFromRerun: false
+      isDataFromRerun: false,
     });
     originalConfigs.current = null;
   });
@@ -148,7 +151,7 @@ export const useMetricRunSQL = () => {
     async ({
       metricId,
       sql,
-      dataSourceId: dataSourceIdProp
+      dataSourceId: dataSourceIdProp,
     }: {
       metricId: string;
       sql: string;
@@ -161,7 +164,7 @@ export const useMetricRunSQL = () => {
         await runSQL({
           metricId,
           sql: sql,
-          dataSourceId
+          dataSourceId,
         });
       }
       await timeout(50);
@@ -170,26 +173,25 @@ export const useMetricRunSQL = () => {
       await saveMetric({
         id: metricId,
         sql,
-        chart_config: currentChartConfig //this is reset based on stageMetric function
+        chart_config: currentChartConfig, //this is reset based on stageMetric function
       });
       await timeout(50);
 
-      const latestVersionNumber = getLatestMetricVersion(metricId);
-      const currentData = getMetricDataMemoized(metricId, latestVersionNumber as number);
+      const currentData = getMetricDataMemoized(metricId, 'LATEST');
 
       if (currentData?.data_metadata && currentData?.dataFromRerun) {
         onSetDataForMetric({
           metricId,
           data: currentData?.dataFromRerun,
           data_metadata: currentData?.data_metadata,
-          isDataFromRerun: false
+          isDataFromRerun: false,
         });
       }
 
       setTimeout(() => {
         openSuccessNotification({
           title: 'SQL Saved',
-          message: 'Your changes have been saved.'
+          message: 'Your changes have been saved.',
         });
       }, 50);
 
@@ -204,6 +206,6 @@ export const useMetricRunSQL = () => {
     saveMetricError: saveMetricError?.message,
     runSQLError: runSQLError?.message,
     isSavingMetric,
-    isRunningSQL
+    isRunningSQL,
   };
 };

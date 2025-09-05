@@ -23,7 +23,8 @@ export const CircleWithRing: React.FC<{
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       data-value={dataValue}
-      {...props}>
+      {...props}
+    >
       <title>Circle With Ring Icon</title>
       {/* Outer ring */}
       <circle cx="8" cy="8" r="6" stroke={color} strokeWidth="1" fill="none" />

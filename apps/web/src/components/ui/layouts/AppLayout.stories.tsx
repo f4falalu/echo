@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import type React from 'react';
 import { AppLayout } from './AppLayout';
 import { AppPageLayout } from './AppPageLayout';
@@ -25,9 +25,9 @@ const meta = {
   title: 'UI/Layouts/AppLayout',
   component: AppLayout,
   parameters: {
-    layout: 'fullscreen'
+    layout: 'fullscreen',
   },
-  tags: ['autodocs']
+  tags: ['autodocs'],
 } satisfies Meta<typeof AppLayout>;
 
 export default meta;
@@ -36,15 +36,15 @@ type Story = StoryObj<typeof AppLayout>;
 export const Default: Story = {
   args: {
     children: <TestContent />,
-    floating: true
-  }
+    floating: true,
+  },
 };
 
 export const NonFloating: Story = {
   args: {
     children: <TestContent />,
-    floating: false
-  }
+    floating: false,
+  },
 };
 
 export const WithAppPageLayout: Story = {
@@ -63,6 +63,6 @@ export const WithAppPageLayout: Story = {
         </AppPageLayout>
       </TestContent>
     ),
-    floating: true
-  }
+    floating: true,
+  },
 };

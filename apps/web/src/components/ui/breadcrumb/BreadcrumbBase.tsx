@@ -57,6 +57,7 @@ BreadcrumbLink.displayName = 'BreadcrumbLink';
 
 const BreadcrumbPage = React.forwardRef<HTMLSpanElement, React.ComponentPropsWithoutRef<'span'>>(
   ({ className, ...props }, ref) => (
+    // biome-ignore lint/a11y/useSemanticElements: I need to spend real time to fix this
     <span
       ref={ref}
       role="link"
@@ -75,7 +76,8 @@ const BreadcrumbSeparator = ({ children, className, ...props }: React.ComponentP
     role="presentation"
     aria-hidden="true"
     className={cn('text-icon-size [&>svg]:h-2.5 [&>svg]:w-2.5', className)}
-    {...props}>
+    {...props}
+  >
     {children ?? <ChevronRight />}
   </li>
 );
@@ -86,7 +88,8 @@ const BreadcrumbEllipsis = ({ className, ...props }: React.ComponentProps<'span'
     role="presentation"
     aria-hidden="true"
     className={cn('hover:text-foreground flex h-9 w-9 items-center justify-center', className)}
-    {...props}>
+    {...props}
+  >
     <div className="text-icon-size flex">
       <Dots />
     </div>
@@ -103,5 +106,5 @@ export {
   BreadcrumbLink,
   BreadcrumbPage,
   BreadcrumbSeparator,
-  BreadcrumbEllipsis
+  BreadcrumbEllipsis,
 };

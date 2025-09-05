@@ -1,30 +1,37 @@
-'use client';
-
 import React, { useMemo } from 'react';
 
 type SlackSharingPermission = 'shareWithWorkspace' | 'shareWithChannel' | 'noSharing';
-import { SettingsCards } from '../settings/SettingsCard';
-import { SlackIcon } from '@/components/ui/icons/customIcons/SlackIcon';
-import { Text } from '@/components/ui/typography';
-import { Button } from '@/components/ui/buttons';
+
+import pluralize from 'pluralize';
 import {
   useGetSlackChannels,
   useGetSlackIntegration,
   useInitiateSlackOAuth,
   useRemoveSlackIntegration,
-  useUpdateSlackIntegration
+  useUpdateSlackIntegration,
 } from '@/api/buster_rest/slack/queryRequests';
-import { Dropdown, type DropdownItem, type DropdownItems } from '@/components/ui/dropdown';
-import { LinkSlash, Refresh2, ChevronDown } from '@/components/ui/icons';
-import { useMemoizedFn } from '@/hooks';
-import pluralize from 'pluralize';
+import { Button } from '@/components/ui/buttons';
 import { StatusCard } from '@/components/ui/card/StatusCard';
+import {
+  createDropdownItems,
+  Dropdown,
+  type IDropdownItem,
+  type IDropdownItems,
+} from '@/components/ui/dropdown';
+import { ChevronDown } from '@/components/ui/icons';
+import { SlackIcon } from '@/components/ui/icons/customIcons/SlackIcon';
+import LinkSlash from '@/components/ui/icons/NucleoIconOutlined/link-slash';
+import Refresh2 from '@/components/ui/icons/NucleoIconOutlined/refresh-2';
+import { Text } from '@/components/ui/typography';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { SettingsCards } from '../settings/SettingsCard';
+import { IntegrationSkeleton } from './IntegrationSkeleton';
 
 export const SlackIntegrations = React.memo(() => {
   const {
     data: slackIntegration,
     isFetched: isFetchedSlackIntegration,
-    error: slackIntegrationError
+    error: slackIntegrationError,
   } = useGetSlackIntegration();
 
   const isConnected = slackIntegration?.connected ?? false;
@@ -33,7 +40,7 @@ export const SlackIntegrations = React.memo(() => {
     const sections = [
       <ConnectSlackCard key="connect-slack-card" />,
       isConnected && <ConnectedSlackChannels key="connected-slack-channels" />,
-      isConnected && <SlackSharingPermissions key="slack-sharing-permissions" />
+      isConnected && <SlackSharingPermissions key="slack-sharing-permissions" />,
     ].filter(Boolean);
     return [{ sections }];
   }, [isConnected]);
@@ -43,7 +50,7 @@ export const SlackIntegrations = React.memo(() => {
   }
 
   if (!isFetchedSlackIntegration) {
-    return <div className="bg-gray-light/50 h-24 w-full animate-pulse rounded"></div>;
+    return <IntegrationSkeleton />;
   }
 
   return <SettingsCards title="Slack" description="Connect Buster with Slack" cards={cards} />;
@@ -78,7 +85,8 @@ const ConnectSlackCard = React.memo(() => {
             prefix={<SlackIcon size={16} />}
             onClick={() => initiateSlackOAuth()}
             size={'tall'}
-            className="border-yellow-500 bg-yellow-50 text-yellow-700 hover:bg-yellow-100">
+            className="border-yellow-500 bg-yellow-50 text-yellow-700 hover:bg-yellow-100"
+          >
             Re-install Required
           </Button>
         ) : (
@@ -98,7 +106,7 @@ ConnectSlackCard.displayName = 'ConnectSlackCard';
 const ConnectedDropdown = React.memo(() => {
   const { mutate: removeSlackIntegration, isPending } = useRemoveSlackIntegration();
 
-  const dropdownItems: DropdownItems = [
+  const dropdownItems: IDropdownItems = [
     {
       value: 'disconnect',
       label: 'Disconnect',
@@ -106,8 +114,8 @@ const ConnectedDropdown = React.memo(() => {
       onClick: () => {
         removeSlackIntegration();
       },
-      loading: isPending
-    }
+      loading: isPending,
+    },
   ];
 
   return (
@@ -130,7 +138,7 @@ const ConnectedSlackChannels = React.memo(() => {
     isRefetching: isRefetchingSlackChannels,
     refetch: refetchSlackChannels,
     isFetched: isFetchedSlackChannels,
-    error: slackChannelsError
+    error: slackChannelsError,
   } = useGetSlackChannels();
 
   const { mutate: updateSlackIntegration } = useUpdateSlackIntegration();
@@ -142,7 +150,7 @@ const ConnectedSlackChannels = React.memo(() => {
     return channels.map((channel) => ({
       label: channel.name,
       value: channel.id,
-      selected: channel.id === selectedChannelId
+      selected: channel.id === selectedChannelId,
     }));
   }, [channels, selectedChannelId]);
 
@@ -154,7 +162,7 @@ const ConnectedSlackChannels = React.memo(() => {
     const channel = channels.find((channel) => channel.id === channelId);
     if (!channel) return;
     updateSlackIntegration({
-      default_channel: channel
+      default_channel: channel,
     });
   });
 
@@ -184,7 +192,8 @@ const ConnectedSlackChannels = React.memo(() => {
                     </span>
                   )
                 }
-                onClick={() => refetchSlackChannels()}>
+                onClick={() => refetchSlackChannels()}
+              >
                 Refresh
               </Button>
             )}
@@ -194,7 +203,8 @@ const ConnectedSlackChannels = React.memo(() => {
               items={items}
               onSelect={onSelect}
               menuHeader="Search channels"
-              className="w-fit min-w-40">
+              className="w-fit min-w-40"
+            >
               <WeirdFakeSelectButtonForBlake
                 label={
                   numberOfSelectedChannels > 0
@@ -225,13 +235,13 @@ const SlackSharingPermissions = React.memo(() => {
   const selectedOption: SlackSharingPermission =
     slackIntegration?.integration?.default_sharing_permissions || 'noSharing';
 
-  const sharingOptions: DropdownItem<SlackSharingPermission>[] = (
-    [
+  const sharingOptions: IDropdownItem<SlackSharingPermission>[] = (
+    createDropdownItems([
       {
         label: 'Workspace',
         value: 'shareWithWorkspace' satisfies SlackSharingPermission,
         secondaryLabel:
-          'All workspace members will have access to any chat created from any channel.'
+          'All workspace members will have access to any chat created from any channel.',
       },
       // {
       //   label: 'Channel',
@@ -241,19 +251,19 @@ const SlackSharingPermissions = React.memo(() => {
       {
         label: 'None',
         value: 'noSharing' satisfies SlackSharingPermission,
-        secondaryLabel: 'Only the user who sent the request will have access to their chat.'
-      }
-    ] satisfies DropdownItem<SlackSharingPermission>[]
+        secondaryLabel: 'Only the user who sent the request will have access to their chat.',
+      },
+    ]) satisfies IDropdownItem<SlackSharingPermission>[]
   ).map((option) => ({
     ...option,
-    selected: option.value === selectedOption
+    selected: option.value === selectedOption,
   }));
 
   const selectedLabel = sharingOptions.find((option) => option.selected)?.label || 'Select option';
 
   const handleSelect = useMemoizedFn((value: string) => {
     updateSlackIntegration({
-      default_sharing_permissions: value as SlackSharingPermission
+      default_sharing_permissions: value as SlackSharingPermission,
     });
   });
 
@@ -270,7 +280,8 @@ const SlackSharingPermissions = React.memo(() => {
         onSelect={handleSelect}
         align="end"
         side="bottom"
-        selectType="single">
+        selectType="single"
+      >
         <WeirdFakeSelectButtonForBlake label={selectedLabel} />
       </Dropdown>
     </div>

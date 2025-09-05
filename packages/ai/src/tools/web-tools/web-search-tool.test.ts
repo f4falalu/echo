@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createWebSearchTool } from './web-search-tool';
+import { type WebSearchToolOutput, createWebSearchTool } from './web-search-tool';
 
 vi.mock('@buster/web-tools', () => {
   const mockFirecrawlService = {
@@ -38,7 +38,7 @@ describe('webSearch tool', () => {
 
     mockFirecrawlService.webSearch.mockResolvedValue(mockResponse);
 
-    const result = await webSearchTool.execute!(
+    const result = (await webSearchTool.execute!(
       {
         query: 'test query',
         limit: 5,
@@ -46,7 +46,7 @@ describe('webSearch tool', () => {
         formats: ['markdown'],
       },
       { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
-    );
+    )) as WebSearchToolOutput;
 
     expect(result.success).toBe(true);
     expect(result.results).toHaveLength(1);
@@ -87,12 +87,12 @@ describe('webSearch tool', () => {
   it('should handle errors gracefully', async () => {
     mockFirecrawlService.webSearch.mockRejectedValue(new Error('Search failed'));
 
-    const result = await webSearchTool.execute!(
+    const result = (await webSearchTool.execute!(
       {
         query: 'test query',
       },
       { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
-    );
+    )) as WebSearchToolOutput;
 
     expect(result.success).toBe(false);
     expect(result.results).toEqual([]);

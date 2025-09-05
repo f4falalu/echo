@@ -1,0 +1,56 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "web",
+  "main": "./.output/server/index.mjs",
+  "compatibility_date": "2025-09-04",
+  "compatibility_flags": ["nodejs_compat", "no_nodejs_compat_v2"],
+  
+  "assets": {
+    "directory": ".output/public"
+  },
+  
+  "observability": {
+    "enabled": true
+  },
+  
+  "env": {
+    // Development Environment
+    "dev": {
+      "name": "web-dev",
+      "vars": {
+        // Development-specific variables can be set here
+        // Or loaded from .env.dev file
+      }
+    },
+    
+    // Staging Environment
+    "staging": {
+      "name": "web-staging",
+      "routes": [
+        {
+          "pattern": "staging.buster.so",
+          "custom_domain": true
+        }
+      ],
+      "vars": {
+        // Staging-specific variables can be set here
+        // Or loaded from .env.staging file
+      }
+    },
+    
+    // Production Environment
+    "production": {
+      "name": "web-production",
+      "routes": [
+        {
+          "pattern": "app.buster.so",
+          "custom_domain": true
+        }
+      ],
+      "vars": {
+        // Production-specific variables can be set here
+        // Or loaded from .env.production file
+      }
+    }
+  }
+}

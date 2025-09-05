@@ -1,11 +1,11 @@
-import React from 'react';
-import type { AnimatedMarkdownProps } from './AnimatedMarkdown';
-import { animateTokenizedText } from './animation-helpers';
-import { createAnimationStyle } from '../animation-common';
 import { cva } from 'class-variance-authority';
-import { StreamingMessageCode } from '../../streaming/StreamingMessageCode';
+import React from 'react';
 import { cn } from '@/lib/classMerge';
-import { useAnimationContext, AnimationProvider } from './AnimationContext';
+import { StreamingMessageCode } from '../../streaming/StreamingMessageCode';
+import { createAnimationStyle } from '../animation-common';
+import type { AnimatedMarkdownProps } from './AnimatedMarkdown';
+import { AnimationProvider, useAnimationContext } from './AnimationContext';
+import { animateTokenizedText } from './animation-helpers';
 
 type MarkdownComponentProps = {
   children: React.ReactNode;
@@ -33,7 +33,7 @@ export const ParagraphComponent: React.FC<MarkdownComponentProps> = ({
     <p style={style} className={className} data-testid="paragraph-component">
       {animateTokenizedText(children, {
         ...rest,
-        animation: shouldStopAnimations ? 'none' : rest.animation
+        animation: shouldStopAnimations ? 'none' : rest.animation,
       })}
     </p>
   );
@@ -48,9 +48,9 @@ const headingVariants = cva('', {
       h4: 'text-lg',
       h5: 'text-md',
       h6: 'text-sm',
-      base: 'font-bold'
-    }
-  }
+      base: 'font-bold',
+    },
+  },
 });
 
 export const HeaderComponent: React.FC<
@@ -58,17 +58,18 @@ export const HeaderComponent: React.FC<
     stripFormatting?: boolean;
   }
 > = ({ children, className, style, tag, stripFormatting, ...rest }) => {
-  const Tag = tag as keyof JSX.IntrinsicElements;
+  const Tag = tag;
 
   return (
     <Tag
       style={style}
       className={cn(
         headingVariants({
-          level: stripFormatting ? 'base' : tag
+          level: stripFormatting ? 'base' : tag,
         }),
         className
-      )}>
+      )}
+    >
       {animateTokenizedText(children, rest)}
     </Tag>
   );
@@ -93,7 +94,6 @@ export const StrongComponent: React.FC<MarkdownComponentProps> = ({
   children,
   className,
   style,
-  ...rest
 }) => {
   return (
     <strong style={style} className={className}>
@@ -106,7 +106,6 @@ export const EmphasisComponent: React.FC<MarkdownComponentProps> = ({
   children,
   className,
   style,
-  ...rest
 }) => {
   return (
     <em style={style} className={className}>
@@ -119,7 +118,6 @@ export const DeleteComponent: React.FC<MarkdownComponentProps> = ({
   children,
   className,
   style,
-  ...rest
 }) => {
   return (
     <del style={style} className={className}>
@@ -221,7 +219,6 @@ export const UnorderedListComponent: React.FC<MarkdownComponentProps> = ({
   children,
   className,
   style,
-  ...rest
 }) => {
   return (
     <ul style={style} className={cn(className, 'mt-1 space-y-1', 'list-inside', 'list-disc')}>
@@ -234,13 +231,14 @@ export const OrderedListComponent: React.FC<MarkdownComponentProps & { start?: n
   children,
   className,
   style,
-  start
+  start,
 }) => {
   return (
     <ol
       style={style}
       className={cn(className, 'mt-1 space-y-1', 'list-inside', 'list-decimal')}
-      start={start}>
+      start={start}
+    >
       {children}
     </ol>
   );
@@ -275,10 +273,11 @@ export const ListItemComponent: React.FC<MarkdownComponentProps> = ({
           // Fix alignment of content
           '[&>span]:inline [&>span]:align-top',
           '[&>p]:inline [&>p]:align-top'
-        )}>
+        )}
+      >
         {animateTokenizedText(children, {
           ...rest,
-          animation: stopAnimations.current ? 'none' : rest.animation
+          animation: stopAnimations.current ? 'none' : rest.animation,
         })}
       </li>
     </AnimationProvider>
@@ -288,7 +287,7 @@ export const ListItemComponent: React.FC<MarkdownComponentProps> = ({
 export const TableCellComponent: React.FC<NonAnimatedMarkdownComponentProps> = ({
   children,
   className,
-  style
+  style,
 }) => {
   return (
     <td style={style} className={className}>
@@ -300,7 +299,7 @@ export const TableCellComponent: React.FC<NonAnimatedMarkdownComponentProps> = (
 export const TableHeaderCellComponent: React.FC<NonAnimatedMarkdownComponentProps> = ({
   children,
   className,
-  style
+  style,
 }) => {
   return (
     <th style={style} className={className}>
@@ -311,7 +310,7 @@ export const TableHeaderCellComponent: React.FC<NonAnimatedMarkdownComponentProp
 
 export const BreakComponent: React.FC<Omit<NonAnimatedMarkdownComponentProps, 'children'>> = ({
   className,
-  style
+  style,
 }) => {
   return <br style={style} className={className} />;
 };
@@ -327,7 +326,7 @@ export const CodeComponent: React.FC<
   style,
   language: languageProp,
   isStreamFinished,
-  isInline = false
+  isInline = false,
 }) => {
   const matchRegex = /language-(\w+)/.exec(className || '');
   const language = languageProp || (matchRegex ? matchRegex[1] : undefined);
@@ -337,7 +336,8 @@ export const CodeComponent: React.FC<
       //do not animate the code block
       <code
         style={style}
-        className={cn(className, 'bg-item-select rounded-sm border px-1 text-[0.9em]')}>
+        className={cn(className, 'bg-item-select rounded-sm border px-1 text-[0.9em]')}
+      >
         {children}
       </code>
     );

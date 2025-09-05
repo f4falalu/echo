@@ -1,11 +1,11 @@
 import React from 'react';
 import { Text } from '@/components/ui/typography';
 import { cn } from '@/lib/classMerge';
+import { Button } from '../../../ui/buttons';
+import { Dots } from '../../../ui/icons';
+import { Popover } from '../../../ui/popover';
 import type { IColorPalette } from './interfaces';
 import { ThemeColorDots } from './ThemeColorDots';
-import { Dots } from '../../../ui/icons';
-import { Button } from '../../../ui/buttons';
-import { Popover } from '../../../ui/popover';
 
 export const ThemeList: React.FC<{
   themes: IColorPalette[];
@@ -19,7 +19,8 @@ export const ThemeList: React.FC<{
         'bg-item-select rounded-sm border p-1',
         'flex w-full flex-col space-y-0.5 overflow-y-auto',
         className
-      )}>
+      )}
+    >
       {themes.map((theme) => (
         <ColorOption
           key={theme.id}
@@ -55,7 +56,8 @@ const ColorOption: React.FC<{
         'flex w-full items-center justify-between space-x-2.5 overflow-hidden',
         'h-7 min-h-7 cursor-pointer rounded-sm px-3 py-2',
         selected ? 'bg-background border' : 'bg-item-active hover:bg-nav-item-hover'
-      )}>
+      )}
+    >
       <Text truncate variant={selected ? 'default' : 'secondary'}>
         {name}
       </Text>

@@ -1,5 +1,3 @@
-'use client';
-
 import 'intersection-observer';
 import { useState } from 'react';
 import type { BasicTarget } from '../lib/domTarget';
@@ -42,7 +40,7 @@ export function useInViewport(target: BasicTarget | BasicTarget[], options?: Opt
         },
         {
           ...option,
-          root: getTargetElement(options?.root)
+          root: getTargetElement(options?.root),
         }
       );
 

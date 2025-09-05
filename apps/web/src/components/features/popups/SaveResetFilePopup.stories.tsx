@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
-import { fn } from 'storybook/test';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
+import { fn } from 'storybook/test';
 import { Button } from '@/components/ui/buttons';
 import { SaveResetFilePopup } from './SaveResetFilePopup';
 
@@ -8,22 +8,22 @@ const meta: Meta<typeof SaveResetFilePopup> = {
   title: 'Features/Popups/SaveResetFilePopup',
   component: SaveResetFilePopup,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
   argTypes: {
     open: {
       control: 'boolean',
-      description: 'Controls whether the popup is visible'
+      description: 'Controls whether the popup is visible',
     },
     onReset: {
       action: 'reset clicked',
-      description: 'Function called when the reset button is clicked'
+      description: 'Function called when the reset button is clicked',
     },
     onSave: {
       action: 'save clicked',
-      description: 'Function called when the save button is clicked'
-    }
-  }
+      description: 'Function called when the save button is clicked',
+    },
+  },
 };
 
 export default meta;
@@ -60,8 +60,8 @@ export const Default: Story = {
   args: {
     open: true,
     onReset: fn(),
-    onSave: fn()
-  }
+    onSave: fn(),
+  },
 };
 
 export const Hidden: Story = {
@@ -69,6 +69,6 @@ export const Hidden: Story = {
   args: {
     open: false,
     onReset: fn(),
-    onSave: fn()
-  }
+    onSave: fn(),
+  },
 };

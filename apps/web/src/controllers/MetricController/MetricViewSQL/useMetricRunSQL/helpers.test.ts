@@ -1,12 +1,12 @@
-import { describe, expect, it } from 'vitest';
 import type {
-  ColumnMetaData,
   ChartConfigProps,
-  ColumnLabelFormat
+  ColumnLabelFormat,
+  ColumnMetaData,
 } from '@buster/server-shared/metrics';
 import { DEFAULT_CHART_CONFIG, DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
-import { didColumnDataChange, simplifyChatConfigForSQLChange } from './helpers';
+import { describe, expect, it } from 'vitest';
 import type { BusterMetric } from '@/api/asset_interfaces/metric';
+import { didColumnDataChange, simplifyChatConfigForSQLChange } from './helpers';
 
 const createColumnMetaData = (
   name: string,
@@ -17,7 +17,7 @@ const createColumnMetaData = (
   min_value: 0,
   max_value: 100,
   unique_values: 1,
-  type: simple_type === 'text' ? 'text' : simple_type === 'number' ? 'float' : 'date'
+  type: simple_type === 'text' ? 'text' : simple_type === 'number' ? 'float' : 'date',
 });
 
 describe('didColumnDataChange', () => {
@@ -32,7 +32,7 @@ describe('didColumnDataChange', () => {
     const oldData: ColumnMetaData[] = [createColumnMetaData('col1', 'text')];
     const newData: ColumnMetaData[] = [
       createColumnMetaData('col1', 'text'),
-      createColumnMetaData('col2', 'number')
+      createColumnMetaData('col2', 'number'),
     ];
     expect(didColumnDataChange(oldData, newData)).toBe(true);
   });
@@ -52,11 +52,11 @@ describe('didColumnDataChange', () => {
   it('should return false when columns are identical', () => {
     const oldData: ColumnMetaData[] = [
       createColumnMetaData('col1', 'text'),
-      createColumnMetaData('col2', 'number')
+      createColumnMetaData('col2', 'number'),
     ];
     const newData: ColumnMetaData[] = [
       createColumnMetaData('col1', 'text'),
-      createColumnMetaData('col2', 'number')
+      createColumnMetaData('col2', 'number'),
     ];
     expect(didColumnDataChange(oldData, newData)).toBe(false);
   });
@@ -66,12 +66,12 @@ describe('simplifyChatConfigForSQLChange', () => {
   it('should handle empty metadata', () => {
     const chartConfig: Partial<ChartConfigProps> = {
       ...DEFAULT_CHART_CONFIG,
-      columnLabelFormats: {}
+      columnLabelFormats: {},
     };
     const data_metadata: BusterMetric['data_metadata'] = {
       column_count: 0,
       column_metadata: [],
-      row_count: 0
+      row_count: 0,
     };
 
     const result = simplifyChatConfigForSQLChange(chartConfig as ChartConfigProps, data_metadata);
@@ -97,19 +97,19 @@ describe('simplifyChatConfigForSQLChange', () => {
         currency: 'USD',
         compactNumbers: false,
         dateFormat: 'MM/DD/YYYY',
-        convertNumberTo: null
-      }
+        convertNumberTo: null,
+      },
     };
 
     const chartConfig = {
       ...DEFAULT_CHART_CONFIG,
-      columnLabelFormats
+      columnLabelFormats,
     };
 
     const data_metadata: BusterMetric['data_metadata'] = {
       column_count: 1,
       column_metadata: [createColumnMetaData('col1', 'text')],
-      row_count: 1
+      row_count: 1,
     };
 
     const result = simplifyChatConfigForSQLChange(chartConfig, data_metadata);
@@ -136,26 +136,26 @@ describe('simplifyChatConfigForSQLChange', () => {
         currency: 'USD',
         compactNumbers: false,
         dateFormat: 'MM/DD/YYYY',
-        convertNumberTo: null
-      }
+        convertNumberTo: null,
+      },
     };
 
     const chartConfig: Partial<ChartConfigProps> = {
       ...DEFAULT_CHART_CONFIG,
-      columnLabelFormats
+      columnLabelFormats,
     };
 
     const data_metadata: BusterMetric['data_metadata'] = {
       column_count: 1,
       column_metadata: [createColumnMetaData('col1', 'number')],
-      row_count: 1
+      row_count: 1,
     };
 
     const result = simplifyChatConfigForSQLChange(chartConfig as ChartConfigProps, data_metadata);
     expect(result.columnLabelFormats?.col1).toEqual({
       ...DEFAULT_COLUMN_LABEL_FORMAT,
       columnType: 'number',
-      style: 'number'
+      style: 'number',
     });
   });
 });

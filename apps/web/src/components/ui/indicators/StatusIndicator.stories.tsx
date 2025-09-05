@@ -1,13 +1,13 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { StatusIndicator } from './StatusIndicator';
 
 const meta = {
   title: 'UI/Icons/StatusIndicator',
   component: StatusIndicator,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
-  tags: ['autodocs']
+  tags: ['autodocs'],
 } satisfies Meta<typeof StatusIndicator>;
 
 export default meta;
@@ -15,20 +15,20 @@ type Story = StoryObj<typeof meta>;
 
 export const Loading: Story = {
   args: {
-    status: 'loading'
-  }
+    status: 'loading',
+  },
 };
 
 export const Completed: Story = {
   args: {
-    status: 'completed'
-  }
+    status: 'completed',
+  },
 };
 
 export const Failed: Story = {
   args: {
-    status: 'failed'
-  }
+    status: 'failed',
+  },
 };
 
 // Story that shows all states side by side
@@ -48,5 +48,5 @@ export const AllStates: Story = {
         <span className="text-sm">Failed</span>
       </div>
     </div>
-  )
+  ),
 };

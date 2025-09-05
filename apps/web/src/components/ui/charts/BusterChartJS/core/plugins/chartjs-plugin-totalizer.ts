@@ -5,7 +5,6 @@ export interface ChartTotalizerPluginOptions {
 }
 
 declare module 'chart.js' {
-  // biome-ignore lint/correctness/noUnusedVariables: we need to define the plugin options
   interface PluginOptionsByType<TType extends ChartType> {
     totalizer?: ChartTotalizerPluginOptions | false;
   }
@@ -55,6 +54,6 @@ export const ChartTotalizerPlugin: Plugin<ChartType, ChartTotalizerPluginOptions
     chart.$totalizer = { stackTotals, seriesTotals };
   },
   defaults: {
-    enabled: true
-  }
+    enabled: true,
+  },
 };

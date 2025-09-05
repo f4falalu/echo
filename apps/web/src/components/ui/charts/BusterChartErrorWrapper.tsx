@@ -1,6 +1,6 @@
 import type React from 'react';
 import type { ReactNode } from 'react';
-import { ErrorBoundary } from './OtherComponents/error/ErrorBoundary';
+import { ErrorBoundary } from 'react-error-boundary';
 
 interface Props {
   children: ReactNode;
@@ -21,5 +21,5 @@ const ErrorCardComponent: React.FC = () => {
 };
 
 export const BusterChartErrorWrapper: React.FC<Props> = ({ children }) => {
-  return <ErrorBoundary errorComponent={<ErrorCardComponent />}>{children}</ErrorBoundary>;
+  return <ErrorBoundary fallback={<ErrorCardComponent />}>{children}</ErrorBoundary>;
 };

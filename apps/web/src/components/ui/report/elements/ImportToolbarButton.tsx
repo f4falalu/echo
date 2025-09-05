@@ -1,26 +1,24 @@
-'use client';
-
-import * as React from 'react';
+import { MarkdownPlugin } from '@platejs/markdown';
 
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 
 import { getEditorDOMFromHtmlString } from 'platejs';
 import { useEditorRef } from 'platejs/react';
+import * as React from 'react';
 import { useFilePicker } from 'use-file-picker';
-import { NodeTypeIcons } from '../config/icons';
-import { createLabel, NodeTypeLabels } from '../config/labels';
+import type { SelectedFilesOrErrors } from 'use-file-picker/types';
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
-import type { SelectedFilesOrErrors } from 'use-file-picker/types';
-import { MarkdownPlugin } from '@platejs/markdown';
+import { NodeTypeIcons } from '../config/icons';
+import { createLabel, NodeTypeLabels } from '../config/labels';
 
 type ImportType = 'html' | 'markdown';
 
@@ -32,7 +30,7 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
     if (type === 'html') {
       const editorNode = getEditorDOMFromHtmlString(text);
       const nodes = editor.api.html.deserialize({
-        element: editorNode
+        element: editorNode,
       });
 
       return nodes;
@@ -55,7 +53,7 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
       const nodes = getFileNodes(text, 'markdown');
 
       editor.tf.insertNodes(nodes);
-    }
+    },
   });
 
   const { openFilePicker: openHtmlFilePicker } = useFilePicker({
@@ -68,7 +66,7 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
       const nodes = getFileNodes(text, 'html');
 
       editor.tf.insertNodes(nodes);
-    }
+    },
   });
 
   return (
@@ -86,14 +84,16 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
           <DropdownMenuItem
             onSelect={() => {
               openHtmlFilePicker();
-            }}>
+            }}
+          >
             {NodeTypeLabels.importFromHtml.label}
           </DropdownMenuItem>
 
           <DropdownMenuItem
             onSelect={() => {
               openMdFilePicker();
-            }}>
+            }}
+          >
             {NodeTypeLabels.importFromMarkdown.label}
           </DropdownMenuItem>
         </DropdownMenuGroup>

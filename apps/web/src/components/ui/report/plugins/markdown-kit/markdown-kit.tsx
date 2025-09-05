@@ -1,7 +1,4 @@
-'use client';
-
-import { MarkdownPlugin as PlateMarkdownPlugin } from '@platejs/markdown';
-import { remarkMdx, remarkMention } from '@platejs/markdown';
+import { MarkdownPlugin as PlateMarkdownPlugin, remarkMdx, remarkMention } from '@platejs/markdown';
 import remarkGfm from 'remark-gfm';
 import { calloutSerializer } from './callout-serializer';
 import { metricSerializer } from './metric-serializer';
@@ -11,9 +8,9 @@ const MarkdownPlugin = PlateMarkdownPlugin.configure({
     remarkPlugins: [remarkGfm, remarkMdx, remarkMention],
     rules: {
       callout: calloutSerializer,
-      metric: metricSerializer
-    }
-  }
+      metric: metricSerializer,
+    },
+  },
 });
 
 export const MarkdownKit = [MarkdownPlugin];

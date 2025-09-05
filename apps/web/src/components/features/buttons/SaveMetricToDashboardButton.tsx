@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, {} from 'react';
 import {
   useAddMetricsToDashboard,
-  useRemoveMetricsFromDashboard
+  useRemoveMetricsFromDashboard,
 } from '@/api/buster_rest/dashboards';
 import { Button } from '@/components/ui/buttons';
 import { AppTooltip } from '@/components/ui/tooltip';
-import { useMemoizedFn } from '@/hooks';
-import { ASSET_ICONS } from '../config/assetIcons';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { SaveToDashboardDropdown } from '../dropdowns/SaveToDashboardDropdown';
+import { ASSET_ICONS } from '../icons/assetIcons';
 
 export const SaveMetricToDashboardButton: React.FC<{
   metricIds: string[];
@@ -35,7 +35,8 @@ export const SaveMetricToDashboardButton: React.FC<{
     <SaveToDashboardDropdown
       selectedDashboards={selectedDashboards}
       onSaveToDashboard={onSaveToDashboard}
-      onRemoveFromDashboard={onRemoveFromDashboard}>
+      onRemoveFromDashboard={onRemoveFromDashboard}
+    >
       <AppTooltip title={'Save to dashboard'}>
         <Button
           variant="ghost"

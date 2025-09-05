@@ -1,16 +1,16 @@
-import isEmpty from 'lodash/isEmpty';
-import { create } from 'mutative';
-import { type BusterMetric } from '@/api/asset_interfaces/metric';
 import {
+  type ChartConfigProps,
+  type DataMetadata,
   DEFAULT_CHART_CONFIG,
   DEFAULT_CHART_CONFIG_ENTRIES,
-  type ChartConfigProps,
-  type DataMetadata
 } from '@buster/server-shared/metrics';
+import isEmpty from 'lodash/isEmpty';
+import { create } from 'mutative';
+import type { BusterMetric } from '@/api/asset_interfaces/metric';
 import {
   createDefaultBarAndLineAxis,
   createDefaultPieAxis,
-  createDefaultScatterAxis
+  createDefaultScatterAxis,
 } from './createDefaultAxis';
 import { createDefaultColumnLabelFormats } from './createDefaultColumnFormats';
 import { createDefaultColumnSettings } from './createDefaultColumnSettings';
@@ -46,7 +46,7 @@ const keySpecificHandlers: Partial<
       x: barAndLineAxis.x || DEFAULT_CHART_CONFIG.barAndLineAxis.x,
       y: barAndLineAxis.y || DEFAULT_CHART_CONFIG.barAndLineAxis.y,
       tooltip: barAndLineAxis.tooltip || DEFAULT_CHART_CONFIG.barAndLineAxis.tooltip,
-      category: barAndLineAxis.category || DEFAULT_CHART_CONFIG.barAndLineAxis.category
+      category: barAndLineAxis.category || DEFAULT_CHART_CONFIG.barAndLineAxis.category,
     };
   },
   pieChartAxis: (value: unknown, dataMetadata) => {
@@ -55,7 +55,7 @@ const keySpecificHandlers: Partial<
     return {
       x: pieChartAxis.x || DEFAULT_CHART_CONFIG.pieChartAxis.x,
       y: pieChartAxis.y || DEFAULT_CHART_CONFIG.pieChartAxis.y,
-      tooltip: pieChartAxis.tooltip || DEFAULT_CHART_CONFIG.pieChartAxis.tooltip
+      tooltip: pieChartAxis.tooltip || DEFAULT_CHART_CONFIG.pieChartAxis.tooltip,
     };
   },
   scatterAxis: (value: unknown, dataMetadata) => {
@@ -66,7 +66,7 @@ const keySpecificHandlers: Partial<
       y: scatterAxis.y || DEFAULT_CHART_CONFIG.scatterAxis.y,
       size: scatterAxis.size || DEFAULT_CHART_CONFIG.scatterAxis.size,
       tooltip: scatterAxis.tooltip || DEFAULT_CHART_CONFIG.scatterAxis.tooltip,
-      category: scatterAxis.category || DEFAULT_CHART_CONFIG.scatterAxis.category
+      category: scatterAxis.category || DEFAULT_CHART_CONFIG.scatterAxis.category,
     };
   },
   comboChartAxis: (value: unknown, dataMetadata) => {
@@ -77,7 +77,7 @@ const keySpecificHandlers: Partial<
       y: comboChartAxis.y || DEFAULT_CHART_CONFIG.comboChartAxis.y,
       y2: comboChartAxis.y2 || DEFAULT_CHART_CONFIG.comboChartAxis.y2,
       tooltip: comboChartAxis.tooltip || DEFAULT_CHART_CONFIG.comboChartAxis.tooltip,
-      category: comboChartAxis.category || DEFAULT_CHART_CONFIG.comboChartAxis.category
+      category: comboChartAxis.category || DEFAULT_CHART_CONFIG.comboChartAxis.category,
     };
   },
   metricColumnId: (value: unknown, dataMetadata) => {
@@ -112,7 +112,7 @@ const keySpecificHandlers: Partial<
     const columnSettings = value as ChartConfigProps['columnSettings'];
     return createDefaultColumnSettings(columnSettings, dataMetadata?.column_metadata);
   },
-  pieLabelPosition: (value: unknown, dataMetadata, pieChartAxis) => {
+  pieLabelPosition: (value: unknown) => {
     const pieLabelPosition = value as ChartConfigProps['pieLabelPosition'];
     // if (isEmpty(pieLabelPosition)) {
     //   const firstPieColumn = pieChartAxis?.x?.[0];
@@ -123,7 +123,7 @@ const keySpecificHandlers: Partial<
     //   return !hasMoreThanXRows ? 'none' : 'none';
     // }
     return pieLabelPosition;
-  }
+  },
 };
 
 export const createDefaultChartConfig = (

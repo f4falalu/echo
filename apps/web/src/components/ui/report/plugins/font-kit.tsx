@@ -1,20 +1,17 @@
-'use client';
-
-import type { PlatePluginConfig } from 'platejs/react';
-
 import {
   FontBackgroundColorPlugin,
   FontColorPlugin,
   FontFamilyPlugin,
   FontSizePlugin,
-  FontWeightPlugin
+  FontWeightPlugin,
 } from '@platejs/basic-styles/react';
 import { KEYS } from 'platejs';
+import type { PlatePluginConfig } from 'platejs/react';
 
 const options = {
   inject: {
-    targetPlugins: [KEYS.p]
-  }
+    targetPlugins: [KEYS.p],
+  },
 } satisfies PlatePluginConfig;
 
 export const FontKit = [
@@ -22,12 +19,12 @@ export const FontKit = [
     inject: {
       ...options.inject,
       nodeProps: {
-        defaultNodeValue: 'black'
-      }
-    }
+        defaultNodeValue: 'black',
+      },
+    },
   }),
   FontBackgroundColorPlugin.configure(options),
   FontSizePlugin.configure(options),
   FontFamilyPlugin.configure(options),
-  FontWeightPlugin.configure(options)
+  FontWeightPlugin.configure(options),
 ];

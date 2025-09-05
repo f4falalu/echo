@@ -1,7 +1,6 @@
-import { useMemoizedFn } from '@/hooks/useMemoizedFn';
-import { cn } from '@/lib/classMerge';
-import { type VariantProps, cva } from 'class-variance-authority';
+import { cva, type VariantProps } from 'class-variance-authority';
 import React, { useMemo } from 'react';
+import { cn } from '@/lib/classMerge';
 import Target from '../OtherComponents/Target';
 import type { BusterChartLegendItem } from './interfaces';
 
@@ -11,9 +10,9 @@ const itemVariants = cva(
     variants: {
       size: {
         sm: 'w-2 h-3',
-        default: 'w-4.5 h-3'
-      }
-    }
+        default: 'w-4.5 h-3',
+      },
+    },
   }
 );
 
@@ -21,32 +20,32 @@ const dotVariants = cva('bg-border transition-colors duration-100', {
   variants: {
     size: {
       sm: '',
-      default: ''
+      default: '',
     },
     type: {
       bar: 'w-4.5 h-3 rounded-sm',
       line: 'w-4.5 h-1 rounded-sm',
-      scatter: 'w-3 h-3 rounded-full'
-    }
+      scatter: 'w-3 h-3 rounded-full',
+    },
   },
 
   compoundVariants: [
     {
       size: 'sm',
       type: 'bar',
-      className: 'w-2 h-2 rounded-[1.5px]'
+      className: 'w-2 h-2 rounded-[1.5px]',
     },
     {
       size: 'sm',
       type: 'line',
-      className: 'w-2 h-0.5 rounded-1.5px'
+      className: 'w-2 h-0.5 rounded-1.5px',
     },
     {
       size: 'sm',
       type: 'scatter',
-      className: 'w-2 h-2'
-    }
-  ]
+      className: 'w-2 h-2',
+    },
+  ],
 });
 
 export const LegendItemDot: React.FC<
@@ -59,20 +58,20 @@ export const LegendItemDot: React.FC<
 > = React.memo(({ color, type, inactive, onFocusItem, size = 'default' }) => {
   const hasFocusItem = onFocusItem !== undefined;
 
-  const onClick = useMemoizedFn((e: React.MouseEvent<HTMLButtonElement>) => {
+  const onClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (onFocusItem) {
       e.stopPropagation();
       onFocusItem();
     }
-  });
+  };
 
-  const onFocusItemPreflight = useMemoizedFn((e: React.MouseEvent<HTMLButtonElement>) => {
+  const onFocusItemPreflight = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (onFocusItem) {
       e.stopPropagation();
       e.preventDefault();
       onFocusItem();
     }
-  });
+  };
 
   const dotStyle = useMemo(() => {
     if (type === 'line') return dotVariants({ size, type: 'line' });
@@ -87,7 +86,7 @@ export const LegendItemDot: React.FC<
         onClick={onClick}
         data-testid="legend-dot"
         className={cn('cursor-pointer', dotStyle, {
-          'group-hover:opacity-0': hasFocusItem
+          'group-hover:opacity-0': hasFocusItem,
         })}
         style={{ backgroundColor: !inactive ? color : undefined }}
       />
@@ -95,15 +94,18 @@ export const LegendItemDot: React.FC<
         <button
           type="button"
           onClick={onFocusItemPreflight}
-          className="absolute hidden h-full w-full cursor-pointer items-center justify-center overflow-hidden group-hover:flex">
+          className="absolute hidden h-full w-full cursor-pointer items-center justify-center overflow-hidden group-hover:flex"
+        >
           <div
             data-testid="focus-target"
-            className="focus-item group-hover:bg-item-hover flex h-full w-full items-center justify-center rounded-sm">
+            className="focus-item group-hover:bg-item-hover flex h-full w-full items-center justify-center rounded-sm"
+          >
             <div
               className={cn(
                 'flex h-full w-full items-center justify-center overflow-hidden',
                 size === 'sm' ? 'text2xs' : 'text2xs'
-              )}>
+              )}
+            >
               <Target />
             </div>
           </div>

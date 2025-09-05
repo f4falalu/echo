@@ -1,13 +1,13 @@
-import { useMemoizedFn } from '@/hooks/useMemoizedFn';
-import { cn } from '@/lib/classMerge';
-import { formatLabel } from '@/lib/columnFormatter';
 import { type ChartConfigProps, DEFAULT_CHART_CONFIG } from '@buster/server-shared/metrics';
 import isEmpty from 'lodash/isEmpty';
 import React, { useCallback } from 'react';
+import { useUpdateMetricChart } from '@/context/Metrics/useUpdateMetricChart';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { cn } from '@/lib/classMerge';
+import { formatLabel } from '@/lib/columnFormatter';
 import { AppDataGrid } from '../../table/AppDataGrid';
 import type { BusterChartPropsBase } from '../BusterChart.types';
 import type { BusterTableChartConfig } from './interfaces';
-import { useUpdateMetricChart } from '@/context/Metrics';
 
 export interface BusterTableChartProps extends BusterTableChartConfig, BusterChartPropsBase {}
 
@@ -22,7 +22,7 @@ const BusterTableChartBase: React.FC<BusterTableChartProps> = ({
   columnLabelFormats = DEFAULT_CHART_CONFIG.columnLabelFormats,
   tableColumnWidths = DEFAULT_CHART_CONFIG.tableColumnWidths,
   readOnly = false,
-  onInitialAnimationEnd
+  onInitialAnimationEnd,
   //TODO
   // tableHeaderBackgroundColor,
   //  tableHeaderFontColor,
@@ -44,7 +44,7 @@ const BusterTableChartBase: React.FC<BusterTableChartProps> = ({
 
   const onUpdateTableColumnOrder = useMemoizedFn((columns: string[]) => {
     const config: Partial<ChartConfigProps> = {
-      tableColumnOrder: columns
+      tableColumnOrder: columns,
     };
 
     onChangeConfig(config);
@@ -56,7 +56,7 @@ const BusterTableChartBase: React.FC<BusterTableChartProps> = ({
       tableColumnWidths: columns.reduce<Record<string, number>>((acc, { key, size }) => {
         acc[key] = Number(size.toFixed(1));
         return acc;
-      }, {})
+      }, {}),
     };
     onChangeConfig(config);
   });

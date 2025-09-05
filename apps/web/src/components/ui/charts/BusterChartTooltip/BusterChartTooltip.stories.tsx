@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import { BusterChartTooltip } from './BusterChartTooltip';
 
@@ -6,7 +6,7 @@ const meta: Meta<typeof BusterChartTooltip> = {
   title: 'UI/Charts/BusterChartTooltip',
   component: BusterChartTooltip,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
   tags: ['autodocs'],
   decorators: [
@@ -14,8 +14,8 @@ const meta: Meta<typeof BusterChartTooltip> = {
       <div className="rounded-sm border shadow-lg">
         <Story />
       </div>
-    )
-  ]
+    ),
+  ],
 };
 
 export default meta;
@@ -30,10 +30,10 @@ const baseTooltipItems = [
       {
         formattedValue: 100,
         formattedLabel: 'Value',
-        formattedPercentage: '50%'
-      }
+        formattedPercentage: '50%',
+      },
     ],
-    usePercentage: true
+    usePercentage: true,
   },
   {
     color: '#52c41a',
@@ -43,11 +43,11 @@ const baseTooltipItems = [
       {
         formattedValue: 200,
         formattedLabel: 'Value',
-        formattedPercentage: '100%'
-      }
+        formattedPercentage: '100%',
+      },
     ],
-    usePercentage: true
-  }
+    usePercentage: true,
+  },
 ];
 
 const scatterTooltipItems = [
@@ -59,16 +59,16 @@ const scatterTooltipItems = [
       {
         formattedValue: '10 dollars',
         formattedLabel: 'X',
-        formattedPercentage: undefined
+        formattedPercentage: undefined,
       },
       {
         formattedValue: '20 years',
         formattedLabel: 'Y',
-        formattedPercentage: undefined
-      }
+        formattedPercentage: undefined,
+      },
     ],
-    usePercentage: false
-  }
+    usePercentage: false,
+  },
 ];
 
 const manyTooltipItems = Array.from({ length: 15 }, (_, i) => ({
@@ -79,36 +79,36 @@ const manyTooltipItems = Array.from({ length: 15 }, (_, i) => ({
     {
       formattedValue: (i + 1) * 100,
       formattedLabel: 'Value',
-      formattedPercentage: `${(i + 1) * 10}%`
-    }
+      formattedPercentage: `${(i + 1) * 10}%`,
+    },
   ],
-  usePercentage: true
+  usePercentage: true,
 }));
 
 export const Default: Story = {
   args: {
     tooltipItems: baseTooltipItems,
-    title: 'Chart Data'
-  }
+    title: 'Chart Data',
+  },
 };
 
 export const WithScatterPlot: Story = {
   args: {
     tooltipItems: scatterTooltipItems,
-    title: '' //scatter typically does not have a title
-  }
+    title: '', //scatter typically does not have a title
+  },
 };
 
 export const WithManyItems: Story = {
   args: {
     tooltipItems: manyTooltipItems,
-    title: 'Many Series'
-  }
+    title: 'Many Series',
+  },
 };
 
 export const NoTitle: Story = {
   args: {
     tooltipItems: baseTooltipItems,
-    title: undefined
-  }
+    title: undefined,
+  },
 };

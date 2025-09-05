@@ -2,7 +2,7 @@ import type { PlateEditor } from 'platejs/react';
 
 // Render the current editor content to a canvas for image export.
 export const getCanvas = async (editor: PlateEditor) => {
-  const { default: html2canvas } = await import('html2canvas-pro');
+  const html2canvas = await import('html2canvas-pro').then((m) => m.default);
 
   // Create a temporary style element to isolate any styles needed during export.
   // Ensure it is always cleaned up, even if an error occurs during rendering.
@@ -13,6 +13,7 @@ export const getCanvas = async (editor: PlateEditor) => {
   // Standard width for consistent PDF output (equivalent to A4 width with margins)
   const standardWidth = '850px';
 
+  // biome-ignore lint/style/noNonNullAssertion: it is guaranteed to be there
   const node = editor.api.toDOMNode(editor)!;
 
   if (!node) {
@@ -44,7 +45,7 @@ export const getCanvas = async (editor: PlateEditor) => {
         } else {
           throw new Error('Editor element not found');
         }
-      }
+      },
     });
     return canvas;
   } finally {

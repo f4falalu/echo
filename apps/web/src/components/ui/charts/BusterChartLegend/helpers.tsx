@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from 'react-dom/server';
-import { LegendItem } from './LegendItem';
 import type { BusterChartLegendItem } from './interfaces';
+import { LegendItem } from './LegendItem';
 
 const WIDTH_OF_OVERFLOW = 79;
 
@@ -8,7 +8,7 @@ export const computeHiddenShowItems = (legendItems: BusterChartLegendItem[], wid
   if (width === 0 || !legendItems || legendItems.length === 0) {
     return {
       shownItems: [],
-      hiddenItems: []
+      hiddenItems: [],
     };
   }
 

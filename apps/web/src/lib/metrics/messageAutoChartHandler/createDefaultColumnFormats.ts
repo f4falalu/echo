@@ -1,12 +1,12 @@
-import { create } from 'mutative';
-import { isDateColumnType, isNumericColumnType, simplifyColumnType } from '@/lib/messages';
 import {
   type ChartConfigProps,
   type ColumnLabelFormat,
   type ColumnMetaData,
   DEFAULT_COLUMN_LABEL_FORMAT,
-  type SimplifiedColumnType
+  type SimplifiedColumnType,
 } from '@buster/server-shared/metrics';
+import { create } from 'mutative';
+import { isDateColumnType, isNumericColumnType, simplifyColumnType } from '@/lib/messages';
 
 export const createDefaultColumnLabelFormats = (
   columnLabelFormats: Record<string, ColumnLabelFormat> | undefined,
@@ -40,7 +40,7 @@ const createDefaulColumnLabel = (
   name: string
 ): Required<ColumnLabelFormat> => {
   const assosciatedColumn = columnsMetaData?.find((m) => m.name === name) || {
-    simple_type: 'text'
+    simple_type: 'text',
   };
   const columnType: SimplifiedColumnType = simplifyColumnType(assosciatedColumn?.simple_type);
   const style = createDefaultColumnLabelStyle(columnType);

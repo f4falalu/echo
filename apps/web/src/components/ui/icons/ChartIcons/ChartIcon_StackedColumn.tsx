@@ -3,7 +3,7 @@ import { DEFAULT_CHART_COLORS, DISABLED_CHART_COLORS } from './config';
 
 export const ChartIcon_StackedColumn: React.FC<{ colors?: string[]; disabled?: boolean }> = ({
   colors: colorsProp = DEFAULT_CHART_COLORS,
-  disabled
+  disabled,
 }) => {
   const colors = disabled ? DISABLED_CHART_COLORS : colorsProp;
 
@@ -13,7 +13,8 @@ export const ChartIcon_StackedColumn: React.FC<{ colors?: string[]; disabled?: b
       width="1em"
       height="1em"
       viewBox="0 0 22 22"
-      fill="none">
+      fill="none"
+    >
       <title>Stacked Column Chart Icon</title>
       <path
         d="M1.5 17C1.5 16.4477 1.94772 16 2.5 16H4.5C5.05228 16 5.5 16.4477 5.5 17V22H1.5V17Z"

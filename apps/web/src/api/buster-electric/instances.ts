@@ -1,15 +1,14 @@
-import { useShape as useElectricShape, getShapeStream } from '@electric-sql/react';
 import {
-  isChangeMessage,
   type BackoffOptions,
-  type Row,
   type ChangeMessage,
-  type Message
+  isChangeMessage,
+  type Message,
+  type Row,
 } from '@electric-sql/client';
+import { getShapeStream, useShape as useElectricShape } from '@electric-sql/react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useGetSupabaseAccessToken } from '@/context/Supabase';
 import { ELECTRIC_BASE_URL } from './config';
-import { useSupabaseContext } from '@/context/Supabase';
-import { useEffect, useMemo, useRef } from 'react';
-import { useMemoizedFn } from '../../hooks';
 
 export type ElectricShapeOptions<T extends Row<unknown> = Row<unknown>> = Omit<
   Parameters<typeof useElectricShape<T>>[0],
@@ -19,7 +18,7 @@ export type ElectricShapeOptions<T extends Row<unknown> = Row<unknown>> = Omit<
 export const useShape = <T extends Row<unknown> = Row<unknown>>(
   params: ElectricShapeOptions<T>
 ): ReturnType<typeof useElectricShape<T>> => {
-  const accessToken = useSupabaseContext((state) => state.accessToken);
+  const accessToken = useGetSupabaseAccessToken();
 
   const shapeStream: Parameters<typeof useElectricShape<T>>[0] = useMemo(() => {
     return createElectricShape(params, accessToken);
@@ -31,7 +30,7 @@ export const useShape = <T extends Row<unknown> = Row<unknown>>(
 const backoffOptions: BackoffOptions = {
   initialDelay: 1000,
   maxDelay: 10000,
-  multiplier: 2
+  multiplier: 2,
 };
 
 const createElectricShape = <T extends Row<unknown> = Row<unknown>>(
@@ -45,8 +44,8 @@ const createElectricShape = <T extends Row<unknown> = Row<unknown>>(
     subscribe: !!accessToken && subscribe,
     backoffOptions,
     headers: {
-      Authorization: `Bearer ${accessToken}`
-    }
+      Authorization: `Bearer ${accessToken}`,
+    },
   };
 };
 
@@ -57,11 +56,11 @@ export const useShapeStream = <T extends Row<unknown> = Row<unknown>>(
   subscribe: boolean = true,
   shouldUnsubscribe?: (d: { operationType: string; message: ChangeMessage<T> }) => boolean
 ) => {
-  const accessToken = useSupabaseContext((s) => s.accessToken);
+  const accessToken = useGetSupabaseAccessToken();
   const memoParams = useMemo(() => params, [JSON.stringify(params)]);
-  const abortRef = useRef<AbortController>();
+  const abortRef = useRef<AbortController>(null);
 
-  const createStream = useMemoizedFn(() => {
+  const createStream = useCallback(() => {
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -71,9 +70,9 @@ export const useShapeStream = <T extends Row<unknown> = Row<unknown>>(
     //we use getShapeStream instead of ShapeStream to use global cache entry
     return getShapeStream<T>({
       ...opts,
-      signal: controller.signal
+      signal: controller.signal,
     });
-  });
+  }, [accessToken, memoParams]);
 
   useEffect(() => {
     if (!subscribe) {
@@ -117,6 +116,6 @@ export const useShapeStream = <T extends Row<unknown> = Row<unknown>>(
     memoParams,
     accessToken,
     subscribe,
-    operations.join(',') // primitive dep
+    operations.join(','), // primitive dep
   ]);
 };

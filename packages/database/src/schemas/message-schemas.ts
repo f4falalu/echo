@@ -17,7 +17,7 @@ const ResponseMessage_FileMetadataSchema = z.object({
   timestamp: z.number().optional(),
 });
 
-const ResponseMessageFileTypeSchema = z.enum(['metric', 'dashboard', 'reasoning', 'report']);
+const ResponseMessageFileTypeSchema = z.enum(['metric', 'dashboard', 'report', 'reasoning']);
 
 const ResponseMessage_FileSchema = z.object({
   id: z.string(),

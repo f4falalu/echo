@@ -20,7 +20,7 @@ export const buttonTypeClasses = {
   warning:
     'bg-warning-background text-warning-foreground hover:bg-warning-background-hover active:bg-warning-background-hover data-[selected=true]:bg-warning-background-hover',
   success:
-    'bg-success-background text-success-foreground hover:bg-success-background-hover active:bg-success-background-hover data-[selected=true]:bg-success-background-hover'
+    'bg-success-background text-success-foreground hover:bg-success-background-hover active:bg-success-background-hover data-[selected=true]:bg-success-background-hover',
 };
 
 const roundingVariants = {
@@ -28,13 +28,13 @@ const roundingVariants = {
   full: 'rounded-full',
   large: 'rounded-lg',
   small: 'rounded-sm',
-  none: 'rounded-none'
+  none: 'rounded-none',
 };
 
 const sizeVariants = {
   default: 'h-6 min-h-6 max-h-6',
   tall: 'h-7 min-h-7 max-h-7',
-  small: 'h-5 min-h-5 max-h-5'
+  small: 'h-5 min-h-5 max-h-5',
 };
 
 export const buttonVariants = cva(
@@ -45,42 +45,42 @@ export const buttonVariants = cva(
       size: sizeVariants,
       iconButton: {
         true: '',
-        false: 'px-2.5'
+        false: 'px-2.5',
       },
       rounding: roundingVariants,
       block: {
         true: 'w-full',
-        false: ''
-      }
+        false: '',
+      },
     },
     compoundVariants: [
       {
         iconButton: true,
         size: 'default',
-        className: 'w-6 min-w-6 max-w-6'
+        className: 'w-6 min-w-6 max-w-6',
       },
       {
         iconButton: true,
         size: 'tall',
-        className: 'w-7 min-w-7 max-w-7'
+        className: 'w-7 min-w-7 max-w-7',
       },
       {
         iconButton: true,
         size: 'small',
-        className: 'w-5 min-w-5 max-w-5 px-1.5'
+        className: 'w-5 min-w-5 max-w-5 px-1.5',
       },
       {
         iconButton: false,
         size: 'small',
-        className: 'px-1.5'
-      }
+        className: 'px-1.5',
+      },
     ],
     defaultVariants: {
       variant: 'default',
       size: 'default',
       iconButton: false,
-      block: false
-    }
+      block: false,
+    },
   }
 );
 
@@ -95,36 +95,36 @@ export const buttonIconVariants = cva('', {
       link: 'text-icon-color',
       danger: 'text-danger-foreground',
       warning: 'text-warning-foreground',
-      success: 'text-success-foreground'
+      success: 'text-success-foreground',
     },
     size: {
       default: 'text-icon-size!',
       tall: 'text-icon-size-lg!',
-      small: 'text-icon-size-sm!'
+      small: 'text-icon-size-sm!',
     },
     disabled: {
       true: 'text-gray-light',
-      false: ''
-    }
+      false: '',
+    },
   },
   compoundVariants: [
     {
       variant: 'black',
       disabled: true,
-      className: 'text-white'
+      className: 'text-white',
     },
     {
       variant: 'outlined',
       size: 'tall',
-      className: 'text-icon-size!'
-    }
-  ]
+      className: 'text-icon-size!',
+    },
+  ],
 });
 
 const loadingSizeVariants = {
   default: 'w-[var(--text-icon-size)] h-[var(--text-icon-size)]',
   tall: 'w-[var(--text-icon-size-lg)] h-[var(--text-icon-size-lg)]',
-  small: 'w-[var(--text-icon-size-sm)] h-[var(--text-icon-size-sm)]'
+  small: 'w-[var(--text-icon-size-sm)] h-[var(--text-icon-size-sm)]',
 };
 
 export interface ButtonProps
@@ -174,7 +174,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={disabled}
         data-loading={loading}
         data-selected={selected}
-        {...props}>
+        {...props}
+      >
         {loading ? (
           <LoadingIcon variant={variant} size={size} />
         ) : (
@@ -207,7 +208,8 @@ export const LoadingIcon: React.FC<{
         'flex items-center justify-center text-black dark:text-white',
         variant === 'black' && 'dark',
         loadingSizeVariants[size || 'default']
-      )}>
+      )}
+    >
       <CircleSpinnerLoader
         size={size === 'tall' ? 12.5 : 9.5}
         fill={

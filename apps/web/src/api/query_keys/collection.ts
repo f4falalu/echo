@@ -9,15 +9,15 @@ const collectionsGetList = (
     queryKey: ['collections', 'list', filters || { page_token: 0, page_size: 3500 }] as const,
     staleTime: 60 * 1000,
     initialData: [],
-    initialDataUpdatedAt: 0
+    initialDataUpdatedAt: 0,
   });
 
 const collectionsGetCollection = (collectionId: string) =>
   queryOptions<BusterCollection>({
-    queryKey: ['collections', 'get', collectionId] as const
+    queryKey: ['collections', 'get', collectionId] as const,
   });
 
 export const collectionQueryKeys = {
   collectionsGetList,
-  collectionsGetCollection
+  collectionsGetCollection,
 };

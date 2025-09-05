@@ -8,13 +8,13 @@ describe('useYAxis', () => {
   const defaultProps = {
     columnLabelFormats: {
       value1: DEFAULT_COLUMN_LABEL_FORMAT,
-      value2: DEFAULT_COLUMN_LABEL_FORMAT
+      value2: DEFAULT_COLUMN_LABEL_FORMAT,
     },
     selectedAxis: {
       y: ['value1'],
       x: ['date'],
       category: [],
-      tooltip: null
+      tooltip: null,
     } as ChartEncodes,
     selectedChartType: 'bar',
     columnMetadata: undefined,
@@ -26,13 +26,13 @@ describe('useYAxis', () => {
     yAxisStartAxisAtZero: true,
     yAxisScaleType: 'linear' as const,
     gridLines: true,
-    columnSettings: {}
+    columnSettings: {},
   } as Parameters<typeof useYAxis>[0];
 
   it('should return undefined for pie charts', () => {
     const props = {
       ...defaultProps,
-      selectedChartType: 'pie'
+      selectedChartType: 'pie',
     } as Parameters<typeof useYAxis>[0];
 
     const { result } = renderHook(() => useYAxis(props));
@@ -48,14 +48,14 @@ describe('useYAxis', () => {
       beginAtZero: true,
       stacked: false,
       ticks: { display: true },
-      border: { display: true }
+      border: { display: true },
     });
   });
 
   it('should handle percentage stack mode', () => {
     const props = {
       ...defaultProps,
-      barGroupType: 'percentage-stack' as const
+      barGroupType: 'percentage-stack' as const,
     };
 
     const { result } = renderHook(() => useYAxis(props));
@@ -65,7 +65,7 @@ describe('useYAxis', () => {
   it('should handle logarithmic scale type', () => {
     const props = {
       ...defaultProps,
-      yAxisScaleType: 'log' as const
+      yAxisScaleType: 'log' as const,
     };
 
     const { result } = renderHook(() => useYAxis(props));
@@ -75,7 +75,7 @@ describe('useYAxis', () => {
   it('should respect yAxisShowAxisLabel setting', () => {
     const props = {
       ...defaultProps,
-      yAxisShowAxisLabel: false
+      yAxisShowAxisLabel: false,
     };
 
     const { result } = renderHook(() => useYAxis(props));
@@ -88,8 +88,8 @@ describe('useYAxis', () => {
       ...defaultProps,
       selectedAxis: {
         y: ['value1', 'value2'],
-        x: ['date']
-      } as ChartEncodes
+        x: ['date'],
+      } as ChartEncodes,
     };
 
     const { result } = renderHook(() => useYAxis(props));
@@ -99,7 +99,7 @@ describe('useYAxis', () => {
   it('should respect yAxisStartAxisAtZero setting', () => {
     const props = {
       ...defaultProps,
-      yAxisStartAxisAtZero: false
+      yAxisStartAxisAtZero: false,
     };
 
     const { result } = renderHook(() => useYAxis(props));
@@ -110,7 +110,7 @@ describe('useYAxis', () => {
     const props = {
       ...defaultProps,
       yAxisAxisTitle: 'Custom Title',
-      yAxisShowAxisTitle: true
+      yAxisShowAxisTitle: true,
     };
 
     const { result } = renderHook(() => useYAxis(props));
@@ -122,7 +122,7 @@ describe('useYAxis', () => {
     const props = {
       ...defaultProps,
       selectedChartType: 'line',
-      lineGroupType: 'percentage-stack' as const
+      lineGroupType: 'percentage-stack' as const,
     } as Parameters<typeof useYAxis>[0];
 
     const { result } = renderHook(() => useYAxis(props));

@@ -1,0 +1,36 @@
+import type { TeamRole } from '@buster/server-shared/teams';
+import React from 'react';
+import { useUpdateUserTeams } from '@/api/buster_rest/users/permissions';
+import { PermissionAssignTeamRoleButton } from '@/components/features/permissions';
+import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+
+export const UserTeamsSelectedPopup: React.FC<{
+  selectedRowKeys: string[];
+  onSelectChange: (selectedRowKeys: string[]) => void;
+  userId: string;
+}> = React.memo(({ selectedRowKeys, onSelectChange, userId }) => {
+  const { mutateAsync: updateUserTeams } = useUpdateUserTeams({
+    userId: userId,
+  });
+
+  const onRoleChange = useMemoizedFn(async (role: TeamRole) => {
+    await updateUserTeams(
+      selectedRowKeys.map((id) => ({
+        id,
+        role,
+      }))
+    );
+    onSelectChange([]);
+  });
+
+  return (
+    <BusterListSelectedOptionPopupContainer
+      selectedRowKeys={selectedRowKeys}
+      onSelectChange={onSelectChange}
+      buttons={[<PermissionAssignTeamRoleButton key="assign" onRoleChange={onRoleChange} />]}
+    />
+  );
+});
+
+UserTeamsSelectedPopup.displayName = 'UserTeamsSelectedPopup';

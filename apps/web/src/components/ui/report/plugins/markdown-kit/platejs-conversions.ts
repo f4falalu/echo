@@ -1,6 +1,5 @@
-import type { Descendant } from 'platejs';
+import type { Descendant, Value } from 'platejs';
 import type { IReportEditor } from '../../ReportEditor';
-import { Value } from 'platejs';
 
 export const markdownToPlatejs = async (
   editor: IReportEditor,
@@ -10,7 +9,7 @@ export const markdownToPlatejs = async (
     const descendants: Value = editor.api.markdown.deserialize(markdown);
     const descendantsWithIds: Value = descendants.map((element, index) => ({
       ...element,
-      id: `id-${index}`
+      id: `id-${index}`,
     }));
     return descendantsWithIds;
   } catch (error) {

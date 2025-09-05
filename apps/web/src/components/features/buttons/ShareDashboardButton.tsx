@@ -1,7 +1,6 @@
 import React from 'react';
 import { useGetDashboard } from '@/api/buster_rest/dashboards';
-import { ShareMenu } from '../ShareMenu';
-import { getShareAssetConfig } from '../ShareMenu/helpers';
+import { getShareAssetConfig, ShareMenu } from '../ShareMenu';
 import { ShareButton } from './ShareButton';
 
 export const ShareDashboardButton = React.memo(({ dashboardId }: { dashboardId: string }) => {
@@ -14,7 +13,8 @@ export const ShareDashboardButton = React.memo(({ dashboardId }: { dashboardId: 
     <ShareMenu
       shareAssetConfig={dashboardResponse || null}
       assetId={dashboardId}
-      assetType={'dashboard'}>
+      assetType={'dashboard'}
+    >
       <ShareButton />
     </ShareMenu>
   );

@@ -4,13 +4,13 @@ import { addMetricToDashboardConfig } from './addMetricToDashboard';
 
 describe('addMetricToDashboardConfig', () => {
   const createEmptyConfig = (): BusterDashboard['config'] => ({
-    rows: []
+    rows: [],
   });
 
   const createConfigWithRows = (
     rows: BusterDashboard['config']['rows']
   ): BusterDashboard['config'] => ({
-    rows
+    rows,
   });
 
   it('should return the same config if no new metrics are provided', () => {
@@ -58,8 +58,8 @@ describe('addMetricToDashboardConfig', () => {
         id: 'row1',
         items: [{ id: 'metric1' }],
         columnSizes: [12],
-        rowHeight: 320
-      }
+        rowHeight: 320,
+      },
     ]);
 
     const result = addMetricToDashboardConfig(['metric1', 'metric2'], config);
@@ -95,7 +95,7 @@ describe('addMetricToDashboardConfig', () => {
         'metric10',
         'metric11',
         'metric12',
-        'metric13'
+        'metric13',
       ],
       config
     );
@@ -115,8 +115,8 @@ describe('addMetricToDashboardConfig', () => {
         id: 'row1',
         items: [{ id: 'existing1' }],
         columnSizes: [12],
-        rowHeight: 320
-      }
+        rowHeight: 320,
+      },
     ]);
 
     const result = addMetricToDashboardConfig(['metric1', 'metric2'], config);
@@ -147,7 +147,7 @@ describe('addMetricToDashboardConfig', () => {
     expect(result.rows?.[0].items.map((item) => item.id)).toEqual([
       'metric1',
       'metric2',
-      'metric3'
+      'metric3',
     ]);
     expect(result.rows?.[0].columnSizes).toEqual([4, 4, 4]); // Three equal columns of 4
     expect(result.rows?.[0].columnSizes?.reduce((a, b) => a + b)).toBe(12); // Sum should be 12
@@ -163,7 +163,7 @@ describe('addMetricToDashboardConfig', () => {
       'metric1',
       'metric2',
       'metric3',
-      'metric4'
+      'metric4',
     ]);
     expect(result.rows?.[0].columnSizes).toEqual([3, 3, 3, 3]); // Four equal columns of 3
     expect(result.rows?.[0].columnSizes?.reduce((a, b) => a + b)).toBe(12); // Sum should be 12

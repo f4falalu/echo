@@ -59,12 +59,14 @@ function InputSelectModalBase<T = unknown>({
         'data-[state=closed]:slide-out-to-top-[5%]! data-[state=open]:slide-in-from-top-[5%]! top-28 translate-y-0',
         className
       )}
-      {...props}>
+      {...props}
+    >
       <div
         className="max-h-[65vh]"
         style={{
-          height: (rows.length || 1) * 48 + (showHeader ? 32 : 0) //32 is the height of the header
-        }}>
+          height: (rows.length || 1) * 48 + (showHeader ? 32 : 0), //32 is the height of the header
+        }}
+      >
         <BusterList
           columns={columns}
           rows={rows}

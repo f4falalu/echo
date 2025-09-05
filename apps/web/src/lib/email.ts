@@ -21,7 +21,7 @@ const personalEmailDomains = [
   '@me',
   '@mac',
   '@aim',
-  '@hushmail'
+  '@hushmail',
 ];
 
 export const isPersonalEmail = (email: string) => {

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Input } from './Input';
 
 const meta: Meta<typeof Input> = {
@@ -8,23 +8,23 @@ const meta: Meta<typeof Input> = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['default', 'ghost']
+      options: ['default', 'ghost'],
     },
     size: {
       control: 'select',
-      options: ['default', 'tall', 'small']
+      options: ['default', 'tall', 'small'],
     },
     disabled: {
-      control: 'boolean'
+      control: 'boolean',
     },
     placeholder: {
-      control: 'text'
+      control: 'text',
     },
     type: {
       control: 'select',
-      options: ['text', 'textarea', 'number', 'email', 'password']
-    }
-  }
+      options: ['text', 'textarea', 'number', 'email', 'password'],
+    },
+  },
 };
 
 export default meta;
@@ -32,35 +32,35 @@ type Story = StoryObj<typeof Input>;
 
 export const Default: Story = {
   args: {
-    placeholder: 'Enter text here...'
-  }
+    placeholder: 'Enter text here...',
+  },
 };
 
 export const Ghost: Story = {
   args: {
     variant: 'ghost',
-    placeholder: 'Ghost input...'
-  }
+    placeholder: 'Ghost input...',
+  },
 };
 
 export const Tall: Story = {
   args: {
     size: 'tall',
-    placeholder: 'Tall input...'
-  }
+    placeholder: 'Tall input...',
+  },
 };
 
 export const Small: Story = {
   args: {
     size: 'small',
-    placeholder: 'Small input...'
-  }
+    placeholder: 'Small input...',
+  },
 };
 
 export const Disabled: Story = {
   args: {
     disabled: true,
     placeholder: 'Disabled input',
-    value: 'Cannot edit this'
-  }
+    value: 'Cannot edit this',
+  },
 };

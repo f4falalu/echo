@@ -5,11 +5,11 @@ import yaml from 'js-yaml';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { Model } from '../schemas';
 import {
-  ModelParsingError,
   fileContainsTodo,
   findTodoMarkers,
   formatZodIssues,
   generateDefaultSQL,
+  ModelParsingError,
   parseModelFile,
   parseModelFileStrict,
   resolveModelConfig,

@@ -62,7 +62,7 @@ export const validateMetricYaml = (
       startLineNumber: lineNumber,
       startColumn: columnNumber,
       endLineNumber: lineNumber,
-      endColumn: columnNumber
+      endColumn: columnNumber,
     });
 
     return markers;
@@ -76,7 +76,7 @@ export const validateMetricYaml = (
       startLineNumber: 1,
       startColumn: 1,
       endLineNumber: 1,
-      endColumn: 1
+      endColumn: 1,
     });
     return markers;
   }
@@ -94,7 +94,7 @@ export const validateMetricYaml = (
         startLineNumber: findLineNumberForKey(content, key) || 1,
         startColumn: 1,
         endLineNumber: findLineNumberForKey(content, key) || 1,
-        endColumn: 100
+        endColumn: 100,
       });
     }
   }
@@ -108,7 +108,7 @@ export const validateMetricYaml = (
         startLineNumber: 1,
         startColumn: 1,
         endLineNumber: 1,
-        endColumn: 100
+        endColumn: 100,
       });
     }
   }
@@ -122,7 +122,7 @@ export const validateMetricYaml = (
       startLineNumber: lineNumber,
       startColumn: 1,
       endLineNumber: lineNumber,
-      endColumn: content.split('\n')[lineNumber - 1]?.length || 1
+      endColumn: content.split('\n')[lineNumber - 1]?.length || 1,
     });
   }
 
@@ -134,7 +134,7 @@ export const validateMetricYaml = (
       startLineNumber: lineNumber,
       startColumn: 1,
       endLineNumber: lineNumber,
-      endColumn: content.split('\n')[lineNumber - 1]?.length || 1
+      endColumn: content.split('\n')[lineNumber - 1]?.length || 1,
     });
   }
 
@@ -146,7 +146,7 @@ export const validateMetricYaml = (
       startLineNumber: lineNumber,
       startColumn: 1,
       endLineNumber: lineNumber,
-      endColumn: content.split('\n')[lineNumber - 1]?.length || 1
+      endColumn: content.split('\n')[lineNumber - 1]?.length || 1,
     });
   }
 
@@ -164,7 +164,7 @@ export const validateMetricYaml = (
         startLineNumber: siblingsLineNumber,
         startColumn: 1,
         endLineNumber: siblingsLineNumber,
-        endColumn: content.split('\n')[siblingsLineNumber - 1]?.length || 1
+        endColumn: content.split('\n')[siblingsLineNumber - 1]?.length || 1,
       });
     } else {
       // Validate that each sibling's age is a number
@@ -186,7 +186,7 @@ export const validateMetricYaml = (
             startLineNumber: siblingLineNumber,
             startColumn: 1,
             endLineNumber: siblingLineNumber,
-            endColumn: lines[siblingLineNumber - 1]?.length || 1
+            endColumn: lines[siblingLineNumber - 1]?.length || 1,
           });
         }
       }
@@ -197,88 +197,88 @@ export const validateMetricYaml = (
 };
 
 // Helper to configure Monaco YAML schema
-const configureYamlSchema = (
-  monaco: typeof import('monaco-editor'),
-  editor: editor.IStandaloneCodeEditor
-) => {
-  // This assumes you have monaco-yaml configured via yamlHelper.ts in the project
-  // The schema will help with validation and autocomplete
-  const model = editor.getModel();
-  if (model) {
-    // Check if the YAML language support exists
-    // This is dynamically added by monaco-yaml and may not be typed correctly
-    const yamlDefaults = (monaco.languages as unknown as { yaml?: { yamlDefaults: unknown } }).yaml
-      ?.yamlDefaults as { setDiagnosticsOptions?: (options: unknown) => void };
-    if (yamlDefaults && typeof yamlDefaults.setDiagnosticsOptions === 'function') {
-      yamlDefaults.setDiagnosticsOptions({
-        validate: true,
-        schemas: [
-          {
-            uri: 'http://myserver/metric-yaml-schema.json',
-            fileMatch: ['*'],
-            schema: {
-              type: 'object',
-              required: ['Person', 'Place', 'Age', 'Siblings'],
-              properties: {
-                Person: { type: 'string' },
-                Place: { type: 'string' },
-                Age: { type: 'number' },
-                Siblings: {
-                  type: 'object',
-                  additionalProperties: { type: 'number' }
-                }
-              }
-            }
-          }
-        ]
-      });
-    }
-  }
-};
+// const configureYamlSchema = (
+//   monaco: typeof import('monaco-editor'),
+//   editor: editor.IStandaloneCodeEditor
+// ) => {
+//   // This assumes you have monaco-yaml configured via yamlHelper.ts in the project
+//   // The schema will help with validation and autocomplete
+//   const model = editor.getModel();
+//   if (model) {
+//     // Check if the YAML language support exists
+//     // This is dynamically added by monaco-yaml and may not be typed correctly
+//     const yamlDefaults = (monaco.languages as unknown as { yaml?: { yamlDefaults: unknown } }).yaml
+//       ?.yamlDefaults as { setDiagnosticsOptions?: (options: unknown) => void };
+//     if (yamlDefaults && typeof yamlDefaults.setDiagnosticsOptions === 'function') {
+//       yamlDefaults.setDiagnosticsOptions({
+//         validate: true,
+//         schemas: [
+//           {
+//             uri: 'http://myserver/metric-yaml-schema.json',
+//             fileMatch: ['*'],
+//             schema: {
+//               type: 'object',
+//               required: ['Person', 'Place', 'Age', 'Siblings'],
+//               properties: {
+//                 Person: { type: 'string' },
+//                 Place: { type: 'string' },
+//                 Age: { type: 'number' },
+//                 Siblings: {
+//                   type: 'object',
+//                   additionalProperties: { type: 'number' },
+//                 },
+//               },
+//             },
+//           },
+//         ],
+//       });
+//     }
+//   }
+// };
 
-export const MyYamlEditor: React.FC = () => {
-  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
+// export const MyYamlEditor: React.FC = () => {
+//   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
 
-  // Called once the Monaco editor is mounted
-  const editorDidMount = (
-    editor: editor.IStandaloneCodeEditor,
-    monacoInstance: typeof import('monaco-editor')
-  ) => {
-    editorRef.current = editor;
+//   // Called once the Monaco editor is mounted
+//   const editorDidMount = (
+//     editor: editor.IStandaloneCodeEditor,
+//     monacoInstance: typeof import('monaco-editor')
+//   ) => {
+//     editorRef.current = editor;
 
-    // Try to configure YAML schema if monaco-yaml is properly loaded
-    try {
-      // Check if the YAML language support exists using type assertion
-      if ((monacoInstance.languages as unknown as { yaml?: unknown }).yaml) {
-        configureYamlSchema(monacoInstance, editor);
-      }
-    } catch (err) {
-      console.error('Failed to configure YAML schema:', err);
-    }
+//     // Try to configure YAML schema if monaco-yaml is properly loaded
+//     try {
+//       // Check if the YAML language support exists using type assertion
+//       if ((monacoInstance.languages as unknown as { yaml?: unknown }).yaml) {
+//         configureYamlSchema(monacoInstance, editor);
+//       }
+//     } catch (err) {
+//       console.error('Failed to configure YAML schema:', err);
+//     }
 
-    // Lint the document on every change using our custom validator
-    editor.onDidChangeModelContent(() => {
-      const value = editor.getValue();
-      const markers = validateMetricYaml(value, monacoInstance);
-      const model = editor.getModel();
-      if (model) {
-        monacoInstance.editor.setModelMarkers(model, 'yaml', markers);
-      }
-    });
-  };
+//     // Lint the document on every change using our custom validator
+//     editor.onDidChangeModelContent(() => {
+//       const value = editor.getValue();
+//       const markers = validateMetricYaml(value, monacoInstance);
+//       const model = editor.getModel();
+//       if (model) {
+//         monacoInstance.editor.setModelMarkers(model, 'yaml', markers);
+//       }
+//     });
+//   };
 
-  return (
-    <MonacoEditor
-      width="800"
-      height="600"
-      language="yaml"
-      className="h-full min-h-[600px] w-full min-w-[800px] border"
-      theme="vs-light"
-      value={initialValue}
-      onMount={editorDidMount}
-      options={{
-        automaticLayout: true
-      }}
-    />
-  );
-};
+//   return (
+//     <MonacoEditor
+//       width="800"
+//       height="600"
+//       language="yaml"
+//       className="h-full min-h-[600px] w-full min-w-[800px] border"
+//       theme="vs-light"
+//       value={initialValue}
+//       onMount={editorDidMount}
+//       options={{
+//         automaticLayout: true,
+//       }}
+//     />
+//   );
+// };

@@ -1,6 +1,3 @@
-'use client';
-
-import { DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
 import type {
   BarSortBy,
   ChartConfigProps,
@@ -10,8 +7,9 @@ import type {
   ComboChartAxis,
   PieSortBy,
   ScatterAxis,
-  Trendline
+  Trendline,
 } from '@buster/server-shared/metrics';
+import { DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
 import isEmpty from 'lodash/isEmpty';
 import uniq from 'lodash/uniq';
 import { useMemo } from 'react';
@@ -61,14 +59,14 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
     barGroupType,
     lineGroupType,
     pieSortBy,
-    columnMetadata
+    columnMetadata,
   } = params;
   const {
     x: xFields,
     y: yAxisFields,
     size: sizeField,
     tooltip: _tooltipFields = null,
-    category: categoryFields = []
+    category: categoryFields = [],
   } = selectedAxis as ScatterAxis;
   const { y2: y2AxisFields = defaultYAxis2 } = selectedAxis as ComboChartAxis;
 
@@ -169,7 +167,7 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
         y2: y2AxisFields,
         category: categoryFields,
         size: sizeField,
-        tooltip: tooltipFields
+        tooltip: tooltipFields,
       },
       columnLabelFormats,
       isScatter
@@ -183,7 +181,7 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
     sizeFieldString,
     tooltipFieldsString,
     measureFieldsReplaceDataWithKey,
-    isScatter
+    isScatter,
   ]);
 
   const datasetOptions = useMemo(() => {
@@ -194,7 +192,7 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
       barSortBy,
       barGroupType,
       lineGroupType,
-      selectedChartType
+      selectedChartType,
     });
   }, [
     aggregatedDatasets,
@@ -203,7 +201,7 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
     barSortBy,
     barGroupType,
     lineGroupType,
-    selectedChartType
+    selectedChartType,
   ]);
 
   const numberOfDataPoints = useMemo(() => {
@@ -217,6 +215,6 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
     y2AxisKeys,
     tooltipKeys,
     hasMismatchedTooltipsAndMeasures,
-    isDownsampled
+    isDownsampled,
   };
 };

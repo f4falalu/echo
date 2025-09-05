@@ -1,13 +1,13 @@
-'use client';
-
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
-import Link from 'next/link';
+import { Link, type LinkProps, type RegisteredRouter } from '@tanstack/react-router';
 import * as React from 'react';
 import { cn } from '@/lib/classMerge';
+import type { ILinkProps } from '@/types/routes';
 import { Button } from '../buttons/Button';
 import { Checkbox } from '../checkbox/Checkbox';
 import { CaretRight } from '../icons/NucleoIconFilled';
 import { ArrowRight, ArrowUpRight, Check3 as Check } from '../icons/NucleoIconOutlined';
+import type { IDropdownItem } from './dropdown-items.types';
 
 const DropdownMenu = DropdownMenuPrimitive.Root;
 
@@ -20,7 +20,7 @@ const DropdownMenuPortal = DropdownMenuPrimitive.Portal;
 const DropdownMenuSub = DropdownMenuPrimitive.Sub;
 
 const DropdownMenuSubTrigger = React.forwardRef<
-  React.ElementRef<typeof DropdownMenuPrimitive.SubTrigger>,
+  React.ComponentRef<typeof DropdownMenuPrimitive.SubTrigger>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.SubTrigger> & {
     inset?: boolean;
   }
@@ -33,7 +33,8 @@ const DropdownMenuSubTrigger = React.forwardRef<
       inset && 'pl-8',
       className
     )}
-    {...props}>
+    {...props}
+  >
     {children}
     <div className="text-2xs text-icon-color ml-auto">
       <CaretRight />
@@ -49,7 +50,7 @@ const baseContentClass = cn(
 );
 
 const DropdownMenuSubContent = React.forwardRef<
-  React.ElementRef<typeof DropdownMenuPrimitive.SubContent>,
+  React.ComponentRef<typeof DropdownMenuPrimitive.SubContent>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.SubContent>
 >(({ className, ...props }, ref) => (
   <DropdownMenuPrimitive.SubContent
@@ -61,7 +62,7 @@ const DropdownMenuSubContent = React.forwardRef<
 DropdownMenuSubContent.displayName = DropdownMenuPrimitive.SubContent.displayName;
 
 const DropdownMenuContent = React.forwardRef<
-  React.ElementRef<typeof DropdownMenuPrimitive.Content>,
+  React.ComponentRef<typeof DropdownMenuPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Content>
 >(({ className, children, sideOffset = 4, ...props }, ref) => {
   return (
@@ -70,7 +71,8 @@ const DropdownMenuContent = React.forwardRef<
         ref={ref}
         sideOffset={sideOffset}
         className={cn(baseContentClass, 'p-0 shadow', className)}
-        {...props}>
+        {...props}
+      >
         <div className="used-for-ref-purpose">{children}</div>
       </DropdownMenuPrimitive.Content>
     </DropdownMenuPrimitive.Portal>
@@ -79,7 +81,7 @@ const DropdownMenuContent = React.forwardRef<
 DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName;
 
 const DropdownMenuItem = React.forwardRef<
-  React.ElementRef<typeof DropdownMenuPrimitive.Item>,
+  React.ComponentRef<typeof DropdownMenuPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Item> & {
     inset?: boolean;
     closeOnSelect?: boolean;
@@ -119,7 +121,7 @@ const itemClass = cn(
 );
 
 const DropdownMenuCheckboxItemSingle = React.forwardRef<
-  React.ElementRef<typeof DropdownMenuPrimitive.CheckboxItem>,
+  React.ComponentRef<typeof DropdownMenuPrimitive.CheckboxItem>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.CheckboxItem> & {
     closeOnSelect?: boolean;
     selectType?: boolean;
@@ -141,7 +143,8 @@ const DropdownMenuCheckboxItemSingle = React.forwardRef<
         }
         onClick?.(e);
       }}
-      {...props}>
+      {...props}
+    >
       {children}
       <span className="absolute right-2 flex h-3.5 w-fit items-center justify-center space-x-1">
         <DropdownMenuPrimitive.ItemIndicator>
@@ -159,7 +162,7 @@ const DropdownMenuCheckboxItemSingle = React.forwardRef<
 DropdownMenuCheckboxItemSingle.displayName = DropdownMenuPrimitive.CheckboxItem.displayName;
 
 const DropdownMenuCheckboxItemMultiple = React.forwardRef<
-  React.ElementRef<typeof DropdownMenuPrimitive.CheckboxItem>,
+  React.ComponentRef<typeof DropdownMenuPrimitive.CheckboxItem>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.CheckboxItem> & {
     closeOnSelect?: boolean;
     selectType?: boolean;
@@ -192,12 +195,14 @@ const DropdownMenuCheckboxItemMultiple = React.forwardRef<
           onClick?.(e);
         }}
         data-testid={dataTestId}
-        {...props}>
+        {...props}
+      >
         <span
           className={cn(
             'absolute left-2 flex h-3.5 w-3.5 items-center justify-center opacity-0 group-hover:opacity-100',
             checked && 'opacity-100'
-          )}>
+          )}
+        >
           <Checkbox size="default" checked={checked} />
         </span>
         {children}
@@ -208,7 +213,7 @@ const DropdownMenuCheckboxItemMultiple = React.forwardRef<
 DropdownMenuCheckboxItemMultiple.displayName = 'DropdownMenuCheckboxItemMultiple';
 
 const DropdownMenuLabel = React.forwardRef<
-  React.ElementRef<typeof DropdownMenuPrimitive.Label>,
+  React.ComponentRef<typeof DropdownMenuPrimitive.Label>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Label> & {
     inset?: boolean;
   }
@@ -222,7 +227,7 @@ const DropdownMenuLabel = React.forwardRef<
 DropdownMenuLabel.displayName = DropdownMenuPrimitive.Label.displayName;
 
 const DropdownMenuSeparator = React.forwardRef<
-  React.ElementRef<typeof DropdownMenuPrimitive.Separator>,
+  React.ComponentRef<typeof DropdownMenuPrimitive.Separator>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Separator>
 >(({ className, ...props }, ref) => (
   <DropdownMenuPrimitive.Separator
@@ -244,19 +249,29 @@ const DropdownMenuShortcut = ({ className, ...props }: React.HTMLAttributes<HTML
 };
 DropdownMenuShortcut.displayName = 'DropdownMenuShortcut';
 
-const DropdownMenuLink: React.FC<{
+const DropdownMenuLink = <
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = unknown,
+  TFrom extends string = string,
+>({
+  className,
+  link,
+  linkTarget,
+  linkIcon = 'arrow-right',
+}: {
   className?: string;
-  link: string | null;
-  linkIcon?: 'arrow-right' | 'arrow-external' | 'caret-right';
+  link: string | ILinkProps<TRouter, TOptions, TFrom> | null | undefined;
+  linkIcon?: IDropdownItem['linkIcon'];
   linkTarget?: '_blank' | '_self';
-}> = ({ className, link, linkTarget, linkIcon = 'arrow-right', ...props }) => {
+}) => {
   const icon = React.useMemo(() => {
     if (linkIcon === 'arrow-right') return <ArrowRight />;
     if (linkIcon === 'arrow-external') return <ArrowUpRight />;
     if (linkIcon === 'caret-right') return <CaretRight />;
+    if (linkIcon === 'none') return null;
   }, [linkIcon]);
 
-  const isExternal = link?.startsWith('http');
+  const isExternal = typeof link === 'string' && link.startsWith('http');
 
   const content = (
     <Button
@@ -273,19 +288,31 @@ const DropdownMenuLink: React.FC<{
       <div
         className={className}
         onClick={(e) => e.stopPropagation()}
-        onKeyDown={(e) => e.stopPropagation()}>
+        onKeyDown={(e) => e.stopPropagation()}
+      >
         {content}
       </div>
+    );
+  const target = linkTarget || (isExternal ? '_blank' : '_self');
+
+  const linkContent =
+    typeof link === 'string' ? (
+      <a href={link} target={target} className={className}>
+        {content}
+      </a>
+    ) : (
+      <Link {...(link as LinkProps)} target={target} preload="intent" className={className}>
+        {content}
+      </Link>
     );
 
   return (
     <div
       className={className}
       onClick={(e) => e.stopPropagation()}
-      onKeyDown={(e) => e.stopPropagation()}>
-      <Link href={link} target={linkTarget || isExternal ? '_blank' : '_self'} className="">
-        {content}
-      </Link>
+      onKeyDown={(e) => e.stopPropagation()}
+    >
+      {linkContent}
     </div>
   );
 };
@@ -306,5 +333,5 @@ export {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuCheckboxItemMultiple,
-  DropdownMenuLink
+  DropdownMenuLink,
 };

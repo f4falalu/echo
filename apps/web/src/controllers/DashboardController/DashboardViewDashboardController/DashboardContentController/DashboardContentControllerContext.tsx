@@ -2,7 +2,7 @@ import type React from 'react';
 import { useState } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 import type { BusterDashboard } from '@/api/asset_interfaces';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 
 interface DashboardMetricMetadata {
   initialAnimationEnded: boolean;
@@ -17,8 +17,8 @@ export const useDashboardContent = ({ dashboard }: { dashboard: BusterDashboard 
       ...prev,
       [id]: {
         ...prev[id],
-        initialAnimationEnded: true
-      }
+        initialAnimationEnded: true,
+      },
     }));
   });
 
@@ -27,8 +27,8 @@ export const useDashboardContent = ({ dashboard }: { dashboard: BusterDashboard 
       ...prev,
       [id]: {
         ...prev[id],
-        hasBeenScrolledIntoView: true
-      }
+        hasBeenScrolledIntoView: true,
+      },
     }));
   });
 
@@ -36,7 +36,7 @@ export const useDashboardContent = ({ dashboard }: { dashboard: BusterDashboard 
     metricMetadata,
     dashboard,
     setInitialAnimationEnded,
-    setHasBeenScrolledIntoView
+    setHasBeenScrolledIntoView,
   };
 };
 
@@ -46,7 +46,7 @@ export const DashboardContentControllerContext = createContext<
 
 export const DashboardContentControllerProvider = ({
   children,
-  dashboard
+  dashboard,
 }: {
   children: React.ReactNode;
   dashboard: BusterDashboard;

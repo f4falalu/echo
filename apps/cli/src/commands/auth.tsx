@@ -2,11 +2,10 @@ import { createBusterSDK } from '@buster/sdk';
 import { Box, Text, useApp, useInput } from 'ink';
 import Spinner from 'ink-spinner';
 import TextInput from 'ink-text-input';
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   type Credentials,
   deleteCredentials,
-  getCredentials,
   loadCredentials,
   saveCredentials,
 } from '../utils/credentials.js';
@@ -205,10 +204,10 @@ export function Auth({ apiKey, host, local, cloud, clear, noSave, show }: AuthPr
 
   if (step === 'host') {
     return (
-      <Box flexDirection='column'>
+      <Box flexDirection="column">
         {_existingCreds && (
           <Box marginBottom={1}>
-            <Text color='yellow'>⚠️ Existing credentials found. They will be overwritten.</Text>
+            <Text color="yellow">⚠️ Existing credentials found. They will be overwritten.</Text>
           </Box>
         )}
 
@@ -227,17 +226,17 @@ export function Auth({ apiKey, host, local, cloud, clear, noSave, show }: AuthPr
   if (step === 'apikey') {
     const displayHost = (hostInput || DEFAULT_HOST).replace(/^https?:\/\//, '');
     return (
-      <Box flexDirection='column'>
+      <Box flexDirection="column">
         {_error && (
           <Box marginBottom={1}>
-            <Text color='red'>❌ {_error}</Text>
+            <Text color="red">❌ {_error}</Text>
           </Box>
         )}
 
         <Box>
           <Text>Enter your API key: </Text>
         </Box>
-        <TextInput value={apiKeyInput} onChange={setApiKeyInput} mask='*' />
+        <TextInput value={apiKeyInput} onChange={setApiKeyInput} mask="*" />
 
         <Box marginTop={1}>
           <Text dimColor>Find your API key at https://{displayHost}/app/settings/api-keys</Text>
@@ -254,7 +253,7 @@ export function Auth({ apiKey, host, local, cloud, clear, noSave, show }: AuthPr
     return (
       <Box>
         <Text>
-          <Spinner type='dots' /> Validating API key...
+          <Spinner type="dots" /> Validating API key...
         </Text>
       </Box>
     );
@@ -264,7 +263,7 @@ export function Auth({ apiKey, host, local, cloud, clear, noSave, show }: AuthPr
     return (
       <Box>
         <Text>
-          <Spinner type='dots' /> Saving credentials...
+          <Spinner type="dots" /> Saving credentials...
         </Text>
       </Box>
     );

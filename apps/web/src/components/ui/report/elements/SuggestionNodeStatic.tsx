@@ -1,9 +1,8 @@
-import * as React from 'react';
+import { BaseSuggestionPlugin } from '@platejs/suggestion';
 
 import type { SlateLeafProps, TSuggestionText } from 'platejs';
-
-import { BaseSuggestionPlugin } from '@platejs/suggestion';
 import { SlateLeaf } from 'platejs';
+import * as React from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -23,7 +22,8 @@ export function SuggestionLeafStatic(props: SlateLeafProps<TSuggestionText>) {
       className={cn(
         'border-b-brand/[.24] bg-brand/[.08] text-brand/80 border-b-2 no-underline transition-colors duration-200',
         hasRemove && 'border-b-gray-300 bg-gray-300/25 text-gray-400 line-through'
-      )}>
+      )}
+    >
       {props.children}
     </SlateLeaf>
   );

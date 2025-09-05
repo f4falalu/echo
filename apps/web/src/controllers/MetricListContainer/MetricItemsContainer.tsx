@@ -1,19 +1,19 @@
+import type { VerificationStatus } from '@buster/server-shared/share';
 import React, { memo, useMemo, useRef, useState } from 'react';
-import { type BusterMetricListItem } from '@/api/asset_interfaces';
-import { FavoriteStar } from '@/components/features/list';
-import { VerificationStatus } from '@buster/server-shared/share';
+import type { BusterMetricListItem } from '@/api/asset_interfaces';
+import { FavoriteStar } from '@/components/features/favorites/FavoriteStar';
 import {
   getShareStatus,
-  StatusBadgeIndicator
+  StatusBadgeIndicator,
 } from '@/components/features/metrics/StatusBadgeIndicator';
 import { Avatar } from '@/components/ui/avatar';
 import type { BusterListColumn, BusterListRowItem } from '@/components/ui/list';
-import { BusterList, ListEmptyStateWithButton } from '@/components/ui/list';
+import { BusterList, createListItem, ListEmptyStateWithButton } from '@/components/ui/list';
 import { useCreateListByDate } from '@/components/ui/list/useCreateListByDate';
 import { Text } from '@/components/ui/typography';
-import { useMemoizedFn } from '@/hooks';
-import { formatDate, makeHumanReadble } from '@/lib';
-import { BusterRoutes, createBusterRoute } from '@/routes';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { formatDate } from '@/lib/date';
+import { makeHumanReadble } from '@/lib/text';
 import { MetricSelectedOptionPopup } from './MetricItemsSelectedPopup';
 
 export const MetricItemsContainer: React.FC<{
@@ -33,30 +33,35 @@ export const MetricItemsContainer: React.FC<{
   const logsRecord = useCreateListByDate({ data: metrics });
 
   const metricsByDate: BusterListRowItem<BusterMetricListItem>[] = useMemo(() => {
+    const createMetricLinkItem = createListItem<BusterMetricListItem>();
     return Object.entries(logsRecord).flatMap<BusterListRowItem<BusterMetricListItem>>(
       ([key, metrics]) => {
-        const records = metrics.map((metric) => ({
-          id: metric.id,
-          data: metric,
-          link: createBusterRoute({
-            route: BusterRoutes.APP_METRIC_ID_CHART,
-            metricId: metric.id
+        const records = metrics.map((metric) =>
+          createMetricLinkItem({
+            id: metric.id,
+            data: metric,
+            link: {
+              to: '/app/metrics/$metricId',
+              params: {
+                metricId: metric.id,
+              },
+            },
           })
-        }));
+        ) as BusterListRowItem<BusterMetricListItem>[];
         const hasRecords = records.length > 0;
         if (!hasRecords) {
           return [];
         }
         return [
-          {
+          createMetricLinkItem({
             id: key,
             data: null,
             rowSection: {
               title: makeHumanReadble(key),
-              secondaryTitle: String(records.length)
-            }
-          },
-          ...records
+              secondaryTitle: String(records.length),
+            },
+          }),
+          ...records,
         ];
       }
     );
@@ -69,7 +74,7 @@ export const MetricItemsContainer: React.FC<{
         title: 'Name',
         render: (name, record) => (
           <TitleCell name={name} status={record?.status} metricId={record?.id} />
-        )
+        ),
       },
       {
         dataIndex: 'last_edited',
@@ -82,13 +87,13 @@ export const MetricItemsContainer: React.FC<{
           const date = formatDate({ date: v, format: 'lll' });
           renderedDates.current[v] = date;
           return date;
-        }
+        },
       },
       {
         dataIndex: 'is_shared',
         title: 'Sharing',
         width: 65,
-        render: (v) => getShareStatus({ is_shared: v })
+        render: (v) => getShareStatus({ is_shared: v }),
       },
       {
         dataIndex: 'created_by_name',
@@ -103,8 +108,8 @@ export const MetricItemsContainer: React.FC<{
           );
           renderedOwners.current[name] = avatarCell;
           return avatarCell;
-        }
-      }
+        },
+      },
     ],
     []
   );
@@ -112,18 +117,14 @@ export const MetricItemsContainer: React.FC<{
   return (
     <div
       data-testid="metric-list-container"
-      className={`${className} relative flex h-full flex-col items-center`}>
+      className={`${className} relative flex h-full flex-col items-center`}
+    >
       <BusterList
         rows={metricsByDate}
         columns={columns}
         onSelectChange={onSelectChange}
         selectedRowKeys={selectedRowKeys}
-        emptyState={useMemo(
-          () => (
-            <EmptyState loading={loading} />
-          ),
-          [loading]
-        )}
+        emptyState={useMemo(() => <EmptyState loading={loading} />, [loading])}
       />
 
       <MetricSelectedOptionPopup
@@ -147,7 +148,9 @@ const EmptyState: React.FC<{
       title="You don’t have any metrics yet."
       description="You don’t have any metrics. As soon as you do, they will start to  appear here."
       buttonText="New chat"
-      linkButton={createBusterRoute({ route: BusterRoutes.APP_HOME })}
+      link={{
+        to: '/app/home',
+      }}
     />
   );
 });

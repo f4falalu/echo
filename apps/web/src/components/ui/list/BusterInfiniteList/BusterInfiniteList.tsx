@@ -1,6 +1,5 @@
-'use client';
 import React, { useEffect, useMemo, useRef } from 'react';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import type { BusterListProps } from '../BusterList';
 import { BusterListHeader } from '../BusterList/BusterListHeader';
 import { BusterListRowComponentSelector } from '../BusterList/BusterListRowComponentSelector';
@@ -27,7 +26,7 @@ function BusterInfiniteListComponent<T = unknown>({
   onScrollEnd,
   loadingNewContent,
   rowClassName = '',
-  scrollEndThreshold = 48 // Default threshold of 200px
+  scrollEndThreshold = 48, // Default threshold of 200px
 }: BusterInfiniteListProps<T>) {
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -83,7 +82,7 @@ function BusterInfiniteListComponent<T = unknown>({
       onContextMenuClick: undefined,
       hideLastRowBorder,
       useRowClickSelectChange,
-      rowClassName
+      rowClassName,
     };
   }, [
     columns,
@@ -93,7 +92,7 @@ function BusterInfiniteListComponent<T = unknown>({
     hideLastRowBorder,
     onSelectSectionChange,
     contextMenu,
-    selectedRowKeys
+    selectedRowKeys,
   ]);
 
   useEffect(() => {

@@ -1,11 +1,10 @@
-import * as React from 'react';
-
-import type { ClientUploadedFileData, UploadFilesOptions } from 'uploadthing/types';
 import { generateReactHelpers } from '@uploadthing/react';
+import * as React from 'react';
 import { toast } from 'sonner';
-import { z } from 'zod';
 import type { FileRouter } from 'uploadthing/next';
 import { createUploadthing } from 'uploadthing/next';
+import type { ClientUploadedFileData, UploadFilesOptions } from 'uploadthing/types';
+import { z } from 'zod';
 
 const f = createUploadthing();
 
@@ -20,9 +19,9 @@ export const ourFileRouter = {
         name: file.name,
         size: file.size,
         type: file.type,
-        url: file.ufsUrl
+        url: file.ufsUrl,
       };
-    })
+    }),
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof ourFileRouter;
@@ -58,7 +57,7 @@ export function useUploadFile({
         files: [file],
         onUploadProgress: ({ progress }) => {
           setProgress(Math.min(progress, 100));
-        }
+        },
       });
 
       setUploadedFile(res[0]);
@@ -84,7 +83,7 @@ export function useUploadFile({
         name: file.name,
         size: file.size,
         type: file.type,
-        url: URL.createObjectURL(file)
+        url: URL.createObjectURL(file),
       } as UploadedFile;
 
       // Simulate upload progress
@@ -115,7 +114,7 @@ export function useUploadFile({
     progress,
     uploadedFile,
     uploadFile: uploadThing,
-    uploadingFile
+    uploadingFile,
   };
 }
 

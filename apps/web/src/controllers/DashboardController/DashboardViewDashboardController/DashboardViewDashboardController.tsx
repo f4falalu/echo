@@ -1,36 +1,39 @@
-'use client';
-
+import { ClientOnly } from '@tanstack/react-router';
 import type React from 'react';
 import { useGetDashboard, useUpdateDashboardConfig } from '@/api/buster_rest/dashboards';
+import { AddToDashboardModal } from '@/components/features/dashboard/AddToDashboardModal';
 import { StatusCard } from '@/components/ui/card/StatusCard';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { useDashboardContentStore } from '@/context/Dashboards';
+import { useToggleDashboardContentModal } from '@/context/Dashboards/dashboard-content-store';
 import { useIsDashboardReadOnly } from '@/context/Dashboards/useIsDashboardReadOnly';
+import { canEdit } from '@/lib/share';
 import { DashboardContentController } from './DashboardContentController';
 import { DashboardEditTitles } from './DashboardEditTitle';
 import { DashboardSaveFilePopup } from './DashboardSaveFilePopup';
 
 export const DashboardViewDashboardController: React.FC<{
   dashboardId: string;
-  chatId: string | undefined;
   readOnly?: boolean;
-}> = ({ dashboardId, chatId, readOnly: readOnlyProp = false }) => {
+  dashboardVersionNumber?: number;
+  animate?: boolean;
+}> = ({ dashboardId, dashboardVersionNumber, readOnly: readOnlyProp = false, animate = true }) => {
   const {
     data: dashboardResponse,
     isFetched,
     isError,
-    error
-  } = useGetDashboard({ id: dashboardId });
+    error,
+  } = useGetDashboard({ id: dashboardId, versionNumber: dashboardVersionNumber });
 
   const { mutateAsync: onUpdateDashboardConfig } = useUpdateDashboardConfig();
-  const onOpenAddContentModal = useDashboardContentStore((x) => x.onOpenAddContentModal);
 
   const metrics = dashboardResponse?.metrics;
   const dashboard = dashboardResponse?.dashboard;
   const { isReadOnly, isViewingOldVersion, isVersionHistoryMode } = useIsDashboardReadOnly({
     dashboardId,
-    readOnly: readOnlyProp
+    readOnly: readOnlyProp,
   });
+  const isEditor = canEdit(dashboardResponse?.permission);
+  const { openDashboardContentModal, onCloseDashboardContentModal, onOpenDashboardContentModal } =
+    useToggleDashboardContentModal();
 
   if (!isFetched) {
     return null;
@@ -45,7 +48,7 @@ export const DashboardViewDashboardController: React.FC<{
   }
 
   return (
-    <ScrollArea className="h-full">
+    <ClientOnly>
       <div className="flex h-full flex-col space-y-3 p-10">
         <DashboardEditTitles
           dashboardId={dashboardId}
@@ -57,16 +60,24 @@ export const DashboardViewDashboardController: React.FC<{
         <DashboardContentController
           metrics={metrics}
           dashboard={dashboard}
-          chatId={chatId}
           onUpdateDashboardConfig={onUpdateDashboardConfig}
-          onOpenAddContentModal={onOpenAddContentModal}
+          onOpenAddContentModal={onOpenDashboardContentModal}
           readOnly={isReadOnly}
+          animate={animate}
         />
 
         {!isReadOnly && !isVersionHistoryMode && !isViewingOldVersion && (
           <DashboardSaveFilePopup dashboardId={dashboardId} />
         )}
       </div>
-    </ScrollArea>
+
+      {isEditor && !isReadOnly && (
+        <AddToDashboardModal
+          open={openDashboardContentModal}
+          onClose={onCloseDashboardContentModal}
+          dashboardId={dashboardId}
+        />
+      )}
+    </ClientOnly>
   );
 };

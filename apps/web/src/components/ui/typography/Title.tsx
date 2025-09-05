@@ -10,16 +10,16 @@ const titleVariants = cva('', {
       h2: 'text-2xl font-normal!',
       h3: 'text-xl font-normal!',
       h4: 'text-lg font-normal!',
-      h5: 'text-md font-normal!'
+      h5: 'text-md font-normal!',
     },
     truncate: {
       true: 'truncate',
-      false: ''
-    }
+      false: '',
+    },
   },
   defaultVariants: {
-    size: 'h4'
-  }
+    size: 'h4',
+  },
 });
 
 type TitleLevel = 'h1' | 'h2' | 'h3' | 'h4' | 'h5';
@@ -41,7 +41,7 @@ export const Title: React.FC<TitleProps> = ({
   className,
   style,
   onClick,
-  children
+  children,
 }) => {
   // If size is not explicitly set, use the heading level as the size
   const effectiveSize = size || as;
@@ -55,7 +55,8 @@ export const Title: React.FC<TitleProps> = ({
         textColorVariants({ variant }),
         className
       )}
-      onClick={onClick}>
+      onClick={onClick}
+    >
       {children}
     </Component>
   );

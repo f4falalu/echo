@@ -1,0 +1,48 @@
+import React, { useCallback } from 'react';
+import type { BusterDashboardResponse } from '@/api/asset_interfaces/dashboard';
+import { useGetDashboard } from '@/api/buster_rest/dashboards';
+import { CreateChatButton } from '@/components/features/AssetLayout/CreateChatButton';
+import { ShareDashboardButton } from '@/components/features/buttons/ShareDashboardButton';
+import { ClosePageButton } from '@/components/features/chat/ClosePageButton';
+import { DashboardThreeDotMenu } from '@/components/features/dashboard/DashboardThreeDotMenu';
+import { useIsChatMode, useIsFileMode } from '@/context/Chats/useMode';
+import { useIsDashboardReadOnly } from '@/context/Dashboards/useIsDashboardReadOnly';
+import { getIsEffectiveOwner } from '@/lib/share';
+import { FileButtonContainer } from '../FileButtonContainer';
+import { HideButtonContainer } from '../HideButtonContainer';
+
+export const DashboardContainerHeaderButtons: React.FC<{
+  dashboardId: string;
+  dashboardVersionNumber: number | undefined;
+}> = React.memo(({ dashboardId, dashboardVersionNumber }) => {
+  const isChatMode = useIsChatMode();
+  const isFileMode = useIsFileMode();
+  const { isViewingOldVersion } = useIsDashboardReadOnly({
+    dashboardId: dashboardId || '',
+  });
+  const { error: dashboardError, data: permission } = useGetDashboard(
+    { id: dashboardId },
+    { select: useCallback((x: BusterDashboardResponse) => x.permission, []) }
+  );
+
+  const isEffectiveOwner = getIsEffectiveOwner(permission);
+
+  return (
+    <FileButtonContainer>
+      {isEffectiveOwner && !isViewingOldVersion && (
+        <ShareDashboardButton dashboardId={dashboardId} />
+      )}
+      <DashboardThreeDotMenu
+        dashboardId={dashboardId}
+        isViewingOldVersion={isViewingOldVersion}
+        dashboardVersionNumber={dashboardVersionNumber}
+      />
+      <HideButtonContainer show={isFileMode}>
+        <CreateChatButton assetId={dashboardId} assetType="dashboard" />
+      </HideButtonContainer>
+      {isChatMode && <ClosePageButton />}
+    </FileButtonContainer>
+  );
+});
+
+DashboardContainerHeaderButtons.displayName = 'DashboardContainerHeaderButtons';

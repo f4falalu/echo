@@ -152,7 +152,7 @@ export const useStreamTokenArray = ({
   frameLookBackMs = 100,
   adjustPercentage = 0.5,
   flushImmediatelyOnComplete = true,
-  tokenSeparator = ' '
+  tokenSeparator = ' ',
 }: UseStreamTokenArrayProps): UseStreamTokenArrayReturn => {
   const [throttledTokens, setThrottledTokens] = React.useState<StreamToken[]>([]);
 
@@ -240,7 +240,7 @@ export const useStreamTokenArray = ({
           minChunkTokens,
           maxChunkTokens,
           targetBufferTokens,
-          adjustPercentage
+          adjustPercentage,
         });
 
         // Ensure chunk does not exceed backlog
@@ -298,6 +298,6 @@ export const useStreamTokenArray = ({
     throttledContent,
     isDone,
     flushNow,
-    reset
+    reset,
   };
 };

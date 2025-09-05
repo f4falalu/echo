@@ -14,18 +14,19 @@ export const PulseLoader: React.FC<{
         style={{
           ...style,
           width: `${size}px`,
-          height: `${size}px`
-        }}>
+          height: `${size}px`,
+        }}
+      >
         <span
           className="bg-primary absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"
           style={{
-            backgroundColor: color
+            backgroundColor: color,
           }}
         />
         <span
           className="bg-primary relative inline-flex h-full w-full rounded-full"
           style={{
-            backgroundColor: color
+            backgroundColor: color,
           }}
         />
       </span>
@@ -49,7 +50,7 @@ export const TextDotLoader: React.FC<{
             width: size,
             height: size,
             backgroundColor: 'var(--color-text-default)',
-            borderRadius: '100%'
+            borderRadius: '100%',
           }}
         />
       )}

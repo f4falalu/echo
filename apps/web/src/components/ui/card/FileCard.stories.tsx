@@ -1,54 +1,54 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
-import { FileCard } from './FileCard';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Button } from '../buttons/Button';
+import Grid from '../icons/NucleoIconOutlined/grid';
 import { Text } from '../typography/Text';
-import { Grid } from '../icons';
+import { FileCard } from './FileCard';
 
 const meta: Meta<typeof FileCard> = {
   title: 'UI/card/FileCard',
   component: FileCard,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
   tags: ['autodocs'],
   argTypes: {
     fileName: {
       control: 'text',
-      description: 'The file name to display in the header'
+      description: 'The file name to display in the header',
     },
     headerButtons: {
       control: false,
-      description: 'Buttons or other elements to display in the header'
+      description: 'Buttons or other elements to display in the header',
     },
     className: {
       control: 'text',
-      description: 'Additional CSS classes for the card'
+      description: 'Additional CSS classes for the card',
     },
     children: {
       control: false,
-      description: 'Content to display in the card body'
+      description: 'Content to display in the card body',
     },
     bodyClassName: {
       control: 'text',
-      description: 'Additional CSS classes for the card body'
+      description: 'Additional CSS classes for the card body',
     },
     footer: {
       control: false,
-      description: 'Content to display in the footer'
+      description: 'Content to display in the footer',
     },
     footerClassName: {
       control: 'text',
-      description: 'Additional CSS classes for the footer'
+      description: 'Additional CSS classes for the footer',
     },
     collapsible: {
       control: 'boolean',
-      description: 'Whether the card is collapsible'
+      description: 'Whether the card is collapsible',
     },
     collapseContent: {
       control: 'boolean',
-      description: 'Whether to collapse the content'
-    }
-  }
+      description: 'Whether to collapse the content',
+    },
+  },
 };
 
 export default meta;
@@ -61,8 +61,8 @@ export const Default: Story = {
       <div className="p-4">
         <Text>This is the card content</Text>
       </div>
-    )
-  }
+    ),
+  },
 };
 
 export const WithHeaderButtons: Story = {
@@ -82,8 +82,8 @@ export const WithHeaderButtons: Story = {
       <div className="p-4">
         <Text>Card with header buttons</Text>
       </div>
-    )
-  }
+    ),
+  },
 };
 
 export const WithFooter: Story = {
@@ -101,8 +101,8 @@ export const WithFooter: Story = {
         </Text>
         <Button size="small">Download</Button>
       </div>
-    )
-  }
+    ),
+  },
 };
 
 export const NoHeader: Story = {
@@ -111,8 +111,8 @@ export const NoHeader: Story = {
       <div className="p-4">
         <Text>This card has no header</Text>
       </div>
-    )
-  }
+    ),
+  },
 };
 
 export const ReactNodeFileName: Story = {
@@ -127,8 +127,8 @@ export const ReactNodeFileName: Story = {
       <div className="p-4">
         <Text>Card with React node as fileName</Text>
       </div>
-    )
-  }
+    ),
+  },
 };
 
 export const CustomStyling: Story = {
@@ -142,8 +142,8 @@ export const CustomStyling: Story = {
         <Text>Card with custom styling</Text>
       </div>
     ),
-    footer: <Text size="sm">Custom styled footer</Text>
-  }
+    footer: <Text size="sm">Custom styled footer</Text>,
+  },
 };
 
 export const Loading: Story = {
@@ -154,8 +154,8 @@ export const Loading: Story = {
       <div className="p-4">
         <Text>Loading state card</Text>
       </div>
-    )
-  }
+    ),
+  },
 };
 
 export const Collapsible: Story = {
@@ -169,8 +169,8 @@ export const Collapsible: Story = {
       <div className="p-4">
         <Text>This is collapsible content</Text>
       </div>
-    )
-  }
+    ),
+  },
 };
 
 export const CollapsiblePeek: Story = {
@@ -185,8 +185,8 @@ export const CollapsiblePeek: Story = {
           <Text key={index}>This is collapsible content {index}</Text>
         ))}
       </div>
-    )
-  }
+    ),
+  },
 };
 
 export const FullExample: Story = {
@@ -226,6 +226,6 @@ export const FullExample: Story = {
           <Button size="small">Open</Button>
         </div>
       </div>
-    )
-  }
+    ),
+  },
 };

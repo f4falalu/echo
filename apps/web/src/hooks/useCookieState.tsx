@@ -1,9 +1,8 @@
-'use client';
-
-import { useState, useEffect } from 'react';
+import { isServer } from '@tanstack/react-query';
+import cookies from 'js-cookie';
+import { useState } from 'react';
 import { useMemoizedFn } from './useMemoizedFn';
 import { useMount } from './useMount';
-import { isServer } from '@tanstack/react-query';
 
 type SetState<S> = S | ((prevState?: S) => S);
 
@@ -24,31 +23,15 @@ interface CookieOptions {
 
 interface Options<T> {
   defaultValue?: T | (() => T);
+  initialValue?: T | (() => T);
   serializer?: (value: T) => string;
   deserializer?: (value: string) => T;
   onError?: (error: unknown) => void;
-  bustStorageOnInit?: boolean | ((layout: T) => boolean);
   expirationTime?: number;
   cookieOptions?: CookieOptions;
 }
 
-// Helper function to parse cookies
-const parseCookies = (): Record<string, string> => {
-  if (isServer) return {};
-
-  return document.cookie.split(';').reduce(
-    (cookies, cookie) => {
-      const [name, value] = cookie.trim().split('=');
-      if (name && value) {
-        cookies[name] = decodeURIComponent(value);
-      }
-      return cookies;
-    },
-    {} as Record<string, string>
-  );
-};
-
-// Helper function to set a cookie
+// Helper function to set a cookie using js-cookie
 const setCookie = (
   name: string,
   value: string,
@@ -57,34 +40,24 @@ const setCookie = (
 ): void => {
   if (isServer) return;
 
-  const expires = new Date(Date.now() + expirationTime).toUTCString();
+  const expires = new Date(Date.now() + expirationTime);
   const { domain, path = '/', secure = true, sameSite = 'lax' } = options;
 
-  let cookieString = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=${path}; SameSite=${sameSite}`;
-
-  if (secure) {
-    cookieString += '; Secure';
-  }
-
-  if (domain) {
-    cookieString += `; Domain=${domain}`;
-  }
-
-  document.cookie = cookieString;
+  cookies.set(name, value, {
+    expires,
+    path,
+    domain,
+    secure,
+    sameSite,
+  });
 };
 
-// Helper function to remove a cookie
+// Helper function to remove a cookie using js-cookie
 const removeCookie = (name: string, options: CookieOptions = {}): void => {
   if (isServer) return;
 
   const { domain, path = '/' } = options;
-  let cookieString = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}`;
-
-  if (domain) {
-    cookieString += `; Domain=${domain}`;
-  }
-
-  document.cookie = cookieString;
+  cookies.remove(name, { path, domain });
 };
 
 export function useCookieState<T>(
@@ -93,12 +66,12 @@ export function useCookieState<T>(
 ): [T | undefined, (value?: SetState<T>) => void, () => T | undefined] {
   const {
     defaultValue,
+    initialValue,
     serializer = JSON.stringify,
     deserializer = JSON.parse,
     onError,
-    bustStorageOnInit = false,
     expirationTime = DEFAULT_EXPIRATION_TIME,
-    cookieOptions = {}
+    cookieOptions = {},
   } = options || {};
 
   const executeBustStorage = useMemoizedFn(() => {
@@ -108,14 +81,13 @@ export function useCookieState<T>(
 
   // Get initial value from cookies or use default
   const getInitialValue = useMemoizedFn((): T | undefined => {
-    // If bustStorageOnInit is true, ignore cookies and use default value
-    if (bustStorageOnInit === true) {
-      return executeBustStorage();
+    // Prefer explicitly provided initialValue if present
+    if (initialValue !== undefined) {
+      return typeof initialValue === 'function' ? (initialValue as () => T)() : initialValue;
     }
 
     try {
-      const cookies = parseCookies();
-      const cookieValue = cookies[key];
+      const cookieValue = cookies.get(key);
 
       if (!cookieValue) {
         return executeBustStorage();
@@ -147,10 +119,6 @@ export function useCookieState<T>(
       // Data is still valid, deserialize and return the value
       const deserializedValue = deserializer(JSON.stringify(storageData.value));
 
-      if (typeof bustStorageOnInit === 'function' && bustStorageOnInit(deserializedValue)) {
-        return executeBustStorage();
-      }
-
       return deserializedValue;
     } catch (error) {
       onError?.(error);
@@ -165,35 +133,28 @@ export function useCookieState<T>(
     setState(getInitialValue());
   });
 
-  // Update cookies when state changes
-  useEffect(() => {
-    try {
-      if (state === undefined && !isServer) {
-        removeCookie(key, cookieOptions);
-      } else {
-        // Create storage data with current timestamp
-        const storageData: StorageData<T> = {
-          value: JSON.parse(serializer(state)),
-          timestamp: Date.now()
-        };
-        setCookie(key, JSON.stringify(storageData), expirationTime, cookieOptions);
-      }
-    } catch (error) {
-      onError?.(error);
-    }
-  }, [key, state, serializer, onError, expirationTime, cookieOptions]);
-
   // Setter function that handles both direct values and function updates
   const setStoredState = useMemoizedFn((value?: SetState<T>) => {
     try {
-      if (typeof value === 'function') {
-        setState((prevState) => {
-          const newState = (value as (prevState?: T) => T)(prevState);
-          return newState;
-        });
-      } else {
-        setState(value);
-      }
+      setState((prevState) => {
+        // Calculate the new state value
+        const newState =
+          typeof value === 'function' ? (value as (prevState?: T) => T)(prevState) : value;
+
+        // Update cookie with the new state
+        if (newState === undefined && !isServer) {
+          removeCookie(key, cookieOptions);
+        } else {
+          // Create storage data with current timestamp
+          const storageData: StorageData<T> = {
+            value: JSON.parse(serializer(newState)),
+            timestamp: Date.now(),
+          };
+          setCookie(key, JSON.stringify(storageData), expirationTime, cookieOptions);
+        }
+
+        return newState;
+      });
     } catch (error) {
       onError?.(error);
     }

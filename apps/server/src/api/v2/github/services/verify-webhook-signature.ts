@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
+import { getGitHubAppCredentials } from '@buster/github';
 import { GitHubErrorCode } from '@buster/server-shared/github';
-import { getGitHubAppCredentials } from './github-app';
 
 /**
  * Verify a GitHub webhook signature

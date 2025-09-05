@@ -1,23 +1,22 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 import React from 'react';
-import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
 
 export const inputVariants = cva(
-  'flex w-full rounded border px-2.5 text-base transition-all duration-200  disabled:cursor-not-allowed  disabled:text-gray-light ',
+  'flex w-full rounded border px-2.5 text-base transition-all !transition-[height:none] duration-200  disabled:cursor-not-allowed  disabled:text-gray-light ',
   {
     variants: {
       variant: {
         default:
           'shadow disabled:bg-item-select bg-background border placeholder:text-gray-light hover:border-gray-light  outline-none disabled:border-border',
-        ghost: 'border-none bg-transparent shadow-none disabled:bg-transparent outline-none'
+        ghost: 'border-none bg-transparent shadow-none disabled:bg-transparent outline-none',
       },
       size: {
         default: 'h-7',
         tall: 'h-8',
-        small: 'h-6'
-      }
-    }
+        small: 'h-6',
+      },
+    },
   }
 );
 
@@ -40,12 +39,12 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     },
     ref
   ) => {
-    const handleKeyDown = useMemoizedFn((e: React.KeyboardEvent<HTMLInputElement>) => {
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter' && onPressEnter) {
         onPressEnter(e);
       }
       onKeyDown?.(e);
-    });
+    };
 
     return (
       <input

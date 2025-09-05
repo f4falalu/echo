@@ -1,7 +1,7 @@
 import type { PlateEditor } from 'platejs/react';
+import { printHTMLPage } from '@/lib/print';
 import { NodeTypeLabels } from '../config/labels';
 import { buildExportHtml } from './buildExportHtml';
-import { printHTMLPage } from '@/lib/print';
 
 type Notifier = (message: string) => void;
 
@@ -16,7 +16,7 @@ export const exportToPdf = async ({
   editor,
   filename = 'Buster Report',
   openInfoMessage,
-  openErrorMessage
+  openErrorMessage,
 }: ExportToPdfOptions) => {
   try {
     const html = await buildExportHtml(editor, { title: filename });

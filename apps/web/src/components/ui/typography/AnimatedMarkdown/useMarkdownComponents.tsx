@@ -1,27 +1,27 @@
 import { useMemo } from 'react';
-import { type MarkdownAnimation, type MarkdownAnimationTimingFunction } from '../animation-common';
-import { type Components } from 'react-markdown';
+import type { Components } from 'react-markdown';
+import type { MarkdownAnimation, MarkdownAnimationTimingFunction } from '../animation-common';
 import {
-  ParagraphComponent,
-  HeaderComponent,
   BlockquoteComponent,
-  StrongComponent,
-  EmphasisComponent,
+  BreakComponent,
+  CodeComponent,
   DeleteComponent,
-  LinkComponent,
-  ImageComponent,
+  EmphasisComponent,
+  HeaderComponent,
   HorizontalRuleComponent,
+  ImageComponent,
+  LinkComponent,
+  ListItemComponent,
+  OrderedListComponent,
+  ParagraphComponent,
+  StrongComponent,
+  TableBodyComponent,
+  TableCellComponent,
   TableComponent,
   TableHeadComponent,
-  TableBodyComponent,
+  TableHeaderCellComponent,
   TableRowComponent,
   UnorderedListComponent,
-  OrderedListComponent,
-  ListItemComponent,
-  TableCellComponent,
-  TableHeaderCellComponent,
-  BreakComponent,
-  CodeComponent
 } from './MarkdownComponent';
 
 interface UseMarkdownComponentsProps {
@@ -37,7 +37,7 @@ export const useMarkdownComponents = ({
   animationDuration = 700,
   animationTimingFunction = 'ease-in-out',
   isStreamFinished = true,
-  stripFormatting = true
+  stripFormatting = true,
 }: UseMarkdownComponentsProps) => {
   const commonProps = useMemo(() => {
     return {
@@ -45,7 +45,7 @@ export const useMarkdownComponents = ({
       animationDuration,
       animationTimingFunction,
       isStreamFinished,
-      stripFormatting
+      stripFormatting,
     };
   }, [animation, animationDuration, animationTimingFunction, isStreamFinished, stripFormatting]);
 
@@ -113,7 +113,13 @@ export const useMarkdownComponents = ({
         </LinkComponent>
       ),
       img: ({ className, style, src, alt }) => (
-        <ImageComponent {...commonProps} className={className} style={style} src={src} alt={alt} />
+        <ImageComponent
+          {...commonProps}
+          className={className}
+          style={style}
+          src={String(src)}
+          alt={alt}
+        />
       ),
       hr: ({ className, style }) => (
         <HorizontalRuleComponent {...commonProps} className={className} style={style} />
@@ -167,7 +173,7 @@ export const useMarkdownComponents = ({
         </TableHeaderCellComponent>
       ),
       br: ({ className, style }) => <BreakComponent className={className} style={style} />,
-      code: ({ children, className, style, ...rest }) => {
+      code: ({ children, className, style }) => {
         const language = className?.split('language-')[1];
         const hasLanguage = !!language;
 
@@ -177,11 +183,12 @@ export const useMarkdownComponents = ({
             {...commonProps}
             className={className}
             style={style}
-            isInline={!hasLanguage}>
+            isInline={!hasLanguage}
+          >
             {children}
           </CodeComponent>
         );
-      }
+      },
     };
   }, [commonProps]);
 

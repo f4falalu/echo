@@ -1,5 +1,3 @@
-'use client';
-
 import type { TDateElement } from 'platejs';
 import type { PlateElementProps } from 'platejs/react';
 
@@ -18,7 +16,8 @@ export function DateElement(props: PlateElementProps<TDateElement>) {
     <span
       className={cn('bg-muted text-muted-foreground w-fit cursor-pointer rounded-sm px-1')}
       contentEditable={false}
-      draggable>
+      draggable
+    >
       {element.date ? (
         (() => {
           const today = new Date();
@@ -42,7 +41,7 @@ export function DateElement(props: PlateElementProps<TDateElement>) {
           return elementDate.toLocaleDateString(undefined, {
             day: 'numeric',
             month: 'long',
-            year: 'numeric'
+            year: 'numeric',
           });
         })()
       ) : (
@@ -61,8 +60,9 @@ export function DateElement(props: PlateElementProps<TDateElement>) {
       className="inline-block"
       attributes={{
         ...props.attributes,
-        contentEditable: false
-      }}>
+        contentEditable: false,
+      }}
+    >
       <PopoverBase>
         <PopoverTrigger asChild>{trigger}</PopoverTrigger>
         <PopoverContent className="w-auto p-0">

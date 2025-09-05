@@ -1,15 +1,11 @@
+import type { DashboardConfig, GetDashboardResponse } from '@buster/server-shared/dashboards';
 import type {
-  BusterDashboardListItem,
-  BusterDashboardResponse,
-  DashboardConfig
-} from '@/api/asset_interfaces/dashboard';
-import type {
-  SharePostRequest,
   ShareDeleteRequest,
-  ShareUpdateRequest
+  SharePostRequest,
+  ShareUpdateRequest,
 } from '@buster/server-shared/share';
+import type { BusterDashboardListItem } from '@/api/asset_interfaces/dashboard';
 import mainApi from '@/api/buster_rest/instances';
-import { serverFetch } from '@/api/createServerInstance';
 
 export const dashboardsGetList = async (params: {
   /** The page number to fetch */
@@ -24,10 +20,10 @@ export const dashboardsGetList = async (params: {
   return mainApi.get<BusterDashboardListItem[]>('/dashboards', { params }).then((res) => res.data);
 };
 
-export const dashboardsGetDashboard = async ({
+export const getDashboardById = async ({
   id,
   password,
-  version_number
+  version_number,
 }: {
   /** The unique identifier of the dashboard */
   id: string;
@@ -37,21 +33,10 @@ export const dashboardsGetDashboard = async ({
   version_number?: number;
 }) => {
   return await mainApi
-    .get<BusterDashboardResponse>(`/dashboards/${id}`, {
-      params: { password, version_number }
+    .get<GetDashboardResponse>(`/dashboards/${id}`, {
+      params: { password, version_number },
     })
     .then((res) => res.data);
-};
-
-export const getDashboard_server = async ({
-  id,
-  password,
-  version_number
-}: Parameters<typeof dashboardsGetDashboard>[0]) => {
-  return serverFetch<BusterDashboardResponse>(`/dashboards/${id}`, {
-    method: 'GET',
-    params: { password, version_number }
-  });
 };
 
 export const dashboardsCreateDashboard = async (params: {
@@ -60,7 +45,7 @@ export const dashboardsCreateDashboard = async (params: {
   /** Optional description of the dashboard */
   description?: string | null;
 }) => {
-  return await mainApi.post<BusterDashboardResponse>('/dashboards', params).then((res) => res.data);
+  return await mainApi.post<GetDashboardResponse>('/dashboards', params).then((res) => res.data);
 };
 
 export const dashboardsUpdateDashboard = async (params: {
@@ -80,7 +65,7 @@ export const dashboardsUpdateDashboard = async (params: {
   restore_to_version?: number;
 }) => {
   return await mainApi
-    .put<BusterDashboardResponse>(`/dashboards/${params.id}`, params)
+    .put<GetDashboardResponse>(`/dashboards/${params.id}`, params)
     .then((res) => res.data);
 };
 
@@ -100,12 +85,12 @@ export const unshareDashboard = async ({ id, data }: { id: string; data: ShareDe
 
 export const updateDashboardShare = async ({
   params,
-  id
+  id,
 }: {
   id: string;
   params: ShareUpdateRequest;
 }) => {
   return mainApi
-    .put<BusterDashboardResponse>(`/dashboards/${id}/sharing`, params)
+    .put<GetDashboardResponse>(`/dashboards/${id}/sharing`, params)
     .then((res) => res.data);
 };

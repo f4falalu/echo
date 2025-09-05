@@ -1,4 +1,4 @@
-import { type PluginConfig, createTSlatePlugin } from 'platejs';
+import { createTSlatePlugin, type PluginConfig } from 'platejs';
 
 export type BannerConfig = PluginConfig<'banner'>;
 
@@ -13,11 +13,12 @@ export const BannerPlugin = createTSlatePlugin<BannerConfig>({
           background: 'lightyellow',
           padding: '8px',
           textAlign: 'center',
-          borderBottom: '1px solid #ddd'
-        }}>
+          borderBottom: '1px solid #ddd',
+        }}
+      >
         🚀 Welcome to Buster!
       </div>
-    )
+    ),
     // beforeContainer: () => (
     //   <div className="bg-red-500">
     //     <h1>beforeContainer</h1>
@@ -66,5 +67,5 @@ export const BannerPlugin = createTSlatePlugin<BannerConfig>({
     //     </div>
     //   );
     // }
-  }
+  },
 });

@@ -1,23 +1,21 @@
-'use client';
-
-import React, { useMemo, type ReactNode } from 'react';
-import { SettingsCards } from '../settings/SettingsCard';
-import { Text } from '@/components/ui/typography';
-import { Switch } from '@/components/ui/switch';
-import {
-  useGetWorkspaceSettings,
-  useUpdateWorkspaceSettings
-} from '@/api/buster_rest/security/queryRequests';
+import type { OrganizationRole } from '@buster/server-shared/organization';
 import type {
   GetWorkspaceSettingsResponse,
-  UpdateWorkspaceSettingsRequest
+  UpdateWorkspaceSettingsRequest,
 } from '@buster/server-shared/security';
-import { type SelectItem } from '@/components/ui/select';
-import { type OrganizationRole } from '@buster/server-shared/organization';
+import React, { type ReactNode, useMemo } from 'react';
 import { useGetDatasets } from '@/api/buster_rest/datasets';
+import {
+  useGetWorkspaceSettings,
+  useUpdateWorkspaceSettings,
+} from '@/api/buster_rest/security/queryRequests';
+import type { SelectItem } from '@/components/ui/select';
 import { SelectMultiple } from '@/components/ui/select/SelectMultiple';
+import { Switch } from '@/components/ui/switch';
+import { Text } from '@/components/ui/typography';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { SettingsCards } from '../settings/SettingsCard';
 import { AccessRoleSelect } from './AccessRoleSelect';
-import { useMemoizedFn } from '@/hooks';
 
 export const WorkspaceRestrictions = React.memo(() => {
   const { data: workspaceSettings } = useGetWorkspaceSettings();
@@ -39,7 +37,7 @@ export const WorkspaceRestrictions = React.memo(() => {
         key="default-datasets"
         default_datasets={workspaceSettings?.default_datasets ?? []}
         updateWorkspaceSettings={updateWorkspaceSettings}
-      />
+      />,
     ],
     [workspaceSettings]
   );
@@ -57,7 +55,7 @@ WorkspaceRestrictions.displayName = 'WorkspaceRestrictions';
 
 const EnableRestrictions = ({
   restrict_new_user_invitations = false,
-  updateWorkspaceSettings
+  updateWorkspaceSettings,
 }: Pick<GetWorkspaceSettingsResponse, 'restrict_new_user_invitations'> & {
   updateWorkspaceSettings: (request: UpdateWorkspaceSettingsRequest) => Promise<unknown>;
 }) => {
@@ -81,7 +79,7 @@ const EnableRestrictions = ({
 
 const DefaultRole = ({
   default_role = 'viewer',
-  updateWorkspaceSettings
+  updateWorkspaceSettings,
 }: Pick<GetWorkspaceSettingsResponse, 'default_role'> & {
   updateWorkspaceSettings: (request: UpdateWorkspaceSettingsRequest) => Promise<unknown>;
 }) => {
@@ -105,7 +103,7 @@ const DefaultRole = ({
 
 const DefaultDatasets = ({
   default_datasets = [],
-  updateWorkspaceSettings
+  updateWorkspaceSettings,
 }: Pick<GetWorkspaceSettingsResponse, 'default_datasets'> & {
   updateWorkspaceSettings: (request: UpdateWorkspaceSettingsRequest) => Promise<unknown>;
 }) => {
@@ -115,7 +113,7 @@ const DefaultDatasets = ({
     const baseItems =
       datasets?.map((dataset) => ({
         label: dataset.name,
-        value: dataset.id
+        value: dataset.id,
       })) || [];
 
     return [{ label: 'All datasets', value: 'all' }, ...baseItems];

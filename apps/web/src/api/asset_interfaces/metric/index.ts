@@ -1,4 +1,3 @@
-export * from './charts';
-export * from './interfaces';
-export * from './listInterfaces';
-export * from './metricDataInterfaces';
+export type * from './interfaces';
+export type * from './listInterfaces';
+export type * from './metricDataInterfaces';

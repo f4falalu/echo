@@ -1,4 +1,5 @@
 import { updateMessageFields } from '@buster/database';
+import { materialize } from '@buster/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ModifyMetricsContext, ModifyMetricsInput } from './modify-metrics-tool';
 import { createModifyMetricsTool } from './modify-metrics-tool';
@@ -89,7 +90,7 @@ describe('modify-metrics-tool streaming integration', () => {
     });
 
     // Execute the tool
-    const result = await tool.execute?.(input, mockToolCallOptions);
+    const result = await materialize(tool.execute?.(input, mockToolCallOptions));
 
     expect(result).toBeDefined();
     expect(result?.files).toHaveLength(1);
@@ -143,7 +144,7 @@ describe('modify-metrics-tool streaming integration', () => {
     });
 
     // Tool should still execute successfully without messageId
-    const result = await tool.execute?.(input, mockToolCallOptions);
+    const result = await materialize(tool.execute?.(input, mockToolCallOptions));
 
     expect(result).toBeDefined();
     expect(result?.files).toHaveLength(1);
@@ -231,7 +232,7 @@ describe('modify-metrics-tool streaming integration', () => {
       ],
     });
 
-    const result = await tool.execute?.(input, mockToolCallOptions);
+    const result = await materialize(tool.execute?.(input, mockToolCallOptions));
 
     expect(result?.files).toHaveLength(2);
     expect(result?.failed_files).toHaveLength(1);
@@ -301,7 +302,7 @@ describe('modify-metrics-tool streaming integration', () => {
     (createModifyMetricsExecute as any).mockImplementation(mockExecute);
 
     // Tool should still execute successfully despite database errors
-    const result = await tool.execute?.(input, mockToolCallOptions);
+    const result = await materialize(tool.execute?.(input, mockToolCallOptions));
     expect(result?.files).toHaveLength(1);
   });
 
@@ -313,6 +314,7 @@ describe('modify-metrics-tool streaming integration', () => {
 
     // Override execute to capture state
     const originalExecute = tool.execute!;
+    // @ts-ignore
     tool.execute = async (input: ModifyMetricsInput, options: any) => {
       // The state should be populated by this point
       const { createModifyMetricsExecute } = await import('./modify-metrics-execute');

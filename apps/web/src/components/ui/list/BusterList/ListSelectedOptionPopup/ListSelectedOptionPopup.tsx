@@ -1,8 +1,8 @@
 import React from 'react';
 import { Xmark } from '@/components/ui/icons';
-import { PopupContainer, PopupSplitter } from '@/components/ui/popup/PopupContainer';
 import { Text } from '@/components/ui/typography';
 import { cn } from '@/lib/classMerge';
+import { PopupContainer, PopupSplitter } from '../../../popup/PopupContainer';
 
 export const BusterListSelectedOptionPopupContainer: React.FC<{
   selectedRowKeys: string[];
@@ -40,7 +40,8 @@ const SelectedButton: React.FC<{
         'bg-bg-container rounded pl-2',
         'min-h-[24px]',
         'border-border-default border border-dashed'
-      )}>
+      )}
+    >
       <Text>{text}</Text>
 
       <div className="border-border-default ml-1.5 min-h-[24px] border-l border-dashed" />
@@ -52,7 +53,8 @@ const SelectedButton: React.FC<{
         className={cn(
           'flex cursor-pointer items-center justify-center px-1',
           'text-text-secondary hover:text-text-default transition-colors duration-200'
-        )}>
+        )}
+      >
         <div className="text-base">
           <Xmark />
         </div>

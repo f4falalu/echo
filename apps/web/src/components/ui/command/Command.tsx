@@ -1,5 +1,3 @@
-'use client';
-
 import { Command as CommandPrimitive } from 'cmdk';
 import * as React from 'react';
 import { Magnifier } from '@/components/ui/icons';
@@ -130,5 +128,5 @@ export {
   CommandGroup,
   CommandItem,
   CommandShortcut,
-  CommandSeparator
+  CommandSeparator,
 };

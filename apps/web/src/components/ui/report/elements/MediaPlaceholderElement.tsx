@@ -1,20 +1,17 @@
-'use client';
-
-import * as React from 'react';
+import { PlaceholderPlugin, PlaceholderProvider, updateUploadHistory } from '@platejs/media/react';
 
 import type { TPlaceholderElement } from 'platejs';
-import type { PlateElementProps } from 'platejs/react';
-
-import { PlaceholderPlugin, PlaceholderProvider, updateUploadHistory } from '@platejs/media/react';
 import { KEYS } from 'platejs';
+import type { PlateElementProps } from 'platejs/react';
 import { PlateElement, useEditorPlugin, withHOC } from 'platejs/react';
+import * as React from 'react';
 import { useFilePicker } from 'use-file-picker';
-import { NodeTypeIcons } from '../config/icons';
-import { NodeTypeLabels } from '../config/labels';
+import type { SelectedFilesOrErrors } from 'use-file-picker/types';
+import { useUploadFile } from '@/hooks/useUploadFile';
 
 import { cn } from '@/lib/utils';
-import { useUploadFile } from '@/hooks/useUploadFile';
-import type { SelectedFilesOrErrors } from 'use-file-picker/types';
+import { NodeTypeIcons } from '../config/icons';
+import { NodeTypeLabels } from '../config/labels';
 
 const CONTENT: Record<
   string,
@@ -27,28 +24,28 @@ const CONTENT: Record<
   [KEYS.audio]: {
     accept: ['audio/*'],
     content: NodeTypeLabels.addAudioFile.label,
-    icon: <NodeTypeIcons.audio />
+    icon: <NodeTypeIcons.audio />,
   },
   [KEYS.file]: {
     accept: ['*'],
     content: NodeTypeLabels.addFile.label,
-    icon: <NodeTypeIcons.upload />
+    icon: <NodeTypeIcons.upload />,
   },
   [KEYS.img]: {
     accept: ['image/*'],
     content: NodeTypeLabels.addImage.label,
-    icon: <NodeTypeIcons.imageSparkle />
+    icon: <NodeTypeIcons.imageSparkle />,
   },
   [KEYS.video]: {
     accept: ['video/*'],
     content: NodeTypeLabels.addVideo.label,
-    icon: <NodeTypeIcons.filmPlay />
+    icon: <NodeTypeIcons.filmPlay />,
   },
   [KEYS.mediaEmbed]: {
     accept: ['*'],
     content: NodeTypeLabels.addMediaEmbed.label,
-    icon: <NodeTypeIcons.filmPlay />
-  }
+    icon: <NodeTypeIcons.filmPlay />,
+  },
 };
 
 export const PlaceholderElement = withHOC(
@@ -80,10 +77,11 @@ export const PlaceholderElement = withHOC(
         if (restFiles.length > 0) {
           // Convert File[] to FileList
           const dataTransfer = new DataTransfer();
+          // biome-ignore lint/suspicious/useIterableCallbackReturn: look into this later
           restFiles.forEach((file) => dataTransfer.items.add(file));
           editor.getTransforms(PlaceholderPlugin).insert.media(dataTransfer.files);
         }
-      }
+      },
     });
 
     const replaceCurrentPlaceholder = React.useCallback(
@@ -109,8 +107,9 @@ export const PlaceholderElement = withHOC(
           isUpload: true,
           name: element.mediaType === KEYS.file ? uploadedFile.name : '',
           placeholderId: element.id as string,
+          // biome-ignore lint/style/noNonNullAssertion: look into this later
           type: element.mediaType!,
-          url: uploadedFile.url
+          url: uploadedFile.url,
         };
 
         editor.tf.insertNodes(node, { at: path });
@@ -147,7 +146,8 @@ export const PlaceholderElement = withHOC(
               'bg-muted hover:bg-primary/10 flex cursor-pointer items-center rounded-sm p-3 pr-9 select-none'
             )}
             onClick={() => !loading && openFilePicker()}
-            contentEditable={false}>
+            contentEditable={false}
+          >
             <div className="text-muted-foreground/80 relative mr-3 flex [&_svg]:size-6">
               {currentContent.icon}
             </div>
@@ -184,7 +184,7 @@ export function ImageProgress({
   className,
   file,
   imageRef,
-  progress = 0
+  progress = 0,
 }: {
   file: File;
   className?: string;
@@ -243,7 +243,7 @@ function formatBytes(
 
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
 
-  return `${(bytes / Math.pow(1024, i)).toFixed(decimals)} ${
+  return `${(bytes / 1024 ** i).toFixed(decimals)} ${
     sizeType === 'accurate' ? (accurateSizes[i] ?? 'Bytest') : (sizes[i] ?? 'Bytes')
   }`;
 }

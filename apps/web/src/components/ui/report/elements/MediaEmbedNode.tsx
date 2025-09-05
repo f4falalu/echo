@@ -1,14 +1,8 @@
-'use client';
-
-import * as React from 'react';
-import LiteYouTubeEmbed from 'react-lite-youtube-embed';
-
-import type { TMediaEmbedElement } from 'platejs';
-import type { PlateElementProps } from 'platejs/react';
-
-import { parseTwitterUrl, parseVideoUrl, type EmbedUrlParser } from '@platejs/media';
+import { type EmbedUrlParser, parseTwitterUrl, parseVideoUrl } from '@platejs/media';
 import { MediaEmbedPlugin, useMediaState } from '@platejs/media/react';
 import { ResizableProvider, useResizableValue } from '@platejs/resizable';
+import type { TMediaEmbedElement } from 'platejs';
+import type { PlateElementProps } from 'platejs/react';
 import {
   PlateElement,
   useEditorRef,
@@ -16,40 +10,35 @@ import {
   useFocused,
   useReadOnly,
   useSelected,
-  withHOC
+  withHOC,
 } from 'platejs/react';
-
+import * as React from 'react';
+import { useEffect } from 'react';
+import LiteYouTubeEmbed from 'react-lite-youtube-embed';
+import { useBusterNotifications } from '@/context/BusterNotifications';
+import { env } from '@/env';
+import { useClickAway } from '@/hooks/useClickAway';
+import { isUrlFromAcceptedDomain } from '@/lib/url';
 import { cn } from '@/lib/utils';
-
+import { Button } from '../../buttons';
+import { Input } from '../../inputs';
+import { PopoverAnchor, PopoverBase, PopoverContent } from '../../popover';
+import { Separator } from '../../separator';
+import { Text } from '../../typography';
+import { NodeTypeIcons } from '../config/icons';
 import { Caption, CaptionTextarea } from './CaptionNode';
 import { MediaToolbar } from './MediaToolbar';
 import { mediaResizeHandleVariants, Resizable, ResizeHandle } from './ResizeHandle';
-import { PopoverAnchor, PopoverBase, PopoverContent } from '../../popover';
-import { Text } from '../../typography';
-import { Input } from '../../inputs';
-import { Button } from '../../buttons';
-import { Separator } from '../../separator';
-import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useEffect } from 'react';
-import { useClickAway } from '@/hooks/useClickAway';
-import { isUrlFromAcceptedDomain } from '@/lib/url';
-import { NodeTypeIcons } from '../config/icons';
 
 const parseGenericUrl: EmbedUrlParser = (url: string) => {
   return {
     url,
-    provider: 'generic'
+    provider: 'generic',
   };
 };
 
 const urlParsers: EmbedUrlParser[] = [parseTwitterUrl, parseVideoUrl, parseGenericUrl];
-const ACCEPTED_DOMAINS = [
-  process.env.NEXT_PUBLIC_URL,
-  'twitter.com',
-  'x.com',
-  'youtube.com',
-  'vimeo.com'
-];
+const ACCEPTED_DOMAINS = [env.VITE_PUBLIC_URL, 'twitter.com', 'x.com', 'youtube.com', 'vimeo.com'];
 
 export const MediaEmbedElement = withHOC(
   ResizableProvider,
@@ -66,9 +55,9 @@ export const MediaEmbedElement = withHOC(
       selected,
       ...rest
     } = useMediaState({
-      urlParsers
+      urlParsers,
     });
-    const width = useResizableValue('width');
+    const width = useResizableValue('width') as string;
     const provider = embed?.provider;
     const hasElement = !!url;
 
@@ -85,17 +74,18 @@ export const MediaEmbedElement = withHOC(
               options={{
                 align,
                 maxWidth: isTweet ? 550 : '100%',
-                minWidth: isTweet ? 300 : 100
-              }}>
+                minWidth: isTweet ? 300 : 100,
+              }}
+            >
               <ResizeHandle
                 className={mediaResizeHandleVariants({ direction: 'left' })}
                 options={{ direction: 'left' }}
               />
 
               {isVideo ? (
-                isYoutube ? (
+                isYoutube && embed ? (
                   <LiteYouTubeEmbed
-                    id={embed!.id!}
+                    id={embed.id || ''}
                     title="youtube"
                     wrapperClass={cn(
                       'rounded-sm',
@@ -122,7 +112,8 @@ export const MediaEmbedElement = withHOC(
                       provider === 'youku' && 'pb-[56.25%]',
                       provider === 'dailymotion' && 'pb-[56.0417%]',
                       provider === 'coub' && 'pb-[51.25%]'
-                    )}>
+                    )}
+                  >
                     <iframe
                       className={cn(
                         'absolute top-0 left-0 size-full rounded-sm',
@@ -130,7 +121,7 @@ export const MediaEmbedElement = withHOC(
                         focused && selected && 'ring-ring ring-2 ring-offset-2'
                       )}
                       title="embed"
-                      src={embed!.url}
+                      src={embed?.url}
                       allowFullScreen
                     />
                   </div>
@@ -228,7 +219,8 @@ export const MediaEmbedPlaceholder = (props: PlateElementProps<TMediaEmbedElemen
             className={cn(
               'bg-muted hover:bg-primary/10 flex cursor-pointer items-center rounded-sm p-3 pr-9 select-none'
             )}
-            contentEditable={false}>
+            contentEditable={false}
+          >
             <div className="text-muted-foreground/80 relative mr-3 flex [&_svg]:size-6">
               <NodeTypeIcons.embed />
             </div>
@@ -245,7 +237,8 @@ export const MediaEmbedPlaceholder = (props: PlateElementProps<TMediaEmbedElemen
           }}
           onCloseAutoFocus={(e) => {
             e.preventDefault();
-          }}>
+          }}
+        >
           <div className="px-3">
             <Text>Add an embed link</Text>
           </div>

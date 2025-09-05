@@ -1,4 +1,4 @@
-import { SupportedLanguages } from '@/config';
+import { SupportedLanguages } from '@/config/languages';
 
 export const ACCEPTED_LANGUAGES: SupportedLanguages[] = [...Object.values(SupportedLanguages)];
 
@@ -30,8 +30,8 @@ export const getUserAcceptedLanguage = (language: string): SupportedLanguages =>
 export const embedLanguageOptions = [
   {
     label: 'English (en)',
-    value: SupportedLanguages.EN
-  }
+    value: SupportedLanguages.EN,
+  },
   /* {
     label: 'German (de)',
     value: SupportedLanguages.DE

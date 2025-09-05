@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 
 export const SlackIcon: React.FC<
   React.SVGProps<SVGSVGElement> & {
@@ -12,7 +12,8 @@ export const SlackIcon: React.FC<
       viewBox="0 0 127 127"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
-      {...props}>
+      {...props}
+    >
       <path
         d="M27.2 80c0 7.3-5.9 13.2-13.2 13.2C6.7 93.2.8 87.3.8 80c0-7.3 5.9-13.2 13.2-13.2h13.2V80zm6.6 0c0-7.3 5.9-13.2 13.2-13.2 7.3 0 13.2 5.9 13.2 13.2v33c0 7.3-5.9 13.2-13.2 13.2-7.3 0-13.2-5.9-13.2-13.2V80z"
         fill="#E01E5A"

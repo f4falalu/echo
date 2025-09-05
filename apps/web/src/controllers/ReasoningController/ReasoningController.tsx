@@ -1,18 +1,18 @@
-'use client';
-
 import { useQuery } from '@tanstack/react-query';
+import { ClientOnly } from '@tanstack/react-router';
 import isEmpty from 'lodash/isEmpty';
 import type React from 'react';
 import { useEffect, useMemo, useRef } from 'react';
+import type { BusterChatMessage, IBusterChat } from '@/api/asset_interfaces/chat';
 import { useGetChat, useGetChatMessage } from '@/api/buster_rest/chats';
-import { queryKeys } from '@/api/query_keys';
-import { FileIndeterminateLoader } from '@/components/features/FileIndeterminateLoader';
+import { ScrollToBottomButton } from '@/components/features/buttons/ScrollToBottomButton';
+import { FileIndeterminateLoader } from '@/components/features/loaders/FileIndeterminateLoader';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useGetBlackBoxMessage } from '@/context/BlackBox/blackbox-store';
 import { useAutoScroll } from '@/hooks/useAutoScroll';
+import { cn } from '@/lib/utils';
 import { ReasoningMessageSelector } from './ReasoningMessages';
 import { BlackBoxMessage } from './ReasoningMessages/ReasoningBlackBoxMessage';
-import { ScrollToBottomButton } from '@/components/ui/buttons/ScrollToBottomButton';
-import type { BusterChatMessage, IBusterChat } from '@/api/asset_interfaces/chat';
 
 interface ReasoningControllerProps {
   chatId: string;
@@ -27,26 +27,25 @@ const stableFinalReasoningMessageSelector = (x: BusterChatMessage) => x?.final_r
 export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId, messageId }) => {
   const { data: hasChat } = useGetChat({ id: chatId || '' }, { select: stableHasChatSelector });
   const { data: reasoning_message_ids = [] } = useGetChatMessage(messageId, {
-    select: stableReasoningMessageIdsSelector
+    select: stableReasoningMessageIdsSelector,
   });
   const reasoningMessageIds = useMemo(() => reasoning_message_ids, [reasoning_message_ids]);
   const { data: isStreamFinished } = useGetChatMessage(messageId, {
-    select: stableIsStreamFinishedSelector
+    select: stableIsStreamFinishedSelector,
   });
   const { data: finalReasoningMessage } = useGetChatMessage(messageId, {
-    select: stableFinalReasoningMessageSelector
-  });
-  const { data: blackBoxMessage } = useQuery({
-    ...queryKeys.chatsBlackBoxMessages(messageId),
-    notifyOnChangeProps: ['data']
+    select: stableFinalReasoningMessageSelector,
   });
 
-  const viewportRef = useRef<HTMLDivElement>(null);
+  const blackBoxMessage = useGetBlackBoxMessage(messageId);
 
-  const { isAutoScrollEnabled, scrollToBottom, enableAutoScroll } = useAutoScroll(viewportRef, {
-    observeSubTree: true,
-    enabled: !!viewportRef.current
-  });
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+
+  const { isAutoScrollEnabled, isMountedAutoScrollObserver, scrollToBottom, enableAutoScroll } =
+    useAutoScroll(viewportRef, {
+      observeSubTree: true,
+      enabled: !isStreamFinished,
+    });
 
   useEffect(() => {
     if (hasChat && reasoningMessageIds) {
@@ -59,7 +58,12 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
   return (
     <>
       <ScrollArea viewportRef={viewportRef} className="h-full">
-        <div className="h-full flex-col space-y-0.5 overflow-y-auto p-5">
+        <div
+          className={cn(
+            'h-full flex-col space-y-0.5 overflow-y-auto p-5',
+            !isMountedAutoScrollObserver && 'invisible'
+          )}
+        >
           {reasoningMessageIds?.map((reasoningMessageId, messageIndex) => (
             <ReasoningMessageSelector
               key={reasoningMessageId}
@@ -79,10 +83,12 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
         </div>
       </ScrollArea>
 
-      <ScrollToBottomButton
-        isAutoScrollEnabled={isAutoScrollEnabled}
-        scrollToBottom={scrollToBottom}
-      />
+      {viewportRef.current && (
+        <ScrollToBottomButton
+          isAutoScrollEnabled={isAutoScrollEnabled}
+          scrollToBottom={scrollToBottom}
+        />
+      )}
     </>
   );
 };

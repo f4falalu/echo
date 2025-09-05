@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import { Box, Text, useApp, useInput } from 'ink';
-import React, { useState } from 'react';
+import type React from 'react';
+import { useState } from 'react';
 
 export const InteractiveCommand: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState(0);
@@ -27,15 +28,15 @@ export const InteractiveCommand: React.FC = () => {
   });
 
   return (
-    <Box flexDirection='column'>
+    <Box flexDirection="column">
       <Box marginBottom={1}>
-        <Text color='cyan' bold>
+        <Text color="cyan" bold>
           🚀 Buster CLI - Interactive Mode
         </Text>
       </Box>
 
       <Text dimColor>Use arrow keys to navigate, Enter to select, Q to quit</Text>
-      <Box marginTop={1} flexDirection='column'>
+      <Box marginTop={1} flexDirection="column">
         {options.map((option, index) => (
           <Box key={option}>
             <Text {...(selectedOption === index ? { color: 'green' } : {})}>

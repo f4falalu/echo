@@ -1,18 +1,17 @@
-import { Sheet } from '@/components/ui/sheet';
-import React, { useMemo } from 'react';
-import { Button, type ButtonProps } from '@/components/ui/buttons';
-import { forwardRef, useImperativeHandle, useState } from 'react';
-import { AppSegmented, type SegmentedItem } from '@/components/ui/segmented';
+import type { ConfidenceScore, PostProcessingMessage } from '@buster/server-shared/message';
 import { AnimatePresence, motion } from 'framer-motion';
-import { PostProcessingMessage, type ConfidenceScore } from '@buster/server-shared/message';
-import { Title, Paragraph, Text } from '@/components/ui/typography';
-import {
-  assumptionClassificationTranslations,
-  confidenceTranslations,
-  assumptionLabelTranslations
-} from '@/lib/messages/confidence-translations';
+import React, { forwardRef, useImperativeHandle, useMemo, useState } from 'react';
+import { Button, type ButtonProps } from '@/components/ui/buttons';
 import { CircleCheck, OctagonWarning } from '@/components/ui/icons';
 import { Pill } from '@/components/ui/pills/Pill';
+import { AppSegmented, type SegmentedItem } from '@/components/ui/segmented';
+import { Sheet } from '@/components/ui/sheet';
+import { Paragraph, Text, Title } from '@/components/ui/typography';
+import {
+  assumptionClassificationTranslations,
+  assumptionLabelTranslations,
+  confidenceTranslations,
+} from '@/lib/messages/confidence-translations';
 import { AnimatedMarkdown } from '../../ui/typography/AnimatedMarkdown';
 
 type MessageAssumptionsProps = Pick<
@@ -38,7 +37,7 @@ export const MessageAssumptions = React.memo(
 
       useImperativeHandle(ref, () => ({
         open: () => setOpen(true),
-        close: () => setOpen(false)
+        close: () => setOpen(false),
       }));
 
       return (
@@ -57,14 +56,16 @@ export const MessageAssumptions = React.memo(
               confidence_score={confidence_score}
               onChange={setSelectedPanel}
             />
-          }>
+          }
+        >
           <AnimatePresence mode="wait">
             <motion.div
               key={selectedPanel}
               initial={{ opacity: 0, filter: 'blur(1px)' }}
               animate={{ opacity: 1, filter: 'blur(0px)' }}
               exit={{ opacity: 0, filter: 'blur(1px)' }}
-              transition={{ duration: 0.18 }}>
+              transition={{ duration: 0.18 }}
+            >
               <div className="px-9 pt-9 pb-4">
                 {selectedPanel === AssumptionType.SUMMARY ? (
                   <AssumptionSummary
@@ -89,28 +90,28 @@ MessageAssumptions.displayName = 'MessageAssumptions';
 enum AssumptionType {
   SUMMARY = 'summary',
   MAJOR = 'major',
-  MINOR = 'minor'
+  MINOR = 'minor',
 }
 
 const options: SegmentedItem<AssumptionType>[] = [
   {
     label: 'Summary',
-    value: AssumptionType.SUMMARY
+    value: AssumptionType.SUMMARY,
   },
   {
     label: 'Major',
-    value: AssumptionType.MAJOR
+    value: AssumptionType.MAJOR,
   },
   {
     label: 'Minor',
-    value: AssumptionType.MINOR
-  }
+    value: AssumptionType.MINOR,
+  },
 ];
 
 const AssumptionHeader = ({
   selected,
   confidence_score,
-  onChange
+  onChange,
 }: {
   selected: AssumptionType;
   onChange: (v: AssumptionType) => void;
@@ -134,7 +135,7 @@ const AssumptionHeader = ({
 const AssumptionSummary = ({
   summary_message,
   summary_title,
-  confidence_score
+  confidence_score,
 }: {
   summary_message: string;
   summary_title: string;
@@ -178,7 +179,7 @@ const ConfidenceIndicator = ({ confidence_score }: { confidence_score: Confidenc
 const AssumptionList = React.memo(
   ({
     assumptions,
-    selectedPanel
+    selectedPanel,
   }: {
     selectedPanel: Exclude<AssumptionType, AssumptionType.SUMMARY>;
     assumptions: PostProcessingMessage['assumptions'];
@@ -256,7 +257,7 @@ MessageAssumptions.displayName = 'MessageAssumptions';
 AssumptionList.displayName = 'AssumptionList';
 
 const AssumptionCard = ({
-  assumption
+  assumption,
 }: {
   assumption: NonNullable<PostProcessingMessage['assumptions']>[number];
 }) => {
@@ -295,7 +296,8 @@ const Trigger: React.FC<{
       className={
         'text-icon-color flex cursor-pointer items-center rounded-sm p-[3px] text-lg transition-colors'
       }
-      onClick={onClick}>
+      onClick={onClick}
+    >
       {icon}
     </div>
   );

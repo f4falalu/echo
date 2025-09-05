@@ -1,22 +1,27 @@
-'use client';
-
 import { useQueryClient } from '@tanstack/react-query';
 import last from 'lodash/last';
 import { useMemo } from 'react';
 import { useGetMetric } from '@/api/buster_rest/metrics';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { compareObjectsByKeys } from '@/lib/objects';
 import { canEdit } from '@/lib/share';
-import { useOriginalMetricStore } from './useOriginalMetricStore';
+import { useGetOriginalMetric } from './useOriginalMetricStore';
 
-export const useIsMetricChanged = ({ metricId }: { metricId: string | undefined }) => {
+export const useIsMetricChanged = ({
+  metricId,
+  enabled = true,
+}: {
+  metricId: string | undefined;
+  enabled?: boolean;
+}) => {
   const queryClient = useQueryClient();
-  const originalMetric = useOriginalMetricStore((x) => x.getOriginalMetric(metricId));
+  const originalMetric = useGetOriginalMetric(metricId);
 
   const { data: currentMetric, refetch: refetchCurrentMetric } = useGetMetric(
     { id: metricId, versionNumber: undefined },
     {
+      enabled: false,
       select: (x) => ({
         name: x.name,
         description: x.description,
@@ -24,19 +29,15 @@ export const useIsMetricChanged = ({ metricId }: { metricId: string | undefined 
         file: x.file,
         version_number: x.version_number,
         versions: x.versions,
-        permission: x.permission
-      })
+        permission: x.permission,
+      }),
     }
   );
-  const isLatestVersion = useMemo(() => {
-    return currentMetric?.version_number === last(currentMetric?.versions)?.version_number;
-  }, [currentMetric]);
+  const isLatestVersion =
+    currentMetric?.version_number === last(currentMetric?.versions)?.version_number;
 
-  const onResetMetricToOriginal = useMemoizedFn(() => {
-    const options = metricsQueryKeys.metricsGetMetric(
-      metricId || '',
-      originalMetric?.version_number || null
-    );
+  const onResetToOriginal = useMemoizedFn(() => {
+    const options = metricsQueryKeys.metricsGetMetric(metricId || '', 'LATEST');
     if (originalMetric) {
       queryClient.setQueryData(options.queryKey, originalMetric);
     }
@@ -45,8 +46,9 @@ export const useIsMetricChanged = ({ metricId }: { metricId: string | undefined 
 
   const isEditor = canEdit(currentMetric?.permission);
 
-  const isMetricChanged = useMemo(() => {
-    if (!isEditor || !originalMetric || !isLatestVersion || !currentMetric) return false;
+  const isFileChanged = useMemo(() => {
+    if (!isEditor || !originalMetric || !isLatestVersion || !currentMetric || !enabled)
+      return false;
 
     return (
       !currentMetric ||
@@ -55,13 +57,13 @@ export const useIsMetricChanged = ({ metricId }: { metricId: string | undefined 
         'description',
         'chart_config',
         'file',
-        'version_number'
+        'version_number',
       ])
     );
-  }, [originalMetric, currentMetric, isLatestVersion, isEditor]);
+  }, [originalMetric, currentMetric, isLatestVersion, isEditor, enabled]);
 
   return {
-    onResetMetricToOriginal,
-    isMetricChanged
+    onResetToOriginal,
+    isFileChanged,
   };
 };

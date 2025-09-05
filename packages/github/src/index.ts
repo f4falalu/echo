@@ -11,6 +11,7 @@ export {
   deleteInstallationToken,
   isTokenExpired,
   generateTokenVaultKey,
+  generateNewInstallationToken,
 } from './services/token';
 
 export {

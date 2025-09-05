@@ -1,15 +1,15 @@
 import { queryOptions } from '@tanstack/react-query';
 import type {
-  BusterMetricListItem,
   BusterMetric,
-  BusterMetricDataExtended
+  BusterMetricDataExtended,
+  BusterMetricListItem,
 } from '@/api/asset_interfaces/metric';
 import type { listMetrics } from '../buster_rest/metrics';
 
-export const metricsGetMetric = (metricId: string, version_number: number | null) => {
+export const metricsGetMetric = (metricId: string, version_number: number | 'LATEST') => {
   return queryOptions<BusterMetric>({
-    queryKey: ['metrics', 'get', metricId, version_number || 'INITIAL'] as const,
-    staleTime: 60 * 1000 // 60 seconds
+    queryKey: ['metrics', 'get', metricId, version_number || 'LATEST'] as const,
+    staleTime: 60 * 1000, // 60 seconds
   });
 };
 
@@ -20,20 +20,20 @@ export const metricsGetList = (
     queryKey: [
       'metrics',
       'list',
-      filters || { status: [], page_token: 0, page_size: 3500 }
+      filters || { status: [], page_token: 0, page_size: 3500 },
     ] as const,
     initialData: [],
-    initialDataUpdatedAt: 0
+    initialDataUpdatedAt: 0,
   });
 
-export const metricsGetData = (id: string, version_number: number) =>
+export const metricsGetData = (id: string, version_number: number | 'LATEST') =>
   queryOptions<BusterMetricDataExtended>({
-    queryKey: ['metrics', 'data', id, version_number || 'INITIAL'] as const,
-    staleTime: 3 * 60 * 60 * 1000 // 3 hours,
+    queryKey: ['metrics', 'data', id, version_number || 'LATEST'] as const,
+    staleTime: 1000 * 60 * 30, // 30 minutes,
   });
 
 export const metricsQueryKeys = {
   metricsGetMetric,
   metricsGetList,
-  metricsGetData
+  metricsGetData,
 };

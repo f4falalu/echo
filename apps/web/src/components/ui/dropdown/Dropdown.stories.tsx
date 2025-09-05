@@ -1,27 +1,26 @@
-'use client';
-
 import { faker } from '@faker-js/faker';
-import type { Meta, StoryObj } from '@storybook/nextjs';
-import { fn } from 'storybook/test';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
+import { fn } from 'storybook/test';
 import { Button } from '../buttons/Button';
 import { PaintRoller, Star, Storage } from '../icons';
-import { Dropdown, type DropdownItems } from './Dropdown';
+import { Dropdown } from './Dropdown';
+import type { IDropdownItems } from './dropdown-items.types';
 
 const meta: Meta<typeof Dropdown> = {
   title: 'UI/Dropdowns/Dropdown',
   component: Dropdown,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
   argTypes: {
     align: {
       control: 'select',
       options: ['start', 'center', 'end'],
-      defaultValue: 'start'
-    }
+      defaultValue: 'start',
+    },
   },
-  tags: ['autodocs']
+  tags: ['autodocs'],
 };
 
 export default meta;
@@ -36,13 +35,13 @@ export const Basic: Story = {
         label: 'Profile',
         onClick: fn(),
         loading: false,
-        icon: <PaintRoller />
+        icon: <PaintRoller />,
       },
       {
         value: '2',
         label: 'Settings',
         onClick: fn(),
-        shortcut: '⌘S'
+        shortcut: '⌘S',
       },
       {
         value: '3',
@@ -51,17 +50,17 @@ export const Basic: Story = {
         items: [
           {
             value: '3-1',
-            label: 'Testing 123'
+            label: 'Testing 123',
           },
           {
             value: '3-2',
-            label: 'Testing 456'
-          }
-        ]
-      }
+            label: 'Testing 456',
+          },
+        ],
+      },
     ],
-    children: <Button>Open Menu</Button>
-  }
+    children: <Button>Open Menu</Button>,
+  },
 };
 
 // Example with icons and shortcuts
@@ -74,25 +73,25 @@ export const WithIconsAndShortcuts: Story = {
         label: 'Profile',
         icon: '👤',
         shortcut: '⌘P',
-        onClick: fn()
+        onClick: fn(),
       },
       {
         value: '2',
         label: 'Settings',
         icon: '⚙️',
         shortcut: '⌘S',
-        onClick: fn()
+        onClick: fn(),
       },
       {
         value: '3',
         label: 'Logout',
         icon: '🚪',
         shortcut: '⌘L',
-        onClick: fn()
-      }
+        onClick: fn(),
+      },
     ],
-    children: <Button>Menu with Icons</Button>
-  }
+    children: <Button>Menu with Icons</Button>,
+  },
 };
 
 // Example with nested items
@@ -107,14 +106,14 @@ export const WithNestedItems: Story = {
           {
             value: '1-1',
             label: 'Option 1',
-            onClick: fn()
+            onClick: fn(),
           },
           {
             value: '1-2',
             label: 'Option 2',
-            onClick: fn()
-          }
-        ]
+            onClick: fn(),
+          },
+        ],
       },
       {
         value: '2',
@@ -123,18 +122,18 @@ export const WithNestedItems: Story = {
           {
             value: '2-1',
             label: 'Sub Option 1',
-            onClick: fn()
+            onClick: fn(),
           },
           {
             value: '2-2',
             label: 'Sub Option 2',
-            onClick: fn()
-          }
-        ]
-      }
+            onClick: fn(),
+          },
+        ],
+      },
     ],
-    children: <Button>Nested Menu</Button>
-  }
+    children: <Button>Nested Menu</Button>,
+  },
 };
 
 // Example with disabled items
@@ -144,22 +143,22 @@ export const WithDisabledItems: Story = {
       {
         value: '1',
         label: 'Available Option',
-        onClick: fn()
+        onClick: fn(),
       },
       {
         value: '2',
         label: 'Disabled Option',
         disabled: true,
-        onClick: fn()
+        onClick: fn(),
       },
       {
         value: '3',
         label: 'Another Available',
-        onClick: fn()
-      }
+        onClick: fn(),
+      },
     ],
-    children: <Button>Menu with Disabled Items</Button>
-  }
+    children: <Button>Menu with Disabled Items</Button>,
+  },
 };
 
 // Example with custom widths
@@ -170,16 +169,16 @@ export const CustomWidth: Story = {
       {
         value: '1',
         label: 'This is a very long menu item that might need wrapping',
-        onClick: fn()
+        onClick: fn(),
       },
       {
         value: '2',
         label: 'Short item',
-        onClick: fn()
-      }
+        onClick: fn(),
+      },
     ],
-    children: <Button>Wide Menu</Button>
-  }
+    children: <Button>Wide Menu</Button>,
+  },
 };
 
 // Example with loading state
@@ -189,33 +188,33 @@ export const WithLoadingItems: Story = {
       {
         value: '1',
         label: 'Normal Item',
-        onClick: fn()
+        onClick: fn(),
       },
       {
         value: '2',
         label: 'Loading Item',
         loading: true,
-        onClick: fn()
+        onClick: fn(),
       },
       {
         value: '3',
         label: 'Another Normal',
-        onClick: fn()
+        onClick: fn(),
       },
       { type: 'divider' },
       {
         value: '4',
         label: 'Option 4',
-        onClick: fn()
+        onClick: fn(),
       },
       {
         value: '5',
         label: 'Option 5',
-        onClick: fn()
-      }
+        onClick: fn(),
+      },
     ],
-    children: <Button>Menu with Loading</Button>
-  }
+    children: <Button>Menu with Loading</Button>,
+  },
 };
 
 // Example with selection
@@ -227,60 +226,60 @@ export const WithSelectionSingle: Story = {
         value: '1',
         label: 'Option 1',
         selected: false,
-        onClick: fn()
+        onClick: fn(),
       },
       {
         value: '2',
         label: 'Option 2',
-        onClick: fn()
+        onClick: fn(),
       },
       {
         value: '3',
         label: 'Option 3 - Selected',
         onClick: fn(),
-        selected: true
-      }
+        selected: true,
+      },
     ],
-    children: <Button>Selection Menu</Button>
-  }
+    children: <Button>Selection Menu</Button>,
+  },
 };
 
 export const WithSelectionMultiple: Story = {
   render: () => {
     const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set(['3']));
 
-    const items: DropdownItems = [
+    const items: IDropdownItems = [
       {
         value: '1',
         label: 'Option 1',
         selected: selectedIds.has('1'),
-        onClick: fn()
+        onClick: fn(),
       },
       {
         value: '2',
         label: 'Option 2',
         selected: selectedIds.has('2'),
-        onClick: fn()
+        onClick: fn(),
       },
       {
         value: '3',
         label: 'Option 3',
         selected: selectedIds.has('3'),
-        onClick: fn()
+        onClick: fn(),
       },
       { type: 'divider' as const },
       {
         value: '4',
         label: 'Option 4',
         selected: selectedIds.has('4'),
-        onClick: fn()
+        onClick: fn(),
       },
       {
         value: '5',
         label: 'Option 5',
         selected: selectedIds.has('5'),
-        onClick: fn()
-      }
+        onClick: fn(),
+      },
     ];
 
     const handleSelect = (itemId: string) => {
@@ -304,7 +303,7 @@ export const WithSelectionMultiple: Story = {
         children={<Button>Selection Menu</Button>}
       />
     );
-  }
+  },
 };
 
 // Example with secondary labels
@@ -316,14 +315,14 @@ export const WithSecondaryLabel: Story = {
         value: '1',
         label: 'Profile Settings',
         secondaryLabel: 'User preferences',
-        onClick: fn()
+        onClick: fn(),
       },
       {
         value: '2',
         label: 'Storage',
         secondaryLabel: '45GB used',
         onClick: fn(),
-        selected: true
+        selected: true,
       },
       { type: 'divider' },
       {
@@ -331,11 +330,11 @@ export const WithSecondaryLabel: Story = {
         label: 'Subscription',
         secondaryLabel: 'Pro Plan',
         onClick: fn(),
-        icon: <Star />
-      }
+        icon: <Star />,
+      },
     ],
-    children: <Button>Menu with Secondary Labels</Button>
-  }
+    children: <Button>Menu with Secondary Labels</Button>,
+  },
 };
 
 // Example with search header
@@ -349,7 +348,7 @@ export const WithSearchHeader: Story = {
         searchLabel: 'profile settings user preferences account',
         secondaryLabel: 'User preferences',
         onClick: fn(),
-        icon: <PaintRoller />
+        icon: <PaintRoller />,
       },
       {
         value: '2',
@@ -357,7 +356,7 @@ export const WithSearchHeader: Story = {
         searchLabel: 'storage disk space memory',
         secondaryLabel: 'Manage storage space',
         onClick: fn(),
-        icon: <Storage />
+        icon: <Storage />,
       },
       {
         value: '3',
@@ -365,22 +364,22 @@ export const WithSearchHeader: Story = {
         searchLabel: 'favorites starred items bookmarks',
         secondaryLabel: 'View starred items',
         onClick: fn(),
-        icon: <Star />
+        icon: <Star />,
       },
       { type: 'divider' },
       {
         value: '4',
         label: 'Logout',
-        onClick: fn()
+        onClick: fn(),
       },
       {
         value: '5',
         label: 'Invite User',
-        onClick: fn()
-      }
+        onClick: fn(),
+      },
     ],
-    children: <Button>Searchable Menu</Button>
-  }
+    children: <Button>Searchable Menu</Button>,
+  },
 };
 
 // Example with long text to test truncation
@@ -395,14 +394,14 @@ export const WithLongText: Story = {
           value: faker.string.uuid(),
           label,
           secondaryLabel,
-          searchLabel: label + ' ' + secondaryLabel,
+          searchLabel: `${label} ${secondaryLabel}`,
           onClick: fn(),
-          truncate: true
+          truncate: true,
         };
-      })
+      }),
     ],
-    children: <Button>Long Text Menu</Button>
-  }
+    children: <Button>Long Text Menu</Button>,
+  },
 };
 
 // Example with links
@@ -415,31 +414,31 @@ export const WithLinks: Story = {
         label: 'Documentation',
         link: '/docs',
         icon: <Storage />,
-        onClick: fn()
+        onClick: fn(),
       },
       {
         value: '2',
         label: 'GitHub Repository',
         link: 'https://github.com/example/repo',
         icon: <Star />,
-        secondaryLabel: 'External Link'
+        secondaryLabel: 'External Link',
       },
       { type: 'divider' },
       {
         value: '3',
         label: 'Settings Page',
         link: '/settings',
-        icon: <PaintRoller />
+        icon: <PaintRoller />,
       },
       {
         value: '4',
         label: 'Help Center',
         link: '/help',
-        secondaryLabel: 'Get Support'
-      }
+        secondaryLabel: 'Get Support',
+      },
     ],
-    children: <Button>Menu with Links</Button>
-  }
+    children: <Button>Menu with Links</Button>,
+  },
 };
 
 export const WithManyItemsToSearch: Story = {
@@ -447,16 +446,16 @@ export const WithManyItemsToSearch: Story = {
     menuHeader: 'Search items...',
     items: [
       ...Array.from({ length: 100 }).map(() => {
-        const product = faker.commerce.productAdjective() + ' ' + faker.commerce.product();
+        const product = `${faker.commerce.productAdjective()} ${faker.commerce.product()}`;
         return {
-          value: product + ' ' + faker.string.uuid(),
-          label: product
+          value: `${product} ${faker.string.uuid()}`,
+          label: product,
         };
-      })
+      }),
     ],
     onSelect: fn(),
-    children: <Button>Menu with Many Items</Button>
-  }
+    children: <Button>Menu with Many Items</Button>,
+  },
 };
 
 // Interactive example with links and multiple selection
@@ -464,14 +463,14 @@ export const WithLinksAndMultipleSelection: Story = {
   render: () => {
     const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set(['2']));
 
-    const items: DropdownItems = [
+    const items: IDropdownItems = [
       {
         value: '1',
         label: 'Documentation Home',
         link: '/docs',
         selected: selectedIds.has('1'),
         icon: <Storage />,
-        secondaryLabel: 'Main documentation'
+        secondaryLabel: 'Main documentation',
       },
       {
         value: '2',
@@ -479,7 +478,7 @@ export const WithLinksAndMultipleSelection: Story = {
         link: '/docs/api',
         selected: selectedIds.has('2'),
         icon: <Star />,
-        secondaryLabel: 'API documentation'
+        secondaryLabel: 'API documentation',
       },
       { type: 'divider' as const },
       {
@@ -488,15 +487,15 @@ export const WithLinksAndMultipleSelection: Story = {
         link: '/docs/tutorials',
         selected: selectedIds.has('3'),
         icon: <PaintRoller />,
-        secondaryLabel: 'Learn step by step'
+        secondaryLabel: 'Learn step by step',
       },
       {
         value: '4',
         label: 'Examples',
         link: '/docs/examples',
         selected: selectedIds.has('4'),
-        secondaryLabel: 'Code examples'
-      }
+        secondaryLabel: 'Code examples',
+      },
     ];
 
     const handleSelect = (itemId: string) => {
@@ -521,7 +520,7 @@ export const WithLinksAndMultipleSelection: Story = {
         children={<Button>Documentation Sections</Button>}
       />
     );
-  }
+  },
 };
 
 export const WithFooterContent: Story = {
@@ -530,33 +529,33 @@ export const WithFooterContent: Story = {
       {
         value: '1',
         label: 'Option 1',
-        onClick: fn()
+        onClick: fn(),
       },
       {
         value: '2',
         label: 'Option 2',
-        onClick: fn()
+        onClick: fn(),
       },
       {
         value: '3',
         label: 'Option 3',
-        onClick: fn()
-      }
+        onClick: fn(),
+      },
     ],
     footerContent: (
       <Button variant={'black'} block>
         Footer Content
       </Button>
     ),
-    children: <Button>Menu with Footer Content</Button>
-  }
+    children: <Button>Menu with Footer Content</Button>,
+  },
 };
 
 export const WithFooterAndHeader: Story = {
   args: {
     ...WithFooterContent.args,
-    menuHeader: 'Menu...'
-  }
+    menuHeader: 'Menu...',
+  },
 };
 
 // Example with numbered items
@@ -570,13 +569,13 @@ export const WithNumberedItemsNoFilter: Story = {
         value: 'value1',
         label: 'First Item',
         onClick: fn(),
-        icon: <PaintRoller />
+        icon: <PaintRoller />,
       },
       {
         value: 'value2',
         label: 'Second Item',
         onClick: fn(),
-        icon: <Star />
+        icon: <Star />,
       },
       { type: 'divider' },
       {
@@ -585,24 +584,24 @@ export const WithNumberedItemsNoFilter: Story = {
         onClick: fn(),
         icon: <Storage />,
         searchLabel: 'Third Item with secondary label',
-        secondaryLabel: 'With secondary label'
+        secondaryLabel: 'With secondary label',
       },
       {
         value: 'value4',
         label: 'Fourth Item',
         onClick: fn(),
-        disabled: true
-      }
+        disabled: true,
+      },
     ],
-    children: <Button>Numbered Menu</Button>
-  }
+    children: <Button>Numbered Menu</Button>,
+  },
 };
 
 export const WithNumberedItemsWithFilter: Story = {
   args: {
     ...{ ...WithNumberedItemsNoFilter.args },
-    menuHeader: 'Search items...'
-  }
+    menuHeader: 'Search items...',
+  },
 };
 
 export const WithReactNodeSubMenu: Story = {
@@ -614,8 +613,8 @@ export const WithReactNodeSubMenu: Story = {
         value: '1',
         items: [
           { label: 'Sub Option 1', value: '1-1' },
-          { label: 'Sub Option 2', value: '1-2' }
-        ]
+          { label: 'Sub Option 2', value: '1-2' },
+        ],
       },
       {
         label: 'Option 2',
@@ -623,11 +622,11 @@ export const WithReactNodeSubMenu: Story = {
         items: [
           <div key="test" className="min-w-[300px] bg-red-100">
             sasdf
-          </div>
-        ]
-      }
-    ]
-  }
+          </div>,
+        ],
+      },
+    ],
+  },
 };
 
 export const WithSubMenuAndHundredItems: Story = {
@@ -640,9 +639,9 @@ export const WithSubMenuAndHundredItems: Story = {
         items: Array.from({ length: 100 }).map((_, index) => ({
           label: `Sub Option ${index}`,
           value: `1-${index + 1}`,
-          selected: index === 85
-        }))
-      }
-    ]
-  }
+          selected: index === 85,
+        })),
+      },
+    ],
+  },
 };

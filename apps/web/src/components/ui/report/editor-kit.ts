@@ -1,6 +1,4 @@
-'use client';
-
-import { type Value, TrailingBlockPlugin } from 'platejs';
+import { TrailingBlockPlugin, type Value } from 'platejs';
 import { type TPlateEditor, useEditorRef } from 'platejs/react';
 
 // import { AIKit } from './plugins/ai-kit';
@@ -11,6 +9,7 @@ import { BasicMarksKit } from './plugins/basic-marks-kit';
 import { BlockMenuKit } from './plugins/block-menu-kit';
 import { BlockPlaceholderKit } from './plugins/block-placeholder-kit';
 import { CalloutKit } from './plugins/callout-kit';
+import { CaptionKit } from './plugins/caption-kit';
 import { CodeBlockKit } from './plugins/code-block-kit';
 import { ColumnKit } from './plugins/column-kit';
 import { CommentKit } from './plugins/comment-kit';
@@ -31,14 +30,13 @@ import { MarkdownKit } from './plugins/markdown-kit';
 // import { MathKit } from './plugins/math-kit';
 import { MediaKit } from './plugins/media-kit';
 import { MentionKit } from './plugins/mention-kit';
+import { MetricKit } from './plugins/metric-kit';
 import { SlashKit } from './plugins/slash-kit';
+import { StreamContentKit } from './plugins/stream-content-kit';
 import { SuggestionKit } from './plugins/suggestion-kit';
 import { TableKit } from './plugins/table-kit';
 import { TocKit } from './plugins/toc-kit';
 import { ToggleKit } from './plugins/toggle-kit';
-import { CaptionKit } from './plugins/caption-kit';
-import { StreamContentKit } from './plugins/stream-content-kit';
-import { MetricKit } from './plugins/metric-kit';
 
 export const EditorKit = [
   // Editing
@@ -93,7 +91,7 @@ export const EditorKit = [
   // UI
   ...BlockPlaceholderKit,
   ...FixedToolbarKit,
-  ...FloatingToolbarKit
+  ...FloatingToolbarKit,
 ];
 
 export type MyEditor = TPlateEditor<Value, (typeof EditorKit)[number]>;

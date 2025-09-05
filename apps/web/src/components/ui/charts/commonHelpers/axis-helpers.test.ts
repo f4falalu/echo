@@ -8,7 +8,7 @@ describe('doesChartHaveValidAxis', () => {
       doesChartHaveValidAxis({
         selectedChartType: 'line',
         selectedAxis: undefined,
-        isTable: true
+        isTable: true,
       })
     ).toBe(true);
   });
@@ -18,7 +18,7 @@ describe('doesChartHaveValidAxis', () => {
       doesChartHaveValidAxis({
         selectedChartType: 'metric',
         selectedAxis: {} as ChartEncodes,
-        isTable: false
+        isTable: false,
       })
     ).toBe(true);
   });
@@ -28,7 +28,7 @@ describe('doesChartHaveValidAxis', () => {
       doesChartHaveValidAxis({
         selectedChartType: 'table',
         selectedAxis: {} as ChartEncodes,
-        isTable: false
+        isTable: false,
       })
     ).toBe(true);
   });
@@ -39,7 +39,7 @@ describe('doesChartHaveValidAxis', () => {
       doesChartHaveValidAxis({
         selectedChartType: 'line',
         selectedAxis: emptyAxis,
-        isTable: false
+        isTable: false,
       })
     ).toBe(false);
   });
@@ -50,7 +50,7 @@ describe('doesChartHaveValidAxis', () => {
       doesChartHaveValidAxis({
         selectedChartType: 'line',
         selectedAxis: axisWithEmptyX,
-        isTable: false
+        isTable: false,
       })
     ).toBe(false);
   });
@@ -61,7 +61,7 @@ describe('doesChartHaveValidAxis', () => {
       doesChartHaveValidAxis({
         selectedChartType: 'line',
         selectedAxis: axisWithEmptyY,
-        isTable: false
+        isTable: false,
       })
     ).toBe(false);
   });
@@ -72,7 +72,7 @@ describe('doesChartHaveValidAxis', () => {
       doesChartHaveValidAxis({
         selectedChartType: 'line',
         selectedAxis: validAxis,
-        isTable: false
+        isTable: false,
       })
     ).toBe(true);
   });
@@ -83,7 +83,7 @@ describe('doesChartHaveValidAxis', () => {
       doesChartHaveValidAxis({
         selectedChartType: 'bar',
         selectedAxis: validAxis,
-        isTable: false
+        isTable: false,
       })
     ).toBe(true);
   });
@@ -94,7 +94,7 @@ describe('doesChartHaveValidAxis', () => {
       doesChartHaveValidAxis({
         selectedChartType: 'scatter',
         selectedAxis: validAxis,
-        isTable: false
+        isTable: false,
       })
     ).toBe(true);
   });
@@ -105,7 +105,7 @@ describe('doesChartHaveValidAxis', () => {
       doesChartHaveValidAxis({
         selectedChartType: 'pie',
         selectedAxis: validAxis,
-        isTable: false
+        isTable: false,
       })
     ).toBe(true);
   });
@@ -115,13 +115,13 @@ describe('doesChartHaveValidAxis', () => {
       x: ['date'],
       y: ['value1', 'value2'],
       category: [],
-      tooltip: null
+      tooltip: null,
     } as ChartEncodes;
     expect(
       doesChartHaveValidAxis({
         selectedChartType: 'combo',
         selectedAxis: validAxis,
-        isTable: false
+        isTable: false,
       })
     ).toBe(true);
   });

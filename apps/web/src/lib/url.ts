@@ -1,16 +1,18 @@
+import { env } from '@/env';
+
 export const getURLPathname = (url: string): string => {
   const parsedUrl = new URL(url);
   return parsedUrl.pathname.toString();
 };
 
 const ACCEPTED_DOMAINS = [
-  process.env.NEXT_PUBLIC_URL,
+  env.VITE_PUBLIC_URL,
   'twitter.com',
   'x.com',
   'youtube.com',
   'youtube-nocookie.com',
   'vimeo.com',
-  'youtu.be'
+  'youtu.be',
 ];
 
 /**
