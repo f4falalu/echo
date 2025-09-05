@@ -18,7 +18,6 @@ export const Route = createFileRoute('/app')({
     const { isExpired, accessToken = '' } = await getSupabaseSession();
 
     if (isExpired || !accessToken) {
-      console.log('redirecting to login');
       throw redirect({ to: '/auth/login' });
     }
 

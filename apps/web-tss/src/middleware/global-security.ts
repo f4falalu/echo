@@ -1,5 +1,5 @@
 import { createMiddleware } from '@tanstack/react-start';
-import { getHeaders, getWebRequest, setHeaders } from '@tanstack/react-start/server';
+import { getWebRequest, setHeaders } from '@tanstack/react-start/server';
 import { env } from '@/env';
 
 // Function to create CSP header with dynamic API URLs
@@ -102,8 +102,6 @@ export const securityMiddleware = createMiddleware({ type: 'function' }).server(
     const request = getWebRequest();
     const url = new URL(request.url);
     const isEmbed = url.pathname.startsWith('/embed/');
-
-    console.log(request);
 
     // Set security headers for all server function responses
     setHeaders({
