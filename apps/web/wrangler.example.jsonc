@@ -26,12 +26,7 @@
       // Staging Environment
       "staging": {
         "name": "web-staging",
-        "routes": [
-          {
-            "pattern": "staging.buster.so",
-            "custom_domain": true
-          }
-        ],
+        "routes": [],
         "vars": {
           // Staging-specific variables can be set here
           // Or loaded from .env.staging file
@@ -41,12 +36,7 @@
       // Production Environment
       "production": {
         "name": "web-production",
-        "routes": [
-          // {
-          //   "pattern": "app.buster.so",
-          //   "custom_domain": true
-          // }
-        ],
+        "routes": [],
         "vars": {
           // Production-specific variables can be set here
           // Or loaded from .env.production file
