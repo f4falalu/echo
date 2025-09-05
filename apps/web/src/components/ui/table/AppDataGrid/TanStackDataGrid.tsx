@@ -21,6 +21,7 @@ import { SortColumnWrapper } from './SortColumnWrapper';
 
 export interface TanStackDataGridProps {
   className?: string;
+  style?: React.CSSProperties;
   resizable?: boolean;
   sortable?: boolean;
   draggable?: boolean;
@@ -42,6 +43,7 @@ export interface TanStackDataGridProps {
 export const AppDataGrid: React.FC<TanStackDataGridProps> = React.memo(
   ({
     className = '',
+    style,
     resizable = true,
     sortable = true,
     draggable = true,
@@ -149,7 +151,7 @@ export const AppDataGrid: React.FC<TanStackDataGridProps> = React.memo(
     }, [onReady]);
 
     return (
-      <div ref={parentRef} className={cn('h-full w-full overflow-auto', className)}>
+      <div ref={parentRef} className={cn('h-full w-full overflow-auto', className)} style={style}>
         <SortColumnWrapper
           table={table}
           draggable={draggable}

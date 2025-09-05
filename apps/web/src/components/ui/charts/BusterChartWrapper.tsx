@@ -4,6 +4,9 @@ import { cn } from '@/lib/classMerge';
 import { ChartWrapperProvider } from './chartHooks';
 
 const BREAKING_MIN_WIDTH = 76;
+const DEFAULT_STYLE = {
+  '--text-base': '13px', //We use text 13px because blake modified the base in different envs
+} as React.CSSProperties;
 
 export const BusterChartWrapper = React.memo<{
   children: React.ReactNode;
@@ -25,6 +28,7 @@ export const BusterChartWrapper = React.memo<{
           'flex h-full w-full flex-col overflow-hidden transition duration-300',
           loading && 'bg-transparent!'
         )}
+        style={DEFAULT_STYLE}
       >
         {width > BREAKING_MIN_WIDTH ? children : null}
       </div>

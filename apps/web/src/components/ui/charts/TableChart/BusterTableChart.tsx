@@ -13,6 +13,9 @@ export interface BusterTableChartProps extends BusterTableChartConfig, BusterCha
 
 const DEFAULT_COLUMN_ORDER: string[] = [];
 const DEFAULT_COLUMN_WIDTHS: Record<string, number> = {};
+const DEFAULT_STYLE = {
+  '--text-base': '13px', //We use text 13px because blake modified the base in different envs
+} as React.CSSProperties;
 
 const BusterTableChartBase: React.FC<BusterTableChartProps> = ({
   className = '',
@@ -86,6 +89,7 @@ const BusterTableChartBase: React.FC<BusterTableChartProps> = ({
   return (
     <AppDataGrid
       className={cn('buster-table-chart', className)}
+      style={DEFAULT_STYLE}
       key={data.length}
       rows={data}
       columnOrder={tableColumnOrder || DEFAULT_COLUMN_ORDER}

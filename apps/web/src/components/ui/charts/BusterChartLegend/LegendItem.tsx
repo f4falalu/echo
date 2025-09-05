@@ -136,7 +136,7 @@ const LegendItemStandard = React.memo(
             type={item.type}
             inactive={item.inactive}
           />
-
+          {/*We use text 13px because blake modified the base in different envs  */}
           <div
             className={cn(
               'flex max-w-[185px] items-center truncate text-base transition-all duration-100 select-none',
