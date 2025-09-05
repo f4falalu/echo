@@ -2,9 +2,7 @@ import isEmpty from 'lodash/isEmpty';
 import type React from 'react';
 import { cn } from '@/lib/classMerge';
 
-export const KeyboardShortcutPill: React.FC<{
-  shortcut?: string[];
-}> = ({ shortcut }) => {
+export const KeyboardShortcutPill = ({ shortcut }: { shortcut?: string[] }) => {
   if (isEmpty(shortcut)) {
     return null;
   }

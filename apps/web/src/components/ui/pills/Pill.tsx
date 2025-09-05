@@ -17,7 +17,7 @@ const pillVariants = cva('rounded-sm border px-1 py-0.5 text-xs', {
 
 export interface PillProps extends React.ComponentProps<'div'>, VariantProps<typeof pillVariants> {}
 
-export const Pill: React.FC<PillProps> = ({ children, className, variant, ...props }) => {
+export const Pill = ({ children, className, variant, ...props }: PillProps) => {
   return (
     <div className={cn(pillVariants({ variant }), className)} {...props}>
       {children}
