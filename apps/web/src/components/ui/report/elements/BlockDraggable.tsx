@@ -240,15 +240,23 @@ const DragHandle = function DragHandle({
     const container = findEditorContainer();
     if (!container) return;
 
+    let isScrolling = false;
+
     const handleMouseMove = (e: MouseEvent) => {
+      if (isScrolling) return;
+
       const rect = container.getBoundingClientRect();
       const threshold = 50;
       const scrollSpeed = 10;
 
       if (e.clientY < rect.top + threshold) {
-        container.scrollBy({ top: -scrollSpeed, behavior: 'smooth' });
+        isScrolling = true;
+        container.scrollBy({ top: -scrollSpeed, behavior: 'auto' });
+        setTimeout(() => { isScrolling = false; }, 16);
       } else if (e.clientY > rect.bottom - threshold) {
-        container.scrollBy({ top: scrollSpeed, behavior: 'smooth' });
+        isScrolling = true;
+        container.scrollBy({ top: scrollSpeed, behavior: 'auto' });
+        setTimeout(() => { isScrolling = false; }, 16);
       }
     };
 
