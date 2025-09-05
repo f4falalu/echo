@@ -14,18 +14,6 @@ const config = defineConfig(({ command, mode }) => {
 
   return {
     server: { port: 3000 },
-    // ssr: {
-    //   noExternal: isSsrBuild ? [] : undefined,
-    //   external: isSsrBuild
-    //     ? [
-    //         '@tanstack/devtools',
-    //         '@tanstack/react-devtools',
-    //         '@tanstack/react-query-devtools',
-    //         '@tanstack/react-router-devtools',
-    //         'solid-js',
-    //       ]
-    //     : undefined,
-    // },
     plugins: [
       // this is the plugin that enables path aliases
       viteTsConfigPaths({ projects: ['./tsconfig.json'] }),
