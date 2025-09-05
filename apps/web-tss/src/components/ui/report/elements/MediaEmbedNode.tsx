@@ -16,6 +16,7 @@ import * as React from 'react';
 import { useEffect } from 'react';
 import LiteYouTubeEmbed from 'react-lite-youtube-embed';
 import { useBusterNotifications } from '@/context/BusterNotifications';
+import { env } from '@/env';
 import { useClickAway } from '@/hooks/useClickAway';
 import { isUrlFromAcceptedDomain } from '@/lib/url';
 import { cn } from '@/lib/utils';
@@ -37,13 +38,7 @@ const parseGenericUrl: EmbedUrlParser = (url: string) => {
 };
 
 const urlParsers: EmbedUrlParser[] = [parseTwitterUrl, parseVideoUrl, parseGenericUrl];
-const ACCEPTED_DOMAINS = [
-  process.env.VITE_PUBLIC_URL,
-  'twitter.com',
-  'x.com',
-  'youtube.com',
-  'vimeo.com',
-];
+const ACCEPTED_DOMAINS = [env.VITE_PUBLIC_URL, 'twitter.com', 'x.com', 'youtube.com', 'vimeo.com'];
 
 export const MediaEmbedElement = withHOC(
   ResizableProvider,

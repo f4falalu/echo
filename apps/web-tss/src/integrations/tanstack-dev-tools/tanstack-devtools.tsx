@@ -2,10 +2,11 @@ import { ClientOnly } from '@tanstack/react-router';
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { isDev } from '@/config/dev';
+import { env } from '@/env';
 import { isServer } from '@/lib/window';
 
 const ENABLE_TANSTACK_PANEL =
-  (process.env.VITE_PUBLIC_ENABLE_TANSTACK_PANEL === 'true' || isDev) && !isServer;
+  (env.VITE_PUBLIC_ENABLE_TANSTACK_PANEL === 'true' || isDev) && !isServer;
 
 // Lazy load the actual devtools component - only if not SSR
 const LazyTanstackDevtools = !isServer

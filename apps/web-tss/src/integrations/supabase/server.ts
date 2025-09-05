@@ -4,7 +4,7 @@ import { env } from '@/env';
 
 export const COOKIE_OPTIONS: CookieOptions = {
   path: '/',
-  secure: process.env.NODE_ENV === 'production', // Only use secure in production
+  secure: import.meta.env.PROD, // Only use secure in production
   sameSite: 'lax', // Type assertion to fix the error
   httpOnly: true, // Make cookies HttpOnly
   maxAge: 60 * 60 * 24 * 7, // 1 week

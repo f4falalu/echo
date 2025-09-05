@@ -8,8 +8,9 @@ import {
   useGetUserOrganization,
 } from '@/api/buster_rest/users/useGetUserInfo';
 import { isDev } from '@/config/dev';
+import { env } from '@/env';
 
-const POSTHOG_KEY = process.env.VITE_PUBLIC_POSTHOG_KEY;
+const POSTHOG_KEY = env.VITE_PUBLIC_POSTHOG_KEY;
 const DEBUG_POSTHOG = false;
 
 export const BusterPosthogProvider: React.FC<PropsWithChildren> = ({ children }) => {
@@ -22,7 +23,7 @@ export const BusterPosthogProvider: React.FC<PropsWithChildren> = ({ children })
 BusterPosthogProvider.displayName = 'BusterPosthogProvider';
 
 const options: Partial<PostHogConfig> = {
-  api_host: process.env.VITE_PUBLIC_POSTHOG_HOST,
+  api_host: env.VITE_PUBLIC_POSTHOG_HOST,
   person_profiles: 'always',
   session_recording: {
     recordBody: true,
