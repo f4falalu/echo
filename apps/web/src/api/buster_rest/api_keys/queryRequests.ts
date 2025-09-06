@@ -5,7 +5,7 @@ export const useGetApiKeys = () => {
   return useQuery({
     queryKey: ['api_keys'],
     queryFn: getApiKeys,
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -16,7 +16,7 @@ export const useCreateApiKey = () => {
     mutationFn: createApiKey,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['api_keys'] });
-    }
+    },
   });
 };
 
@@ -27,13 +27,13 @@ export const useDeleteApiKey = () => {
     mutationFn: deleteApiKey,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['api_keys'] });
-    }
+    },
   });
 };
 
 export const useGetApiKey = (id: string) => {
   return useQuery({
     queryKey: ['api_key', id],
-    queryFn: () => getApiKey(id)
+    queryFn: () => getApiKey(id),
   });
 };

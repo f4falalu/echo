@@ -7,7 +7,7 @@ import {
   BaseStrikethroughPlugin,
   BaseSubscriptPlugin,
   BaseSuperscriptPlugin,
-  BaseUnderlinePlugin
+  BaseUnderlinePlugin,
 } from '@platejs/basic-nodes';
 
 import { CodeLeafStatic } from '../elements/CodeNodeStatic';
@@ -23,5 +23,5 @@ export const BaseBasicMarksKit = [
   BaseSubscriptPlugin,
   BaseSuperscriptPlugin,
   BaseHighlightPlugin.withComponent(HighlightLeafStatic),
-  BaseKbdPlugin.withComponent(KbdLeafStatic)
+  BaseKbdPlugin.withComponent(KbdLeafStatic),
 ];

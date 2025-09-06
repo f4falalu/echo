@@ -1,7 +1,6 @@
 #!/usr/bin/env bun
 import { program } from 'commander';
 import { render } from 'ink';
-import React from 'react';
 import { Auth } from './commands/auth.js';
 import { DeployCommand } from './commands/deploy/deploy.js';
 import { DeployOptionsSchema } from './commands/deploy/schemas.js';

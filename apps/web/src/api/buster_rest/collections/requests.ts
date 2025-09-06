@@ -1,8 +1,12 @@
-import type { ShareAssetType } from '@buster/server-shared/share';
+import type { AddAndRemoveFromCollectionResponse } from '@buster/server-shared/collections';
+import type {
+  ShareAssetType,
+  ShareDeleteRequest,
+  SharePostRequest,
+  ShareUpdateRequest,
+} from '@buster/server-shared/share';
 import type { BusterCollection, BusterCollectionListItem } from '@/api/asset_interfaces/collection';
 import mainApi from '@/api/buster_rest/instances';
-import type { SharePostRequest } from '@buster/server-shared/share';
-import type { ShareDeleteRequest, ShareUpdateRequest } from '@buster/server-shared/share';
 
 export const collectionsGetList = async (params: {
   /** Current page number (1-based indexing) */
@@ -69,7 +73,7 @@ export const collectionsDeleteCollection = async (data: {
 }) => {
   return await mainApi
     .delete<BusterCollection>('/collections', {
-      data
+      data,
     })
     .then((res) => res.data);
 };
@@ -88,7 +92,7 @@ export const unshareCollection = async ({ id, data }: { id: string; data: ShareD
 
 export const updateCollectionShare = async ({
   params,
-  id
+  id,
 }: {
   id: string;
   params: ShareUpdateRequest;
@@ -100,7 +104,7 @@ export const updateCollectionShare = async ({
 
 export const addAssetToCollection = async ({
   id,
-  assets
+  assets,
 }: {
   id: string;
   assets: {
@@ -108,14 +112,16 @@ export const addAssetToCollection = async ({
     id: string;
   }[];
 }) => {
-  return mainApi.post<null>(`/collections/${id}/assets`, { assets }).then((res) => res.data);
+  return mainApi
+    .post<AddAndRemoveFromCollectionResponse>(`/collections/${id}/assets`, { assets })
+    .then((res) => res.data);
 };
 
 export const removeAssetFromCollection = async ({
   id,
-  assets
+  assets,
 }: Parameters<typeof addAssetToCollection>[0]) => {
   return mainApi
-    .delete<null>(`/collections/${id}/assets`, { data: { assets } })
+    .delete<AddAndRemoveFromCollectionResponse>(`/collections/${id}/assets`, { data: { assets } })
     .then((res) => res.data);
 };

@@ -5,7 +5,10 @@ import { getShareAssetConfig } from '../ShareMenu/helpers';
 import { ShareButton } from './ShareButton';
 
 export const ShareReportButton = React.memo(({ reportId }: { reportId: string }) => {
-  const { data: shareAssetConfig } = useGetReport({ reportId }, { select: getShareAssetConfig });
+  const { data: shareAssetConfig } = useGetReport(
+    { id: reportId },
+    { select: getShareAssetConfig }
+  );
 
   return (
     <ShareMenu shareAssetConfig={shareAssetConfig || null} assetId={reportId} assetType={'report'}>

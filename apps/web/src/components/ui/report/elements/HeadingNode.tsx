@@ -1,11 +1,8 @@
-'use client';
-
-import * as React from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
 
 import type { PlateElementProps } from 'platejs/react';
-
-import { type VariantProps, cva } from 'class-variance-authority';
 import { PlateElement } from 'platejs/react';
+import * as React from 'react';
 
 const headingVariants = cva('relative mb-1', {
   variants: {
@@ -15,9 +12,9 @@ const headingVariants = cva('relative mb-1', {
       h3: 'mt-[1em] pb-px font-heading text-xl font-semibold tracking-tight',
       h4: 'mt-[0.75em] font-heading text-lg font-semibold tracking-tight',
       h5: 'mt-[0.75em] text-lg font-semibold tracking-tight',
-      h6: 'mt-[0.75em] text-base font-semibold tracking-tight'
-    }
-  }
+      h6: 'mt-[0.75em] text-base font-semibold tracking-tight',
+    },
+  },
 });
 
 export function HeadingElement({
@@ -25,7 +22,7 @@ export function HeadingElement({
   ...props
 }: PlateElementProps & VariantProps<typeof headingVariants>) {
   return (
-    <PlateElement as={variant!} className={headingVariants({ variant })} {...props}>
+    <PlateElement as={variant as 'h1'} className={headingVariants({ variant })} {...props}>
       {props.children}
     </PlateElement>
   );

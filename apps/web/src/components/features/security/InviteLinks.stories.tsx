@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { InviteLinks } from './InviteLinks';
 
 const meta: Meta<typeof InviteLinks> = {
@@ -9,11 +9,11 @@ const meta: Meta<typeof InviteLinks> = {
     docs: {
       description: {
         component:
-          'A security feature component that allows administrators to manage invite links for workspace access. Users can enable/disable invite links, generate new links, and copy them to clipboard.'
-      }
-    }
+          'A security feature component that allows administrators to manage invite links for workspace access. Users can enable/disable invite links, generate new links, and copy them to clipboard.',
+      },
+    },
   },
-  tags: ['autodocs']
+  tags: ['autodocs'],
 };
 
 export default meta;
@@ -25,8 +25,8 @@ export const Default: Story = {
     docs: {
       description: {
         story:
-          'The default state of the InviteLinks component showing the toggle switch, link input field, and action buttons.'
-      }
-    }
-  }
+          'The default state of the InviteLinks component showing the toggle switch, link input field, and action buttons.',
+      },
+    },
+  },
 };

@@ -10,6 +10,6 @@ export const useSearch = (
     ...searchQueryKeys.getSearchResult(params),
     queryFn: () => search(params),
     placeholderData: keepPreviousData,
-    ...options
+    ...options,
   });
 };

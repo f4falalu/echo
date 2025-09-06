@@ -8,7 +8,7 @@ describe('useInteractions', () => {
     const { result } = renderHook(() =>
       useInteractions({
         selectedChartType: 'scatter' as ChartType,
-        barLayout: 'vertical' as ChartConfigProps['barLayout']
+        barLayout: 'vertical' as ChartConfigProps['barLayout'],
       })
     );
 
@@ -16,14 +16,14 @@ describe('useInteractions', () => {
       intersect: true,
       axis: 'xy',
       mode: 'nearest',
-      includeInvisible: false
+      includeInvisible: false,
     });
   });
   it('should return correct interactions for vertical bar chart', () => {
     const { result } = renderHook(() =>
       useInteractions({
         selectedChartType: 'bar' as ChartType,
-        barLayout: 'vertical' as ChartConfigProps['barLayout']
+        barLayout: 'vertical' as ChartConfigProps['barLayout'],
       })
     );
 
@@ -31,14 +31,14 @@ describe('useInteractions', () => {
       intersect: false,
       mode: 'index',
       includeInvisible: false,
-      axis: 'x'
+      axis: 'x',
     });
   });
   it('should return correct interactions for horizontal bar chart', () => {
     const { result } = renderHook(() =>
       useInteractions({
         selectedChartType: 'bar' as ChartType,
-        barLayout: 'horizontal' as ChartConfigProps['barLayout']
+        barLayout: 'horizontal' as ChartConfigProps['barLayout'],
       })
     );
 
@@ -46,14 +46,14 @@ describe('useInteractions', () => {
       intersect: false,
       mode: 'index',
       includeInvisible: false,
-      axis: 'y'
+      axis: 'y',
     });
   });
   it('should return correct interactions for line chart', () => {
     const { result } = renderHook(() =>
       useInteractions({
         selectedChartType: 'line' as ChartType,
-        barLayout: 'vertical' as ChartConfigProps['barLayout']
+        barLayout: 'vertical' as ChartConfigProps['barLayout'],
       })
     );
 
@@ -61,14 +61,14 @@ describe('useInteractions', () => {
       intersect: false,
       mode: 'index',
       includeInvisible: false,
-      axis: 'x'
+      axis: 'x',
     });
   });
   it('should return correct interactions for combo chart', () => {
     const { result } = renderHook(() =>
       useInteractions({
         selectedChartType: 'combo' as ChartType,
-        barLayout: 'vertical' as ChartConfigProps['barLayout']
+        barLayout: 'vertical' as ChartConfigProps['barLayout'],
       })
     );
 
@@ -76,14 +76,14 @@ describe('useInteractions', () => {
       intersect: false,
       mode: 'nearest',
       includeInvisible: false,
-      axis: 'x'
+      axis: 'x',
     });
   });
   it('should return undefined for other chart types', () => {
     const { result } = renderHook(() =>
       useInteractions({
         selectedChartType: 'pie' as ChartType,
-        barLayout: 'vertical' as ChartConfigProps['barLayout']
+        barLayout: 'vertical' as ChartConfigProps['barLayout'],
       })
     );
 
@@ -92,7 +92,7 @@ describe('useInteractions', () => {
   it('should memoize the result and not recalculate on rerenders with same props', () => {
     const props = {
       selectedChartType: 'bar' as ChartType,
-      barLayout: 'vertical' as ChartConfigProps['barLayout']
+      barLayout: 'vertical' as ChartConfigProps['barLayout'],
     };
 
     const { result, rerender } = renderHook(() => useInteractions(props));
@@ -108,8 +108,8 @@ describe('useInteractions', () => {
     const { result, rerender } = renderHook((props) => useInteractions(props), {
       initialProps: {
         selectedChartType: 'bar' as ChartType,
-        barLayout: 'vertical' as ChartConfigProps['barLayout']
-      }
+        barLayout: 'vertical' as ChartConfigProps['barLayout'],
+      },
     });
 
     const firstResult = result.current;
@@ -117,7 +117,7 @@ describe('useInteractions', () => {
     // Rerender with different props
     rerender({
       selectedChartType: 'scatter' as ChartType,
-      barLayout: 'vertical' as ChartConfigProps['barLayout']
+      barLayout: 'vertical' as ChartConfigProps['barLayout'],
     });
 
     // Result should be a different object
@@ -126,7 +126,7 @@ describe('useInteractions', () => {
       intersect: true,
       axis: 'xy',
       mode: 'nearest',
-      includeInvisible: false
+      includeInvisible: false,
     });
   });
 });

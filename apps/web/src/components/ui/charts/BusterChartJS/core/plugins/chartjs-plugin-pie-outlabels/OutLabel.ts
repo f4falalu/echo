@@ -1,10 +1,10 @@
 import type { ArcElement, Point } from 'chart.js';
 import { toFontString } from 'chart.js/helpers';
+import { drawRoundedRect, textSize } from './helpers';
 import type OutLabelsContext from './OutLabelsContext';
 import type { OutLabelStyle } from './OutLabelsStyle';
 import type Rect from './Rect';
 import type Size from './Size';
-import { drawRoundedRect, textSize } from './helpers';
 
 export default class OutLabel {
   ctx: CanvasRenderingContext2D;
@@ -31,7 +31,7 @@ export default class OutLabel {
   get center(): Point {
     return {
       x: this.x,
-      y: this.y
+      y: this.y,
     };
   }
 
@@ -114,7 +114,7 @@ export default class OutLabel {
         this.style.borderWidth,
       y: this.y - this.size.height / 2 - this.style.padding.top - this.style.borderWidth,
       width: this.size.width + 2 * this.style.borderWidth + this.style.padding.width,
-      height: this.size.height + 2 * this.style.borderWidth + this.style.padding.height
+      height: this.size.height + 2 * this.style.borderWidth + this.style.padding.height,
     };
   }
 

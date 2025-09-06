@@ -1,17 +1,19 @@
+import type { ChartConfigProps, ChartType } from '@buster/server-shared/metrics';
 import omit from 'lodash/omit';
-import type { ChartConfigProps } from '@buster/server-shared/metrics';
-import type { ChartType } from '@buster/server-shared/metrics';
-import { CHART_ICON_LIST, ChartIconType, DETERMINE_SELECTED_CHART_TYPE_ORDER } from './config';
 import type { SelectChartTypeProps } from './chartIcon.types';
 import { DetermineSelectedChartTypeRecord } from './chartTypeMethodConfig';
+import { CHART_ICON_LIST, ChartIconType, DETERMINE_SELECTED_CHART_TYPE_ORDER } from './config';
 
 export const getSelectedChartTypeIcon = ({
   selectedChartType,
   lineGroupType,
   barGroupType,
   barLayout,
-  hasAreaStyle
-}: Omit<SelectChartTypeProps, 'colors' | 'columnMetadata' | 'columnSettings' | 'selectedAxis'> & {
+  hasAreaStyle,
+}: Omit<
+  SelectChartTypeProps,
+  'colors' | 'columnMetadata' | 'columnSettings' | 'selectedAxis' | 'metricId'
+> & {
   hasAreaStyle: boolean;
 }) => {
   return (
@@ -21,7 +23,7 @@ export const getSelectedChartTypeIcon = ({
         lineGroupType,
         barGroupType,
         barLayout,
-        hasAreaStyle
+        hasAreaStyle,
       })
     ) || ChartIconType.TABLE
   );
@@ -46,54 +48,54 @@ const chartTypeMethod: Record<
   [ChartIconType.COLUMN]: () => ({
     selectedChartType: 'bar',
     barLayout: 'vertical',
-    barGroupType: 'group'
+    barGroupType: 'group',
   }),
   [ChartIconType.STACKED_COLUMN]: () => ({
     selectedChartType: 'bar',
     barLayout: 'vertical',
-    barGroupType: 'stack'
+    barGroupType: 'stack',
   }),
   [ChartIconType.RELATIVE_STACKED_COLUMN]: () => ({
     selectedChartType: 'bar',
     barLayout: 'vertical',
-    barGroupType: 'percentage-stack'
+    barGroupType: 'percentage-stack',
   }),
   [ChartIconType.BAR]: () => ({
     selectedChartType: 'bar',
     barLayout: 'horizontal',
-    barGroupType: 'group'
+    barGroupType: 'group',
   }),
   [ChartIconType.STACKED_BAR]: () => ({
     selectedChartType: 'bar',
     barGroupType: 'stack',
-    barLayout: 'horizontal'
+    barLayout: 'horizontal',
   }),
   [ChartIconType.RELATIVE_STACKED_BAR]: () => ({
     selectedChartType: 'bar',
     barGroupType: 'percentage-stack',
-    barLayout: 'horizontal'
+    barLayout: 'horizontal',
   }),
   [ChartIconType.LINE]: () => ({
     selectedChartType: 'line',
     hasAreaStyle: false,
-    lineGroupType: null
+    lineGroupType: null,
   }),
   [ChartIconType.AREA]: () => ({
     selectedChartType: 'line',
     hasAreaStyle: true,
-    lineGroupType: null
+    lineGroupType: null,
   }),
   [ChartIconType.RELATIVE_AREA]: () => ({
     selectedChartType: 'line',
     hasAreaStyle: true,
-    lineGroupType: 'percentage-stack'
+    lineGroupType: 'percentage-stack',
   }),
   [ChartIconType.SCATTER]: () => ({ selectedChartType: 'scatter' }),
   [ChartIconType.COMBO]: () => ({ selectedChartType: 'combo' }),
 
   [ChartIconType.METRIC]: () => ({
-    selectedChartType: 'metric'
-  })
+    selectedChartType: 'metric',
+  }),
 };
 
 const defaultDisableMethod = (
@@ -125,7 +127,7 @@ export const disableTypeMethod: Record<
   [ChartIconType.AREA]: defaultDisableMethod,
   [ChartIconType.RELATIVE_AREA]: defaultDisableMethod,
   [ChartIconType.SCATTER]: defaultDisableMethod,
-  [ChartIconType.PIE]: defaultDisableMethod
+  [ChartIconType.PIE]: defaultDisableMethod,
 };
 
 export const selectedChartTypeMethod = (
@@ -142,8 +144,8 @@ export const selectedChartTypeMethod = (
         key,
         {
           ...value,
-          lineStyle: hasAreaStyle ? 'area' : 'line'
-        }
+          lineStyle: hasAreaStyle ? 'area' : 'line',
+        },
       ])
     );
     resOmitted.columnSettings = newColumnSettings;

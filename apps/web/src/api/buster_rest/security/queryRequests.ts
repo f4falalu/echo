@@ -1,35 +1,35 @@
+import type { GetApprovedDomainsResponse } from '@buster/server-shared/security';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { securityQueryKeys } from '@/api/query_keys/security';
 import {
-  getWorkspaceSettings,
-  getInviteLink,
-  getApprovedDomains,
-  updateWorkspaceSettings,
-  updateInviteLinks,
-  refreshInviteLink,
   addApprovedDomain,
-  removeApprovedDomain
+  getApprovedDomains,
+  getInviteLink,
+  getWorkspaceSettings,
+  refreshInviteLink,
+  removeApprovedDomain,
+  updateInviteLinks,
+  updateWorkspaceSettings,
 } from './requests';
-import type { GetApprovedDomainsResponse } from '@buster/server-shared/security';
 
 export const useGetWorkspaceSettings = () => {
   return useQuery({
     ...securityQueryKeys.securityGetWorkspaceSettings,
-    queryFn: getWorkspaceSettings
+    queryFn: getWorkspaceSettings,
   });
 };
 
 export const useGetInviteLink = () => {
   return useQuery({
     ...securityQueryKeys.securityInviteLink,
-    queryFn: getInviteLink
+    queryFn: getInviteLink,
   });
 };
 
 export const useGetApprovedDomains = () => {
   return useQuery({
     ...securityQueryKeys.securityApprovedDomains,
-    queryFn: getApprovedDomains
+    queryFn: getApprovedDomains,
   });
 };
 
@@ -39,7 +39,7 @@ export const useUpdateWorkspaceSettings = () => {
     mutationFn: updateWorkspaceSettings,
     onSuccess: (data) => {
       queryClient.setQueryData(securityQueryKeys.securityGetWorkspaceSettings.queryKey, data);
-    }
+    },
   });
 };
 
@@ -52,13 +52,13 @@ export const useUpdateInviteLinks = () => {
         if (!prev) return prev;
         return {
           ...prev,
-          ...variables
+          ...variables,
         };
       });
     },
     onSuccess: (data) => {
       queryClient.setQueryData(securityQueryKeys.securityInviteLink.queryKey, data);
-    }
+    },
   });
 };
 
@@ -68,7 +68,7 @@ export const useRefreshInviteLink = () => {
     mutationFn: refreshInviteLink,
     onSuccess: (data) => {
       queryClient.setQueryData(securityQueryKeys.securityInviteLink.queryKey, data);
-    }
+    },
   });
 };
 
@@ -83,14 +83,14 @@ export const useAddApprovedDomain = () => {
           ...prev,
           ...(variables.domains.map((domain) => ({
             domain,
-            created_at: new Date().toISOString()
-          })) satisfies GetApprovedDomainsResponse)
+            created_at: new Date().toISOString(),
+          })) satisfies GetApprovedDomainsResponse),
         ] satisfies GetApprovedDomainsResponse;
       });
     },
     onSuccess: (data) => {
       queryClient.setQueryData(securityQueryKeys.securityApprovedDomains.queryKey, data);
-    }
+    },
   });
 };
 
@@ -108,6 +108,6 @@ export const useRemoveApprovedDomain = () => {
     },
     onSuccess: (data) => {
       queryClient.setQueryData(securityQueryKeys.securityApprovedDomains.queryKey, data);
-    }
+    },
   });
 };

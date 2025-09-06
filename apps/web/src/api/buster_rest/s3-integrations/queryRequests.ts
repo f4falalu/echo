@@ -1,16 +1,16 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import type { CreateS3IntegrationRequest } from '@buster/server-shared/s3-integrations';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { s3IntegrationsQueryKeys } from '@/api/query_keys/s3Integrations';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useMemoizedFn } from '@/hooks';
-import type { CreateS3IntegrationRequest } from '@buster/server-shared/s3-integrations';
-import { getS3Integration, createS3Integration, deleteS3Integration } from './request';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { createS3Integration, deleteS3Integration, getS3Integration } from './request';
 
 // GET /api/v2/s3-integrations
 export const useGetS3Integration = (enabled = true) => {
   return useQuery({
     ...s3IntegrationsQueryKeys.s3IntegrationGet,
     queryFn: getS3Integration,
-    enabled
+    enabled,
   });
 };
 
@@ -24,9 +24,9 @@ export const useCreateS3Integration = () => {
       // Invalidate the integration query to refetch the updated data
       queryClient.invalidateQueries({
         queryKey: s3IntegrationsQueryKeys.s3IntegrationGet.queryKey,
-        refetchType: 'all'
+        refetchType: 'all',
       });
-    }
+    },
   });
 };
 
@@ -41,9 +41,9 @@ export const useDeleteS3Integration = () => {
       content:
         'Are you sure you want to remove the storage integration? This will disconnect your storage bucket from Buster.',
       primaryButtonProps: {
-        text: 'Remove'
+        text: 'Remove',
       },
-      onOk: async () => deleteS3Integration(id)
+      onOk: async () => deleteS3Integration(id),
     });
   });
 
@@ -53,8 +53,8 @@ export const useDeleteS3Integration = () => {
       // Invalidate the integration query to refetch the updated data
       queryClient.invalidateQueries({
         queryKey: s3IntegrationsQueryKeys.s3IntegrationGet.queryKey,
-        refetchType: 'all'
+        refetchType: 'all',
       });
-    }
+    },
   });
 };

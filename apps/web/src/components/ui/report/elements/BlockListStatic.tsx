@@ -1,8 +1,7 @@
-import * as React from 'react';
+import { isOrderedList } from '@platejs/list';
 
 import type { RenderStaticNodeWrapper, SlateRenderElementProps, TListElement } from 'platejs';
-
-import { isOrderedList } from '@platejs/list';
+import type * as React from 'react';
 import { Check } from '@/components/ui/icons';
 
 import { cn } from '@/lib/utils';
@@ -16,8 +15,8 @@ const config: Record<
 > = {
   todo: {
     Li: TodoLiStatic,
-    Marker: TodoMarkerStatic
-  }
+    Marker: TodoMarkerStatic,
+  },
 };
 
 export const BlockListStatic: RenderStaticNodeWrapper = (props) => {
@@ -50,7 +49,8 @@ function TodoMarkerStatic(props: SlateRenderElementProps) {
           props.className
         )}
         data-state={checked ? 'checked' : 'unchecked'}
-        type="button">
+        type="button"
+      >
         <div className={cn('flex items-center justify-center text-current')}>
           {checked && (
             <div className="size-4">
@@ -69,7 +69,8 @@ function TodoLiStatic(props: SlateRenderElementProps) {
       className={cn(
         'list-none',
         (props.element.checked as boolean) && 'text-muted-foreground line-through'
-      )}>
+      )}
+    >
       {props.children}
     </li>
   );

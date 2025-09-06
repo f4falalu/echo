@@ -1,10 +1,9 @@
 import type { QueryClient, queryOptions } from '@tanstack/react-query';
-import type { RustApiError } from '@/api/buster_rest/errors';
-import { userQueryKeys } from '@/api/query_keys/users';
+import { userQueryKeys } from '../api/query_keys/users';
 
 export const isQueryStale = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- It really doesn't matter what the type is here
-  options: ReturnType<typeof queryOptions<any, RustApiError, any>>,
+  // biome-ignore lint/suspicious/noExplicitAny: it is any for now
+  options: ReturnType<typeof queryOptions<any, any, any>>,
   queryClient: QueryClient
 ): boolean => {
   const queryState = queryClient.getQueryState(options.queryKey);
@@ -17,10 +16,4 @@ export const isQueryStale = (
   const isStale = updatedAt ? Date.now() - updatedAt > staleTime : true;
 
   return isStale && queryState?.fetchStatus !== 'fetching';
-};
-
-export const hasOrganizationId = (queryClient: QueryClient): boolean => {
-  const organizationId = queryClient.getQueryData(userQueryKeys.userGetUserMyself.queryKey)
-    ?.organizations?.[0]?.id;
-  return !!organizationId;
 };

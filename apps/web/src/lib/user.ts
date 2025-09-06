@@ -1,9 +1,7 @@
-import type { UserResponse } from '@buster/server-shared/user';
+import type { UserOrganization } from '@buster/server-shared/user';
 
-export const checkIfUserIsAdmin = (userInfo?: UserResponse | null): boolean => {
-  if (!userInfo) return false;
-
-  const userOrganization = userInfo?.organizations?.[0];
+export const checkIfUserIsAdmin = (userOrganization?: UserOrganization | null): boolean => {
+  if (!userOrganization) return false;
 
   if (!userOrganization) return false;
 

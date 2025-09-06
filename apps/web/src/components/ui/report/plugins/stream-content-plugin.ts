@@ -1,5 +1,5 @@
-import type { PlateEditor } from 'platejs/react';
 import type { Element, TElement, Text, Value } from 'platejs';
+import type { PlateEditor } from 'platejs/react';
 import { createPlatePlugin } from 'platejs/react';
 
 export const StreamContentPlugin = createPlatePlugin({
@@ -7,8 +7,8 @@ export const StreamContentPlugin = createPlatePlugin({
   node: { isLeaf: true, isDecoration: false },
   options: {
     isStreaming: false,
-    previousChunkId: null as string | null
-  }
+    previousChunkId: null as string | null,
+  },
 }).extendEditorApi((ctx) => ({
   streamContent: {
     /**
@@ -60,8 +60,8 @@ export const StreamContentPlugin = createPlatePlugin({
           executeOperations(operations);
         });
       });
-    }
-  }
+    },
+  },
 }));
 
 /**
@@ -134,7 +134,7 @@ const replaceNode = (editor: PlateEditor, index: number, chunk: TElement) => {
   editor.tf.removeNodes({ at: [index] });
   const nodeToInsert = {
     ...chunk,
-    id: chunk.id // Ensure ID is preserved
+    id: chunk.id, // Ensure ID is preserved
   };
   addStreamContentMark(nodeToInsert);
   editor.tf.insertNodes(nodeToInsert, { at: [index], select: false });
@@ -147,12 +147,12 @@ const appendNewNode = (editor: PlateEditor, chunk: TElement) => {
   addStreamContentMark(chunk);
   const nodeToInsert = {
     ...chunk,
-    id: chunk.id // Ensure ID is preserved
+    id: chunk.id, // Ensure ID is preserved
   };
   const insertIndex = editor.children.length;
   editor.tf.insertNodes(nodeToInsert, {
     at: [insertIndex],
-    select: false
+    select: false,
   });
   editor.tf.addMark('streamContent', true);
   editor.tf.addMarks({ streamContent: true });
@@ -178,7 +178,9 @@ const removeExtraNodes = (editor: PlateEditor, startIndex: number, endIndex: num
  * Execute all operations in sequence
  */
 const executeOperations = (operations: Array<() => void>) => {
-  operations.forEach((op) => op());
+  operations.forEach((op) => {
+    op();
+  });
 };
 
 /**
@@ -220,7 +222,7 @@ const removeStreamContentMarksFromEditor = (editor: PlateEditor) => {
       { streamContent: undefined },
       {
         at: [],
-        match: (node) => node.text !== undefined && node.streamContent
+        match: (node) => node.text !== undefined && node.streamContent,
       }
     );
   });

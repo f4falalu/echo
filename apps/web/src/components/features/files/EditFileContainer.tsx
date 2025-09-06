@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { CodeCard } from '@/components/ui/card/CodeCard';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { SaveResetFilePopup } from '../popups/SaveResetFilePopup';
 
 export const EditFileContainer: React.FC<{

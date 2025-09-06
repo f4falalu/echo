@@ -1,10 +1,10 @@
+import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { ChevronExpandY } from '@/components/ui/icons';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { cn } from '@/lib/classMerge';
 import { Text } from '../typography/Text';
 import { Card, CardContent, CardFooter, CardHeader } from './CardBase';
-import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronDown, ChevronExpandY } from '@/components/ui/icons';
-import { useMemoizedFn } from '@/hooks';
 
 interface FileCardProps {
   fileName?: string | React.ReactNode;
@@ -38,7 +38,7 @@ export const FileCard = React.memo(
     collapseContent = true,
     collapseDefaultIcon,
     onCollapse,
-    headerWrapper
+    headerWrapper,
   }: FileCardProps) => {
     const [isCollapsed, setIsCollapsed] = useState(collapseContent);
     const [isHeaderHovered, setIsHeaderHovered] = useState(false);
@@ -64,23 +64,24 @@ export const FileCard = React.memo(
       onCollapse?.(newCollapsedState);
     });
 
-    const handleHeaderMouseEnter = useMemoizedFn(() => {
+    const handleHeaderMouseEnter = () => {
       if (collapsible) {
         setIsHeaderHovered(true);
       }
-    });
+    };
 
-    const handleHeaderMouseLeave = useMemoizedFn(() => {
+    const handleHeaderMouseLeave = () => {
       if (collapsible) {
         setIsHeaderHovered(false);
       }
-    });
+    };
 
     const HeaderWrapperComponent = headerWrapper || React.Fragment;
 
     const Content = (
       <CardContent
-        className={cn('bg-background relative h-full overflow-hidden p-0', bodyClassName)}>
+        className={cn('bg-background relative h-full overflow-hidden p-0', bodyClassName)}
+      >
         {children}
       </CardContent>
     );
@@ -99,7 +100,8 @@ export const FileCard = React.memo(
                 headerClassName
               )}
               onMouseEnter={handleHeaderMouseEnter}
-              onMouseLeave={handleHeaderMouseLeave}>
+              onMouseLeave={handleHeaderMouseLeave}
+            >
               <div className="flex items-center justify-between gap-x-1 overflow-hidden">
                 <div className="flex items-center gap-1 whitespace-nowrap">
                   {collapseDefaultIcon && (
@@ -122,7 +124,8 @@ export const FileCard = React.memo(
           <CollapseContent
             collapsible={collapsible}
             isCollapsed={isCollapsed}
-            onCollapseClick={handleCollapseClick}>
+            onCollapseClick={handleCollapseClick}
+          >
             {Content}
           </CollapseContent>
         ) : (
@@ -146,7 +149,7 @@ const CollapseContent = React.memo(
     children,
     isCollapsed,
     collapsible,
-    onCollapseClick
+    onCollapseClick,
   }: {
     children: React.ReactNode;
     isCollapsed: boolean;
@@ -197,7 +200,8 @@ const CollapseContent = React.memo(
       collapsible === 'overlay-peek' && !isTooSmallToCollapse ? (
         <div
           onClick={onCollapseClick}
-          className="bg-background hover:bg-item-hover absolute inset-x-0 bottom-0 m-1 flex h-7 scale-95 cursor-pointer items-center justify-center gap-x-1 rounded border bg-gradient-to-b opacity-0 shadow transition-all delay-75 duration-200 group-hover:scale-100 group-hover:opacity-100">
+          className="bg-background hover:bg-item-hover absolute inset-x-0 bottom-0 m-1 flex h-7 scale-95 cursor-pointer items-center justify-center gap-x-1 rounded border bg-gradient-to-b opacity-0 shadow transition-all delay-75 duration-200 group-hover:scale-100 group-hover:opacity-100"
+        >
           <div className={cn('transition-transform duration-200', !isCollapsed && 'rotate-180')}>
             <ChevronExpandY />
           </div>
@@ -225,20 +229,21 @@ const CollapseContent = React.memo(
             className="group relative overflow-hidden"
             initial={{
               height: isCollapsed ? collapsedHeight : 'auto',
-              filter: 'blur(0px)'
+              filter: 'blur(0px)',
             }}
             animate={{
               height: isCollapsed ? collapsedHeight : 'auto',
-              filter: 'blur(0px)'
+              filter: 'blur(0px)',
             }}
             transition={{
               duration: isInitialMount ? 0 : 0.25,
               ease: 'easeInOut',
               filter: {
-                duration: 0.15
-              }
+                duration: 0.15,
+              },
             }}
-            data-testid="collapse-content">
+            data-testid="collapse-content"
+          >
             {ContentWrapper}
             {ExpandButton}
           </motion.div>
@@ -256,10 +261,11 @@ const CollapseContent = React.memo(
             exit={{ height: 0, opacity: 0 }}
             transition={{
               duration: 0.2,
-              ease: 'easeInOut'
+              ease: 'easeInOut',
             }}
             className="group relative overflow-hidden"
-            data-testid="collapse-content">
+            data-testid="collapse-content"
+          >
             {children}
           </motion.div>
         )}
@@ -276,7 +282,7 @@ const CollapseToggleIcon = React.memo(
     isHovered,
     collapseDefaultIcon,
     className,
-    onClick
+    onClick,
   }: {
     isCollapsed: boolean;
     isHovered: boolean;
@@ -285,7 +291,7 @@ const CollapseToggleIcon = React.memo(
     onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
   }) => {
     const showChevron = isHovered || !isCollapsed;
-    const showDefaultIcon = !isHovered && isCollapsed && collapseDefaultIcon;
+    const showDefaultIcon = !isHovered && isCollapsed && !!collapseDefaultIcon;
 
     return (
       <div
@@ -293,7 +299,8 @@ const CollapseToggleIcon = React.memo(
           'hover:bg-item-active relative flex h-5 w-5 min-w-5 items-center justify-center rounded-sm transition-colors duration-100 hover:cursor-pointer',
           className
         )}
-        onClick={onClick}>
+        onClick={onClick}
+      >
         <AnimatePresence mode="sync" initial={false}>
           {showChevron && (
             <motion.div
@@ -305,7 +312,8 @@ const CollapseToggleIcon = React.memo(
               className={cn(
                 'text-icon-color absolute inset-0 flex h-5 w-5 min-w-5 items-center justify-center transition-transform duration-200',
                 !isCollapsed && 'rotate-180'
-              )}>
+              )}
+            >
               <ChevronExpandY />
             </motion.div>
           )}
@@ -316,7 +324,8 @@ const CollapseToggleIcon = React.memo(
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.12, ease: 'easeInOut' }}
-              className="text-icon-color absolute inset-0 flex h-5 w-5 items-center justify-center">
+              className="text-icon-color absolute inset-0 flex h-5 w-5 items-center justify-center"
+            >
               {collapseDefaultIcon}
             </motion.div>
           )}
@@ -330,7 +339,8 @@ const CollapseToggleIcon = React.memo(
               className={cn(
                 'text-icon-color absolute inset-0 flex h-4 w-4 items-center justify-center transition-transform duration-200',
                 !isCollapsed && 'rotate-180'
-              )}>
+              )}
+            >
               <ChevronExpandY />
             </motion.div>
           )}

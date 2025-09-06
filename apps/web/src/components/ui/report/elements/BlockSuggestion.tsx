@@ -1,37 +1,36 @@
-'use client';
-
-import * as React from 'react';
+/** biome-ignore-all lint/style/noNonNullAssertion: it's cool */
+/** biome-ignore-all lint/suspicious/useIterableCallbackReturn: it's cool */
+/** biome-ignore-all lint/complexity/noUselessFragments: it's cool */
 
 import type { TResolvedSuggestion } from '@platejs/suggestion';
-
 import {
   acceptSuggestion,
   getSuggestionKey,
   keyId2SuggestionId,
-  rejectSuggestion
+  rejectSuggestion,
 } from '@platejs/suggestion';
 import { SuggestionPlugin } from '@platejs/suggestion/react';
-import { Check, Xmark } from '@/components/ui/icons';
 import {
-  type NodeEntry,
-  type Path,
-  type TElement,
-  type TSuggestionElement,
-  type TSuggestionText,
   ElementApi,
   KEYS,
+  type NodeEntry,
+  type Path,
   PathApi,
-  TextApi
+  type TElement,
+  TextApi,
+  type TSuggestionElement,
+  type TSuggestionText,
 } from 'platejs';
 import { useEditorPlugin, usePluginOption } from 'platejs/react';
-
+import * as React from 'react';
 import { AvatarBase, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/buttons';
+import { Check, Xmark } from '@/components/ui/icons';
 import { cn } from '@/lib/utils';
-import { type TDiscussion, discussionPlugin } from '../plugins/discussion-kit';
+import { discussionPlugin, type TDiscussion } from '../plugins/discussion-kit';
 import { suggestionPlugin } from '../plugins/suggestion-kit';
 
-import { type TComment, Comment, CommentCreateForm, formatCommentDate } from './Comment';
+import { Comment, CommentCreateForm, formatCommentDate, type TComment } from './Comment';
 
 export interface ResolvedSuggestion extends TResolvedSuggestion {
   comments: TComment[];
@@ -66,7 +65,7 @@ const TYPE_TEXT_MAP: Record<string, (node?: TElement) => string> = {
   [KEYS.table]: () => 'Table',
   [KEYS.toc]: () => 'Table of Contents',
   [KEYS.toggle]: () => 'Toggle',
-  [KEYS.video]: () => 'Video'
+  [KEYS.video]: () => 'Video',
 };
 
 export function BlockSuggestion({ element }: { element: TSuggestionElement }) {
@@ -90,7 +89,7 @@ export function BlockSuggestion({ element }: { element: TSuggestionElement }) {
 export function BlockSuggestionCard({
   idx,
   isLast,
-  suggestion
+  suggestion,
 }: {
   idx: number;
   isLast: boolean;
@@ -127,7 +126,8 @@ export function BlockSuggestionCard({
       key={`${suggestion.suggestionId}-${idx}`}
       className="relative"
       onMouseEnter={() => setHovering(true)}
-      onMouseLeave={() => setHovering(false)}>
+      onMouseLeave={() => setHovering(false)}
+    >
       <div className="flex flex-col p-4">
         <div className="relative flex items-center">
           {/* Replace to your own backend or refer to potion */}
@@ -229,7 +229,8 @@ export function BlockSuggestionCard({
             <Button
               variant="ghost"
               className="text-muted-foreground size-6 p-1"
-              onClick={() => accept(suggestion)}>
+              onClick={() => accept(suggestion)}
+            >
               <div className="size-4">
                 <Check />
               </div>
@@ -238,7 +239,8 @@ export function BlockSuggestionCard({
             <Button
               variant="ghost"
               className="text-muted-foreground size-6 p-1"
-              onClick={() => reject(suggestion)}>
+              onClick={() => reject(suggestion)}
+            >
               <div className="size-4">
                 <Xmark />
               </div>
@@ -328,8 +330,8 @@ export const useResolveSuggestion = (
           mode: 'all',
           match: (n) =>
             (n[KEYS.suggestion] && n[getSuggestionKey(id)]) ||
-            api.suggestion.nodeId(n as TElement) === id
-        })
+            api.suggestion.nodeId(n as TElement) === id,
+        }),
       ];
 
       // move line break to the end
@@ -364,12 +366,12 @@ export const useResolveSuggestion = (
               case 'update': {
                 properties = {
                   ...properties,
-                  ...data.properties
+                  ...data.properties,
                 };
 
                 newProperties = {
                   ...newProperties,
-                  ...data.newProperties
+                  ...data.newProperties,
                 };
 
                 newText += node.text;
@@ -419,7 +421,7 @@ export const useResolveSuggestion = (
           properties,
           suggestionId: keyId2SuggestionId(id),
           type: 'update',
-          userId: nodeData.userId
+          userId: nodeData.userId,
         });
       }
       if (newText.length > 0 && text.length > 0) {
@@ -431,7 +433,7 @@ export const useResolveSuggestion = (
           suggestionId: keyId2SuggestionId(id),
           text,
           type: 'replace',
-          userId: nodeData.userId
+          userId: nodeData.userId,
         });
       }
       if (newText.length > 0) {
@@ -442,7 +444,7 @@ export const useResolveSuggestion = (
           newText,
           suggestionId: keyId2SuggestionId(id),
           type: 'insert',
-          userId: nodeData.userId
+          userId: nodeData.userId,
         });
       }
       if (text.length > 0) {
@@ -453,7 +455,7 @@ export const useResolveSuggestion = (
           suggestionId: keyId2SuggestionId(id),
           text,
           type: 'remove',
-          userId: nodeData.userId
+          userId: nodeData.userId,
         });
       }
     });

@@ -1,47 +1,41 @@
-'use client';
-
-import * as React from 'react';
-
 import type { Alignment } from '@platejs/basic-styles';
-import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
-
 import { TextAlignPlugin } from '@platejs/basic-styles/react';
+import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 import { useEditorPlugin, useSelectionFragmentProp } from 'platejs/react';
-import { NodeTypeIcons } from '../config/icons';
-import { createLabel, NodeTypeLabels } from '../config/labels';
-
+import * as React from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
 import { Tooltip } from '../../tooltip';
+import { NodeTypeIcons } from '../config/icons';
+import { createLabel, NodeTypeLabels } from '../config/labels';
 
 const items = [
   {
     icon: NodeTypeIcons.alignLeft,
     label: NodeTypeLabels.alignLeft.label,
-    value: 'left'
+    value: 'left',
   },
   {
     icon: NodeTypeIcons.alignCenter,
     label: NodeTypeLabels.alignCenter.label,
-    value: 'center'
+    value: 'center',
   },
   {
     icon: NodeTypeIcons.alignRight,
     label: NodeTypeLabels.alignRight.label,
-    value: 'right'
+    value: 'right',
   },
   {
     icon: NodeTypeIcons.alignJustify,
     label: NodeTypeLabels.alignJustify.label,
-    value: 'justify'
-  }
+    value: 'justify',
+  },
 ];
 
 export function AlignToolbarButton(props: DropdownMenuProps) {
@@ -49,7 +43,7 @@ export function AlignToolbarButton(props: DropdownMenuProps) {
   const value =
     useSelectionFragmentProp({
       defaultValue: 'start',
-      getProp: (node) => node.align
+      getProp: (node) => node.align,
     }) ?? 'left';
 
   const [open, setOpen] = React.useState(false);
@@ -69,13 +63,15 @@ export function AlignToolbarButton(props: DropdownMenuProps) {
           onValueChange={(value) => {
             tf.textAlign.setNodes(value as Alignment);
             editor.tf.focus();
-          }}>
+          }}
+        >
           {items.map(({ icon: Icon, label, value: itemValue }) => (
             <Tooltip key={itemValue} title={label} side="left">
               <DropdownMenuRadioItem
                 key={itemValue}
                 className="data-[state=checked]:bg-accent pl-2 *:first:[span]:hidden"
-                value={itemValue}>
+                value={itemValue}
+              >
                 <Icon />
               </DropdownMenuRadioItem>
             </Tooltip>

@@ -16,13 +16,15 @@ export const BusterDragColumnMarkers: React.FC<{
       className="buster-column-markers pointer-events-none absolute mx-0! flex h-2 w-full items-center justify-between"
       style={{
         top: -2,
-        transform: 'translateY(-100%)'
-      }}>
+        transform: 'translateY(-100%)',
+      }}
+    >
       <div
         className="relative h-full w-full transition duration-500"
         style={{
-          margin: '0px 5px'
-        }}>
+          margin: '0px 5px',
+        }}
+      >
         {Array.from({ length: NUMBER_OF_COLUMNS + 1 }).map((_, index) => (
           <div
             key={index.toString()}
@@ -36,7 +38,7 @@ export const BusterDragColumnMarkers: React.FC<{
                 !isDragging || geHideSnappedDot(isDraggingIndex, index, disabled, itemsLength)
                   ? 0
                   : 1,
-              ...hackForTesting(index, itemsLength, isDraggingIndex)
+              ...hackForTesting(index, itemsLength, isDraggingIndex),
             }}
           />
         ))}
@@ -87,11 +89,11 @@ const hackForTesting = (
       7: 5,
       8: 4,
       9: 5,
-      DEFAULT: 4
+      DEFAULT: 4,
     };
 
     return {
-      left: `calc(${((dotIndex + 0) / NUMBER_OF_COLUMNS) * 100}% - ${offsetRecord[dotIndex as 4] || offsetRecord.DEFAULT}px)`
+      left: `calc(${((dotIndex + 0) / NUMBER_OF_COLUMNS) * 100}% - ${offsetRecord[dotIndex as 4] || offsetRecord.DEFAULT}px)`,
     };
   }
 
@@ -102,15 +104,15 @@ const hackForTesting = (
         4: 7.5,
         5: 8.7,
         6: 9,
-        DEFAULT: 0
+        DEFAULT: 0,
       },
       2: {
         6: -1.5,
         7: -1.25,
         8: 0.3,
         9: 2.0,
-        DEFAULT: 0
-      }
+        DEFAULT: 0,
+      },
     };
     const offsetRecord = dragIndexRecord[isDraggingIndex as 1];
     if (!offsetRecord) {
@@ -118,11 +120,11 @@ const hackForTesting = (
     }
 
     return {
-      left: `calc(${((dotIndex + 0) / NUMBER_OF_COLUMNS) * 100}% - ${offsetRecord?.[dotIndex as 4] || offsetRecord?.DEFAULT}px)`
+      left: `calc(${((dotIndex + 0) / NUMBER_OF_COLUMNS) * 100}% - ${offsetRecord?.[dotIndex as 4] || offsetRecord?.DEFAULT}px)`,
     };
   }
 
   return {
-    left: `calc(${((dotIndex + 0) / NUMBER_OF_COLUMNS) * 100}% - 4px)`
+    left: `calc(${((dotIndex + 0) / NUMBER_OF_COLUMNS) * 100}% - 4px)`,
   };
 };

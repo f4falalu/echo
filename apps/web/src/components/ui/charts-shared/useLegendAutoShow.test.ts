@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
+import type { BusterChartProps } from '../charts/BusterChart.types';
 import { useLegendAutoShow } from './useLegendAutoShow';
 
 type ChartType = BusterChartProps['selectedChartType'];
@@ -10,14 +10,14 @@ describe('useLegendAutoShow', () => {
     selectedChartType: 'line' as ChartType,
     showLegendProp: null,
     categoryAxisColumnNames: undefined,
-    allYAxisColumnNames: [] as string[]
+    allYAxisColumnNames: [] as string[],
   } as Parameters<typeof useLegendAutoShow>[0];
 
   it('should return false for unsupported chart types', () => {
     const { result } = renderHook(() =>
       useLegendAutoShow({
         ...defaultProps,
-        selectedChartType: 'metric' as ChartType
+        selectedChartType: 'metric' as ChartType,
       })
     );
     expect(result.current).toBe(false);
@@ -25,7 +25,7 @@ describe('useLegendAutoShow', () => {
     const { result: tableResult } = renderHook(() =>
       useLegendAutoShow({
         ...defaultProps,
-        selectedChartType: 'table' as ChartType
+        selectedChartType: 'table' as ChartType,
       })
     );
     expect(tableResult.current).toBe(false);
@@ -35,7 +35,7 @@ describe('useLegendAutoShow', () => {
     const { result: trueResult } = renderHook(() =>
       useLegendAutoShow({
         ...defaultProps,
-        showLegendProp: true
+        showLegendProp: true,
       })
     );
     expect(trueResult.current).toBe(true);
@@ -43,7 +43,7 @@ describe('useLegendAutoShow', () => {
     const { result: falseResult } = renderHook(() =>
       useLegendAutoShow({
         ...defaultProps,
-        showLegendProp: false
+        showLegendProp: false,
       })
     );
     expect(falseResult.current).toBe(false);
@@ -55,7 +55,7 @@ describe('useLegendAutoShow', () => {
         ...defaultProps,
         selectedChartType: 'scatter' as ChartType,
         categoryAxisColumnNames: ['category1'],
-        allYAxisColumnNames: ['y1']
+        allYAxisColumnNames: ['y1'],
       })
     );
     expect(result.current).toBe(true);
@@ -65,7 +65,7 @@ describe('useLegendAutoShow', () => {
     const { result } = renderHook(() =>
       useLegendAutoShow({
         ...defaultProps,
-        allYAxisColumnNames: ['y1', 'y2']
+        allYAxisColumnNames: ['y1', 'y2'],
       })
     );
     expect(result.current).toBe(true);
@@ -75,7 +75,7 @@ describe('useLegendAutoShow', () => {
     const { result } = renderHook(() =>
       useLegendAutoShow({
         ...defaultProps,
-        selectedChartType: 'pie' as ChartType
+        selectedChartType: 'pie' as ChartType,
       })
     );
     expect(result.current).toBe(true);
@@ -85,7 +85,7 @@ describe('useLegendAutoShow', () => {
     const { result } = renderHook(() =>
       useLegendAutoShow({
         ...defaultProps,
-        selectedChartType: 'combo' as ChartType
+        selectedChartType: 'combo' as ChartType,
       })
     );
     expect(result.current).toBe(true);
@@ -95,7 +95,7 @@ describe('useLegendAutoShow', () => {
     const { result } = renderHook(() =>
       useLegendAutoShow({
         ...defaultProps,
-        categoryAxisColumnNames: ['category1']
+        categoryAxisColumnNames: ['category1'],
       })
     );
     expect(result.current).toBe(true);
@@ -105,7 +105,7 @@ describe('useLegendAutoShow', () => {
     const { result } = renderHook(() =>
       useLegendAutoShow({
         ...defaultProps,
-        categoryAxisColumnNames: []
+        categoryAxisColumnNames: [],
       })
     );
     expect(result.current).toBe(false);

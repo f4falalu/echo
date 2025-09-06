@@ -56,7 +56,7 @@ export const formatNumber = (
       options?.minDecimals,
       options?.maximumFractionDigits,
       options?.maximumDecimals,
-      options?.maximumSignificantDigits
+      options?.maximumSignificantDigits,
     ].filter(isNumber)
   );
 
@@ -68,7 +68,7 @@ export const formatNumber = (
       compactDisplay: 'short',
       style: options?.currency ? 'currency' : 'decimal',
       currency: options?.currency,
-      useGrouping: options?.useGrouping !== false
+      useGrouping: options?.useGrouping !== false,
     });
 
     return formatter.format(Number(processedValue));

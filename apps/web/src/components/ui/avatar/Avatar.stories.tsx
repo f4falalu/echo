@@ -1,14 +1,14 @@
 import { faker } from '@faker-js/faker';
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Avatar } from './Avatar';
 
 const meta = {
   title: 'UI/Avatar/Avatar',
   component: Avatar,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
-  tags: ['autodocs']
+  tags: ['autodocs'],
 } satisfies Meta<typeof Avatar>;
 
 export default meta;
@@ -16,55 +16,55 @@ type Story = StoryObj<typeof Avatar>;
 
 export const Default: Story = {
   args: {
-    name: 'John Doe'
-  }
+    name: 'John Doe',
+  },
 };
 
 export const WithImage: Story = {
   args: {
     name: 'John Doe',
-    image: faker.image.avatar()
-  }
+    image: faker.image.avatar(),
+  },
 };
 
 export const WithImageAndNoName: Story = {
   args: {
-    image: faker.image.avatar()
-  }
+    image: faker.image.avatar(),
+  },
 };
 
 export const WithTooltip: Story = {
   args: {
     name: 'John Doe',
-    useToolTip: true
-  }
+    useToolTip: true,
+  },
 };
 
 export const CustomClassName: Story = {
   args: {
     name: 'John Doe',
-    className: 'h-12 w-12'
-  }
+    className: 'h-12 w-12',
+  },
 };
 
 export const SingleLetter: Story = {
   args: {
-    name: 'John'
-  }
+    name: 'John',
+  },
 };
 
 export const NoName: Story = {
-  args: {}
+  args: {},
 };
 
 export const ProblematicLeadingCharacter: Story = {
   args: {
-    name: 'jared yes @'
-  }
+    name: 'jared yes @',
+  },
 };
 
 export const WithEmail: Story = {
   args: {
-    name: 'jared@yes.com'
-  }
+    name: 'jared@yes.com',
+  },
 };

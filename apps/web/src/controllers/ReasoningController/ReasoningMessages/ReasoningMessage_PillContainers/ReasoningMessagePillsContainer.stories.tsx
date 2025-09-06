@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 import type { BusterChatMessageReasoning_pills } from '@/api/asset_interfaces';
 import { Button } from '@/components/ui/buttons';
@@ -8,7 +8,7 @@ const meta: Meta<typeof ReasoningMessagePillsContainer> = {
   title: 'Controllers/ReasoningController/ReasoningMessagePillsContainer',
   component: ReasoningMessagePillsContainer,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
   tags: ['autodocs'],
   decorators: [
@@ -16,8 +16,8 @@ const meta: Meta<typeof ReasoningMessagePillsContainer> = {
       <div className="p-2">
         <Story />
       </div>
-    )
-  ]
+    ),
+  ],
 };
 
 export default meta;
@@ -34,26 +34,26 @@ const mockReasoningMessage: BusterChatMessageReasoning_pills = {
       pills: [
         { text: 'React', type: 'term', id: '1' },
         { text: 'TypeScript', type: 'term', id: '2' },
-        { text: 'Components', type: 'term', id: '3' }
-      ]
+        { text: 'Components', type: 'term', id: '3' },
+      ],
     },
     {
       title: 'Technical Concepts',
       pills: [
         { text: 'State Management', type: 'term', id: '4' },
         { text: 'Props', type: 'term', id: '5' },
-        { text: 'Hooks', type: 'term', id: '6' }
-      ]
-    }
+        { text: 'Hooks', type: 'term', id: '6' },
+      ],
+    },
   ],
-  status: 'completed'
+  status: 'completed',
 };
 
 export const Default: Story = {
   args: {
     ...mockReasoningMessage,
-    isStreamFinished: true
-  }
+    isStreamFinished: true,
+  },
 };
 
 const InteractiveLoadingWrapper = () => {
@@ -66,14 +66,14 @@ const InteractiveLoadingWrapper = () => {
         {
           text: `Term ${Math.random().toString(36).slice(2, 7)}`,
           type: 'term' as const,
-          id: Math.random().toString()
+          id: Math.random().toString(),
         },
         {
           text: `Term ${Math.random().toString(36).slice(2, 7)}`,
           type: 'term' as const,
-          id: Math.random().toString()
-        }
-      ]
+          id: Math.random().toString(),
+        },
+      ],
     };
     setPillContainers([...pillContainers, newContainer]);
   };
@@ -83,7 +83,7 @@ const InteractiveLoadingWrapper = () => {
   const message: BusterChatMessageReasoning_pills = {
     ...mockReasoningMessage,
     status: 'loading',
-    pill_containers: pillContainers
+    pill_containers: pillContainers,
   };
 
   return (
@@ -97,35 +97,35 @@ const InteractiveLoadingWrapper = () => {
 };
 
 export const Loading: Story = {
-  render: () => <InteractiveLoadingWrapper />
+  render: () => <InteractiveLoadingWrapper />,
 };
 
 export const LoadingTextThenPills: Story = {
-  render: () => <InteractiveLoadingWrapper />
+  render: () => <InteractiveLoadingWrapper />,
 };
 
 export const Failed: Story = {
   args: {
     ...mockReasoningMessage,
     status: 'failed',
-    isStreamFinished: true
-  }
+    isStreamFinished: true,
+  },
 };
 
 export const EmptyPills: Story = {
   args: {
     ...mockReasoningMessage,
     pill_containers: [],
-    isStreamFinished: true
-  }
+    isStreamFinished: true,
+  },
 };
 
 export const SingleContainer: Story = {
   args: {
     ...mockReasoningMessage,
     pill_containers: [mockReasoningMessage.pill_containers![0]],
-    isStreamFinished: true
-  }
+    isStreamFinished: true,
+  },
 };
 
 export const ManyPills: Story = {
@@ -137,10 +137,10 @@ export const ManyPills: Story = {
         pills: Array.from({ length: 40 }, (_, index) => ({
           text: `Term ${index + 1}`,
           type: 'term',
-          id: `many-${index + 1}`
-        }))
-      }
+          id: `many-${index + 1}`,
+        })),
+      },
     ],
-    isStreamFinished: false
-  }
+    isStreamFinished: false,
+  },
 };

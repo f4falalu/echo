@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useState } from 'react';
 import { Button } from '../buttons';
 import { Eye, EyeSlash } from '../icons';

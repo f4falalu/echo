@@ -3,7 +3,7 @@ import type { BusterCollection } from '@/api/asset_interfaces/collection';
 import { useUpdateCollection } from '@/api/buster_rest/collections';
 import { Input } from '@/components/ui/inputs';
 import { AppModal, type ModalProps } from '@/components/ui/modal';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { inputHasText } from '@/lib/text';
 
 export const CollectionEditTitleModal: React.FC<{
@@ -27,7 +27,7 @@ export const CollectionEditTitleModal: React.FC<{
   const memoizedHeader: ModalProps['header'] = useMemo(() => {
     return {
       title: 'Edit title',
-      description: 'Edit the title of the collection'
+      description: 'Edit the title of the collection',
     };
   }, []);
 
@@ -37,8 +37,8 @@ export const CollectionEditTitleModal: React.FC<{
         text: 'Save',
         onClick: onUpdateCollection,
         loading: isUpdatingCollection,
-        disabled: disableSubmit
-      }
+        disabled: disableSubmit,
+      },
     };
   }, [onUpdateCollection, isUpdatingCollection, disableSubmit]);
 

@@ -1,15 +1,13 @@
-'use client';
-
-import { type Value } from 'platejs';
-import { useEditorRef, usePlateEditor, type TPlateEditor } from 'platejs/react';
+import type { ReportElementWithId } from '@buster/server-shared/reports';
+import type { Value } from 'platejs';
+import { type TPlateEditor, useEditorRef, usePlateEditor } from 'platejs/react';
 import { useEffect, useMemo, useRef } from 'react';
+import { useThrottleFn } from '@/hooks/useThrottleFn';
 import { EditorKit } from './editor-kit';
 import { FIXED_TOOLBAR_KIT_KEY } from './plugins/fixed-toolbar-kit';
 import { GlobalVariablePlugin } from './plugins/global-variable-kit';
-import { StreamContentPlugin } from './plugins/stream-content-plugin';
-import { useThrottleFn } from '@/hooks';
 import { markdownToPlatejs } from './plugins/markdown-kit/platejs-conversions';
-import type { ReportElementWithId } from '@buster/server-shared/reports';
+import { StreamContentPlugin } from './plugins/stream-content-plugin';
 
 export const useReportEditor = ({
   value,
@@ -17,7 +15,7 @@ export const useReportEditor = ({
   mode = 'default',
   readOnly,
   useFixedToolbarKit = false,
-  initialElements
+  initialElements,
 }: {
   value: string | undefined; //markdown
   initialElements?: Value | ReportElementWithId[];
@@ -35,15 +33,15 @@ export const useReportEditor = ({
     return [
       ...EditorKit,
       GlobalVariablePlugin.configure({
-        options: { mode }
-      })
+        options: { mode },
+      }),
     ].filter((p) => !filteredKeys.includes(p.key));
   }, []);
 
   const editor = usePlateEditor({
     plugins,
     value: initialElements,
-    readOnly: readOnly //this is for the initial value
+    readOnly: readOnly, //this is for the initial value
   });
 
   useEditorServerUpdates({ editor, value, isStreaming });
@@ -68,7 +66,7 @@ const numberOfUpdatesPerSecond = 1000 / 24;
 const useEditorServerUpdates = ({
   editor,
   value = '',
-  isStreaming
+  isStreaming,
 }: {
   editor: ReportEditor;
   value: string | undefined;

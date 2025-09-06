@@ -83,11 +83,9 @@ export interface TrendlinePluginOptions {
 }
 
 declare module 'chart.js' {
-  // biome-ignore lint/correctness/noUnusedVariables: keeping this for now
   interface PluginOptionsByType<TType extends ChartType> {
     trendline?: TrendlinePluginOptions;
   }
-  // biome-ignore lint/correctness/noUnusedVariables: keeping this for now
   interface ChartDatasetProperties<TType extends ChartType, TData> {
     trendline?: TrendlineOptions[];
   }
@@ -269,13 +267,11 @@ class PolynomialFitter extends BaseFitter {
     for (let i = 0; i <= m; i++) {
       for (let j = 0; j <= m; j++) {
         for (let k = 0; k < this.xs.length; k++) {
-          // @ts-ignore
           A[i][j] += (xPowers[k] as number[])[i + j];
         }
       }
 
       for (let k = 0; k < this.xs.length; k++) {
-        // @ts-ignore - xPowers is an array of arrays
         b[i] += (this.ys[k] as number) * (xPowers[k] as number[])[i];
       }
     }
@@ -287,21 +283,17 @@ class PolynomialFitter extends BaseFitter {
       const pivot = A[k]?.[k] ?? 0;
       if (Math.abs(pivot) < 1e-12) continue;
       for (let j = k; j <= m; j++) {
-        // @ts-ignore - A is an array of arrays
         A[k][j] /= pivot;
       }
-      // @ts-ignore - b is an array
+
       b[k] /= pivot;
 
       // eliminate below
       for (let i = k + 1; i <= m; i++) {
-        // @ts-ignore - A is an array of arrays
         const factor = A[i][k];
         for (let j = k; j <= m; j++) {
-          // @ts-ignore - A is an array of arrays
           A[i][j] -= factor * A[k][j];
         }
-        // @ts-ignore - b is an array
         b[i] -= factor * b[k];
       }
     }
@@ -310,7 +302,6 @@ class PolynomialFitter extends BaseFitter {
     const a = Array(m + 1).fill(0);
     for (let i = m; i >= 0; i--) {
       let sum = b[i];
-      // @ts-ignore - A is an array of arrays
       for (let j = i + 1; j <= m; j++) sum -= A[i][j] * a[j];
       a[i] = sum;
     }
@@ -461,14 +452,14 @@ const processPadding = (
       top: labelPadding.top ?? defaultPadding.top,
       right: labelPadding.right ?? defaultPadding.right,
       bottom: labelPadding.bottom ?? defaultPadding.bottom,
-      left: labelPadding.left ?? defaultPadding.left
+      left: labelPadding.left ?? defaultPadding.left,
     };
   } else {
     result = {
       top: defaultPadding.top,
       right: defaultPadding.right,
       bottom: defaultPadding.bottom,
-      left: defaultPadding.left
+      left: defaultPadding.left,
     };
   }
 
@@ -502,7 +493,7 @@ const createFitter = (opts: TrendlineOptions): BaseFitter => {
 // Set line style based on options - cache the settings to avoid unnecessary changes
 const lineStyleCache = {
   currentStyle: '',
-  currentWidth: 0
+  currentWidth: 0,
 };
 
 const setLineStyle = (ctx: CanvasRenderingContext2D, lineStyle?: string, lineWidth = 2) => {
@@ -656,7 +647,7 @@ const drawLinePath = (
       const currX = minX + i * xStep;
       points.push({
         x: currX,
-        y: fitter.f(currX)
+        y: fitter.f(currX),
       });
     }
 
@@ -765,7 +756,7 @@ const calculateTrendlineCoordinates = (
     y1,
     x2,
     y2,
-    slope
+    slope,
   };
 };
 
@@ -780,11 +771,11 @@ class SpatialIndex {
   }
 
   // Get cell key for a point
-  private getCellKey(x: number, y: number): string {
-    const cellX = Math.floor(x / this.cellSize);
-    const cellY = Math.floor(y / this.cellSize);
-    return `${cellX},${cellY}`;
-  }
+  // private getCellKey(x: number, y: number): string {
+  //   const cellX = Math.floor(x / this.cellSize);
+  //   const cellY = Math.floor(y / this.cellSize);
+  //   return `${cellX},${cellY}`;
+  // }
 
   // Get all cell keys that a rectangle overlaps with
   private getOverlappingCellKeys(rect: {
@@ -884,7 +875,7 @@ const queueTrendlineLabel = (
       averageY: fitter.averageY,
       medianY: fitter.medianY,
       minY: fitter.minY,
-      maxY: fitter.maxY
+      maxY: fitter.maxY,
     });
   } else {
     // Use the string value or empty string if undefined
@@ -952,7 +943,7 @@ const queueTrendlineLabel = (
     x: finalX - labelWidth / 2,
     y: finalY - labelHeight / 2,
     width: labelWidth,
-    height: labelHeight
+    height: labelHeight,
   };
 
   // Use spatial index for faster collision detection
@@ -970,7 +961,7 @@ const queueTrendlineLabel = (
     text: labelText,
     x: finalX,
     y: finalY,
-    opts: lbl
+    opts: lbl,
   });
 };
 
@@ -1226,7 +1217,7 @@ const trendlinePlugin: Plugin<'line'> = {
       }
       ctx.restore();
     }
-  }
+  },
 };
 
 export default trendlinePlugin;

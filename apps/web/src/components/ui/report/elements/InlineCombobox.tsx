@@ -1,30 +1,26 @@
-'use client';
-
-import * as React from 'react';
-
-import type { Point, TElement } from 'platejs';
-
 import {
-  type ComboboxItemProps,
   Combobox,
   ComboboxGroup,
   ComboboxGroupLabel,
   ComboboxItem,
+  type ComboboxItemProps,
   ComboboxPopover,
   ComboboxProvider,
   ComboboxRow,
   Portal,
   useComboboxContext,
-  useComboboxStore
+  useComboboxStore,
 } from '@ariakit/react';
 import { filterWords } from '@platejs/combobox';
 import {
   type UseComboboxInputResult,
   useComboboxInput,
-  useHTMLInputCursorState
+  useHTMLInputCursorState,
 } from '@platejs/combobox/react';
 import { cva } from 'class-variance-authority';
+import type { Point, TElement } from 'platejs';
 import { useComposedRef, useEditorRef } from 'platejs/react';
+import * as React from 'react';
 
 import { cn } from '@/lib/utils';
 import { THEME_RESET_STYLE } from '@/styles/theme-reset';
@@ -51,7 +47,7 @@ const InlineComboboxContext = React.createContext<InlineComboboxContextValue>(
 const defaultFilter: FilterFn = ({ group, keywords = [], label, value }, search) => {
   const uniqueTerms = new Set([value, ...keywords, group, label].filter(Boolean));
 
-  return Array.from(uniqueTerms).some((keyword) => filterWords(keyword!, search));
+  return Array.from(uniqueTerms).some((keyword) => filterWords(keyword ?? '', search));
 };
 
 interface InlineComboboxProps {
@@ -73,7 +69,7 @@ const InlineCombobox = ({
   setValue: setValueProp,
   showTrigger = true,
   trigger,
-  value: valueProp
+  value: valueProp,
 }: InlineComboboxProps) => {
   const editor = useEditorRef();
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -124,16 +120,16 @@ const InlineCombobox = ({
     onCancelInput: (cause) => {
       if (cause !== 'backspace') {
         editor.tf.insertText(trigger + value, {
-          at: insertPoint?.current ?? undefined
+          at: insertPoint?.current ?? undefined,
         });
       }
       if (cause === 'arrowLeft' || cause === 'arrowRight') {
         editor.tf.move({
           distance: 1,
-          reverse: cause === 'arrowLeft'
+          reverse: cause === 'arrowLeft',
         });
       }
-    }
+    },
   });
 
   const [hasEmpty, setHasEmpty] = React.useState(false);
@@ -146,14 +142,14 @@ const InlineCombobox = ({
       removeInput,
       setHasEmpty,
       showTrigger,
-      trigger
+      trigger,
     }),
     [trigger, showTrigger, filter, inputRef, inputProps, removeInput, setHasEmpty]
   );
 
   const store = useComboboxStore({
     // open: ,
-    setValue: (newValue) => React.startTransition(() => setValue(newValue))
+    setValue: (newValue) => React.startTransition(() => setValue(newValue)),
   });
 
   const items = store.useState('items');
@@ -172,7 +168,8 @@ const InlineCombobox = ({
     <span contentEditable={false}>
       <ComboboxProvider
         open={(items.length > 0 || hasEmpty) && (!hideWhenNoValue || value.length > 0)}
-        store={store}>
+        store={store}
+      >
         <InlineComboboxContext.Provider value={contextValue}>
           {children}
         </InlineComboboxContext.Provider>
@@ -189,9 +186,10 @@ const InlineComboboxInput = React.forwardRef<
     inputProps,
     inputRef: contextRef,
     showTrigger,
-    trigger
+    trigger,
   } = React.useContext(InlineComboboxContext);
 
+  // biome-ignore lint/style/noNonNullAssertion: living on the edge
   const store = useComboboxContext()!;
   const value = store.useState('value');
 
@@ -248,14 +246,14 @@ const comboboxItemVariants = cva(
   'relative mx-1 flex h-[28px] items-center rounded-sm px-2 text-sm text-foreground outline-none select-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
   {
     defaultVariants: {
-      interactive: true
+      interactive: true,
     },
     variants: {
       interactive: {
         false: '',
-        true: 'cursor-pointer transition-colors hover:bg-accent hover:text-accent-foreground data-[active-item=true]:bg-accent data-[active-item=true]:text-accent-foreground'
-      }
-    }
+        true: 'cursor-pointer transition-colors hover:bg-accent hover:text-accent-foreground data-[active-item=true]:bg-accent data-[active-item=true]:text-accent-foreground',
+      },
+    },
   }
 );
 
@@ -278,6 +276,7 @@ const InlineComboboxItem = ({
 
   const { filter, removeInput } = React.useContext(InlineComboboxContext);
 
+  // biome-ignore lint/style/noNonNullAssertion: your momma
   const store = useComboboxContext()!;
 
   // Optimization: Do not subscribe to value if filter is false
@@ -304,6 +303,7 @@ const InlineComboboxItem = ({
 
 const InlineComboboxEmpty = ({ children, className }: React.HTMLAttributes<HTMLDivElement>) => {
   const { setHasEmpty } = React.useContext(InlineComboboxContext);
+  // biome-ignore lint/style/noNonNullAssertion: just do it
   const store = useComboboxContext()!;
   const items = store.useState('items');
 
@@ -353,5 +353,5 @@ export {
   InlineComboboxGroupLabel,
   InlineComboboxInput,
   InlineComboboxItem,
-  InlineComboboxRow
+  InlineComboboxRow,
 };

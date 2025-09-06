@@ -32,7 +32,7 @@ const FORMATS = {
   week: 'll',
   month: 'MMM YYYY',
   quarter: '[Q]Q - YYYY',
-  year: 'YYYY'
+  year: 'YYYY',
 };
 
 _adapters._date.override({
@@ -80,5 +80,5 @@ _adapters._date.override({
     return dayjs(time).startOf(unit).valueOf();
   },
   endOf: (time: number | string | Date, unit: TimeUnit & QUnitType) =>
-    dayjs(time).endOf(unit).valueOf()
+    dayjs(time).endOf(unit).valueOf(),
 });

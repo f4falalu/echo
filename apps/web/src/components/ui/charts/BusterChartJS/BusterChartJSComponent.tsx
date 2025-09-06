@@ -1,11 +1,9 @@
-'use client';
-
-import { useMemoizedFn } from '@/hooks/useMemoizedFn';
-import { useMount } from '@/hooks/useMount';
-import { usePreviousRef } from '@/hooks/usePrevious';
 import type { ScatterAxis } from '@buster/server-shared/metrics';
 import type { ChartType as ChartJSChartType, Plugin, UpdateMode } from 'chart.js';
 import React, { useMemo, useState } from 'react';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { useMount } from '@/hooks/useMount';
+import { usePreviousRef } from '@/hooks/usePrevious';
 import { useColors } from '../chartHooks';
 import type { BusterChartTypeComponentProps } from '../interfaces/chartComponentInterfaces';
 import {
@@ -14,7 +12,7 @@ import {
   ChartHoverLinePlugin,
   ChartHoverScatterPlugin,
   ChartTotalizerPlugin,
-  OutLabelsPlugin
+  OutLabelsPlugin,
 } from './core';
 import type { ChartJSOrUndefined, ChartProps } from './core/types';
 import { useGoalLines, useOptions, useSeriesOptions } from './hooks';
@@ -69,7 +67,7 @@ export const BusterChartJSComponent = React.memo(
         disableTooltip,
         xAxisTimeInterval,
         numberOfDataPoints,
-        trendlines
+        trendlines,
         //TODO
         // xAxisDataZoom,
         // ...rest
@@ -81,7 +79,7 @@ export const BusterChartJSComponent = React.memo(
         yAxisKeys,
         y2AxisKeys,
         datasetOptions: datasetOptions.datasets,
-        selectedChartType
+        selectedChartType,
       });
 
       const data: ChartProps<ChartJSChartType>['data'] = useSeriesOptions({
@@ -99,7 +97,7 @@ export const BusterChartJSComponent = React.memo(
         columnMetadata,
         scatterDotSize,
         lineGroupType,
-        barGroupType
+        barGroupType,
       });
       const previousData = usePreviousRef(data);
 
@@ -116,7 +114,7 @@ export const BusterChartJSComponent = React.memo(
         barShowTotalAtTop,
         columnSettings,
         barGroupType,
-        data
+        data,
       });
 
       const goalLinesAnnotations = useGoalLines({
@@ -127,7 +125,7 @@ export const BusterChartJSComponent = React.memo(
         y2AxisKeys,
         lineGroupType,
         barLayout,
-        barGroupType
+        barGroupType,
       });
 
       const options: ChartProps<ChartJSChartType>['options'] = useOptions({
@@ -168,7 +166,7 @@ export const BusterChartJSComponent = React.memo(
         disableTooltip,
         xAxisTimeInterval,
         numberOfDataPoints,
-        trendlines
+        trendlines,
       });
 
       const type = useMemo(() => {

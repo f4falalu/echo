@@ -1,22 +1,22 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
-import { fn } from 'storybook/test';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { formOptions } from '@tanstack/react-form';
 import React from 'react';
+import { fn } from 'storybook/test';
 import { useAppForm, withForm } from './useFormBaseHooks';
 
 const formOpts = formOptions({
   defaultValues: {
     firstName: 'John',
-    lastName: 'Doe'
+    lastName: 'Doe',
   },
-  onSubmit: fn()
+  onSubmit: fn(),
 });
 
 const ChildForm = withForm({
   ...formOpts,
   // Optional, but adds props to the `render` function outside of `form`
   props: {
-    title: 'Child Form'
+    title: 'Child Form',
   },
   render: ({ form, title }) => {
     return (
@@ -28,12 +28,12 @@ const ChildForm = withForm({
         />
       </div>
     );
-  }
+  },
 });
 
 const FormTest = () => {
   const form = useAppForm({
-    ...formOpts
+    ...formOpts,
   });
 
   return (
@@ -52,10 +52,10 @@ const meta: Meta<typeof FormTest> = {
   title: 'UI/Forms/FormBase',
   component: FormTest,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
   args: {
-    onChange: fn()
+    onChange: fn(),
   },
   tags: ['autodocs'],
   decorators: [
@@ -63,8 +63,8 @@ const meta: Meta<typeof FormTest> = {
       <div className="min-w-[300px]">
         <Story />
       </div>
-    )
-  ]
+    ),
+  ],
 };
 
 export default meta;

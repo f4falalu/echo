@@ -1,17 +1,17 @@
 import React from 'react';
-import { DefaultThemeSelectorBase } from './DefaultThemeSelectorBase';
 import { StatusCard } from '@/components/ui/card/StatusCard';
+import { useGetPalettes } from '@/context/Themes/usePalettes';
+import { useThemeOperations } from '@/context/Themes/useThemeOperations';
 import { CircleSpinnerLoader } from '../../../ui/loaders';
-import { useThemeOperations } from '@/context-hooks/useThemeOperations';
-import { useGetPalettes } from '@/context-hooks/usePalettes';
+import { DefaultThemeSelectorBase } from './DefaultThemeSelectorBase';
 
 export const DefaultThemeSelector = React.memo(
-  ({ className, themeListClassName }: { className?: string; themeListClassName?: string }) => {
+  ({ themeListClassName }: { themeListClassName?: string }) => {
     const {
       isErrorDictionaryPalettes,
       organizationPalettes,
       dictionaryPalettes,
-      selectedPaletteId
+      selectedPaletteId,
     } = useGetPalettes();
 
     const { onCreateCustomTheme, onDeleteCustomTheme, onModifyCustomTheme, onSelectTheme } =

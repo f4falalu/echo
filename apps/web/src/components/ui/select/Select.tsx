@@ -1,16 +1,16 @@
 import React, { useRef } from 'react';
+import { Check, ChevronDown, Xmark } from '@/components/ui/icons';
+import { cn } from '@/lib/classMerge';
 import {
   Command,
   CommandEmpty,
   CommandGroup,
+  CommandInput,
   CommandItem,
   CommandList,
-  CommandInput
-} from '@/components/ui/command';
-import { PopoverRoot, PopoverContent, PopoverTrigger } from '@/components/ui/popover/PopoverBase';
-import { cn } from '@/lib/classMerge';
+} from '../command';
 import { CircleSpinnerLoader } from '../loaders';
-import { Check, ChevronDown, Xmark } from '@/components/ui/icons';
+import { PopoverContent, PopoverRoot, PopoverTrigger } from '../popover/PopoverBase';
 
 interface SelectItemGroup<T = string> {
   label: string;
@@ -103,7 +103,7 @@ const SelectItemComponent = React.memo(
     index,
     value,
     showIndex,
-    onSelect
+    onSelect,
   }: {
     item: SelectItem<T>;
     index: number;
@@ -122,7 +122,8 @@ const SelectItemComponent = React.memo(
           'flex min-h-7 items-center gap-2 px-2',
           item.disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
           isSelected && 'bg-item-select'
-        )}>
+        )}
+      >
         {item.icon}
         <span className="flex-1">
           {showIndex && `${index + 1}. `}
@@ -168,7 +169,7 @@ function SelectComponent<T = string>({
   hideChevron = false,
   onPressEnter,
   clearOnSelect = true,
-  closeOnSelect = true
+  closeOnSelect = true,
 }: SelectProps<T>) {
   const [internalInputValue, setInternalInputValue] = React.useState('');
   const [isFocused, setIsFocused] = React.useState(false);
@@ -311,7 +312,7 @@ function SelectComponent<T = string>({
           altKey: e.altKey,
           metaKey: e.metaKey,
           bubbles: true,
-          cancelable: true
+          cancelable: true,
         });
         commandInput.dispatchEvent(newEvent);
         e.preventDefault();
@@ -445,7 +446,8 @@ function SelectComponent<T = string>({
                 type="button"
                 onClick={handleClear}
                 className="hover:text-foreground text-icon-color pointer-events-auto mr-1 flex h-4 w-4 cursor-pointer items-center justify-center rounded"
-                aria-label="Clear selection">
+                aria-label="Clear selection"
+              >
                 <Xmark />
               </button>
             )}
@@ -454,8 +456,9 @@ function SelectComponent<T = string>({
                 className="flex h-4 w-4 shrink-0 items-center justify-center opacity-50 transition-transform duration-200 ease-in-out"
                 style={{
                   transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
-                  transformOrigin: 'center'
-                }}>
+                  transformOrigin: 'center',
+                }}
+              >
                 <ChevronDown />
               </div>
             )}
@@ -474,7 +477,8 @@ function SelectComponent<T = string>({
         onOpenAutoFocus={(e) => {
           e.preventDefault();
           inputRef.current?.focus();
-        }}>
+        }}
+      >
         <Command ref={commandRef} shouldFilter={false}>
           {/* Hidden input that Command uses for keyboard navigation */}
           <CommandInput

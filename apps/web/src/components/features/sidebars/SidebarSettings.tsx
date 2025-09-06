@@ -1,15 +1,14 @@
-'use client';
+import { useMemo } from 'react';
+import { useIsUserAdmin, useIsUserRegistered } from '@/api/buster_rest/users/useGetUserInfo';
+import { BackButton } from '@/components/ui/buttons/BackButton';
+import ApartmentBuilding from '@/components/ui/icons/NucleoIconOutlined/apartment-building';
+import CircleUser from '@/components/ui/icons/NucleoIconOutlined/circle-user';
+import { createSidebarGroup } from '@/components/ui/sidebar/create-sidebar-item';
+import LockCircle from '../../ui/icons/NucleoIconOutlined/lock-circle';
+import { type ISidebarGroup, Sidebar } from '../../ui/sidebar';
+import { SidebarUserFooter } from './SidebarUserFooter';
 
-import React, { useMemo } from 'react';
-import { BackButton } from '@/components/ui/buttons';
-import { ApartmentBuilding, CircleUser, LockCircle } from '@/components/ui/icons';
-import { type ISidebarGroup, Sidebar } from '@/components/ui/sidebar';
-import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import { useUserConfigContextSelector } from '@/context/Users';
-import { BusterRoutes, createBusterRoute } from '@/routes';
-import { SidebarUserFooter } from './SidebarUserFooter/SidebarUserFooter';
-
-const accountItems = (currentParentRoute: BusterRoutes): ISidebarGroup => ({
+const accountItems: ISidebarGroup = createSidebarGroup({
   label: 'Account',
   variant: 'icon',
   id: 'account',
@@ -17,14 +16,15 @@ const accountItems = (currentParentRoute: BusterRoutes): ISidebarGroup => ({
   items: [
     {
       label: 'Profile',
-      route: createBusterRoute({ route: BusterRoutes.SETTINGS_PROFILE }),
-      id: BusterRoutes.SETTINGS_PROFILE,
-      active: currentParentRoute === BusterRoutes.SETTINGS_PROFILE
-    }
-  ]
+      link: {
+        to: '/app/settings/profile',
+      },
+      id: '/settings/profile',
+    },
+  ],
 });
 
-const workspaceItems = (currentParentRoute: BusterRoutes): ISidebarGroup => ({
+const workspaceItems: ISidebarGroup = createSidebarGroup({
   label: 'Administration',
   variant: 'icon',
   id: 'administration',
@@ -32,31 +32,39 @@ const workspaceItems = (currentParentRoute: BusterRoutes): ISidebarGroup => ({
   items: [
     {
       label: 'Workspace',
-      route: createBusterRoute({ route: BusterRoutes.SETTINGS_WORKSPACE }),
-      id: BusterRoutes.SETTINGS_WORKSPACE
+      link: {
+        to: '/app/settings/workspace',
+        preload: false,
+      },
+      id: '/app/settings/workspace',
     },
     {
       label: 'API Keys',
-      route: createBusterRoute({ route: BusterRoutes.SETTINGS_API_KEYS }),
-      id: BusterRoutes.SETTINGS_API_KEYS
+      link: {
+        to: '/app/settings/api-keys',
+        preload: false,
+      },
+      id: '/app/settings/api-keys',
     },
     {
       label: 'Data Sources',
-      route: createBusterRoute({ route: BusterRoutes.SETTINGS_DATASOURCES }),
-      id: BusterRoutes.SETTINGS_DATASOURCES
+      link: {
+        to: '/app/settings/datasources',
+        preload: false,
+      },
+      id: '/app/settings/datasources',
     },
     {
       label: 'Integrations',
-      route: createBusterRoute({ route: BusterRoutes.SETTINGS_INTEGRATIONS }),
-      id: createBusterRoute({ route: BusterRoutes.SETTINGS_INTEGRATIONS })
-    }
-  ].map((item) => ({
-    ...item,
-    active: currentParentRoute === item.id
-  }))
+      link: {
+        to: '/app/settings/integrations',
+      },
+      id: '/app/settings/integrations',
+    },
+  ],
 });
 
-const permissionAndSecurityItems = (currentParentRoute: BusterRoutes): ISidebarGroup => ({
+const permissionAndSecurityItems: ISidebarGroup = createSidebarGroup({
   label: 'Permission & Security',
   variant: 'icon',
   id: 'permission-and-security',
@@ -64,70 +72,59 @@ const permissionAndSecurityItems = (currentParentRoute: BusterRoutes): ISidebarG
   items: [
     {
       label: 'Security',
-      route: createBusterRoute({ route: BusterRoutes.SETTINGS_SECURITY }),
-      id: createBusterRoute({ route: BusterRoutes.SETTINGS_SECURITY })
+      link: { to: '/app/settings/security' },
+      id: '/app/settings/security',
     },
     {
       label: 'Users',
-      route: createBusterRoute({ route: BusterRoutes.SETTINGS_USERS }),
-      id: createBusterRoute({ route: BusterRoutes.SETTINGS_USERS })
+      link: { to: '/app/settings/users' },
+      id: '/app/settings/users',
     },
     {
       label: 'Dataset groups',
-      route: createBusterRoute({ route: BusterRoutes.SETTINGS_DATASET_GROUPS }),
-      id: createBusterRoute({ route: BusterRoutes.SETTINGS_DATASET_GROUPS })
+      link: { to: '/app/settings/dataset-groups' },
+      id: '/app/settings/dataset-groups',
     },
     {
       label: 'Permission groups',
-      route: createBusterRoute({ route: BusterRoutes.SETTINGS_PERMISSION_GROUPS }),
-      id: createBusterRoute({ route: BusterRoutes.SETTINGS_PERMISSION_GROUPS })
-    }
-  ].map((item) => ({
-    ...item,
-    active: currentParentRoute === item.id
-  }))
+      link: { to: '/app/settings/permission-groups' },
+      id: '/app/settings/permission-groups',
+    },
+  ],
 });
 
-export const SidebarSettings: React.FC = React.memo(() => {
-  const isAdmin = useUserConfigContextSelector((x) => x.isAdmin);
-  const currentParentRoute = useAppLayoutContextSelector((x) => x.currentParentRoute);
+export const SidebarSettings = () => {
+  const isAdmin = useIsUserAdmin();
+  const isUserRegistered = useIsUserRegistered();
 
-  const content = useMemo(() => {
-    const items = [accountItems(currentParentRoute)];
+  const sidebarItems = useMemo(() => {
+    const items = [accountItems];
     if (isAdmin) {
-      items.push(workspaceItems(currentParentRoute));
-      items.push(permissionAndSecurityItems(currentParentRoute));
+      items.push(workspaceItems);
+      items.push(permissionAndSecurityItems);
     }
     return items;
-  }, [isAdmin, currentParentRoute]);
+  }, [isAdmin]);
 
   return (
     <Sidebar
-      content={content}
-      header={useMemo(
-        () => (
-          <SidebarSettingsHeader />
-        ),
-        []
-      )}
-      footer={useMemo(
-        () => (
-          <SidebarUserFooter />
-        ),
-        []
-      )}
+      content={sidebarItems}
+      header={useMemo(() => <SidebarSettingsHeader />, [])}
+      footer={useMemo(() => <SidebarUserFooter />, [])}
+      useCollapsible={isUserRegistered}
     />
   );
-});
+};
 
 SidebarSettings.displayName = 'SidebarSettings';
 
-const SidebarSettingsHeader = React.memo(() => {
+const SidebarSettingsHeader = () => {
   return (
-    <div>
-      <BackButton linkUrl={createBusterRoute({ route: BusterRoutes.APP_HOME })} text="Settings" />
-    </div>
+    <BackButton
+      linkUrl={{
+        to: '/app/home',
+      }}
+      text="Settings"
+    />
   );
-});
-
-SidebarSettingsHeader.displayName = 'SidebarSettingsHeader';
+};

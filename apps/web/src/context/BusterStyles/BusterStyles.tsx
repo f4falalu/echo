@@ -1,19 +1,14 @@
-import { ThemeProvider as NextThemeProvider } from 'next-themes';
 import type React from 'react';
 import type { PropsWithChildren } from 'react';
 import { BusterNotificationsProvider } from '../BusterNotifications/BusterNotifications';
+import { BusterThemeProvider } from './BusterThemeProvider';
 
-const ENABLE_DARK_MODE = false;
+// const ENABLE_DARK_MODE = false;
 
 export const BusterStyleProvider: React.FC<PropsWithChildren> = ({ children }) => {
   return (
-    <NextThemeProvider
-      attribute="class"
-      defaultTheme="light"
-      enableSystem={ENABLE_DARK_MODE}
-      themes={['light', 'dark']}
-      disableTransitionOnChange>
+    <BusterThemeProvider>
       <BusterNotificationsProvider>{children}</BusterNotificationsProvider>
-    </NextThemeProvider>
+    </BusterThemeProvider>
   );
 };

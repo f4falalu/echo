@@ -1,23 +1,17 @@
-'use client';
-
-import * as React from 'react';
-
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
-
 import { KEYS } from 'platejs';
 import { useEditorRef } from 'platejs/react';
-import { NodeTypeIcons } from '../config/icons';
-import { createLabel, NodeTypeLabels } from '../config/labels';
-
+import * as React from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
+import { NodeTypeIcons } from '../config/icons';
+import { createLabel, NodeTypeLabels } from '../config/labels';
 
 export function MoreToolbarButton(props: DropdownMenuProps) {
   const editor = useEditorRef();
@@ -33,14 +27,16 @@ export function MoreToolbarButton(props: DropdownMenuProps) {
 
       <DropdownMenuContent
         className="ignore-click-outside/toolbar flex max-h-[500px] min-w-[180px] flex-col overflow-y-auto"
-        align="start">
+        align="start"
+      >
         <DropdownMenuGroup>
           <DropdownMenuItem
             onSelect={() => {
               editor.tf.toggleMark(KEYS.kbd);
               editor.tf.collapse({ edge: 'end' });
               editor.tf.focus();
-            }}>
+            }}
+          >
             <NodeTypeIcons.keyboard />
             {NodeTypeLabels.keyboardInput.label}
           </DropdownMenuItem>
@@ -48,20 +44,22 @@ export function MoreToolbarButton(props: DropdownMenuProps) {
           <DropdownMenuItem
             onSelect={() => {
               editor.tf.toggleMark(KEYS.sup, {
-                remove: KEYS.sub
+                remove: KEYS.sub,
               });
               editor.tf.focus();
-            }}>
+            }}
+          >
             <NodeTypeIcons.superscript />
             {NodeTypeLabels.superscript.label}
           </DropdownMenuItem>
           <DropdownMenuItem
             onSelect={() => {
               editor.tf.toggleMark(KEYS.sub, {
-                remove: KEYS.sup
+                remove: KEYS.sup,
               });
               editor.tf.focus();
-            }}>
+            }}
+          >
             <NodeTypeIcons.subscript />
             {NodeTypeLabels.subscript.label}
           </DropdownMenuItem>

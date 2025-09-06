@@ -1,10 +1,7 @@
 import type { ReportElementWithId } from '@buster/server-shared/reports';
-import type { Meta, StoryObj } from '@storybook/nextjs';
-import { ReportEditor } from './ReportEditor';
-import { useEffect, useRef, useState } from 'react';
-import { useMount } from '@/hooks';
-import { cn } from '@/lib/classMerge';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { Value } from 'platejs';
+import { ReportEditor } from './ReportEditor';
 
 const meta = {
   title: 'UI/report/ReportEditor',
@@ -43,21 +40,21 @@ const meta = {
         // http.post('http://127.0.0.1:3001/api/v1/search', ({ request }) => {
         //   return HttpResponse.json([]);
         // })
-      ]
-    }
+      ],
+    },
   },
   decorators: [
     (Story) => (
       <div className="border">
         <Story />
       </div>
-    )
+    ),
   ],
   args: {
     placeholder: 'Start typing...',
     readOnly: false,
-    variant: 'default'
-  }
+    variant: 'default',
+  },
 } satisfies Meta<typeof ReportEditor>;
 
 export default meta;
@@ -67,7 +64,7 @@ type Story = StoryObj<typeof meta>;
 const sampleValue = [
   {
     type: 'h1', // This will now error if you use 'h1xs'
-    children: [{ text: 'Welcome to the Report Editor' }]
+    children: [{ text: 'Welcome to the Report Editor' }],
   },
   {
     type: 'p',
@@ -77,28 +74,28 @@ const sampleValue = [
       { text: ' and ' },
       { text: 'italic text', italic: true },
       { text: '.' },
-      { text: 'hilight', highlight: true }
-    ]
+      { text: 'hilight', highlight: true },
+    ],
   },
   {
     type: 'h2',
-    children: [{ text: 'Features' }]
+    children: [{ text: 'Features' }],
   },
   {
     type: 'img',
     children: [{ text: '' }],
     width: 200,
     url: 'https://picsum.photos/200/200',
-    caption: [{ text: 'This is a caption' }]
+    caption: [{ text: 'This is a caption' }],
   },
   {
     type: 'callout',
     variant: 'info',
-    children: [{ text: 'This is an info callout with custom styling!' }]
+    children: [{ text: 'This is an info callout with custom styling!' }],
   },
   {
     type: 'h3', // This is now valid - TypeScript knows this is a valid HeadingType
-    children: [{ text: 'Title' }]
+    children: [{ text: 'Title' }],
   },
   // Uncommenting this would cause a TypeScript error:
   // {
@@ -108,8 +105,8 @@ const sampleValue = [
   {
     type: 'blockquote',
     children: [
-      { text: 'This is a blockquote. It can contain styled text and other inline elements.' }
-    ]
+      { text: 'This is a blockquote. It can contain styled text and other inline elements.' },
+    ],
   },
   {
     type: 'code_block',
@@ -117,47 +114,47 @@ const sampleValue = [
     children: [
       {
         type: 'code_line',
-        children: [{ text: 'const greeting = "Hello, World!";' }]
+        children: [{ text: 'const greeting = "Hello, World!";' }],
       },
       {
         type: 'code_line',
-        children: [{ text: 'console.log(greeting);' }]
+        children: [{ text: 'console.swag(greeting);' }],
       },
       {
         type: 'code_line',
-        children: [{ text: '}' }]
-      }
-    ]
+        children: [{ text: '}' }],
+      },
+    ],
   },
   {
     children: [
       { children: [{ text: 'function hello() {' }], type: 'code_line' },
       {
         children: [{ text: "  console.info('Code blocks are supported!');" }],
-        type: 'code_line'
+        type: 'code_line',
       },
-      { children: [{ text: '}' }], type: 'code_line' }
+      { children: [{ text: '}' }], type: 'code_line' },
     ],
     lang: 'javascript',
-    type: 'code_block'
+    type: 'code_block',
   },
 
   {
     type: 'h1',
-    children: [{ text: 'Hello' }]
+    children: [{ text: 'Hello' }],
   },
   // Table Section
   {
     children: [{ text: 'How Plate Compares' }],
-    type: 'h3'
+    type: 'h3',
   },
   {
     children: [
       {
-        text: 'Plate offers many features out-of-the-box as free, open-source plugins.'
-      }
+        text: 'Plate offers many features out-of-the-box as free, open-source plugins.',
+      },
     ],
-    type: 'p'
+    type: 'p',
   },
   {
     type: 'table',
@@ -166,190 +163,190 @@ const sampleValue = [
         children: [
           {
             children: [{ bold: true, text: 'Feature' }],
-            type: 'th'
+            type: 'th',
           },
           {
             children: [
               {
                 children: [{ bold: true, text: 'Plate (Free & OSS)' }],
-                type: 'p'
-              }
+                type: 'p',
+              },
             ],
-            type: 'th'
+            type: 'th',
           },
           {
             children: [{ children: [{ bold: true, text: 'Tiptap' }], type: 'p' }],
-            type: 'th'
-          }
+            type: 'th',
+          },
         ],
-        type: 'tr'
+        type: 'tr',
       },
       {
         children: [
           {
             children: [{ children: [{ text: 'AI' }], type: 'p' }],
-            type: 'td'
+            type: 'td',
           },
           {
             children: [
               {
                 attributes: { align: 'center' },
                 children: [{ text: '✅' }],
-                type: 'p'
-              }
+                type: 'p',
+              },
             ],
-            type: 'td'
+            type: 'td',
           },
           {
             children: [{ children: [{ text: 'Paid Extension' }], type: 'p' }],
-            type: 'td'
-          }
+            type: 'td',
+          },
         ],
-        type: 'tr'
+        type: 'tr',
       },
       {
         children: [
           {
             children: [{ children: [{ text: 'Comments' }], type: 'p' }],
-            type: 'td'
+            type: 'td',
           },
           {
             children: [
               {
                 attributes: { align: 'center' },
                 children: [{ text: '✅' }],
-                type: 'p'
-              }
+                type: 'p',
+              },
             ],
-            type: 'td'
+            type: 'td',
           },
           {
             children: [{ children: [{ text: 'Paid Extension' }], type: 'p' }],
-            type: 'td'
-          }
+            type: 'td',
+          },
         ],
-        type: 'tr'
+        type: 'tr',
       },
       {
         children: [
           {
             children: [{ children: [{ text: 'Suggestions' }], type: 'p' }],
-            type: 'td'
+            type: 'td',
           },
           {
             children: [
               {
                 attributes: { align: 'center' },
                 children: [{ text: '✅' }],
-                type: 'p'
-              }
+                type: 'p',
+              },
             ],
-            type: 'td'
+            type: 'td',
           },
           {
             children: [{ children: [{ text: 'Paid (Comments Pro)' }], type: 'p' }],
-            type: 'td'
-          }
+            type: 'td',
+          },
         ],
-        type: 'tr'
+        type: 'tr',
       },
       {
         children: [
           {
             children: [{ children: [{ text: 'Emoji Picker' }], type: 'p' }],
-            type: 'td'
+            type: 'td',
           },
           {
             children: [
               {
                 attributes: { align: 'center' },
                 children: [{ text: '✅' }],
-                type: 'p'
-              }
+                type: 'p',
+              },
             ],
-            type: 'td'
+            type: 'td',
           },
           {
             children: [{ children: [{ text: 'Paid Extension' }], type: 'p' }],
-            type: 'td'
-          }
+            type: 'td',
+          },
         ],
-        type: 'tr'
+        type: 'tr',
       },
       {
         children: [
           {
             children: [{ children: [{ text: 'Table of Contents' }], type: 'p' }],
-            type: 'td'
+            type: 'td',
           },
           {
             children: [
               {
                 attributes: { align: 'center' },
                 children: [{ text: '✅' }],
-                type: 'p'
-              }
+                type: 'p',
+              },
             ],
-            type: 'td'
+            type: 'td',
           },
           {
             children: [{ children: [{ text: 'Paid Extension' }], type: 'p' }],
-            type: 'td'
-          }
+            type: 'td',
+          },
         ],
-        type: 'tr'
+        type: 'tr',
       },
       {
         children: [
           {
             children: [{ children: [{ text: 'Drag Handle' }], type: 'p' }],
-            type: 'td'
+            type: 'td',
           },
           {
             children: [
               {
                 attributes: { align: 'center' },
                 children: [{ text: '✅' }],
-                type: 'p'
-              }
+                type: 'p',
+              },
             ],
-            type: 'td'
+            type: 'td',
           },
           {
             children: [{ children: [{ text: 'Paid Extension' }], type: 'p' }],
-            type: 'td'
-          }
+            type: 'td',
+          },
         ],
-        type: 'tr'
+        type: 'tr',
       },
       {
         children: [
           {
             children: [{ children: [{ text: 'Collaboration (Yjs)' }], type: 'p' }],
-            type: 'td'
+            type: 'td',
           },
           {
             children: [
               {
                 attributes: { align: 'center' },
                 children: [{ text: '✅' }],
-                type: 'p'
-              }
+                type: 'p',
+              },
             ],
-            type: 'td'
+            type: 'td',
           },
           {
             children: [{ children: [{ text: 'Hocuspocus (OSS/Paid)' }], type: 'p' }],
-            type: 'td'
-          }
+            type: 'td',
+          },
         ],
-        type: 'tr'
-      }
-    ]
-  }
+        type: 'tr',
+      },
+    ],
+  },
 ].map((element, index) => ({
   ...element,
-  id: `id-${index}`
+  id: `id-${index}`,
 })) as Value;
 
 // Cast to Value for platejs compatibility
@@ -357,15 +354,15 @@ const plateValue = sampleValue;
 
 export const Default: Story = {
   args: {
-    initialElements: plateValue
-  }
+    initialElements: plateValue,
+  },
 };
 
 export const ReadOnly: Story = {
   args: {
     initialElements: plateValue,
-    readOnly: true
-  }
+    readOnly: true,
+  },
 };
 
 export const WithCustomKit: Story = {
@@ -373,37 +370,37 @@ export const WithCustomKit: Story = {
     initialElements: [
       {
         type: 'h1',
-        children: [{ text: 'Hello' }]
+        children: [{ text: 'Hello' }],
       },
       {
         type: 'metric',
         children: [{ text: '' }],
-        metricId: ''
+        metricId: '',
       },
       {
         type: 'characterCounter' as 'p',
-        children: [{ text: 'This is my character counter' }]
+        children: [{ text: 'This is my character counter' }],
       },
       {
         type: 'p',
-        children: [{ text: 'paragraph test' }]
+        children: [{ text: 'paragraph test' }],
       },
       {
         type: 'metric',
         children: [{ text: '' }],
         metricId: '1234',
-        caption: [{ text: 'This is a caption' }]
+        caption: [{ text: 'This is a caption' }],
       },
       {
         type: 'img',
         children: [{ text: '' }],
         url: 'https://picsum.photos/200/200',
-        caption: [{ text: 'This is a caption' }]
-      }
+        caption: [{ text: 'This is a caption' }],
+      },
     ].map((element, index) => ({
       ...element,
-      id: `id-${index}`
+      id: `id-${index}`,
     })) as ReportElementWithId[],
-    useFixedToolbarKit: true
-  }
+    useFixedToolbarKit: true,
+  },
 };

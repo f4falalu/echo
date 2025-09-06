@@ -3,7 +3,7 @@ import { DEFAULT_CHART_COLORS, DISABLED_CHART_COLORS } from './config';
 
 export const ChartIcon_StackedBarRelative: React.FC<{ colors?: string[]; disabled?: boolean }> = ({
   colors: colorsProp = DEFAULT_CHART_COLORS,
-  disabled
+  disabled,
 }) => {
   const colors = disabled ? DISABLED_CHART_COLORS : colorsProp;
 
@@ -13,7 +13,8 @@ export const ChartIcon_StackedBarRelative: React.FC<{ colors?: string[]; disable
       width="1em"
       height="1em"
       viewBox="0 0 23 22"
-      fill="none">
+      fill="none"
+    >
       <title>Stacked Bar Relative Chart Icon</title>
       <path
         d="M11.334 16.5C11.8863 16.5 12.334 16.9477 12.334 17.5V19.5C12.334 20.0523 11.8863 20.5 11.334 20.5H0.333984V16.5H11.334Z"

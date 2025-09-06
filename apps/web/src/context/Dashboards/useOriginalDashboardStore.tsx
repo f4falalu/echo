@@ -1,51 +1,39 @@
-'use client';
-
-import { create } from 'zustand';
+import { Store, useStore } from '@tanstack/react-store';
 import type { BusterDashboard } from '@/api/asset_interfaces/dashboard';
-import { useMount } from '@/hooks';
 
-type OriginalDashboardStore = {
-  originalDashboards: Record<string, BusterDashboard>;
-  bulkAddOriginalDashboards: (dashboards: Record<string, BusterDashboard>) => void;
-  setOriginalDashboard: (dashboard: BusterDashboard) => void;
-  getOriginalDashboard: (dashboardId: string | undefined) => BusterDashboard | undefined;
-  removeOriginalDashboard: (dashboardId: string) => void;
+const originalDashboardStore = new Store(new Map<string, BusterDashboard>());
+
+export const bulkAddOriginalDashboards = (dashboards: Record<string, BusterDashboard>) => {
+  Object.entries(dashboards).forEach(([id, dashboard]) => {
+    originalDashboardStore.setState((prev) => new Map(prev).set(id, dashboard));
+  });
 };
 
-export const useOriginalDashboardStore = create<OriginalDashboardStore>((set, get) => ({
-  originalDashboards: {},
-  bulkAddOriginalDashboards: (dashboards: Record<string, BusterDashboard>) =>
-    set((prev) => ({
-      originalDashboards: {
-        ...prev.originalDashboards,
-        ...dashboards
-      }
-    })),
-  setOriginalDashboard: (dashboard: BusterDashboard) =>
-    set((state) => ({
-      originalDashboards: {
-        ...state.originalDashboards,
-        [dashboard.id]: dashboard
-      }
-    })),
-  getOriginalDashboard: (dashboardId: string | undefined) =>
-    dashboardId ? get().originalDashboards[dashboardId] : undefined,
-  removeOriginalDashboard: (dashboardId: string) =>
-    set((state) => {
-      const { [dashboardId]: removed, ...rest } = state.originalDashboards;
-      return { originalDashboards: rest };
-    })
-}));
+export const setOriginalDashboard = (dashboard: BusterDashboard) => {
+  originalDashboardStore.setState((prev) => new Map(prev).set(dashboard.id, dashboard));
+};
 
-export const HydrationBoundaryDashboardStore: React.FC<{
-  children: React.ReactNode;
-  dashboard?: OriginalDashboardStore['originalDashboards'][string];
-}> = ({ children, dashboard }) => {
-  const setOriginalDashboards = useOriginalDashboardStore((x) => x.setOriginalDashboard);
+export const getOriginalDashboard = (dashboardId: string) => {
+  return originalDashboardStore.state.get(dashboardId);
+};
 
-  useMount(() => {
-    if (dashboard) setOriginalDashboards(dashboard);
+export const removeOriginalDashboard = (dashboardId: string) => {
+  originalDashboardStore.setState((prev) => {
+    const newState = new Map(prev);
+    newState.delete(dashboardId);
+    return newState;
   });
+};
 
-  return <>{children}</>;
+export const useOriginalDashboardStore = () => {
+  return useStore(originalDashboardStore);
+};
+
+const stableSelectOriginalDashboard = (dashboardId: string | undefined) => {
+  if (!dashboardId) return undefined;
+  return (state: Map<string, BusterDashboard>) => state.get(dashboardId);
+};
+
+export const useGetOriginalDashboard = (dashboardId: string | undefined) => {
+  return useStore(originalDashboardStore, stableSelectOriginalDashboard(dashboardId));
 };

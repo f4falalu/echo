@@ -2,7 +2,7 @@ import type { Metric } from '../metrics';
 import type { ShareConfig, ShareRole } from '../share';
 import type { Dashboard } from './dashboard.types';
 
-export type BusterDashboardResponse = {
+export type GetDashboardResponse = {
   access: ShareRole;
   metrics: Record<string, Metric>;
   dashboard: Dashboard;

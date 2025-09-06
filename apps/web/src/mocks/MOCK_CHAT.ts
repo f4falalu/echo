@@ -3,7 +3,7 @@ import type {
   BusterChatMessage,
   BusterChatMessageReasoning,
   BusterChatMessageReasoning_file,
-  BusterChatMessageResponse
+  BusterChatMessageResponse,
 } from '@/api/asset_interfaces';
 
 // Helper functions for predictable data generation
@@ -21,7 +21,7 @@ const MOCK_MESSAGE_RESPONSE = (
       id: generateId('response', index),
       type,
       message: `Sample message ${index}`,
-      is_final_message: false
+      is_final_message: false,
     };
   }
 
@@ -36,9 +36,9 @@ const MOCK_MESSAGE_RESPONSE = (
       {
         status: 'completed',
         message: `Create your file ${index}`,
-        timestamp: 4200 + index
-      }
-    ]
+        timestamp: 4200 + index,
+      },
+    ],
   };
 };
 
@@ -55,7 +55,7 @@ const MOCK_MESSAGE_REASONING = (
       title: `Sample title ${index}`,
       status: 'completed',
       message: `Sample reasoning message ${index}`,
-      secondary_title: '4.2 seconds'
+      secondary_title: '4.2 seconds',
     };
   }
 
@@ -69,8 +69,8 @@ const MOCK_MESSAGE_REASONING = (
         status: 'loading',
         file: {
           text: `Sample file text ${fileIndex}`,
-          modified: [[0, 100]]
-        }
+          modified: [[0, 100]],
+        },
       };
     };
 
@@ -86,7 +86,7 @@ const MOCK_MESSAGE_REASONING = (
       files: files.reduce<Record<string, BusterChatMessageReasoning_file>>((acc, f) => {
         acc[f.id] = f;
         return acc;
-      }, {})
+      }, {}),
     };
   }
 
@@ -99,9 +99,9 @@ const MOCK_MESSAGE_REASONING = (
     pill_containers: [
       {
         title: `Sample pill container ${index}`,
-        pills: []
-      }
-    ]
+        pills: [],
+      },
+    ],
   };
 };
 
@@ -116,7 +116,7 @@ const MOCK_MESSAGE = (messageIndex = 0): BusterChatMessage => {
     'pills',
     'files',
     'text',
-    'files'
+    'files',
   ];
   const reasoningMessage = Array.from({ length: 5 }, (_, i) =>
     MOCK_MESSAGE_REASONING(reasoningTypes[i], i + messageIndex * 5)
@@ -131,7 +131,7 @@ const MOCK_MESSAGE = (messageIndex = 0): BusterChatMessage => {
       request: `Sample request ${messageIndex}`,
       sender_id: generateId('sender', messageIndex),
       sender_name: `User ${messageIndex}`,
-      sender_avatar: `https://avatar.example.com/user${messageIndex}.jpg`
+      sender_avatar: `https://avatar.example.com/user${messageIndex}.jpg`,
     },
     final_reasoning_message: null,
     response_message_ids: responseMessage.map((m) => m.id),
@@ -150,7 +150,7 @@ const MOCK_MESSAGE = (messageIndex = 0): BusterChatMessage => {
       {}
     ),
     feedback: null,
-    reasoning_message_ids: reasoningMessage.map((m) => m.id)
+    reasoning_message_ids: reasoningMessage.map((m) => m.id),
   };
 };
 
@@ -173,6 +173,6 @@ export const MOCK_CHAT = (chatIndex = 0): BusterChat => {
     created_by_id: generateId('user', chatIndex),
     created_by_name: `User ${chatIndex}`,
     created_by_avatar: `https://avatar.example.com/user${chatIndex}.jpg`,
-    publicly_accessible: false
+    publicly_accessible: false,
   };
 };

@@ -1,22 +1,43 @@
+import type { RegisteredRouter } from '@tanstack/react-router';
 import type React from 'react';
+import type { ILinkProps } from '@/types/routes';
 
-export interface ISidebarItem {
+// Base properties shared by all sidebar items
+type ISidebarItemBase = {
   label: string;
   icon?: React.ReactNode;
-  route: string | null;
   id: string;
   disabled?: boolean;
   active?: boolean;
   onRemove?: () => void;
   onClick?: () => void;
   collapsedTooltip?: string;
-}
+};
 
-export interface ISidebarGroup {
+// Discriminated union: either has a route (with optional activeOptions) or no route at all
+export type ISidebarItem<
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = unknown,
+  TFrom extends string = string,
+> = ISidebarItemBase &
+  (
+    | {
+        link: ILinkProps<TRouter, TOptions, TFrom>;
+      }
+    | {
+        link?: never;
+      }
+  );
+
+export interface ISidebarGroup<
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = unknown,
+  TFrom extends string = string,
+> {
   label: string;
   icon?: React.ReactNode;
   id: string;
-  items: ISidebarItem[];
+  items: ISidebarItem<TRouter, TOptions, TFrom>[];
   variant?: 'collapsible' | 'icon'; //default is collapsible
   defaultOpen?: boolean; //will default to true
   isSortable?: boolean;
@@ -25,16 +46,22 @@ export interface ISidebarGroup {
   className?: string;
 }
 
-export interface ISidebarList {
-  items: ISidebarItem[];
+export interface ISidebarList<
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = unknown,
+  TFrom extends string = string,
+> {
+  items: ISidebarItem<TRouter, TOptions, TFrom>[];
   id: string;
 }
 
-type SidebarContent = ISidebarGroup | ISidebarList;
-
-export interface SidebarProps {
+export interface SidebarProps<
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = unknown,
+  TFrom extends string = string,
+> {
   header: React.ReactNode;
-  content: SidebarContent[];
+  content: ISidebarGroup<TRouter, TOptions, TFrom>[] | ISidebarList<TRouter, TOptions, TFrom>[];
   footer?: React.ReactNode;
   isSortable?: boolean;
   useCollapsible?: boolean;

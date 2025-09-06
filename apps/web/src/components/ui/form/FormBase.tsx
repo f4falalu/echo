@@ -16,7 +16,7 @@ export function LabelWrapper({
   direction = 'row',
   className = '',
   labelClassName = '',
-  htmlFor
+  htmlFor,
 }: {
   label: string | null;
   children: ReactNode;
@@ -33,14 +33,16 @@ export function LabelWrapper({
         'label-wrapper flex gap-x-4 gap-y-2',
         direction === 'row' ? 'flex-row items-center' : 'flex-col justify-start',
         className
-      )}>
+      )}
+    >
       <Label
         className={cn(
           'truncate',
           direction === 'row' ? 'min-w-fit flex-grow' : 'w-full',
           labelClassName
         )}
-        htmlFor={htmlFor}>
+        htmlFor={htmlFor}
+      >
         {label}
       </Label>
 
@@ -55,7 +57,7 @@ export function TextField({
   className = '',
   labelClassName = '',
   type,
-  placeholder
+  placeholder,
 }: {
   label: string | null;
   direction?: 'row' | 'column';
@@ -70,8 +72,8 @@ export function TextField({
     name,
     state: {
       value,
-      meta: { errors, isTouched }
-    }
+      meta: { errors, isTouched },
+    },
   } = field;
   const error = errors?.[0]?.message;
   const isFormSubmitted = field.form.state.submissionAttempts > 1;
@@ -102,7 +104,8 @@ export function TextField({
       label={label}
       direction={direction}
       labelClassName={labelClassName}
-      htmlFor={field.name}>
+      htmlFor={field.name}
+    >
       {InputComponent}
     </LabelWrapper>
   );
@@ -115,8 +118,8 @@ export function NumberField(props: Parameters<typeof TextField>[0]) {
     name,
     state: {
       value,
-      meta: { errors, isTouched }
-    }
+      meta: { errors, isTouched },
+    },
   } = field;
   const error = errors?.[0]?.message;
 
@@ -150,7 +153,8 @@ export function NumberField(props: Parameters<typeof TextField>[0]) {
       label={props.label}
       direction={props.direction}
       labelClassName={props.labelClassName}
-      htmlFor={field.name}>
+      htmlFor={field.name}
+    >
       {InputComponent}
     </LabelWrapper>
   );
@@ -162,15 +166,15 @@ export function PasswordField({
   className,
   inputClassName,
   labelClassName,
-  placeholder
+  placeholder,
 }: Parameters<typeof TextField>[0]) {
   const field = useFieldContext<string>();
   const {
     name,
     state: {
       value,
-      meta: { errors, isTouched }
-    }
+      meta: { errors, isTouched },
+    },
   } = field;
   const error = errors?.[0]?.message;
   const isFormSubmitted = field.form.state.submissionAttempts > 1;
@@ -201,7 +205,8 @@ export function PasswordField({
       direction={direction}
       className={className}
       labelClassName={labelClassName}
-      htmlFor={field.name}>
+      htmlFor={field.name}
+    >
       {InputComponent}
     </LabelWrapper>
   );
@@ -212,7 +217,7 @@ export function MultipleInlineFields({
   direction = 'row',
   label,
   labelClassName = '',
-  className = ''
+  className = '',
 }: {
   direction?: 'row' | 'column';
   label: string;
@@ -225,7 +230,8 @@ export function MultipleInlineFields({
       label={label}
       direction={direction}
       labelClassName={labelClassName}
-      className={className}>
+      className={className}
+    >
       <div className="flex w-full flex-grow gap-2">{children}</div>
     </LabelWrapper>
   );
@@ -234,7 +240,7 @@ export function MultipleInlineFields({
 export function SubscribeButton({
   submitLabel,
   useResetButton = true,
-  disableIfNotChanged = false
+  disableIfNotChanged = false,
 }: {
   submitLabel: string;
   useResetButton?: boolean;
@@ -255,7 +261,8 @@ export function SubscribeButton({
             variant="black"
             type="submit"
             disabled={!canSubmit || (disableIfNotChanged && !form.state.isDirty)}
-            loading={isSubmitting}>
+            loading={isSubmitting}
+          >
             {submitLabel}
           </Button>
         </div>

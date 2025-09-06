@@ -1,4 +1,4 @@
-import type { TeamListResponse, GetTeamListRequest } from '@buster/server-shared/teams';
+import type { GetTeamListRequest, TeamListResponse } from '@buster/server-shared/teams';
 import { mainApi } from '../instances';
 
 export const createTeam = async (params: {

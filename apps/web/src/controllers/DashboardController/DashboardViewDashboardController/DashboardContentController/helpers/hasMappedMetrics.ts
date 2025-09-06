@@ -1,5 +1,5 @@
+import type { DashboardConfig } from '@buster/server-shared/dashboards';
 import omit from 'lodash/omit';
-import type { DashboardConfig } from '@/api/asset_interfaces/dashboard';
 import type { BusterMetric } from '@/api/asset_interfaces/metric';
 import type { BusterResizeableGridRow } from '@/components/ui/grid';
 
@@ -30,6 +30,6 @@ export const hasRemovedMetrics = (
 export const removeChildrenFromItems = (row: BusterResizeableGridRow[]) => {
   return row.map((r) => ({
     ...r,
-    items: r.items.map((i) => omit(i, 'children'))
+    items: r.items.map((i) => omit(i, 'children')),
   }));
 };

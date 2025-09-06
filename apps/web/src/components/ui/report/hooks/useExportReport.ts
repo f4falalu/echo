@@ -1,9 +1,9 @@
-import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemo } from 'react';
-import { exportToPdf } from './exportToPdf';
-import { exportToImage } from './exportToImage';
+import { useBusterNotifications } from '@/context/BusterNotifications';
 import { exportToHtml } from './exportToHtml';
+import { exportToImage } from './exportToImage';
 import { exportToMarkdown } from './exportToMarkdown';
+import { exportToPdf } from './exportToPdf';
 
 export const useExportReport = () => {
   const { openErrorMessage, openInfoMessage } = useBusterNotifications();
@@ -25,7 +25,7 @@ export const useExportReport = () => {
       exportToPdf: exportToPdfLocal,
       exportToImage: exportToImageLocal,
       exportToHtml: exportToHtmlLocal,
-      exportToMarkdown: exportToMarkdownLocal
+      exportToMarkdown: exportToMarkdownLocal,
     }),
     []
   );

@@ -1,13 +1,13 @@
-import { mainApiV2 } from '../instances';
 import type {
-  InitiateOAuthRequest,
-  UpdateIntegrationRequest,
-  InitiateOAuthResponse,
+  GetChannelsResponse,
   GetIntegrationResponse,
+  InitiateOAuthRequest,
+  InitiateOAuthResponse,
   RemoveIntegrationResponse,
+  UpdateIntegrationRequest,
   UpdateIntegrationResponse,
-  GetChannelsResponse
 } from '@buster/server-shared/slack';
+import { mainApiV2 } from '../instances';
 
 // POST /api/v2/slack/auth/init
 export const initiateSlackOAuth = async (data?: InitiateOAuthRequest) => {

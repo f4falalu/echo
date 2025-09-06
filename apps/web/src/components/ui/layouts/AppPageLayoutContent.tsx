@@ -15,7 +15,8 @@ export const AppPageLayoutContent: React.FC<
   return (
     <Selector
       id={id}
-      className={cn('bg-page-background app-content h-full max-h-full overflow-hidden', className)}>
+      className={cn('bg-page-background app-content h-full max-h-full overflow-hidden', className)}
+    >
       <ChildSelector>{children}</ChildSelector>
     </Selector>
   );

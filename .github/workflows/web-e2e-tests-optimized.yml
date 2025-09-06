@@ -43,11 +43,11 @@ jobs:
         working-directory: ./web
         run: pnpm run build
         env:
-          NEXT_PUBLIC_API_URL: http://localhost:3001
-          NEXT_PUBLIC_URL: http://localhost:3000
-          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODIzNDMwOTZ9.7UIsMFfHYKxH7bUJCRfxd6lr7CSXGF7UxtZQO10FMMo"
-          NEXT_PUBLIC_WEB_SOCKET_URL: ws://localhost:3001
+          VITE_PUBLIC_API_URL: http://localhost:3001
+          VITE_PUBLIC_URL: http://localhost:3000
+          VITE_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          VITE_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODIzNDMwOTZ9.7UIsMFfHYKxH7bUJCRfxd6lr7CSXGF7UxtZQO10FMMo"
+          VITE_PUBLIC_WEB_SOCKET_URL: ws://localhost:3001
 
       - name: Archive Frontend Build
         working-directory: ./web

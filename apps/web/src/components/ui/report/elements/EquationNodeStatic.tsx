@@ -1,12 +1,8 @@
-import * as React from 'react';
-
-import type { SlateElementProps, TEquationElement } from 'platejs';
-
 import { getEquationHtml } from '@platejs/math';
+import type { SlateElementProps, TEquationElement } from 'platejs';
 import { SlateElement } from 'platejs';
-import { NodeTypeIcons } from '../config/icons';
-
 import { cn } from '@/lib/utils';
+import { NodeTypeIcons } from '../config/icons';
 
 export function EquationElementStatic(props: SlateElementProps<TEquationElement>) {
   const { element } = props;
@@ -22,8 +18,8 @@ export function EquationElementStatic(props: SlateElementProps<TEquationElement>
       output: 'htmlAndMathml',
       strict: 'warn',
       throwOnError: false,
-      trust: false
-    }
+      trust: false,
+    },
   });
 
   return (
@@ -32,11 +28,13 @@ export function EquationElementStatic(props: SlateElementProps<TEquationElement>
         className={cn(
           'group hover:bg-primary/10 data-[selected=true]:bg-primary/10 flex items-center justify-center rounded-sm select-none',
           element.texExpression.length === 0 ? 'bg-muted p-3 pr-9' : 'px-2 py-1'
-        )}>
+        )}
+      >
         {element.texExpression.length > 0 ? (
           <span
+            // biome-ignore lint/security/noDangerouslySetInnerHtml: cool kids dangerously set inner html
             dangerouslySetInnerHTML={{
-              __html: html
+              __html: html,
             }}
           />
         ) : (
@@ -65,26 +63,29 @@ export function InlineEquationElementStatic(props: SlateElementProps<TEquationEl
       output: 'htmlAndMathml',
       strict: 'warn',
       throwOnError: false,
-      trust: false
-    }
+      trust: false,
+    },
   });
 
   return (
     <SlateElement
       {...props}
-      className="inline-block rounded-sm select-none [&_.katex-display]:my-0">
+      className="inline-block rounded-sm select-none [&_.katex-display]:my-0"
+    >
       <div
         className={cn(
           'after:absolute after:inset-0 after:-top-0.5 after:-left-1 after:z-1 after:h-[calc(100%)+4px] after:w-[calc(100%+8px)] after:rounded-sm after:content-[""]',
           'h-6',
           props.element.texExpression.length === 0 &&
             'text-muted-foreground after:bg-neutral-500/10'
-        )}>
+        )}
+      >
         <span
           className={cn(
             props.element.texExpression.length === 0 && 'hidden',
             'font-mono leading-none'
           )}
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: no other option
           dangerouslySetInnerHTML={{ __html: html }}
         />
       </div>

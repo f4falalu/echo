@@ -1,10 +1,11 @@
 import { z } from 'zod';
-import { ShareRoleSchema, VerificationStatusSchema, WorkspaceShareRoleSchema } from '../share';
+import { ShareRoleSchema, VerificationStatusSchema } from '../share';
 import { ChartConfigPropsSchema } from './charts';
 
 export const GetMetricRequestSchema = z.object({
   id: z.string(),
   password: z.string().optional(),
+  report_file_id: z.string().optional(),
   version_number: z.number().optional(), //api will default to latest if not provided
 });
 

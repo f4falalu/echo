@@ -2,10 +2,10 @@ import type React from 'react';
 import {
   useGetMetric,
   useRemoveMetricFromCollection,
-  useSaveMetricToCollections
+  useSaveMetricToCollections,
 } from '@/api/buster_rest/metrics';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { SaveToCollectionsDropdown } from '../dropdowns/SaveToCollectionsDropdown';
 import { CollectionButton } from './CollectionsButton';
 
@@ -25,7 +25,7 @@ export const SaveMetricToCollectionButton: React.FC<{
   const onSaveToCollection = useMemoizedFn(async (collectionIds: string[]) => {
     await saveMetricToCollection({
       metricIds: [metricId],
-      collectionIds
+      collectionIds,
     });
     openInfoMessage('Metrics saved to collections');
   });
@@ -33,7 +33,7 @@ export const SaveMetricToCollectionButton: React.FC<{
   const onRemoveFromCollection = useMemoizedFn(async (collectionId: string) => {
     await removeMetricFromCollection({
       metricIds: [metricId],
-      collectionIds: [collectionId]
+      collectionIds: [collectionId],
     });
     openInfoMessage('Metrics removed from collections');
   });
@@ -42,7 +42,8 @@ export const SaveMetricToCollectionButton: React.FC<{
     <SaveToCollectionsDropdown
       onSaveToCollection={onSaveToCollection}
       onRemoveFromCollection={onRemoveFromCollection}
-      selectedCollections={selectedCollections || []}>
+      selectedCollections={selectedCollections || []}
+    >
       <CollectionButton buttonType={buttonType} useText={useText} />
     </SaveToCollectionsDropdown>
   );

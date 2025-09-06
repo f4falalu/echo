@@ -1,6 +1,6 @@
 import { type BusterSDK, createBusterSDK } from '@buster/sdk';
 import { loadCredentials } from '../../../utils/credentials';
-import type { DeployRequest, DeployResponse, DeploymentFailure, DeploymentItem } from '../schemas';
+import type { DeploymentFailure, DeploymentItem, DeployRequest, DeployResponse } from '../schemas';
 
 /**
  * Type definition for a deployment function

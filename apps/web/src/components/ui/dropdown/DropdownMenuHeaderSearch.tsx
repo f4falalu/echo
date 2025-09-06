@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { cn } from '@/lib/classMerge';
 import { Magnifier } from '../icons';
 import { Input } from '../inputs';
@@ -20,13 +21,31 @@ export const DropdownMenuHeaderSearch = <T,>({
   onPressEnter,
   showIndex = false,
   placeholder,
-  className = ''
+  className = '',
 }: DropdownMenuHeaderSearchProps<T>) => {
+  const inputRef = useRef<HTMLInputElement>(null);
   const { onChange: onChangePreflight, onKeyDown: onKeyDownPreflight } = useRadixDropdownSearch({
     showIndex,
     onSelectItem,
-    onChange
+    onChange,
   });
+
+  useEffect(() => {
+    // Use requestAnimationFrame to ensure DOM is ready after animations
+    const focusInput = () => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    };
+
+    // Try immediate focus first
+    focusInput();
+
+    // If that doesn't work, try after the next frame
+    requestAnimationFrame(() => {
+      focusInput();
+    });
+  }, []);
 
   return (
     <div className={cn('flex items-center gap-x-0', className)}>
@@ -34,7 +53,8 @@ export const DropdownMenuHeaderSearch = <T,>({
         <Magnifier />
       </span>
       <Input
-        autoFocus
+        ref={inputRef}
+        autoFocus={true}
         variant={'ghost'}
         className="pl-1.5!"
         size={'small'}

@@ -1,8 +1,7 @@
-'use client';
-
-import type { ExtendConfig, Path } from 'platejs';
+/** biome-ignore-all lint/style/noNonNullAssertion: it's cool */
 
 import { type BaseCommentConfig, BaseCommentPlugin, getDraftCommentKey } from '@platejs/comment';
+import type { ExtendConfig, Path } from 'platejs';
 import { isSlateString } from 'platejs';
 import { toTPlatePlugin } from 'platejs/react';
 
@@ -53,22 +52,22 @@ export const commentPlugin = toTPlatePlugin<CommentConfig>(BaseCommentPlugin, {
       }
 
       if (!isSet) unsetActiveSuggestion();
-    }
+    },
   },
   options: {
     activeId: null,
     commentingBlock: null,
     hoverId: null,
-    uniquePathMap: new Map()
-  }
+    uniquePathMap: new Map(),
+  },
 })
   .extendTransforms(
     ({
       editor,
       setOption,
       tf: {
-        comment: { setDraft }
-      }
+        comment: { setDraft },
+      },
     }) => ({
       setDraft: () => {
         if (editor.api.isCollapsed()) {
@@ -80,14 +79,14 @@ export const commentPlugin = toTPlatePlugin<CommentConfig>(BaseCommentPlugin, {
         editor.tf.collapse();
         setOption('activeId', getDraftCommentKey());
         setOption('commentingBlock', editor.selection!.focus.path.slice(0, 1));
-      }
+      },
     })
   )
   .configure({
     node: { component: CommentLeaf },
     shortcuts: {
-      setDraft: { keys: 'mod+shift+m' }
-    }
+      setDraft: { keys: 'mod+shift+m' },
+    },
   });
 
 export const CommentKit = [commentPlugin];

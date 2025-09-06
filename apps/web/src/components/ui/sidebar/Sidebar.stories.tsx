@@ -1,9 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
-import React from 'react';
-import { BusterRoutes } from '../../../routes';
-import { Window, WindowAlert, WindowSettings, WindowUser } from '../icons/NucleoIconOutlined';
-import { Sidebar } from './Sidebar';
+import { Check3, Window, WindowSettings, WindowUser } from '../icons/NucleoIconOutlined';
+import { createSidebarGroup } from './create-sidebar-item';
+import type { ISidebarGroup, ISidebarItem } from './interfaces';
+import { Sidebar } from './SidebarComponent';
 
 const meta: Meta<typeof Sidebar> = {
   title: 'UI/Sidebar/Sidebar',
@@ -13,57 +13,68 @@ const meta: Meta<typeof Sidebar> = {
       <div className="h-[500px] w-64 bg-transparent">
         <Story />
       </div>
-    )
-  ]
+    ),
+  ],
 };
 
 export default meta;
 type Story = StoryObj<typeof Sidebar>;
 
-const mockItems = [
+const mockItems: ISidebarItem[] = [
   {
     id: '1',
     label: 'Home',
     icon: <Window />,
-    route: BusterRoutes.APP_HOME
+    link: {
+      to: '/app/home',
+    },
   },
   {
     id: '2',
     label: 'Profile',
     icon: <WindowUser />,
-    route: BusterRoutes.SETTINGS_PROFILE
+    link: {
+      to: '/app/settings/profile',
+    },
   },
   {
     id: '3',
     label: 'Settings',
     icon: <WindowSettings />,
-    route: BusterRoutes.SETTINGS
-  }
+    link: {
+      to: '/app/settings/profile',
+    },
+  },
 ];
 
-const mockGroupedContent = [
+const mockGroupedContent: ISidebarGroup[] = [
   {
     id: 'notifications',
+    label: 'Notifications',
     items: [
       {
         id: '4',
         label: 'Notifications',
-        icon: <WindowAlert width="1.25em" height="1.25em" />,
-        route: BusterRoutes.SETTINGS_NOTIFICATIONS
+        icon: <Check3 width="1.25em" height="1.25em" />,
+        link: {
+          to: '/app/settings/profile',
+        },
       },
       {
         id: '5',
         label: 'Notifications',
-        icon: <WindowAlert width="1.25em" height="1.25em" />,
-        route: BusterRoutes.SETTINGS_NOTIFICATIONS
-      }
-    ]
+        icon: <Check3 width="1.25em" height="1.25em" />,
+        link: {
+          to: '/app',
+        },
+      },
+    ] satisfies ISidebarItem[],
   },
   {
     id: 'main-menu',
     label: 'Main Menu',
-    items: mockItems
-  }
+    items: mockItems,
+  },
 ];
 
 export const Default: Story = {
@@ -72,8 +83,8 @@ export const Default: Story = {
     content: mockGroupedContent,
     footer: (
       <div className="flex h-full items-center justify-center text-sm text-gray-500">Footer</div>
-    )
-  }
+    ),
+  },
 };
 
 export const WithLongContent: Story = {
@@ -87,20 +98,25 @@ export const WithLongContent: Story = {
           id: `item-${i}`,
           label: `Menu Item ${i + 1}`,
           icon: <Window width="1.25em" height="1.25em" />,
-          route: BusterRoutes.APP_HOME,
-          active: i === 0
-        }))
-      }
+          link: {
+            to: '/app/home',
+            activeOptions: {
+              exact: true,
+            },
+          },
+          active: i === 0,
+        })),
+      },
     ],
-    footer: <div className="text-sm text-gray-500">Sticky Footer</div>
-  }
+    footer: <div className="text-sm text-gray-500">Sticky Footer</div>,
+  },
 };
 
 export const NoFooter: Story = {
   args: {
     header: <div className="text-xl font-semibold">My App</div>,
-    content: mockGroupedContent
-  }
+    content: mockGroupedContent,
+  },
 };
 
 export const ScrollAndTruncationTest: Story = {
@@ -109,19 +125,21 @@ export const ScrollAndTruncationTest: Story = {
     content: [
       {
         id: 'default-items',
-        items: mockItems
+        items: mockItems,
       },
-      {
+      createSidebarGroup({
         id: 'short-items',
         label: 'Short Items',
         items: [...Array(20)].map((_, i) => ({
           id: `short-${i}`,
           label: `Item ${i + 1}`,
           icon: <Window width="1.25em" height="1.25em" />,
-          route: BusterRoutes.APP_HOME,
-          active: i === 4
-        }))
-      },
+          link: {
+            to: '/app/home',
+          },
+          active: i === 4,
+        })),
+      } as ISidebarGroup),
       {
         id: 'long-items',
         label: 'Long Items',
@@ -131,28 +149,37 @@ export const ScrollAndTruncationTest: Story = {
             label:
               'This is an extremely long menu item that should definitely get truncated in the UI because it is way too long to fit',
             icon: <WindowSettings width="1.25em" height="1.25em" />,
-            route: BusterRoutes.SETTINGS
+            link: {
+              to: '/app/settings/profile',
+            },
           },
           {
             id: 'long-2',
             label:
               'Another very long label that contains some technical terms like Implementation Documentation Requirements',
             icon: <WindowUser width="1.25em" height="1.25em" />,
-            route: BusterRoutes.SETTINGS_PROFILE
+            link: {
+              to: '/app/settings/profile',
+            },
           },
           ...Array(30)
             .fill(null)
-            .map((_, i) => ({
-              id: `long-${i + 3}`,
-              label: `Somewhat Long Menu Item ${i + 1} with Additional Description Text`,
-              icon: <WindowAlert width="1.25em" height="1.25em" />,
-              route: BusterRoutes.SETTINGS_NOTIFICATIONS
-            }))
-        ]
-      }
+            .map(
+              (_, i) =>
+                ({
+                  id: `long-${i + 3}`,
+                  label: `Somewhat Long Menu Item ${i + 1} with Additional Description Text`,
+                  icon: <Check3 width="1.25em" height="1.25em" />,
+                  link: {
+                    to: '/app/settings/profile',
+                  },
+                }) satisfies ISidebarItem
+            ),
+        ],
+      } as ISidebarGroup,
     ],
-    footer: <div className="text-sm text-gray-500">Footer for Scroll Test</div>
-  }
+    footer: <div className="text-sm text-gray-500">Footer for Scroll Test</div>,
+  },
 };
 
 export const WithRemovableItems: Story = {
@@ -164,15 +191,15 @@ export const WithRemovableItems: Story = {
         label: 'Removable Items',
         items: mockItems.map((item) => ({
           ...item,
-          onRemove: fn()
-        }))
+          onRemove: fn(),
+        })),
       },
       {
         id: 'fixed-items',
         label: 'Fixed Items',
-        items: mockItems
-      }
+        items: mockItems,
+      },
     ],
-    footer: <div className="text-sm text-gray-500">Footer</div>
-  }
+    footer: <div className="text-sm text-gray-500">Footer</div>,
+  },
 };

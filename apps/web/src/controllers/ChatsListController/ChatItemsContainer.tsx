@@ -1,19 +1,43 @@
-'use client';
-
-import React, { memo, useMemo, useRef, useState } from 'react';
 import type { ChatListItem } from '@buster/server-shared/chats';
-import { FavoriteStar } from '@/components/features/list';
+import type { LinkProps } from '@tanstack/react-router';
+import React, { memo, useMemo, useRef, useState } from 'react';
+import { FavoriteStar } from '@/components/features/favorites/FavoriteStar';
 import { getShareStatus } from '@/components/features/metrics/StatusBadgeIndicator';
 import { Avatar } from '@/components/ui/avatar';
 import type { BusterListColumn, BusterListRowItem } from '@/components/ui/list';
-import { BusterList, ListEmptyStateWithButton } from '@/components/ui/list';
+import { BusterList, createListItem, ListEmptyStateWithButton } from '@/components/ui/list';
 import { useCreateListByDate } from '@/components/ui/list/useCreateListByDate';
 import { Text } from '@/components/ui/typography';
-import { useMemoizedFn } from '@/hooks';
-import { formatDate, makeHumanReadble } from '@/lib';
-import { BusterRoutes, createBusterRoute } from '@/routes';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { assetParamsToRoute } from '@/lib/assets/assetParamsToRoute';
+import { formatDate } from '@/lib/date';
+import { makeHumanReadble } from '@/lib/text';
+import { defineLink } from '../../lib/routes';
 import { ChatSelectedOptionPopup } from './ChatItemsSelectedPopup';
-import { assetParamsToRoute } from '@/lib/assets';
+
+const getLink = (chat: ChatListItem) => {
+  try {
+    const link = assetParamsToRoute({
+      chatId: chat.id,
+      assetId: chat.latest_file_id || '',
+      assetType: chat.latest_file_type,
+      versionNumber: chat.latest_version_number,
+    });
+    return link;
+  } catch (error) {
+    if (chat.id) {
+      return defineLink({
+        to: '/app/chats/$chatId',
+        params: {
+          chatId: chat.id,
+        },
+      });
+    }
+    return defineLink({
+      to: '/app/home',
+    });
+  }
+};
 
 export const ChatItemsContainer: React.FC<{
   chats: ChatListItem[];
@@ -32,22 +56,17 @@ export const ChatItemsContainer: React.FC<{
 
   const logsRecord = useCreateListByDate({ data: chats });
 
-  const getLink = useMemoizedFn((chat: ChatListItem) => {
-    return assetParamsToRoute({
-      chatId: chat.id,
-      assetId: chat.latest_file_id || '',
-      type: chat.latest_file_type,
-      versionNumber: chat.latest_version_number
-    });
-  });
-
   const chatsByDate: BusterListRowItem<ChatListItem>[] = useMemo(() => {
+    const createChatLinkItem = createListItem<ChatListItem>();
     return Object.entries(logsRecord).flatMap<BusterListRowItem<ChatListItem>>(([key, chats]) => {
-      const records = chats.map<BusterListRowItem<ChatListItem>>((chat) => ({
-        id: chat.id,
-        data: chat,
-        link: getLink(chat)
-      }));
+      const records = chats.map<BusterListRowItem<ChatListItem>>((chat) =>
+        createChatLinkItem({
+          id: chat.id,
+          data: chat,
+          link: getLink(chat),
+          preload: false,
+        })
+      );
       const hasRecords = records.length > 0;
 
       if (!hasRecords) return [];
@@ -57,8 +76,8 @@ export const ChatItemsContainer: React.FC<{
         data: null,
         rowSection: {
           title: makeHumanReadble(key),
-          secondaryTitle: String(records.length)
-        }
+          secondaryTitle: String(records.length),
+        },
       };
 
       return [additionalItem, ...records];
@@ -70,7 +89,7 @@ export const ChatItemsContainer: React.FC<{
       {
         dataIndex: 'name',
         title: 'Name',
-        render: (name, record) => <TitleCell name={name} chatId={record?.id} />
+        render: (name, record) => <TitleCell name={name} chatId={record?.id} />,
       },
       {
         dataIndex: 'last_edited',
@@ -83,13 +102,13 @@ export const ChatItemsContainer: React.FC<{
           const date = formatDate({ date: v, format: 'lll' });
           renderedDates.current[v] = date;
           return date;
-        }
+        },
       },
       {
         dataIndex: 'is_shared',
         title: 'Sharing',
         width: 65,
-        render: (v) => getShareStatus({ is_shared: v })
+        render: (v) => getShareStatus({ is_shared: v }),
       },
       {
         dataIndex: 'created_by_name',
@@ -104,8 +123,8 @@ export const ChatItemsContainer: React.FC<{
           );
           renderedOwners.current[name] = avatarCell;
           return avatarCell;
-        }
-      }
+        },
+      },
     ],
     []
   );
@@ -113,16 +132,12 @@ export const ChatItemsContainer: React.FC<{
   return (
     <>
       <BusterList<ChatListItem>
+        className={className}
         rows={chatsByDate}
         columns={columns}
         onSelectChange={onSelectChange}
         selectedRowKeys={selectedRowKeys}
-        emptyState={useMemo(
-          () => (
-            <EmptyState loading={loading} type={type} />
-          ),
-          [loading, type]
-        )}
+        emptyState={useMemo(() => <EmptyState loading={loading} type={type} />, [loading, type])}
       />
 
       <ChatSelectedOptionPopup
@@ -153,7 +168,9 @@ const EmptyState: React.FC<{
           : "You don't have any chats. As soon as you do, they will start to appear here."
       }
       buttonText="New chat"
-      linkButton={createBusterRoute({ route: BusterRoutes.APP_HOME })}
+      link={{
+        to: '/app/home',
+      }}
     />
   );
 });

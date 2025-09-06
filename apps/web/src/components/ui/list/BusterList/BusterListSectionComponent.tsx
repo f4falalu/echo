@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import { Text } from '@/components/ui/typography';
-import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
 import { CheckboxColumn } from './CheckboxColumn';
 import { HEIGHT_OF_SECTION_ROW } from './config';
@@ -44,9 +43,9 @@ export const BusterListSectionComponent = React.memo(
         return 'unchecked';
       }, [selectedRowKeys?.length, idsInSection, indexOfSection, rowSection]);
 
-      const onChange = useMemoizedFn((checked: boolean) => {
+      const onChange = (checked: boolean) => {
         onSelectSectionChange?.(checked, id);
-      });
+      };
 
       return (
         <div
@@ -59,9 +58,10 @@ export const BusterListSectionComponent = React.memo(
           style={{
             height: `${HEIGHT_OF_SECTION_ROW}px`,
             minHeight: `${HEIGHT_OF_SECTION_ROW}px`,
-            ...style
+            ...style,
           }}
-          ref={ref}>
+          ref={ref}
+        >
           {onSelectSectionChange && (
             <CheckboxColumn checkStatus={checkStatus} onChange={onChange} />
           )}

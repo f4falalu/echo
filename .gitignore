@@ -90,3 +90,7 @@ drizzle/meta/
 *.tsbuildinfo
 /packages/aTest/.mastra
 **/*.private.*
+apps/web/.env.prod
+apps/web/.env.production
+apps/web/.env.staging
+apps/web/wrangler.jsonc

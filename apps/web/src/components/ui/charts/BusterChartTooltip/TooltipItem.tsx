@@ -1,6 +1,6 @@
-import { cn } from '@/lib/classMerge';
 import type { ChartType } from '@buster/server-shared/metrics';
 import type React from 'react';
+import { cn } from '@/lib/classMerge';
 import { LegendItemDot } from '../BusterChartLegend/LegendDot';
 import type { ITooltipItem, TooltipItemValueProps } from './interfaces';
 
@@ -9,7 +9,7 @@ export const TooltipItem: React.FC<ITooltipItem> = ({
   color,
   seriesType,
   formattedLabel,
-  usePercentage
+  usePercentage,
 }) => {
   const isScatter = seriesType === 'scatter';
 
@@ -58,7 +58,8 @@ const TooltipItemValue: React.FC<{
     <div
       className={cn(
         'text-text-default tooltip-values overflow-hidden px-3 text-right text-xs font-medium text-ellipsis whitespace-nowrap'
-      )}>
+      )}
+    >
       {chooseValue(formattedValue, values[0]?.formattedPercentage)}
     </div>
   );
@@ -74,7 +75,8 @@ const GroupTooltipValue: React.FC<{
       <div
         className={cn(
           'text-text-default overflow-hidden text-right text-sm font-medium text-ellipsis whitespace-nowrap'
-        )}>
+        )}
+      >
         {value}
       </div>
     </>

@@ -1,5 +1,5 @@
-import { formatLabel } from '@/lib/columnFormatter';
 import type { Chart, ChartTypeRegistry, TooltipItem } from 'chart.js';
+import { formatLabel } from '@/lib/columnFormatter';
 import type { BusterChartProps } from '../../../../BusterChart.types';
 import type { ITooltipItem } from '../../../../BusterChartTooltip/interfaces';
 import { percentageFormatter } from './helpers';
@@ -40,7 +40,7 @@ export const pieTooltipHelper = (
         color,
         usePercentage,
         formattedLabel,
-        values: [{ formattedValue, formattedLabel, formattedPercentage }]
+        values: [{ formattedValue, formattedLabel, formattedPercentage }],
       };
     });
 

@@ -1,40 +1,36 @@
-'use client';
-
-import * as React from 'react';
-
-import { NodeTypeIcons } from '../config/icons';
-import { createLabel } from '../config/labels';
 import { KEYS } from 'platejs';
 import { useEditorReadOnly } from 'platejs/react';
-
-import { AIToolbarButton } from './AIToolbarButton';
-import { CommentToolbarButton } from './CommandToolbarButton';
-import { InlineEquationToolbarButton } from './EquationToolbarButton';
-import { LinkToolbarButton } from './LinkToolbarButton';
-import { MarkToolbarButton } from './MarktoolbarButton';
-import { MoreToolbarButton } from './MoreToolbarButton';
-import { SuggestionToolbarButton } from './SuggestionToolbarButton';
+import * as React from 'react';
 import { ToolbarGroup } from '@/components/ui/toolbar/Toolbar';
-import { TurnIntoToolbarButton } from './TurnIntoToolbarButton';
-import { UndoToolbarButton, RedoToolbarButton } from './UndoToolbarButton';
-import { ExportToolbarButton } from './ExportToolbarButton';
-import { ImportToolbarButton } from './ImportToolbarButton';
-import { InsertToolbarButton } from './InsertToolbarButton';
-import { FontSizeToolbarButton } from './FontSizeToolbarButton';
-import { FontColorToolbarButton } from './FontColorToolbarButton';
+import { NodeTypeIcons } from '../config/icons';
+import { createLabel } from '../config/labels';
+import { AIToolbarButton } from './AIToolbarButton';
 import { AlignToolbarButton } from './AlignToolbarButton';
+import { CommentToolbarButton } from './CommandToolbarButton';
+import { EmojiToolbarButton } from './EmojiToolbarButton';
+import { InlineEquationToolbarButton } from './EquationToolbarButton';
+import { ExportToolbarButton } from './ExportToolbarButton';
+import { FontColorToolbarButton } from './FontColorToolbarButton';
+import { FontSizeToolbarButton } from './FontSizeToolbarButton';
+import { ImportToolbarButton } from './ImportToolbarButton';
+import { IndentToolbarButton, OutdentToolbarButton } from './IndentToolbarButton';
+import { InsertToolbarButton } from './InsertToolbarButton';
+import { LineHeightToolbarButton } from './LineHeightToolbarButton';
+import { LinkToolbarButton } from './LinkToolbarButton';
 import {
   BulletedListToolbarButton,
   NumberedListToolbarButton,
-  TodoListToolbarButton
+  TodoListToolbarButton,
 } from './ListToolbarButton';
-import { ToggleToolbarButton } from './ToggleToolbarButton';
-import { TableToolbarButton } from './TableToolbarButton';
-import { EmojiToolbarButton } from './EmojiToolbarButton';
+import { MarkToolbarButton } from './MarktoolbarButton';
 import { MediaToolbarButton } from './MediaToolbarButton';
-import { LineHeightToolbarButton } from './LineHeightToolbarButton';
-import { IndentToolbarButton, OutdentToolbarButton } from './IndentToolbarButton';
 import { ModeToolbarButton } from './ModeToolbarButton';
+import { MoreToolbarButton } from './MoreToolbarButton';
+import { SuggestionToolbarButton } from './SuggestionToolbarButton';
+import { TableToolbarButton } from './TableToolbarButton';
+import { ToggleToolbarButton } from './ToggleToolbarButton';
+import { TurnIntoToolbarButton } from './TurnIntoToolbarButton';
+import { RedoToolbarButton, UndoToolbarButton } from './UndoToolbarButton';
 
 export const FixedToolbarButtons = React.memo(() => {
   const readOnly = useEditorReadOnly();
@@ -95,7 +91,8 @@ export const FixedToolbarButtons = React.memo(() => {
 
             <FontColorToolbarButton
               nodeType={KEYS.backgroundColor}
-              tooltip={createLabel('backgroundColor')}>
+              tooltip={createLabel('backgroundColor')}
+            >
               <NodeTypeIcons.backgroundColor />
             </FontColorToolbarButton>
           </ToolbarGroup>

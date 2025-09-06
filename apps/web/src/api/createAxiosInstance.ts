@@ -1,20 +1,21 @@
 import { isServer } from '@tanstack/react-query';
 import type { AxiosRequestHeaders } from 'axios';
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
-import type { SupabaseContextReturnType } from '@/context/Supabase/SupabaseContextProvider';
-import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
-import { rustErrorHandler } from './buster_rest/errors';
-import { getSupabaseTokenFromCookies } from './createServerInstance';
+import { Route as AuthRoute } from '@/routes/auth.login';
+import { checkTokenValidity } from './auth_helpers/check-token-validity';
+import { BASE_URL_V2 } from './config';
+import { rustErrorHandler } from './errors';
+import { getSupabaseSessionServerFn } from './server-functions/getSupabaseSession';
 
 const AXIOS_TIMEOUT = 120000; // 2 minutes
 
-export const createAxiosInstance = (baseURL: string) => {
+export const createAxiosInstance = (baseURL = BASE_URL_V2) => {
   const apiInstance = axios.create({
     baseURL,
     timeout: AXIOS_TIMEOUT,
     headers: {
-      'Content-Type': 'application/json'
-    }
+      'Content-Type': 'application/json',
+    },
   });
 
   // Response interceptor with retry logic for auth errors
@@ -27,9 +28,7 @@ export const createAxiosInstance = (baseURL: string) => {
 
       //402 is the payment required error code
       if (errorCode === 402) {
-        window.location.href = createBusterRoute({
-          route: BusterRoutes.INFO_GETTING_STARTED
-        });
+        window.location.href = AuthRoute.to;
         return Promise.reject(rustErrorHandler(error));
       }
 
@@ -49,9 +48,7 @@ export const createAxiosInstance = (baseURL: string) => {
           } catch (refreshError) {
             console.error('Failed to refresh token and retry request:', refreshError);
             // If refresh fails, redirect to login or show error
-            window.location.href = createBusterRoute({
-              route: BusterRoutes.AUTH_LOGIN
-            });
+            window.location.href = AuthRoute.to;
           }
         }
       }
@@ -64,24 +61,21 @@ export const createAxiosInstance = (baseURL: string) => {
   return apiInstance;
 };
 
-export const defaultAxiosRequestHandler = async (
-  config: InternalAxiosRequestConfig<unknown>,
-  options?: {
-    checkTokenValidity: SupabaseContextReturnType['checkTokenValidity'];
-  }
-) => {
-  let token = '';
+export const defaultAxiosRequestHandler = async (config: InternalAxiosRequestConfig<unknown>) => {
+  let token: string | undefined = '';
 
   try {
     if (isServer) {
-      token = await getSupabaseTokenFromCookies();
+      token = await getSupabaseSessionServerFn().then(
+        ({ data: { session } }) => session.access_token
+      );
     } else {
       // Always check token validity before making requests
-      const tokenResult = await options?.checkTokenValidity?.();
+      const tokenResult = await checkTokenValidity();
       token = tokenResult?.access_token || '';
     }
 
-    if (!token && options?.checkTokenValidity) {
+    if (!token) {
       throw new Error('User authentication error - no token found');
     }
 

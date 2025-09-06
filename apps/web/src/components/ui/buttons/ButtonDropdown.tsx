@@ -1,8 +1,5 @@
-'use client';
-
 import { cva } from 'class-variance-authority';
 import React from 'react';
-import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
 import { Dropdown, type DropdownProps } from '../dropdown/Dropdown';
 import { ChevronDown } from '../icons/NucleoIconOutlined';
@@ -11,7 +8,7 @@ import {
   buttonIconVariants,
   buttonTypeClasses,
   buttonVariants,
-  LoadingIcon
+  LoadingIcon,
 } from './Button';
 
 interface ButtonDropdownProps {
@@ -34,21 +31,21 @@ const dropdownButtonVariants = cva('flex items-center pr-0', {
       full: 'rounded-full',
       large: 'rounded-lg',
       small: 'rounded-sm',
-      none: 'rounded-none'
-    }
-  }
+      none: 'rounded-none',
+    },
+  },
 });
 
 const primaryButtonVariants = cva('', {
   variants: {
-    variant: buttonTypeClasses
-  }
+    variant: buttonTypeClasses,
+  },
 });
 
 const splitButtonVariants = cva('flex w-full items-center justify-center h-full px-[5px]', {
   variants: {
-    variant: buttonTypeClasses
-  }
+    variant: buttonTypeClasses,
+  },
 });
 
 export const ButtonDropdown = React.forwardRef<HTMLDivElement, ButtonDropdownProps>(
@@ -59,7 +56,8 @@ export const ButtonDropdown = React.forwardRef<HTMLDivElement, ButtonDropdownPro
         {...dropdownProps}
         open={isOpen}
         onOpenChange={setIsOpen}
-        align={dropdownProps.align || 'end'}>
+        align={dropdownProps.align || 'end'}
+      >
         <ButtonSplit ref={ref} {...buttonProps} open={isOpen} onOpenChange={setIsOpen} />
       </Dropdown>
     );
@@ -87,14 +85,14 @@ export const ButtonSplit = React.memo(
         loading = false,
         iconClassName,
         open,
-        onOpenChange
+        onOpenChange,
       },
       ref
     ) => {
-      const handleClick = useMemoizedFn(() => {
+      const handleClick = () => {
         if (disabled) return;
         onOpenChange(!open);
-      });
+      };
 
       return (
         <div
@@ -105,18 +103,21 @@ export const ButtonSplit = React.memo(
             'gap-0 !bg-transparent p-0',
             disabled && 'cursor-not-allowed opacity-70',
             className
-          )}>
+          )}
+        >
           <div
             className={cn(
               primaryButtonVariants({ variant }),
               'flex h-full items-center gap-0.5 border-none pr-2 pl-2.5'
-            )}>
+            )}
+          >
             {loading ? (
               <LoadingIcon variant={variant} size={size} />
             ) : (
               icon && (
                 <span
-                  className={cn(buttonIconVariants({ variant, size }), 'text-sm', iconClassName)}>
+                  className={cn(buttonIconVariants({ variant, size }), 'text-sm', iconClassName)}
+                >
                   {icon}
                 </span>
               )
@@ -129,14 +130,16 @@ export const ButtonSplit = React.memo(
             className="flex h-full cursor-pointer items-center justify-center text-sm"
             aria-label={open ? 'Close dropdown menu' : 'Open dropdown menu'}
             aria-expanded={open}
-            onClick={handleClick}>
+            onClick={handleClick}
+          >
             <div className={cn(splitButtonVariants({ variant }), 'border-none')}>
               <span
                 className={cn(
                   'transition-transform duration-100',
                   disabled && 'cursor-not-allowed opacity-90',
                   open && 'rotate-180'
-                )}>
+                )}
+              >
                 <ChevronDown />
               </span>
             </div>

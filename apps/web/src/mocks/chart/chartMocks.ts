@@ -1,5 +1,5 @@
-import dayjs from 'dayjs';
 import type { DataResult } from '@buster/server-shared/metrics';
+import dayjs from 'dayjs';
 
 // Helper to generate dates for time series
 const generateDates = (count: number) => {
@@ -33,7 +33,7 @@ export const generateLineChartData = (pointCount = 10): DataResult => {
       revenue: addNoise(baseRevenue, 15), // 15% variability
       profit: addNoise(baseProfit, 20), // 20% variability
       customers: addNoise(baseCustomers, 10), // 10% variability,
-      category: ['Electronics', 'Clothing', 'Food'][index % 3]
+      category: ['Electronics', 'Clothing', 'Food'][index % 3],
     };
   });
 };
@@ -45,7 +45,7 @@ export const generateBarChartData = (categoryCount = 6): DataResult => {
     category: categories[index % categories.length],
     sales: 1000 + index * 1000, // Increases by 1000 each category
     units: 50 + index * 50, // Increases by 50 each category
-    returns: 100 + index * 25 // Increases by 25 each category
+    returns: 100 + index * 25, // Increases by 25 each category
   }));
 };
 
@@ -54,7 +54,7 @@ export const generatePieChartData = (segmentCount = 5): DataResult => {
   const segments = ['Product A', 'Product B', 'Product C', 'Product D', 'Product E'];
   return Array.from({ length: segmentCount }, (_, index) => ({
     segment: segments[index % segments.length],
-    value: 100 + index * 200 // Increases by 200 each segment
+    value: 100 + index * 200, // Increases by 200 each segment
   }));
 };
 
@@ -76,7 +76,7 @@ export const generateScatterChartData = (pointCount = 30): DataResult => {
       y,
       y2,
       size: 10 + Math.round(Math.abs(Math.sin(angle * 3)) * 40), // Sizes between 10-50
-      category: categories[index % categories.length]
+      category: categories[index % categories.length],
     };
   });
 };

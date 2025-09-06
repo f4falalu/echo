@@ -12,7 +12,8 @@ export const SqlServer: React.FC<{
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 48 48"
       width={props.size || 24}
-      height={props.size || 24}>
+      height={props.size || 24}
+    >
       <title>SQL Server Icon</title>
       <path
         fill="#cfd8dc"

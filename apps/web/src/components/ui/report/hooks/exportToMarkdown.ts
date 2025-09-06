@@ -1,6 +1,6 @@
+import { MarkdownPlugin } from '@platejs/markdown';
 import type { PlateEditor } from 'platejs/react';
 import { NodeTypeLabels } from '../config/labels';
-import { MarkdownPlugin } from '@platejs/markdown';
 import { downloadFile } from './downloadFile';
 
 type Notifier = (message: string) => void;
@@ -14,7 +14,7 @@ type ExportToMarkdownOptions = {
 export const exportToMarkdown = async ({
   editor,
   openInfoMessage,
-  openErrorMessage
+  openErrorMessage,
 }: ExportToMarkdownOptions) => {
   try {
     const md = editor.getApi(MarkdownPlugin).markdown.serialize();

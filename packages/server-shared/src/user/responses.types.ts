@@ -24,3 +24,4 @@ export const GetUserToOrganizationResponseSchema = PaginatedResponseSchema(Organ
 export type UserResponse = z.infer<typeof UserResponseSchema>;
 export type UserFavoriteResponse = z.infer<typeof UserFavoriteResponseSchema>;
 export type GetUserToOrganizationResponse = z.infer<typeof GetUserToOrganizationResponseSchema>;
+export type UserOrganization = z.infer<typeof OrganizationWithUserRoleSchema>;

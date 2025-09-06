@@ -1,118 +1,103 @@
-import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { queryKeys } from '@/api/query_keys';
-import { useMemoizedFn } from '@/hooks';
+import { type QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { userQueryKeys } from '@/api/query_keys/users';
 import {
   getUserAttributes,
-  getUserAttributes_server,
   getUserDatasetGroups,
-  getUserDatasetGroups_server,
   getUserDatasets,
-  getUserDatasets_server,
   getUserPermissionGroups,
-  getUserPermissionGroups_server,
   getUserTeams,
-  getUserTeams_server,
   updateUserDatasetGroups,
   updateUserDatasets,
   updateUserPermissionGroups,
-  updateUserTeams
+  updateUserTeams,
 } from './requests';
 
 export const useGetUserDatasetGroups = ({ userId }: { userId: string }) => {
-  const queryFn = useMemoizedFn(async () => getUserDatasetGroups({ userId }));
+  const queryFn = async () => getUserDatasetGroups({ userId });
   return useQuery({
-    ...queryKeys.userGetUserDatasetGroups(userId),
-    queryFn
+    ...userQueryKeys.userGetUserDatasetGroups(userId),
+    queryFn,
   });
 };
 
-export const prefetchGetUserDatasetGroups = async (
-  userId: string,
-  queryClientProp?: QueryClient
-) => {
-  const queryClient = queryClientProp || new QueryClient();
+export const prefetchGetUserDatasetGroups = async (userId: string, queryClient: QueryClient) => {
   await queryClient.prefetchQuery({
-    ...queryKeys.userGetUserDatasetGroups(userId),
-    queryFn: () => getUserDatasetGroups_server({ userId })
+    ...userQueryKeys.userGetUserDatasetGroups(userId),
+    queryFn: () => getUserDatasetGroups({ userId }),
   });
   return queryClient;
 };
 
 export const useGetUserDatasets = ({ userId }: { userId: string }) => {
-  const queryFn = useMemoizedFn(async () => getUserDatasets({ userId }));
+  const queryFn = async () => getUserDatasets({ userId });
   return useQuery({
-    ...queryKeys.userGetUserDatasets(userId),
-    queryFn
+    ...userQueryKeys.userGetUserDatasets(userId),
+    queryFn,
   });
 };
 
-export const prefetchGetUserDatasets = async (userId: string, queryClientProp?: QueryClient) => {
-  const queryClient = queryClientProp || new QueryClient();
+export const prefetchGetUserDatasets = async (userId: string, queryClient: QueryClient) => {
   await queryClient.prefetchQuery({
-    ...queryKeys.userGetUserDatasets(userId),
-    queryFn: () => getUserDatasets_server({ userId })
+    ...userQueryKeys.userGetUserDatasets(userId),
+    queryFn: () => getUserDatasets({ userId }),
   });
   return queryClient;
 };
 
 export const useGetUserAttributes = ({ userId }: { userId: string }) => {
-  const queryFn = useMemoizedFn(async () => getUserAttributes({ userId }));
+  const queryFn = async () => getUserAttributes({ userId });
   return useQuery({
-    ...queryKeys.userGetUserAttributes(userId),
-    queryFn
+    ...userQueryKeys.userGetUserAttributes(userId),
+    queryFn,
   });
 };
 
-export const prefetchGetUserAttributes = async (userId: string, queryClientProp?: QueryClient) => {
-  const queryClient = queryClientProp || new QueryClient();
+export const prefetchGetUserAttributes = async (userId: string, queryClient: QueryClient) => {
   await queryClient.prefetchQuery({
-    ...queryKeys.userGetUserAttributes(userId),
-    queryFn: () => getUserAttributes_server({ userId })
+    ...userQueryKeys.userGetUserAttributes(userId),
+    queryFn: () => getUserAttributes({ userId }),
   });
   return queryClient;
 };
 
 export const useGetUserTeams = ({ userId }: { userId: string }) => {
-  const queryFn = useMemoizedFn(async () => getUserTeams({ userId }));
+  const queryFn = async () => getUserTeams({ userId });
   return useQuery({
-    ...queryKeys.userGetUserTeams(userId),
-    queryFn
+    ...userQueryKeys.userGetUserTeams(userId),
+    queryFn,
+    enabled: !!userId,
+    notifyOnChangeProps: ['data'],
   });
 };
 
-export const prefetchGetUserTeams = async (userId: string, queryClientProp?: QueryClient) => {
-  const queryClient = queryClientProp || new QueryClient();
+export const prefetchGetUserTeams = async (userId: string, queryClient: QueryClient) => {
   await queryClient.prefetchQuery({
-    ...queryKeys.userGetUserTeams(userId),
-    queryFn: () => getUserTeams_server({ userId })
+    ...userQueryKeys.userGetUserTeams(userId),
+    queryFn: () => getUserTeams({ userId }),
   });
   return queryClient;
 };
 
 export const useGetUserPermissionGroups = ({ userId }: { userId: string }) => {
-  const queryFn = useMemoizedFn(async () => getUserPermissionGroups({ userId }));
+  const queryFn = async () => getUserPermissionGroups({ userId });
   return useQuery({
-    ...queryKeys.userGetUserPermissionsGroups(userId),
-    queryFn
+    ...userQueryKeys.userGetUserPermissionsGroups(userId),
+    queryFn,
   });
 };
 
-export const prefetchGetUserPermissionGroups = async (
-  userId: string,
-  queryClientProp?: QueryClient
-) => {
-  const queryClient = queryClientProp || new QueryClient();
+export const prefetchGetUserPermissionGroups = async (userId: string, queryClient: QueryClient) => {
   await queryClient.prefetchQuery({
-    ...queryKeys.userGetUserPermissionsGroups(userId),
-    queryFn: () => getUserPermissionGroups_server({ userId })
+    ...userQueryKeys.userGetUserPermissionsGroups(userId),
+    queryFn: () => getUserPermissionGroups({ userId }),
   });
   return queryClient;
 };
 
 export const useUpdateUserTeams = ({ userId }: { userId: string }) => {
   const queryClient = useQueryClient();
-  const mutationFn = useMemoizedFn(async (teams: Parameters<typeof updateUserTeams>[1]) => {
-    const options = queryKeys.userGetUserTeams(userId);
+  const mutationFn = async (teams: Parameters<typeof updateUserTeams>[1]) => {
+    const options = userQueryKeys.userGetUserTeams(userId);
     const queryKey = options.queryKey;
     queryClient.setQueryData(queryKey, (oldData) => {
       return (oldData || []).map((oldTeam) => {
@@ -124,60 +109,56 @@ export const useUpdateUserTeams = ({ userId }: { userId: string }) => {
     const result = await updateUserTeams(userId, teams);
 
     return result;
-  });
+  };
   return useMutation({
-    mutationFn
+    mutationFn,
   });
 };
 
 export const useUpdateUserPermissionGroups = ({ userId }: { userId: string }) => {
   const queryClient = useQueryClient();
-  const mutationFn = useMemoizedFn(
-    async (permissionGroups: Parameters<typeof updateUserPermissionGroups>[1]) => {
-      const options = queryKeys.userGetUserPermissionsGroups(userId);
-      const queryKey = options.queryKey;
-      queryClient.setQueryData(queryKey, (oldData) => {
-        return (oldData || []).map((oldGroup) => {
-          const updatedGroup = permissionGroups.find((pg) => pg.id === oldGroup.id);
-          if (updatedGroup) return { ...oldGroup, assigned: updatedGroup.assigned };
-          return oldGroup;
-        });
+  const mutationFn = async (permissionGroups: Parameters<typeof updateUserPermissionGroups>[1]) => {
+    const options = userQueryKeys.userGetUserPermissionsGroups(userId);
+    const queryKey = options.queryKey;
+    queryClient.setQueryData(queryKey, (oldData) => {
+      return (oldData || []).map((oldGroup) => {
+        const updatedGroup = permissionGroups.find((pg) => pg.id === oldGroup.id);
+        if (updatedGroup) return { ...oldGroup, assigned: updatedGroup.assigned };
+        return oldGroup;
       });
-      const result = await updateUserPermissionGroups(userId, permissionGroups);
-      return result;
-    }
-  );
+    });
+    const result = await updateUserPermissionGroups(userId, permissionGroups);
+    return result;
+  };
   return useMutation({
-    mutationFn
+    mutationFn,
   });
 };
 
 export const useUpdateUserDatasetGroups = ({ userId }: { userId: string }) => {
   const queryClient = useQueryClient();
-  const mutationFn = useMemoizedFn(
-    async (datasetGroups: Parameters<typeof updateUserDatasetGroups>[1]) => {
-      const options = queryKeys.userGetUserDatasetGroups(userId);
-      const queryKey = options.queryKey;
-      queryClient.setQueryData(queryKey, (oldData) => {
-        return (oldData || []).map((oldGroup) => {
-          const updatedGroup = datasetGroups.find((pg) => pg.id === oldGroup.id);
-          if (updatedGroup) return { ...oldGroup, assigned: updatedGroup.assigned };
-          return oldGroup;
-        });
+  const mutationFn = async (datasetGroups: Parameters<typeof updateUserDatasetGroups>[1]) => {
+    const options = userQueryKeys.userGetUserDatasetGroups(userId);
+    const queryKey = options.queryKey;
+    queryClient.setQueryData(queryKey, (oldData) => {
+      return (oldData || []).map((oldGroup) => {
+        const updatedGroup = datasetGroups.find((pg) => pg.id === oldGroup.id);
+        if (updatedGroup) return { ...oldGroup, assigned: updatedGroup.assigned };
+        return oldGroup;
       });
-      const result = await updateUserDatasetGroups(userId, datasetGroups);
-      return result;
-    }
-  );
+    });
+    const result = await updateUserDatasetGroups(userId, datasetGroups);
+    return result;
+  };
   return useMutation({
-    mutationFn
+    mutationFn,
   });
 };
 
 export const useUpdateUserDatasets = ({ userId }: { userId: string }) => {
   const queryClient = useQueryClient();
-  const mutationFn = useMemoizedFn(async (datasets: Parameters<typeof updateUserDatasets>[1]) => {
-    const options = queryKeys.userGetUserDatasets(userId);
+  const mutationFn = async (datasets: Parameters<typeof updateUserDatasets>[1]) => {
+    const options = userQueryKeys.userGetUserDatasets(userId);
     const queryKey = options.queryKey;
     queryClient.setQueryData(queryKey, (oldData) => {
       return (oldData || []).map((oldDataset) => {
@@ -188,6 +169,6 @@ export const useUpdateUserDatasets = ({ userId }: { userId: string }) => {
     });
     const result = await updateUserDatasets(userId, datasets);
     return result;
-  });
+  };
   return useMutation({ mutationFn });
 };

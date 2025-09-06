@@ -1,11 +1,9 @@
-'use client';
-
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import * as React from 'react';
 import { Xmark } from '@/components/ui/icons';
 
 import { cn } from '@/lib/utils';
-import { Button } from '../buttons';
+import { Button } from '../buttons/Button';
 
 const Dialog = DialogPrimitive.Root;
 
@@ -42,12 +40,13 @@ const DialogContent = React.memo(
       <DialogPrimitive.Content
         ref={ref}
         className={cn(
-          'dialog-content data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-top-[20%] data-[state=open]:slide-in-from-top-[20%] fixed top-[50%] left-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%]',
+          'dialog-content data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-top-[5%] data-[state=open]:slide-in-from-top-[5%] fixed top-[50%] left-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%]',
           'bg-background rounded',
           'border shadow-lg duration-200',
           className
         )}
-        {...props}>
+        {...props}
+      >
         {children}
         {showClose && <DialogCloseButton />}
       </DialogPrimitive.Content>
@@ -101,7 +100,8 @@ const DialogCloseButton = React.forwardRef<
       'absolute top-6 right-6 opacity-70 transition-opacity hover:opacity-100 disabled:pointer-events-none',
       className
     )}
-    {...props}>
+    {...props}
+  >
     <Button prefix={<Xmark />} variant="ghost" />
   </DialogPrimitive.Close>
 ));
@@ -118,5 +118,5 @@ export {
   DialogFooter,
   DialogTitle,
   DialogDescription,
-  DialogCloseButton
+  DialogCloseButton,
 };

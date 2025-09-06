@@ -21,7 +21,7 @@ describe('createChatRecord', () => {
       TODAY: [],
       YESTERDAY: [],
       LAST_WEEK: [],
-      ALL_OTHERS: []
+      ALL_OTHERS: [],
     });
   });
   it('should categorize items into correct buckets', () => {
@@ -29,7 +29,7 @@ describe('createChatRecord', () => {
       { id: '1', last_edited: today },
       { id: '2', last_edited: yesterday },
       { id: '3', last_edited: threeDaysAgo },
-      { id: '4', last_edited: tenDaysAgo }
+      { id: '4', last_edited: tenDaysAgo },
     ];
 
     const result = createChatRecord(mockData);
@@ -54,7 +54,7 @@ describe('createChatRecord', () => {
     const mockData = [
       { id: '1', last_edited: tenDaysAgo },
       { id: '2', last_edited: now.subtract(15, 'day').format() },
-      { id: '3', last_edited: now.subtract(30, 'day').format() }
+      { id: '3', last_edited: now.subtract(30, 'day').format() },
     ];
 
     const result = createChatRecord(mockData);
@@ -73,7 +73,7 @@ describe('createChatRecord', () => {
       name: 'Test Item',
       created_by: 'user-123',
       updated_at: '2025-04-22T20:40:31.672893+00:00',
-      extra_field: 'some value'
+      extra_field: 'some value',
     };
 
     const result = createChatRecord([extendedItem]);
@@ -89,7 +89,7 @@ describe('createChatRecord', () => {
       { id: 'y1', last_edited: yesterday },
       { id: 'y2', last_edited: yesterdayStart },
       { id: 'y3', last_edited: yesterdayMiddle },
-      { id: 'y4', last_edited: yesterdayEnd }
+      { id: 'y4', last_edited: yesterdayEnd },
     ];
 
     const result = createChatRecord(mockData);
@@ -113,7 +113,7 @@ describe('createChatRecord', () => {
 
     const mockData = [
       { id: 'still-yesterday', last_edited: almostToday },
-      { id: 'barely-today', last_edited: barelyToday }
+      { id: 'barely-today', last_edited: barelyToday },
     ];
 
     const result = createChatRecord(mockData);
@@ -133,7 +133,7 @@ describe('createChatRecord', () => {
       { id: 'yesterday-2', last_edited: yesterdayEnd },
       { id: 'old-item', last_edited: tenDaysAgo },
       { id: 'yesterday-3', last_edited: yesterdayStart },
-      { id: 'today-2', last_edited: now.format() }
+      { id: 'today-2', last_edited: now.format() },
     ];
 
     const result = createChatRecord(mockData);

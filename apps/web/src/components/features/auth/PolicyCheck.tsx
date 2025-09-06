@@ -1,5 +1,3 @@
-'use client';
-
 import type React from 'react';
 import { useEffect, useMemo } from 'react';
 import { CircleCheck, CircleXmark } from '@/components/ui/icons';
@@ -49,38 +47,38 @@ export const PolicyCheck: React.FC<{
       specialCharCheck,
       uppercaseCheck,
       lowercaseCheck,
-      passwordLengthCheck
+      passwordLengthCheck,
     };
 
     const items = [
       {
         text: 'Email is valid',
-        check: isValidEmail(email)
+        check: isValidEmail(email),
       },
       {
         text: 'Contains a number',
-        check: passwordGood.numberCheck
+        check: passwordGood.numberCheck,
       },
       {
         text: 'Contains a special character',
-        check: passwordGood.specialCharCheck
+        check: passwordGood.specialCharCheck,
       },
       {
         text: 'Contains an uppercase letter',
-        check: passwordGood.uppercaseCheck
+        check: passwordGood.uppercaseCheck,
       },
       {
         text: 'Contains a lowercase letter',
-        check: passwordGood.lowercaseCheck
+        check: passwordGood.lowercaseCheck,
       },
       {
         text: 'Is at least 8 characters long',
-        check: passwordGood.passwordLengthCheck
+        check: passwordGood.passwordLengthCheck,
       },
       {
         text: 'Passwords match',
-        check: password === password2 || password2 === undefined
-      }
+        check: password === password2 || password2 === undefined,
+      },
     ];
 
     return items;

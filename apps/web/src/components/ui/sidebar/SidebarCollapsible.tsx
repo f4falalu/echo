@@ -1,5 +1,3 @@
-'use client';
-
 import {
   closestCenter,
   DndContext,
@@ -9,7 +7,7 @@ import {
   KeyboardSensor,
   PointerSensor,
   useSensor,
-  useSensors
+  useSensors,
 } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import {
@@ -17,21 +15,21 @@ import {
   SortableContext,
   sortableKeyboardCoordinates,
   useSortable,
-  verticalListSortingStrategy
+  verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import React, { useEffect } from 'react';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { cn } from '@/lib/classMerge';
 import {
   Collapsible,
   CollapsibleContent,
-  CollapsibleTrigger
+  CollapsibleTrigger,
 } from '../collapsible/CollapsibleBase';
 import { CaretDown } from '../icons/NucleoIconFilled';
+import { COLLAPSED_HIDDEN } from './config';
 import type { ISidebarGroup } from './interfaces';
 import { SidebarItem } from './SidebarItem';
-import { COLLAPSED_HIDDEN } from './config';
 
 const modifiers = [restrictToVerticalAxis];
 
@@ -49,14 +47,16 @@ const SidebarTrigger: React.FC<SidebarTriggerProps> = React.memo(({ label, isOpe
         'text-text-secondary hover:bg-nav-item-hover',
         'group min-h-6 cursor-pointer',
         className
-      )}>
-      <span className="">{label}</span>
+      )}
+    >
+      <span className="truncate">{label}</span>
 
       <div
         className={cn(
           'text-icon-color text-3xs -rotate-90 transition-transform duration-200',
           isOpen && 'rotate-0'
-        )}>
+        )}
+      >
         <CaretDown />
       </div>
     </div>
@@ -73,13 +73,13 @@ interface SortableSidebarItemProps {
 const SortableSidebarItem: React.FC<SortableSidebarItemProps> = React.memo(({ item, active }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: item.id,
-    disabled: item.disabled
+    disabled: item.disabled,
   });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0 : 1
+    opacity: isDragging ? 0 : 1,
   };
 
   const handleClick = useMemoizedFn((e: React.MouseEvent) => {
@@ -96,7 +96,8 @@ const SortableSidebarItem: React.FC<SortableSidebarItemProps> = React.memo(({ it
       {...attributes}
       {...listeners}
       onClick={handleClick}
-      className={cn(isDragging && 'pointer-events-none')}>
+      className={cn(isDragging && 'pointer-events-none')}
+    >
       <div onClick={isDragging ? (e) => e.stopPropagation() : undefined}>
         <SidebarItem {...item} active={active} />
       </div>
@@ -124,8 +125,14 @@ export const SidebarCollapsible: React.FC<
     defaultOpen = true,
     useCollapsible,
     triggerClassName,
-    className
+    className,
   }) => {
+    // Track client mount to avoid SSR/CSR hydration mismatches for dnd-kit generated attributes
+    const [isMounted, setIsMounted] = React.useState(false);
+    React.useEffect(() => {
+      setIsMounted(true);
+    }, []);
+
     const [isOpen, setIsOpen] = React.useState(defaultOpen);
     const [sortedItems, setSortedItems] = React.useState(items);
     const [draggingId, setDraggingId] = React.useState<string | null>(null);
@@ -133,11 +140,11 @@ export const SidebarCollapsible: React.FC<
     const sensors = useSensors(
       useSensor(PointerSensor, {
         activationConstraint: {
-          distance: 2
-        }
+          distance: 2,
+        },
       }),
       useSensor(KeyboardSensor, {
-        coordinateGetter: sortableKeyboardCoordinates
+        coordinateGetter: sortableKeyboardCoordinates,
       })
     );
 
@@ -167,11 +174,12 @@ export const SidebarCollapsible: React.FC<
     }, [items]);
 
     return (
-      <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-0.5">
+      <Collapsible open={isOpen} onOpenChange={setIsOpen} className={cn('space-y-0.5', className)}>
         {variant === 'collapsible' && (
           <CollapsibleTrigger
             asChild
-            className={cn(useCollapsible && COLLAPSED_HIDDEN, 'w-full', triggerClassName)}>
+            className={cn(useCollapsible && COLLAPSED_HIDDEN, 'w-full', triggerClassName)}
+          >
             <button type="button" className="w-full cursor-pointer text-left">
               <SidebarTrigger label={label} isOpen={isOpen} />
             </button>
@@ -183,24 +191,36 @@ export const SidebarCollapsible: React.FC<
             className={cn(
               'flex items-center space-x-2.5 px-1.5 py-1 text-base',
               'text-text-secondary'
-            )}>
+            )}
+          >
             {icon && <span className="text-icon-color text-icon-size">{icon}</span>}
             <span className="">{label}</span>
           </div>
         )}
 
-        <CollapsibleContent className="data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up pl-0">
-          <div className="space-y-0.5">
-            {isSortable ? (
+        <CollapsibleContent
+          className={cn(
+            isMounted &&
+              'data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up'
+          )}
+          style={{
+            minHeight:
+              !isMounted && isOpen ? `${items.length * 28 + items.length * 2 - 2}px` : undefined,
+          }}
+        >
+          <div className="gap-y-0.5 flex flex-col">
+            {isMounted && isSortable ? (
               <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
                 onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
-                modifiers={modifiers}>
+                modifiers={modifiers}
+              >
                 <SortableContext
                   items={sortedItems.map((item) => item.id)}
-                  strategy={verticalListSortingStrategy}>
+                  strategy={verticalListSortingStrategy}
+                >
                   {sortedItems.map((item) => (
                     <SortableSidebarItem
                       key={item.id}
@@ -220,7 +240,7 @@ export const SidebarCollapsible: React.FC<
             ) : (
               items.map((item) => (
                 <SidebarItem
-                  key={item.id + item.route}
+                  key={item.id}
                   {...item}
                   active={activeItem === item.id || item.active}
                 />

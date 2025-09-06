@@ -1,12 +1,12 @@
-import {
-  getActiveGithubIntegration,
-  getGithubIntegrationByInstallationId,
-  updateGithubIntegration,
-} from '@buster/database';
+import { getActiveGithubIntegration, getGithubIntegrationByInstallationId } from '@buster/database';
 import type { InstallationTokenResponse } from '@buster/server-shared/github';
 import { GitHubErrorCode } from '@buster/server-shared/github';
-import { createGitHubApp } from './github-app';
-import { isTokenExpired, retrieveInstallationToken, storeInstallationToken } from './token-storage';
+
+import {
+  generateNewInstallationToken,
+  isTokenExpired,
+  retrieveInstallationToken,
+} from '@buster/github';
 
 /**
  * Get an installation token for a specific installation ID
@@ -78,61 +78,6 @@ export async function getInstallationTokenByOrgId(
   }
 
   return await getInstallationToken(integration.installationId);
-}
-
-/**
- * Generate a new installation token from GitHub
- */
-async function generateNewInstallationToken(
-  installationId: string,
-  integrationId: string
-): Promise<InstallationTokenResponse> {
-  try {
-    const app = createGitHubApp();
-
-    // Create installation access token
-    const { data } = await app.octokit.rest.apps.createInstallationAccessToken({
-      installation_id: Number.parseInt(installationId, 10),
-    });
-
-    // Store the new token in vault
-    const vaultKey = await storeInstallationToken(
-      installationId,
-      data.token,
-      data.expires_at,
-      data.permissions,
-      data.repository_selection
-    );
-
-    // Update the integration with the new vault key
-    await updateGithubIntegration(integrationId, {
-      tokenVaultKey: vaultKey,
-      status: 'active', // Ensure status is active after successful token generation
-    });
-
-    console.info(
-      `Generated new token for installation ${installationId}, expires at ${data.expires_at}`
-    );
-
-    return {
-      token: data.token,
-      expires_at: data.expires_at,
-      permissions: data.permissions,
-      repository_selection: data.repository_selection,
-    };
-  } catch (error) {
-    console.error(`Failed to generate token for installation ${installationId}:`, error);
-
-    // If token generation fails, mark the integration as failed
-    await updateGithubIntegration(integrationId, {
-      status: 'suspended',
-    });
-
-    throw createGitHubError(
-      GitHubErrorCode.TOKEN_GENERATION_FAILED,
-      `Failed to generate token: ${error instanceof Error ? error.message : 'Unknown error'}`
-    );
-  }
 }
 
 /**

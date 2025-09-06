@@ -5,21 +5,21 @@ import {
   NumberField,
   PasswordField,
   SubscribeButton,
-  TextField
+  TextField,
 } from './FormBase';
 
 const { useAppForm, withForm } = createFormHook({
   fieldComponents: {
     TextField,
     NumberField,
-    PasswordField
+    PasswordField,
   },
 
   formComponents: {
-    SubscribeButton
+    SubscribeButton,
   },
   fieldContext,
-  formContext
+  formContext,
 });
 
 export { useAppForm, withForm };

@@ -1,10 +1,10 @@
 import type {
-  ColumnMetaData,
   ChartConfigProps,
-  ColumnLabelFormat
+  ColumnLabelFormat,
+  ColumnMetaData,
 } from '@buster/server-shared/metrics';
-import { createDefaultChartConfig } from '@/lib/metrics/messageAutoChartHandler';
 import type { BusterMetric } from '@/api/asset_interfaces/metric';
+import { createDefaultChartConfig } from '@/lib/metrics/messageAutoChartHandler';
 
 export const didColumnDataChange = (
   oldColumnData: ColumnMetaData[] | undefined,
@@ -24,7 +24,7 @@ export const didColumnDataChange = (
     >((acc, x) => {
       acc[x.name] = {
         name: x.name,
-        simple_type: x.simple_type
+        simple_type: x.simple_type,
       };
       return acc;
     }, {});
@@ -81,9 +81,9 @@ export const simplifyChatConfigForSQLChange = (
   // and the new data structure's metadata
   const result = createDefaultChartConfig({
     chart_config: {
-      columnLabelFormats
+      columnLabelFormats,
     } as ChartConfigProps,
-    data_metadata
+    data_metadata,
   });
 
   return result;

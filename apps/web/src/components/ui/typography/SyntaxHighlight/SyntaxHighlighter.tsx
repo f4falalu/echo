@@ -1,12 +1,10 @@
-'use client';
-
 import React, { useMemo } from 'react';
-import { cn } from '@/lib/classMerge';
-import styles from './SyntaxHighlighter.module.css';
-import { animations, type MarkdownAnimation } from '../animation-common';
 import type { ThemedToken } from 'shiki';
-import { useCodeTokens } from './useCodeTokens';
+import { cn } from '@/lib/classMerge';
+import { animations, type MarkdownAnimation } from '../animation-common';
+import styles from './SyntaxHighlighter.module.css';
 import { getFallbackStyle } from './shiki-instance';
+import { useCodeTokens } from './useCodeTokens';
 
 export const SyntaxHighlighter = ({
   children,
@@ -16,7 +14,7 @@ export const SyntaxHighlighter = ({
   className = '',
   isDarkMode = false,
   animation = 'none',
-  animationDuration = 500
+  animationDuration = 500,
 }: {
   children: string;
   language?: 'sql' | 'yaml';
@@ -35,13 +33,13 @@ export const SyntaxHighlighter = ({
     if (tokens) {
       return {
         background: tokens.bg,
-        color: tokens.fg
+        color: tokens.fg,
       };
     }
     return getFallbackStyle(isDarkMode);
   }, [
     // hasTokens,
-    isDarkMode
+    isDarkMode,
   ]);
 
   return (
@@ -49,7 +47,8 @@ export const SyntaxHighlighter = ({
       showLineNumbers={showLineNumbers}
       startingLineNumber={startingLineNumber}
       className={className}
-      style={style}>
+      style={style}
+    >
       {hasTokens ? (
         tokens.tokens.map((line: ThemedToken[], index: number) => {
           return (
@@ -90,10 +89,11 @@ const SyntaxWrapper: React.FC<{
         ...style,
         ...(showLineNumbers && startingLineNumber !== 1
           ? ({
-              '--line-number-start': startingLineNumber - 1
+              '--line-number-start': startingLineNumber - 1,
             } as React.CSSProperties)
-          : undefined)
-      }}>
+          : undefined),
+      }}
+    >
       <pre>
         <code>{children}</code>
       </pre>
@@ -127,7 +127,7 @@ Line.displayName = 'Line';
 
 const SyntaxFallback: React.FC<{ children: string; fallbackColor?: string }> = ({
   children,
-  fallbackColor = 'inherit'
+  fallbackColor = 'inherit',
 }) => {
   const fallbackChildren: Pick<ThemedToken, 'content' | 'color'>[][] = children
     .split('\n')
@@ -135,8 +135,8 @@ const SyntaxFallback: React.FC<{ children: string; fallbackColor?: string }> = (
       return [
         {
           content: line,
-          color: fallbackColor
-        }
+          color: fallbackColor,
+        },
       ];
     });
 

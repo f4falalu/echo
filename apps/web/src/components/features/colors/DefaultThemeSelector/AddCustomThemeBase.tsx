@@ -1,11 +1,10 @@
 import React, { useRef } from 'react';
-import { ThemeList, type IColorPalette } from '../ThemeList';
 import { Button } from '@/components/ui/buttons';
 import { Plus } from '../../../ui/icons';
-import { NewThemePopup } from './NewThemePopup';
-import { useMemoizedFn } from '@/hooks/useMemoizedFn';
-import { EditCustomThemeMenu } from './EditCustomThemeMenu';
+import { type IColorPalette, ThemeList } from '../ThemeList';
 import { AddThemeProviderWrapper, useAddTheme } from './AddThemeProviderWrapper';
+import { EditCustomThemeMenu } from './EditCustomThemeMenu';
+import { NewThemePopup } from './NewThemePopup';
 
 interface AddCustomThemeBaseProps {
   customThemes: Omit<IColorPalette, 'selected'>[];
@@ -23,18 +22,19 @@ export const AddCustomThemeBase = React.memo(
     onSelectTheme,
     createCustomTheme,
     deleteCustomTheme,
-    modifyCustomTheme
+    modifyCustomTheme,
   }: AddCustomThemeBaseProps) => {
     const iThemes: IColorPalette[] = customThemes.map((theme) => ({
       ...theme,
-      selected: theme.id === selectedThemeId
+      selected: theme.id === selectedThemeId,
     }));
 
     return (
       <AddThemeProviderWrapper
         createCustomTheme={createCustomTheme}
         deleteCustomTheme={deleteCustomTheme}
-        modifyCustomTheme={modifyCustomTheme}>
+        modifyCustomTheme={modifyCustomTheme}
+      >
         <div className="bg-item-select flex flex-col space-y-1 rounded border p-1">
           {iThemes.length > 0 && (
             <ThemeList
@@ -54,7 +54,7 @@ export const AddCustomThemeBase = React.memo(
 
 AddCustomThemeBase.displayName = 'AddCustomThemeBase';
 
-const AddCustomThemeButton: React.FC = React.memo(({}) => {
+const AddCustomThemeButton: React.FC = () => {
   const { createCustomTheme } = useAddTheme();
   const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -63,12 +63,13 @@ const AddCustomThemeButton: React.FC = React.memo(({}) => {
       onSave={createCustomTheme}
       selectedTheme={undefined}
       onDelete={undefined}
-      onUpdate={undefined}>
+      onUpdate={undefined}
+    >
       <Button ref={buttonRef} variant={'ghost'} size={'tall'} prefix={<Plus />}>
         Add a custom theme
       </Button>
     </NewThemePopup>
   );
-});
+};
 
 AddCustomThemeButton.displayName = 'AddCustomThemeButton';

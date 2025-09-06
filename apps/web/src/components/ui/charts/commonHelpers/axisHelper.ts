@@ -1,7 +1,7 @@
-import { formatLabel } from '@/lib/columnFormatter';
 import type { BarAndLineAxis, ScatterAxis } from '@buster/server-shared/metrics';
 import isEqual from 'lodash/isEqual';
 import pick from 'lodash/pick';
+import { formatLabel } from '@/lib/columnFormatter';
 import type { BusterChartProps } from '../BusterChart.types';
 
 export const formatYAxisLabel = (
@@ -27,7 +27,7 @@ export const formatYAxisLabel = (
     {
       columnType: 'number',
       style: 'number',
-      compactNumbers
+      compactNumbers,
     },
     false
   );

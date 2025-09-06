@@ -6,55 +6,48 @@ import type {
   DuplicateMetricRequest,
   DuplicateMetricResponse,
   GetMetricDataRequest,
-  ListMetricsResponse,
-  UpdateMetricRequest,
-  GetMetricRequest,
   GetMetricListRequest,
-  ShareDeleteResponse,
-  MetricDataResponse,
+  GetMetricRequest,
   GetMetricResponse,
-  UpdateMetricResponse,
+  ListMetricsResponse,
+  MetricDataResponse,
+  MetricDownloadResponse,
+  ShareDeleteResponse,
   ShareUpdateResponse,
-  MetricDownloadResponse
+  UpdateMetricRequest,
+  UpdateMetricResponse,
 } from '@buster/server-shared/metrics';
-import type { ShareDeleteRequest, ShareUpdateRequest } from '@buster/server-shared/share';
-import { serverFetch } from '@/api/createServerInstance';
+import type {
+  ShareDeleteRequest,
+  SharePostRequest,
+  ShareUpdateRequest,
+} from '@buster/server-shared/share';
 import { mainApi, mainApiV2 } from '../instances';
-import { SharePostRequest } from '@buster/server-shared/share';
 
-export const getMetric = async (params: GetMetricRequest): Promise<GetMetricResponse> => {
+export const getMetric = async ({
+  id,
+  ...params
+}: GetMetricRequest): Promise<GetMetricResponse> => {
   return mainApi
-    .get<GetMetricResponse>(`/metric_files/${params.id}`, {
-      params
+    .get<GetMetricResponse>(`/metric_files/${id}`, {
+      params,
     })
-    .then((res) => res.data);
-};
-
-export const getMetric_server = async ({ id, password }: Parameters<typeof getMetric>[0]) => {
-  return await serverFetch<GetMetricResponse>(`/metric_files/${id}`, {
-    params: { ...(password && { password }) }
-  });
+    .then((res) => {
+      return res.data;
+    });
 };
 
 export const getMetricData = async ({
   id,
-  version_number,
-  password,
-  report_file_id
-}: GetMetricDataRequest & { report_file_id?: string }): Promise<MetricDataResponse> => {
-  return mainApiV2
-    .get<MetricDataResponse>(`/metric_files/${id}/data`, {
-      params: { password, version_number, report_file_id }
-    })
+  ...params
+}: GetMetricDataRequest): Promise<MetricDataResponse> => {
+  return mainApi
+    .get<MetricDataResponse>(`/metric_files/${id}/data`, { params })
     .then((res) => res.data);
 };
 
 export const listMetrics = async (params: GetMetricListRequest) => {
   return mainApi.get<ListMetricsResponse>('/metric_files', { params }).then((res) => res.data);
-};
-
-export const listMetrics_server = async (params: Parameters<typeof listMetrics>[0]) => {
-  return await serverFetch<ListMetricsResponse>('/metric_files', { params });
 };
 
 export const updateMetric = async (params: UpdateMetricRequest) => {
@@ -66,7 +59,7 @@ export const updateMetric = async (params: UpdateMetricRequest) => {
 export const deleteMetrics = async (data: DeleteMetricRequest) => {
   return mainApi
     .delete<DeleteMetricResponse>('/metric_files', {
-      data
+      data,
     })
     .then((res) => res.data);
 };
@@ -99,7 +92,7 @@ export const unshareMetric = async ({ id, data }: { id: string; data: ShareDelet
 
 export const updateMetricShare = async ({
   params,
-  id
+  id,
 }: {
   id: string;
   params: ShareUpdateRequest;

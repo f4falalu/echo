@@ -1,10 +1,10 @@
+import type { DashboardConfig } from '@buster/server-shared/dashboards';
 import { v4 as uuidv4 } from 'uuid';
-import type { DashboardConfig } from '@/api/asset_interfaces/dashboard';
 import type { BusterMetric } from '@/api/asset_interfaces/metric';
 import {
   MAX_NUMBER_OF_ITEMS,
   MIN_ROW_HEIGHT,
-  NUMBER_OF_COLUMNS
+  NUMBER_OF_COLUMNS,
 } from '@/components/ui/grid/helpers';
 
 export const normalizeNewMetricsIntoGrid = (
@@ -28,7 +28,7 @@ export const normalizeNewMetricsIntoGrid = (
           id: uuidv4(),
           columnSizes: [NUMBER_OF_COLUMNS],
           rowHeight: MIN_ROW_HEIGHT,
-          items: [{ id: metric.id }]
+          items: [{ id: metric.id }],
         };
       } else {
         selectedRow.items.push({ id: metric.id });
@@ -54,7 +54,7 @@ export const normalizeNewMetricsIntoGrid = (
         return {
           ...row,
           items: newItems,
-          columnSizes
+          columnSizes,
         };
       })
       .filter((row) => row !== null);
@@ -69,7 +69,7 @@ export const normalizeNewMetricsIntoGrid = (
       const canFitInFirstRow = numberOfItemsInFirstRow + numberOfNewMetrics <= MAX_NUMBER_OF_ITEMS;
       if (canFitInFirstRow) {
         const newItems = newMetrics.map((m) => ({
-          id: m.id
+          id: m.id,
         }));
         const newNumberOfItemsInFirstRow = numberOfItemsInFirstRow + numberOfNewMetrics;
         const columnSizes = Array.from({ length: newNumberOfItemsInFirstRow }, () => {
@@ -80,9 +80,9 @@ export const normalizeNewMetricsIntoGrid = (
           {
             ...newGrid[0],
             items: [...newGrid[0].items, ...newItems],
-            columnSizes
+            columnSizes,
           },
-          ...newGrid.slice(1)
+          ...newGrid.slice(1),
         ];
       } else {
         const newRows = createNewOverflowRows(newMetrics);

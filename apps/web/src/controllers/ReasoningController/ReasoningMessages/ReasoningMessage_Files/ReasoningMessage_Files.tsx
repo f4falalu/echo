@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import type {
   BusterChatMessage,
-  BusterChatMessageReasoning_files
+  BusterChatMessageReasoning_files,
 } from '@/api/asset_interfaces/chat';
 import { useGetChatMessage } from '@/api/buster_rest/chats';
 import type { ReasoningMessageProps } from '../ReasoningMessageSelector';
@@ -21,7 +21,7 @@ export const ReasoningMessage_Files: React.FC<ReasoningMessageProps> = React.mem
         },
         [reasoningMessageId]
       ),
-      notifyOnChangeProps: ['data']
+      notifyOnChangeProps: ['data'],
     });
 
     if (!file_ids || file_ids.length === 0) return null;

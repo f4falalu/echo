@@ -6,7 +6,7 @@ import { getMetricData } from './requests';
 
 // Mock the requests module
 vi.mock('./requests', () => ({
-  getMetricData: vi.fn()
+  getMetricData: vi.fn(),
 }));
 
 describe('prefetchGetMetricDataClient', () => {
@@ -38,7 +38,7 @@ describe('prefetchGetMetricDataClient', () => {
     // Verify
     expect(getMetricData).toHaveBeenCalledWith({
       id: mockId,
-      version_number: mockVersionNumber
+      version_number: mockVersionNumber,
     });
     expect(queryClient.getQueryData(queryKey)).toEqual(mockMetricData);
   });

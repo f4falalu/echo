@@ -156,3 +156,4 @@ export const ChatMessageSchema = z.object({
 export type MessageRole = z.infer<typeof MessageRoleSchema>;
 export type ChatUserMessage = z.infer<typeof ChatUserMessageSchema>;
 export type ChatMessage = z.infer<typeof ChatMessageSchema>;
+export type ResponseMessageFileType = z.infer<typeof ResponseMessageFileTypeSchema>;

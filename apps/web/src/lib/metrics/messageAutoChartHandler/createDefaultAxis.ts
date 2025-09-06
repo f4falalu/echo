@@ -1,5 +1,5 @@
-import { type ColumnMetaData, DEFAULT_CHART_CONFIG } from '@buster/server-shared/metrics';
 import type { BarAndLineAxis, PieChartAxis, ScatterAxis } from '@buster/server-shared/metrics';
+import { type ColumnMetaData, DEFAULT_CHART_CONFIG } from '@buster/server-shared/metrics';
 
 export const createDefaultBarAndLineAxis = (
   columnsMetaData: ColumnMetaData[] | undefined
@@ -10,7 +10,7 @@ export const createDefaultBarAndLineAxis = (
   return {
     ...DEFAULT_CHART_CONFIG.barAndLineAxis,
     x: [firstDateColumn?.name || firstStringColumn?.name].filter(Boolean) as string[],
-    y: [firstNumberColumn?.name].filter(Boolean) as string[]
+    y: [firstNumberColumn?.name].filter(Boolean) as string[],
   };
 };
 
@@ -23,7 +23,7 @@ export const createDefaultPieAxis = (
   return {
     ...DEFAULT_CHART_CONFIG.pieChartAxis,
     x: [firstStringColumn?.name || firstDateColumn?.name].filter(Boolean) as string[],
-    y: [firstNumberColumn?.name].filter(Boolean) as string[]
+    y: [firstNumberColumn?.name].filter(Boolean) as string[],
   };
 };
 
@@ -37,6 +37,6 @@ export const createDefaultScatterAxis = (
   return {
     ...DEFAULT_CHART_CONFIG.scatterAxis,
     x: [firstNumberColumn?.name].filter(Boolean) as string[],
-    y: [secondNumberColumn?.name].filter(Boolean) as string[]
+    y: [secondNumberColumn?.name].filter(Boolean) as string[],
   };
 };

@@ -1,5 +1,3 @@
-'use client';
-
 import { SlashInputPlugin, SlashPlugin } from '@platejs/slash-command/react';
 import { KEYS } from 'platejs';
 
@@ -10,9 +8,9 @@ export const SlashKit = [
     options: {
       triggerQuery: (editor) =>
         !editor.api.some({
-          match: { type: editor.getType(KEYS.codeBlock) }
-        })
-    }
+          match: { type: editor.getType(KEYS.codeBlock) },
+        }),
+    },
   }),
-  SlashInputPlugin.withComponent(SlashInputElement)
+  SlashInputPlugin.withComponent(SlashInputElement),
 ];

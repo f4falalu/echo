@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/complexity/noBannedTypes: it's cool */
 import { createPlatePlugin } from 'platejs/react';
 import { CUSTOM_KEYS } from '../config/keys';
 
@@ -15,6 +16,6 @@ export const GlobalVariablePlugin = createPlatePlugin<
 >({
   key: CUSTOM_KEYS.globalVariable,
   options: {
-    mode: 'default'
-  }
+    mode: 'default',
+  },
 });

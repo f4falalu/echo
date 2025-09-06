@@ -1,6 +1,7 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import React, { useMemo } from 'react';
+import type React from 'react';
+import { useMemo } from 'react';
 import { BusterSortableItemContent } from './_BusterSortableItemContent';
 import { SortableItemContext } from './SortableItemContext';
 
@@ -17,13 +18,13 @@ export const BusterSortableItemDragContainer: React.FC<{
     setActivatorNodeRef,
     transform,
     transition,
-    isSorting
+    isSorting,
   } = useSortable({
     id: itemId,
     disabled: !allowEdit,
     animateLayoutChanges: () => {
       return true;
-    }
+    },
   });
 
   const context = useMemo(
@@ -31,7 +32,7 @@ export const BusterSortableItemDragContainer: React.FC<{
       attributes,
       listeners,
       ref: setActivatorNodeRef,
-      isDragging
+      isDragging,
     }),
     [attributes, listeners, isDragging, setActivatorNodeRef]
   );
@@ -39,7 +40,7 @@ export const BusterSortableItemDragContainer: React.FC<{
   const memoizedStyle = useMemo(() => {
     return {
       transform: isSorting ? undefined : CSS.Translate.toString(transform),
-      transition
+      transition,
     };
   }, [isSorting, transform, transition]);
 
@@ -50,7 +51,8 @@ export const BusterSortableItemDragContainer: React.FC<{
         itemId={itemId}
         isDragging={isDragging}
         isDragOverlay={false}
-        style={memoizedStyle}>
+        style={memoizedStyle}
+      >
         {children}
       </BusterSortableItemContent>
     </SortableItemContext.Provider>

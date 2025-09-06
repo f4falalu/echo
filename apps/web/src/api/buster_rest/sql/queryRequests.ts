@@ -3,6 +3,6 @@ import { runSQL } from './requests';
 
 export const useRunSQL = () => {
   return useMutation({
-    mutationFn: runSQL //TODO move the
+    mutationFn: runSQL, //TODO move the
   });
 };

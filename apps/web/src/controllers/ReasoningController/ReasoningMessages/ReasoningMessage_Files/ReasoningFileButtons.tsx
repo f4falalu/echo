@@ -1,10 +1,10 @@
-import Link from 'next/link';
+import { Link } from '@tanstack/react-router';
 import React, { useMemo } from 'react';
 import type { ReasoningFileType } from '@/api/asset_interfaces';
 import { Button } from '@/components/ui/buttons';
 import { ArrowUpRight } from '@/components/ui/icons';
 import { AppTooltip } from '@/components/ui/tooltip';
-import { assetParamsToRoute } from '@/lib/assets';
+import { assetParamsToRoute } from '@/lib/assets/assetParamsToRoute';
 
 export const ReasoningFileButtons = React.memo(
   ({
@@ -12,7 +12,7 @@ export const ReasoningFileButtons = React.memo(
     fileId,
     type,
     chatId,
-    versionNumber
+    versionNumber,
   }: {
     fileType: ReasoningFileType;
     fileId: string;
@@ -20,7 +20,7 @@ export const ReasoningFileButtons = React.memo(
     chatId: string;
     versionNumber?: number;
   }) => {
-    const href = useMemo(() => {
+    const linkProps = useMemo(() => {
       if (fileType === 'agent-action') {
         return;
       }
@@ -30,18 +30,18 @@ export const ReasoningFileButtons = React.memo(
       }
 
       return assetParamsToRoute({
-        chatId,
+        assetType: fileType,
         assetId: fileId,
-        type: fileType,
-        versionNumber
+        chatId,
+        versionNumber,
       });
     }, [chatId, fileId, fileType]);
 
-    if (type === 'status' || !href) return null;
+    if (type === 'status' || !linkProps) return null;
 
     return (
       <AppTooltip title="Open file" sideOffset={12}>
-        <Link href={href || ''} prefetch>
+        <Link {...linkProps}>
           <Button variant="ghost" prefix={<ArrowUpRight />} />
         </Link>
       </AppTooltip>

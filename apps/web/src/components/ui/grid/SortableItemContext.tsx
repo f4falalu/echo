@@ -10,5 +10,5 @@ interface Context {
 export const SortableItemContext = createContext<Context>({
   attributes: {} as DraggableAttributes,
   listeners: undefined,
-  isDragging: false
+  isDragging: false,
 });

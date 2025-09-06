@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
-import { formatDate } from '@/lib/date';
 import { EditableTitle } from '@/components/ui/typography/EditableTitle';
 import { Paragraph } from '@/components/ui/typography/Paragraph';
+import { formatDate } from '@/lib/date';
 import { cn } from '@/lib/utils';
 
 const DEFAULT_CREATED_BY = 'Created by Buster';
@@ -28,12 +28,17 @@ export const ReportPageHeader = React.forwardRef<
         className="text-foreground! h-9"
         level={1}
         ref={ref}
-        onChange={onChangeName}>
+        onChange={onChangeName}
+      >
         {name}
       </EditableTitle>
       <Paragraph size={'base'} variant={'tertiary'} className="select-none">
-        <span className="select-text">{updatedAtFormatted}</span>
-        <span className="select-none"> • </span>
+        {updatedAtFormatted && (
+          <>
+            <span className="select-text">{updatedAtFormatted}</span>
+            <span className="select-none"> • </span>
+          </>
+        )}
         <span className="select-text">{DEFAULT_CREATED_BY}</span>
       </Paragraph>
     </div>

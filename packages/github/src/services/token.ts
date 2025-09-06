@@ -229,7 +229,7 @@ export async function getInstallationTokenByOrgId(
 /**
  * Generate a new installation token from GitHub
  */
-async function generateNewInstallationToken(
+export async function generateNewInstallationToken(
   installationId: string,
   integrationId: string
 ): Promise<InstallationTokenResponse> {

@@ -1,17 +1,13 @@
-'use client';
-
 import * as SliderPrimitive from '@radix-ui/react-slider';
 import * as React from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import {
   TooltipBase,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger
+  TooltipTrigger,
 } from '@/components/ui/tooltip/TooltipBase';
-
-import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/utils';
-import { ErrorBoundary } from '../error';
 
 export interface SliderProps extends React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root> {
   min?: number;
@@ -41,19 +37,19 @@ const Slider = React.forwardRef<React.ElementRef<typeof SliderPrimitive.Root>, S
     );
     const currentValue: number[] = value || defaultValue || [min];
 
-    const handleValueChange = useMemoizedFn((newValue: number[]) => {
+    const handleValueChange = (newValue: number[]) => {
       onValueChange?.(newValue);
       setInternalValues(newValue);
       setUseTooltip(true);
-    });
+    };
 
-    const handleValueCommit = useMemoizedFn(() => {
+    const handleValueCommit = () => {
       setUseTooltip(false);
       setInternalValues(currentValue);
-    });
+    };
 
     return (
-      <ErrorBoundary errorComponent={<div>Error</div>}>
+      <ErrorBoundary fallback={<div>Error rendering slider</div>}>
         <SliderPrimitive.Root
           ref={ref}
           className={cn('relative flex w-full touch-none items-center select-none', className)}
@@ -64,7 +60,8 @@ const Slider = React.forwardRef<React.ElementRef<typeof SliderPrimitive.Root>, S
           defaultValue={internalValues}
           onValueChange={handleValueChange}
           onValueCommit={handleValueCommit}
-          {...props}>
+          {...props}
+        >
           <SliderPrimitive.Track className="bg-primary/20 relative h-1.5 w-full grow overflow-hidden rounded-full">
             <SliderPrimitive.Range className="bg-primary absolute h-full" />
           </SliderPrimitive.Track>

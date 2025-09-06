@@ -1,34 +1,34 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
-import { BarContainer } from './BarContainer';
-import { Text } from '@/components/ui/typography';
 import { Button } from '@/components/ui/buttons';
+import { Text } from '@/components/ui/typography';
+import { BarContainer } from './BarContainer';
 
 const meta = {
   title: 'Controllers/ReasoningController/BarContainer',
   component: BarContainer,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
   tags: ['autodocs'],
   argTypes: {
     status: {
       control: { type: 'select' },
-      options: ['completed', 'loading', 'failed']
+      options: ['completed', 'loading', 'failed'],
     },
     showBar: {
-      control: { type: 'boolean' }
+      control: { type: 'boolean' },
     },
     isStreamFinished: {
-      control: { type: 'boolean' }
+      control: { type: 'boolean' },
     },
     title: {
-      control: { type: 'text' }
+      control: { type: 'text' },
     },
     secondaryTitle: {
-      control: { type: 'text' }
-    }
-  }
+      control: { type: 'text' },
+    },
+  },
 } satisfies Meta<typeof BarContainer>;
 
 export default meta;
@@ -40,8 +40,8 @@ export const Default: Story = {
     status: 'completed',
     isStreamFinished: true,
     title: 'Processing Data',
-    secondaryTitle: 'Step 1 of 3'
-  }
+    secondaryTitle: 'Step 1 of 3',
+  },
 };
 
 export const Loading: Story = {
@@ -50,8 +50,8 @@ export const Loading: Story = {
     status: 'loading',
     isStreamFinished: false,
     title: 'Analyzing Query',
-    secondaryTitle: 'Please wait...'
-  }
+    secondaryTitle: 'Please wait...',
+  },
 };
 
 export const Failed: Story = {
@@ -60,8 +60,8 @@ export const Failed: Story = {
     status: 'failed',
     isStreamFinished: true,
     title: 'Processing Failed',
-    secondaryTitle: 'Unable to complete'
-  }
+    secondaryTitle: 'Unable to complete',
+  },
 };
 
 export const WithoutBar: Story = {
@@ -70,8 +70,8 @@ export const WithoutBar: Story = {
     status: 'completed',
     isStreamFinished: true,
     title: 'Simple Title',
-    secondaryTitle: 'No bar displayed'
-  }
+    secondaryTitle: 'No bar displayed',
+  },
 };
 
 export const NoSecondaryTitle: Story = {
@@ -79,8 +79,8 @@ export const NoSecondaryTitle: Story = {
     showBar: true,
     status: 'completed',
     isStreamFinished: true,
-    title: 'Just a Title'
-  }
+    title: 'Just a Title',
+  },
 };
 
 export const WithChildren: Story = {
@@ -89,7 +89,7 @@ export const WithChildren: Story = {
     status: 'completed',
     isStreamFinished: true,
     title: 'Container with Content',
-    secondaryTitle: 'Has children'
+    secondaryTitle: 'Has children',
   },
   render: (args) => (
     <BarContainer {...args}>
@@ -102,7 +102,7 @@ export const WithChildren: Story = {
         </Text>
       </div>
     </BarContainer>
-  )
+  ),
 };
 
 export const LongTitles: Story = {
@@ -112,8 +112,8 @@ export const LongTitles: Story = {
     isStreamFinished: false,
     title: 'This is a very long title that might wrap or get truncated',
     secondaryTitle:
-      'And this is also a very long secondary title that might not display on smaller containers'
-  }
+      'And this is also a very long secondary title that might not display on smaller containers',
+  },
 };
 
 // Story that shows all states side by side
@@ -123,7 +123,7 @@ export const AllStates: Story = {
     status: 'completed',
     isStreamFinished: true,
     title: 'Default',
-    secondaryTitle: 'Default'
+    secondaryTitle: 'Default',
   },
   render: () => (
     <div className="flex w-full max-w-2xl flex-col gap-6">
@@ -173,7 +173,7 @@ export const AllStates: Story = {
         </div>
       </div>
     </div>
-  )
+  ),
 };
 
 export const InteractiveContent: Story = {
@@ -182,7 +182,7 @@ export const InteractiveContent: Story = {
     status: 'completed',
     isStreamFinished: true,
     title: 'Interactive Container',
-    secondaryTitle: 'Click to add content'
+    secondaryTitle: 'Click to add content',
   },
   render: (args) => {
     const [textItems, setTextItems] = useState<string[]>(['Initial content item']);
@@ -203,7 +203,7 @@ export const InteractiveContent: Story = {
         'Dynamic Title Example',
         'Updated Title State',
         'Custom Title Text',
-        'Another Title Change'
+        'Another Title Change',
       ];
       const currentIndex = titles.indexOf(title);
       const nextIndex = (currentIndex + 1) % titles.length;
@@ -237,5 +237,5 @@ export const InteractiveContent: Story = {
         </BarContainer>
       </div>
     );
-  }
+  },
 };

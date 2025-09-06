@@ -1,5 +1,5 @@
-import type { BusterMetricData } from '@/api/asset_interfaces/metric';
 import type { DataMetadata } from '@buster/server-shared/metrics';
+import type { BusterMetricData } from '@/api/asset_interfaces/metric';
 
 const PRODUCTS = [
   'Laptop',
@@ -11,7 +11,7 @@ const PRODUCTS = [
   'Headphones',
   'Printer',
   'Camera',
-  'Speaker'
+  'Speaker',
 ];
 
 const generateDate = (index: number): string => {
@@ -24,7 +24,7 @@ const mockData = (length = 10): Record<string, string | number | null>[] => {
   return Array.from({ length }, (_, index) => ({
     sales: (index + 1) * 100,
     date: generateDate(index),
-    product: PRODUCTS[index % PRODUCTS.length]
+    product: PRODUCTS[index % PRODUCTS.length],
   }));
 };
 
@@ -37,7 +37,7 @@ const dataMetadata: DataMetadata = {
       max_value: 1000,
       unique_values: 10,
       simple_type: 'number',
-      type: 'integer'
+      type: 'integer',
     },
     {
       name: 'date',
@@ -45,7 +45,7 @@ const dataMetadata: DataMetadata = {
       max_value: '2024-01-31',
       unique_values: 31,
       simple_type: 'date',
-      type: 'date'
+      type: 'date',
     },
     {
       name: 'product',
@@ -53,17 +53,17 @@ const dataMetadata: DataMetadata = {
       max_value: PRODUCTS[PRODUCTS.length - 1],
       unique_values: PRODUCTS.length,
       simple_type: 'text',
-      type: 'text'
-    }
+      type: 'text',
+    },
   ],
-  row_count: 1
+  row_count: 1,
 };
 
 const MOCK_DATA: Required<BusterMetricData> = {
   data: mockData(),
   metricId: 'mock-metric-1',
   data_metadata: dataMetadata,
-  has_more_records: false
+  has_more_records: false,
 };
 
 export const createMockData = (metricId: string): Required<BusterMetricData> => {
@@ -74,7 +74,7 @@ export const createMockData = (metricId: string): Required<BusterMetricData> => 
     data: data,
     data_metadata: {
       ...dataMetadata,
-      row_count: data.length
-    }
+      row_count: data.length,
+    },
   };
 };

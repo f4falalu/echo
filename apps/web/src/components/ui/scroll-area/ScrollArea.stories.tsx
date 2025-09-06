@@ -1,15 +1,14 @@
 import { faker } from '@faker-js/faker';
-import type { Meta, StoryObj } from '@storybook/nextjs';
-import Image from 'next/image';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ScrollArea, ScrollBar } from './ScrollArea';
 
 const meta = {
   title: 'UI/ScrollArea/ScrollArea',
   component: ScrollArea,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
-  tags: ['autodocs']
+  tags: ['autodocs'],
 } satisfies Meta<typeof ScrollArea>;
 
 export default meta;
@@ -43,7 +42,7 @@ export const Default: Story = {
         </p>
       </div>
     </ScrollArea>
-  )
+  ),
 };
 
 export const TallContent: Story = {
@@ -57,14 +56,14 @@ export const TallContent: Story = {
         ))}
       </div>
     </ScrollArea>
-  )
+  ),
 };
 
 export const WideContent: Story = {
   render: () => {
     const works = Array.from({ length: 50 }, (_, i) => ({
       artist: `Artist ${i + 1}`,
-      art: faker.image.urlLoremFlickr({ category: 'food', width: 300, height: 400 })
+      art: faker.image.urlLoremFlickr({ category: 'food', width: 300, height: 400 }),
     }));
 
     return (
@@ -73,7 +72,7 @@ export const WideContent: Story = {
           {works.map((artwork) => (
             <figure key={artwork.artist} className="shrink-0">
               <div className="overflow-hidden rounded-md">
-                <Image
+                <img
                   src={artwork.art}
                   alt={`Photo by ${artwork.artist}`}
                   className="aspect-[3/4] h-fit w-fit object-cover"
@@ -90,5 +89,5 @@ export const WideContent: Story = {
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
     );
-  }
+  },
 };

@@ -1,20 +1,20 @@
-import { useMemo, useRef } from 'react';
-import { messageShape, messagesShape } from './shapes';
-import { useShape, useShapeStream } from '../instances';
-import { useChatUpdate } from '@/context/Chats/useChatUpdate';
-import { updateMessageShapeToIChatMessage } from './helpers';
-import { useMemoizedFn } from '@/hooks';
-import { useGetChatMemoized, useGetChatMessageMemoized } from '@/api/buster_rest/chats';
-import uniq from 'lodash/uniq';
 import type { ChatMessageResponseMessage_File } from '@buster/server-shared/chats';
-import type { BusterChatMessage } from '../../asset_interfaces/chat';
 import { useQueryClient } from '@tanstack/react-query';
-import { dashboardQueryKeys } from '../../query_keys/dashboard';
 import isEmpty from 'lodash/isEmpty';
-import { metricsQueryKeys } from '../../query_keys/metric';
-import { chatQueryKeys } from '../../query_keys/chat';
+import uniq from 'lodash/uniq';
+import { useMemo, useRef } from 'react';
+import { useGetChatMemoized, useGetChatMessageMemoized } from '@/api/buster_rest/chats';
 import { reportsQueryKeys } from '@/api/query_keys/reports';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import type { BusterChatMessage } from '../../asset_interfaces/chat';
+import { useChatUpdate } from '../../buster_rest/chats/useChatUpdate';
+import { chatQueryKeys } from '../../query_keys/chat';
+import { dashboardQueryKeys } from '../../query_keys/dashboard';
+import { metricsQueryKeys } from '../../query_keys/metric';
 import { DEFAULT_UPDATE_OPERATIONS } from '../config';
+import { useShape, useShapeStream } from '../instances';
+import { updateMessageShapeToIChatMessage } from './helpers';
+import { messageShape, messagesShape } from './shapes';
 
 export const useGetMessage = ({ chatId, messageId }: { chatId: string; messageId: string }) => {
   const shape = useMemo(() => messageShape({ chatId, messageId }), [chatId, messageId]);
@@ -32,7 +32,6 @@ export const useTrackAndUpdateMessageChanges = (
   {
     chatId,
     messageId,
-    isStreamingMessage
   }: {
     chatId: string | undefined;
     messageId: string;
@@ -56,7 +55,7 @@ export const useTrackAndUpdateMessageChanges = (
     shape,
     DEFAULT_UPDATE_OPERATIONS,
     (message) => {
-      if (message && message.value && chatId) {
+      if (message?.value && chatId) {
         const iChatMessage = updateMessageShapeToIChatMessage(message.value);
         const chat = getChatMemoized(chatId);
 
@@ -68,7 +67,7 @@ export const useTrackAndUpdateMessageChanges = (
             onUpdateChat({
               ...chat,
               id: chatId,
-              message_ids: allMessageIds
+              message_ids: allMessageIds,
             });
           }
 
@@ -78,7 +77,7 @@ export const useTrackAndUpdateMessageChanges = (
 
           if (iChatMessage.is_completed) {
             queryClient.invalidateQueries({
-              queryKey: chatQueryKeys.chatsGetList().queryKey
+              queryKey: chatQueryKeys.chatsGetList().queryKey,
             });
             const hasFiles = iChatMessage.reasoning_message_ids?.some((id) => {
               const reasoningMessage = iChatMessage.response_messages?.[id];
@@ -90,11 +89,11 @@ export const useTrackAndUpdateMessageChanges = (
             if (hasFiles) {
               queryClient
                 .invalidateQueries({
-                  queryKey: metricsQueryKeys.metricsGetList().queryKey
+                  queryKey: metricsQueryKeys.metricsGetList().queryKey,
                 })
                 .then(() => {
                   queryClient.invalidateQueries({
-                    queryKey: reportsQueryKeys.reportsGetList().queryKey
+                    queryKey: reportsQueryKeys.reportsGetList().queryKey,
                   });
                 });
             }
@@ -123,22 +122,29 @@ const useCheckIfWeHaveAFollowupDashboard = (messageId: string) => {
         for (const file of allFiles) {
           const fileType = (file as ChatMessageResponseMessage_File).file_type;
           if (fileType === 'dashboard') {
+            const queryKey = dashboardQueryKeys
+              .dashboardGetDashboard(file.id, file.version_number)
+              .queryKey.slice(0, 3);
             queryClient.invalidateQueries({
-              ...dashboardQueryKeys.dashboardGetDashboard(file.id, file.version_number)
-            });
-            queryClient.invalidateQueries({
-              ...dashboardQueryKeys.dashboardGetDashboard(file.id, null)
+              exact: false,
+              queryKey,
             });
           } else if (fileType === 'metric') {
+            const queryKey = metricsQueryKeys
+              .metricsGetMetric(file.id, file.version_number)
+              .queryKey.slice(0, 3);
             queryClient.invalidateQueries({
-              ...metricsQueryKeys.metricsGetMetric(file.id, file.version_number)
-            });
-            queryClient.invalidateQueries({
-              ...metricsQueryKeys.metricsGetMetric(file.id, null)
+              exact: false,
+              queryKey,
             });
           } else if (fileType === 'report') {
-            const { queryKey } = reportsQueryKeys.reportsGetReport(file.id, file.version_number);
-            queryClient.invalidateQueries({ queryKey });
+            const queryKey = reportsQueryKeys
+              .reportsGetReport(file.id, file.version_number)
+              .queryKey.slice(0, 3);
+            queryClient.invalidateQueries({
+              exact: false,
+              queryKey,
+            });
           } else {
             const _exhaustiveCheck: 'reasoning' = fileType;
           }
@@ -163,8 +169,8 @@ export const useTrackAndUpdateNewMessages = ({ chatId }: { chatId: string | unde
   return useShapeStream(
     shape,
     insertOperations,
-    useMemoizedFn((message) => {
-      if (message && message.value && chatId) {
+    (message) => {
+      if (message?.value && chatId) {
         const messageId = message.value.id;
         const chat = getChatMemoized(chatId);
 
@@ -176,19 +182,19 @@ export const useTrackAndUpdateNewMessages = ({ chatId }: { chatId: string | unde
             onUpdateChat({
               ...chat,
               id: chatId,
-              message_ids: allMessageIds
+              message_ids: allMessageIds,
             });
 
             const messageIsStored = getChatMessageMemoized(messageId);
             if (!messageIsStored) {
               queryClient.invalidateQueries({
-                queryKey: chatQueryKeys.chatsGetChat(chatId).queryKey
+                queryKey: chatQueryKeys.chatsGetChat(chatId).queryKey,
               });
             }
           }
         }
       }
-    }),
+    },
     subscribe
   );
 };

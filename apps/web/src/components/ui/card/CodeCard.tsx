@@ -1,7 +1,7 @@
 import React from 'react';
 import { AppCodeEditor } from '@/components/ui/inputs/AppCodeEditor';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { Button } from '../buttons/Button';
 import { ErrorClosableContainer } from '../error/ErrorClosableContainer';
 import { Copy, Download } from '../icons';
@@ -27,7 +27,7 @@ export const CodeCard: React.FC<{
     buttons = true,
     onChange,
     readOnly = false,
-    error = ''
+    error = '',
   }) => {
     const ShownButtons = React.useMemo(
       () =>

@@ -1,20 +1,18 @@
-'use client';
-
-import type { Value, AnyPluginConfig } from 'platejs';
+import type { ReportElementsWithIds, ReportElementWithId } from '@buster/server-shared/reports';
+import type { AnyPluginConfig, Value } from 'platejs';
 import { Plate, type TPlateEditor } from 'platejs/react';
 import React, { useEffect, useImperativeHandle, useRef } from 'react';
-import { useDebounceFn, useMemoizedFn } from '@/hooks';
+import { ScrollToBottomButton } from '@/components/features/buttons/ScrollToBottomButton';
 import { useAutoScroll } from '@/hooks/useAutoScroll';
+import { useDebounceFn } from '@/hooks/useDebounce';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { cn } from '@/lib/utils';
 import { Editor } from './Editor';
 import { EditorContainer } from './EditorContainer';
+import { platejsToMarkdown } from './plugins/markdown-kit/platejs-conversions';
 import { ThemeWrapper } from './ThemeWrapper/ThemeWrapper';
 import { useReportEditor } from './useReportEditor';
-import type { ReportElementsWithIds, ReportElementWithId } from '@buster/server-shared/reports';
-import { platejsToMarkdown } from './plugins/markdown-kit/platejs-conversions';
-import { ScrollToBottomButton } from '../buttons/ScrollToBottomButton';
-
-interface ReportEditorProps {
+export interface ReportEditorProps {
   // We accept the generic Value type but recommend using ReportTypes.Value for type safety
   value?: string; //markdown
   initialElements?: Value | ReportElementWithId[];
@@ -61,7 +59,7 @@ export const ReportEditor = React.memo(
         readOnly = false,
         isStreaming = false,
         preEditorChildren,
-        postEditorChildren
+        postEditorChildren,
       },
       ref
     ) => {
@@ -73,7 +71,7 @@ export const ReportEditor = React.memo(
         useAutoScroll(editorContainerRef, {
           enabled: isStreaming,
           bottomThreshold: 50,
-          observeSubTree: true
+          observeSubTree: true,
         });
 
       const editor = useReportEditor({
@@ -82,7 +80,7 @@ export const ReportEditor = React.memo(
         readOnly,
         value,
         initialElements,
-        useFixedToolbarKit
+        useFixedToolbarKit,
       });
 
       const onReset = useMemoizedFn(() => {
@@ -102,7 +100,7 @@ export const ReportEditor = React.memo(
 
       const onValueChangePreflight = ({
         value,
-        editor
+        editor,
       }: {
         value: Value;
         editor: TPlateEditor<Value, AnyPluginConfig>;
@@ -124,7 +122,7 @@ export const ReportEditor = React.memo(
       };
 
       const { run: onValueChangeDebounced } = useDebounceFn(onValueChangePreflight, {
-        wait: 1500
+        wait: 1500,
       });
 
       useEffect(() => {
@@ -143,7 +141,8 @@ export const ReportEditor = React.memo(
             ref={editorContainerRef}
             variant={variant}
             readOnly={readOnly}
-            className={cn('editor-container relative overflow-auto', containerClassName)}>
+            className={cn('editor-container relative overflow-auto', containerClassName)}
+          >
             {preEditorChildren}
             <ThemeWrapper id={id}>
               <Editor

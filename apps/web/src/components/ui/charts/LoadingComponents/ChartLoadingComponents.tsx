@@ -1,19 +1,20 @@
-import { cn } from '@/lib/classMerge';
 import type React from 'react';
+import { cn } from '@/lib/classMerge';
 import { ShimmerLoadingText } from '../OtherComponents/ShimmerLoadingText';
 
 export const PreparingYourRequestLoader: React.FC<{
   className?: string;
-  text?: string;
+  text: string;
   error?: string | null | undefined;
   useShimmer?: boolean;
-}> = ({ className = '', text = 'Processing your request...', error, useShimmer = true }) => {
+}> = ({ className = '', text, error, useShimmer = true }) => {
   return (
     <div
       className={cn(
         'flex h-full min-h-24 w-full items-center justify-center space-x-1.5',
         className
-      )}>
+      )}
+    >
       {error || useShimmer === false ? (
         <span className="text-text-tertiary flex items-center text-center">{error || text}</span>
       ) : (

@@ -1,6 +1,6 @@
-import { isNumericColumnType } from '@/lib/messages';
 import type { Trendline } from '@buster/server-shared/metrics';
 import { DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
+import { isNumericColumnType } from '@/lib/messages';
 import type { BusterChartProps } from '../../../BusterChart.types';
 
 export const canSupportTrendlineRecord: Record<
@@ -45,5 +45,5 @@ export const canSupportTrendlineRecord: Record<
   average: (columnLabelFormats, trendline) =>
     isNumericColumnType(
       columnLabelFormats[trendline.columnId]?.columnType || DEFAULT_COLUMN_LABEL_FORMAT.columnType
-    )
+    ),
 };

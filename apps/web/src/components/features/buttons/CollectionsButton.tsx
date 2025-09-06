@@ -1,7 +1,7 @@
 import type React from 'react';
 import { Button } from '@/components/ui/buttons';
 import { AppTooltip } from '@/components/ui/tooltip';
-import { ASSET_ICONS } from '../config/assetIcons';
+import { ASSET_ICONS } from '../icons/assetIcons';
 
 export const CollectionButton: React.FC<{
   buttonType?: 'ghost' | 'default';
@@ -12,7 +12,8 @@ export const CollectionButton: React.FC<{
       <Button
         prefix={<ASSET_ICONS.collections />}
         variant={buttonType}
-        data-testid="add-to-collection-button">
+        data-testid="add-to-collection-button"
+      >
         {useText ? 'Collections' : ''}
       </Button>
     </AppTooltip>

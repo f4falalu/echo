@@ -1,36 +1,32 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
+  "include": ["src/**/*.ts", "src/**/*.tsx", "scripts/validate-env.ts"],
+  "exclude": ["node_modules", "dist", "**/.tanstack/**", "**/.output/**", "**/.storybook/**"],
   "compilerOptions": {
-    "baseUrl": ".",
-    "esModuleInterop": true,
-    "incremental": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "module": "esnext",
+    "target": "ES2022",
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["vite/client"],
+
     "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": false,
     "noEmit": true,
-    "paths": {
-      "@/*": ["src/*"],
-      "@metrics/*": ["src/app/app/(primary_layout)/(chat_experience)/metrics/[metricId]/*"],
-      "@dashboards/*": [
-        "src/app/app/(primary_layout)/(chat_experience)/dashboards/[dashboardId]/*"
-      ],
-      "@reports/*": ["src/app/app/(primary_layout)/(chat_experience)/reports/[reportId]/*"]
-    },
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    "resolveJsonModule": true,
+
     "skipLibCheck": true,
     "strict": true,
-    "target": "ES2022",
-    "types": ["node", "vitest/globals"],
-    "allowJs": true
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
-  "exclude": ["node_modules", "dist", ".next", "public"],
-  "include": ["next-env.d.ts", "globals.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "references": [{ "path": "../../packages/server-shared" }]
+  "references": [
+    { "path": "../../packages/server-shared" },
+    { "path": "./tsconfig.node.json" }
+  ]
 }

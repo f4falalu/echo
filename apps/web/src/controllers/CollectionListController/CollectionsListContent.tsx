@@ -1,20 +1,19 @@
-'use client';
-
 import React, { useMemo, useState } from 'react';
-import { type BusterCollectionListItem } from '@/api/asset_interfaces';
-import { FavoriteStar } from '@/components/features/list';
-import { NewCollectionModal } from '@/components/features/modal/NewCollectionModal';
+import type { BusterCollectionListItem } from '@/api/asset_interfaces';
+import { FavoriteStar } from '@/components/features/favorites';
+import { NewCollectionModal } from '@/components/features/modals/NewCollectionModal';
 import { Avatar } from '@/components/ui/avatar';
 import {
   BusterList,
   type BusterListColumn,
   type BusterListRowItem,
-  ListEmptyStateWithButton
+  createListItem,
+  ListEmptyStateWithButton,
 } from '@/components/ui/list';
 import { Text } from '@/components/ui/typography';
-import { useMemoizedFn } from '@/hooks';
-import { formatDate, makeHumanReadble } from '@/lib';
-import { BusterRoutes, createBusterRoute } from '@/routes';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { formatDate } from '@/lib/date';
+import { makeHumanReadble } from '@/lib/text';
 import { CollectionListSelectedPopup } from './CollectionListSelectedPopup';
 
 export const CollectionsListContent: React.FC<{
@@ -27,7 +26,7 @@ export const CollectionsListContent: React.FC<{
     openNewCollectionModal,
     setOpenNewCollectionModal,
     isCollectionListFetched,
-    collectionsList
+    collectionsList,
   }) => {
     const onCloseNewCollectionModal = useMemoizedFn(() => {
       setOpenNewCollectionModal(false);
@@ -56,7 +55,7 @@ const columns: BusterListColumn<BusterCollectionListItem>[] = [
   {
     dataIndex: 'name',
     title: 'Title',
-    render: (v, { id, ...rest }: BusterCollectionListItem) => {
+    render: (v, { id }: BusterCollectionListItem) => {
       return (
         <div className="mr-2 flex items-center space-x-1.5">
           <Text truncate>{v}</Text>
@@ -69,19 +68,19 @@ const columns: BusterListColumn<BusterCollectionListItem>[] = [
           />
         </div>
       );
-    }
+    },
   },
   {
     dataIndex: 'last_edited',
     title: 'Last edited',
     width: 150,
-    render: (v) => formatDate({ date: v, format: 'lll' })
+    render: (v) => formatDate({ date: v, format: 'lll' }),
   },
   {
     dataIndex: 'sharing',
     title: 'Sharing',
     width: 55,
-    render: (v) => makeHumanReadble(v || 'private')
+    render: (v) => makeHumanReadble(v || 'private'),
   },
   {
     dataIndex: 'owner',
@@ -89,8 +88,8 @@ const columns: BusterListColumn<BusterCollectionListItem>[] = [
     width: 50,
     render: (owner: BusterCollectionListItem['owner']) => {
       return <Avatar image={owner?.avatar_url || undefined} name={owner?.name} size={18} />;
-    }
-  }
+    },
+  },
 ];
 
 const CollectionList: React.FC<{
@@ -100,16 +99,20 @@ const CollectionList: React.FC<{
 }> = React.memo(({ collectionsList, setOpenNewCollectionModal, loadedCollections }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
 
+  const createCollectionLinkItem = createListItem<BusterCollectionListItem>();
+
   const collections: BusterListRowItem<BusterCollectionListItem>[] = useMemo(() => {
     return collectionsList.map((collection) => {
-      return {
+      return createCollectionLinkItem({
         id: collection.id,
-        link: createBusterRoute({
-          route: BusterRoutes.APP_COLLECTIONS_ID,
-          collectionId: collection.id
-        }),
-        data: collection
-      };
+        link: {
+          to: '/app/collections/$collectionId',
+          params: {
+            collectionId: collection.id,
+          },
+        },
+        data: collection,
+      });
     });
   }, [collectionsList]);
 

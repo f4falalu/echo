@@ -1,6 +1,6 @@
 import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { describe, expect, it } from 'vitest';
-import { InnerLabelTitleRecord, getPieInnerLabelTitle } from './pieLabelHelpers';
+import { getPieInnerLabelTitle, InnerLabelTitleRecord } from './pieLabelHelpers';
 
 describe('pieLabelHelpers', () => {
   describe('InnerLabelTitleRecord', () => {
@@ -58,7 +58,7 @@ describe('pieLabelHelpers', () => {
         'median',
         'max',
         'min',
-        'count'
+        'count',
       ];
 
       testCases.forEach((aggregate) => {

@@ -1,36 +1,16 @@
-dev:
-	rm -rf ./next && pnpm install && pnpm run dev
+dev: 
+	bun run dev
+
 
 build:
-	pnpm install && pnpm run build
-
-build-clean:
-	rm -rf ./.next && pnpm install && pnpm run build
+	bun run build
 
 start:
-	pnpm install && pnpm run build && pnpm run start
-
-start-fast:
-	@if [ ! -d "./.next" ]; then \
-		echo "No build found. Installing dependencies and building..."; \
-		pnpm install && pnpm run build && pnpm run start; \
-	else \
-		echo "Using existing build..."; \
-		pnpm run start; \
-	fi
-
-fast:
-	pnpm run dev
-
-build-storybook:
-	pnpm run build-storybook
-
-storybook:
-	pnpm run storybook
+	bun run start
 
 lint:
-	pnpm run lint
+	bun run lint
 
-lint-fix:
-	pnpm run lint-fix
+
+
 

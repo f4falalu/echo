@@ -1,16 +1,13 @@
-'use client';
-
-import * as React from 'react';
+import {
+  Resizable as ResizablePrimitive,
+  type ResizeHandle as ResizeHandlePrimitive,
+  useResizeHandle,
+  useResizeHandleState,
+} from '@platejs/resizable';
 
 import type { VariantProps } from 'class-variance-authority';
-
-import {
-  type ResizeHandle as ResizeHandlePrimitive,
-  Resizable as ResizablePrimitive,
-  useResizeHandle,
-  useResizeHandleState
-} from '@platejs/resizable';
 import { cva } from 'class-variance-authority';
+import type * as React from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -23,9 +20,9 @@ export const mediaResizeHandleVariants = cva(
     variants: {
       direction: {
         left: '-left-3 -ml-3 pl-3',
-        right: '-right-3 -mr-3 items-end pr-3'
-      }
-    }
+        right: '-right-3 -mr-3 items-end pr-3',
+      },
+    },
   }
 );
 
@@ -35,9 +32,9 @@ const resizeHandleVariants = cva('absolute z-40', {
       bottom: 'w-full cursor-row-resize',
       left: 'h-full cursor-col-resize',
       right: 'h-full cursor-col-resize',
-      top: 'w-full cursor-row-resize'
-    }
-  }
+      top: 'w-full cursor-row-resize',
+    },
+  },
 });
 
 export function ResizeHandle({
@@ -65,9 +62,9 @@ const resizableVariants = cva('', {
     align: {
       center: 'mx-auto',
       left: 'mr-auto',
-      right: 'ml-auto'
-    }
-  }
+      right: 'ml-auto',
+    },
+  },
 });
 
 export function Resizable({

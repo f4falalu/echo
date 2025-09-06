@@ -11,7 +11,8 @@ export const BarChartSortDescIcon: React.FC<{
       width="11"
       height="12"
       viewBox="0 0 11 12"
-      fill="none">
+      fill="none"
+    >
       <title>Bar Chart Sort Desc Icon</title>
       <g clipPath="url(#clip0_285_720)">
         <path

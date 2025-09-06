@@ -1,13 +1,12 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { slackQueryKeys } from '@/api/query_keys/slack';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useMemoizedFn } from '@/hooks';
 import {
-  initiateSlackOAuth,
+  getSlackChannels,
   getSlackIntegration,
+  initiateSlackOAuth,
   removeSlackIntegration,
   updateSlackIntegration,
-  getSlackChannels
 } from './request';
 
 // GET /api/v2/slack/integration
@@ -15,7 +14,7 @@ export const useGetSlackIntegration = (enabled = true) => {
   return useQuery({
     ...slackQueryKeys.slackGetIntegration,
     queryFn: getSlackIntegration,
-    enabled
+    enabled,
   });
 };
 
@@ -25,14 +24,14 @@ export const useGetSlackChannels = (enabled = true) => {
   return useQuery({
     ...slackQueryKeys.slackGetChannels,
     queryFn: getSlackChannels,
-    enabled: enabled && slackIntegration?.connected
+    enabled: enabled && slackIntegration?.connected,
   });
 };
 
 // POST /api/v2/slack/auth/init
 export const useInitiateSlackOAuth = () => {
   const { openErrorNotification } = useBusterNotifications();
-  const mutationFn = useMemoizedFn(async () => {
+  const mutationFn = async () => {
     const result = await initiateSlackOAuth();
     if (result.auth_url) {
       window.location.href = result.auth_url;
@@ -40,13 +39,13 @@ export const useInitiateSlackOAuth = () => {
       openErrorNotification({
         title: 'Failed to initiate Slack OAuth',
         description: 'Please try again later',
-        duration: 5000
+        duration: 5000,
       });
     }
-  });
+  };
 
   return useMutation({
-    mutationFn
+    mutationFn,
   });
 };
 
@@ -60,9 +59,9 @@ export const useUpdateSlackIntegration = () => {
       // Invalidate the integration query to refetch the updated data
       queryClient.invalidateQueries({
         queryKey: slackQueryKeys.slackGetIntegration.queryKey,
-        refetchType: 'all'
+        refetchType: 'all',
       });
-    }
+    },
   });
 };
 
@@ -71,7 +70,7 @@ export const useRemoveSlackIntegration = () => {
   const queryClient = useQueryClient();
   const { openConfirmModal } = useBusterNotifications();
 
-  const mutationFn = useMemoizedFn(async () => {
+  const mutationFn = async () => {
     const ignoreConfirm = false;
 
     const method = async () => {
@@ -87,11 +86,11 @@ export const useRemoveSlackIntegration = () => {
       content:
         'Are you sure you want to remove the Slack integration? This will disconnect your workspace from Slack.',
       primaryButtonProps: {
-        text: 'Remove'
+        text: 'Remove',
       },
-      onOk: method
+      onOk: method,
     });
-  });
+  };
 
   return useMutation({
     mutationFn,
@@ -99,9 +98,9 @@ export const useRemoveSlackIntegration = () => {
       // Invalidate both integration and channels queries
       queryClient.invalidateQueries({
         queryKey: slackQueryKeys.slackGetIntegration.queryKey,
-        refetchType: 'all'
+        refetchType: 'all',
       });
       queryClient.setQueryData(slackQueryKeys.slackGetChannels.queryKey, { channels: [] });
-    }
+    },
   });
 };
