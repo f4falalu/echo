@@ -68,7 +68,7 @@ jobs:
           path: ./.turbo
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --filter=@buster-app/cli...
 
       - name: Build dependencies with Turbo
         run: |

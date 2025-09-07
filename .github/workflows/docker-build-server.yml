@@ -44,7 +44,7 @@ jobs:
           cache: 'pnpm'
       
       - name: Install bun
-        run: npm install -g bun@1.2.15
+        run: pnpm install -g bun@1.2.15
       
       - name: Mount Turbo cache sticky disk
         uses: useblacksmith/stickydisk@v1
@@ -61,7 +61,7 @@ jobs:
       - name: Install dependencies
         run: |
           echo "📦 Installing dependencies with pnpm..."
-          pnpm install --frozen-lockfile
+          pnpm install --frozen-lockfile --filter=@buster-app/server...
       
       - name: Build with Turbo
         run: |
