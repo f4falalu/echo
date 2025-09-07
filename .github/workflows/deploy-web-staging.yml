@@ -13,104 +13,19 @@ concurrency:
   group: deploy-web-staging-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  CI: true
-
 jobs:
   deploy:
-    name: Deploy to Staging
-    runs-on: blacksmith-4vcpu-ubuntu-2404
-    timeout-minutes: 30
-    environment: staging
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 10.15.1
-
-      - name: Setup Node.js
-        uses: useblacksmith/setup-node@v5
-        with:
-          node-version: 22
-          cache: 'pnpm'
-
-      - name: Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            apps/web/node_modules
-          key: pnpm-web-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('apps/web/package.json') }}
-          restore-keys: |
-            pnpm-web-${{ hashFiles('pnpm-lock.yaml') }}-
-            pnpm-web-
-
-      - name: Cache Turbo
-        uses: actions/cache@v4
-        with:
-          path: .turbo
-          key: turbo-${{ github.job }}-${{ github.ref_name }}-${{ github.sha }}
-          restore-keys: |
-            turbo-${{ github.job }}-${{ github.ref_name }}-
-            turbo-${{ github.job }}-
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --filter=@buster-app/web
-
-      - name: Build required packages
-        run: pnpm turbo build --filter=@buster-app/web
-        env:
-          NODE_ENV: production
-          NODE_OPTIONS: --max-old-space-size=8192
-          TURBO_CACHE_DIR: .turbo
-          TURBO_TELEMETRY_DISABLED: 1
-
-      - name: Deploy to Cloudflare Workers
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy .output/server/index.mjs --env staging --assets .output/public
-          workingDirectory: apps/web
-        env:
-          NODE_ENV: production
-
-      - name: Get commit info
-        id: commit
-        run: |
-          echo "sha_short=$(git rev-parse --short=7 HEAD)" >> $GITHUB_OUTPUT
-          echo "sha_full=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
-
-      - name: Create deployment summary
-        if: success()
-        run: |
-          SHA="${{ steps.commit.outputs.sha_short }}"
-          
-          echo "## 🎉 Web Staging Deployment Successful!" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Environment:** \`staging\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **URL:** https://staging.buster.so" >> $GITHUB_STEP_SUMMARY
-          echo "- **Worker:** \`web-staging\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Commit:** \`${SHA}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Full SHA:** \`${{ steps.commit.outputs.sha_full }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Time:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
-
-      - name: Handle deployment failure
-        if: failure()
-        run: |
-          echo "## ❌ Web Staging Deployment Failed!" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Environment:** \`staging\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Error:** Check the logs above for details" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Next Steps:" >> $GITHUB_STEP_SUMMARY
-          echo "1. Review the error logs above" >> $GITHUB_STEP_SUMMARY
-          echo "2. Check Cloudflare dashboard for deployment status" >> $GITHUB_STEP_SUMMARY
-          echo "3. Verify GitHub secrets are configured correctly" >> $GITHUB_STEP_SUMMARY
-          echo "4. Verify staging environment variables in GitHub Secrets" >> $GITHUB_STEP_SUMMARY
+    uses: ./.github/workflows/deploy-web-reusable.yml
+    with:
+      environment: staging
+      branch: staging
+      api_url: "https://api2staging.buster.so"
+      public_url: "https://staging.buster.so"
+      supabase_url: "https://vlelrtlxoixvaynaudau.supabase.co"
+      supabase_anon_key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsZWxydGx4b2l4dmF5bmF1ZGF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjM3MzEyNzgsImV4cCI6MjAzOTMwNzI3OH0.nK2gZggez6r_F00Ci_fcMXPle5HWo9boGQ5mG3CERFs"
+      posthog_key: "phc_CtxCFcicGmtdan7MnQTRc3AypAifI7FYsoVFv3WnCQc"
+      api2_url: "https://stagingapi.buster.so"
+      enable_tanstack_panel: "true"
+      wrangler_env: staging
+      worker_name: web-staging
+    secrets: inherit
