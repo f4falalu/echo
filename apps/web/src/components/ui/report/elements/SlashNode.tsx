@@ -25,7 +25,7 @@ export function SlashInputElement(props: PlateElementProps<TComboboxInputElement
       <InlineCombobox
         element={element}
         trigger="/"
-        className="bg-item-select relative rounded-l px-1 min-h-7 overflow-hidden flex items-center"
+        className="bg-item-select relative rounded-l px-1 min-h-7 overflow-hidden flex items-center w-fit"
       >
         <InlineComboboxInput
           placeholder="Filter..."
