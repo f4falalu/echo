@@ -10,7 +10,6 @@ export default defineConfig({
       'packages/database',
       'packages/rerank',
       'packages/slack',
-      'packages/stored-values',
       'packages/supabase',
       'packages/test-utils',
       'packages/web-tools',
