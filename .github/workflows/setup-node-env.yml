@@ -1,0 +1,70 @@
+name: Setup Node Environment
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        description: 'The runner to use'
+        required: true
+        type: string
+      node-version:
+        description: 'Node.js version to use'
+        required: false
+        type: string
+        default: '22'
+      pnpm-version:
+        description: 'pnpm version to use'
+        required: false
+        type: string
+        default: '10.15.1'
+      bun-version:
+        description: 'Bun version to use'
+        required: false
+        type: string
+        default: 'latest'
+
+jobs:
+  setup:
+    runs-on: ${{ inputs.runner }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ inputs.pnpm-version }}
+
+      - name: Setup Node.js
+        uses: useblacksmith/setup-node@v5
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: 'pnpm'
+      
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/node_modules
+          key: pnpm-workspace-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-workspace-
+
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ github.job }}-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ github.job }}-${{ github.ref_name }}-
+            turbo-${{ github.job }}-
+      
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ inputs.bun-version }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
