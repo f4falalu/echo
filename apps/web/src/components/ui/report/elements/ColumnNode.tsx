@@ -69,9 +69,9 @@ export const ColumnElement = withHOC(
           <div
             className={cn(
               'relative h-full border border-transparent p-1.5 rounded-md border-dashed',
-              'group-[]/column-group:border-border hover:border-border',
-              selected && 'border-border',
-              isDragging && 'opacity-50'
+              'group-hover:border-border',
+              isDragging && 'opacity-50',
+              'group-[.is-selected]:border-border'
             )}
           >
             {props.children}
@@ -116,10 +116,9 @@ function DropLine() {
 
 export function ColumnGroupElement(props: PlateElementProps) {
   const selected = useSelected();
-  const readOnly = useReadOnly();
 
   return (
-    <PlateElement className={cn('mb-2', selected && 'group/column-group bg-gray-100')} {...props}>
+    <PlateElement className={cn('mb-2 group ', selected && 'is-selected')} {...props}>
       <ColumnFloatingToolbar>
         <div className="flex size-full rounded">{props.children}</div>
       </ColumnFloatingToolbar>
