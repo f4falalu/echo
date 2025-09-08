@@ -4,8 +4,6 @@ import { useBusterNotifications } from '@/context/BusterNotifications';
 import { signOut } from '@/integrations/supabase/signOut';
 import { clearAllBrowserStorage } from '@/lib/storage';
 
-const navigate = useNavigate();
-
 export const useSignOut = () => {
   const { openErrorMessage } = useBusterNotifications();
   const navigate = useNavigate();
@@ -14,19 +12,17 @@ export const useSignOut = () => {
       // Then perform server-side sign out
       await signOut();
 
-      // First clear all client-side storage
-      clearAllBrowserStorage();
-
-      navigate({ to: '/auth/login' });
-
-      // Clear all cookies
-      for (const cookie of document.cookie.split(';')) {
-        const cookieName = cookie.replace(/^ +/, '').split('=')[0];
-        // biome-ignore lint/suspicious/noDocumentCookie: clearing cookies
-        document.cookie = `${cookieName}=;expires=${new Date().toUTCString()};path=/`;
+      try {
+        // First clear all client-side storage
+        clearAllBrowserStorage();
+      } catch (error) {
+        console.error('Error clearing browser storage', error);
       }
     } catch (error) {
+      console.error('Error signing out', error);
       openErrorMessage('Error signing out');
+    } finally {
+      navigate({ to: '/auth/login' });
     }
   }, [navigate, openErrorMessage]);
 

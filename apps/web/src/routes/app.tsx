@@ -28,22 +28,14 @@ export const Route = createFileRoute('/app')({
   loader: async ({ context }) => {
     const { queryClient, accessToken } = context;
     try {
-      const [initialLayout, user, userInfo, userFavorites, listDatasources, datasets] =
-        await Promise.all([
-          getAppLayout({ id: PRIMARY_APP_LAYOUT_ID }),
-          getSupabaseUser(),
-          prefetchGetMyUserInfo(queryClient),
-          prefetchGetUserFavorites(queryClient),
-          prefetchListDatasources(queryClient),
-          prefetchGetDatasets(queryClient),
-        ]);
-
-      console.log('initialLayout', initialLayout);
-      console.log('user', user);
-      console.log('userInfo', userInfo);
-      console.log('userFavorites', userFavorites);
-      console.log('listDatasources', listDatasources);
-      console.log('datasets', datasets);
+      const [initialLayout, user] = await Promise.all([
+        getAppLayout({ id: PRIMARY_APP_LAYOUT_ID }),
+        getSupabaseUser(),
+        prefetchGetMyUserInfo(queryClient),
+        prefetchGetUserFavorites(queryClient),
+        prefetchListDatasources(queryClient),
+        prefetchGetDatasets(queryClient),
+      ]);
 
       if (!user) {
         throw redirect({ to: '/auth/login' });
@@ -63,8 +55,6 @@ export const Route = createFileRoute('/app')({
   },
   component: () => {
     const { user, accessToken } = Route.useLoaderData();
-    console.log('user', user);
-    console.log('accessToken', accessToken);
 
     return (
       <AppProviders user={user} accessToken={accessToken}>

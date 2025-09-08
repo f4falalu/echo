@@ -6,6 +6,7 @@ const routeApi = getRouteApi('/app');
 export const Route = createFileRoute('/app/_settings')({
   component: () => {
     const { initialLayout, layoutId, defaultLayout } = routeApi.useLoaderData();
+
     return (
       <SettingsAppLayout
         initialLayout={initialLayout}
