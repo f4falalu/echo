@@ -223,7 +223,12 @@ const InlineComboboxInput = React.forwardRef<
     <>
       {showTrigger && trigger}
 
-      <span className="relative min-h-[1lh]">
+      <span
+        className="relative min-h-[1lh] w-fit"
+        style={{
+          minWidth: hasValue || !placeholder ? undefined : placeHolderWidth,
+        }}
+      >
         <span className="invisible overflow-hidden text-nowrap" aria-hidden="true">
           {value || '\u200B'}
         </span>
