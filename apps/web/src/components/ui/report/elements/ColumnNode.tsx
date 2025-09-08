@@ -22,13 +22,7 @@ import { Button } from '@/components/ui/buttons';
 import { Trash } from '@/components/ui/icons';
 import { PopoverAnchor, PopoverBase, PopoverContent } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
-import {
-  Tooltip,
-  TooltipBase,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Tooltip } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { NodeTypeIcons } from '../config/icons';
 
