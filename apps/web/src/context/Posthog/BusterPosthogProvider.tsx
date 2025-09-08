@@ -49,6 +49,7 @@ const options: Partial<PostHogConfig> = {
 };
 
 const PosthogWrapper: React.FC<PropsWithChildren> = ({ children }) => {
+  console.log('PosthogWrapper');
   const user = useGetUserBasicInfo();
   const { data: userTeams } = useGetUserTeams({ userId: user?.id ?? '' });
   const userOrganizations = useGetUserOrganization();
@@ -111,6 +112,8 @@ const PosthogWrapper: React.FC<PropsWithChildren> = ({ children }) => {
   if (isServer) {
     return <>{children}</>;
   }
+
+  console.log('PostHogProvider!!!!', PostHogProvider);
 
   return (
     <ClientOnly>

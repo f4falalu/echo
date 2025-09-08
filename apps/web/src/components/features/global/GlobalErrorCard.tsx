@@ -43,7 +43,7 @@ export const GlobalErrorCard: ErrorRouteComponent = ({ error }) => {
       posthog.captureException(error);
     }
 
-    console.error(error);
+    console.error('GlobalErrorCard error', error);
   }, [error]);
 
   return <ErrorCard />;

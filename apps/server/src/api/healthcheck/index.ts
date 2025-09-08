@@ -1,20 +1,7 @@
 import { dbPing } from '@buster/database';
+import type { HealthCheckResponse } from '@buster/server-shared/healthcheck';
 import { Hono } from 'hono';
 import type { Context } from 'hono';
-interface HealthCheckResult {
-  status: 'healthy' | 'unhealthy' | 'degraded';
-  timestamp: string;
-  uptime: number;
-  version: string;
-  environment: string;
-  checks: {
-    [key: string]: {
-      status: 'pass' | 'fail' | 'warn';
-      message?: string;
-      responseTime?: number;
-    };
-  };
-}
 
 async function checkDatabase(): Promise<{
   status: 'pass' | 'fail' | 'warn';
@@ -72,7 +59,7 @@ function checkMemory(): { status: 'pass' | 'fail' | 'warn'; message?: string } {
   };
 }
 
-async function performHealthCheck(): Promise<HealthCheckResult> {
+async function performHealthCheck(): Promise<HealthCheckResponse> {
   if (!process.env.DATABASE_URL) {
     throw new Error('DATABASE_URL is not set');
   }
@@ -123,7 +110,7 @@ async function performHealthCheck(): Promise<HealthCheckResult> {
 
 async function healthCheckHandler(c: Context) {
   try {
-    const healthResult = await performHealthCheck();
+    const healthResult: HealthCheckResponse = await performHealthCheck();
 
     // Return appropriate HTTP status
     const statusCode =

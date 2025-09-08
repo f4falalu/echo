@@ -69,6 +69,7 @@ export const SupabaseContextProvider: React.FC<
   console.log('user22', user);
   console.log('accessToken22', accessToken);
   const value = useSupabaseContextInternal({ user, accessToken });
+  console.log('value22', value);
 
   return <SupabaseContext.Provider value={value}>{children}</SupabaseContext.Provider>;
 });

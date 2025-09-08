@@ -12,6 +12,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { createServerRootRoute } from '@tanstack/react-start/server'
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as HealthcheckRouteImport } from './routes/healthcheck'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
@@ -157,6 +158,11 @@ const AppAppAssetChatsChatIdDashboardsDashboardIdMetricsMetricIdRouteImport =
   )()
 const rootServerRouteImport = createServerRootRoute()
 
+const HealthcheckRoute = HealthcheckRouteImport.update({
+  id: '/healthcheck',
+  path: '/healthcheck',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -906,6 +912,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppSettingsRestricted_layoutAdmin_onlyRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
+  '/healthcheck': typeof HealthcheckRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
@@ -1009,6 +1016,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteWithChildren
+  '/healthcheck': typeof HealthcheckRoute
   '/app': typeof AppSettingsRestricted_layoutAdmin_onlyRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
@@ -1097,6 +1105,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
+  '/healthcheck': typeof HealthcheckRoute
   '/app/_app': typeof AppAppRouteWithChildren
   '/app/_settings': typeof AppSettingsRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
@@ -1219,6 +1228,7 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/auth'
+    | '/healthcheck'
     | '/auth/login'
     | '/auth/logout'
     | '/auth/reset-password'
@@ -1322,6 +1332,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/healthcheck'
     | '/app'
     | '/auth/login'
     | '/auth/logout'
@@ -1409,6 +1420,7 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/auth'
+    | '/healthcheck'
     | '/app/_app'
     | '/app/_settings'
     | '/auth/login'
@@ -1530,6 +1542,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
   AuthRoute: typeof AuthRouteWithChildren
+  HealthcheckRoute: typeof HealthcheckRoute
   EmbedDashboardDashboardIdRoute: typeof EmbedDashboardDashboardIdRoute
   EmbedMetricMetricIdRoute: typeof EmbedMetricMetricIdRoute
   EmbedReportReportIdRoute: typeof EmbedReportReportIdRoute
@@ -1558,6 +1571,13 @@ export interface RootServerRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/healthcheck': {
+      id: '/healthcheck'
+      path: '/healthcheck'
+      fullPath: '/healthcheck'
+      preLoaderRoute: typeof HealthcheckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -3144,6 +3164,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
   AuthRoute: AuthRouteWithChildren,
+  HealthcheckRoute: HealthcheckRoute,
   EmbedDashboardDashboardIdRoute: EmbedDashboardDashboardIdRoute,
   EmbedMetricMetricIdRoute: EmbedMetricMetricIdRoute,
   EmbedReportReportIdRoute: EmbedReportReportIdRoute,
