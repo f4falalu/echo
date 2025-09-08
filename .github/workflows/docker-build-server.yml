@@ -32,19 +32,10 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
+      - name: Setup Node Environment
+        uses: ./.github/actions/setup-node-env
         with:
-          version: 9.15.0
-      
-      - name: Setup Node.js
-        uses: useblacksmith/setup-node@v5
-        with:
-          node-version: 22
-          cache: 'pnpm'
-      
-      - name: Install bun
-        run: npm install -g bun@1.2.15
+          install-filter: "@buster-app/server..."
       
       - name: Mount Turbo cache sticky disk
         uses: useblacksmith/stickydisk@v1
@@ -57,11 +48,6 @@ jobs:
         with:
           key: ${{ github.repository }}-buildkit-cache-${{ github.ref_name }}
           path: /tmp/.buildkit-cache
-      
-      - name: Install dependencies
-        run: |
-          echo "📦 Installing dependencies with pnpm..."
-          pnpm install --frozen-lockfile
       
       - name: Build with Turbo
         run: |

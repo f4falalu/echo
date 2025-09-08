@@ -31,6 +31,7 @@ export const TanstackDevtools: React.FC = React.memo(() => {
   useHotkeys(
     'shift+a',
     () => {
+      console.log('🐓 Setting useDevTools to true');
       setUseDevTools(true);
     },
     { enabled: ENABLE_TANSTACK_PANEL }
