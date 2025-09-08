@@ -13,6 +13,7 @@ import {
   Code,
   Download4,
   History,
+  Image,
   Pencil,
   SquareChart,
   SquareChartPen,
@@ -21,6 +22,7 @@ import {
   PenSparkle,
 } from '@/components/ui/icons';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
+import { AppTooltip } from '@/components/ui/tooltip';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { ensureElementExists } from '@/lib/element';
 import { downloadElementToImage, exportJSONToCSV } from '@/lib/exportUtils';
@@ -202,10 +204,10 @@ export const useDownloadPNGSelectMenu = ({
 
   return useMemo(
     () => ({
-      label: 'Download as PNG',
+      label: 'Download as PNG (coming soon)',
       value: 'download-png',
       disabled: true,
-      icon: <SquareChart />,
+      icon: <Image />,
       onClick: async () => {
         const node = document.getElementById(METRIC_CHART_CONTAINER_ID(metricId)) as HTMLElement;
         if (node) {
