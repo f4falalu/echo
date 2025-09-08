@@ -66,6 +66,8 @@ export const SupabaseContext = createContext<ReturnType<typeof useSupabaseContex
 export const SupabaseContextProvider: React.FC<
   SupabaseContextType & { children: React.ReactNode }
 > = React.memo(({ user, accessToken, children }) => {
+  console.log('user22', user);
+  console.log('accessToken22', accessToken);
   const value = useSupabaseContextInternal({ user, accessToken });
 
   return <SupabaseContext.Provider value={value}>{children}</SupabaseContext.Provider>;

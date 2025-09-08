@@ -17,6 +17,8 @@ export const AppProviders: React.FC<PropsWithChildren<SupabaseContextType>> = ({
   user,
   accessToken,
 }) => {
+  console.log('user11', user);
+  console.log('accessToken11', accessToken);
   return (
     <SupabaseContextProvider user={user} accessToken={accessToken}>
       <BusterPosthogProvider>{children}</BusterPosthogProvider>

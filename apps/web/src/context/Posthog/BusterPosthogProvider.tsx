@@ -16,9 +16,14 @@ const POSTHOG_KEY = env.VITE_PUBLIC_POSTHOG_KEY;
 const DEBUG_POSTHOG = false;
 
 export const BusterPosthogProvider: React.FC<PropsWithChildren> = ({ children }) => {
+  console.log('POSTHOG_KEY', POSTHOG_KEY);
+  console.log('DEBUG_POSTHOG', DEBUG_POSTHOG);
   if ((isDev && !DEBUG_POSTHOG) || !POSTHOG_KEY) {
     return <>{children}</>;
   }
+
+  console.log('POSTHOG_KEY22', POSTHOG_KEY);
+  console.log('DEBUG_POSTHOG22', DEBUG_POSTHOG);
 
   return <PosthogWrapper>{children}</PosthogWrapper>;
 };

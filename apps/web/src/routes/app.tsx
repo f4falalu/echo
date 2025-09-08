@@ -63,6 +63,8 @@ export const Route = createFileRoute('/app')({
   },
   component: () => {
     const { user, accessToken } = Route.useLoaderData();
+    console.log('user', user);
+    console.log('accessToken', accessToken);
 
     return (
       <AppProviders user={user} accessToken={accessToken}>
