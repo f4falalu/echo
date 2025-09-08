@@ -169,7 +169,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build required packages
-        run: pnpm turbo build
+        run: pnpm turbo build --filter="!@buster-app/web"
         env:
           NODE_ENV: production
           SKIP_ENV_CHECK: true
