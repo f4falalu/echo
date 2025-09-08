@@ -63,39 +63,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
+      - name: Setup Node Environment
+        uses: ./.github/actions/setup-node-env
         with:
-          version: 10.15.1
-
-      - name: Setup Node.js
-        uses: useblacksmith/setup-node@v5
-        with:
-          node-version: 22
-          cache: 'pnpm'
-
-      - name: Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            apps/*/node_modules
-            packages/*/node_modules
-          key: pnpm-workspace-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            pnpm-workspace-
-
-      - name: Cache Turbo
-        uses: actions/cache@v4
-        with:
-          path: .turbo
-          key: turbo-${{ github.job }}-${{ github.ref_name }}-${{ github.sha }}
-          restore-keys: |
-            turbo-${{ github.job }}-${{ github.ref_name }}-
-            turbo-${{ github.job }}-
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --filter=@buster-app/web...
+          install-filter: "@buster-app/web..."
 
       - name: Build required packages
         run: pnpm turbo build --filter=@buster-app/web
