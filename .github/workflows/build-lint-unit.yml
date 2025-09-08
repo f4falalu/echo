@@ -22,9 +22,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
-          version: 9.15.0
+          version: 10.15.1
 
       - name: Setup Node.js
         uses: useblacksmith/setup-node@v5
@@ -32,12 +32,38 @@ jobs:
           node-version: 22
           cache: 'pnpm'
       
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/node_modules
+          key: pnpm-workspace-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-workspace-
+
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ github.job }}-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ github.job }}-${{ github.ref_name }}-
+            turbo-${{ github.job }}-
+      
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Build all packages (excluding web)
-        run: pnpm build --filter='!@buster-app/web'
+        run: |
+          pnpm turbo build --filter="!@buster-app/web"
+          pnpm turbo typecheck --filter=@buster-app/web
         env:
           NODE_ENV: production
           SKIP_ENV_CHECK: true
@@ -54,9 +80,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
-          version: 9.15.0
+          version: 10.15.1
 
       - name: Setup Node.js
         uses: useblacksmith/setup-node@v5
@@ -64,12 +90,31 @@ jobs:
           node-version: 22
           cache: 'pnpm'
       
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/node_modules
+          key: pnpm-workspace-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-workspace-
+
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ github.job }}-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ github.job }}-${{ github.ref_name }}-
+            turbo-${{ github.job }}-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Lint all packages (excluding web)
-        run: pnpm lint --filter='!@buster-app/web'
+        run: pnpm turbo lint
         env:
           TURBO_CACHE_DIR: .turbo
           TURBO_TELEMETRY_DISABLED: 1
@@ -85,9 +130,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
-          version: 9.15.0
+          version: 10.15.1
 
       - name: Setup Node.js
         uses: useblacksmith/setup-node@v5
@@ -95,12 +140,36 @@ jobs:
           node-version: 22
           cache: 'pnpm'
       
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/node_modules
+          key: pnpm-workspace-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-workspace-
+
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ github.job }}-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ github.job }}-${{ github.ref_name }}-
+            turbo-${{ github.job }}-
+      
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Build required packages
-        run: pnpm build --filter='!@buster-app/web'
+        run: pnpm turbo build
         env:
           NODE_ENV: production
           SKIP_ENV_CHECK: true
@@ -108,7 +177,7 @@ jobs:
           TURBO_TELEMETRY_DISABLED: 1
 
       - name: Run all unit tests (excluding web)
-        run: pnpm test:unit --filter='!@buster-app/web'
+        run: pnpm turbo test:unit
         env:
           TURBO_CACHE_DIR: .turbo
           TURBO_TELEMETRY_DISABLED: 1
