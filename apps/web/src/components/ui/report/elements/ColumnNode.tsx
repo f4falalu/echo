@@ -1,6 +1,6 @@
 import { useDraggable, useDropLine } from '@platejs/dnd';
 import { setColumns } from '@platejs/layout';
-import { useDebouncePopoverOpen } from '@platejs/layout/react';
+import { ColumnItemPlugin, ColumnPlugin, useDebouncePopoverOpen } from '@platejs/layout/react';
 import { ResizableProvider } from '@platejs/resizable';
 import { BlockSelectionPlugin, useBlockSelected } from '@platejs/selection/react';
 import { useComposedRef } from '@udecode/cn';
@@ -10,11 +10,14 @@ import type { PlateElementProps } from 'platejs/react';
 import {
   PlateElement,
   useEditorRef,
+  useEditorSelector,
   useElement,
   useElementSelector,
   usePluginOption,
+  usePluginOptions,
   useReadOnly,
   useRemoveNodeButton,
+  useSelected,
   withHOC,
 } from 'platejs/react';
 import * as React from 'react';
@@ -22,7 +25,7 @@ import { Button } from '@/components/ui/buttons';
 import { Trash } from '@/components/ui/icons';
 import { PopoverAnchor, PopoverBase, PopoverContent } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
-import { Tooltip } from '@/components/ui/tooltip';
+import { AppTooltip, Tooltip } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { NodeTypeIcons } from '../config/icons';
 
@@ -31,12 +34,10 @@ export const ColumnElement = withHOC(
   function ColumnElement(props: PlateElementProps<TColumnElement>) {
     const { width } = props.element;
     const readOnly = useReadOnly();
+    const selected = useSelected();
     const isSelectionAreaVisible = usePluginOption(BlockSelectionPlugin, 'isSelectionAreaVisible');
 
-    const columnGroupId = useElementSelector(([node]) => node.id as string, [], {
-      key: 'column_group',
-    });
-    const isParentSelected = useBlockSelected(columnGroupId);
+    const showSelected = !readOnly && selected;
 
     const { isDragging, previewRef, handleRef } = useDraggable({
       element: props.element,
@@ -67,8 +68,9 @@ export const ColumnElement = withHOC(
         >
           <div
             className={cn(
-              'relative h-full border border-transparent p-1.5',
-              !readOnly && isParentSelected && 'border-border rounded-md border-dashed',
+              'relative h-full border border-transparent p-1.5 rounded-md border-dashed',
+              'group-[]/column-group:border-border hover:border-border',
+              selected && 'border-border',
               isDragging && 'opacity-50'
             )}
           >
@@ -113,8 +115,11 @@ function DropLine() {
 }
 
 export function ColumnGroupElement(props: PlateElementProps) {
+  const selected = useSelected();
+  const readOnly = useReadOnly();
+
   return (
-    <PlateElement className="mb-2" {...props}>
+    <PlateElement className={cn('mb-2', selected && 'group/column-group bg-gray-100')} {...props}>
       <ColumnFloatingToolbar>
         <div className="flex size-full rounded">{props.children}</div>
       </ColumnFloatingToolbar>
@@ -151,32 +156,56 @@ function ColumnFloatingToolbar({ children }: React.PropsWithChildren) {
         sideOffset={10}
       >
         <div className="box-content flex h-8 items-center">
-          <Button variant="ghost" className="size-8" onClick={() => onColumnChange(['50%', '50%'])}>
-            <DoubleColumnOutlined />
-          </Button>
-          <Button
-            variant="ghost"
-            className="size-8"
-            onClick={() => onColumnChange(['33%', '33%', '33%'])}
-          >
-            <ThreeColumnOutlined />
-          </Button>
-          <Button variant="ghost" className="size-8" onClick={() => onColumnChange(['70%', '30%'])}>
-            <RightSideDoubleColumnOutlined />
-          </Button>
-          <Button variant="ghost" className="size-8" onClick={() => onColumnChange(['30%', '70%'])}>
-            <LeftSideDoubleColumnOutlined />
-          </Button>
-          <Button
-            variant="ghost"
-            className="size-8"
-            onClick={() => onColumnChange(['25%', '50%', '25%'])}
-          >
-            <DoubleSideDoubleColumnOutlined />
-          </Button>
+          <AppTooltip title="Double column">
+            <Button
+              variant="ghost"
+              className="size-8"
+              onClick={() => onColumnChange(['50%', '50%'])}
+            >
+              <DoubleColumnOutlined />
+            </Button>
+          </AppTooltip>
+          <AppTooltip title="Three column">
+            <Button
+              variant="ghost"
+              className="size-8"
+              onClick={() => onColumnChange(['33%', '33%', '33%'])}
+            >
+              <ThreeColumnOutlined />
+            </Button>
+          </AppTooltip>
+          <AppTooltip title="Right side double column" skipDelayDuration={400}>
+            <Button
+              variant="ghost"
+              className="size-8"
+              onClick={() => onColumnChange(['70%', '30%'])}
+            >
+              <RightSideDoubleColumnOutlined />
+            </Button>
+          </AppTooltip>
+          <AppTooltip title="Right side double column" skipDelayDuration={400}>
+            <Button
+              variant="ghost"
+              className="size-8"
+              onClick={() => onColumnChange(['30%', '70%'])}
+            >
+              <LeftSideDoubleColumnOutlined />
+            </Button>
+          </AppTooltip>
+          {/* <AppTooltip title="Left side double column" skipDelayDuration={400}>
+            <Button
+              variant="ghost"
+              className="size-8"
+              onClick={() => onColumnChange(['25%', '50%', '25%'])}
+            >
+              <DoubleSideDoubleColumnOutlined />
+            </Button>
+          </AppTooltip> */}
 
           <Separator orientation="vertical" className="mx-1 h-6" />
-          <Button variant="ghost" prefix={<Trash />} className="size-8" {...buttonProps}></Button>
+          <AppTooltip title="Remove column" skipDelayDuration={400}>
+            <Button variant="ghost" prefix={<Trash />} className="size-8" {...buttonProps}></Button>
+          </AppTooltip>
         </div>
       </PopoverContent>
     </PopoverBase>
