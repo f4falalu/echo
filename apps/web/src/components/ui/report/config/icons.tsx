@@ -64,6 +64,8 @@ import {
   Minus,
   Music,
   OrderedList,
+  // Actions
+  PenSparkle,
   // Structure
   Pilcrow,
   Plus,
@@ -104,8 +106,6 @@ import {
   UnorderedList,
   Upload,
   VolumeUp,
-  // Actions
-  PenSparkle,
   Xmark,
 } from '@/components/ui/icons';
 

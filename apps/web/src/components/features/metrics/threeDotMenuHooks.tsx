@@ -15,14 +15,12 @@ import {
   History,
   Image,
   Pencil,
-  SquareChart,
+  PenSparkle,
   SquareChartPen,
   Star,
   Table,
-  PenSparkle,
 } from '@/components/ui/icons';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
-import { AppTooltip } from '@/components/ui/tooltip';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { ensureElementExists } from '@/lib/element';
 import { downloadElementToImage, exportJSONToCSV } from '@/lib/exportUtils';
