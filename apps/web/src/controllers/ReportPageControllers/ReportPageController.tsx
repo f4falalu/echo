@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import React from 'react';
+import React, { useRef } from 'react';
 import type { BusterChatMessage } from '@/api/asset_interfaces/chat';
 import { useGetReport, useUpdateReport } from '@/api/buster_rest/reports';
 import { useTrackAndUpdateReportChanges } from '@/api/buster-electric/reports/hooks';
@@ -7,6 +7,7 @@ import DynamicReportEditor from '@/components/ui/report/DynamicReportEditor';
 import type { IReportEditor } from '@/components/ui/report/ReportEditor';
 import { ReportEditorSkeleton } from '@/components/ui/report/ReportEditorSkeleton';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { useMount } from '@/hooks/useMount';
 import { cn } from '@/lib/utils';
 import { chatQueryKeys } from '../../api/query_keys/chat';
 import { useGetCurrentMessageId, useIsStreamingMessage } from '../../context/Chats';
@@ -72,9 +73,22 @@ export const ReportPageController: React.FC<{
 
     useTrackAndUpdateReportChanges({ reportId, subscribe: isStreamingMessage });
 
+    const containerRef = useRef<HTMLDivElement>(null);
+    const controllerRef = useRef<HTMLDivElement>(null);
+
+    useMount(() => {
+      const matchClass = 'scroll-area-viewport';
+      const closestMatch = controllerRef.current?.closest(`.${matchClass}`);
+
+      if (closestMatch) {
+        containerRef.current = closestMatch as HTMLDivElement;
+      }
+    });
+
     return (
       <div
         id="report-page-controller"
+        ref={controllerRef}
         className={cn('relative h-full space-y-1.5 overflow-hidden', className)}
       >
         {report ? (
@@ -90,6 +104,7 @@ export const ReportPageController: React.FC<{
             mode={mode}
             onReady={onReadyProp}
             isStreaming={isStreamingMessage}
+            containerRef={containerRef}
             preEditorChildren={
               <ReportPageHeader
                 name={report?.name}

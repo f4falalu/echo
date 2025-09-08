@@ -7,7 +7,7 @@ import viteTsConfigPaths from 'vite-tsconfig-paths';
 
 const config = defineConfig(({ command, mode }) => {
   const isBuild = command === 'build';
-  const isProduction = mode === 'production';
+  const isProduction = mode === 'production' || mode === 'staging';
   const isTypecheck = process.argv.includes('--typecheck') || process.env.TYPECHECK === 'true';
   const useChecker = !process.env.VITEST && isBuild;
   const isLocalBuild = process.argv.includes('--local');
@@ -34,7 +34,9 @@ const config = defineConfig(({ command, mode }) => {
       format: 'es',
     },
     build: {
-      chunkSizeWarningLimit: 850,
+      chunkSizeWarningLimit: 1250,
+      minify: isProduction ? 'esbuild' : false,
+      reportCompressedSize: false, // Disable gzip size reporting to speed up build
       rollupOptions: {
         // Exclude test and stories files from build
         external: (id) => {
@@ -65,6 +67,12 @@ const config = defineConfig(({ command, mode }) => {
               return 'vendor-tanstack';
             }
           },
+        },
+        // Optimize tree-shaking for CloudFlare
+        treeshake: {
+          moduleSideEffects: false,
+          propertyReadSideEffects: false,
+          tryCatchDeoptimization: false,
         },
       },
     },

@@ -38,12 +38,15 @@ import { TableKit } from './plugins/table-kit';
 import { TocKit } from './plugins/toc-kit';
 import { ToggleKit } from './plugins/toggle-kit';
 
-export const EditorKit = [
+export const EditorKit = ({
+  containerRef,
+}: {
+  containerRef?: React.RefObject<HTMLDivElement | null>;
+}) => [
   // Editing
   ...SlashKit,
   ...AutoformatKit,
   ...CursorOverlayKit,
-  ...DndKit,
   ...EmojiKit,
   ...ExitBreakKit,
   TrailingBlockPlugin,
@@ -92,8 +95,11 @@ export const EditorKit = [
   ...BlockPlaceholderKit,
   ...FixedToolbarKit,
   ...FloatingToolbarKit,
+
+  // Dnd
+  ...DndKit({ containerRef }),
 ];
 
-export type MyEditor = TPlateEditor<Value, (typeof EditorKit)[number]>;
+export type MyEditor = TPlateEditor<Value, ReturnType<typeof EditorKit>[number]>;
 
 export const useEditor = () => useEditorRef<MyEditor>();
