@@ -46,6 +46,7 @@ export interface EnvValidationOptions {
   skipInCI?: boolean;
   skipInProduction?: boolean;
   skipInDocker?: boolean;
+  logPublicVars?: boolean;
 }
 
 // Validate required environment variables
@@ -53,7 +54,12 @@ export function validateEnv(
   requiredVars: Record<string, string | undefined>,
   options: EnvValidationOptions = {}
 ): EnvValidationResult {
-  const { skipInCI = true, skipInProduction = true, skipInDocker = true } = options;
+  const {
+    skipInCI = true,
+    skipInProduction = true,
+    logPublicVars = false,
+    skipInDocker = true,
+  } = options;
 
   console.info('🔍 Validating environment variables...');
 
@@ -74,7 +80,11 @@ export function validateEnv(
       console.error(`❌ Missing required environment variable: ${envKey}`);
       missingVariables.push(envKey);
     } else {
-      console.info(`✅ ${envKey} is set`);
+      if (logPublicVars && envKey.includes('_PUBLIC_')) {
+        console.info(`✅ ${envKey} is set with value: ${value}`);
+      } else {
+        console.info(`✅ ${envKey} is set`);
+      }
     }
   }
 

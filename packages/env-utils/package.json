@@ -15,7 +15,7 @@
     "typecheck": "tsc --noEmit",
     "dev": "tsc --watch",
     "dev:fast": "tsc --watch",
-    "lint": "biome check"
+    "lint": "biome check --write"
   },
   "dependencies": {
     "@buster/typescript-config": "workspace:*",
