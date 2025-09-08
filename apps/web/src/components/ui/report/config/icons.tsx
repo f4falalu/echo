@@ -64,6 +64,8 @@ import {
   Minus,
   Music,
   OrderedList,
+  // Actions
+  PenSparkle,
   // Structure
   Pilcrow,
   Plus,
@@ -104,8 +106,6 @@ import {
   UnorderedList,
   Upload,
   VolumeUp,
-  // Actions
-  WandSparkle,
   Xmark,
 } from '@/components/ui/icons';
 
@@ -172,7 +172,7 @@ export const NodeTypeIcons = {
   loader: Loader,
 
   // Actions
-  ai: WandSparkle,
+  ai: PenSparkle,
   export: ArrowDownFromLine,
   import: ArrowUpFromLine,
   link: Link2,
