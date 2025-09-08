@@ -17,7 +17,7 @@ export const cleanCanvasContext = () => {
 };
 
 interface FontOptions {
-  fontSize?: string | number;
+  fontSize?: number;
   fontFamily?: string;
   fontWeight?: string;
   fontStyle?: string;
