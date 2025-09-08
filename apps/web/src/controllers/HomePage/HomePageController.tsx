@@ -58,8 +58,6 @@ const useGreeting = () => {
     const now = new Date();
     const hours = now.getHours();
 
-    console.log('hours', isServer, hours);
-
     if (hours >= 4 && hours < 12) {
       return TimeOfDay.MORNING;
     } else if (hours >= 12 && hours <= 19) {
