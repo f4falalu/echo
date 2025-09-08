@@ -18,10 +18,12 @@ import {
   useHTMLInputCursorState,
 } from '@platejs/combobox/react';
 import { cva } from 'class-variance-authority';
+import { motion } from 'framer-motion';
 import type { Point, TElement } from 'platejs';
 import { useComposedRef, useEditorRef } from 'platejs/react';
 import * as React from 'react';
-
+import { useMount } from '@/hooks/useMount';
+import { useUnmount } from '@/hooks/useUnmount';
 import { cn } from '@/lib/utils';
 import { THEME_RESET_STYLE } from '@/styles/theme-reset';
 
@@ -214,11 +216,7 @@ const InlineComboboxInput = React.forwardRef<
 
         <Combobox
           ref={ref}
-          className={cn(
-            'absolute top-0 left-0 size-full outline-none',
-            isOpen && !value ? 'bg-muted text-muted-foreground' : 'bg-transparent',
-            className
-          )}
+          className={cn('absolute top-0 left-0 size-full outline-none', className)}
           value={value}
           placeholder={placeholder}
           autoSelect
@@ -233,16 +231,22 @@ const InlineComboboxInput = React.forwardRef<
 InlineComboboxInput.displayName = 'InlineComboboxInput';
 
 const InlineComboboxContent: typeof ComboboxPopover = ({ className, style, ...props }) => {
-  // Portal prevents CSS from leaking into popover
   return (
     <Portal>
       <ComboboxPopover
         className={cn(
-          'bg-popover z-500 max-h-[288px] w-[300px] overflow-y-auto rounded-md shadow-md',
+          'bg-popover z-500 max-h-[288px] w-[300px] overflow-y-auto rounded border shadow',
           className
         )}
         {...props}
         style={{ ...THEME_RESET_STYLE, ...style }}
+        render={
+          <motion.div
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.125 }}
+          />
+        }
       />
     </Portal>
   );
