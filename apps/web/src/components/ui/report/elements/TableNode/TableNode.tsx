@@ -247,7 +247,7 @@ function TableFloatingToolbar({ children, ...props }: React.ComponentProps<typeo
 const TableBordersDropdownMenuContent = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.Content>,
   React.ComponentProps<typeof DropdownMenuPrimitive.Content>
->(function TableBordersDropdownMenuContent(props) {
+>(function TableBordersDropdownMenuContent(props, ref) {
   // Get the current editor instance
   const editor = useEditorRef();
   const {
@@ -262,6 +262,7 @@ const TableBordersDropdownMenuContent = React.forwardRef<
 
   return (
     <DropdownMenuContent
+      ref={ref}
       className="min-w-[220px]"
       onCloseAutoFocus={(e) => {
         e.preventDefault();
