@@ -11,15 +11,6 @@ export const signOut = createServerFn({ method: 'POST' }).handler(async () => {
     return { error: error.message };
   }
 
-  // Clear all cookies by setting them with maxAge: 0
-  const allCookies = parseCookies();
-  for (const [cookieName] of Object.entries(allCookies)) {
-    setCookie(cookieName, '', {
-      path: '/',
-      maxAge: 0, // This effectively deletes the cookie
-    });
-  }
-
   throw redirect({
     href: '/',
   });

@@ -1,12 +1,14 @@
-import { useRouter } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import { useCallback } from 'react';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { signOut } from '@/integrations/supabase/signOut';
 import { clearAllBrowserStorage } from '@/lib/storage';
 
+const navigate = useNavigate();
+
 export const useSignOut = () => {
   const { openErrorMessage } = useBusterNotifications();
-  const router = useRouter();
+  const navigate = useNavigate();
   const handleSignOut = useCallback(async () => {
     try {
       // Then perform server-side sign out
@@ -15,11 +17,18 @@ export const useSignOut = () => {
       // First clear all client-side storage
       clearAllBrowserStorage();
 
-      router.navigate({ to: '/auth/login' });
+      navigate({ to: '/auth/login' });
+
+      // Clear all cookies
+      for (const cookie of document.cookie.split(';')) {
+        const cookieName = cookie.replace(/^ +/, '').split('=')[0];
+        // biome-ignore lint/suspicious/noDocumentCookie: clearing cookies
+        document.cookie = `${cookieName}=;expires=${new Date().toUTCString()};path=/`;
+      }
     } catch (error) {
       openErrorMessage('Error signing out');
     }
-  }, [router.navigate, openErrorMessage]);
+  }, [navigate, openErrorMessage]);
 
   return handleSignOut;
 };
