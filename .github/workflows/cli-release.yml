@@ -45,9 +45,9 @@ jobs:
           fetch-depth: 0
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
-          version: 9.15.0
+          version: 10.15.1
 
       - name: Setup Node.js
         uses: useblacksmith/setup-node@v5
@@ -68,7 +68,7 @@ jobs:
           path: ./.turbo
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --filter=@buster-app/cli...
 
       - name: Build dependencies with Turbo
         run: |

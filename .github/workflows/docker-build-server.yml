@@ -33,9 +33,9 @@ jobs:
           fetch-depth: 0
       
       - name: Install pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
-          version: 9.15.0
+          version: 10.15.1
       
       - name: Setup Node.js
         uses: useblacksmith/setup-node@v5
@@ -44,7 +44,7 @@ jobs:
           cache: 'pnpm'
       
       - name: Install bun
-        run: npm install -g bun@1.2.15
+        run: pnpm install -g bun@1.2.15
       
       - name: Mount Turbo cache sticky disk
         uses: useblacksmith/stickydisk@v1
@@ -61,7 +61,7 @@ jobs:
       - name: Install dependencies
         run: |
           echo "📦 Installing dependencies with pnpm..."
-          pnpm install --frozen-lockfile
+          pnpm install --frozen-lockfile --filter=@buster-app/server...
       
       - name: Build with Turbo
         run: |

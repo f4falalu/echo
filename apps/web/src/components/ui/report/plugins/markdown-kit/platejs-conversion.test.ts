@@ -279,9 +279,6 @@ Here's an unordered list:
     const firstElement = elements[0];
     expect(firstElement.type).toBe('metric');
     expect(firstElement.metricId).toBe('33af38a8-c40f-437d-98ed-1ec78ce35232');
-    const secondElement = elements[1];
-
-    console.log(JSON.stringify(elements, null, 2));
   });
 });
 

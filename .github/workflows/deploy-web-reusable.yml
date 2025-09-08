@@ -1,0 +1,160 @@
+name: Deploy Web (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Target environment (staging, production)'
+        required: true
+        type: string
+      branch:
+        description: 'Branch to deploy from'
+        required: true
+        type: string
+      api_url:
+        description: 'API URL for the environment'
+        required: true
+        type: string
+      public_url:
+        description: 'Public URL for the environment'
+        required: true
+        type: string
+      supabase_url:
+        description: 'Supabase URL for the environment'
+        required: true
+        type: string
+      supabase_anon_key:
+        description: 'Supabase anonymous key for the environment'
+        required: true
+        type: string
+      posthog_key:
+        description: 'PostHog key for the environment'
+        required: true
+        type: string
+      api2_url:
+        description: 'API2 URL for the environment'
+        required: true
+        type: string
+      enable_tanstack_panel:
+        description: 'Enable TanStack panel'
+        required: false
+        type: string
+        default: 'false'
+      wrangler_env:
+        description: 'Wrangler environment name'
+        required: true
+        type: string
+      worker_name:
+        description: 'Worker name for deployment summary'
+        required: true
+        type: string
+
+env:
+  CI: true
+
+jobs:
+  deploy:
+    name: Deploy to ${{ inputs.environment }}
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 30
+    environment: ${{ inputs.environment }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.15.1
+
+      - name: Setup Node.js
+        uses: useblacksmith/setup-node@v5
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/node_modules
+          key: pnpm-workspace-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-workspace-
+
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ github.job }}-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ github.job }}-${{ github.ref_name }}-
+            turbo-${{ github.job }}-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --filter=@buster-app/web...
+
+      - name: Build required packages
+        run: pnpm turbo build --filter=@buster-app/web
+        env:
+          NODE_ENV: production
+          NODE_OPTIONS: --max-old-space-size=8192
+          TURBO_CACHE_DIR: .turbo
+          TURBO_TELEMETRY_DISABLED: 1
+          # Environment variables for build
+          VITE_PUBLIC_API_URL: ${{ inputs.api_url }}
+          VITE_PUBLIC_URL: ${{ inputs.public_url }}
+          VITE_PUBLIC_SUPABASE_URL: ${{ inputs.supabase_url }}
+          VITE_PUBLIC_SUPABASE_ANON_KEY: ${{ inputs.supabase_anon_key }}
+          VITE_PUBLIC_POSTHOG_KEY: ${{ inputs.posthog_key }}
+          VITE_PUBLIC_API2_URL: ${{ inputs.api2_url }}
+          VITE_PUBLIC_ENABLE_TANSTACK_PANEL: ${{ inputs.enable_tanstack_panel }}
+
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy .output/server/index.mjs --env ${{ inputs.wrangler_env }} --assets .output/public
+          workingDirectory: apps/web
+        env:
+          NODE_ENV: production
+
+      - name: Get commit info
+        id: commit
+        run: |
+          echo "sha_short=$(git rev-parse --short=7 HEAD)" >> $GITHUB_OUTPUT
+          echo "sha_full=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Create deployment summary
+        if: success()
+        run: |
+          SHA="${{ steps.commit.outputs.sha_short }}"
+          
+          echo "## 🎉 Web ${{ inputs.environment }} Deployment Successful!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment:** \`${{ inputs.environment }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL:** ${{ inputs.public_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Worker:** \`${{ inputs.worker_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** \`${SHA}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Full SHA:** \`${{ steps.commit.outputs.sha_full }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Time:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+
+      - name: Handle deployment failure
+        if: failure()
+        run: |
+          echo "## ❌ Web ${{ inputs.environment }} Deployment Failed!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment:** \`${{ inputs.environment }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Error:** Check the logs above for details" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Review the error logs above" >> $GITHUB_STEP_SUMMARY
+          echo "2. Check Cloudflare dashboard for deployment status" >> $GITHUB_STEP_SUMMARY
+          echo "3. Verify GitHub secrets are configured correctly" >> $GITHUB_STEP_SUMMARY
+          echo "4. Verify ${{ inputs.environment }} environment variables in GitHub Secrets" >> $GITHUB_STEP_SUMMARY

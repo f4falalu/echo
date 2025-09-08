@@ -9,7 +9,9 @@ import {
 } from '@/api/buster_rest/users/useGetUserInfo';
 import { isDev } from '@/config/dev';
 import { env } from '@/env';
+import packageJson from '../../../package.json';
 
+const version = packageJson.version;
 const POSTHOG_KEY = env.VITE_PUBLIC_POSTHOG_KEY;
 const DEBUG_POSTHOG = false;
 
@@ -31,7 +33,7 @@ const options: Partial<PostHogConfig> = {
 
   loaded: () => {
     console.log(
-      '%c🚀 Welcome to Buster',
+      `🚀 Welcome to Buster v${version}`,
       'background: linear-gradient(to right, #a21caf, #8b1cb1, #6b21a8); color: white; font-size: 16px; font-weight: bold; padding: 10px; border-radius: 5px;'
     );
     console.log(
