@@ -2315,5 +2315,6 @@ export const docs = pgTable(
       foreignColumns: [organizations.id],
       name: 'docs_organization_id_fkey',
     }).onDelete('cascade'),
+    unique('docs_name_organization_id_key').on(table.name, table.organizationId),
   ]
-)
+);

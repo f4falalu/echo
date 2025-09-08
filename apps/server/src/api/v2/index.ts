@@ -5,6 +5,7 @@ import authRoutes from './auth';
 import chatsRoutes from './chats';
 import datasetsRoutes from './datasets';
 import dictionariesRoutes from './dictionaries';
+import docsRoutes from './docs';
 import electricShapeRoutes from './electric-shape';
 import githubRoutes from './github';
 import metricFilesRoutes from './metric_files';
@@ -22,6 +23,7 @@ const app = new Hono()
   .route('/auth', authRoutes)
   .route('/users', userRoutes)
   .route('/datasets', datasetsRoutes)
+  .route('/docs', docsRoutes)
   .route('/electric-shape', electricShapeRoutes)
   .route('/healthcheck', healthcheckRoutes)
   .route('/chats', chatsRoutes)

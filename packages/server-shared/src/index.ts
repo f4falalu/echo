@@ -10,6 +10,7 @@ export * from './chats';
 export * from './dashboards';
 export * from './datasets';
 export * from './dictionary';
+export * from './docs';
 export * from './github';
 export * from './message';
 export * from './metrics';
