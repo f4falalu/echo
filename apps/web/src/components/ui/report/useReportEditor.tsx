@@ -16,6 +16,7 @@ export const useReportEditor = ({
   readOnly,
   useFixedToolbarKit = false,
   initialElements,
+  containerRef,
 }: {
   value: string | undefined; //markdown
   initialElements?: Value | ReportElementWithId[];
@@ -23,6 +24,7 @@ export const useReportEditor = ({
   useFixedToolbarKit?: boolean;
   isStreaming: boolean;
   mode?: 'export' | 'default';
+  containerRef?: React.RefObject<HTMLDivElement | null>;
 }) => {
   const plugins = useMemo(() => {
     const filteredKeys: string[] = [];
@@ -31,7 +33,7 @@ export const useReportEditor = ({
     }
 
     return [
-      ...EditorKit,
+      ...EditorKit({ containerRef }),
       GlobalVariablePlugin.configure({
         options: { mode },
       }),
@@ -49,7 +51,7 @@ export const useReportEditor = ({
   return editor;
 };
 
-export type ReportEditor = TPlateEditor<Value, (typeof EditorKit)[number]>;
+export type ReportEditor = TPlateEditor<Value, ReturnType<typeof EditorKit>[number]>;
 
 export const useEditor = () => useEditorRef<ReportEditor>();
 

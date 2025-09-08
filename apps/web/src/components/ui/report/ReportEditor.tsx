@@ -30,6 +30,7 @@ export interface ReportEditorProps {
   mode?: 'export' | 'default';
   preEditorChildren?: React.ReactNode;
   postEditorChildren?: React.ReactNode;
+  containerRef?: React.RefObject<HTMLDivElement | null>; //used for the scroll areas
 }
 
 export type IReportEditor = TPlateEditor<Value, AnyPluginConfig>;
@@ -60,6 +61,7 @@ export const ReportEditor = React.memo(
         isStreaming = false,
         preEditorChildren,
         postEditorChildren,
+        containerRef,
       },
       ref
     ) => {
@@ -81,6 +83,7 @@ export const ReportEditor = React.memo(
         value,
         initialElements,
         useFixedToolbarKit,
+        containerRef,
       });
 
       const onReset = useMemoizedFn(() => {
