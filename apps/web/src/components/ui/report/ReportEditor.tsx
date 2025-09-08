@@ -141,7 +141,7 @@ export const ReportEditor = React.memo(
             ref={editorContainerRef}
             variant={variant}
             readOnly={readOnly}
-            className={cn('editor-container relative overflow-auto', containerClassName)}
+            className={cn('editor-container relative', containerClassName)}
           >
             {preEditorChildren}
             <ThemeWrapper id={id}>

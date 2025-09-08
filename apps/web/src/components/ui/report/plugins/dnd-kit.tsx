@@ -14,6 +14,31 @@ export const DndKit = [
           .getTransforms(PlaceholderPlugin)
           .insert.media(dragItem.files, { at: target, nextBlock: false });
       },
+      scrollerProps: {
+        enabled: true,
+        // Container to scroll (defaults to window)
+        //    containerRef: containerRef, // React.RefObject<any>
+
+        // Height of the scroll trigger zones at top/bottom
+        height: 200, // pixels - try increasing for easier triggering
+
+        // Minimum strength threshold (0-1)
+        minStrength: 0.05, // Lower = more sensitive, try 0.1 or 0.05
+
+        // Speed multiplier for scrolling
+        strengthMultiplier: 35, // Higher = faster scrolling, try 35-50
+
+        // Z-index for the scroll areas
+        zIndex: 10_000,
+
+        // Additional props for the scroll areas
+        //DO NOT REMOVE THIS. It was actually needed haha
+        scrollAreaProps: {
+          style: {
+            backgroundColor: 'transparent',
+          },
+        },
+      },
     },
     render: {
       aboveNodes: BlockDraggable,
