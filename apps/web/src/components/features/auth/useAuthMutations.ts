@@ -11,7 +11,6 @@ import {
 
 // Reusable OAuth mutation hook
 export const useOAuthMutation = (
-  provider: 'google' | 'github' | 'azure',
   mutationFn: () => Promise<{ success: boolean; url?: string; error?: string }>
 ) => {
   return useMutation({
@@ -60,15 +59,9 @@ export const useAuthMutations = (redirectTo?: string | null, onSignUpSuccess?: (
   const navigate = useNavigate();
 
   // OAuth Mutations
-  const googleSignInMutation = useOAuthMutation('google', () =>
-    signInWithGoogle({ data: { redirectTo } })
-  );
-  const githubSignInMutation = useOAuthMutation('github', () =>
-    signInWithGithub({ data: { redirectTo } })
-  );
-  const azureSignInMutation = useOAuthMutation('azure', () =>
-    signInWithAzure({ data: { redirectTo } })
-  );
+  const googleSignInMutation = useOAuthMutation(() => signInWithGoogle({ data: { redirectTo } }));
+  const githubSignInMutation = useOAuthMutation(() => signInWithGithub({ data: { redirectTo } }));
+  const azureSignInMutation = useOAuthMutation(() => signInWithAzure({ data: { redirectTo } }));
 
   // Email/Password Mutations
   const emailSignInMutation = useMutation({
