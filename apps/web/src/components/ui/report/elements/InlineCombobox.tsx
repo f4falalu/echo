@@ -24,6 +24,7 @@ import { useComposedRef, useEditorRef } from 'platejs/react';
 import * as React from 'react';
 import { useMount } from '@/hooks/useMount';
 import { useUnmount } from '@/hooks/useUnmount';
+import { measureTextWidth } from '@/lib/canvas';
 import { cn } from '@/lib/utils';
 import { THEME_RESET_STYLE } from '@/styles/theme-reset';
 
@@ -61,6 +62,7 @@ interface InlineComboboxProps {
   showTrigger?: boolean;
   value?: string;
   setValue?: (value: string) => void;
+  className?: string;
 }
 
 const InlineCombobox = ({
@@ -72,6 +74,7 @@ const InlineCombobox = ({
   showTrigger = true,
   trigger,
   value: valueProp,
+  className,
 }: InlineComboboxProps) => {
   const editor = useEditorRef();
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -167,7 +170,7 @@ const InlineCombobox = ({
   }, [items, store]);
 
   return (
-    <span contentEditable={false}>
+    <div contentEditable={false} className={className}>
       <ComboboxProvider
         open={(items.length > 0 || hasEmpty) && (!hideWhenNoValue || value.length > 0)}
         store={store}
@@ -176,7 +179,7 @@ const InlineCombobox = ({
           {children}
         </InlineComboboxContext.Provider>
       </ComboboxProvider>
-    </span>
+    </div>
   );
 };
 
@@ -196,7 +199,18 @@ const InlineComboboxInput = React.forwardRef<
   const value = store.useState('value');
   const isOpen = store.useState('open');
 
+  const hasValue = value.length > 0;
+
   const ref = useComposedRef(propRef, contextRef);
+
+  const placeHolderWidth = React.useMemo(() => {
+    return (
+      measureTextWidth(placeholder ?? '', {
+        fontSize: 16,
+      })?.width + 8
+    );
+  }, [placeholder]);
+  console.log(placeHolderWidth);
 
   /**
    * To create an auto-resizing input, we render a visually hidden span
@@ -217,6 +231,9 @@ const InlineComboboxInput = React.forwardRef<
         <Combobox
           ref={ref}
           className={cn('absolute top-0 left-0 size-full outline-none', className)}
+          style={{
+            minWidth: hasValue || !placeholder ? undefined : placeHolderWidth,
+          }}
           value={value}
           placeholder={placeholder}
           autoSelect
