@@ -3,13 +3,15 @@ import * as React from 'react';
 
 import { cn } from '@/lib/utils';
 
+export const SCROLL_AREA_VIEWPORT_CLASS = 'scroll-area-viewport';
+
 const ScrollArea = React.forwardRef<
   React.ElementRef<typeof ScrollAreaPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root> & {
     viewportRef?: React.RefObject<HTMLDivElement | null>;
     id?: string;
   }
->(({ className, children, viewportRef, id = 'scroll-area-viewport', ...props }, ref) => (
+>(({ className, children, viewportRef, id, ...props }, ref) => (
   <ScrollAreaPrimitive.Root
     ref={ref}
     className={cn('relative overflow-hidden', className)}
@@ -17,7 +19,7 @@ const ScrollArea = React.forwardRef<
   >
     <ScrollAreaPrimitive.Viewport
       ref={viewportRef}
-      className="scroll-area-viewport h-full w-full rounded-[inherit] [&>div]:!block"
+      className={cn(SCROLL_AREA_VIEWPORT_CLASS, 'h-full w-full rounded-[inherit] [&>div]:!block')}
       id={id}
     >
       {children}

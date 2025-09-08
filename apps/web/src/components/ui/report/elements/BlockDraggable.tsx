@@ -249,6 +249,8 @@ const DragHandle = function DragHandle({
           previewRef.current?.classList.remove('hidden');
           previewRef.current?.classList.add('opacity-0');
           editor.setOption(DndPlugin, 'multiplePreviewRef', previewRef);
+
+          //  startDragAutoScroll();
         }}
         onMouseEnter={() => {
           if (isDragging) return;
