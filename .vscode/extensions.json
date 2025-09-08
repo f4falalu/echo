@@ -3,5 +3,6 @@
     "biomejs.biome",
     "vitest.explorer",
     "bradlc.vscode-tailwindcss",
+    "codeandstuff.package-json-upgrade"
   ]
 } 
