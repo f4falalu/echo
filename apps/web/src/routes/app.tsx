@@ -18,6 +18,7 @@ export const Route = createFileRoute('/app')({
     const { isExpired, accessToken = '' } = await getSupabaseSession();
 
     if (isExpired || !accessToken) {
+      console.error('Access token is expired or not found');
       throw redirect({ to: '/auth/login' });
     }
 

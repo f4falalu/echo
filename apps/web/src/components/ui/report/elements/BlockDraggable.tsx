@@ -22,7 +22,7 @@ import { Tooltip } from '@/components/ui/tooltip';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { cn } from '@/lib/utils';
 import { NodeTypeIcons } from '../config/icons';
-import { insertBlock } from './transforms';
+import { insertSlashBelow } from '../helpers/slash';
 
 const UNDRAGGABLE_KEYS = [KEYS.column, KEYS.tr, KEYS.td];
 
@@ -498,7 +498,7 @@ const AddNewBlockButton = function AddNewBlockButton({
   editor: PlateEditor;
 }) {
   const handleClick = useMemoizedFn((_event: React.MouseEvent) => {
-    // Find the current path of this element dynamically at click time
+    // // Find the current path of this element dynamically at click time
     const currentPath = editor.api.findPath(element);
 
     if (!currentPath) {
@@ -506,14 +506,11 @@ const AddNewBlockButton = function AddNewBlockButton({
       return;
     }
 
-    // Focus the editor first
+    // // Focus the editor first
     editor.tf.focus();
-
-    // Select the current block to ensure proper context - use dynamically found path
     editor.tf.select(currentPath);
 
-    // Use the insertBlock function which handles positioning automatically
-    insertBlock(editor, KEYS.p);
+    insertSlashBelow(editor, 'Type to filter...', currentPath);
   });
 
   return (

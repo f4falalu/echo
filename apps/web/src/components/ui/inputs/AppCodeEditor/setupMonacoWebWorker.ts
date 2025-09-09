@@ -6,8 +6,9 @@ import { isServer } from '@/lib/window';
 
 export const setupMonacoWebWorker = (): void => {
   if (!isServer) {
+    //@ts-expect-error
     window.MonacoEnvironment = {
-      getWorker(_moduleId, label) {
+      getWorker(_moduleId: string, label: string) {
         switch (label) {
           case 'editorWorkerService':
             return new Worker(editorWorkerUrl);
@@ -16,7 +17,7 @@ export const setupMonacoWebWorker = (): void => {
           case 'yaml':
             return new Worker(yamlWorkerUrl);
           default:
-            throw new Error(`Unknown label ${label}`);
+            throw new Error(`Unknown label ${label as string}`);
         }
       },
     };
