@@ -7,7 +7,7 @@ export const DEFAULT_ANTHROPIC_OPTIONS = {
     order: ['bedrock', 'anthropic', 'vertex'],
   },
   headers: {},
-  anthropic: { cacheControl: { type: 'ephemeral', ttl: '1h' } },
+  anthropic: { cacheControl: { type: 'ephemeral' } },
 };
 
 export const DEFAULT_OPENAI_OPTIONS = {
