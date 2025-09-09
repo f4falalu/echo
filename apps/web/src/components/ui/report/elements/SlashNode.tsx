@@ -4,11 +4,6 @@ import { PlateElement, usePluginOption } from 'platejs/react';
 import { getSlashGroups } from '../config/addMenuItems';
 import { SlashInputPlugin } from '../plugins/slash-kit';
 
-interface TSlashInputElement extends TElement {
-  value: string;
-  placeholder: string;
-}
-
 import {
   InlineCombobox,
   InlineComboboxContent,
@@ -19,12 +14,18 @@ import {
   InlineComboboxItem,
 } from './InlineCombobox';
 
+interface TSlashInputElement extends TElement {
+  value: string;
+  placeholder: string;
+}
+
 const groups = getSlashGroups();
 
 export function SlashInputElement(props: PlateElementProps<TSlashInputElement>) {
   const { editor, element } = props;
 
-  const placeholder = usePluginOption(SlashInputPlugin, 'placeholder') || 'Filter...';
+  const placeholderGlobal = usePluginOption(SlashInputPlugin, 'placeholder') || 'Filter...';
+  const placeholder = element.placeholder || placeholderGlobal;
 
   return (
     <PlateElement {...props} as="span" data-slate-value={element.value}>
