@@ -1,19 +1,18 @@
-'use client';
-
-import { useGetReport, useUpdateReport } from '@/api/buster_rest/reports';
-import { cn } from '@/lib/utils';
-import React from 'react';
-import { ReportPageHeader } from './ReportPageHeader';
-import { useMemoizedFn } from '@/hooks/useMemoizedFn';
-import DynamicReportEditor from '@/components/ui/report/DynamicReportEditor';
-import { type IReportEditor } from '@/components/ui/report/ReportEditor';
-import { ReportEditorSkeleton } from '@/components/ui/report/ReportEditorSkeleton';
-import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
-import { useTrackAndUpdateReportChanges } from '@/api/buster-electric/reports/hooks';
-import { GeneratingContent } from './GeneratingContent';
 import { useQuery } from '@tanstack/react-query';
-import { queryKeys } from '@/api/query_keys';
+import React, { useRef } from 'react';
 import type { BusterChatMessage } from '@/api/asset_interfaces/chat';
+import { useGetReport, useUpdateReport } from '@/api/buster_rest/reports';
+import { useTrackAndUpdateReportChanges } from '@/api/buster-electric/reports/hooks';
+import DynamicReportEditor from '@/components/ui/report/DynamicReportEditor';
+import type { IReportEditor } from '@/components/ui/report/ReportEditor';
+import { ReportEditorSkeleton } from '@/components/ui/report/ReportEditorSkeleton';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { useMount } from '@/hooks/useMount';
+import { cn } from '@/lib/utils';
+import { chatQueryKeys } from '../../api/query_keys/chat';
+import { useGetCurrentMessageId, useIsStreamingMessage } from '../../context/Chats';
+import { GeneratingContent } from './GeneratingContent';
+import { ReportPageHeader } from './ReportPageHeader';
 
 export const ReportPageController: React.FC<{
   reportId: string;
@@ -23,14 +22,14 @@ export const ReportPageController: React.FC<{
   mode?: 'default' | 'export';
 }> = React.memo(
   ({ reportId, readOnly = false, className = '', onReady: onReadyProp, mode = 'default' }) => {
-    const { data: report } = useGetReport({ reportId, versionNumber: undefined });
-    const isStreamingMessage = useChatIndividualContextSelector((x) => x.isStreamingMessage);
-    const messageId = useChatIndividualContextSelector((x) => x.currentMessageId);
+    const { data: report } = useGetReport({ id: reportId, versionNumber: undefined });
+    const isStreamingMessage = useIsStreamingMessage();
+    const messageId = useGetCurrentMessageId();
 
     // Fetch the current message to check which files are being generated
     const { data: currentMessage } = useQuery<BusterChatMessage>({
-      ...queryKeys.chatsMessages(messageId || ''),
-      enabled: !!messageId && isStreamingMessage
+      ...chatQueryKeys.chatsMessages(messageId || ''),
+      enabled: !!messageId && isStreamingMessage,
     });
 
     // Check if this specific report is being generated in the current message
@@ -74,16 +73,30 @@ export const ReportPageController: React.FC<{
 
     useTrackAndUpdateReportChanges({ reportId, subscribe: isStreamingMessage });
 
+    const containerRef = useRef<HTMLDivElement>(null);
+    const controllerRef = useRef<HTMLDivElement>(null);
+
+    useMount(() => {
+      const matchClass = 'scroll-area-viewport';
+      const closestMatch = controllerRef.current?.closest(`.${matchClass}`);
+
+      if (closestMatch) {
+        containerRef.current = closestMatch as HTMLDivElement;
+      }
+    });
+
     return (
       <div
         id="report-page-controller"
-        className={cn('relative h-full space-y-1.5 overflow-hidden', className)}>
+        ref={controllerRef}
+        className={cn('relative h-full space-y-1.5 overflow-hidden', className)}
+      >
         {report ? (
           <DynamicReportEditor
             value={content}
             placeholder="Start typing..."
             className={commonClassName}
-            containerClassName="pt-9"
+            containerClassName="mt-9"
             variant="default"
             useFixedToolbarKit={false}
             onValueChange={onChangeContent}
@@ -91,6 +104,7 @@ export const ReportPageController: React.FC<{
             mode={mode}
             onReady={onReadyProp}
             isStreaming={isStreamingMessage}
+            containerRef={containerRef}
             preEditorChildren={
               <ReportPageHeader
                 name={report?.name}
@@ -102,9 +116,10 @@ export const ReportPageController: React.FC<{
             }
             postEditorChildren={
               showGeneratingContent ? (
-                <GeneratingContent messageId={messageId} className={commonClassName} />
+                <GeneratingContent messageId={messageId || ''} className={commonClassName} />
               ) : null
-            }></DynamicReportEditor>
+            }
+          />
         ) : (
           <ReportEditorSkeleton />
         )}

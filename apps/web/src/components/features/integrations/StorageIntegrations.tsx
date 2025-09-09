@@ -1,22 +1,20 @@
-'use client';
-
+import { Link, useNavigate } from '@tanstack/react-router';
 import React, { useMemo } from 'react';
-import { SettingsCards } from '../settings/SettingsCard';
-import Bucket from '@/components/ui/icons/NucleoIconOutlined/bucket';
-import { Text } from '@/components/ui/typography';
+import { useDeleteS3Integration, useGetS3Integration } from '@/api/buster_rest/s3-integrations';
 import { Button } from '@/components/ui/buttons';
-import { useGetS3Integration, useDeleteS3Integration } from '@/api/buster_rest/s3-integrations';
-import { Dropdown, type DropdownItems } from '@/components/ui/dropdown';
-import { LinkSlash } from '@/components/ui/icons';
 import { StatusCard } from '@/components/ui/card/StatusCard';
-import { useRouter } from 'next/navigation';
-import { BusterRoutes, createBusterRoute } from '@/routes';
+import { Dropdown, type IDropdownItems } from '@/components/ui/dropdown';
+import Bucket from '@/components/ui/icons/NucleoIconOutlined/bucket';
+import LinkSlash from '@/components/ui/icons/NucleoIconOutlined/link-slash';
+import { Text } from '@/components/ui/typography';
+import { SettingsCards } from '../settings/SettingsCard';
+import { IntegrationSkeleton } from './IntegrationSkeleton';
 
 export const StorageIntegrations = React.memo(() => {
   const {
     data: s3Integration,
     isFetched: isFetchedS3Integration,
-    error: s3IntegrationError
+    error: s3IntegrationError,
   } = useGetS3Integration();
 
   const isConnected = s3Integration !== null;
@@ -24,7 +22,7 @@ export const StorageIntegrations = React.memo(() => {
   const cards = useMemo(() => {
     const sections = [
       <ConnectStorageCard key="connect-storage-card" />,
-      isConnected && <StorageConfiguration key="storage-configuration" />
+      isConnected && <StorageConfiguration key="storage-configuration" />,
     ].filter(Boolean);
     return [{ sections }];
   }, [isConnected]);
@@ -34,7 +32,7 @@ export const StorageIntegrations = React.memo(() => {
   }
 
   if (!isFetchedS3Integration) {
-    return <div className="bg-gray-light/50 h-24 w-full animate-pulse rounded"></div>;
+    return <IntegrationSkeleton />;
   }
 
   return (
@@ -50,17 +48,9 @@ StorageIntegrations.displayName = 'StorageIntegrations';
 
 const ConnectStorageCard = React.memo(() => {
   const { data: s3Integration } = useGetS3Integration();
-  const router = useRouter();
+  const navigate = useNavigate();
 
   const isConnected = s3Integration !== null;
-
-  const handleConnect = () => {
-    router.push(
-      createBusterRoute({
-        route: BusterRoutes.SETTINGS_STORAGE_ADD
-      })
-    );
-  };
 
   return (
     <div className="flex items-center justify-between gap-x-2">
@@ -79,9 +69,11 @@ const ConnectStorageCard = React.memo(() => {
       {isConnected ? (
         <ConnectedDropdown />
       ) : (
-        <Button prefix={<Bucket strokewidth={1.5} />} onClick={handleConnect} size={'tall'}>
-          Connect Storage
-        </Button>
+        <Link to={'/app/settings/storage/add'}>
+          <Button prefix={<Bucket strokewidth={1.5} />} size={'tall'}>
+            Connect Storage
+          </Button>
+        </Link>
       )}
     </div>
   );
@@ -93,7 +85,7 @@ const ConnectedDropdown = React.memo(() => {
   const { data: s3Integration } = useGetS3Integration();
   const { mutate: deleteS3Integration, isPending } = useDeleteS3Integration();
 
-  const dropdownItems: DropdownItems = [
+  const dropdownItems: IDropdownItems = [
     {
       value: 'disconnect',
       label: 'Disconnect',
@@ -103,8 +95,8 @@ const ConnectedDropdown = React.memo(() => {
           deleteS3Integration(s3Integration.id);
         }
       },
-      loading: isPending
-    }
+      loading: isPending,
+    },
   ];
 
   return (
@@ -127,7 +119,7 @@ const StorageConfiguration = React.memo(() => {
   const providerLabels = {
     s3: 'AWS S3',
     r2: 'Cloudflare R2',
-    gcs: 'Google Cloud Storage'
+    gcs: 'Google Cloud Storage',
   };
 
   return (

@@ -8,7 +8,7 @@ describe('ChartHoverBarPlugin', () => {
     const mockCtx = {
       save: vi.fn(),
       fillRect: vi.fn(),
-      restore: vi.fn()
+      restore: vi.fn(),
     };
 
     const mockChart = {
@@ -17,27 +17,27 @@ describe('ChartHoverBarPlugin', () => {
       tooltip: {
         getActiveElements: () => [
           {
-            index: 1
-          }
-        ]
+            index: 1,
+          },
+        ],
       },
       chartArea: {
         top: 0,
         bottom: 100,
         left: 0,
-        right: 100
+        right: 100,
       },
       scales: {
         x: {
-          getPixelForValue: (value: number) => value * 10
+          getPixelForValue: (value: number) => value * 10,
         },
         y: {
-          getPixelForValue: (value: number) => value * 10
-        }
+          getPixelForValue: (value: number) => value * 10,
+        },
       },
       options: {
-        indexAxis: 'x'
-      }
+        indexAxis: 'x',
+      },
     } as unknown as Chart;
 
     // Call the plugin's beforeDraw method

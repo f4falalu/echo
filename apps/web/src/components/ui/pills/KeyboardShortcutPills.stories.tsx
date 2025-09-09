@@ -1,10 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { KeyboardShortcutPill } from './KeyboardShortcutPills';
 
 const meta: Meta<typeof KeyboardShortcutPill> = {
   title: 'UI/Pills/KeyboardShortcutPill',
   component: KeyboardShortcutPill,
-  tags: ['autodocs']
+  tags: ['autodocs'],
 };
 
 export default meta;
@@ -12,18 +12,18 @@ type Story = StoryObj<typeof KeyboardShortcutPill>;
 
 export const SingleKey: Story = {
   args: {
-    shortcut: ['⌘']
-  }
+    shortcut: ['⌘'],
+  },
 };
 
 export const Combination: Story = {
   args: {
-    shortcut: ['⌘', 'K']
-  }
+    shortcut: ['⌘', 'K'],
+  },
 };
 
 export const Empty: Story = {
   args: {
-    shortcut: []
-  }
+    shortcut: [],
+  },
 };

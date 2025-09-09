@@ -13,7 +13,8 @@ export const DataBricks: React.FC<{
       height={props.size || 24}
       viewBox="0 0 800 800"
       fill="none"
-      xmlns="http://www.w3.org/2000/svg">
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>DataBricks Icon</title>
       <g clipPath="url(#clip0_2325_10027)">
         <path

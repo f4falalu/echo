@@ -1,10 +1,9 @@
-import { serverFetch } from '@/api/createServerInstance';
 import type {
   DatasetGroup,
   GetDatasetGroupDatasetsResponse,
   GetDatasetGroupPermissionGroupsResponse,
   GetDatasetGroupUsersResponse,
-  ListDatasetGroupsResponse
+  ListDatasetGroupsResponse,
 } from '../../asset_interfaces';
 import { mainApi } from '../instances';
 
@@ -33,18 +32,10 @@ export const getDatasetGroup = async (id: string) => {
   return mainApi.get<DatasetGroup>(`/dataset_groups/${id}`).then((res) => res.data);
 };
 
-export const getDatasetGroup_server = async (id: string) => {
-  return serverFetch<DatasetGroup>(`/dataset_groups/${id}`);
-};
-
 export const getDatasetGroupUsers = async (id: string) => {
   return mainApi
     .get<GetDatasetGroupUsersResponse[]>(`/dataset_groups/${id}/users`)
     .then((res) => res.data);
-};
-
-export const getDatasetGroupUsers_server = async (id: string) => {
-  return serverFetch<GetDatasetGroupUsersResponse[]>(`/dataset_groups/${id}/users`);
 };
 
 export const getDatasetGroupDatasets = async (id: string) => {
@@ -53,25 +44,15 @@ export const getDatasetGroupDatasets = async (id: string) => {
     .then((res) => res.data);
 };
 
-export const getDatasetGroupDatasets_server = async (id: string) => {
-  return serverFetch<GetDatasetGroupDatasetsResponse[]>(`/dataset_groups/${id}/datasets`);
-};
-
 export const getDatasetGroupPermissionGroups = async (id: string) => {
   return mainApi
     .get<GetDatasetGroupPermissionGroupsResponse[]>(`/dataset_groups/${id}/permission_groups`)
     .then((res) => res.data);
 };
 
-export const getDatasetGroupPermissionGroups_server = async (id: string) => {
-  return serverFetch<GetDatasetGroupPermissionGroupsResponse[]>(
-    `/dataset_groups/${id}/permission_groups`
-  );
-};
-
 export const updateDatasetGroupUsers = async ({
   datasetGroupId,
-  data
+  data,
 }: {
   datasetGroupId: string;
   data: {
@@ -84,7 +65,7 @@ export const updateDatasetGroupUsers = async ({
 
 export const updateDatasetGroupDatasets = async ({
   datasetGroupId,
-  groups
+  groups,
 }: {
   datasetGroupId: string;
   groups: {
@@ -97,7 +78,7 @@ export const updateDatasetGroupDatasets = async ({
 
 export const updateDatasetGroupPermissionGroups = async ({
   datasetGroupId,
-  data
+  data,
 }: {
   datasetGroupId: string;
   data: {

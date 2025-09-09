@@ -1,17 +1,17 @@
-import { mainApiV2 } from '../instances';
-import {
-  type UpdateInviteLinkRequest,
-  type AddApprovedDomainRequest,
-  type RemoveApprovedDomainRequest,
-  type UpdateWorkspaceSettingsRequest,
-  type GetApprovedDomainsResponse,
-  type GetInviteLinkResponse,
-  type RefreshInviteLinkResponse,
-  type UpdateInviteLinkResponse,
-  type AddApprovedDomainsResponse,
-  type GetWorkspaceSettingsResponse,
-  type UpdateWorkspaceSettingsResponse
+import type {
+  AddApprovedDomainRequest,
+  AddApprovedDomainsResponse,
+  GetApprovedDomainsResponse,
+  GetInviteLinkResponse,
+  GetWorkspaceSettingsResponse,
+  RefreshInviteLinkResponse,
+  RemoveApprovedDomainRequest,
+  UpdateInviteLinkRequest,
+  UpdateInviteLinkResponse,
+  UpdateWorkspaceSettingsRequest,
+  UpdateWorkspaceSettingsResponse,
 } from '@buster/server-shared/security';
+import { mainApiV2 } from '../instances';
 
 export const updateInviteLinks = async (request: UpdateInviteLinkRequest) => {
   return await mainApiV2
@@ -46,7 +46,7 @@ export const addApprovedDomain = async (request: AddApprovedDomainRequest) => {
 export const removeApprovedDomain = async (request: RemoveApprovedDomainRequest) => {
   return await mainApiV2
     .delete<GetApprovedDomainsResponse>('/security/approved-domains', {
-      params: request
+      params: request,
     })
     .then((res) => res.data);
 };

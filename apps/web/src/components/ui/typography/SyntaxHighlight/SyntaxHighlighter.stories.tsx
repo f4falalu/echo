@@ -1,45 +1,45 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
-import { useState, useEffect } from 'react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { useEffect, useState } from 'react';
 import { SyntaxHighlighter } from './SyntaxHighlighter';
 
 const meta: Meta<typeof SyntaxHighlighter> = {
   title: 'UI/typography/SyntaxHighlighter',
   component: SyntaxHighlighter,
   parameters: {
-    layout: 'padded'
+    layout: 'padded',
   },
   argTypes: {
     children: {
       control: 'text',
-      description: 'The code content to highlight'
+      description: 'The code content to highlight',
     },
     language: {
       control: 'select',
       options: ['yaml', 'sql'],
-      description: 'Programming language for syntax highlighting'
+      description: 'Programming language for syntax highlighting',
     },
     showLineNumbers: {
       control: 'boolean',
-      description: 'Whether to show line numbers'
+      description: 'Whether to show line numbers',
     },
     startingLineNumber: {
       control: 'number',
-      description: 'Starting line number (if line numbers are shown)'
+      description: 'Starting line number (if line numbers are shown)',
     },
     isDarkMode: {
       control: 'boolean',
-      description: 'Whether to use dark theme'
+      description: 'Whether to use dark theme',
     },
     className: {
       control: 'text',
-      description: 'Additional CSS classes'
+      description: 'Additional CSS classes',
     },
     animation: {
       control: 'select',
       options: ['none', 'fadeIn', 'blurIn'],
-      description: 'Animation style for lines'
-    }
-  }
+      description: 'Animation style for lines',
+    },
+  },
 };
 
 export default meta;
@@ -95,8 +95,8 @@ export const SqlExample: Story = {
     language: 'sql',
     isDarkMode: false,
     showLineNumbers: false,
-    className: 'border rounded-lg pl-4 py-3 mr-2 max-w-[350px]'
-  }
+    className: 'border rounded-lg pl-4 py-3 mr-2 max-w-[350px]',
+  },
 };
 
 export const YamlExample: Story = {
@@ -105,8 +105,8 @@ export const YamlExample: Story = {
     language: 'yaml',
     isDarkMode: false,
     showLineNumbers: false,
-    className: 'border rounded-lg p-4'
-  }
+    className: 'border rounded-lg p-4',
+  },
 };
 
 export const SqlWithLineNumbers: Story = {
@@ -116,8 +116,8 @@ export const SqlWithLineNumbers: Story = {
     isDarkMode: false,
     showLineNumbers: true,
     startingLineNumber: 1,
-    className: 'border rounded-lg'
-  }
+    className: 'border rounded-lg',
+  },
 };
 
 export const DarkMode: Story = {
@@ -126,8 +126,8 @@ export const DarkMode: Story = {
     language: 'sql',
     isDarkMode: true,
     showLineNumbers: false,
-    className: 'border rounded-lg p-4 bg-gray-900'
-  }
+    className: 'border rounded-lg p-4 bg-gray-900',
+  },
 };
 
 export const DarkModeWithLineNumbers: Story = {
@@ -137,8 +137,8 @@ export const DarkModeWithLineNumbers: Story = {
     isDarkMode: true,
     showLineNumbers: true,
     startingLineNumber: 10,
-    className: 'border rounded-lg bg-gray-900'
-  }
+    className: 'border rounded-lg bg-gray-900',
+  },
 };
 
 export const CustomStyling: Story = {
@@ -147,8 +147,8 @@ export const CustomStyling: Story = {
     language: 'sql',
     isDarkMode: false,
     showLineNumbers: true,
-    className: 'shadow-lg'
-  }
+    className: 'shadow-lg',
+  },
 };
 
 export const AnimatedFadeIn: Story = {
@@ -158,8 +158,8 @@ export const AnimatedFadeIn: Story = {
     isDarkMode: false,
     showLineNumbers: false,
     animation: 'fadeIn',
-    className: 'border rounded-lg p-4'
-  }
+    className: 'border rounded-lg p-4',
+  },
 };
 
 export const AnimatedBlurIn: Story = {
@@ -169,8 +169,8 @@ export const AnimatedBlurIn: Story = {
     isDarkMode: true,
     showLineNumbers: true,
     animation: 'blurIn',
-    className: 'border rounded-lg bg-gray-900'
-  }
+    className: 'border rounded-lg bg-gray-900',
+  },
 };
 
 // Streaming animation stories
@@ -180,7 +180,7 @@ const StreamingAnimationStory = ({
   animation = 'fadeIn',
   isDarkMode = false,
   showLineNumbers = false,
-  delay = 500
+  delay = 500,
 }: {
   code: string;
   language?: 'sql' | 'yaml';
@@ -218,7 +218,8 @@ const StreamingAnimationStory = ({
         isDarkMode={isDarkMode}
         showLineNumbers={showLineNumbers}
         animationDuration={800}
-        className="rounded-lg border p-4">
+        className="rounded-lg border p-4"
+      >
         {currentCode}
       </SyntaxHighlighter>
     </div>
@@ -228,7 +229,7 @@ const StreamingAnimationStory = ({
 export const StreamingFadeIn: Story = {
   render: () => (
     <StreamingAnimationStory code={sqlCode} language="sql" animation="fadeIn" delay={100} />
-  )
+  ),
 };
 
 export const StreamingBlurIn: Story = {
@@ -240,7 +241,7 @@ export const StreamingBlurIn: Story = {
       isDarkMode={true}
       delay={100}
     />
-  )
+  ),
 };
 
 export const StreamingWithLineNumbers: Story = {
@@ -252,12 +253,12 @@ export const StreamingWithLineNumbers: Story = {
       showLineNumbers={true}
       delay={200}
     />
-  )
+  ),
 };
 
 // Fast streaming to test performance
 export const FastStreaming: Story = {
   render: () => (
     <StreamingAnimationStory code={sqlCode} language="sql" animation="blurIn" delay={50} />
-  )
+  ),
 };

@@ -1,11 +1,9 @@
-'use client';
-
 import React from 'react';
 import { useGetMetric, useUpdateMetric } from '@/api/buster_rest/metrics';
 import { EditFileContainer } from '@/components/features/files/EditFileContainer';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useIsMetricReadOnly } from '@/context/Metrics/useIsMetricReadOnly';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 
 export const MetricViewFile: React.FC<{ metricId: string }> = React.memo(({ metricId }) => {
   const { data: metric } = useGetMetric(
@@ -13,23 +11,23 @@ export const MetricViewFile: React.FC<{ metricId: string }> = React.memo(({ metr
     {
       select: ({ file, file_name }) => ({
         file,
-        file_name
-      })
+        file_name,
+      }),
     }
   );
   const { openSuccessMessage } = useBusterNotifications();
   const {
     mutateAsync: updateMetric,
     isPending: isUpdatingMetric,
-    error: updateMetricError
+    error: updateMetricError,
   } = useUpdateMetric({
     updateOnSave: true,
     saveToServer: true,
-    updateVersion: false
+    updateVersion: false,
   });
 
   const { isReadOnly } = useIsMetricReadOnly({
-    metricId
+    metricId,
   });
 
   const updateMetricErrorMessage = updateMetricError?.message;
@@ -39,7 +37,7 @@ export const MetricViewFile: React.FC<{ metricId: string }> = React.memo(({ metr
   const onSaveFile = useMemoizedFn(async (file: string) => {
     await updateMetric({
       file,
-      id: metricId
+      id: metricId,
     });
     openSuccessMessage(`${file_name} saved`);
   });

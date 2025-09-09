@@ -5,14 +5,20 @@ import { useMemo } from 'react';
 import type { BusterDashboardResponse } from '@/api/asset_interfaces/dashboard';
 import { useGetDashboard } from '@/api/buster_rest/dashboards';
 import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { compareObjectsByKeys } from '@/lib/objects';
 import { canEdit } from '@/lib/share';
-import { useOriginalDashboardStore } from './useOriginalDashboardStore';
+import { useGetOriginalDashboard } from './useOriginalDashboardStore';
 
-export const useIsDashboardChanged = ({ dashboardId }: { dashboardId: string | undefined }) => {
+export const useIsDashboardChanged = ({
+  dashboardId = '',
+  enabled = true,
+}: {
+  dashboardId: string | undefined;
+  enabled?: boolean;
+}) => {
   const queryClient = useQueryClient();
-  const originalDashboard = useOriginalDashboardStore((x) => x.getOriginalDashboard(dashboardId));
+  const originalDashboard = useGetOriginalDashboard(dashboardId);
 
   const { data: currentDashboard, refetch: refetchCurrentDashboard } = useGetDashboard(
     { id: dashboardId, versionNumber: undefined },
@@ -24,20 +30,16 @@ export const useIsDashboardChanged = ({ dashboardId }: { dashboardId: string | u
         file: x.dashboard.file,
         permission: x.permission,
         versions: x.versions,
-        version_number: x.dashboard.version_number
-      })
+        version_number: x.dashboard.version_number,
+      }),
     }
   );
 
-  const isLatestVersion = useMemo(() => {
-    return currentDashboard?.version_number === last(currentDashboard?.versions)?.version_number;
-  }, [currentDashboard]);
+  const isLatestVersion =
+    currentDashboard?.version_number === last(currentDashboard?.versions)?.version_number;
 
-  const onResetDashboardToOriginal = useMemoizedFn(() => {
-    const options = dashboardQueryKeys.dashboardGetDashboard(
-      dashboardId || '',
-      originalDashboard?.version_number || null
-    );
+  const onResetToOriginal = useMemoizedFn(() => {
+    const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId, 'LATEST');
     const currentDashboard = queryClient.getQueryData<BusterDashboardResponse>(options.queryKey);
     if (originalDashboard && currentDashboard) {
       const resetDashboard = create(currentDashboard, (draft) => {
@@ -50,8 +52,9 @@ export const useIsDashboardChanged = ({ dashboardId }: { dashboardId: string | u
 
   const isEditor = canEdit(currentDashboard?.permission);
 
-  const isDashboardChanged = useMemo(() => {
-    if (!isEditor || !isLatestVersion || !currentDashboard || !originalDashboard) return false;
+  const isFileChanged = useMemo(() => {
+    if (!isEditor || !isLatestVersion || !currentDashboard || !originalDashboard || !enabled)
+      return false;
     return (
       !originalDashboard ||
       !currentDashboard ||
@@ -59,13 +62,10 @@ export const useIsDashboardChanged = ({ dashboardId }: { dashboardId: string | u
         'name',
         'description',
         'config',
-        'file'
+        'file',
       ])
     );
-  }, [originalDashboard, isEditor, currentDashboard, isLatestVersion]);
+  }, [originalDashboard, isEditor, currentDashboard, isLatestVersion, enabled]);
 
-  return {
-    onResetDashboardToOriginal,
-    isDashboardChanged
-  };
+  return useMemo(() => ({ onResetToOriginal, isFileChanged }), [onResetToOriginal, isFileChanged]);
 };

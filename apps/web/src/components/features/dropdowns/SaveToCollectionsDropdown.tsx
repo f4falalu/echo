@@ -1,13 +1,18 @@
-import React, { useMemo, useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
+import type React from 'react';
+import { useMemo, useState } from 'react';
 import type { BusterCollectionListItem } from '@/api/asset_interfaces/collection';
 import { useGetCollectionsList } from '@/api/buster_rest/collections';
 import { Button } from '@/components/ui/buttons';
-import { Dropdown, type DropdownItem, type DropdownProps } from '@/components/ui/dropdown';
+import {
+  createDropdownItem,
+  Dropdown,
+  type DropdownProps,
+  type IDropdownItem,
+} from '@/components/ui/dropdown';
 import { Plus } from '@/components/ui/icons';
-import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import { useMemoizedFn } from '@/hooks';
-import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
-import { NewCollectionModal } from '../modal/NewCollectionModal';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { NewCollectionModal } from '../modals/NewCollectionModal';
 
 export const SaveToCollectionsDropdown: React.FC<{
   children: React.ReactNode;
@@ -19,7 +24,7 @@ export const SaveToCollectionsDropdown: React.FC<{
     useSaveToCollectionsDropdownContent({
       selectedCollections,
       onSaveToCollection,
-      onRemoveFromCollection
+      onRemoveFromCollection,
     });
 
   return (
@@ -31,7 +36,8 @@ export const SaveToCollectionsDropdown: React.FC<{
         menuHeader={menuHeader}
         footerContent={footerContent}
         emptyStateText="No collections found"
-        items={items}>
+        items={items}
+      >
         {children}
       </Dropdown>
 
@@ -45,7 +51,7 @@ SaveToCollectionsDropdown.displayName = 'SaveToCollectionsDropdown';
 export const useSaveToCollectionsDropdownContent = ({
   selectedCollections,
   onSaveToCollection,
-  onRemoveFromCollection
+  onRemoveFromCollection,
 }: {
   selectedCollections: string[];
   onSaveToCollection: (collectionId: string[]) => Promise<void>;
@@ -56,23 +62,25 @@ export const useSaveToCollectionsDropdownContent = ({
 > & {
   ModalComponent: React.ReactNode;
 } => {
+  const navigate = useNavigate();
   const [openCollectionModal, setOpenCollectionModal] = useState(false);
 
   const { data: collectionsList, isPending: isCreatingCollection } = useGetCollectionsList({});
-  const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
 
   const items: DropdownProps['items'] = useMemo(() => {
-    const collectionsItems = (collectionsList || []).map<DropdownItem>((collection) => {
-      return {
+    const collectionsItems = (collectionsList || []).map<IDropdownItem>((collection) => {
+      return createDropdownItem({
         value: collection.id,
         label: collection.name,
         selected: selectedCollections.some((id) => id === collection.id),
         onClick: () => onClickItem(collection),
-        link: createBusterRoute({
-          route: BusterRoutes.APP_COLLECTIONS_ID,
-          collectionId: collection.id
-        })
-      };
+        link: {
+          to: '/app/collections/$collectionId',
+          params: {
+            collectionId: collection.id,
+          },
+        },
+      });
     });
     return collectionsItems;
   }, [collectionsList, selectedCollections]);
@@ -97,7 +105,8 @@ export const useSaveToCollectionsDropdownContent = ({
         loading={isCreatingCollection}
         className="justify-start!"
         prefix={<Plus />}
-        onClick={onOpenNewCollectionModal}>
+        onClick={onOpenNewCollectionModal}
+      >
         New collection
       </Button>
     );
@@ -105,9 +114,11 @@ export const useSaveToCollectionsDropdownContent = ({
 
   const onCollectionCreated = useMemoizedFn(async (collectionId: string) => {
     await onSaveToCollection([collectionId]);
-    onChangePage({
-      route: BusterRoutes.APP_COLLECTIONS_ID,
-      collectionId
+    navigate({
+      to: '/app/collections/$collectionId',
+      params: {
+        collectionId,
+      },
     });
   });
 
@@ -135,7 +146,7 @@ export const useSaveToCollectionsDropdownContent = ({
           useChangePage={false}
           onCollectionCreated={onCollectionCreated}
         />
-      )
+      ),
     };
   }, [
     items,
@@ -143,6 +154,6 @@ export const useSaveToCollectionsDropdownContent = ({
     footerContent,
     openCollectionModal,
     onCloseCollectionModal,
-    onCollectionCreated
+    onCollectionCreated,
   ]);
 };

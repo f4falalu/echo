@@ -1,11 +1,9 @@
-'use client';
-
-import * as React from 'react';
-import { NodeTypeIcons } from '../config/icons';
-import { createLabel } from '../config/labels';
 import { KEYS } from 'platejs';
 import { useEditorReadOnly } from 'platejs/react';
-
+import * as React from 'react';
+import { ToolbarGroup } from '@/components/ui/toolbar/Toolbar';
+import { NodeTypeIcons } from '../config/icons';
+import { createLabel } from '../config/labels';
 import { AIToolbarButton } from './AIToolbarButton';
 import { CommentToolbarButton } from './CommandToolbarButton';
 // import { InlineEquationToolbarButton } from './EquationToolbarButton';
@@ -13,7 +11,6 @@ import { LinkToolbarButton } from './LinkToolbarButton';
 import { MarkToolbarButton } from './MarktoolbarButton';
 // import { MoreToolbarButton } from './MoreToolbarButton';
 import { SuggestionToolbarButton } from './SuggestionToolbarButton';
-import { ToolbarGroup } from '@/components/ui/toolbar/Toolbar';
 import { TurnIntoToolbarButton } from './TurnIntoToolbarButton';
 
 export function FloatingToolbarButtons() {

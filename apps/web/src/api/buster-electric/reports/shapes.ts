@@ -1,12 +1,12 @@
+import type { GetReportResponse } from '@buster/server-shared/reports';
 import type { ElectricShapeOptions } from '../instances';
-import type { ReportIndividualResponse } from '@buster/server-shared/reports';
 
-export type BusterReportShape = Pick<ReportIndividualResponse, 'id' | 'name' | 'content'>;
+export type BusterReportShape = Pick<GetReportResponse, 'id' | 'name' | 'content'>;
 
 const REPORT_DEFAULT_COLUMNS: (keyof BusterReportShape)[] = ['id', 'name', 'content'];
 
 export const reportShape = ({
-  reportId
+  reportId,
 }: {
   reportId: string;
 }): ElectricShapeOptions<BusterReportShape> => {
@@ -15,7 +15,7 @@ export const reportShape = ({
       table: 'report_files',
       where: `id='${reportId}'`,
       columns: REPORT_DEFAULT_COLUMNS,
-      replica: 'default'
-    }
+      replica: 'default',
+    },
   };
 };

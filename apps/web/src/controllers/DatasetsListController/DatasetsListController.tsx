@@ -1,16 +1,19 @@
-'use client';
-
 import type React from 'react';
-import { useMemo, useState } from 'react';
+import { lazy, useMemo, useState } from 'react';
 import { useGetDatasets } from '@/api/buster_rest/datasets';
-import { NewDatasetModal } from '@/components/features/modal/NewDatasetModal';
-import { AppPageLayout } from '@/components/ui/layouts';
-import { useUserConfigContextSelector } from '@/context/Users';
+import { useIsUserAdmin } from '@/api/buster_rest/users/useGetUserInfo';
+import { AppPageLayout } from '@/components/ui/layouts/AppPageLayout';
 import { DatasetListContent } from './DatasetListContent';
 import { DatasetHeader } from './DatasetsHeader';
 
+const NewDatasetModal = lazy(() =>
+  import('@/components/features/modals/NewDatasetModal').then((mod) => ({
+    default: mod.NewDatasetModal,
+  }))
+);
+
 export const DatasetsListController: React.FC<Record<string, never>> = () => {
-  const isAdmin = useUserConfigContextSelector((state) => state.isAdmin);
+  const isAdmin = useIsUserAdmin();
   const [datasetFilter, setDatasetFilter] = useState<'all' | 'published' | 'drafts'>('all');
   const [openDatasetModal, setOpenDatasetModal] = useState<boolean>(false);
 
@@ -18,19 +21,19 @@ export const DatasetsListController: React.FC<Record<string, never>> = () => {
     if (datasetFilter === 'drafts') {
       return {
         enabled: false,
-        admin_view: isAdmin
+        admin_view: isAdmin,
       };
     }
 
     if (datasetFilter === 'published') {
       return {
         enabled: true,
-        admin_view: isAdmin
+        admin_view: isAdmin,
       };
     }
 
     return {
-      admin_view: isAdmin
+      admin_view: isAdmin,
     };
   }, [datasetFilter]);
 
@@ -46,7 +49,8 @@ export const DatasetsListController: React.FC<Record<string, never>> = () => {
           openNewDatasetModal={openDatasetModal}
           setOpenNewDatasetModal={setOpenDatasetModal}
         />
-      }>
+      }
+    >
       <DatasetListContent
         datasetsList={datasetsList || []}
         isFetchedDatasets={isFetchedDatasets}

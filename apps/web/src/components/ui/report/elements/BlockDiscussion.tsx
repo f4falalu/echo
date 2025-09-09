@@ -1,34 +1,29 @@
-'use client';
-
-import * as React from 'react';
-
-import type { PlateElementProps, RenderNodeWrapper } from 'platejs/react';
-
 import { getDraftCommentKey } from '@platejs/comment';
 import { CommentPlugin } from '@platejs/comment/react';
 import { SuggestionPlugin } from '@platejs/suggestion/react';
-import { Message, Pencil } from '@/components/ui/icons';
 import {
   type AnyPluginConfig,
   type NodeEntry,
   type Path,
+  PathApi,
   type TCommentText,
   type TElement,
+  TextApi,
   type TSuggestionText,
-  PathApi,
-  TextApi
 } from 'platejs';
+import type { PlateElementProps, RenderNodeWrapper } from 'platejs/react';
 import { useEditorPlugin, useEditorRef, usePluginOption } from 'platejs/react';
-
+import * as React from 'react';
 import { Button } from '@/components/ui/buttons';
+import { Message, Pencil } from '@/components/ui/icons';
 import {
-  PopoverBase,
   PopoverAnchor,
+  PopoverBase,
   PopoverContent,
-  PopoverTrigger
+  PopoverTrigger,
 } from '@/components/ui/popover';
 import { commentPlugin } from '../plugins/comment-kit';
-import { type TDiscussion, discussionPlugin } from '../plugins/discussion-kit';
+import { discussionPlugin, type TDiscussion } from '../plugins/discussion-kit';
 import { suggestionPlugin } from '../plugins/suggestion-kit';
 
 import { BlockSuggestionCard, isResolvedSuggestion, useResolveSuggestion } from './BlockSuggestion';
@@ -73,7 +68,7 @@ const BlockCommentContent = ({
   children,
   commentNodes,
   draftCommentNode,
-  suggestionNodes
+  suggestionNodes,
 }: PlateElementProps & {
   blockPath: Path;
   commentNodes: NodeEntry<TCommentText>[];
@@ -139,7 +134,7 @@ const BlockCommentContent = ({
 
     if (!activeNode) return null;
 
-    return editor.api.toDOMNode(activeNode[0])!;
+    return editor.api.toDOMNode(activeNode[0]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     open,
@@ -148,7 +143,7 @@ const BlockCommentContent = ({
     editor.api,
     suggestionNodes,
     draftCommentNode,
-    commentNodes
+    commentNodes,
   ]);
 
   if (suggestionsCount + resolvedDiscussions.length === 0 && !draftCommentNode)
@@ -163,11 +158,12 @@ const BlockCommentContent = ({
             editor.tf.unsetNodes(getDraftCommentKey(), {
               at: [],
               mode: 'lowest',
-              match: (n) => n[getDraftCommentKey()]
+              match: (n) => n[getDraftCommentKey()],
             });
           }
           setOpen(_open_);
-        }}>
+        }}
+      >
         <div className="w-full">{children}</div>
         {anchorElement && (
           <PopoverAnchor asChild className="w-full" virtualRef={{ current: anchorElement }} />
@@ -178,10 +174,12 @@ const BlockCommentContent = ({
           onCloseAutoFocus={(e) => e.preventDefault()}
           onOpenAutoFocus={(e) => e.preventDefault()}
           align="center"
-          side="bottom">
+          side="bottom"
+        >
           {isCommenting ? (
             <CommentCreateForm className="p-4" focusOnMount />
           ) : (
+            // biome-ignore lint/complexity/noUselessFragments: it's cool
             <React.Fragment>
               {noneActive ? (
                 sortedMergedData.map((item, index) =>
@@ -225,7 +223,8 @@ const BlockCommentContent = ({
                 variant="ghost"
                 className="text-muted-foreground/80 hover:text-muted-foreground/80 data-[active=true]:bg-muted mt-1 ml-1 flex h-6 gap-1 !px-1.5 py-0"
                 data-active={open}
-                contentEditable={false}>
+                contentEditable={false}
+              >
                 {suggestionsCount > 0 && discussionsCount === 0 && (
                   <div className="size-4 shrink-0">
                     <Pencil />
@@ -315,7 +314,7 @@ const useResolvedDiscussion = (commentNodes: NodeEntry<TCommentText>[], blockPat
   const resolvedDiscussions = discussions
     .map((d: TDiscussion) => ({
       ...d,
-      createdAt: new Date(d.createdAt)
+      createdAt: new Date(d.createdAt),
     }))
     .filter((item: TDiscussion) => {
       /** If comment cross blocks just show it in the first block */

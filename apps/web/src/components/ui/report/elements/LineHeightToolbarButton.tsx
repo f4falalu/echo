@@ -1,24 +1,19 @@
-'use client';
-
-import * as React from 'react';
+import { LineHeightPlugin } from '@platejs/basic-styles/react';
 
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
-
-import { LineHeightPlugin } from '@platejs/basic-styles/react';
 import { DropdownMenuItemIndicator } from '@radix-ui/react-dropdown-menu';
 import { useEditorRef, useSelectionFragmentProp } from 'platejs/react';
-import { NodeTypeIcons } from '../config/icons';
-import { createLabel } from '../config/labels';
-
+import * as React from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
+import { NodeTypeIcons } from '../config/icons';
+import { createLabel } from '../config/labels';
 
 export function LineHeightToolbarButton(props: DropdownMenuProps) {
   const editor = useEditorRef();
@@ -27,7 +22,7 @@ export function LineHeightToolbarButton(props: DropdownMenuProps) {
 
   const value = useSelectionFragmentProp({
     defaultValue: defaultNodeValue,
-    getProp: (node) => node.lineHeight
+    getProp: (node) => node.lineHeight,
   });
 
   const [open, setOpen] = React.useState(false);
@@ -48,12 +43,14 @@ export function LineHeightToolbarButton(props: DropdownMenuProps) {
           onValueChange={(newValue) => {
             editor.getTransforms(LineHeightPlugin).lineHeight.setNodes(Number(newValue));
             editor.tf.focus();
-          }}>
+          }}
+        >
           {values.map((value) => (
             <DropdownMenuRadioItem
               key={value}
               className="min-w-[180px] pl-2 *:first:[span]:hidden"
-              value={value}>
+              value={value}
+            >
               <span className="pointer-events-none absolute right-2 flex size-3.5 items-center justify-center">
                 <DropdownMenuItemIndicator>
                   <NodeTypeIcons.check />

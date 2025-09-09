@@ -1,5 +1,3 @@
-'use client';
-
 import * as LabelPrimitive from '@radix-ui/react-label';
 import { cva, type VariantProps } from 'class-variance-authority';
 import * as React from 'react';
@@ -12,12 +10,12 @@ const labelVariants = cva(
       size: {
         default: 'text-base',
         sm: 'text-sm',
-        lg: 'text-lg'
-      }
+        lg: 'text-lg',
+      },
     },
     defaultVariants: {
-      size: 'default'
-    }
+      size: 'default',
+    },
   }
 );
 

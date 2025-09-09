@@ -212,7 +212,7 @@ export const useLLMStreaming = ({
   readAheadChars = 6,
   readAheadMaxMs = 200,
   markdownSafeBoundaries = true,
-  flushImmediatelyOnComplete = true
+  flushImmediatelyOnComplete = true,
 }: UseLLMStreamingProps): UseLLMStreamingReturn => {
   const [throttledContent, setThrottledContent] = React.useState<string>(content);
 
@@ -306,7 +306,7 @@ export const useLLMStreaming = ({
           minChunkChars: minChunkChars,
           maxChunkChars: maxChunkChars,
           targetBufferChars: targetBufferChars,
-          adjustPercentage: adjustPercentage
+          adjustPercentage: adjustPercentage,
         });
 
         // Ensure chunk does not exceed backlog
@@ -446,7 +446,7 @@ export const useLLMStreaming = ({
     minChunkChars,
     readAheadChars,
     readAheadMaxMs,
-    targetBufferChars
+    targetBufferChars,
   ]);
 
   const isDone = isStreamFinished && throttledContent.length >= content.length;

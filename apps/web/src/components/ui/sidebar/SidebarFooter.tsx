@@ -1,5 +1,5 @@
+import React, { type PropsWithChildren } from 'react';
 import { cn } from '@/lib/classMerge';
-import React, { PropsWithChildren } from 'react';
 import { Button } from '../buttons';
 import { SidebarLeft } from '../icons';
 import { AppTooltip } from '../tooltip';
@@ -11,22 +11,26 @@ interface SidebarFooterProps extends PropsWithChildren {
   onCollapseClick: () => void;
 }
 
-export const SidebarFooter: React.FC<SidebarFooterProps> = React.memo(
-  ({ children, className, useCollapsible, onCollapseClick }) => {
-    return (
-      <div
-        className={cn(
-          COLLAPSED_COLUMN,
-          'mt-auto mb-3.5 flex items-center justify-center gap-2 pt-2.5',
-          className
-        )}
-        data-testid="sidebar-footer">
-        {children}
-        {useCollapsible && <CollapseButton onClick={onCollapseClick} />}
-      </div>
-    );
-  }
-);
+export const SidebarFooter: React.FC<SidebarFooterProps> = ({
+  children,
+  className,
+  useCollapsible,
+  onCollapseClick,
+}) => {
+  return (
+    <div
+      className={cn(
+        COLLAPSED_COLUMN,
+        'mt-auto mb-3.5 flex items-center justify-center gap-2 pt-2.5',
+        className
+      )}
+      data-testid="sidebar-footer"
+    >
+      {children}
+      {useCollapsible && <CollapseButton onClick={onCollapseClick} />}
+    </div>
+  );
+};
 
 SidebarFooter.displayName = 'SidebarFooter';
 

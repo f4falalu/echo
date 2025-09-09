@@ -1,29 +1,27 @@
-'use client';
-
-import * as React from 'react';
+/** biome-ignore-all lint/style/noNonNullAssertion: too lazy right now will revisit later */
 
 import { DndPlugin, useDraggable, useDropLine } from '@platejs/dnd';
 import { expandListItemsWithChildren } from '@platejs/list';
 import { BlockSelectionPlugin } from '@platejs/selection/react';
-import { type Path, type TElement, getPluginByType, isType, KEYS } from 'platejs';
-import { Plus } from '@/components/ui/icons';
-import { NodeTypeIcons } from '../config/icons';
+import { getPluginByType, isType, KEYS, type Path, type TElement } from 'platejs';
 import {
+  MemoizedChildren,
   type PlateEditor,
   type PlateElementProps,
   type RenderNodeWrapper,
-  MemoizedChildren,
   useEditorRef,
   useElement,
   usePath,
-  usePluginOption
+  usePluginOption,
+  useSelected,
 } from 'platejs/react';
-import { useSelected } from 'platejs/react';
-
+import * as React from 'react';
 import { Button } from '@/components/ui/buttons';
+import { Plus } from '@/components/ui/icons';
 import { Tooltip } from '@/components/ui/tooltip';
-import { cn } from '@/lib/utils';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { cn } from '@/lib/utils';
+import { NodeTypeIcons } from '../config/icons';
 import { insertBlock } from './transforms';
 
 const UNDRAGGABLE_KEYS = [KEYS.column, KEYS.tr, KEYS.td];
@@ -41,8 +39,8 @@ export const BlockDraggable: RenderNodeWrapper = (props) => {
       const block = editor.api.some({
         at: path,
         match: {
-          type: editor.getType(KEYS.column)
-        }
+          type: editor.getType(KEYS.column),
+        },
       });
 
       if (block) {
@@ -53,8 +51,8 @@ export const BlockDraggable: RenderNodeWrapper = (props) => {
       const block = editor.api.some({
         at: path,
         match: {
-          type: editor.getType(KEYS.table)
-        }
+          type: editor.getType(KEYS.table),
+        },
       });
 
       if (block) {
@@ -85,7 +83,7 @@ function Draggable(props: PlateElementProps) {
         blockSelectionApi.add(id);
       }
       resetPreview();
-    }
+    },
   });
 
   const isInColumn = path.length === 3;
@@ -128,7 +126,8 @@ function Draggable(props: PlateElementProps) {
       onMouseEnter={() => {
         if (isDragging) return;
         setDragButtonTop(calcDragButtonTop(editor, element));
-      }}>
+      }}
+    >
       {!isInTable && (
         <Gutter>
           <div className={cn('slate-blockToolbarWrapper flex', isInColumn && 'h-4')}>
@@ -137,7 +136,8 @@ function Draggable(props: PlateElementProps) {
                 'slate-blockToolbar pointer-events-auto relative mr-1 flex w-13 items-center justify-center space-x-0.5',
                 isInColumn && 'mr-1.5 w-8!',
                 'mr-1 flex items-center'
-              )}>
+              )}
+            >
               <div className="absolute top-0 left-0" style={{ top: `${dragButtonTop + 6}px` }}>
                 {showAddNewBlockButton && (
                   <AddNewBlockButton isDragging={isDragging} element={element} editor={editor} />
@@ -180,7 +180,8 @@ function Draggable(props: PlateElementProps) {
         )}
         onContextMenu={(event) =>
           editor.getApi(BlockSelectionPlugin).blockSelection.addOnContextMenu({ element, event })
-        }>
+        }
+      >
         <MemoizedChildren>{children}</MemoizedChildren>
         <DropLine />
       </div>
@@ -207,7 +208,8 @@ function Gutter({ children, className, ...props }: React.ComponentProps<'div'>) 
         !selected && 'opacity-0',
         className
       )}
-      contentEditable={false}>
+      contentEditable={false}
+    >
       {children}
     </div>
   );
@@ -218,7 +220,7 @@ const DragHandle = function DragHandle({
   previewRef,
   isColumn,
   resetPreview,
-  setPreviewTop
+  setPreviewTop,
 }: {
   isDragging: boolean;
   isColumn: boolean;
@@ -241,12 +243,14 @@ const DragHandle = function DragHandle({
           if (e.button !== 0 || e.shiftKey) return; // Only left mouse button
 
           const elements = createDragPreviewElements(editor, {
-            currentBlock: element
+            currentBlock: element,
           });
           previewRef.current?.append(...elements);
           previewRef.current?.classList.remove('hidden');
           previewRef.current?.classList.add('opacity-0');
           editor.setOption(DndPlugin, 'multiplePreviewRef', previewRef);
+
+          //  startDragAutoScroll();
         }}
         onMouseEnter={() => {
           if (isDragging) return;
@@ -271,7 +275,7 @@ const DragHandle = function DragHandle({
           if (ids.length > 1 && ids.includes(element.id as string)) {
             const previewTop = calculatePreviewTop(editor, {
               blocks: processedBlocks.map((block) => block[0]),
-              element
+              element,
             });
             setPreviewTop(previewTop);
           } else {
@@ -281,7 +285,7 @@ const DragHandle = function DragHandle({
         onMouseUp={() => {
           resetPreview();
         }}
-        role="button">
+      >
         <div className="text-muted-foreground flex items-center justify-center">
           <NodeTypeIcons.gripVertical />
         </div>
@@ -422,6 +426,7 @@ const createDragPreviewElements = (
     elements.push(wrapper);
   };
 
+  // biome-ignore lint/suspicious/useIterableCallbackReturn: TODO look into this
   sortedNodes.forEach((node, index) => resolveElement(node, index));
 
   editor.setOption(DndPlugin, 'draggingId', ids);
@@ -433,7 +438,7 @@ const calculatePreviewTop = (
   editor: PlateEditor,
   {
     blocks,
-    element
+    element,
   }: {
     blocks: TElement[];
     element: TElement;
@@ -484,7 +489,7 @@ const AddNewBlockButton = function AddNewBlockButton({
   className,
   isDragging,
   element,
-  editor
+  editor,
 }: {
   style?: React.CSSProperties;
   className?: string;
@@ -492,7 +497,7 @@ const AddNewBlockButton = function AddNewBlockButton({
   element: TElement;
   editor: PlateEditor;
 }) {
-  const handleClick = useMemoizedFn((event: React.MouseEvent) => {
+  const handleClick = useMemoizedFn((_event: React.MouseEvent) => {
     // Find the current path of this element dynamically at click time
     const currentPath = editor.api.findPath(element);
 

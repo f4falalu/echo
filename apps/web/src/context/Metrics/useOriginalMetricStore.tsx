@@ -1,51 +1,29 @@
-'use client';
-
-import { create } from 'zustand';
+import { Store, useStore } from '@tanstack/react-store';
 import type { BusterMetric } from '@/api/asset_interfaces/metric';
-import { useMount } from '@/hooks';
 
-type OriginalMetricStore = {
-  originalMetrics: Record<string, BusterMetric>;
-  bulkAddOriginalMetrics: (metrics: Record<string, BusterMetric>) => void;
-  setOriginalMetric: (metric: BusterMetric) => void;
-  getOriginalMetric: (metricId: string | undefined) => BusterMetric | undefined;
-  removeOriginalMetric: (metricId: string) => void;
+export const originalMetricStore = new Store(new Map<string, BusterMetric>());
+
+export const setOriginalMetric = (metric: BusterMetric) => {
+  originalMetricStore.setState((prev) => new Map(prev).set(metric.id, metric));
 };
 
-export const useOriginalMetricStore = create<OriginalMetricStore>((set, get) => ({
-  originalMetrics: {},
-  bulkAddOriginalMetrics: (metrics: Record<string, BusterMetric>) =>
-    set((prev) => ({
-      originalMetrics: {
-        ...prev.originalMetrics,
-        ...metrics
-      }
-    })),
-  setOriginalMetric: (metric: BusterMetric) =>
-    set((state) => ({
-      originalMetrics: {
-        ...state.originalMetrics,
-        [metric.id]: metric
-      }
-    })),
-  getOriginalMetric: (metricId: string | undefined) =>
-    metricId ? get().originalMetrics[metricId] : undefined,
-  removeOriginalMetric: (metricId: string) =>
-    set((state) => {
-      const { [metricId]: removed, ...rest } = state.originalMetrics;
-      return { originalMetrics: rest };
-    })
-}));
+export const getOriginalMetric = (metricId: string) => {
+  return originalMetricStore.state.get(metricId);
+};
 
-export const HydrationBoundaryMetricStore: React.FC<{
-  children: React.ReactNode;
-  metric?: OriginalMetricStore['originalMetrics'][string];
-}> = ({ children, metric }) => {
-  const setOriginalMetrics = useOriginalMetricStore((x) => x.setOriginalMetric);
-
-  useMount(() => {
-    if (metric) setOriginalMetrics(metric);
+export const removeOriginalMetric = (metricId: string) => {
+  originalMetricStore.setState((prev) => {
+    const newState = new Map(prev);
+    newState.delete(metricId);
+    return newState;
   });
+};
 
-  return <>{children}</>;
+const stableSelectOriginalMetric = (metricId: string | undefined) => {
+  if (!metricId) return undefined;
+  return (state: Map<string, BusterMetric>) => state.get(metricId);
+};
+
+export const useGetOriginalMetric = (metricId: string | undefined) => {
+  return useStore(originalMetricStore, stableSelectOriginalMetric(metricId));
 };

@@ -1,7 +1,7 @@
 import React from 'react';
-import type { IColorPalette } from '../ThemeList/interfaces';
-import { ThemeList } from '../ThemeList';
 import { cn } from '@/lib/utils';
+import { ThemeList } from '../ThemeList';
+import type { IColorPalette } from '../ThemeList/interfaces';
 import { AddCustomThemeBase } from './AddCustomThemeBase';
 
 export interface DefaultThemeSelectorProps {
@@ -26,12 +26,12 @@ export const DefaultThemeSelectorBase = React.memo(
     className,
     onCreateCustomTheme,
     onDeleteCustomTheme,
-    onModifyCustomTheme
+    onModifyCustomTheme,
   }: DefaultThemeSelectorProps) => {
     const iThemes: Required<IColorPalette>[] = themes?.map((theme) => ({
       ...theme,
       selected: theme.id === selectedThemeId,
-      hideThreeDotMenu: false
+      hideThreeDotMenu: false,
     }));
 
     return (

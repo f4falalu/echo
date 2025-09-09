@@ -1,14 +1,11 @@
-'use client';
-
 import type { VariantProps } from 'class-variance-authority';
 import React, { useMemo } from 'react';
-import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
-import { Dropdown, type DropdownItem, type DropdownProps } from '../dropdown/Dropdown';
+import { Dropdown, type DropdownProps, type IDropdownItem } from '../dropdown';
 import { InputTag } from '../inputs/InputTag';
+import { CircleSpinnerLoader } from '../loaders';
 import type { SelectItem } from './Select';
 import { selectVariants } from './SelectBase';
-import { CircleSpinnerLoader } from '../loaders';
 
 interface SelectMultipleProps extends VariantProps<typeof selectVariants> {
   items: SelectItem[];
@@ -36,7 +33,7 @@ export const SelectMultiple: React.FC<SelectMultipleProps> = React.memo(
     align = 'start',
     side = 'bottom',
     loading = false,
-    useSearch = true
+    useSearch = true,
   }) => {
     const selectedRecord = useMemo(() => {
       return itemsProp.reduce<Record<string, boolean>>((acc, item) => {
@@ -52,7 +49,7 @@ export const SelectMultiple: React.FC<SelectMultipleProps> = React.memo(
       onChange(newSelected);
     };
 
-    const handleSelect = useMemoizedFn((itemId: string) => {
+    const handleSelect = (itemId: string) => {
       const item = itemsProp.find((item) => item.value === itemId);
       if (item) {
         if (selectedRecord[item.value]) {
@@ -64,16 +61,16 @@ export const SelectMultiple: React.FC<SelectMultipleProps> = React.memo(
           onChange([...newSelected, item.value]);
         }
       }
-    });
+    };
 
     const items = useMemo(() => {
       return itemsProp.map((item) => ({
         ...item,
-        selected: selectedRecord[item.value]
+        selected: selectedRecord[item.value],
       }));
     }, [itemsProp, selectedRecord]);
 
-    const selectedItems: DropdownItem[] = useMemo(() => {
+    const selectedItems: IDropdownItem[] = useMemo(() => {
       return items.filter((item) => item.selected);
     }, [items]);
 
@@ -86,7 +83,8 @@ export const SelectMultiple: React.FC<SelectMultipleProps> = React.memo(
         align={align}
         side={side}
         modal={false}
-        className="w-[var(--radix-dropdown-menu-trigger-width)] max-w-full!">
+        className="w-[var(--radix-dropdown-menu-trigger-width)] max-w-full!"
+      >
         <div
           className={cn(
             selectVariants({ variant, size }),
@@ -94,7 +92,8 @@ export const SelectMultiple: React.FC<SelectMultipleProps> = React.memo(
             selectedItems.length > 0 && 'pl-1!',
             disabled && 'cursor-not-allowed opacity-80',
             className
-          )}>
+          )}
+        >
           <div className="scrollbar-hide flex h-full flex-nowrap items-center gap-1 overflow-x-auto">
             {selectedItems.map((item) => (
               <InputTag
@@ -115,7 +114,8 @@ export const SelectMultiple: React.FC<SelectMultipleProps> = React.memo(
           {loading && (
             <div
               className="absolute top-0 right-0 flex h-full w-8 items-center justify-center"
-              data-loading="true">
+              data-loading="true"
+            >
               <CircleSpinnerLoader size={16} />
             </div>
           )}

@@ -1,5 +1,3 @@
-'use client';
-
 import { BlockSelectionPlugin } from '@platejs/selection/react';
 import { getPluginTypes, KEYS } from 'platejs';
 
@@ -13,7 +11,7 @@ export const BlockSelectionKit = [
         return !getPluginTypes(editor, [KEYS.column, KEYS.codeLine, KEYS.td]).includes(
           element.type
         );
-      }
+      },
     },
     render: {
       belowRootNodes: (props) => {
@@ -21,7 +19,7 @@ export const BlockSelectionKit = [
 
         //@ts-expect-error -- TODO: fix this
         return <BlockSelection {...props} />;
-      }
-    }
-  }))
+      },
+    },
+  })),
 ];

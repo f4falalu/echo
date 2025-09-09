@@ -1,5 +1,3 @@
-'use client';
-
 import dayjs from 'dayjs';
 import * as React from 'react';
 import { Button } from '@/components/ui/buttons';
@@ -8,7 +6,7 @@ import { Calendar as CalendarIcon } from '@/components/ui/icons';
 import {
   PopoverRoot as Popover,
   PopoverContent,
-  PopoverTrigger
+  PopoverTrigger,
 } from '@/components/ui/popover/PopoverBase';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
@@ -48,7 +46,8 @@ export function DateTimePicker() {
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Button
-          className={cn('w-full justify-start text-left font-normal', !date && 'text-gray-light')}>
+          className={cn('w-full justify-start text-left font-normal', !date && 'text-gray-light')}
+        >
           <div className="mr-2 h-4 w-4">
             <CalendarIcon />
           </div>
@@ -67,7 +66,8 @@ export function DateTimePicker() {
                     size="small"
                     variant={date && date.getHours() % 12 === hour % 12 ? 'default' : 'ghost'}
                     className="aspect-square shrink-0 sm:w-full"
-                    onClick={() => handleTimeChange('hour', hour.toString())}>
+                    onClick={() => handleTimeChange('hour', hour.toString())}
+                  >
                     {hour}
                   </Button>
                 ))}
@@ -82,7 +82,8 @@ export function DateTimePicker() {
                     size="small"
                     variant={date && date.getMinutes() === minute ? 'default' : 'ghost'}
                     className="aspect-square shrink-0 sm:w-full"
-                    onClick={() => handleTimeChange('minute', minute.toString())}>
+                    onClick={() => handleTimeChange('minute', minute.toString())}
+                  >
                     {minute}
                   </Button>
                 ))}
@@ -103,7 +104,8 @@ export function DateTimePicker() {
                         : 'ghost'
                     }
                     className="aspect-square shrink-0 sm:w-full"
-                    onClick={() => handleTimeChange('ampm', ampm)}>
+                    onClick={() => handleTimeChange('ampm', ampm)}
+                  >
                     {ampm}
                   </Button>
                 ))}

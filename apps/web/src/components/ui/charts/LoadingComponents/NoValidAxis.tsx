@@ -1,7 +1,7 @@
-import { useMount } from '@/hooks/useMount';
 import type { ChartType } from '@buster/server-shared/metrics';
 import type React from 'react';
 import { useMemo } from 'react';
+import { useMount } from '@/hooks/useMount';
 import type { BusterChartProps } from '../BusterChart.types';
 
 export const NoValidAxis: React.FC<{

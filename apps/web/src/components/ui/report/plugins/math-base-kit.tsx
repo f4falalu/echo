@@ -4,5 +4,5 @@ import { EquationElementStatic, InlineEquationElementStatic } from '../elements/
 
 export const BaseMathKit = [
   BaseInlineEquationPlugin.withComponent(InlineEquationElementStatic),
-  BaseEquationPlugin.withComponent(EquationElementStatic)
+  BaseEquationPlugin.withComponent(EquationElementStatic),
 ];

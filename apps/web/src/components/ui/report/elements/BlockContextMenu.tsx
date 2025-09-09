@@ -1,26 +1,24 @@
-'use client';
-
-import * as React from 'react';
-
 import { AIChatPlugin } from '@platejs/ai/react';
 import {
   BLOCK_CONTEXT_MENU_ID,
   BlockMenuPlugin,
-  BlockSelectionPlugin
+  BlockSelectionPlugin,
 } from '@platejs/selection/react';
 import { KEYS } from 'platejs';
 import { useEditorPlugin, usePlateState } from 'platejs/react';
+import * as React from 'react';
 
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuGroup,
   ContextMenuItem,
+  ContextMenuSeparator,
   ContextMenuShortcut,
   ContextMenuSub,
   ContextMenuSubContent,
   ContextMenuSubTrigger,
-  ContextMenuTrigger
+  ContextMenuTrigger,
 } from '@/components/ui/context-menu';
 import { useIsTouchDevice } from '@/hooks/useIsTouchDevice';
 import { THEME_RESET_STYLE } from '@/styles/theme-reset';
@@ -30,7 +28,7 @@ import { NodeTypeLabels } from '../config/labels';
 // Helper function to render menu item content
 const MenuItemContent = ({
   icon,
-  labelKey
+  labelKey,
 }: {
   icon: React.ComponentType;
   labelKey: keyof typeof NodeTypeLabels;
@@ -64,7 +62,7 @@ function BlockContextMenuComponent({ children }: { children: React.ReactNode }) 
         .forEach(([node, path]) => {
           if (node[KEYS.listType]) {
             editor.tf.unsetNodes([KEYS.listType, 'indent'], {
-              at: path
+              at: path,
             });
           }
 
@@ -95,7 +93,8 @@ function BlockContextMenuComponent({ children }: { children: React.ReactNode }) 
           }, 0);
         }
       }}
-      modal={false}>
+      modal={false}
+    >
       <ContextMenuTrigger
         asChild
         onContextMenu={(event) => {
@@ -109,9 +108,10 @@ function BlockContextMenuComponent({ children }: { children: React.ReactNode }) 
 
           api.blockMenu.show(BLOCK_CONTEXT_MENU_ID, {
             x: event.clientX,
-            y: event.clientY
+            y: event.clientY,
           });
-        }}>
+        }}
+      >
         <div className="block-context-menu-trigger">{children}</div>
       </ContextMenuTrigger>
       <ContextMenuContent
@@ -126,27 +126,9 @@ function BlockContextMenuComponent({ children }: { children: React.ReactNode }) 
           }
 
           setValue(null);
-        }}>
+        }}
+      >
         <ContextMenuGroup>
-          {/* <ContextMenuItem
-            onClick={() => {
-              setValue('askAI');
-            }}>
-            <MenuItemContent icon={NodeTypeIcons.ai} labelKey="askAI" />
-          </ContextMenuItem> */}
-          <ContextMenuItem
-            onClick={() => {
-              editor.getTransforms(BlockSelectionPlugin).blockSelection.removeNodes();
-              editor.tf.focus();
-            }}>
-            <MenuItemContent icon={NodeTypeIcons.trash} labelKey="delete" />
-          </ContextMenuItem>
-          <ContextMenuItem
-            onClick={() => {
-              editor.getTransforms(BlockSelectionPlugin).blockSelection.duplicate();
-            }}>
-            <MenuItemContent icon={NodeTypeIcons.copy} labelKey="duplicate" />
-          </ContextMenuItem>
           <ContextMenuSub>
             <ContextMenuSubTrigger>
               <MenuItemContent icon={NodeTypeIcons.turnInto} labelKey="turnInto" />
@@ -170,7 +152,24 @@ function BlockContextMenuComponent({ children }: { children: React.ReactNode }) 
               </ContextMenuItem>
             </ContextMenuSubContent>
           </ContextMenuSub>
+          <ContextMenuItem
+            onClick={() => {
+              editor.getTransforms(BlockSelectionPlugin).blockSelection.duplicate();
+            }}
+          >
+            <MenuItemContent icon={NodeTypeIcons.copy} labelKey="duplicate" />
+          </ContextMenuItem>
+          <ContextMenuItem
+            onClick={() => {
+              editor.getTransforms(BlockSelectionPlugin).blockSelection.removeNodes();
+              editor.tf.focus();
+            }}
+          >
+            <MenuItemContent icon={NodeTypeIcons.trash} labelKey="delete" />
+          </ContextMenuItem>
         </ContextMenuGroup>
+
+        <ContextMenuSeparator className="my-[5px]" />
 
         <ContextMenuGroup>
           <ContextMenuSub>
@@ -181,13 +180,15 @@ function BlockContextMenuComponent({ children }: { children: React.ReactNode }) 
               <ContextMenuItem
                 onClick={() =>
                   editor.getTransforms(BlockSelectionPlugin).blockSelection.setIndent(1)
-                }>
+                }
+              >
                 <MenuItemContent icon={NodeTypeIcons.indent} labelKey="indent" />
               </ContextMenuItem>
               <ContextMenuItem
                 onClick={() =>
                   editor.getTransforms(BlockSelectionPlugin).blockSelection.setIndent(-1)
-                }>
+                }
+              >
                 <MenuItemContent icon={NodeTypeIcons.outdent} labelKey="outdent" />
               </ContextMenuItem>
             </ContextMenuSubContent>

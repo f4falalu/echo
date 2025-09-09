@@ -1,14 +1,10 @@
-'use client';
-
-import * as React from 'react';
+import { useToggleButton, useToggleButtonState } from '@platejs/toggle/react';
 
 import type { PlateElementProps } from 'platejs/react';
-
-import { useToggleButton, useToggleButtonState } from '@platejs/toggle/react';
-import { ChevronRight } from '@/components/ui/icons';
 import { PlateElement } from 'platejs/react';
-
+import * as React from 'react';
 import { Button } from '@/components/ui/buttons';
+import { ChevronRight } from '@/components/ui/icons';
 import { cn } from '@/lib/classMerge';
 
 export function ToggleElement(props: PlateElementProps) {
@@ -27,7 +23,8 @@ export function ToggleElement(props: PlateElementProps) {
           <div className={cn('transition-transform duration-75', open ? 'rotate-90' : 'rotate-0')}>
             <ChevronRight />
           </div>
-        }></Button>
+        }
+      ></Button>
       {props.children}
     </PlateElement>
   );

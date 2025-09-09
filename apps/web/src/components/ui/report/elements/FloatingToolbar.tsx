@@ -1,21 +1,16 @@
-'use client';
-
-import * as React from 'react';
-
 import {
   type FloatingToolbarState,
   flip,
   offset,
   useFloatingToolbar,
-  useFloatingToolbarState
+  useFloatingToolbarState,
 } from '@platejs/floating';
 import { useComposedRef } from '@udecode/cn';
 import { KEYS } from 'platejs';
 import { useEditorId, useEventEditorValue, usePluginOption } from 'platejs/react';
-
-import { cn } from '@/lib/utils';
-
+import type * as React from 'react';
 import { Toolbar } from '@/components/ui/toolbar/Toolbar';
+import { cn } from '@/lib/utils';
 
 export function FloatingToolbar({
   children,
@@ -40,19 +35,19 @@ export function FloatingToolbar({
         offset(12),
         flip({
           fallbackPlacements: ['top-start', 'top-end', 'bottom-start', 'bottom-end'],
-          padding: 12
-        })
+          padding: 12,
+        }),
       ],
       placement: 'top',
-      ...state?.floatingOptions
-    }
+      ...state?.floatingOptions,
+    },
   });
 
   const {
     clickOutsideRef,
     hidden,
     props: rootProps,
-    ref: floatingRef
+    ref: floatingRef,
   } = useFloatingToolbar(floatingToolbarState);
 
   const ref = useComposedRef<HTMLDivElement>(
@@ -72,7 +67,8 @@ export function FloatingToolbar({
           'scrollbar-hide bg-popover absolute z-50 overflow-x-auto rounded-md border p-1 whitespace-nowrap opacity-100 shadow-md print:hidden',
           'max-w-[80vw]',
           className
-        )}>
+        )}
+      >
         {children}
       </Toolbar>
     </div>

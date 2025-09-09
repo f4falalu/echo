@@ -1,8 +1,8 @@
-'use client';
-
+import { ClientOnly } from '@tanstack/react-router';
 import React, { useMemo, useRef } from 'react';
 import { VList } from 'virtua';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { cn } from '@/lib/classMerge';
 import { ContextMenu, type ContextMenuProps } from '../../context-menu/ContextMenu';
 import { BusterListHeader } from './BusterListHeader';
 import { BusterListRowComponentSelector } from './BusterListRowComponentSelector';
@@ -21,7 +21,8 @@ function BusterListVirtuaComponent<T = unknown>({
   showSelectAll = true,
   useRowClickSelectChange = false,
   rowClassName = '',
-  hideLastRowBorder = false
+  hideLastRowBorder = false,
+  className = '',
 }: BusterListProps<T>) {
   const showEmptyState = (!rows || rows.length === 0) && !!emptyState;
   const lastChildIndex = rows.length - 1;
@@ -101,7 +102,7 @@ function BusterListVirtuaComponent<T = unknown>({
       onSelectChange: onSelectChange ? onSelectChangePreflight : undefined,
       onSelectSectionChange: onSelectChange ? onSelectSectionChange : undefined,
       useRowClickSelectChange,
-      hideLastRowBorder
+      hideLastRowBorder,
     };
   }, [
     columns,
@@ -110,7 +111,7 @@ function BusterListVirtuaComponent<T = unknown>({
     selectedRowKeys,
     onSelectChange,
     onSelectSectionChange,
-    hideLastRowBorder
+    hideLastRowBorder,
   ]);
 
   const [WrapperNode, wrapperNodeProps] = useMemo(() => {
@@ -120,39 +121,46 @@ function BusterListVirtuaComponent<T = unknown>({
   }, [contextMenu]);
 
   return (
-    <WrapperNode {...wrapperNodeProps}>
-      <div className="list-container relative flex h-full w-full flex-col overflow-hidden">
-        {showHeader && !showEmptyState && (
-          <BusterListHeader<T>
-            columns={columns}
-            onGlobalSelectChange={onSelectChange ? onGlobalSelectChange : undefined}
-            globalCheckStatus={globalCheckStatus}
-            rowsLength={rows.length}
-            showSelectAll={showSelectAll}
-            rowClassName={rowClassName}
-          />
-        )}
+    <ClientOnly>
+      <WrapperNode {...wrapperNodeProps}>
+        <div
+          className={cn(
+            'list-container relative flex h-full w-full flex-col overflow-hidden',
+            className
+          )}
+        >
+          {showHeader && !showEmptyState && (
+            <BusterListHeader<T>
+              columns={columns}
+              onGlobalSelectChange={onSelectChange ? onGlobalSelectChange : undefined}
+              globalCheckStatus={globalCheckStatus}
+              rowsLength={rows.length}
+              showSelectAll={showSelectAll}
+              rowClassName={rowClassName}
+            />
+          )}
 
-        {!showEmptyState && (
-          <VList overscan={10}>
-            {rows.map((row, index) => (
-              <div key={row.id + index.toString()} style={{ height: itemSize(index) }}>
-                <BusterListRowComponentSelector<T>
-                  row={row}
-                  id={row.id}
-                  isLastChild={index === lastChildIndex}
-                  {...itemData}
-                />
-              </div>
-            ))}
-          </VList>
-        )}
+          {!showEmptyState && (
+            <VList overscan={10}>
+              {rows.map((row, index) => (
+                <div key={row.id + index.toString()} style={{ height: itemSize(index) }}>
+                  <BusterListRowComponentSelector<T>
+                    row={row}
+                    id={row.id}
+                    isLastChild={index === lastChildIndex}
+                    {...itemData}
+                  />
+                </div>
+              ))}
+            </VList>
+          )}
 
-        {showEmptyState && (
-          <div className="flex h-full items-center justify-center">{emptyState}</div>
-        )}
-      </div>
-    </WrapperNode>
+          {showEmptyState && (
+            <div className="flex h-full items-center justify-center">{emptyState}</div>
+          )}
+        </div>
+      </WrapperNode>
+    </ClientOnly>
   );
 }
 

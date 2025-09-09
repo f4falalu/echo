@@ -1,10 +1,8 @@
-'use client';
-
-import { cn } from '@/lib/classMerge';
+import { cn } from '../../../../lib/classMerge';
 import AnimatedMarkdown from '../../typography/AnimatedMarkdown/AnimatedMarkdown';
 import type {
   MarkdownAnimation,
-  MarkdownAnimationTimingFunction
+  MarkdownAnimationTimingFunction,
 } from '../../typography/animation-common';
 import { useLLMStreaming } from './useLLMStreaming';
 
@@ -62,7 +60,7 @@ const AppMarkdownStreaming = ({
   animationDuration = 300,
   animationTimingFunction = 'linear',
   className,
-  stripFormatting = true
+  stripFormatting = true,
 }: AppMarkdownStreamingProps) => {
   const { throttledContent } = useLLMStreaming({ content, isStreamFinished });
 

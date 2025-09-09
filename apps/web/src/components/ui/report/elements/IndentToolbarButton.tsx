@@ -1,12 +1,8 @@
-'use client';
-
-import * as React from 'react';
-
 import { useIndentButton, useOutdentButton } from '@platejs/indent/react';
+import type * as React from 'react';
+import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
 import { NodeTypeIcons } from '../config/icons';
 import { createLabel } from '../config/labels';
-
-import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
 
 export function IndentToolbarButton(props: React.ComponentProps<typeof ToolbarButton>) {
   const { props: buttonProps } = useIndentButton();

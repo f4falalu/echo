@@ -1,24 +1,18 @@
-'use client';
-
-import * as React from 'react';
-
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
-
 import { useEditorRef } from 'platejs/react';
-import { createLabel, NodeTypeLabels } from '../config/labels';
-
+import * as React from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
+import { createLabel, NodeTypeLabels } from '../config/labels';
 import { useExportReport } from '../hooks/useExportReport';
 
-export function ExportToolbarButton({ children, ...props }: DropdownMenuProps) {
+export function ExportToolbarButton({ children }: DropdownMenuProps) {
   const editor = useEditorRef();
   const [open, setOpen] = React.useState(false);
 

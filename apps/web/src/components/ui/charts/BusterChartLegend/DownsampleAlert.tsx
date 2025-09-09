@@ -1,8 +1,7 @@
-import { cn } from '@/lib/classMerge';
 import type React from 'react';
-
-import TriangleWarning from '../OtherComponents/TriangleWarning';
+import { cn } from '@/lib/classMerge';
 import { DOWNSIZE_SAMPLE_THRESHOLD } from '../config';
+import TriangleWarning from '../OtherComponents/TriangleWarning';
 
 export const DownsampleAlert: React.FC<{ isDownsampled: boolean }> = ({ isDownsampled }) => {
   if (!isDownsampled) {
@@ -17,7 +16,8 @@ export const DownsampleAlert: React.FC<{ isDownsampled: boolean }> = ({ isDownsa
           'border-gray-100 bg-white text-gray-500 transition-all duration-200',
           'dark:border-yellow-500/30 dark:bg-yellow-900/10 dark:text-yellow-300'
         )}
-        title={`This chart has been downsampled to ${DOWNSIZE_SAMPLE_THRESHOLD} data points to improve performance. Click the results tab or download the data to see all points.`}>
+        title={`This chart has been downsampled to ${DOWNSIZE_SAMPLE_THRESHOLD} data points to improve performance. Click the results tab or download the data to see all points.`}
+      >
         <TriangleWarning strokewidth={1.2} />
         <span>Chart downsampled for performance</span>
       </div>

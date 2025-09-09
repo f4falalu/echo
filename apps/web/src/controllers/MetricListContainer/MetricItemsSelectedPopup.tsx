@@ -1,28 +1,29 @@
+import type { VerificationStatus } from '@buster/server-shared/share';
 import uniq from 'lodash/uniq';
 import React, { useState } from 'react';
-import type { ShareAssetType, VerificationStatus } from '@buster/server-shared/share';
 import {
   useAddMetricsToDashboard,
-  useRemoveMetricsFromDashboard
+  useRemoveMetricsFromDashboard,
 } from '@/api/buster_rest/dashboards';
 import {
   useBulkUpdateMetricVerificationStatus,
   useDeleteMetric,
   useRemoveMetricFromCollection,
-  useSaveMetricToCollections
+  useSaveMetricToCollections,
 } from '@/api/buster_rest/metrics';
-import { ASSET_ICONS } from '@/components/features/config/assetIcons';
+import { useIsUserAdmin } from '@/api/buster_rest/users/useGetUserInfo';
 import { SaveToCollectionsDropdown } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
 import { SaveToDashboardDropdown } from '@/components/features/dropdowns/SaveToDashboardDropdown';
 import { useThreeDotFavoritesOptions } from '@/components/features/dropdowns/useThreeDotFavoritesOptions';
+import { ASSET_ICONS } from '@/components/features/icons/assetIcons';
 import { StatusBadgeButton } from '@/components/features/metrics/StatusBadgeIndicator';
 import { Button } from '@/components/ui/buttons';
 import { Dropdown } from '@/components/ui/dropdown';
 import { Dots, Trash } from '@/components/ui/icons';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useUserConfigContextSelector } from '@/context/Users';
-import { useDebounceFn, useMemoizedFn } from '@/hooks';
+import { useDebounceFn } from '@/hooks/useDebounce';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 
 export const MetricSelectedOptionPopup: React.FC<{
   selectedRowKeys: string[];
@@ -58,7 +59,7 @@ export const MetricSelectedOptionPopup: React.FC<{
           key="three-dot"
           selectedRowKeys={selectedRowKeys}
           onSelectChange={onSelectChange}
-        />
+        />,
       ]}
       show={hasSelected}
     />
@@ -70,7 +71,7 @@ MetricSelectedOptionPopup.displayName = 'MetricSelectedOptionPopup';
 const CollectionsButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
-}> = ({ selectedRowKeys, onSelectChange }) => {
+}> = ({ selectedRowKeys }) => {
   const { openInfoMessage } = useBusterNotifications();
   const { mutateAsync: saveMetricToCollection } = useSaveMetricToCollections();
   const { mutateAsync: removeMetricFromCollection } = useRemoveMetricFromCollection();
@@ -83,7 +84,7 @@ const CollectionsButton: React.FC<{
     setSelectedCollections(collectionIds);
     await saveMetricToCollection({
       metricIds: selectedRowKeys,
-      collectionIds
+      collectionIds,
     });
     openInfoMessage('Metrics saved to collections');
   });
@@ -92,7 +93,7 @@ const CollectionsButton: React.FC<{
     setSelectedCollections((prev) => prev.filter((id) => id !== collectionId));
     await removeMetricFromCollection({
       metricIds: selectedRowKeys,
-      collectionIds: [collectionId]
+      collectionIds: [collectionId],
     });
     openInfoMessage('Metrics removed from collections');
   });
@@ -101,7 +102,8 @@ const CollectionsButton: React.FC<{
     <SaveToCollectionsDropdown
       onSaveToCollection={onSaveToCollection}
       onRemoveFromCollection={onRemoveFromCollection}
-      selectedCollections={selectedCollections}>
+      selectedCollections={selectedCollections}
+    >
       <Button prefix={<ASSET_ICONS.collectionAdd />}>Collections</Button>
     </SaveToCollectionsDropdown>
   );
@@ -110,7 +112,7 @@ const CollectionsButton: React.FC<{
 const DashboardButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
-}> = ({ selectedRowKeys, onSelectChange }) => {
+}> = ({ selectedRowKeys }) => {
   const { mutateAsync: removeMetricsFromDashboard } = useRemoveMetricsFromDashboard();
   const { mutateAsync: addMetricsToDashboard } = useAddMetricsToDashboard();
   const [selectedDashboards, setSelectedDashboards] = useState<string[]>([]);
@@ -120,7 +122,7 @@ const DashboardButton: React.FC<{
     if (selectedRowKeys.length > 15) {
       openWarningNotification({
         title: 'You can edit up to 15 metrics at a time from this menu',
-        message: 'Please remove some metrics'
+        message: 'Please remove some metrics',
       });
       return true;
     }
@@ -141,12 +143,12 @@ const DashboardButton: React.FC<{
             removeMetricsFromDashboard({
               dashboardId,
               metricIds: selectedRowKeys,
-              useConfirmModal: false
+              useConfirmModal: false,
             })
           )
         );
         setSelectedDashboards((prev) => prev.filter((id) => !dashboardIds.includes(id)));
-      }
+      },
     });
   });
 
@@ -161,7 +163,7 @@ const DashboardButton: React.FC<{
       newDashboards.map((dashboardId) =>
         addMetricsToDashboard({
           dashboardId,
-          metricIds: selectedRowKeys
+          metricIds: selectedRowKeys,
         })
       )
     );
@@ -183,7 +185,8 @@ const DashboardButton: React.FC<{
       onOpenChange={debouncedClearSavedDashboards}
       selectedDashboards={selectedDashboards}
       onRemoveFromDashboard={onRemoveFromDashboard}
-      onSaveToDashboard={onSaveToDashboard}>
+      onSaveToDashboard={onSaveToDashboard}
+    >
       <Button prefix={<ASSET_ICONS.dashboardAdd />} type="button">
         Dashboard
       </Button>
@@ -196,7 +199,7 @@ const StatusButton: React.FC<{
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
   const { mutateAsync: updateStatus } = useBulkUpdateMetricVerificationStatus();
-  const isAdmin = useUserConfigContextSelector((state) => state.isAdmin);
+  const isAdmin = useIsUserAdmin();
 
   const onVerify = useMemoizedFn(async (data: { id: string; status: VerificationStatus }[]) => {
     await updateStatus(data);
@@ -227,7 +230,7 @@ const DeleteButton: React.FC<{
       onOk: async () => {
         await deleteMetric({ ids: selectedRowKeys });
         onSelectChange([]);
-      }
+      },
     });
   };
 
@@ -245,7 +248,7 @@ const ThreeDotButton: React.FC<{
   const dropdownOptions = useThreeDotFavoritesOptions({
     itemIds: selectedRowKeys,
     assetType: 'metric',
-    onFinish: () => onSelectChange([])
+    onFinish: () => onSelectChange([]),
   });
 
   return (

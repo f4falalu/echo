@@ -1,10 +1,8 @@
-'use client';
-
-import { DiffEditor } from '@monaco-editor/react';
-import type { editor } from 'monaco-editor/esm/vs/editor/editor.api';
-import { useTheme } from 'next-themes';
-import React, { forwardRef, useMemo } from 'react';
-import { useMemoizedFn } from '@/hooks';
+import { DiffEditor, type DiffEditorProps, type DiffOnMount } from '@monaco-editor/react';
+import { ClientOnly } from '@tanstack/react-router';
+import type React from 'react';
+import { forwardRef, useMemo } from 'react';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { cn } from '@/lib/classMerge';
 import { CircleSpinnerLoaderContainer } from '../../loaders/CircleSpinnerLoaderContainer';
 
@@ -12,7 +10,7 @@ export interface AppDiffCodeEditorProps {
   className?: string;
   height?: string;
   isDarkMode?: boolean;
-  onMount?: (editor: editor.IStandaloneDiffEditor, monaco: typeof import('monaco-editor')) => void;
+  onMount?: DiffOnMount;
   original?: string;
   modified: string;
   onChange?: (value: string) => void;
@@ -20,7 +18,7 @@ export interface AppDiffCodeEditorProps {
   language?: string;
   readOnly?: boolean;
   readOnlyMessage?: string;
-  monacoEditorOptions?: editor.IStandaloneDiffEditorConstructionOptions;
+  monacoEditorOptions?: DiffEditorProps['options'];
   variant?: 'bordered' | null;
   viewMode?: 'side-by-side' | 'inline';
   disabled?: boolean;
@@ -47,92 +45,91 @@ export const AppDiffCodeEditor = forwardRef<AppDiffCodeEditorHandle, AppDiffCode
       readOnlyMessage = 'Editing code is not allowed',
       variant,
       viewMode = 'side-by-side',
-      disabled = false
+      disabled = false,
     },
-    ref
+    _ref
   ) => {
-    const isDarkModeContext = useTheme()?.theme === 'dark';
+    const isDarkModeContext = false;
     const useDarkMode = isDarkMode ?? isDarkModeContext;
 
-    const memoizedMonacoEditorOptions: editor.IStandaloneDiffEditorConstructionOptions =
-      useMemo(() => {
-        return {
-          originalEditable: false,
-          automaticLayout: true,
-          readOnly: readOnly || disabled,
-          renderSideBySide: viewMode === 'side-by-side',
-          folding: true,
-          lineDecorationsWidth: 15,
-          lineNumbersMinChars: 3,
-          renderOverviewRuler: false,
-          wordWrap: 'on',
-          scrollBeyondLastLine: true,
-          scrollbar: {
-            verticalScrollbarSize: 5,
-            alwaysConsumeMouseWheel: false,
-            useShadows: false
-          },
-          padding: {
-            top: 10
-          },
-          glyphMargin: false,
-          minimap: {
-            enabled: false
-          },
-          renderSideBySideInlineBreakpoint: 400,
-          compactMode: true,
-          renderIndicators: false,
-          onlyShowAccessibleDiffViewer: false,
-          enableSplitViewResizing: false,
-          renderMarginRevertIcon: false,
-          contextmenu: false,
-          diffWordWrap: 'on',
-          readOnlyMessage: {
-            value: readOnlyMessage
-          },
-          ...monacoEditorOptions
-        } satisfies editor.IStandaloneDiffEditorConstructionOptions;
-      }, [readOnlyMessage, monacoEditorOptions, viewMode, readOnly, disabled]);
+    const memoizedMonacoEditorOptions: DiffEditorProps['options'] = useMemo(() => {
+      return {
+        originalEditable: false,
+        automaticLayout: true,
+        readOnly: readOnly || disabled,
+        renderSideBySide: viewMode === 'side-by-side',
+        folding: true,
+        lineDecorationsWidth: 15,
+        lineNumbersMinChars: 3,
+        renderOverviewRuler: false,
+        wordWrap: 'on',
+        scrollBeyondLastLine: true,
+        scrollbar: {
+          verticalScrollbarSize: 5,
+          alwaysConsumeMouseWheel: false,
+          useShadows: false,
+        },
+        padding: {
+          top: 10,
+        },
+        glyphMargin: false,
+        minimap: {
+          enabled: false,
+        },
+        renderSideBySideInlineBreakpoint: 400,
+        compactMode: true,
+        renderIndicators: false,
+        onlyShowAccessibleDiffViewer: false,
+        enableSplitViewResizing: false,
+        renderMarginRevertIcon: false,
+        contextmenu: false,
+        diffWordWrap: 'on',
+        readOnlyMessage: {
+          value: readOnlyMessage,
+        },
+        ...monacoEditorOptions,
+      } satisfies DiffEditorProps['options'];
+    }, [readOnlyMessage, monacoEditorOptions, viewMode, readOnly, disabled]);
 
-    const onMountDiffEditor = useMemoizedFn(
-      async (editor: editor.IStandaloneDiffEditor, monaco: typeof import('monaco-editor')) => {
-        const [GithubLightTheme, NightOwlTheme] = await Promise.all([
-          (await import('../AppCodeEditor/themes/github_light_theme')).default,
-          (await import('../AppCodeEditor/themes/tomorrow_night_theme')).default
-        ]);
+    const onMountDiffEditor: DiffOnMount = useMemoizedFn(async (editor, monaco) => {
+      const [GithubLightTheme, NightOwlTheme] = await Promise.all([
+        (await import('../AppCodeEditor/themes/github_light_theme')).default,
+        (await import('../AppCodeEditor/themes/tomorrow_night_theme')).default,
+      ]);
 
-        monaco.editor.defineTheme('github-light', GithubLightTheme);
-        monaco.editor.defineTheme('night-owl', NightOwlTheme);
+      type Theme = Parameters<typeof monaco.editor.defineTheme>[1];
 
-        // Apply theme to diff editor
-        const theme = useDarkMode ? 'night-owl' : 'github-light';
-        monaco.editor.setTheme(theme);
+      monaco.editor.defineTheme('github-light', GithubLightTheme as Theme);
+      monaco.editor.defineTheme('night-owl', NightOwlTheme as Theme);
 
-        // Configure original editor to always wrap text
-        const originalEditor = editor.getOriginalEditor();
-        originalEditor.updateOptions({
-          wordWrap: 'on',
-          wrappingStrategy: 'advanced',
-          padding: { top: 16 },
-          glyphMargin: true
+      // Apply theme to diff editor
+      const theme = useDarkMode ? 'night-owl' : 'github-light';
+      monaco.editor.setTheme(theme);
+
+      // Configure original editor to always wrap text
+      const originalEditor = editor.getOriginalEditor();
+      originalEditor.updateOptions({
+        wordWrap: 'on',
+        wrappingStrategy: 'advanced',
+        padding: { top: 16 },
+        glyphMargin: true,
+      });
+
+      // Get the modified editor and add change listener
+      const modifiedEditor = editor.getModifiedEditor();
+      modifiedEditor.updateOptions({
+        padding: { top: 16 },
+        glyphMargin: true,
+      });
+
+      if (!readOnly && !disabled) {
+        modifiedEditor.onDidChangeModelContent(() => {
+          onChange?.(modifiedEditor.getValue() || '');
         });
-
-        // Get the modified editor and add change listener
-        const modifiedEditor = editor.getModifiedEditor();
-        modifiedEditor.updateOptions({
-          padding: { top: 16 },
-          glyphMargin: true
-        });
-
-        if (!readOnly && !disabled) {
-          modifiedEditor.onDidChangeModelContent(() => {
-            onChange?.(modifiedEditor.getValue() || '');
-          });
-        }
-
-        onMount?.(editor, monaco);
       }
-    );
+
+      onMount?.(editor, monaco);
+    });
 
     return (
       <div
@@ -141,26 +138,28 @@ export const AppDiffCodeEditor = forwardRef<AppDiffCodeEditorHandle, AppDiffCode
           variant === 'bordered' && 'overflow-hidden border',
           className
         )}
-        style={style}>
-        <DiffEditor
-          key={`${useDarkMode ? 'dark' : 'light'}-${viewMode}`}
-          height={height}
-          loading={<LoadingContainer />}
-          language={language}
-          className={className}
-          original={original}
-          modified={modified}
-          theme={useDarkMode ? 'night-owl' : 'github-light'}
-          onMount={onMountDiffEditor}
-          options={memoizedMonacoEditorOptions}
-        />
+        style={style}
+      >
+        <ClientOnly fallback={<LoadingContainer />}>
+          <DiffEditor
+            key={`${useDarkMode ? 'dark' : 'light'}-${viewMode}`}
+            height={height}
+            loading={<LoadingContainer />}
+            language={language}
+            className={className}
+            original={original}
+            modified={modified}
+            theme={useDarkMode ? 'night-owl' : 'github-light'}
+            onMount={onMountDiffEditor}
+            options={memoizedMonacoEditorOptions}
+          />
+        </ClientOnly>
       </div>
     );
   }
 );
 AppDiffCodeEditor.displayName = 'AppDiffCodeEditor';
 
-const LoadingContainer = React.memo(() => {
+const LoadingContainer = () => {
   return <CircleSpinnerLoaderContainer className="animate-in fade-in-0 duration-300" />;
-});
-LoadingContainer.displayName = 'LoadingContainer';
+};

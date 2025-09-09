@@ -1,5 +1,5 @@
 import type { ShareAssetType, ShareRole, WorkspaceShareRole } from '@buster/server-shared/share';
-import React from 'react';
+import type React from 'react';
 import { AvatarUserButton } from '../../ui/avatar/AvatarUserButton';
 import { AccessDropdown } from './AccessDropdown';
 
@@ -40,7 +40,8 @@ export const ShareRowItem: React.FC<ShareRowItemProps> = ({
   return (
     <div
       className="flex h-8 items-center justify-between space-x-2 overflow-hidden"
-      data-testid={`share-row-${primary || secondary}`}>
+      data-testid={`share-row-${primary || secondary}`}
+    >
       <AvatarUserButton username={primary} email={secondary} avatarUrl={avatar} avatarSize={24} />
 
       <AccessDropdown disabled={disabled} assetType={assetType} {...props} />

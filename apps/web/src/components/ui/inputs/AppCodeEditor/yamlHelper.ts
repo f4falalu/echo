@@ -1,6 +1,6 @@
-'use client';
+import type { Monaco } from '@monaco-editor/react';
 
-export const configureMonacoToUseYaml = async (monaco: typeof import('monaco-editor')) => {
+export const configureMonacoToUseYaml = async (monaco: Monaco) => {
   const { configureMonacoYaml } = await import('monaco-yaml');
 
   configureMonacoYaml(monaco, {
@@ -10,7 +10,7 @@ export const configureMonacoToUseYaml = async (monaco: typeof import('monaco-edi
         // If YAML file is opened matching this glob
         fileMatch: ['**/.prettierrc.*'],
         // Then this schema will be downloaded from the internet and used.
-        uri: 'https://json.schemastore.org/prettierrc.json'
+        uri: 'https://json.schemastore.org/prettierrc.json',
       },
       {
         // If YAML file is opened matching this glob
@@ -21,20 +21,20 @@ export const configureMonacoToUseYaml = async (monaco: typeof import('monaco-edi
           properties: {
             name: {
               type: 'string',
-              description: 'The person’s display name'
+              description: 'The person’s display name',
             },
             age: {
               type: 'integer',
-              description: 'How old is the person in years?'
+              description: 'How old is the person in years?',
             },
             occupation: {
-              enum: ['Delivery person', 'Software engineer', 'Astronaut']
-            }
-          }
+              enum: ['Delivery person', 'Software engineer', 'Astronaut'],
+            },
+          },
         },
         // And the URI will be linked to as the source.
-        uri: 'https://github.com/remcohaszing/monaco-yaml#usage'
-      }
-    ]
+        uri: 'https://github.com/remcohaszing/monaco-yaml#usage',
+      },
+    ],
   });
 };

@@ -51,5 +51,5 @@ export type BusterCollectionItemAsset = {
 export enum BusterCollectionSharing {
   PRIVATE = 'private',
   VIEW = 'view',
-  EDIT = 'edit'
+  EDIT = 'edit',
 }

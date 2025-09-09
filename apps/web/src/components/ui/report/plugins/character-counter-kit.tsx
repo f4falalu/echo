@@ -1,11 +1,9 @@
-'use client';
-
 import type { Descendant, PluginConfig, TElement, TNode } from 'platejs';
 import {
   createPlatePlugin,
   PlateElement,
   type PlateElementProps,
-  useSelected
+  useSelected,
 } from 'platejs/react';
 import { useMemo } from 'react';
 import { cn } from '@/lib/classMerge';
@@ -55,9 +53,10 @@ const CharacterCounterElement = ({
       )}
       attributes={{
         ...attributes,
-        'data-plate-open-context-menu': true
+        'data-plate-open-context-menu': true,
       }}
-      {...props}>
+      {...props}
+    >
       <div className="mb-2 text-sm" contentEditable={false}>
         Character count: {characterLength} / {maxLength}
         {showWarning && isOverWarning && (
@@ -76,7 +75,7 @@ export const CharacterCounterPlugin = createPlatePlugin({
   options: {
     maxLength: 40,
     showWarning: true,
-    warningThreshold: 0.9
+    warningThreshold: 0.9,
   },
   handlers: {
     onKeyDown: ({ editor, event }) => {
@@ -109,7 +108,7 @@ export const CharacterCounterPlugin = createPlatePlugin({
           'PageDown',
           'Tab',
           'Escape',
-          'Enter' // You might want to allow Enter for line breaks
+          'Enter', // You might want to allow Enter for line breaks
         ];
 
         // Allow Ctrl/Cmd combinations (like copy, paste, undo, etc.)
@@ -123,12 +122,12 @@ export const CharacterCounterPlugin = createPlatePlugin({
       }
 
       return true;
-    }
+    },
   },
   node: {
     component: CharacterCounterElement,
-    isElement: true
-  }
+    isElement: true,
+  },
 });
 
 type CharacterElementCounterProps = PlateElementProps<

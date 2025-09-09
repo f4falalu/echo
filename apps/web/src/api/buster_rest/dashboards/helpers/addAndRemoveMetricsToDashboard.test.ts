@@ -9,9 +9,9 @@ describe('addAndRemoveMetricsToDashboard', () => {
         id: 'row-1',
         items: metricIds.map((id) => ({ id })),
         columnSizes: Array(metricIds.length).fill(12 / metricIds.length),
-        rowHeight: 320
-      }
-    ]
+        rowHeight: 320,
+      },
+    ],
   });
 
   it('should return existing config when no changes are needed', () => {
@@ -90,15 +90,15 @@ describe('addAndRemoveMetricsToDashboard', () => {
           id: 'row-1',
           items: [{ id: 'metric-1' }, { id: 'metric-2' }],
           columnSizes: [6, 6],
-          rowHeight: 320
+          rowHeight: 320,
         },
         {
           id: 'row-2',
           items: [{ id: 'metric-3' }, { id: 'metric-4' }],
           columnSizes: [6, 6],
-          rowHeight: 320
-        }
-      ]
+          rowHeight: 320,
+        },
+      ],
     };
 
     const result = addAndRemoveMetricsToDashboard(

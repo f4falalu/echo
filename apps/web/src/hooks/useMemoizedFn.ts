@@ -1,8 +1,6 @@
-'use client';
-
 import { useMemo, useRef } from 'react';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Required for generic function types
+// biome-ignore lint/suspicious/noExplicitAny: Required for generic function types
 type noop = (this: any, ...args: any[]) => any;
 
 type PickFunction<T extends noop> = (
@@ -17,7 +15,7 @@ export function useMemoizedFn<T extends noop>(fn: T) {
   // https://github.com/alibaba/hooks/issues/728
   fnRef.current = useMemo<T>(() => fn, [fn]);
 
-  const memoizedFn = useRef<PickFunction<T>>();
+  const memoizedFn = useRef<PickFunction<T>>(null);
   if (!memoizedFn.current) {
     memoizedFn.current = function (this, ...args) {
       return fnRef.current.apply(this, args);

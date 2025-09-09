@@ -1,5 +1,8 @@
-import type { ColumnMetaData, SimplifiedColumnType } from '@buster/server-shared/metrics';
-import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
+import type {
+  ColumnLabelFormat,
+  ColumnMetaData,
+  SimplifiedColumnType,
+} from '@buster/server-shared/metrics';
 
 type ColumnDataType = ColumnMetaData['type'];
 
@@ -14,7 +17,7 @@ export const NUMBER_TYPES: (ColumnDataType | string)[] = [
   'number',
   'numeric',
   'tiny',
-  'float4'
+  'float4',
 ];
 //"CHAR", "VARCHAR", "TEXT", "TINYTEXT", "TEXT", "MEDIUMTEXT", "LONGTEXT", "NCHAR", "NVARCHAR", "NTEXT", "STRING", "TEXT"
 
@@ -23,7 +26,7 @@ export const TEXT_TYPES: (ColumnDataType | string)[] = [
   'varchar',
   'char',
   'character',
-  'character varying'
+  'character varying',
 ];
 export const DATE_TYPES: (ColumnDataType | string)[] = ['date', 'timestamp', 'timestamptz', 'time'];
 

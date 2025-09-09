@@ -1,14 +1,14 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
-import type { ShareAssetType, ShareConfig, ShareRole } from '@buster/server-shared/share';
+import type { ShareConfig } from '@buster/server-shared/share';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ShareMenuContent } from './ShareMenuContent';
 
 const meta: Meta<typeof ShareMenuContent> = {
   title: 'Features/ShareMenu/ShareMenuContent',
   component: ShareMenuContent,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
-  tags: ['autodocs']
+  tags: ['autodocs'],
 };
 
 export default meta;
@@ -20,14 +20,14 @@ const mockShareConfig: ShareConfig = {
       email: 'test_with_a_long_name_like_super_long_name@test.com',
       role: 'can_view',
       name: 'Test User',
-      avatar_url: null
+      avatar_url: null,
     },
     {
       email: 'test2@test.com',
       role: 'full_access',
       name: 'Test User 2 with a long name like super long name',
-      avatar_url: null
-    }
+      avatar_url: null,
+    },
   ],
   public_expiry_date: null,
   public_enabled_by: null,
@@ -35,31 +35,31 @@ const mockShareConfig: ShareConfig = {
   public_password: null,
   permission: 'owner',
   workspace_sharing: 'none',
-  workspace_member_count: 20
+  workspace_member_count: 20,
 };
 
 export const MetricShare: Story = {
   args: {
     assetId: 'metric-123',
     assetType: 'metric',
-    shareAssetConfig: mockShareConfig
-  }
+    shareAssetConfig: mockShareConfig,
+  },
 };
 
 export const DashboardShare: Story = {
   args: {
     assetId: 'dashboard-456',
     assetType: 'dashboard',
-    shareAssetConfig: mockShareConfig
-  }
+    shareAssetConfig: mockShareConfig,
+  },
 };
 
 export const CollectionShare: Story = {
   args: {
     assetId: 'collection-789',
     assetType: 'collection',
-    shareAssetConfig: mockShareConfig
-  }
+    shareAssetConfig: mockShareConfig,
+  },
 };
 
 export const PubliclyAccessible: Story = {
@@ -68,9 +68,9 @@ export const PubliclyAccessible: Story = {
     assetType: 'metric',
     shareAssetConfig: {
       ...mockShareConfig,
-      publicly_accessible: true
-    }
-  }
+      publicly_accessible: true,
+    },
+  },
 };
 
 export const ViewerPermission: Story = {
@@ -79,9 +79,9 @@ export const ViewerPermission: Story = {
     assetType: 'metric',
     shareAssetConfig: {
       ...mockShareConfig,
-      permission: 'can_view'
-    }
-  }
+      permission: 'can_view',
+    },
+  },
 };
 
 export const PublishedMetric: Story = {
@@ -92,7 +92,7 @@ export const PublishedMetric: Story = {
       ...mockShareConfig,
       publicly_accessible: true,
       public_expiry_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
-      public_enabled_by: 'test@example.com'
-    }
-  }
+      public_enabled_by: 'test@example.com',
+    },
+  },
 };

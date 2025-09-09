@@ -1,12 +1,12 @@
-import Link from 'next/link';
+import type { OrganizationRole } from '@buster/server-shared/organization';
+import { Link } from '@tanstack/react-router';
 import React from 'react';
 import { Button } from '@/components/ui/buttons';
-import { ArrowUpRight, CircleCheck, AlertWarning } from '@/components/ui/icons';
+import { AlertWarning, ArrowUpRight, CircleCheck } from '@/components/ui/icons';
 import { Paragraph, Text } from '@/components/ui/typography';
 import { cn } from '@/lib/classMerge';
-import type { useNewChatWarning } from './useNewChatWarning';
-import type { OrganizationRole } from '@buster/server-shared/organization';
 import { OrganizationUserRoleText } from '@/lib/organization/translations';
+import type { useNewChatWarning } from './useNewChatWarning';
 
 const translateRole = (role: OrganizationRole): string => {
   return OrganizationUserRoleText[role].title;
@@ -67,12 +67,14 @@ export const NewChatWarning = React.memo(
           className={cn(
             'mt-5 flex items-center rounded-lg border p-4',
             allCompleted ? 'border-gray-200 bg-gray-50' : 'border-gray-200 bg-gray-50'
-          )}>
+          )}
+        >
           <div
             className={cn(
               'mr-3 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full',
               allCompleted ? 'bg-gray-200' : 'bg-gray-200'
-            )}>
+            )}
+          >
             {allCompleted ? (
               <CircleCheck fill="#4B5563" title="Complete" />
             ) : (
@@ -114,12 +116,14 @@ const SetupItem = ({ number, status, title, description, link, linkText }: Setup
       className={cn(
         'group relative flex items-start space-x-4 rounded-lg border p-4 transition-all duration-200 hover:shadow-sm',
         status ? 'border-purple-700/30 bg-purple-50' : 'border-gray-200'
-      )}>
+      )}
+    >
       <div
         className={cn(
           'text-md flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full font-medium',
           status ? 'bg-purple-200/60 text-purple-700' : 'bg-gray-100 text-gray-500'
-        )}>
+        )}
+      >
         {status ? <CircleCheck title="Complete" /> : number}
       </div>
 
@@ -136,7 +140,7 @@ const SetupItem = ({ number, status, title, description, link, linkText }: Setup
         <Paragraph className="mt-1 text-sm text-gray-600">{description}</Paragraph>
 
         {link && (
-          <Link href={link} target="_blank">
+          <Link href={link} to="/" target="_blank">
             <Button
               className="mt-2 text-sm"
               size="tall"
@@ -144,7 +148,8 @@ const SetupItem = ({ number, status, title, description, link, linkText }: Setup
                 <span className="text-xs">
                   <ArrowUpRight />
                 </span>
-              }>
+              }
+            >
               {linkText}
             </Button>
           </Link>

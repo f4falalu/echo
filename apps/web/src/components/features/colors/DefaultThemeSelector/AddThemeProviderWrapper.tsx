@@ -10,14 +10,14 @@ type AddThemeProps = {
 const AddThemeProvider = React.createContext<AddThemeProps>({
   createCustomTheme: async () => {},
   deleteCustomTheme: async () => {},
-  modifyCustomTheme: async () => {}
+  modifyCustomTheme: async () => {},
 });
 
 export const AddThemeProviderWrapper: React.FC<PropsWithChildren<AddThemeProps>> = ({
   children,
   createCustomTheme,
   deleteCustomTheme,
-  modifyCustomTheme
+  modifyCustomTheme,
 }) => {
   return (
     <AddThemeProvider.Provider value={{ createCustomTheme, deleteCustomTheme, modifyCustomTheme }}>

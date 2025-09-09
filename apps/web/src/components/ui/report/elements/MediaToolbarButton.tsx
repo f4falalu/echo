@@ -1,17 +1,12 @@
-'use client';
-
-import * as React from 'react';
+import { PlaceholderPlugin } from '@platejs/media/react';
 
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
-
-import { PlaceholderPlugin } from '@platejs/media/react';
 import { isUrl, KEYS } from 'platejs';
 import { useEditorRef } from 'platejs/react';
+import * as React from 'react';
 import { toast } from 'sonner';
 import { useFilePicker } from 'use-file-picker';
-import { NodeTypeIcons } from '../config/icons';
-import { NodeTypeLabels } from '../config/labels';
-
+import type { SelectedFilesOrErrors } from 'use-file-picker/types';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,23 +15,23 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle
+  AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/inputs';
-
 import {
   ToolbarSplitButton,
   ToolbarSplitButtonPrimary,
-  ToolbarSplitButtonSecondary
+  ToolbarSplitButtonSecondary,
 } from '@/components/ui/toolbar/Toolbar';
-import type { SelectedFilesOrErrors } from 'use-file-picker/types';
+import { NodeTypeIcons } from '../config/icons';
+import { NodeTypeLabels } from '../config/labels';
 
 const MEDIA_CONFIG: Record<
   string,
@@ -55,7 +50,7 @@ const MEDIA_CONFIG: Record<
       </div>
     ),
     title: NodeTypeLabels.insertAudio.label,
-    tooltip: NodeTypeLabels.audio.label
+    tooltip: NodeTypeLabels.audio.label,
   },
   [KEYS.file]: {
     accept: ['*'],
@@ -65,7 +60,7 @@ const MEDIA_CONFIG: Record<
       </div>
     ),
     title: NodeTypeLabels.insertFile.label,
-    tooltip: NodeTypeLabels.file.label
+    tooltip: NodeTypeLabels.file.label,
   },
   [KEYS.img]: {
     accept: ['image/*'],
@@ -75,7 +70,7 @@ const MEDIA_CONFIG: Record<
       </div>
     ),
     title: NodeTypeLabels.insertImage.label,
-    tooltip: NodeTypeLabels.image.label
+    tooltip: NodeTypeLabels.image.label,
   },
   [KEYS.video]: {
     accept: ['video/*'],
@@ -85,8 +80,8 @@ const MEDIA_CONFIG: Record<
       </div>
     ),
     title: NodeTypeLabels.insertVideo.label,
-    tooltip: NodeTypeLabels.video.label
-  }
+    tooltip: NodeTypeLabels.video.label,
+  },
 };
 
 export function MediaToolbarButton({
@@ -105,7 +100,7 @@ export function MediaToolbarButton({
     onFilesSelected: ({ plainFiles: updatedFiles }: SelectedFilesOrErrors<unknown, unknown>) => {
       if (!updatedFiles) return;
       editor.getTransforms(PlaceholderPlugin).insert.media(updatedFiles as unknown as FileList);
-    }
+    },
   });
 
   return (
@@ -120,7 +115,8 @@ export function MediaToolbarButton({
             setOpen(true);
           }
         }}
-        pressed={open}>
+        pressed={open}
+      >
         <ToolbarSplitButtonPrimary>{currentConfig.icon}</ToolbarSplitButtonPrimary>
 
         <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
@@ -149,7 +145,8 @@ export function MediaToolbarButton({
         open={dialogOpen}
         onOpenChange={(value) => {
           setDialogOpen(value);
-        }}>
+        }}
+      >
         <AlertDialogContent className="gap-6">
           <MediaUrlDialogContent
             currentConfig={currentConfig}
@@ -165,7 +162,7 @@ export function MediaToolbarButton({
 function MediaUrlDialogContent({
   currentConfig,
   nodeType,
-  setOpen
+  setOpen,
 }: {
   currentConfig: (typeof MEDIA_CONFIG)[string];
   nodeType: string;
@@ -182,7 +179,7 @@ function MediaUrlDialogContent({
       children: [{ text: '' }],
       name: nodeType === KEYS.file ? url.split('/').pop() : undefined,
       type: nodeType,
-      url
+      url,
     });
   }, [url, editor, nodeType, setOpen]);
 
@@ -195,7 +192,8 @@ function MediaUrlDialogContent({
       <AlertDialogDescription className="group relative w-full">
         <label
           className="text-muted-foreground/70 group-focus-within:text-foreground has-[+input:not(:placeholder-shown)]:text-foreground absolute top-1/2 block -translate-y-1/2 cursor-text px-1 text-sm transition-all group-focus-within:pointer-events-none group-focus-within:top-0 group-focus-within:cursor-default group-focus-within:text-xs group-focus-within:font-medium has-[+input:not(:placeholder-shown)]:pointer-events-none has-[+input:not(:placeholder-shown)]:top-0 has-[+input:not(:placeholder-shown)]:cursor-default has-[+input:not(:placeholder-shown)]:text-xs has-[+input:not(:placeholder-shown)]:font-medium"
-          htmlFor="url">
+          htmlFor="url"
+        >
           <span className="bg-background inline-flex px-2">URL</span>
         </label>
         <Input
@@ -218,7 +216,8 @@ function MediaUrlDialogContent({
           onClick={(e) => {
             e.preventDefault();
             embedMedia();
-          }}>
+          }}
+        >
           Accept
         </AlertDialogAction>
       </AlertDialogFooter>

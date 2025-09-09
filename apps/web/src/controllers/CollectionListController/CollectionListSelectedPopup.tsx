@@ -1,12 +1,11 @@
 import React from 'react';
-import { ShareAssetType } from '@buster/server-shared/share';
 import { useDeleteCollection } from '@/api/buster_rest/collections';
 import { useThreeDotFavoritesOptions } from '@/components/features/dropdowns/useThreeDotFavoritesOptions';
 import { Button } from '@/components/ui/buttons';
 import { Dropdown } from '@/components/ui/dropdown';
 import { Dots, Trash } from '@/components/ui/icons';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 
 export const CollectionListSelectedPopup: React.FC<{
   selectedRowKeys: string[];
@@ -28,7 +27,7 @@ export const CollectionListSelectedPopup: React.FC<{
           key="three-dot"
           selectedRowKeys={selectedRowKeys}
           onSelectChange={onSelectChange}
-        />
+        />,
       ]}
       show={show}
     />
@@ -66,7 +65,7 @@ const ThreeDotButton: React.FC<{
   const dropdownOptions = useThreeDotFavoritesOptions({
     itemIds: selectedRowKeys,
     assetType: 'collection',
-    onFinish: () => onSelectChange([])
+    onFinish: () => onSelectChange([]),
   });
 
   return (

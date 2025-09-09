@@ -1,5 +1,3 @@
-'use client';
-
 import { cn } from '@/lib/utils';
 
 import { THEME_RESET_COLORS, THEME_RESET_STYLE } from '@/styles/theme-reset';
@@ -44,12 +42,13 @@ const CSS_VARIABLES_THEME = Object.entries(THEME_RESET_COLORS.light).reduce(
 
 const EDITOR_THEME = { ...CSS_VARIABLES_THEME, ...THEME_RESET_STYLE };
 
-export function ThemeWrapper({ children, className, defaultTheme, id }: ThemeWrapperProps) {
+export function ThemeWrapper({ children, className, id }: ThemeWrapperProps) {
   return (
     <div
       id={id}
       style={EDITOR_THEME}
-      className={cn('themes-wrapper w-full bg-transparent antialiased', className)}>
+      className={cn('themes-wrapper w-full bg-transparent antialiased', className)}
+    >
       {children}
     </div>
   );

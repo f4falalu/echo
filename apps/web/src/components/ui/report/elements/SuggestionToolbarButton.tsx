@@ -1,14 +1,9 @@
-'use client';
-
-import * as React from 'react';
-
 import { SuggestionPlugin } from '@platejs/suggestion/react';
-import { Pencil2 } from '@/components/ui/icons';
 import { useEditorPlugin, usePluginOption } from 'platejs/react';
-
-import { cn } from '@/lib/utils';
-
+import * as React from 'react';
+import { Pencil2 } from '@/components/ui/icons';
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
+import { cn } from '@/lib/utils';
 
 export function SuggestionToolbarButton() {
   const { setOption } = useEditorPlugin(SuggestionPlugin);
@@ -19,7 +14,8 @@ export function SuggestionToolbarButton() {
       className={cn(isSuggesting && 'text-brand/80 hover:text-brand/80')}
       onClick={() => setOption('isSuggesting', !isSuggesting)}
       onMouseDown={(e) => e.preventDefault()}
-      tooltip={isSuggesting ? 'Turn off suggesting' : 'Suggestion edits'}>
+      tooltip={isSuggesting ? 'Turn off suggesting' : 'Suggestion edits'}
+    >
       <Pencil2 />
     </ToolbarButton>
   );

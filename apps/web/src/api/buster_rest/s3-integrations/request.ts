@@ -1,8 +1,8 @@
 import type {
   CreateS3IntegrationRequest,
-  GetS3IntegrationResponse,
   CreateS3IntegrationResponse,
-  DeleteS3IntegrationResponse
+  DeleteS3IntegrationResponse,
+  GetS3IntegrationResponse,
 } from '@buster/server-shared/s3-integrations';
 import { mainApiV2 } from '../instances';
 

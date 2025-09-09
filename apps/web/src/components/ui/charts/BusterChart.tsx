@@ -1,29 +1,28 @@
-'use client';
-
-import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import {
   type ChartEncodes,
   DEFAULT_CHART_CONFIG,
   DEFAULT_CHART_THEME,
-  DEFAULT_COLUMN_METADATA
+  DEFAULT_COLUMN_METADATA,
 } from '@buster/server-shared/metrics';
+import { ClientOnly } from '@tanstack/react-router';
 import type { Chart } from 'chart.js';
 import isEmpty from 'lodash/isEmpty';
 import React, { useMemo } from 'react';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import type { BusterChartProps } from './BusterChart.types';
 import { BusterChartComponent } from './BusterChartComponent';
 import { BusterChartErrorWrapper } from './BusterChartErrorWrapper';
 import { DEFAULT_DATA } from './BusterChartLegend/config';
 import { BusterChartWrapper } from './BusterChartWrapper';
+import { doesChartHaveValidAxis } from './commonHelpers';
+import type { BusterChartRenderComponentProps } from './interfaces/chartComponentInterfaces';
 import { NoValidAxis } from './LoadingComponents';
 import {
   NoChartData,
-  PreparingYourRequestLoader
+  PreparingYourRequestLoader,
 } from './LoadingComponents/ChartLoadingComponents';
 import { BusterMetricChart } from './MetricChart';
 import { BusterTableChart } from './TableChart';
-import { doesChartHaveValidAxis } from './commonHelpers';
-import type { BusterChartRenderComponentProps } from './interfaces/chartComponentInterfaces';
 
 export const BusterChart: React.FC<BusterChartProps> = React.memo(
   ({
@@ -73,7 +72,7 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
       return doesChartHaveValidAxis({
         selectedChartType,
         selectedAxis,
-        isTable
+        isTable,
       });
     }, [selectedChartType, isTable, selectedAxis]);
 
@@ -90,7 +89,7 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
       // if (!isMounted && selectedChartType !== 'table') return null;
 
       if (loading || error) {
-        return <PreparingYourRequestLoader error={error} />;
+        return <PreparingYourRequestLoader error={error} text="Processing your request..." />;
       }
 
       if (showNoData || !data) {
@@ -152,18 +151,20 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
         readOnly,
         colors,
         columnMetadata,
-        ...props
+        ...props,
       };
 
       return <BusterChartComponent {...chartProps} />;
     });
 
     return (
-      <BusterChartErrorWrapper>
-        <BusterChartWrapper id={id} className={className} loading={loading}>
-          {SwitchComponent()}
-        </BusterChartWrapper>
-      </BusterChartErrorWrapper>
+      <ClientOnly>
+        <BusterChartErrorWrapper>
+          <BusterChartWrapper id={id} className={className} loading={loading}>
+            {SwitchComponent()}
+          </BusterChartWrapper>
+        </BusterChartErrorWrapper>
+      </ClientOnly>
     );
   }
 );

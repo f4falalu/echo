@@ -1,14 +1,14 @@
+import { useQueryClient } from '@tanstack/react-query';
+import { create } from 'mutative';
 import { useMemo } from 'react';
+import { reportsQueryKeys } from '@/api/query_keys/reports';
+import { DEFAULT_UPDATE_OPERATIONS } from '../config';
 import { useShapeStream } from '../instances';
 import { reportShape } from './shapes';
-import { reportsQueryKeys } from '@/api/query_keys/reports';
-import { useQueryClient } from '@tanstack/react-query';
-import { DEFAULT_UPDATE_OPERATIONS } from '../config';
-import { create } from 'mutative';
 
 export const useTrackAndUpdateReportChanges = ({
   reportId,
-  subscribe: subscribeProp = false
+  subscribe: subscribeProp = false,
 }: {
   reportId: string;
   subscribe?: boolean;
@@ -24,7 +24,7 @@ export const useTrackAndUpdateReportChanges = ({
     DEFAULT_UPDATE_OPERATIONS,
     (report) => {
       if (report.value) {
-        const queryKey = reportsQueryKeys.reportsGetReport(reportId).queryKey;
+        const queryKey = reportsQueryKeys.reportsGetReport(reportId, 'LATEST').queryKey;
         queryClient.setQueryData(queryKey, (v) => {
           if (!v) return v;
           const value = report.value;

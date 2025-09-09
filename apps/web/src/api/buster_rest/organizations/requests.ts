@@ -1,28 +1,19 @@
-import { serverFetch } from '../../createServerInstance';
-import { mainApi, mainApiV2 } from '../instances';
 import type {
   Organization,
   OrganizationUser,
   UpdateOrganizationRequest,
-  UpdateOrganizationResponse
+  UpdateOrganizationResponse,
 } from '@buster/server-shared/organization';
+import { mainApi, mainApiV2 } from '../instances';
 
 export const getOrganizationUsers = async ({
-  organizationId
+  organizationId,
 }: {
   organizationId: string;
 }): Promise<OrganizationUser[]> => {
   return mainApi
     .get<OrganizationUser[]>(`/organizations/${organizationId}/users`)
     .then((response) => response.data);
-};
-
-export const getOrganizationUsers_server = async ({
-  organizationId
-}: {
-  organizationId: string;
-}): Promise<OrganizationUser[]> => {
-  return serverFetch<OrganizationUser[]>(`/organizations/${organizationId}/users`);
 };
 
 export const createOrganization = async (organization: { name: string }) => {

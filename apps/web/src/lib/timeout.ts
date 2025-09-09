@@ -12,7 +12,7 @@ export const timeout = (time = 1000) => {
 
 export const createDebounceByParams = (
   func: (...args: unknown[]) => unknown,
-  resolver: (obj: unknown) => string | number,
+  _resolver: (obj: unknown) => string | number,
   d: { delay: number }
 ) => {
   /*const hocSaveDebounced = createDebounceByParams(

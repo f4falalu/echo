@@ -1,18 +1,18 @@
+import type React from 'react';
 import { cn } from '@/lib/classMerge';
 import { Button } from '../buttons';
 import { DoubleChevronRight } from '../icons';
+import { ScrollArea } from '../scroll-area';
 import {
   Sheet as SheetBase,
+  SheetClose as SheetCloseBase,
   SheetContent,
   SheetDescription,
+  SheetFooter as SheetFooterBase,
   SheetHeader as SheetHeaderBase,
   SheetTitle,
   SheetTrigger,
-  SheetFooter as SheetFooterBase,
-  SheetClose as SheetCloseBase
 } from './SheetBase';
-import React from 'react';
-import { ScrollArea } from '../scroll-area';
 
 interface SheetProps extends React.ComponentProps<typeof SheetBase> {
   trigger?: React.ReactNode;
@@ -56,7 +56,7 @@ export const Sheet = ({
 
 const SheetFooter = ({
   footer,
-  className
+  className,
 }: {
   footer: SheetProps['footer'];
   className?: string;

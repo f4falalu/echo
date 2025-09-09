@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 
 export const FONT_BASE_THEME = {
   // '--font-heading': 'ui-sans-serif, -apple-system, BlinkMacSystemFont',
@@ -42,7 +42,7 @@ export const FONT_BASE_THEME = {
   '--leading-tight': '1.25',
   '--leading-normal': '1.5',
   '--leading-relaxed': '1.625',
-  '--leading-loose': '2'
+  '--leading-loose': '2',
 };
 
 export const THEME_RESET_COLORS = {
@@ -68,7 +68,7 @@ export const THEME_RESET_COLORS = {
     'primary-foreground': '240 5.9% 10%',
     ring: '240 4.9% 83.9%',
     secondary: '240 3.7% 15.9%',
-    'secondary-foreground': '0 0% 98%'
+    'secondary-foreground': '0 0% 98%',
   },
   light: {
     accent: '240 4.8% 95.9%',
@@ -94,14 +94,14 @@ export const THEME_RESET_COLORS = {
     // Set ring to a super light gray (almost white)
     ring: '0 0% 96%',
     secondary: '240 4.8% 95.9%',
-    'secondary-foreground': '240 5.9% 10%'
+    'secondary-foreground': '240 5.9% 10%',
   },
-  name: 'Default'
+  name: 'Default',
 } as const;
 
 export const THEME_RESET_STYLE = {
   ...FONT_BASE_THEME,
   fontFamily: 'var(--font-sans), "Inter", sans-serif',
   fontSynthesisWeight: 'normal' as 'none',
-  fontVariationSettings: 'normal'
+  fontVariationSettings: 'normal',
 } as React.CSSProperties;

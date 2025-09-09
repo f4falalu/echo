@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import { cn } from '@/lib/classMerge';
 
@@ -27,7 +25,8 @@ export const Splitter: React.FC<ISplitterProps> = React.memo(
           disabled && 'cursor-default',
           className
         )}
-        onMouseDown={disabled ? undefined : onMouseDown}>
+        onMouseDown={disabled ? undefined : onMouseDown}
+      >
         <div
           className={cn(
             'absolute flex items-center justify-center',

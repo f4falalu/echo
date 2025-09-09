@@ -1,8 +1,6 @@
-import * as React from 'react';
-
 import type { SlateElementProps, TDateElement } from 'platejs';
-
 import { SlateElement } from 'platejs';
+import * as React from 'react';
 
 export function DateElementStatic(props: SlateElementProps<TDateElement>) {
   const { element } = props;
@@ -33,7 +31,7 @@ export function DateElementStatic(props: SlateElementProps<TDateElement>) {
             return elementDate.toLocaleDateString(undefined, {
               day: 'numeric',
               month: 'long',
-              year: 'numeric'
+              year: 'numeric',
             });
           })()
         ) : (

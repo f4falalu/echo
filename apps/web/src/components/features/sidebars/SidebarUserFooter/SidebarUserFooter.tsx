@@ -1,8 +1,8 @@
-'use client';
-
 import React, { useMemo } from 'react';
+import { useGetUserBasicInfo } from '@/api/buster_rest/users/useGetUserInfo';
 import { useSignOut } from '@/components/features/auth/SignOutHandler';
 import { AvatarUserButton } from '@/components/ui/avatar/AvatarUserButton';
+import { Button } from '@/components/ui/buttons';
 import { Dropdown, type DropdownProps } from '@/components/ui/dropdown/Dropdown';
 import {
   ArrowRightFromLine,
@@ -11,22 +11,19 @@ import {
   Flag,
   Gear,
   Message,
-  UserGroup
+  UserGroup,
 } from '@/components/ui/icons/NucleoIconOutlined';
-import { useContactSupportModalStore } from '@/context/BusterAppLayout';
-import { useUserConfigContextSelector } from '@/context/Users';
-import { BusterRoutes, createBusterRoute } from '@/routes';
-import { BUSTER_DOCS_URL } from '@/routes/externalRoutes';
-import { Button } from '@/components/ui/buttons';
 import {
   COLLAPSED_HIDDEN,
   COLLAPSED_VISIBLE,
-  COLLAPSED_WIDTH_FIT
+  COLLAPSED_WIDTH_FIT,
 } from '@/components/ui/sidebar/config';
+import { BUSTER_DOCS_URL } from '@/config/externalRoutes';
+import { toggleContactSupportModal } from '@/context/GlobalStore/useContactSupportModalStore';
 import { cn } from '@/lib/classMerge';
 
 export const SidebarUserFooter: React.FC = React.memo(() => {
-  const user = useUserConfigContextSelector((x) => x.user);
+  const user = useGetUserBasicInfo();
   const handleSignOut = useSignOut();
   if (!user) return null;
 
@@ -63,64 +60,62 @@ const topItems: DropdownProps['items'] = [
     label: 'Settings',
     value: 'setting',
     icon: <Gear />,
-    link: createBusterRoute({
-      route: BusterRoutes.SETTINGS_PROFILE
-    })
+    link: {
+      to: '/app/settings/profile',
+    },
   },
   {
     label: 'Datasources',
     value: 'datasources',
-    link: createBusterRoute({
-      route: BusterRoutes.SETTINGS_DATASOURCES
-    }),
-    icon: <Database />
+    link: {
+      to: '/app/settings/datasources',
+    },
+    icon: <Database />,
   },
   {
     label: 'Invite & manage members',
     value: 'invite-manage-members',
     icon: <UserGroup />,
-    link: createBusterRoute({
-      route: BusterRoutes.SETTINGS_USERS
-    })
-  }
+    link: {
+      to: '/app/settings/users',
+    },
+  },
+  { type: 'divider' },
+  {
+    label: 'Docs',
+    value: 'docs',
+    link: BUSTER_DOCS_URL,
+    linkIcon: 'arrow-external',
+    icon: <Book2 />,
+  },
+  {
+    label: 'Contact support',
+    value: 'contact-support',
+    icon: <Message />,
+    onClick: () => toggleContactSupportModal('help'),
+  },
+  {
+    label: 'Leave feedback',
+    value: 'leave-feedback',
+    icon: <Flag />,
+    onClick: () => toggleContactSupportModal('feedback'),
+  },
+  { type: 'divider' },
 ];
 
 const SidebarUserDropdown: React.FC<{
   children: React.ReactNode;
   signOut: () => void;
 }> = ({ children, signOut }) => {
-  const onOpenContactSupportModal = useContactSupportModalStore((s) => s.onOpenContactSupportModal);
-
   const allItems: DropdownProps['items'] = useMemo(() => {
     return [
       ...topItems,
-      { type: 'divider' },
-      {
-        label: 'Docs',
-        value: 'docs',
-        link: BUSTER_DOCS_URL,
-        linkIcon: 'arrow-external',
-        icon: <Book2 />
-      },
-      {
-        label: 'Contact support',
-        value: 'contact-support',
-        icon: <Message />,
-        onClick: () => onOpenContactSupportModal('help')
-      },
-      {
-        label: 'Leave feedback',
-        value: 'leave-feedback',
-        icon: <Flag />,
-        onClick: () => onOpenContactSupportModal('feedback')
-      },
-      { type: 'divider' },
       {
         label: 'Logout',
         value: 'logout',
         onClick: signOut,
-        icon: <ArrowRightFromLine />
-      }
+        icon: <ArrowRightFromLine />,
+      },
     ];
   }, []);
 

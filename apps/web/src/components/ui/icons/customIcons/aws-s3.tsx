@@ -11,7 +11,8 @@ const AWSS3Icon: React.FC<IconProps> = ({ className }) => {
       width="80"
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 80 80"
-      className={className}>
+      className={className}
+    >
       <defs>
         <linearGradient id="aws-s3-gradient" x1="0%" y1="100%" y2="0%">
           <stop offset="0" stopColor="#1b660f" />

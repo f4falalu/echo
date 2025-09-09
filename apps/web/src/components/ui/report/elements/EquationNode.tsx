@@ -1,14 +1,11 @@
-'use client';
-
-import * as React from 'react';
-import TextareaAutosize, { type TextareaAutosizeProps } from 'react-textarea-autosize';
-
-import type { TEquationElement } from 'platejs';
-import type { PlateElementProps } from 'platejs/react';
+/** biome-ignore-all lint/a11y/useFocusableInteractive: it's cool */
+/** biome-ignore-all lint/a11y/useSemanticElements: it's cool */
 
 import { useEquationElement, useEquationInput } from '@platejs/math/react';
 import { BlockSelectionPlugin } from '@platejs/selection/react';
 
+import type { TEquationElement } from 'platejs';
+import type { PlateElementProps } from 'platejs/react';
 import {
   createPrimitiveComponent,
   PlateElement,
@@ -16,15 +13,16 @@ import {
   useEditorSelector,
   useElement,
   useReadOnly,
-  useSelected
+  useSelected,
 } from 'platejs/react';
-import { NodeTypeIcons } from '../config/icons';
-import { NodeTypeLabels } from '../config/labels';
-
+import * as React from 'react';
+import TextareaAutosize, { type TextareaAutosizeProps } from 'react-textarea-autosize';
 import { Button } from '@/components/ui/buttons';
 import { PopoverBase, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { Separator } from '../../separator';
+import { NodeTypeIcons } from '../config/icons';
+import { NodeTypeLabels } from '../config/labels';
 
 export function EquationElement(props: PlateElementProps<TEquationElement>) {
   const selected = useSelected();
@@ -43,8 +41,8 @@ export function EquationElement(props: PlateElementProps<TEquationElement>) {
       output: 'htmlAndMathml',
       strict: 'warn',
       throwOnError: false,
-      trust: false
-    }
+      trust: false,
+    },
   });
 
   return (
@@ -58,7 +56,8 @@ export function EquationElement(props: PlateElementProps<TEquationElement>) {
             )}
             data-selected={selected}
             contentEditable={false}
-            role="button">
+            role="button"
+          >
             {props.element.texExpression.length > 0 ? (
               <span ref={katexRef} />
             ) : (
@@ -110,14 +109,15 @@ export function InlineEquationElement(props: PlateElementProps<TEquationElement>
       output: 'htmlAndMathml',
       strict: 'warn',
       throwOnError: false,
-      trust: false
-    }
+      trust: false,
+    },
   });
 
   return (
     <PlateElement
       {...props}
-      className={cn('mx-1 inline-block rounded-sm select-none [&_.katex-display]:my-0!')}>
+      className={cn('mx-1 inline-block rounded-sm select-none [&_.katex-display]:my-0!')}
+    >
       <PopoverBase open={open} onOpenChange={setOpen} modal={false}>
         <PopoverTrigger asChild>
           <div
@@ -127,7 +127,8 @@ export function InlineEquationElement(props: PlateElementProps<TEquationElement>
               ((element.texExpression.length > 0 && open) || selected) && 'after:bg-brand/15',
               element.texExpression.length === 0 && 'text-muted-foreground after:bg-neutral-500/10'
             )}
-            contentEditable={false}>
+            contentEditable={false}
+          >
             <span
               ref={katexRef}
               className={cn(
@@ -161,7 +162,7 @@ export function InlineEquationElement(props: PlateElementProps<TEquationElement>
 }
 
 const EquationInput = createPrimitiveComponent(TextareaAutosize)({
-  propsHook: useEquationInput
+  propsHook: useEquationInput,
 });
 
 const EquationPopoverContent = ({
@@ -203,7 +204,8 @@ const EquationPopoverContent = ({
       onEscapeKeyDown={(e) => {
         e.preventDefault();
       }}
-      contentEditable={false}>
+      contentEditable={false}
+    >
       <div className="px-2">
         <EquationInput
           className={cn('max-h-[50vh] w-full grow resize-none p-2 text-sm', className)}

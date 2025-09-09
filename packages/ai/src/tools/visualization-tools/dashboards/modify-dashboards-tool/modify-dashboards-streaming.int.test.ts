@@ -1,4 +1,5 @@
 import { updateMessageEntries } from '@buster/database';
+import { materialize } from '@buster/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createModifyDashboardsTool } from './modify-dashboards-tool';
 import type { ModifyDashboardsContext, ModifyDashboardsInput } from './modify-dashboards-tool';
@@ -176,10 +177,12 @@ describe('modify-dashboards-tool streaming integration', () => {
       });
     }
 
-    const result = await tool.execute!(mockInput, {
-      toolCallId: 'test-tool-call-id',
-      messages: [],
-    });
+    const result = await materialize(
+      tool.execute!(mockInput, {
+        toolCallId: 'test-tool-call-id',
+        messages: [],
+      })
+    );
 
     // Should not update database
     expect(updateMessageEntries).not.toHaveBeenCalled();
@@ -216,10 +219,12 @@ describe('modify-dashboards-tool streaming integration', () => {
 
     const tool = createModifyDashboardsTool(mockContext);
 
-    const result = await tool.execute!(mockInput, {
-      toolCallId: 'test-tool-call-id',
-      messages: [],
-    });
+    const result = await materialize(
+      tool.execute!(mockInput, {
+        toolCallId: 'test-tool-call-id',
+        messages: [],
+      })
+    );
 
     expect(result.files).toHaveLength(1); // Mock returns 1 file
     expect(result.failed_files).toHaveLength(1); // Mock returns 1 failed file

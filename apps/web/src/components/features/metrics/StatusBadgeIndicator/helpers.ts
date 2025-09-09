@@ -7,11 +7,11 @@ const statusRecordText: Record<VerificationStatus, string> = {
   inReview: 'In review',
   backlogged: 'Backlogged',
   notVerified: 'Not verified',
-  notRequested: 'Not requested'
+  notRequested: 'Not requested',
 };
 
 export const getTooltipText = (status: VerificationStatus) => {
-  return statusRecordText[status] || statusRecordText['notRequested'];
+  return statusRecordText[status] || statusRecordText.notRequested;
 };
 
 export const getShareStatus = ({ is_shared }: { is_shared: MetricListItem['is_shared'] }) => {

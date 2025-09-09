@@ -1,16 +1,16 @@
-import { ASSET_ICONS } from '@/components/features/config/assetIcons';
-import { useBusterNotifications } from '@/context/BusterNotifications';
-import { cn } from '@/lib/utils';
 import {
+  type PlateEditor,
   useEditorRef,
-  useReadOnly,
   useElement,
   usePluginOption,
-  type PlateEditor
+  useReadOnly,
 } from 'platejs/react';
 import React, { useEffect } from 'react';
+import { AddMetricModal } from '@/components/features/dashboard/AddMetricModal';
+import { ASSET_ICONS } from '@/components/features/icons/assetIcons';
+import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
-import { AddMetricModal } from '@/components/features/modal/AddMetricModal';
+import { cn } from '@/lib/utils';
 import { MetricPlugin, type TMetricElement } from '../../plugins/metric-kit';
 
 export const MetricEmbedPlaceholder: React.FC<{
@@ -52,7 +52,8 @@ export const MetricEmbedPlaceholder: React.FC<{
             'bg-muted hover:bg-primary/10 flex cursor-pointer items-center rounded-sm p-3 pr-9 select-none',
             className
           )}
-          contentEditable={false}>
+          contentEditable={false}
+        >
           <div className="text-muted-foreground/80 relative mr-3 flex [&_svg]:size-6">
             <ASSET_ICONS.metrics />
           </div>
@@ -83,7 +84,7 @@ const MemoizedAddMetricModal = React.memo(
     plugin,
     editor,
     element,
-    onCloseAddMetricModal
+    onCloseAddMetricModal,
   }: {
     openModal: boolean;
     onCloseAddMetricModal: () => void;
@@ -121,7 +122,7 @@ const MemoizedAddMetricModal = React.memo(
       <AddMetricModal
         open={openModal}
         loading={false}
-        selectedMetrics={EMPTY_SELECTED_METRICS}
+        initialSelectedMetrics={EMPTY_SELECTED_METRICS}
         onClose={onCloseAddMetricModal}
         onAddMetrics={onAddMetric}
         selectionMode="single"

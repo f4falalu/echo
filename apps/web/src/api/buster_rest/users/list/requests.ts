@@ -1,8 +1,8 @@
-import { mainApiV2 } from '../../instances';
 import type {
+  GetUserToOrganizationRequest,
   GetUserToOrganizationResponse,
-  GetUserToOrganizationRequest
 } from '@buster/server-shared/user';
+import { mainApiV2 } from '../../instances';
 
 export const getUserToOrganization = async (payload: GetUserToOrganizationRequest) => {
   return mainApiV2

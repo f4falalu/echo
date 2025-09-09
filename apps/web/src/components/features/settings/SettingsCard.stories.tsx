@@ -1,8 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
-import { SettingsCards } from './SettingsCard';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Button } from '@/components/ui/buttons';
 import { Pill } from '@/components/ui/pills/Pill';
 import { Text } from '@/components/ui/typography';
+import { SettingsCards } from './SettingsCard';
 
 const meta: Meta<typeof SettingsCards> = {
   title: 'Features/SettingsCards',
@@ -12,11 +12,11 @@ const meta: Meta<typeof SettingsCards> = {
     docs: {
       description: {
         component:
-          'A security cards component that displays security-related information in structured card sections.'
-      }
-    }
+          'A security cards component that displays security-related information in structured card sections.',
+      },
+    },
   },
-  tags: ['autodocs']
+  tags: ['autodocs'],
 };
 
 export default meta;
@@ -56,7 +56,7 @@ const basicSections = [
     <Button size="small" variant="outlined">
       Manage
     </Button>
-  </div>
+  </div>,
 ];
 
 const detailedSections = [
@@ -96,7 +96,7 @@ const detailedSections = [
     <Button size="small" variant="ghost">
       Setup
     </Button>
-  </div>
+  </div>,
 ];
 
 const accessLogSections = [
@@ -129,7 +129,7 @@ const accessLogSections = [
         </Button>
       </div>
     </div>
-  </div>
+  </div>,
 ];
 
 export const Default: Story = {
@@ -138,10 +138,10 @@ export const Default: Story = {
     description: 'Manage your security settings and authentication methods',
     cards: [
       {
-        sections: basicSections
-      }
-    ]
-  }
+        sections: basicSections,
+      },
+    ],
+  },
 };
 
 export const MultipleCards: Story = {
@@ -150,13 +150,13 @@ export const MultipleCards: Story = {
     description: 'Complete security configuration for your organization',
     cards: [
       {
-        sections: detailedSections
+        sections: detailedSections,
       },
       {
-        sections: accessLogSections
-      }
-    ]
-  }
+        sections: accessLogSections,
+      },
+    ],
+  },
 };
 
 export const SingleSection: Story = {
@@ -174,19 +174,19 @@ export const SingleSection: Story = {
               </Text>
             </div>
             <Button>Get Started</Button>
-          </div>
-        ]
-      }
-    ]
-  }
+          </div>,
+        ],
+      },
+    ],
+  },
 };
 
 export const EmptyState: Story = {
   args: {
     title: 'Security Settings',
     description: 'No security configurations available',
-    cards: []
-  }
+    cards: [],
+  },
 };
 
 export const ComplexContent: Story = {
@@ -260,9 +260,9 @@ export const ComplexContent: Story = {
                 View Logs
               </Button>
             </div>
-          </div>
-        ]
-      }
-    ]
-  }
+          </div>,
+        ],
+      },
+    ],
+  },
 };

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { InputNumber } from './InputNumber';
 
 const meta: Meta<typeof InputNumber> = {
@@ -7,30 +7,30 @@ const meta: Meta<typeof InputNumber> = {
   tags: ['autodocs'],
   argTypes: {
     disabled: {
-      control: 'boolean'
+      control: 'boolean',
     },
     value: {
-      control: 'number'
+      control: 'number',
     },
     onChange: { action: 'changed' },
     min: {
-      control: 'number'
+      control: 'number',
     },
     max: {
-      control: 'number'
+      control: 'number',
     },
     step: {
-      control: 'number'
+      control: 'number',
     },
     size: {
       control: 'select',
-      options: ['default', 'tall', 'small']
+      options: ['default', 'tall', 'small'],
     },
     variant: {
       control: 'select',
-      options: ['default', 'ghost']
-    }
-  }
+      options: ['default', 'ghost'],
+    },
+  },
 };
 
 export default meta;
@@ -38,57 +38,57 @@ type Story = StoryObj<typeof InputNumber>;
 
 export const Default: Story = {
   args: {
-    placeholder: 'Enter number...'
-  }
+    placeholder: 'Enter number...',
+  },
 };
 
 export const WithValue: Story = {
   args: {
     value: 42,
-    placeholder: 'Enter number...'
-  }
+    placeholder: 'Enter number...',
+  },
 };
 
 export const WithMinMax: Story = {
   args: {
     min: 0,
     max: 100,
-    placeholder: 'Enter number (0-100)...'
-  }
+    placeholder: 'Enter number (0-100)...',
+  },
 };
 
 export const WithStep: Story = {
   args: {
     step: 5,
-    placeholder: 'Enter number (step: 5)...'
-  }
+    placeholder: 'Enter number (step: 5)...',
+  },
 };
 
 export const Disabled: Story = {
   args: {
     disabled: true,
     value: 42,
-    placeholder: 'Disabled number input'
-  }
+    placeholder: 'Disabled number input',
+  },
 };
 
 export const Small: Story = {
   args: {
     size: 'small',
-    placeholder: 'Small number input...'
-  }
+    placeholder: 'Small number input...',
+  },
 };
 
 export const Tall: Story = {
   args: {
     size: 'tall',
-    placeholder: 'Tall number input...'
-  }
+    placeholder: 'Tall number input...',
+  },
 };
 
 export const Ghost: Story = {
   args: {
     variant: 'ghost',
-    placeholder: 'Ghost number input...'
-  }
+    placeholder: 'Ghost number input...',
+  },
 };

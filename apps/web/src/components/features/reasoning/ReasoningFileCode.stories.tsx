@@ -1,6 +1,4 @@
-'use client';
-
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import type { FileType } from '@/api/asset_interfaces';
 import { Button } from '@/components/ui/buttons';
@@ -10,9 +8,9 @@ const meta: Meta<typeof ReasoningFileCode> = {
   title: 'UI/streaming/ReasoningFileCode',
   component: ReasoningFileCode,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
-  tags: ['autodocs']
+  tags: ['autodocs'],
 };
 
 export default meta;
@@ -82,7 +80,7 @@ const baseProps = {
   file_name: 'config.yaml',
   version_number: 1,
   file_type: 'reasoning' as FileType,
-  version_id: '123'
+  version_id: '123',
 };
 
 export const Default: Story = {
@@ -92,9 +90,9 @@ export const Default: Story = {
     isStreamFinished: true,
     file: {
       text: sampleYaml,
-      modified: []
-    }
-  }
+      modified: [],
+    },
+  },
 };
 
 export const WithHiddenLines: Story = {
@@ -104,9 +102,9 @@ export const WithHiddenLines: Story = {
     isStreamFinished: true,
     file: {
       text: sampleYaml,
-      modified: [[2, 4]] // This will hide lines 2-4
-    }
-  }
+      modified: [[2, 4]], // This will hide lines 2-4
+    },
+  },
 };
 
 export const Loading: Story = {
@@ -116,9 +114,9 @@ export const Loading: Story = {
     isStreamFinished: false,
     file: {
       text: sampleYaml,
-      modified: []
-    }
-  }
+      modified: [],
+    },
+  },
 };
 
 export const WithButtons: Story = {
@@ -128,15 +126,15 @@ export const WithButtons: Story = {
     isStreamFinished: true,
     file: {
       text: sampleYaml,
-      modified: []
+      modified: [],
     },
     buttons: (
       <div className="flex gap-2">
         <button className="rounded bg-blue-500 px-3 py-1 text-white">Action 1</button>
         <button className="rounded bg-green-500 px-3 py-1 text-white">Action 2</button>
       </div>
-    )
-  }
+    ),
+  },
 };
 
 // Interactive story with streaming content
@@ -147,7 +145,7 @@ const streamingContent = [
   '  name: my-config',
   'data:',
   '  key1: value1',
-  '  key2: value2'
+  '  key2: value2',
 ];
 
 export const InteractiveStreaming: Story = {
@@ -157,8 +155,8 @@ export const InteractiveStreaming: Story = {
     isStreamFinished: false,
     file: {
       text: streamingContent.slice(0, 3).join('\n'),
-      modified: []
-    }
+      modified: [],
+    },
   },
   render: (args) => {
     const [currentLines, setCurrentLines] = React.useState(3);
@@ -185,17 +183,18 @@ export const InteractiveStreaming: Story = {
           isStreamFinished={!isStreaming}
           file={{
             text: streamingContent.slice(0, currentLines).join('\n'),
-            modified: []
+            modified: [],
           }}
         />
         <div className="flex justify-center">
           <Button
             onClick={handleStreamClick}
-            disabled={isStreaming || currentLines >= streamingContent.length}>
+            disabled={isStreaming || currentLines >= streamingContent.length}
+          >
             {isStreaming ? 'Streaming...' : 'Start Streaming'}
           </Button>
         </div>
       </div>
     );
-  }
+  },
 };

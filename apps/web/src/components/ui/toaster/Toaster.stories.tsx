@@ -1,11 +1,11 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 
 const TestComponent = ({
   type,
   title,
   message,
-  action: actionProp
+  action: actionProp,
 }: {
   type: 'success' | 'error' | 'warning' | 'info' | 'default';
   title?: string;
@@ -20,7 +20,7 @@ const TestComponent = ({
     openErrorNotification,
     openWarningNotification,
     openSuccessNotification,
-    openNotification
+    openNotification,
   } = useBusterNotifications();
 
   const action = actionProp
@@ -28,14 +28,14 @@ const TestComponent = ({
         label: 'Action',
         onClick: () => {
           alert('click');
-        }
+        },
       }
     : undefined;
 
   const notification = {
     title,
     message,
-    action
+    action,
   };
 
   const onClick = () => {
@@ -61,7 +61,8 @@ const TestComponent = ({
       <div
         className="flex cursor-pointer items-center justify-center p-1 text-center text-black"
         style={{ width: 120 }}
-        onClick={onClick}>
+        onClick={onClick}
+      >
         Open Toast
       </div>
     </div>
@@ -78,14 +79,14 @@ const meta: Meta<typeof TestComponent> = {
     message: { control: 'text' },
     action: {
       control: 'select',
-      options: ['Action', 'No Action']
-    }
+      options: ['Action', 'No Action'],
+    },
   },
   decorators: [
     (Story) => {
       return <Story />;
-    }
-  ]
+    },
+  ],
 };
 
 export default meta;
@@ -96,46 +97,46 @@ export const Default: Story = {
   args: {
     type: 'info',
     title: 'Hello, world!',
-    message: 'This is a test notification'
-  }
+    message: 'This is a test notification',
+  },
 };
 
 export const Success: Story = {
   args: {
     type: 'success',
     title: 'Success',
-    message: 'This is a success notification'
-  }
+    message: 'This is a success notification',
+  },
 };
 
-export const Error: Story = {
+export const ErrorToast: Story = {
   args: {
     type: 'error',
     title: 'Error',
-    message: 'This is an error notification'
-  }
+    message: 'This is an error notification',
+  },
 };
 
 export const Warning: Story = {
   args: {
     type: 'warning',
     title: 'Warning',
-    message: 'This is a warning notification'
-  }
+    message: 'This is a warning notification',
+  },
 };
 
 export const Info: Story = {
   args: {
     type: 'info',
     title: 'Info',
-    message: 'This is an info notification'
-  }
+    message: 'This is an info notification',
+  },
 };
 
 export const DefaultToast: Story = {
   args: {
     type: 'default',
     title: 'Default',
-    message: 'This is a default notification'
-  }
+    message: 'This is a default notification',
+  },
 };

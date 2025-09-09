@@ -1,17 +1,13 @@
-'use client';
-
-import * as React from 'react';
-import LiteYouTubeEmbed from 'react-lite-youtube-embed';
-import ReactPlayer from 'react-player';
-
-import type { TResizableProps, TVideoElement } from 'platejs';
-import type { PlateElementProps } from 'platejs/react';
-
 import { useDraggable } from '@platejs/dnd';
 import { parseTwitterUrl, parseVideoUrl } from '@platejs/media';
 import { useMediaState } from '@platejs/media/react';
 import { ResizableProvider, useResizableValue } from '@platejs/resizable';
+import type { TResizableProps, TVideoElement } from 'platejs';
+import type { PlateElementProps } from 'platejs/react';
 import { PlateElement, useEditorMounted, withHOC } from 'platejs/react';
+import * as React from 'react';
+import LiteYouTubeEmbed from 'react-lite-youtube-embed';
+import ReactPlayer from 'react-player';
 
 import { cn } from '@/lib/utils';
 
@@ -27,18 +23,18 @@ export const VideoElement = withHOC(
       isUpload,
       isYoutube,
       readOnly,
-      unsafeUrl
+      unsafeUrl,
     } = useMediaState({
-      urlParsers: [parseTwitterUrl, parseVideoUrl]
+      urlParsers: [parseTwitterUrl, parseVideoUrl],
     });
-    const width = useResizableValue('width');
+    const width = useResizableValue('width') as string;
 
     const isEditorMounted = useEditorMounted();
 
     const isTweet = true;
 
     const { isDragging, handleRef } = useDraggable({
-      element: props.element
+      element: props.element,
     });
 
     return (
@@ -51,8 +47,9 @@ export const VideoElement = withHOC(
               align,
               maxWidth: isTweet ? 550 : '100%',
               minWidth: isTweet ? 300 : 100,
-              readOnly
-            }}>
+              readOnly,
+            }}
+          >
             <div className="group/media">
               <ResizeHandle
                 className={mediaResizeHandleVariants({ direction: 'left' })}
@@ -67,7 +64,7 @@ export const VideoElement = withHOC(
               {!isUpload && isYoutube && (
                 <div ref={handleRef}>
                   <LiteYouTubeEmbed
-                    id={embed!.id!}
+                    id={embed?.id || ''}
                     title="youtube"
                     wrapperClass={cn(
                       'aspect-video rounded-sm',
@@ -103,7 +100,7 @@ export const VideoElement = withHOC(
             </div>
           </Resizable>
 
-          <Caption style={{ width }} align={align}>
+          <Caption style={{ width: width }} align={align}>
             <CaptionTextarea readOnly={readOnly} placeholder="Write a caption..." />
           </Caption>
         </figure>

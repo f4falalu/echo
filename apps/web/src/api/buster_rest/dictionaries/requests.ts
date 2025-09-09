@@ -1,6 +1,8 @@
-import type { ColorPaletteDictionariesResponse } from '@buster/server-shared/dictionary';
+import type {
+  ColorPaletteDictionariesResponse,
+  CurrencyResponse,
+} from '@buster/server-shared/dictionary';
 import { mainApiV2 } from '../instances';
-import type { CurrencyResponse } from '@buster/server-shared/dictionary';
 
 export const getColorPalettes = async () => {
   return await mainApiV2

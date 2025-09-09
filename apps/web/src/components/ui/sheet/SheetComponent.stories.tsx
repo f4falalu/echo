@@ -1,36 +1,36 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
-import { Sheet } from './Sheets';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Button } from '../buttons/Button';
+import { Sheet } from './Sheets';
 
 const meta: Meta<typeof Sheet> = {
   title: 'UI/sheet/Sheet',
   component: Sheet,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
   tags: ['autodocs'],
   argTypes: {
     side: {
       control: { type: 'select' },
-      options: ['top', 'right', 'bottom', 'left']
+      options: ['top', 'right', 'bottom', 'left'],
     },
     closeStyle: {
       control: { type: 'select' },
-      options: ['collapse', 'close', 'none']
+      options: ['collapse', 'close', 'none'],
     },
     trigger: {
-      control: false
+      control: false,
     },
     children: {
-      control: false
+      control: false,
     },
     header: {
-      control: false
+      control: false,
     },
     footer: {
-      control: false
-    }
-  }
+      control: false,
+    },
+  },
 };
 
 export default meta;
@@ -52,6 +52,6 @@ export const WithHeader: Story = {
           <p key={index}>Sheet content with a structured header above {index}</p>
         ))}
       </div>
-    )
-  }
+    ),
+  },
 };

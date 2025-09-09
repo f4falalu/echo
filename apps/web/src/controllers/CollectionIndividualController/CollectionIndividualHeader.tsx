@@ -1,27 +1,32 @@
-'use client';
-
+import { useNavigate } from '@tanstack/react-router';
 import React, { useMemo, useState } from 'react';
-import { type BusterCollection } from '@/api/asset_interfaces';
+import type { BusterCollection } from '@/api/asset_interfaces';
 import { useDeleteCollection, useUpdateCollection } from '@/api/buster_rest/collections';
 import { ShareCollectionButton } from '@/components/features/buttons/ShareMenuCollectionButton';
-import { FavoriteStar, useFavoriteStar } from '@/components/features/list/FavoriteStar';
-import { Breadcrumb, type BreadcrumbItemType } from '@/components/ui/breadcrumb';
+import { FavoriteStar, useFavoriteStar } from '@/components/features/favorites';
+import {
+  Breadcrumb,
+  type BreadcrumbItemType,
+  createBreadcrumbItems,
+} from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/buttons';
-import { Dropdown, type DropdownItems } from '@/components/ui/dropdown';
+import {
+  createDropdownItem,
+  createDropdownItems,
+  Dropdown,
+  type IDropdownItems,
+} from '@/components/ui/dropdown';
 import { Dots, Pencil, Plus, Star, Trash } from '@/components/ui/icons';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
-import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { canEdit, getIsEffectiveOwner } from '@/lib/share';
-import { BusterRoutes } from '@/routes';
 import { RenameCollectionModal } from './RenameCollectionModal';
 
 export const CollectionsIndividualHeader: React.FC<{
-  openAddTypeModal: boolean;
   setOpenAddTypeModal: (open: boolean) => void;
   collection: BusterCollection | undefined;
   isFetched: boolean;
-}> = ({ openAddTypeModal, setOpenAddTypeModal, collection, isFetched }) => {
+}> = ({ setOpenAddTypeModal, collection, isFetched }) => {
   const { mutateAsync: updateCollection, isPending: isUpdatingCollection } = useUpdateCollection();
 
   const collectionTitle = isFetched ? collection?.name || 'No collection title' : '';
@@ -30,7 +35,7 @@ export const CollectionsIndividualHeader: React.FC<{
     if (!collection?.id) return;
     updateCollection({
       id: collection.id,
-      name: value
+      name: value,
     });
   });
 
@@ -50,18 +55,14 @@ export const CollectionsIndividualHeader: React.FC<{
               id={collection.id}
               type={'collection'}
               title={collectionTitle}
-              className="opacity-0 group-hover:opacity-100"
+              className="opacity-100 group-hover:opacity-100"
             />
           </div>
         )}
       </div>
 
       {collection && canEdit(collection.permission) && (
-        <ContentRight
-          collection={collection}
-          openAddTypeModal={openAddTypeModal}
-          setOpenAddTypeModal={setOpenAddTypeModal}
-        />
+        <ContentRight collection={collection} setOpenAddTypeModal={setOpenAddTypeModal} />
       )}
     </>
   );
@@ -69,9 +70,9 @@ export const CollectionsIndividualHeader: React.FC<{
 
 const ContentRight: React.FC<{
   collection: BusterCollection;
-  openAddTypeModal: boolean;
+
   setOpenAddTypeModal: (open: boolean) => void;
-}> = React.memo(({ collection, setOpenAddTypeModal, openAddTypeModal }) => {
+}> = React.memo(({ collection, setOpenAddTypeModal }) => {
   const onButtonClick = useMemoizedFn(() => {
     setOpenAddTypeModal(true);
   });
@@ -92,59 +93,60 @@ const ThreeDotDropdown: React.FC<{
   name: string;
   permission: BusterCollection['permission'];
 }> = React.memo(({ id, name, permission }) => {
-  const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
+  const navigate = useNavigate();
   const { mutateAsync: deleteCollection, isPending: isDeletingCollection } = useDeleteCollection();
   const { isFavorited, onFavoriteClick } = useFavoriteStar({
     id,
     type: 'collection',
-    name: name || ''
+    name: name || '',
   });
   const isEditor = canEdit(permission);
   const isEffectiveOwner = getIsEffectiveOwner(permission);
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
 
-  const items: DropdownItems = useMemo(
+  const items: IDropdownItems = useMemo(
     () =>
-      [
-        {
-          value: 'delete',
-          label: 'Delete collection',
-          icon: <Trash />,
-          onClick: async () => {
-            try {
-              await deleteCollection(
-                { id },
-                {
-                  onSuccess: () => {
-                    onChangePage({ route: BusterRoutes.APP_COLLECTIONS });
+      createDropdownItems(
+        [
+          {
+            value: 'delete',
+            label: 'Delete collection',
+            icon: <Trash />,
+            onClick: async () => {
+              try {
+                await deleteCollection(
+                  { id },
+                  {
+                    onSuccess: () => {
+                      navigate({ to: '/app/collections' });
+                    },
                   }
-                }
-              );
-              onChangePage({ route: BusterRoutes.APP_COLLECTIONS });
-            } catch (error) {
-              //
-            }
+                );
+              } catch (error) {
+                //
+              }
+            },
+            disabled: isDeletingCollection,
+            hidden: !isEffectiveOwner,
           },
-          disabled: isDeletingCollection,
-          hidden: !isEffectiveOwner
-        },
-        {
-          value: 'rename',
-          label: 'Rename collection',
-          icon: <Pencil />,
-          onClick: () => {
-            setIsRenameModalOpen(true);
+          {
+            value: 'rename',
+            label: 'Rename collection',
+            icon: <Pencil />,
+            onClick: () => {
+              setIsRenameModalOpen(true);
+            },
+            hidden: !isEditor,
           },
-          hidden: !isEditor
-        },
-        {
-          value: 'favorite',
-          label: isFavorited ? 'Remove from favorites' : 'Add to favorites',
-          icon: isFavorited ? <StarFilled /> : <Star />,
-          onClick: onFavoriteClick
-        }
-      ].filter((x) => !x.hidden),
-    [id, deleteCollection, onChangePage, isFavorited, onFavoriteClick, setIsRenameModalOpen]
+          {
+            value: 'favorite',
+            label: isFavorited ? 'Remove from favorites' : 'Add to favorites',
+            icon: isFavorited ? <StarFilled /> : <Star />,
+            onClick: () => onFavoriteClick(),
+          },
+        ].filter((x) => !x.hidden)
+      ),
+    [id, deleteCollection, isFavorited, onFavoriteClick, setIsRenameModalOpen]
   );
 
   return (
@@ -169,13 +171,14 @@ const CollectionBreadcrumb: React.FC<{
   const collectionBaseTitle = 'Collections';
 
   const items: BreadcrumbItemType[] = useMemo(
-    () => [
-      {
-        label: collectionBaseTitle,
-        route: { route: BusterRoutes.APP_COLLECTIONS }
-      },
-      { label: collectionName }
-    ],
+    () =>
+      createBreadcrumbItems([
+        {
+          label: collectionBaseTitle,
+          link: { to: '/app/collections' },
+        },
+        { label: collectionName },
+      ]),
     [collectionBaseTitle, collectionName]
   );
 

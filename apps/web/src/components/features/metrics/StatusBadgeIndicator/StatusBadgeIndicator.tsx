@@ -1,6 +1,6 @@
-import React from 'react';
-import { type BusterMetricListItem } from '@/api/asset_interfaces';
 import type { VerificationStatus } from '@buster/server-shared/share';
+import React from 'react';
+import type { BusterMetricListItem } from '@/api/asset_interfaces';
 import { StatusNotRequestedIcon } from '@/components/ui/icons/customIcons/Status_NotRequested';
 import { CircleCheck, CircleXmark } from '@/components/ui/icons/NucleoIconFilled';
 import { AppTooltip } from '@/components/ui/tooltip';
@@ -26,8 +26,9 @@ export const StatusBadgeIndicator: React.FC<{
         className={`rounded-full ${className} ${sharedClass} ${isNotVerified ? '' : ''}`}
         style={{
           width: size,
-          height: size
-        }}>
+          height: size,
+        }}
+      >
         <Icon size={size} />
       </div>
     </AppTooltip>
@@ -36,12 +37,12 @@ export const StatusBadgeIndicator: React.FC<{
 StatusBadgeIndicator.displayName = 'StatusBadgeIndicator';
 
 const statusRecordIcon: Record<VerificationStatus, React.FC<{ size?: number }>> = {
-  ['verified']: () => <CircleCheck />,
-  ['requested']: () => <HalfIcon />,
-  ['inReview']: () => <ThreeFourthIcon />,
-  ['backlogged']: () => <CircleXmark />,
-  ['notVerified']: () => <StatusNotRequestedIcon />,
-  ['notRequested']: () => <StatusNotRequestedIcon />
+  verified: () => <CircleCheck />,
+  requested: () => <HalfIcon />,
+  inReview: () => <ThreeFourthIcon />,
+  backlogged: () => <CircleXmark />,
+  notVerified: () => <StatusNotRequestedIcon />,
+  notRequested: () => <StatusNotRequestedIcon />,
 };
 
 const getIcon = (status: BusterMetricListItem['status']) => {
@@ -49,14 +50,14 @@ const getIcon = (status: BusterMetricListItem['status']) => {
 };
 
 const statusRecordColors: Record<VerificationStatus, string> = {
-  ['verified']: 'text-[#34A32D]!',
-  ['requested']: 'text-[#F2BE01]!',
-  ['inReview']: 'text-[#7C3AED]!',
-  ['backlogged']: 'text-icon-color',
-  ['notVerified']: 'text-icon-color',
-  ['notRequested']: 'text-icon-color'
+  verified: 'text-[#34A32D]!',
+  requested: 'text-[#F2BE01]!',
+  inReview: 'text-[#7C3AED]!',
+  backlogged: 'text-icon-color',
+  notVerified: 'text-icon-color',
+  notRequested: 'text-icon-color',
 };
 
 const getColorClasses = (status: BusterMetricListItem['status']) => {
-  return statusRecordColors[status] || statusRecordColors['notRequested'];
+  return statusRecordColors[status] || statusRecordColors.notRequested;
 };

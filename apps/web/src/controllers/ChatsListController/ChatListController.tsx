@@ -1,20 +1,18 @@
-'use client';
-
 import type React from 'react';
 import { useState } from 'react';
 import {
   type getListChats,
   type getListLogs,
   useGetListChats,
-  useGetListLogs
+  useGetListLogs,
 } from '@/api/buster_rest/chats';
-import { useUserConfigContextSelector } from '@/context/Users';
+import { useIsUserAdmin } from '@/api/buster_rest/users/useGetUserInfo';
 import { ChatItemsContainer } from './ChatItemsContainer';
 
 export const ChatListContainer: React.FC<{
   type: 'logs' | 'chats';
 }> = ({ type }) => {
-  const isAdmin = useUserConfigContextSelector((x) => x.isAdmin);
+  const isAdmin = useIsUserAdmin();
 
   if (type === 'chats' || !isAdmin) {
     return <ChatsContainer />;

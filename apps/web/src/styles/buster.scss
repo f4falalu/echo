@@ -6,25 +6,19 @@
   }
 }
 
-#scroll-area-viewport {
+.scroll-area-viewport {
   scroll-timeline-name: --scrollShadowContainer;
 
   .scroll-header {
-    @apply pointer-events-none absolute top-[0px] right-0 left-0 h-[0.5px] w-full border-b border-transparent;
-    animation: shadowAnimation linear;
-    animation-range: 0px 120px;
+    @apply pointer-events-none top-[0px] z-10 right-0 left-0 h-[0.5px] w-full sticky;
+    /* Start completely transparent */
+    background-color: transparent;
+    /* Use a more conservative animation approach */
+    animation-name: scrollShowAnimation;
+    animation-duration: 1ms; /* Firefox requires this to apply the animation */
     animation-timeline: --scrollShadowContainer;
-    animation-fill-mode: forwards;
-    z-index: 1;
-  }
-
-  @keyframes shadowAnimation {
-    from {
-      border-color: transparent;
-    }
-    to {
-      border-color: var(--color-border);
-    }
+    animation-range: 1px 85px; /* Start at 5px to ensure scrolling has actually occurred */
+    animation-fill-mode: both; /* Use 'both' instead of 'forwards' for better control */
   }
 }
 
@@ -46,5 +40,17 @@
 
   /* Firefox scrollbar styling */
   scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--color-border) 50%, transparent) transparent;
+  scrollbar-color: color-mix(in srgb, var(--color-border) 50%, transparent)
+    transparent;
+}
+
+@keyframes scrollShowAnimation {
+  0% {
+    background-color: transparent;
+    opacity: 0;
+  }
+  100% {
+    background-color: var(--color-border);
+    opacity: 1;
+  }
 }

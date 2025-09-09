@@ -1,8 +1,9 @@
-import Link from 'next/link';
+import { Link } from '@tanstack/react-router';
 import React from 'react';
 import { Button } from '@/components/ui/buttons';
 import { Plus } from '@/components/ui/icons';
 import { Paragraph, Title } from '@/components/ui/typography';
+import type { ILinkProps } from '@/types/routes';
 
 export const ListEmptyStateWithButton: React.FC<{
   isAdmin?: boolean;
@@ -13,28 +14,29 @@ export const ListEmptyStateWithButton: React.FC<{
   buttonPrefix?: React.ReactNode;
   buttonSuffix?: React.ReactNode;
   loading?: boolean;
-  linkButton?: string;
+  link?: ILinkProps | string;
   linkButtonTarget?: '_blank' | '_self';
 }> = React.memo(
   ({
     isAdmin = true,
     buttonPrefix,
     buttonSuffix,
-    linkButton,
+    link,
     title,
     buttonText,
     description,
     onClick,
     loading = false,
-    linkButtonTarget
+    linkButtonTarget,
   }) => {
     return (
       <div className="flex h-full w-full flex-col">
         <div
           className="flex h-full w-full flex-col items-center justify-start space-y-5 text-center"
           style={{
-            marginTop: '25vh'
-          }}>
+            marginTop: '25vh',
+          }}
+        >
           <div className="flex w-full max-w-[450px] min-w-[350px] flex-col justify-center space-y-3">
             <Title as="h4" className="leading-1.3 text-center [text-wrap:balance]">
               {title}
@@ -44,13 +46,14 @@ export const ListEmptyStateWithButton: React.FC<{
           </div>
 
           {isAdmin && (
-            <ButtonWrapper href={linkButton} target={linkButtonTarget}>
+            <ButtonWrapper link={link} target={linkButtonTarget}>
               <Button
                 variant="default"
                 prefix={buttonPrefix || <Plus />}
                 suffix={buttonSuffix}
                 loading={loading}
-                onClick={onClick}>
+                onClick={onClick}
+              >
                 {buttonText}
               </Button>
             </ButtonWrapper>
@@ -63,12 +66,20 @@ export const ListEmptyStateWithButton: React.FC<{
 
 const ButtonWrapper: React.FC<{
   children: React.ReactNode;
-  href?: string;
+  link?: ILinkProps | string;
   target?: '_blank' | '_self';
-}> = ({ children, href, target }) => {
-  if (!href) return <>{children}</>;
+}> = ({ children, link, target }) => {
+  if (!link) return <>{children}</>;
+
+  if (typeof link === 'string') {
+    return (
+      <a href={link} target={target || '_self'}>
+        {children}
+      </a>
+    );
+  }
   return (
-    <Link href={href} target={target || '_self'}>
+    <Link {...link} target={target || '_self'}>
       {children}
     </Link>
   );

@@ -1,11 +1,11 @@
-import { MetricContent } from './MetricContent';
-import type { TMetricElement } from '../../plugins/metric-kit';
 import {
   SlateElement,
+  type SlateElementProps,
   type TCaptionProps,
   type TResizableProps,
-  type SlateElementProps
 } from 'platejs';
+import type { TMetricElement } from '../../plugins/metric-kit';
+import { MetricContent } from './MetricContent';
 import { MetricEmbedPlaceholder } from './MetricPlaceholder';
 
 export const MetricElementStatic = (

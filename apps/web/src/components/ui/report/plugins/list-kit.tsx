@@ -1,10 +1,7 @@
-'use client';
-
 import { ListPlugin } from '@platejs/list/react';
 import { KEYS } from 'platejs';
-
-import { IndentKit } from './indent-kit';
 import { BlockList } from '../elements/BlockList';
+import { IndentKit } from './indent-kit';
 
 export const ListKit = [
   ...IndentKit,
@@ -16,11 +13,11 @@ export const ListKit = [
         KEYS.blockquote,
         KEYS.codeBlock,
         KEYS.toggle,
-        KEYS.img
-      ]
+        KEYS.img,
+      ],
     },
     render: {
-      belowNodes: BlockList
-    }
-  })
+      belowNodes: BlockList,
+    },
+  }),
 ];

@@ -1,5 +1,4 @@
-import type { ChartType } from '@buster/server-shared/metrics';
-import { SelectChartTypeProps } from './chartIcon.types';
+import type { SelectChartTypeProps } from './chartIcon.types';
 import { ChartIconType } from './config';
 
 export const DetermineSelectedChartTypeRecord: Record<
@@ -7,7 +6,7 @@ export const DetermineSelectedChartTypeRecord: Record<
   (
     props: Omit<
       SelectChartTypeProps,
-      'colors' | 'columnMetadata' | 'columnSettings' | 'selectedAxis'
+      'colors' | 'columnMetadata' | 'columnSettings' | 'selectedAxis' | 'metricId'
     > & {
       hasAreaStyle: boolean;
     }
@@ -54,5 +53,5 @@ export const DetermineSelectedChartTypeRecord: Record<
   },
   [ChartIconType.SCATTER]: ({ selectedChartType }) => selectedChartType === 'scatter',
   [ChartIconType.PIE]: ({ selectedChartType }) => selectedChartType === 'pie',
-  [ChartIconType.METRIC]: ({ selectedChartType }) => selectedChartType === 'metric'
+  [ChartIconType.METRIC]: ({ selectedChartType }) => selectedChartType === 'metric',
 };

@@ -1,12 +1,12 @@
-import {
-  ConfidenceScore,
+import type {
   AssumptionClassification,
-  AssumptionLabel
+  AssumptionLabel,
+  ConfidenceScore,
 } from '@buster/server-shared/message';
 
 export const confidenceTranslations: Record<ConfidenceScore, string> = {
   high: 'High Confidence',
-  low: 'Low Confidence'
+  low: 'Low Confidence',
 };
 
 export const assumptionClassificationTranslations: Record<AssumptionClassification, string> = {
@@ -31,12 +31,12 @@ export const assumptionClassificationTranslations: Record<AssumptionClassificati
   calculationMethod: 'Calculation Method',
   dataRelevance: 'Data Relevance',
   fieldMapping: 'Field Mapping',
-  tableRelationship: 'Table Relationship'
+  tableRelationship: 'Table Relationship',
 };
 
 export const assumptionLabelTranslations: Record<AssumptionLabel, string> = {
   major: 'Major',
   minor: 'Minor',
   timeRelated: 'Time related',
-  vagueRequest: 'Vague request'
+  vagueRequest: 'Vague request',
 };

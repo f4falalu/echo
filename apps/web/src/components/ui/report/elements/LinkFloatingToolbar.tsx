@@ -1,31 +1,26 @@
-'use client';
-
-import * as React from 'react';
-
-import type { TLinkElement } from 'platejs';
-
-import { type UseVirtualFloatingOptions, flip, offset } from '@platejs/floating';
+import { flip, offset, type UseVirtualFloatingOptions } from '@platejs/floating';
 import { getLinkAttributes } from '@platejs/link';
 import {
-  type LinkFloatingToolbarState,
   FloatingLinkUrlInput,
+  type LinkFloatingToolbarState,
   useFloatingLinkEdit,
   useFloatingLinkEditState,
   useFloatingLinkInsert,
-  useFloatingLinkInsertState
+  useFloatingLinkInsertState,
 } from '@platejs/link/react';
 import { cva } from 'class-variance-authority';
+import type { TLinkElement } from 'platejs';
 import { KEYS } from 'platejs';
-import { NodeTypeIcons } from '../config/icons';
 import {
   useEditorRef,
   useEditorSelection,
   useFormInputProps,
-  usePluginOption
+  usePluginOption,
 } from 'platejs/react';
-
+import * as React from 'react';
 import { Button } from '@/components/ui/buttons';
 import { Separator } from '@/components/ui/separator';
+import { NodeTypeIcons } from '../config/icons';
 import { NodeTypeLabels } from '../config/labels';
 
 const popoverVariants = cva(
@@ -46,10 +41,10 @@ export function LinkFloatingToolbar({ state }: { state?: LinkFloatingToolbarStat
         offset(8),
         flip({
           fallbackPlacements: ['bottom-end', 'top-start', 'top-end'],
-          padding: 12
-        })
+          padding: 12,
+        }),
       ],
-      placement: activeSuggestionId || activeCommentId ? 'top-start' : 'bottom-start'
+      placement: activeSuggestionId || activeCommentId ? 'top-start' : 'bottom-start',
     };
   }, [activeCommentId, activeSuggestionId]);
 
@@ -57,28 +52,28 @@ export function LinkFloatingToolbar({ state }: { state?: LinkFloatingToolbarStat
     ...state,
     floatingOptions: {
       ...floatingOptions,
-      ...state?.floatingOptions
-    }
+      ...state?.floatingOptions,
+    },
   });
   const {
     hidden,
     props: insertProps,
     ref: insertRef,
-    textInputProps
+    textInputProps,
   } = useFloatingLinkInsert(insertState);
 
   const editState = useFloatingLinkEditState({
     ...state,
     floatingOptions: {
       ...floatingOptions,
-      ...state?.floatingOptions
-    }
+      ...state?.floatingOptions,
+    },
   });
   const {
     editButtonProps,
     props: editProps,
     ref: editRef,
-    unlinkButtonProps
+    unlinkButtonProps,
   } = useFloatingLinkEdit(editState);
 
   if (hidden) return null;
@@ -99,7 +94,8 @@ export function LinkFloatingToolbar({ state }: { state?: LinkFloatingToolbarStat
         variant={'ghost'}
         size={'default'}
         prefix={<NodeTypeIcons.unlink />}
-        {...unlinkButtonProps}></Button>
+        {...unlinkButtonProps}
+      ></Button>
     </div>
   );
 
@@ -123,7 +119,7 @@ function LinkOpenButton() {
   const attributes = React.useMemo(
     () => {
       const entry = editor.api.node<TLinkElement>({
-        match: { type: editor.getType(KEYS.link) }
+        match: { type: editor.getType(KEYS.link) },
       });
       if (!entry) {
         return {};
@@ -136,25 +132,26 @@ function LinkOpenButton() {
   );
 
   return (
+    // biome-ignore lint/a11y/useKeyWithMouseEvents: we will deal with it later
     <a
       {...attributes}
       onMouseOver={(e) => {
         e.stopPropagation();
       }}
-      aria-label="Open link in a new tab"
-      target="_blank">
+      target="_blank"
+    >
       <Button variant={'ghost'} size={'default'} prefix={<NodeTypeIcons.externalLink />}></Button>
     </a>
   );
 }
 
 const LinkEditPopoverContent = ({
-  textInputProps
+  textInputProps,
 }: {
   textInputProps: ReturnType<typeof useFloatingLinkInsert>['textInputProps'];
 }) => {
   const inputProps = useFormInputProps({
-    preventDefaultOnEnterKeydown: true
+    preventDefaultOnEnterKeydown: true,
   });
 
   const inputClassName = linkInputVariants();

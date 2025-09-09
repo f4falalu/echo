@@ -1,14 +1,12 @@
-'use client';
-
+import type { PopoverContentProps } from '@radix-ui/react-popover';
 import { cva } from 'class-variance-authority';
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { HexColorPicker } from 'react-colorful';
 import { Input } from '@/components/ui/inputs';
 import { PopoverContent, PopoverRoot, PopoverTrigger } from '@/components/ui/popover';
-import { useDebounceFn } from '@/hooks';
+import { useDebounceFn } from '@/hooks/useDebounce';
 import { cn } from '@/lib/classMerge';
-import type { PopoverContentProps } from '@radix-ui/react-popover';
 
 interface ColorPickerProps {
   value: string | null | undefined;
@@ -34,13 +32,13 @@ const colorPickerWrapperVariants = cva('border p-0.5 rounded cursor-pointer shad
     size: {
       default: 'w-6 min-w-6 max-w-6 h-6 min-h-6 max-h-6',
       small: 'w-5 min-w-5 max-w-5 h-5 min-h-5 max-h-5',
-      tall: 'w-7 min-w-7 max-w-7 h-7 min-h-7 max-h-7'
+      tall: 'w-7 min-w-7 max-w-7 h-7 min-h-7 max-h-7',
     },
     disabled: {
       true: 'cursor-not-allowed opacity-60',
-      false: 'cursor-pointer'
-    }
-  }
+      false: 'cursor-pointer',
+    },
+  },
 });
 
 const ColorPicker = ({
@@ -50,8 +48,6 @@ const ColorPicker = ({
   value: valueProp = '#000000',
   onChange,
   onOpenChange,
-  name,
-  className = '',
   children,
   popoverChildren,
   showInput = true,
@@ -59,7 +55,6 @@ const ColorPicker = ({
   pickerBackgroundImage,
   align = 'end',
   side = 'bottom',
-  ...props
 }: ColorPickerProps) => {
   const [open, setOpen] = useState(false);
 
@@ -146,7 +141,7 @@ const ColorPickerInputBox = ({
   parsedValue,
   size,
   disabled,
-  pickerBackgroundImage
+  pickerBackgroundImage,
 }: {
   parsedValue: string;
   size: 'default' | 'small' | 'tall';
@@ -158,7 +153,7 @@ const ColorPickerInputBox = ({
       ? {
           backgroundImage:
             pickerBackgroundImage ||
-            'linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet)'
+            'linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet)',
         }
       : { backgroundColor: parsedValue };
 

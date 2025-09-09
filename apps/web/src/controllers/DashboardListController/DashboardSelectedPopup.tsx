@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
-import { ShareAssetType } from '@buster/server-shared/share';
 import {
   useAddDashboardToCollection,
   useDeleteDashboards,
-  useRemoveDashboardFromCollection
+  useRemoveDashboardFromCollection,
 } from '@/api/buster_rest/dashboards';
-import { ASSET_ICONS } from '@/components/features/config/assetIcons';
 import { SaveToCollectionsDropdown } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
 import { useThreeDotFavoritesOptions } from '@/components/features/dropdowns/useThreeDotFavoritesOptions';
+import { ASSET_ICONS } from '@/components/features/icons/assetIcons';
 import { Button } from '@/components/ui/buttons';
 import { Dropdown } from '@/components/ui/dropdown';
 import { Dots, Trash } from '@/components/ui/icons';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 
 export const DashboardSelectedOptionPopup: React.FC<{
   selectedRowKeys: string[];
@@ -39,7 +38,7 @@ export const DashboardSelectedOptionPopup: React.FC<{
           key="three-dot"
           selectedRowKeys={selectedRowKeys}
           onSelectChange={onSelectChange}
-        />
+        />,
       ]}
       show={hasSelected}
     />
@@ -63,7 +62,7 @@ const CollectionsButton: React.FC<{
   const onSaveToCollection = useMemoizedFn(async (collectionIds: string[]) => {
     await onAddDashboardToCollection({
       dashboardIds: selectedRowKeys,
-      collectionIds
+      collectionIds,
     });
     setSelectedCollections([]);
     onSelectChange([]);
@@ -73,7 +72,7 @@ const CollectionsButton: React.FC<{
   const onRemoveFromCollectionPreflight = useMemoizedFn(async (collectionId: string) => {
     await onRemoveDashboardFromCollection({
       dashboardIds: selectedRowKeys,
-      collectionIds: [collectionId]
+      collectionIds: [collectionId],
     });
     setSelectedCollections([]);
     onSelectChange([]);
@@ -84,7 +83,8 @@ const CollectionsButton: React.FC<{
     <SaveToCollectionsDropdown
       onSaveToCollection={onSaveToCollection}
       onRemoveFromCollection={onRemoveFromCollectionPreflight}
-      selectedCollections={selectedCollections}>
+      selectedCollections={selectedCollections}
+    >
       <Button prefix={<ASSET_ICONS.collections />} type="button">
         Collections
       </Button>
@@ -116,7 +116,7 @@ const ThreeDotButton: React.FC<{
   const dropdownOptions = useThreeDotFavoritesOptions({
     itemIds: selectedRowKeys,
     assetType: 'dashboard',
-    onFinish: () => onSelectChange([])
+    onFinish: () => onSelectChange([]),
   });
 
   return (

@@ -7,12 +7,12 @@ const sizeVariants = cva('', {
     size: {
       xsmall: 'h-[32px] min-h-[32px] px-2.5',
       small: 'p-2.5',
-      default: 'p-4'
-    }
+      default: 'p-4',
+    },
   },
   defaultVariants: {
-    size: 'default'
-  }
+    size: 'default',
+  },
 });
 
 const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
@@ -34,38 +34,38 @@ const headerVariants = cva('', {
     variant: {
       default: '',
       gray: 'bg-item-select border-b',
-      white: 'bg-white border-b'
-    }
-  }
+      white: 'bg-white border-b',
+    },
+  },
 });
 
 const footerVariants = cva('', {
   variants: {
     border: {
       true: 'border-t pt-2',
-      false: ''
+      false: '',
     },
     size: {
       small: '',
-      default: ''
-    }
+      default: '',
+    },
   },
   compoundVariants: [
     {
       border: true,
       size: 'small',
-      className: 'pt-2.5'
+      className: 'pt-2.5',
     },
     {
       border: true,
       size: 'default',
-      className: 'pt-4'
-    }
+      className: 'pt-4',
+    },
   ],
   defaultVariants: {
     border: false,
-    size: 'default'
-  }
+    size: 'default',
+  },
 });
 
 const CardHeader = React.forwardRef<

@@ -8,24 +8,12 @@ const headerVariants = cva(
     variants: {
       sizeVariant: {
         default: 'px-4.5',
-        list: 'px-7.5'
+        list: 'px-7.5',
       },
-      borderVariant: {
-        default: 'border-b',
-        ghost: 'border-b-0'
-      }
     },
     defaultVariants: {
-      borderVariant: 'default',
-      sizeVariant: 'default'
+      sizeVariant: 'default',
     },
-    compoundVariants: [
-      {
-        borderVariant: 'ghost',
-        sizeVariant: 'default',
-        className: 'max-h-[37.5px] min-h-[37.5px]' // hack. figure out a better way to do this
-      }
-    ]
   }
 );
 
@@ -35,8 +23,6 @@ export const AppPageLayoutHeader: React.FC<
       className?: string;
     } & VariantProps<typeof headerVariants>
   >
-> = ({ children, className = '', sizeVariant = 'default', borderVariant = 'default' }) => {
-  return (
-    <div className={cn(headerVariants({ sizeVariant, borderVariant }), className)}>{children}</div>
-  );
+> = ({ children, className = '', sizeVariant = 'default' }) => {
+  return <div className={cn(headerVariants({ sizeVariant }), className)}>{children}</div>;
 };

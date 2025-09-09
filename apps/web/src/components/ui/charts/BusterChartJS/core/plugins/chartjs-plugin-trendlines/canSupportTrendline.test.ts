@@ -1,7 +1,7 @@
 import {
   type ColumnLabelFormat,
   DEFAULT_COLUMN_LABEL_FORMAT,
-  type Trendline
+  type Trendline,
 } from '@buster/server-shared/metrics';
 import { beforeEach, describe, expect, it, test, vi } from 'vitest';
 import { isNumericColumnType } from '@/lib/messages';
@@ -10,7 +10,7 @@ import { canSupportTrendlineRecord } from './canSupportTrendline';
 
 // Mock the isNumericColumnType function
 vi.mock('@/lib/messages', () => ({
-  isNumericColumnType: vi.fn()
+  isNumericColumnType: vi.fn(),
 }));
 
 const mockedIsNumericColumnType = vi.mocked(isNumericColumnType);
@@ -24,15 +24,15 @@ describe('canSupportTrendlineRecord', () => {
     'min',
     'max',
     'median',
-    'average'
+    'average',
   ];
 
   const columnId = 'test-column';
   const mockColumnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']> = {
     [columnId]: {
       columnType: 'number',
-      style: 'number'
-    } as ColumnLabelFormat
+      style: 'number',
+    } as ColumnLabelFormat,
   };
 
   beforeEach(() => {
@@ -49,7 +49,7 @@ describe('canSupportTrendlineRecord', () => {
         columnId,
         show: true,
         showTrendlineLabel: true,
-        trendlineLabel: 'Test Label'
+        trendlineLabel: 'Test Label',
       } as Trendline;
 
       // Act
@@ -71,7 +71,7 @@ describe('canSupportTrendlineRecord', () => {
         columnId,
         show: true,
         showTrendlineLabel: true,
-        trendlineLabel: 'Test Label'
+        trendlineLabel: 'Test Label',
       } as Trendline;
 
       // Act
@@ -93,7 +93,7 @@ describe('canSupportTrendlineRecord', () => {
         columnId: 'non-existent',
         show: true,
         showTrendlineLabel: true,
-        trendlineLabel: 'Test Label'
+        trendlineLabel: 'Test Label',
       } as Trendline;
 
       // Act

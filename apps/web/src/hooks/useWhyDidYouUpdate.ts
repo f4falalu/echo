@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect, useRef } from 'react';
 
 export type IProps = Record<string, unknown>;
@@ -16,7 +14,7 @@ export function useWhyDidYouUpdate(componentName: string, props: IProps) {
         if (!Object.is(prevProps.current[key], props[key])) {
           changedProps[key] = {
             from: prevProps.current[key],
-            to: props[key]
+            to: props[key],
           };
         }
       }

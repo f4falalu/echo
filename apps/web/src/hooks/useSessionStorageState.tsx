@@ -1,6 +1,4 @@
-'use client';
-
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 type SetState<S> = S | ((prevState?: S) => S);
 
@@ -21,7 +19,7 @@ export function useSessionStorageState<T>(
     serializer = JSON.stringify,
     deserializer = JSON.parse,
     onError,
-    bustStorageOnInit = false
+    bustStorageOnInit = false,
   } = options || {};
 
   // Get initial value from sessionStorage or use default

@@ -1,21 +1,21 @@
-import type { BusterChatMessageReasoning_file } from '@/api/asset_interfaces/chat';
+import { AnimatePresence, type MotionProps, motion } from 'framer-motion';
 import React, { useMemo } from 'react';
-import { Text } from '@/components/ui/typography';
-import { CircleSpinnerLoader } from '@/components/ui/loaders';
-import { CheckDouble } from '@/components/ui/icons';
+import type { BusterChatMessageReasoning_file } from '@/api/asset_interfaces/chat';
 import { CircleWarning } from '@/components/ui/icons/NucleoIconFilled';
-import { AnimatePresence, motion, type MotionProps } from 'framer-motion';
+import CheckDouble from '@/components/ui/icons/NucleoIconOutlined/check-double';
+import { CircleSpinnerLoader } from '@/components/ui/loaders';
+import { Text } from '@/components/ui/typography';
 
 const animationProps: MotionProps = {
   initial: { opacity: 0 },
   animate: { opacity: 1 },
-  exit: { opacity: 0 }
+  exit: { opacity: 0 },
 };
 
 export const StreamingMessageStatus = React.memo(
   ({
     status,
-    fileType
+    fileType,
   }: {
     status: BusterChatMessageReasoning_file['status'];
     fileType: BusterChatMessageReasoning_file['file_type'];

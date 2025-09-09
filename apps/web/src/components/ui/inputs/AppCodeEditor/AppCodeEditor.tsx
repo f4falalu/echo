@@ -1,34 +1,34 @@
-'use client';
-
 //https://github.com/popsql/monaco-sql-languages/blob/main/example/src/App.js#L2
 //https://dtstack.github.io/monaco-sql-languages/
 
-import './MonacoWebWorker';
-
-import type { editor } from 'monaco-editor/esm/vs/editor/editor.api';
-import React, { forwardRef, useCallback, useMemo } from 'react';
-import { cn } from '@/lib/classMerge';
-import { CircleSpinnerLoaderContainer } from '../../loaders/CircleSpinnerLoaderContainer';
+import type { EditorProps, OnMount } from '@monaco-editor/react';
+import { ClientOnly } from '@tanstack/react-router';
+import type React from 'react';
+import { forwardRef, lazy, Suspense, useCallback, useMemo } from 'react';
+import { useMount } from '@/hooks/useMount';
+import { cn } from '@/lib/utils';
+import { isServer } from '@/lib/window';
+import { LoadingCodeEditor } from './LoadingCodeEditor';
 import { configureMonacoToUseYaml } from './yamlHelper';
 
-//import GithubLightTheme from 'monaco-themes/themes/Github Light.json';
-//import NightOwnTheme from 'monaco-themes/themes/Night Owl.json';
+let hasSetupMonacoWebWorker = false;
+
 //https://github.com/brijeshb42/monaco-ace-tokenizer
 
-import { useTheme } from 'next-themes';
+const Editor = lazy(() =>
+  import('@monaco-editor/react').then((mod) => {
+    return {
+      default: mod.Editor,
+    };
+  })
+);
 
-import dynamic from 'next/dynamic';
-const Editor = dynamic(() => import('@monaco-editor/react').then((m) => m.Editor), {
-  ssr: false,
-  loading: () => null
-});
-
-interface AppCodeEditorProps {
+export interface AppCodeEditorProps {
   className?: string;
   onChangeEditorHeight?: (height: number) => void;
   height?: string;
   isDarkMode?: boolean;
-  onMount?: (editor: editor.IStandaloneCodeEditor, monaco: typeof import('monaco-editor')) => void;
+  onMount?: OnMount;
   value?: string;
   onChange?: (value: string) => void;
   style?: React.CSSProperties;
@@ -36,7 +36,7 @@ interface AppCodeEditorProps {
   readOnly?: boolean;
   readOnlyMessage?: string;
   defaultValue?: string;
-  monacoEditorOptions?: editor.IStandaloneEditorConstructionOptions;
+  monacoEditorOptions?: EditorProps['options'];
   variant?: 'bordered' | null;
   onMetaEnter?: () => void;
 }
@@ -62,16 +62,13 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
       value,
       readOnlyMessage = 'Editing code is not allowed',
       variant,
-      onMetaEnter
+      onMetaEnter,
     },
-    ref
+    _ref
   ) => {
-    // const { cx, styles } = useStyles();
+    const useDarkMode = isDarkMode;
 
-    const isDarkModeContext = useTheme()?.theme === 'dark';
-    const useDarkMode = isDarkMode ?? isDarkModeContext;
-
-    const memoizedMonacoEditorOptions: editor.IStandaloneEditorConstructionOptions = useMemo(() => {
+    const memoizedMonacoEditorOptions: EditorProps['options'] = useMemo(() => {
       return {
         language,
         readOnly,
@@ -85,40 +82,59 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
         overviewRulerLanes: 0,
         scrollBeyondLastLine: false,
         minimap: {
-          enabled: false
+          enabled: false,
         },
         scrollbar: {
           horizontalScrollbarSize: 5,
           verticalScrollbarSize: 5,
           alwaysConsumeMouseWheel: false,
-          useShadows: false
+          useShadows: false,
         },
         padding: {
-          top: 10
+          top: 10,
         },
         hover: {
-          enabled: false
+          enabled: false,
         },
         contextmenu: false,
         readOnlyMessage: {
-          value: readOnlyMessage
+          value: readOnlyMessage,
         },
-        ...monacoEditorOptions
+        ...monacoEditorOptions,
       };
     }, [language, readOnly, readOnlyMessage, monacoEditorOptions]);
 
-    const onMountCodeEditor = useCallback(
-      async (editor: editor.IStandaloneCodeEditor, monaco: typeof import('monaco-editor')) => {
+    useMount(async () => {
+      if (hasSetupMonacoWebWorker || isServer) return;
+      try {
+        const setupMonacoWebWorker = await import('./setupMonacoWebWorker').then(
+          (mod) => mod.setupMonacoWebWorker
+        );
+        setupMonacoWebWorker();
+      } catch (error) {
+        console.error('Error setting up Monaco web worker:', error);
+      } finally {
+        hasSetupMonacoWebWorker = true;
+      }
+    });
+
+    const onMountCodeEditor: OnMount = useCallback(
+      async (editor, monaco) => {
+        const isYaml = language === 'yaml';
+
         const [GithubLightTheme, NightOwlTheme] = await Promise.all([
           (await import('./themes/github_light_theme')).default,
-          (await import('./themes/tomorrow_night_theme')).default
+          (await import('./themes/tomorrow_night_theme')).default,
+          isYaml ? await configureMonacoToUseYaml(monaco) : null,
         ]);
 
-        monaco.editor.defineTheme('github-light', GithubLightTheme);
-        monaco.editor.defineTheme('night-owl', NightOwlTheme);
+        type Theme = Parameters<typeof monaco.editor.defineTheme>[1];
+
+        monaco.editor.defineTheme('github-light', GithubLightTheme as Theme);
+        monaco.editor.defineTheme('night-owl', NightOwlTheme as Theme);
         editor.updateOptions({
           theme: useDarkMode ? 'night-owl' : 'github-light',
-          colorDecorators: true
+          colorDecorators: true,
         });
         if (onChangeEditorHeight) {
           const contentSizeDisposable = editor.onDidContentSizeChange(() => {
@@ -132,7 +148,7 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
         }
 
         if (language === 'yaml') {
-          await configureMonacoToUseYaml(monaco);
+          //   await configureMonacoToUseYaml(monaco);
         }
 
         onMount?.(editor, monaco);
@@ -160,26 +176,27 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
           variant === 'bordered' && 'overflow-hidden border',
           className
         )}
-        style={style}>
-        <Editor
-          key={useDarkMode ? 'dark' : 'light'}
-          height={height}
-          loading={<LoadingContainer />}
-          language={language}
-          className={className}
-          defaultValue={defaultValue}
-          value={value}
-          theme={useDarkMode ? 'night-owl' : 'github-light'}
-          onMount={onMountCodeEditor}
-          onChange={onChangeCodeEditor}
-          options={memoizedMonacoEditorOptions}
-        />
+        style={style}
+      >
+        <ClientOnly fallback={<LoadingCodeEditor />}>
+          <Suspense fallback={<LoadingCodeEditor />}>
+            <Editor
+              key={useDarkMode ? 'dark' : 'light'}
+              height={height}
+              language={language}
+              className={className}
+              defaultValue={defaultValue}
+              value={value}
+              theme={useDarkMode ? 'night-owl' : 'github-light'}
+              onMount={onMountCodeEditor}
+              onChange={onChangeCodeEditor}
+              options={memoizedMonacoEditorOptions}
+              loading={<LoadingCodeEditor />}
+            />
+          </Suspense>
+        </ClientOnly>
       </div>
     );
   }
 );
 AppCodeEditor.displayName = 'AppCodeEditor';
-
-const LoadingContainer = () => {
-  return <CircleSpinnerLoaderContainer className="animate-in fade-in-0 duration-300" />;
-};

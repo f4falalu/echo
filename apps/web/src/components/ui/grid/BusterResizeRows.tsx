@@ -1,10 +1,9 @@
-'use client';
-
 import { useDroppable } from '@dnd-kit/core';
 import clamp from 'lodash/clamp';
 import React, { useRef, useState } from 'react';
-import { useDebounceFn, useUpdateLayoutEffect } from '@/hooks';
+import { useDebounceFn } from '@/hooks/useDebounce';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { useUpdateLayoutEffect } from '@/hooks/useUpdateLayoutEffect';
 import { cn } from '@/lib/classMerge';
 import { BusterNewItemDropzone } from './_BusterBusterNewItemDropzone';
 import { BusterResizeColumns } from './BusterResizeColumns';
@@ -25,7 +24,7 @@ export const BusterResizeRows: React.FC<{
     (sizes: number[]) => {
       const newRows = rows.map((r, index) => ({
         ...r,
-        rowHeight: sizes[index]
+        rowHeight: sizes[index],
       }));
       onRowLayoutChange(newRows);
     },
@@ -60,7 +59,8 @@ export const BusterResizeRows: React.FC<{
       className={cn(
         'buster-resize-row relative mb-10 flex h-full w-full flex-col space-y-3 opacity-100 transition',
         className
-      )}>
+      )}
+    >
       <ResizeRowHandle
         id={TOP_SASH_ID}
         top={true}
@@ -76,8 +76,9 @@ export const BusterResizeRows: React.FC<{
           key={row.id}
           className="relative h-full w-full"
           style={{
-            height: sizes[index]
-          }}>
+            height: sizes[index],
+          }}
+        >
           <BusterResizeColumns
             rowId={row.id}
             items={row.items}
@@ -120,7 +121,7 @@ const ResizeRowHandle: React.FC<{
     const { setNodeRef, isOver, over } = useDroppable({
       id: `${NEW_ROW_ID}_${id}}`,
       disabled: readOnly,
-      data: { id }
+      data: { id },
     });
     const showDropzone = !!over?.id && !hideDropzone;
     const isDropzoneActive = showDropzone && isOver;
@@ -155,7 +156,7 @@ const ResizeRowHandle: React.FC<{
     const style: React.CSSProperties = {
       zIndex: 1,
       bottom: !top ? -4 : -4,
-      transform: !top ? 'translateY(100%)' : 'translateY(100%)'
+      transform: !top ? 'translateY(100%)' : 'translateY(100%)',
     };
 
     const showActive = (active || isDropzoneActive) && !readOnly;

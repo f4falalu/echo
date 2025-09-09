@@ -1,5 +1,5 @@
-import type { BusterDatasetListItem } from '../datasets';
 import type { OrganizationRole } from '@buster/server-shared/organization';
+import type { BusterDatasetListItem } from '../datasets';
 
 export interface BusterPermissionListUser {
   id: string;

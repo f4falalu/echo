@@ -1,13 +1,13 @@
-import { createPlatePlugin } from 'platejs/react';
-import { MetricElement } from '../../elements/MetricElement/MetricElement';
-import { CUSTOM_KEYS } from '../../config/keys';
 import type { SetNodesOptions, TElement } from 'platejs';
+import { createPlatePlugin } from 'platejs/react';
+import { CUSTOM_KEYS } from '../../config/keys';
+import { MetricElement } from '../../elements/MetricElement/MetricElement';
 
 export type MetricPluginOptions = {
   openMetricModal: boolean;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+/** biome-ignore lint/complexity/noBannedTypes: it's cool */
 export type MetricPluginApi = {
   // the methods are defined in the extendApi function
 };
@@ -27,22 +27,22 @@ export const MetricPlugin = createPlatePlugin<
 >({
   key: CUSTOM_KEYS.metric,
   options: {
-    openMetricModal: false
+    openMetricModal: false,
   },
   node: {
     type: CUSTOM_KEYS.metric,
     isElement: true,
     isVoid: true,
-    component: MetricElement
+    component: MetricElement,
   },
   rules: {
     break: {
       default: 'exit',
       empty: 'exit',
-      emptyLineEnd: 'exit'
-    }
-  }
-}).extendApi(({ setOption, plugin, editor, tf, ...rest }) => {
+      emptyLineEnd: 'exit',
+    },
+  },
+}).extendApi(({ setOption, tf }) => {
   return {
     openAddMetricModal: () => {
       setOption('openMetricModal', true);
@@ -52,7 +52,7 @@ export const MetricPlugin = createPlatePlugin<
     },
     updateMetric: (metricId: string, options?: SetNodesOptions<TMetricElement[]>) => {
       tf.setNodes<TMetricElement>({ metricId }, options);
-    }
+    },
   };
 });
 

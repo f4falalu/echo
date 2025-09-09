@@ -69,7 +69,7 @@ export const boldHighlights = (name: string, highlights: string[]): React.ReactN
     const nameParts = name.split(' ').filter(Boolean);
     const lowerCaseHighlights = highlights.map((highlight) => highlight.toLowerCase());
     const boldRegex = new RegExp(`(${lowerCaseHighlights.join('|')})`, 'gi');
-    const formattedParts = nameParts.map((part, index) => {
+    const formattedParts = nameParts.map((part) => {
       const matches = part.toLowerCase().match(boldRegex);
       if (matches) {
         const splitParts = part.split(boldRegex);
@@ -91,9 +91,10 @@ export const boldHighlights = (name: string, highlights: string[]): React.ReactN
       return (
         <span
           style={{
-            marginRight: 2.5
+            marginRight: 2.5,
           }}
-          key={`formatted-${typeof part === 'string' ? part : index}`}>
+          key={`formatted-${typeof part === 'string' ? part : index}`}
+        >
           {part}
         </span>
       );

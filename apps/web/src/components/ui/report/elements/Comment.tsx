@@ -1,22 +1,16 @@
-'use client';
-
-import * as React from 'react';
-
-import type { CreatePlateEditorOptions } from 'platejs/react';
-
 import { getCommentKey, getDraftCommentKey } from '@platejs/comment';
 import { CommentPlugin, useCommentId } from '@platejs/comment/react';
 import dayjs from 'dayjs';
-import { ArrowUp, Check, Dots, Pencil, Trash, Xmark } from '@/components/ui/icons';
-import { type TElement, type Value, KEYS, nanoid, NodeApi } from 'platejs';
+import { KEYS, NodeApi, nanoid, type TElement, type Value } from 'platejs';
+import type { CreatePlateEditorOptions } from 'platejs/react';
 import {
   Plate,
   useEditorPlugin,
   useEditorRef,
   usePlateEditor,
-  usePluginOption
+  usePluginOption,
 } from 'platejs/react';
-
+import * as React from 'react';
 import { AvatarBase, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/buttons';
 import {
@@ -24,14 +18,14 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { ArrowUp, Check, Dots, Pencil, Trash, Xmark } from '@/components/ui/icons';
 import { cn } from '@/lib/utils';
-import { BasicMarksKit } from '../plugins/basic-marks-kit';
-import { type TDiscussion, discussionPlugin } from '../plugins/discussion-kit';
-
-import { EditorContainer } from '../EditorContainer';
 import { Editor } from '../Editor';
+import { EditorContainer } from '../EditorContainer';
+import { BasicMarksKit } from '../plugins/basic-marks-kit';
+import { discussionPlugin, type TDiscussion } from '../plugins/discussion-kit';
 
 export interface TComment {
   id: string;
@@ -60,7 +54,7 @@ export function Comment(props: {
     index,
     setEditingId,
     showDocumentContent = false,
-    onEditorClick
+    onEditorClick,
   } = props;
 
   const editor = useEditorRef();
@@ -102,7 +96,7 @@ export function Comment(props: {
                 ...comment,
                 contentRich: input.contentRich,
                 isEdited: true,
-                updatedAt: new Date()
+                updatedAt: new Date(),
               };
             }
             return comment;
@@ -124,7 +118,7 @@ export function Comment(props: {
   const commentEditor = useCommentEditor(
     {
       id: comment.id,
-      value: initialValue
+      value: initialValue,
     },
     [initialValue]
   );
@@ -133,7 +127,7 @@ export function Comment(props: {
     setEditingId(null);
     commentEditor.tf.replaceNodes(initialValue, {
       at: [],
-      children: true
+      children: true,
     });
   };
 
@@ -142,7 +136,7 @@ export function Comment(props: {
       id: comment.id,
       contentRich: commentEditor.children,
       discussionId: comment.discussionId,
-      isEdited: true
+      isEdited: true,
     });
     setEditingId(null);
   };
@@ -183,7 +177,8 @@ export function Comment(props: {
                 variant="ghost"
                 className="text-muted-foreground h-6 p-1"
                 onClick={onResolveComment}
-                type="button">
+                type="button"
+              >
                 <div className="size-4">
                   <Check />
                 </div>
@@ -278,7 +273,7 @@ function CommentMoreDropdown(props: {
     setDropdownOpen,
     setEditingId,
     onCloseAutoFocus,
-    onRemoveComment
+    onRemoveComment,
   } = props;
 
   const editor = useEditorRef();
@@ -305,8 +300,8 @@ function CommentMoreDropdown(props: {
           ...discussion,
           comments: [
             ...discussion.comments.slice(0, commentIndex),
-            ...discussion.comments.slice(commentIndex + 1)
-          ]
+            ...discussion.comments.slice(commentIndex + 1),
+          ],
         };
       });
 
@@ -341,7 +336,8 @@ function CommentMoreDropdown(props: {
           }
 
           return e.preventDefault();
-        }}>
+        }}
+      >
         <DropdownMenuGroup>
           <DropdownMenuItem onClick={onEditComment}>
             <div className="size-4">
@@ -370,7 +366,7 @@ const useCommentEditor = (
       id: 'comment',
       plugins: BasicMarksKit,
       value: [],
-      ...options
+      ...options,
     },
     deps
   );
@@ -382,7 +378,7 @@ export function CommentCreateForm({
   autoFocus = false,
   className,
   discussionId: discussionIdProp,
-  focusOnMount = false
+  focusOnMount = false,
 }: {
   autoFocus?: boolean;
   className?: string;
@@ -428,12 +424,12 @@ export function CommentCreateForm({
               createdAt: new Date(),
               discussionId,
               isEdited: false,
-              userId: editor.getOption(discussionPlugin, 'currentUserId')
-            }
+              userId: editor.getOption(discussionPlugin, 'currentUserId'),
+            },
           ],
           createdAt: new Date(),
           isResolved: false,
-          userId: editor.getOption(discussionPlugin, 'currentUserId')
+          userId: editor.getOption(discussionPlugin, 'currentUserId'),
         };
 
         editor.setOption(discussionPlugin, 'discussions', [...discussions, newDiscussion]);
@@ -447,13 +443,13 @@ export function CommentCreateForm({
         createdAt: new Date(),
         discussionId,
         isEdited: false,
-        userId: editor.getOption(discussionPlugin, 'currentUserId')
+        userId: editor.getOption(discussionPlugin, 'currentUserId'),
       };
 
       // Add reply to discussion comments
       const updatedDiscussion = {
         ...discussion,
-        comments: [...discussion.comments, comment]
+        comments: [...discussion.comments, comment],
       };
 
       // Filter out old discussion and add updated one
@@ -483,13 +479,13 @@ export function CommentCreateForm({
           createdAt: new Date(),
           discussionId: _discussionId,
           isEdited: false,
-          userId: editor.getOption(discussionPlugin, 'currentUserId')
-        }
+          userId: editor.getOption(discussionPlugin, 'currentUserId'),
+        },
       ],
       createdAt: new Date(),
       documentContent,
       isResolved: false,
-      userId: editor.getOption(discussionPlugin, 'currentUserId')
+      userId: editor.getOption(discussionPlugin, 'currentUserId'),
     };
 
     editor.setOption(discussionPlugin, 'discussions', [...discussions, newDiscussion]);
@@ -499,7 +495,7 @@ export function CommentCreateForm({
     commentsNodeEntry.forEach(([, path]) => {
       editor.tf.setNodes(
         {
-          [getCommentKey(id)]: true
+          [getCommentKey(id)]: true,
         },
         { at: path, split: true }
       );
@@ -522,7 +518,8 @@ export function CommentCreateForm({
           onChange={({ value }) => {
             setCommentValue(value);
           }}
-          editor={commentEditor}>
+          editor={commentEditor}
+        >
           <EditorContainer variant="comment">
             <Editor
               variant="comment"

@@ -12,6 +12,10 @@
       "types": "./dist/assets/index.d.ts",
       "default": "./dist/assets/index.js"
     },
+    "./api": {
+      "types": "./dist/api/index.d.ts",
+      "default": "./dist/api/index.js"
+    },
     "./chats": {
       "types": "./dist/chats/index.d.ts",
       "default": "./dist/chats/index.js"
@@ -79,6 +83,14 @@
     "./s3-integrations": {
       "types": "./dist/s3-integrations/index.d.ts",
       "default": "./dist/s3-integrations/index.js"
+    },
+    "./collections": {
+      "types": "./dist/collections/index.d.ts",
+      "default": "./dist/collections/index.js"
+    },
+    "./healthcheck": {
+      "types": "./dist/healthcheck/index.d.ts",
+      "default": "./dist/healthcheck/index.js"
     }
   },
   "module": "src/index.ts",
