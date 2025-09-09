@@ -1,7 +1,6 @@
 import { createBusterSDK } from '@buster/sdk';
 import { Box, Text, useApp, useInput } from 'ink';
 import Spinner from 'ink-spinner';
-import TextInput from 'ink-text-input';
 import { useEffect, useState } from 'react';
 import {
   type Credentials,
@@ -37,17 +36,16 @@ const normalizeHost = (h: string): string => {
 
 export function Auth({ apiKey, host, local, cloud, clear, noSave, show }: AuthProps) {
   const { exit } = useApp();
-  const [step, setStep] = useState<'clear' | 'host' | 'apikey' | 'validate' | 'save' | 'done'>(
-    'clear'
+  const [step, setStep] = useState<'init' | 'host' | 'apikey' | 'validate' | 'save' | 'done'>(
+    'init'
   );
-  const [apiKeyInput, setApiKeyInput] = useState('');
-  const [hostInput, setHostInput] = useState('');
-  const [_error, setError] = useState<string | null>(null);
-  const [_existingCreds, setExistingCreds] = useState<Credentials | null>(null);
-  const [finalCreds, setFinalCreds] = useState<Credentials | null>(null);
-  const [_promptStage, setPromptStage] = useState<'host' | 'apikey'>('host');
+  const [currentInput, setCurrentInput] = useState('');
+  const [hostValue, setHostValue] = useState('');
+  const [apiKeyValue, setApiKeyValue] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [existingCreds, setExistingCreds] = useState<Credentials | null>(null);
 
-  // Handle clear and show flags
+  // Initialize based on flags
   useEffect(() => {
     if (show) {
       loadCredentials()
@@ -78,69 +76,77 @@ export function Auth({ apiKey, host, local, cloud, clear, noSave, show }: AuthPr
           exit();
         });
     } else {
-      // Determine initial step based on provided flags
+      // Check for existing credentials
       loadCredentials().then((creds) => {
         setExistingCreds(creds);
 
-        // Determine the host to use
-        let targetHost = '';
+        // Determine initial values
+        let initialHost = '';
         if (local) {
-          targetHost = LOCAL_HOST;
+          initialHost = LOCAL_HOST;
         } else if (cloud) {
-          targetHost = DEFAULT_HOST;
+          initialHost = DEFAULT_HOST;
         } else if (host) {
-          targetHost = host;
+          initialHost = host;
         }
 
         // If we have both host and apiKey from flags, skip to validation
-        if ((targetHost || host) && apiKey) {
-          const finalHost = normalizeHost(targetHost || host || DEFAULT_HOST);
-          setFinalCreds({ apiKey, apiUrl: finalHost });
+        if ((initialHost || host) && apiKey) {
+          setHostValue(initialHost || host || DEFAULT_HOST);
+          setApiKeyValue(apiKey);
           setStep('validate');
-        } else if (targetHost || host) {
+        } else if (initialHost || host) {
           // If we only have host, set it and prompt for API key
-          setHostInput(targetHost || host || '');
-          setApiKeyInput(apiKey || '');
+          setHostValue(initialHost || host || '');
           setStep('apikey');
-          setPromptStage('apikey');
         } else {
           // No flags provided, start with host prompt
-          setHostInput('');
-          setApiKeyInput(apiKey || '');
           setStep('host');
-          setPromptStage('host');
         }
       });
     }
   }, [show, clear, apiKey, host, local, cloud, exit]);
 
-  // Handle input completion
-  useInput((_input, key) => {
+  // Handle keyboard input
+  // Check if we're in a TTY environment to avoid errors
+  const isTTY = process.stdin.isTTY;
+
+  useInput((input, key) => {
+    // Skip input handling if not in TTY or not in input steps
+    if (!isTTY || (step !== 'host' && step !== 'apikey')) return;
+
     if (key.return) {
       if (step === 'host') {
-        // Use default host if empty
-        const finalHost = hostInput.trim() || DEFAULT_HOST;
-        setHostInput(finalHost);
+        const finalHost = currentInput.trim() || DEFAULT_HOST;
+        setHostValue(finalHost);
+        setCurrentInput('');
         setStep('apikey');
-        setPromptStage('apikey');
       } else if (step === 'apikey') {
-        if (!apiKeyInput.trim()) {
+        const trimmedKey = currentInput.trim();
+        if (!trimmedKey) {
           setError('API key is required');
           return;
         }
-        const finalHost = normalizeHost(hostInput || DEFAULT_HOST);
-        setFinalCreds({ apiKey: apiKeyInput.trim(), apiUrl: finalHost });
+        setApiKeyValue(trimmedKey);
         setStep('validate');
       }
+    } else if (key.backspace || key.delete) {
+      setCurrentInput((prev) => prev.slice(0, -1));
+      setError(null);
+    } else if (input && !key.ctrl && !key.meta && !key.shift) {
+      // Handle normal character input including paste
+      setCurrentInput((prev) => prev + input);
+      setError(null);
     }
   });
 
   // Validate credentials
   useEffect(() => {
-    if (step === 'validate' && finalCreds) {
+    if (step === 'validate' && hostValue && apiKeyValue) {
+      const finalHost = normalizeHost(hostValue);
       const sdk = createBusterSDK({
-        apiKey: finalCreds.apiKey,
-        apiUrl: finalCreds.apiUrl,
+        apiKey: apiKeyValue,
+        apiUrl: finalHost,
         timeout: 30000,
       });
 
@@ -148,64 +154,63 @@ export function Auth({ apiKey, host, local, cloud, clear, noSave, show }: AuthPr
         .isApiKeyValid()
         .then((valid: boolean) => {
           if (valid) {
-            setStep(noSave ? 'done' : 'save');
+            if (noSave) {
+              setStep('done');
+            } else {
+              // Save credentials
+              saveCredentials({ apiKey: apiKeyValue, apiUrl: finalHost })
+                .then(() => {
+                  setStep('done');
+                })
+                .catch((err: Error) => {
+                  setError(`Failed to save: ${err.message}`);
+                  setStep('done');
+                });
+            }
           } else {
             setError('Invalid API key');
+            setCurrentInput('');
             setStep('apikey');
           }
         })
         .catch((err: Error) => {
           setError(`Validation failed: ${err.message}`);
+          setCurrentInput('');
           setStep('apikey');
         });
     }
-  }, [step, finalCreds, noSave]);
-
-  // Save credentials
-  useEffect(() => {
-    if (step === 'save' && finalCreds) {
-      saveCredentials(finalCreds)
-        .then(() => {
-          setStep('done');
-        })
-        .catch((err: Error) => {
-          setError(`Failed to save: ${err.message}`);
-          setStep('done');
-        });
-    }
-  }, [step, finalCreds]);
+  }, [step, hostValue, apiKeyValue, noSave]);
 
   // Display success and exit
   useEffect(() => {
-    if (step === 'done' && finalCreds) {
-      const masked = finalCreds.apiKey.length > 6 ? `****${finalCreds.apiKey.slice(-6)}` : '****';
-      // Remove protocol for display
-      const displayHost = finalCreds.apiUrl.replace(/^https?:\/\//, '');
+    if (step === 'done') {
+      const masked = apiKeyValue.length > 6 ? `****${apiKeyValue.slice(-6)}` : '****';
+      const displayHost = normalizeHost(hostValue).replace(/^https?:\/\//, '');
 
       console.log("\n✅ You've successfully connected to Buster!\n");
       console.log('Connection details:');
       console.log(`  Host: ${displayHost}`);
       console.log(`  API Key: ${masked}`);
 
-      if (!noSave && step === 'done') {
+      if (!noSave) {
         console.log('\nCredentials saved successfully!');
-      } else if (noSave) {
+      } else {
         console.log('\nNote: Credentials were not saved due to --no-save flag');
       }
 
       exit();
     }
-  }, [step, finalCreds, noSave, exit]);
+  }, [step, hostValue, apiKeyValue, noSave, exit]);
 
   // Render based on current step
-  if (step === 'clear') {
-    return <Text>Clearing credentials...</Text>;
+  if (step === 'init') {
+    return <Text>Initializing...</Text>;
   }
 
   if (step === 'host') {
     return (
       <Box flexDirection="column">
-        {_existingCreds && (
+        {existingCreds && (
           <Box marginBottom={1}>
             <Text color="yellow">⚠️ Existing credentials found. They will be overwritten.</Text>
           </Box>
@@ -213,8 +218,9 @@ export function Auth({ apiKey, host, local, cloud, clear, noSave, show }: AuthPr
 
         <Box>
           <Text>Enter your Buster API host (default: {DEFAULT_HOST}): </Text>
+          <Text color="cyan">{currentInput}</Text>
+          <Text inverse> </Text>
         </Box>
-        <TextInput value={hostInput} onChange={setHostInput} placeholder={DEFAULT_HOST} />
 
         <Box marginTop={1}>
           <Text dimColor>Press Enter to continue (leave empty for default)</Text>
@@ -224,19 +230,35 @@ export function Auth({ apiKey, host, local, cloud, clear, noSave, show }: AuthPr
   }
 
   if (step === 'apikey') {
-    const displayHost = (hostInput || DEFAULT_HOST).replace(/^https?:\/\//, '');
+    const displayHost = (hostValue || DEFAULT_HOST).replace(/^https?:\/\//, '');
+    // Mask the API key display
+    const maskedInput = '*'.repeat(currentInput.length);
+
     return (
       <Box flexDirection="column">
-        {_error && (
+        {existingCreds && (
           <Box marginBottom={1}>
-            <Text color="red">❌ {_error}</Text>
+            <Text color="yellow">⚠️ Existing credentials found. They will be overwritten.</Text>
+          </Box>
+        )}
+
+        {/* Show the host that was entered */}
+        <Box marginBottom={1}>
+          <Text>Host: </Text>
+          <Text color="green">{hostValue || DEFAULT_HOST}</Text>
+        </Box>
+
+        {error && (
+          <Box marginBottom={1}>
+            <Text color="red">❌ {error}</Text>
           </Box>
         )}
 
         <Box>
           <Text>Enter your API key: </Text>
+          <Text color="cyan">{maskedInput}</Text>
+          <Text inverse> </Text>
         </Box>
-        <TextInput value={apiKeyInput} onChange={setApiKeyInput} mask="*" />
 
         <Box marginTop={1}>
           <Text dimColor>Find your API key at https://{displayHost}/app/settings/api-keys</Text>
@@ -250,21 +272,27 @@ export function Auth({ apiKey, host, local, cloud, clear, noSave, show }: AuthPr
   }
 
   if (step === 'validate') {
-    return (
-      <Box>
-        <Text>
-          <Spinner type="dots" /> Validating API key...
-        </Text>
-      </Box>
-    );
-  }
+    const displayHost = (hostValue || DEFAULT_HOST).replace(/^https?:\/\//, '');
+    const maskedKey = apiKeyValue.length > 6 ? `****${apiKeyValue.slice(-6)}` : '****';
 
-  if (step === 'save') {
     return (
-      <Box>
-        <Text>
-          <Spinner type="dots" /> Saving credentials...
-        </Text>
+      <Box flexDirection="column">
+        {/* Show what we're validating */}
+        <Box marginBottom={1}>
+          <Text>Host: </Text>
+          <Text color="green">{displayHost}</Text>
+        </Box>
+
+        <Box marginBottom={1}>
+          <Text>API Key: </Text>
+          <Text color="green">{maskedKey}</Text>
+        </Box>
+
+        <Box>
+          <Text>
+            <Spinner type="dots" /> Validating credentials...
+          </Text>
+        </Box>
       </Box>
     );
   }
