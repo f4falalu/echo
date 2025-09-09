@@ -46,17 +46,27 @@ jobs:
           TURBO_CACHE_DIR: .turbo
           TURBO_TELEMETRY_DISABLED: 1
 
-      - name: Cache built dependencies
-        uses: actions/cache/save@v4
+      - name: Create archive of built workspace
+        run: |
+          echo "Creating workspace archive..."
+          tar czf workspace-deps.tar.gz \
+            --exclude='*.log' \
+            --exclude='.git' \
+            node_modules \
+            apps/*/node_modules \
+            packages/*/node_modules \
+            apps/*/dist \
+            packages/*/dist \
+            .turbo \
+            pnpm-lock.yaml
+          echo "Archive size: $(du -h workspace-deps.tar.gz | cut -f1)"
+
+      - name: Upload workspace archive
+        uses: actions/upload-artifact@v4
         with:
-          path: |
-            node_modules
-            apps/*/node_modules
-            packages/*/node_modules
-            apps/*/dist
-            packages/*/dist
-            .turbo
-          key: cli-deps-${{ github.sha }}
+          name: workspace-deps
+          path: workspace-deps.tar.gz
+          retention-days: 1
 
   build-linux:
     needs: build-deps
@@ -65,22 +75,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node Environment
-        uses: ./.github/actions/setup-node-env
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          install-filter: "@buster-app/cli..."
+          bun-version: latest
 
-      - name: Restore built dependencies
-        uses: actions/cache/restore@v4
+      - name: Download workspace archive
+        uses: actions/download-artifact@v4
         with:
-          path: |
-            node_modules
-            apps/*/node_modules
-            packages/*/node_modules
-            apps/*/dist
-            packages/*/dist
-            .turbo
-          key: cli-deps-${{ github.sha }}
+          name: workspace-deps
+
+      - name: Extract workspace archive
+        run: |
+          echo "Extracting workspace archive..."
+          tar xzf workspace-deps.tar.gz
+          echo "Workspace restored"
 
       - name: Build Linux binary
         working-directory: ./apps/cli
@@ -118,22 +127,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node Environment
-        uses: ./.github/actions/setup-node-env
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          install-filter: "@buster-app/cli..."
+          bun-version: latest
 
-      - name: Restore built dependencies
-        uses: actions/cache/restore@v4
+      - name: Download workspace archive
+        uses: actions/download-artifact@v4
         with:
-          path: |
-            node_modules
-            apps/*/node_modules
-            packages/*/node_modules
-            apps/*/dist
-            packages/*/dist
-            .turbo
-          key: cli-deps-${{ github.sha }}
+          name: workspace-deps
+
+      - name: Extract workspace archive
+        run: |
+          echo "Extracting workspace archive..."
+          tar xzf workspace-deps.tar.gz
+          echo "Workspace restored"
 
       - name: Build macOS x64 binary
         working-directory: ./apps/cli
@@ -167,22 +175,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node Environment
-        uses: ./.github/actions/setup-node-env
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          install-filter: "@buster-app/cli..."
+          bun-version: latest
 
-      - name: Restore built dependencies
-        uses: actions/cache/restore@v4
+      - name: Download workspace archive
+        uses: actions/download-artifact@v4
         with:
-          path: |
-            node_modules
-            apps/*/node_modules
-            packages/*/node_modules
-            apps/*/dist
-            packages/*/dist
-            .turbo
-          key: cli-deps-${{ github.sha }}
+          name: workspace-deps
+
+      - name: Extract workspace archive
+        run: |
+          echo "Extracting workspace archive..."
+          tar xzf workspace-deps.tar.gz
+          echo "Workspace restored"
 
       - name: Build macOS ARM64 binary
         working-directory: ./apps/cli
@@ -216,22 +223,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node Environment
-        uses: ./.github/actions/setup-node-env
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          install-filter: "@buster-app/cli..."
+          bun-version: latest
 
-      - name: Restore built dependencies
-        uses: actions/cache/restore@v4
+      - name: Download workspace archive
+        uses: actions/download-artifact@v4
         with:
-          path: |
-            node_modules
-            apps/*/node_modules
-            packages/*/node_modules
-            apps/*/dist
-            packages/*/dist
-            .turbo
-          key: cli-deps-${{ github.sha }}
+          name: workspace-deps
+
+      - name: Extract workspace archive
+        run: |
+          echo "Extracting workspace archive..."
+          tar xzf workspace-deps.tar.gz
+          echo "Workspace restored"
 
       - name: Build Windows binary
         working-directory: ./apps/cli
