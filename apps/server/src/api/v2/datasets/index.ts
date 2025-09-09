@@ -4,12 +4,9 @@ import {
   getOrganizationDatasets,
   getUserOrganizationsByUserId,
 } from '@buster/database';
-import { DeployRequestSchema } from '@buster/server-shared';
-import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { requireAuth } from '../../../middleware/auth';
-import { deployDatasetsHandler } from './deploy/handler';
 
 // Create Hono app for datasets routes
 const app = new Hono<{
@@ -17,15 +14,6 @@ const app = new Hono<{
     busterUser: User;
   };
 }>();
-
-// Deploy datasets endpoint
-app.post('/deploy', requireAuth, zValidator('json', DeployRequestSchema), async (c) => {
-  const user = c.get('busterUser');
-  const request = c.req.valid('json');
-
-  const response = await deployDatasetsHandler(request, user);
-  return c.json(response);
-});
 
 // Get organization datasets endpoint
 app.get('/', requireAuth, async (c) => {

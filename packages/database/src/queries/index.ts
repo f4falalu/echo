@@ -13,6 +13,7 @@ export * from './dashboards';
 export * from './metrics';
 export * from './collections';
 export * from './reports';
+export * from './docs';
 export * from './s3-integrations';
 export * from './vault';
 export * from './cascading-permissions';

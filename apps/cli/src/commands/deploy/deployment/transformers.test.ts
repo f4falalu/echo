@@ -1,3 +1,4 @@
+import type { deploy } from '@buster/server-shared';
 import { describe, expect, it } from 'vitest';
 import type { Model } from '../schemas';
 import {
@@ -9,6 +10,8 @@ import {
   prepareDeploymentRequest,
   validateModelsForDeployment,
 } from './transformers';
+
+type DeployDoc = deploy.DeployDoc;
 
 describe('transformers', () => {
   describe('prepareDeploymentRequest', () => {
@@ -37,15 +40,87 @@ describe('transformers', () => {
             schema: 'public',
           }),
         ]),
+        docs: [],
         deleteAbsentModels: true,
+        deleteAbsentDocs: true,
       });
     });
 
     it('should respect deleteAbsentModels parameter', () => {
       const models: Model[] = [];
-      const result = prepareDeploymentRequest(models, false);
+      const result = prepareDeploymentRequest(models, [], false);
 
       expect(result.deleteAbsentModels).toBe(false);
+    });
+
+    it('should include docs in deployment request', () => {
+      const models: Model[] = [];
+      const docs: DeployDoc[] = [
+        {
+          name: 'README.md',
+          content: '# Documentation',
+          type: 'normal',
+        },
+        {
+          name: 'ANALYST.md',
+          content: '# Analyst Guide',
+          type: 'analyst',
+        },
+      ];
+
+      const result = prepareDeploymentRequest(models, docs);
+
+      expect(result.docs).toEqual(docs);
+      expect(result.docs).toHaveLength(2);
+    });
+
+    it('should respect deleteAbsentDocs parameter', () => {
+      const models: Model[] = [];
+      const docs: DeployDoc[] = [];
+      const result = prepareDeploymentRequest(models, docs, true, false);
+
+      expect(result.deleteAbsentDocs).toBe(false);
+      expect(result.deleteAbsentModels).toBe(true);
+    });
+
+    it('should handle complete deployment request with models and docs', () => {
+      const models: Model[] = [
+        {
+          name: 'users',
+          data_source_name: 'postgres',
+          schema: 'public',
+          database: 'analytics',
+          dimensions: [{ name: 'id', searchable: true }],
+          measures: [],
+          metrics: [],
+          filters: [],
+          relationships: [],
+        },
+      ];
+
+      const docs: DeployDoc[] = [
+        {
+          name: 'users.md',
+          content: '# Users Model Documentation',
+          type: 'normal',
+        },
+      ];
+
+      const result = prepareDeploymentRequest(models, docs, false, false);
+
+      expect(result.models).toHaveLength(1);
+      expect(result.docs).toEqual(docs);
+      expect(result.deleteAbsentModels).toBe(false);
+      expect(result.deleteAbsentDocs).toBe(false);
+    });
+
+    it('should default docs to empty array', () => {
+      const models: Model[] = [];
+      const result = prepareDeploymentRequest(models);
+
+      expect(result.docs).toEqual([]);
+      expect(result.deleteAbsentModels).toBe(true);
+      expect(result.deleteAbsentDocs).toBe(true);
     });
   });
 

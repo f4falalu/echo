@@ -38,6 +38,18 @@ const AnalystWorkflowInputSchema = z.object({
   dataSourceId: z.string().uuid(),
   dataSourceSyntax: z.string(),
   datasets: z.array(z.custom<PermissionedDataset>()),
+  analystInstructions: z.string().optional(),
+  organizationDocs: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        content: z.string(),
+        type: z.string(),
+        updatedAt: z.string(),
+      })
+    )
+    .optional(),
 });
 
 export type AnalystWorkflowInput = z.infer<typeof AnalystWorkflowInputSchema>;
@@ -48,7 +60,7 @@ export async function runAnalystWorkflow(
   const workflowStartTime = Date.now();
   const workflowId = `workflow_${input.chatId}_${input.messageId}`;
 
-  const { messages } = input;
+  const { messages, analystInstructions, organizationDocs } = input;
 
   const { todos, values, analysisType } = await runAnalystPrepSteps(input);
 
@@ -70,6 +82,8 @@ export async function runAnalystWorkflow(
       datasets: input.datasets,
       workflowStartTime,
       analysisMode: analysisType,
+      analystInstructions,
+      organizationDocs,
     },
     streamOptions: {
       messages,
@@ -105,6 +119,8 @@ export async function runAnalystWorkflow(
         userId: input.userId,
         datasets: input.datasets,
         workflowStartTime,
+        analystInstructions,
+        organizationDocs,
       },
       streamOptions: {
         messages,
