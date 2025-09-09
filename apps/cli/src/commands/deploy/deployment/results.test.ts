@@ -106,12 +106,12 @@ describe('formatDeploymentSummary', () => {
 
     const summary = formatDeploymentSummary(result, false, false);
 
-    expect(summary).toContain('1 models deployed');
+    expect(summary).toContain('1 model deployed');
     expect(summary).toContain('3 docs deployed');
     expect(summary).toContain('• 2 new');
     expect(summary).toContain('• 1 updated');
     expect(summary).toContain('• 1 deleted');
-    expect(summary).toContain('1 docs failed');
+    expect(summary).toContain('1 doc failed');
     expect(summary).toContain('failed.md: Storage error');
     expect(summary).toContain('✗ Deployment completed with 1 error');
   });
@@ -158,6 +158,13 @@ describe('formatDeploymentSummary', () => {
         updated: [],
         deleted: [],
         failed: [],
+        summary: {
+          totalDocs: 10,
+          createdCount: 10,
+          updatedCount: 0,
+          deletedCount: 0,
+          failedCount: 0,
+        },
       },
     };
 
@@ -186,7 +193,7 @@ describe('formatDeploymentSummary', () => {
     const summary = formatDeploymentSummary(result);
 
     expect(summary).toContain('2 models deployed');
-    expect(summary).toContain('1 models failed');
+    expect(summary).toContain('1 model failed');
     expect(summary).toContain('2 files need completion');
     expect(summary).not.toContain('files excluded'); // excluded only shown in verbose mode
     expect(summary).toContain('✗'); // failure indicator
@@ -337,6 +344,13 @@ describe('mergeDeploymentResults', () => {
           updated: ['doc2.md'],
           deleted: [],
           failed: [],
+          summary: {
+            totalDocs: 2,
+            createdCount: 1,
+            updatedCount: 1,
+            deletedCount: 0,
+            failedCount: 0,
+          },
         },
       },
       {
@@ -351,6 +365,13 @@ describe('mergeDeploymentResults', () => {
           updated: [],
           deleted: ['doc4.md'],
           failed: [{ name: 'doc5.md', error: 'Storage failed' }],
+          summary: {
+            totalDocs: 1,
+            createdCount: 1,
+            updatedCount: 0,
+            deletedCount: 1,
+            failedCount: 1,
+          },
         },
       },
     ];
@@ -362,6 +383,13 @@ describe('mergeDeploymentResults', () => {
       updated: ['doc2.md'],
       deleted: ['doc4.md'],
       failed: [{ name: 'doc5.md', error: 'Storage failed' }],
+      summary: {
+        totalDocs: 3,
+        createdCount: 2,
+        updatedCount: 1,
+        deletedCount: 1,
+        failedCount: 1,
+      },
     });
   });
 
@@ -379,6 +407,13 @@ describe('mergeDeploymentResults', () => {
           updated: [],
           deleted: [],
           failed: [],
+          summary: {
+            totalDocs: 1,
+            createdCount: 1,
+            updatedCount: 0,
+            deletedCount: 0,
+            failedCount: 0,
+          },
         },
       },
       {
@@ -400,6 +435,13 @@ describe('mergeDeploymentResults', () => {
       updated: [],
       deleted: [],
       failed: [],
+      summary: {
+        totalDocs: 1,
+        createdCount: 1,
+        updatedCount: 0,
+        deletedCount: 0,
+        failedCount: 0,
+      },
     });
   });
 
@@ -489,6 +531,13 @@ describe('processDeploymentResponse', () => {
       updated: [],
       deleted: [],
       failed: [],
+      summary: {
+        totalDocs: 0,
+        createdCount: 0,
+        updatedCount: 0,
+        deletedCount: 0,
+        failedCount: 0,
+      },
     });
   });
 
@@ -538,6 +587,13 @@ describe('processDeploymentResponse', () => {
         { name: 'failed.md', error: 'Storage error' },
         { name: 'another-failed.md', error: 'Permission denied' },
       ],
+      summary: {
+        totalDocs: 5,
+        createdCount: 2,
+        updatedCount: 1,
+        deletedCount: 1,
+        failedCount: 2,
+      },
     });
   });
 

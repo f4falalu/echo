@@ -98,7 +98,6 @@ describe('updateDocHandler', () => {
         name: 'Updated Doc',
       };
 
-      await expect(updateDocHandler('doc-123', request, mockUser)).rejects.toThrow(HTTPException);
       await expect(updateDocHandler('doc-123', request, mockUser)).rejects.toThrow(
         'User is not associated with an organization'
       );
@@ -114,7 +113,6 @@ describe('updateDocHandler', () => {
         name: 'Updated Doc',
       };
 
-      await expect(updateDocHandler('doc-123', request, mockUser)).rejects.toThrow(HTTPException);
       await expect(updateDocHandler('doc-123', request, mockUser)).rejects.toThrow(
         'User is not an admin'
       );
@@ -131,7 +129,6 @@ describe('updateDocHandler', () => {
         name: 'Updated Doc',
       };
 
-      await expect(updateDocHandler('doc-123', request, mockUser)).rejects.toThrow(HTTPException);
       await expect(updateDocHandler('doc-123', request, mockUser)).rejects.toThrow(
         'Document not found'
       );

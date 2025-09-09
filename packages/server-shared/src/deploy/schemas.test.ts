@@ -57,7 +57,7 @@ describe('DeployModelSchema', () => {
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.database).toBeUndefined();
-      expect(result.data.description).toBeUndefined();
+      expect(result.data.description).toBe(''); // description has default('')
       expect(result.data.sql_definition).toBeUndefined();
       expect(result.data.yml_file).toBeUndefined();
     }

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { type MockedFunction, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   GetOrganizationAnalystDocParamsSchema,
   getOrganizationAnalystDoc,
@@ -90,10 +90,10 @@ describe('getOrganizationAnalystDoc', () => {
     organizationId: '123e4567-e89b-12d3-a456-426614174000',
   };
 
-  let mockSelect: any;
-  let mockFrom: any;
-  let mockWhere: any;
-  let mockLimit: any;
+  let mockSelect: MockedFunction<typeof vi.fn>;
+  let mockFrom: MockedFunction<typeof vi.fn>;
+  let mockWhere: MockedFunction<typeof vi.fn>;
+  let mockLimit: MockedFunction<typeof vi.fn>;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -155,15 +155,14 @@ describe('getOrganizationAnalystDoc', () => {
     expect(result).toBeNull();
   });
 
-  it('should return null for empty string content due to falsy check', async () => {
+  it('should return empty string for empty string content', async () => {
     const mockResult = [{ content: '' }];
     mockLimit.mockResolvedValue(mockResult);
 
     const result = await getOrganizationAnalystDoc(validParams);
 
-    // Note: The current implementation uses || null, so empty string returns null
-    // This is likely a bug, but we're testing current behavior
-    expect(result).toBeNull();
+    // Should return the actual empty string, not null
+    expect(result).toBe('');
   });
 
   it('should use correct database query conditions', async () => {

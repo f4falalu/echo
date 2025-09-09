@@ -67,10 +67,14 @@ describe('deleteDoc', () => {
   it('should update updatedAt when soft deleting', async () => {
     const originalDoc = await db.select().from(docs).where(eq(docs.id, testDocId)).limit(1);
 
+    if (originalDoc.length === 0) {
+      throw new Error('Test doc not found');
+    }
+
     const originalUpdatedAt = originalDoc[0].updatedAt;
 
     // Wait a bit to ensure different timestamp
-    await new Promise((resolve) => setTimeout(resolve, 10));
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     const result = await deleteDoc({
       id: testDocId,

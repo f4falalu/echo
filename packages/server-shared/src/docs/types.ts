@@ -1,16 +1,8 @@
-import type { docsTypeEnum } from '@buster/database';
 import { z } from 'zod';
 
-type DocsTypeBase = (typeof docsTypeEnum.enumValues)[number];
-
-const DocsTypeEnums: Record<DocsTypeBase, DocsTypeBase> = Object.freeze({
-  analyst: 'analyst',
-  normal: 'normal',
-});
-
-export const DocsTypeEnum = z.enum(
-  Object.values(DocsTypeEnums) as [DocsTypeBase, ...DocsTypeBase[]]
-);
+// Direct enum creation without unsafe type assertion
+// Values match the database enum: pgEnum('docs_type_enum', ['analyst', 'normal'])
+export const DocsTypeEnum = z.enum(['analyst', 'normal']);
 
 export type DocsType = z.infer<typeof DocsTypeEnum>;
 

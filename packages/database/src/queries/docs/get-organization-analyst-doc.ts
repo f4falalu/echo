@@ -25,5 +25,5 @@ export async function getOrganizationAnalystDoc(
     )
     .limit(1);
 
-  return result[0]?.content || null;
+  return result[0]?.content ?? null;
 }

@@ -22,11 +22,23 @@ export function mergeDeploymentResults(results: CLIDeploymentResult[]): CLIDeplo
 
       // Merge doc results if present
       if (result.docs || acc.docs) {
+        const created = [...(acc.docs?.created || []), ...(result.docs?.created || [])];
+        const updated = [...(acc.docs?.updated || []), ...(result.docs?.updated || [])];
+        const deleted = [...(acc.docs?.deleted || []), ...(result.docs?.deleted || [])];
+        const failed = [...(acc.docs?.failed || []), ...(result.docs?.failed || [])];
+
         base.docs = {
-          created: [...(acc.docs?.created || []), ...(result.docs?.created || [])],
-          updated: [...(acc.docs?.updated || []), ...(result.docs?.updated || [])],
-          deleted: [...(acc.docs?.deleted || []), ...(result.docs?.deleted || [])],
-          failed: [...(acc.docs?.failed || []), ...(result.docs?.failed || [])],
+          created,
+          updated,
+          deleted,
+          failed,
+          summary: {
+            totalDocs: created.length + updated.length,
+            createdCount: created.length,
+            updatedCount: updated.length,
+            deletedCount: deleted.length,
+            failedCount: failed.length,
+          },
         };
       }
 
@@ -98,6 +110,13 @@ export function processDeploymentResponse(
       updated: response.docs.updated || [],
       deleted: response.docs.deleted || [],
       failed: response.docs.failed || [],
+      summary: response.docs.summary || {
+        totalDocs: 0,
+        createdCount: 0,
+        updatedCount: 0,
+        deletedCount: 0,
+        failedCount: 0,
+      },
     };
   }
 
@@ -127,7 +146,7 @@ export function formatDeploymentSummary(
 
   // Models deployed summary
   if (totalSuccess > 0) {
-    lines.push(`  ${totalSuccess} models deployed`);
+    lines.push(`  ${totalSuccess} ${totalSuccess === 1 ? 'model' : 'models'} deployed`);
     if (result.success.length > 0) {
       lines.push(`    • ${result.success.length} new`);
     }
@@ -177,7 +196,7 @@ export function formatDeploymentSummary(
     const totalDocs = (result.docs.created?.length || 0) + (result.docs.updated?.length || 0);
     if (totalDocs > 0 || result.docs.deleted?.length > 0) {
       lines.push('');
-      lines.push(`  ${totalDocs} docs deployed`);
+      lines.push(`  ${totalDocs} ${totalDocs === 1 ? 'doc' : 'docs'} deployed`);
       if (result.docs.created?.length > 0) {
         lines.push(`    • ${result.docs.created.length} new`);
       }
@@ -223,7 +242,9 @@ export function formatDeploymentSummary(
     // Doc failures
     if (result.docs.failed?.length > 0) {
       lines.push('');
-      lines.push(`  ${result.docs.failed.length} docs failed:`);
+      lines.push(
+        `  ${result.docs.failed.length} ${result.docs.failed.length === 1 ? 'doc' : 'docs'} failed:`
+      );
       for (const failure of result.docs.failed.slice(0, verbose ? 10 : 3)) {
         lines.push(`    • ${failure.name}: ${failure.error}`);
       }
@@ -236,7 +257,7 @@ export function formatDeploymentSummary(
   // Failures section
   if (totalFailed > 0) {
     lines.push('');
-    lines.push(`  ${totalFailed} models failed:`);
+    lines.push(`  ${totalFailed} ${totalFailed === 1 ? 'model' : 'models'} failed:`);
 
     // Group failures by error message for better readability
     const failuresByError = groupFailuresByError(result.failures);
@@ -286,7 +307,7 @@ export function formatDeploymentSummary(
   // TODOs section
   if (totalTodos > 0) {
     lines.push('');
-    lines.push(`  ${totalTodos} files need completion:`);
+    lines.push(`  ${totalTodos} ${totalTodos === 1 ? 'file needs' : 'files need'} completion:`);
 
     const maxTodos = verbose ? result.todos.length : 5;
     for (let i = 0; i < Math.min(maxTodos, result.todos.length); i++) {
@@ -305,7 +326,7 @@ export function formatDeploymentSummary(
   // Excluded section (only in verbose mode)
   if (verbose && totalExcluded > 0) {
     lines.push('');
-    lines.push(`  ${totalExcluded} files excluded:`);
+    lines.push(`  ${totalExcluded} ${totalExcluded === 1 ? 'file' : 'files'} excluded:`);
 
     for (const excluded of result.excluded) {
       // Show full paths in verbose mode

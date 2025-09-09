@@ -1,30 +1,13 @@
 import { z } from 'zod';
+// Import DeployModelSchema from datasets to avoid duplication
+import { DeployModelSchema } from '../datasets/schemas';
 
 // ============================================================================
 // Unified Deploy Request/Response Schemas
 // ============================================================================
 
-// Reuse the existing model schema from datasets
-export const DeployModelSchema = z.object({
-  name: z.string(),
-  data_source_name: z.string(),
-  database: z.string().optional(),
-  schema: z.string(),
-  description: z.string().optional(),
-  sql_definition: z.string().optional(),
-  yml_file: z.string().optional(),
-  columns: z.array(
-    z.object({
-      name: z.string(),
-      description: z.string().optional(),
-      semantic_type: z.string().optional(),
-      expr: z.string().optional(),
-      type: z.string().optional(),
-      agg: z.string().optional(),
-      searchable: z.boolean().optional(),
-    })
-  ),
-});
+// Re-export the model schema from datasets
+export { DeployModelSchema };
 
 // Schema for deploying docs (markdown files)
 export const DeployDocSchema = z.object({
