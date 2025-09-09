@@ -1,6 +1,6 @@
 import { BlockSelectionPlugin } from '@platejs/selection/react';
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
-import { KEYS } from 'platejs';
+import { KEYS, PathApi } from 'platejs';
 import { useEditorRef, useElement } from 'platejs/react';
 import * as React from 'react';
 import { Button } from '../../buttons';
@@ -18,13 +18,16 @@ export function MoreToolbarButton() {
       label: NodeTypeLabels.duplicate.label,
       icon: <NodeTypeIcons.duplicate />,
       onClick: () => {
-        console.log(
-          'duplicate',
-          editor.selection,
-          editor.api.block(),
-          editor.api.blocks({ mode: 'lowest' })
-        );
-        editor.tf.duplicateNodes({ block: true, select: true });
+        const block = editor.api.block();
+        if (!block) return;
+        editor.tf.duplicateNodes({
+          nodes: [block],
+        });
+        const path = PathApi.next(block[1]);
+        setTimeout(() => {
+          editor.tf.select(path);
+          editor.tf.focus();
+        }, 0);
       },
     },
     {
@@ -32,8 +35,11 @@ export function MoreToolbarButton() {
       label: NodeTypeLabels.delete.label,
       icon: <NodeTypeIcons.trash />,
       onClick: () => {
-        console.log('delete');
-        editor.tf.removeNodes({ block: true });
+        const block = editor.api.block();
+        if (!block) return;
+        editor.tf.removeNodes({
+          at: block[1],
+        });
       },
     },
     { type: 'divider' as const } satisfies DropdownDivider,

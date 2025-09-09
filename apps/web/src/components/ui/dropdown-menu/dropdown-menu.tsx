@@ -1,5 +1,5 @@
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
-import * as React from 'react';
+import type * as React from 'react';
 import { cn } from '@/lib/utils';
 import { Check3 as Check, ChevronRight } from '../icons/NucleoIconOutlined';
 import RadioUnchecked from '../icons/NucleoIconOutlined/radio-unchecked';
