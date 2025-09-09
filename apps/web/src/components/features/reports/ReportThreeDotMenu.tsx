@@ -36,6 +36,7 @@ import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useGetChatId } from '@/context/Chats/useGetChatId';
 import { useReportPageExport } from '@/context/Reports/useReportPageExport';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { useIsMac } from '@/hooks/usePlatform';
 import { useEditorContext } from '@/layouts/AssetContainer/ReportAssetContainer';
 import { canEdit, getIsEffectiveOwner } from '@/lib/share';
 
@@ -386,28 +387,41 @@ const useDownloadPdfSelectMenu = ({
 };
 
 const useUndoRedo = (): IDropdownItems => {
-  const { editor, setEditor } = useEditorContext();
-  return createDropdownItems([
-    {
-      label: 'Undo',
-      value: 'undo',
-      icon: <Undo />,
-      onClick: () => {
-        console.log('Undo');
-        console.log(editor);
-        //  editor?.tf.undo();
-      },
-    },
-    {
-      label: 'Redo',
-      value: 'redo',
-      icon: <Redo />,
-      onClick: () => {
-        console.log('Redo');
-        //  editor?.tf.redo();
-      },
-    },
-  ]);
+  const { editor } = useEditorContext();
+  const isMac = useIsMac();
+  const getEditor = () => {
+    if (!editor?.current) {
+      console.warn('Editor is not defined');
+      return;
+    }
+    return editor?.current;
+  };
+  return useMemo(
+    () =>
+      createDropdownItems([
+        {
+          label: 'Undo',
+          value: 'undo',
+          shortcut: isMac ? '⌘+Z' : 'Ctrl+Z',
+          icon: <Undo />,
+          onClick: () => {
+            const editorInstance = getEditor();
+            editorInstance?.undo();
+          },
+        },
+        {
+          label: 'Redo',
+          value: 'redo',
+          shortcut: isMac ? '⌘+⇧+Z' : 'Ctrl+⇧+Z',
+          icon: <Redo />,
+          onClick: () => {
+            const editorInstance = getEditor();
+            editorInstance?.redo();
+          },
+        },
+      ]),
+    [isMac]
+  );
 };
 
 const useDuplicateReportSelectMenu = ({ reportId }: { reportId: string }): IDropdownItem => {
