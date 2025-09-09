@@ -43,7 +43,7 @@ export const MetricViewChartHeader: React.FC<MetricViewChartHeaderProps> = React
       >
         <div
           className={cn(
-            'justify-between group flex h-full w-full flex-1 flex-nowrap space-x-0.5 max-h-13 min-h-13',
+            'justify-between group flex h-full w-full flex-1 flex-nowrap space-x-0 max-h-13 min-h-13',
             useHeaderLink && 'hover:bg-item-hover relative'
           )}
         >
@@ -51,23 +51,19 @@ export const MetricViewChartHeader: React.FC<MetricViewChartHeaderProps> = React
             {...attributes}
             {...listeners}
             className={cn(
-              'flex  flex-col justify-center space-y-0.5 overflow-hidden w-full pl-4 pr-1.5'
+              'flex  flex-col justify-center space-y-0.5 overflow-hidden w-full pl-4 pr-1.5',
+              !headerSecondaryContent && 'mr-2'
             )}
             data-testid={`metric-item-${metricId}`}
           >
             {hasTitleOrDescription ? (
               <>
-                <EditableTitle
-                  id={METRIC_CHART_TITLE_INPUT_ID}
-                  level={4}
+                <TitleWrapper
+                  name={name}
                   readOnly={readOnly}
-                  inputClassName="h-auto!"
-                  placeholder="New chart"
-                  onChange={onSetTitle}
-                  variant={useHeaderLink ? 'ghost' : 'default'}
-                >
-                  {name}
-                </EditableTitle>
+                  onSetTitle={onSetTitle}
+                  useHeaderLink={useHeaderLink}
+                />
                 <div className="flex items-center space-x-1 whitespace-nowrap">
                   {!!timeFrame && (
                     <>
@@ -87,7 +83,9 @@ export const MetricViewChartHeader: React.FC<MetricViewChartHeaderProps> = React
               </>
             ) : null}
           </div>
-          {headerSecondaryContent}
+          {headerSecondaryContent && (
+            <div className="group-hover:block hidden">{headerSecondaryContent}</div>
+          )}
         </div>
       </LinkWrapper>
     );
@@ -119,5 +117,33 @@ const LinkWrapper: React.FC<{
     >
       {children}
     </Link>
+  );
+};
+
+const TitleWrapper: React.FC<{
+  name: string;
+  onSetTitle: (value: string) => void;
+  useHeaderLink: boolean;
+  readOnly?: boolean;
+}> = ({ name, readOnly = false, onSetTitle, useHeaderLink }) => {
+  if (readOnly)
+    return (
+      <Text truncate className="text-[14px]">
+        {name}
+      </Text>
+    );
+
+  return (
+    <EditableTitle
+      id={METRIC_CHART_TITLE_INPUT_ID}
+      level={4}
+      readOnly={readOnly}
+      inputClassName="h-auto!"
+      placeholder="New chart"
+      onChange={onSetTitle}
+      variant={useHeaderLink ? 'ghost' : 'default'}
+    >
+      {name}
+    </EditableTitle>
   );
 };
