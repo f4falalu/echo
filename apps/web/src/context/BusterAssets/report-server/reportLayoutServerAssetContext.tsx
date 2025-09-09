@@ -3,7 +3,7 @@ import type { QueryClient } from '@tanstack/react-query';
 import { Outlet } from '@tanstack/react-router';
 import { z } from 'zod';
 import { prefetchGetReport } from '@/api/buster_rest/reports';
-import { ReportAssetContainer } from '../../../layouts/AssetContainer/ReportAssetContainer/ReportAssetContainer';
+import { ReportAssetContainer } from '@/layouts/AssetContainer/ReportAssetContainer/ReportAssetContainer';
 import { useGetReportParams } from '../../Reports/useGetReportParams';
 
 export const validateSearch = z.object({

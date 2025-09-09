@@ -5,10 +5,10 @@ import { useGetReport } from '@/api/buster_rest/reports';
 import { CreateChatButton } from '@/components/features/AssetLayout/CreateChatButton';
 import { ShareReportButton } from '@/components/features/buttons/ShareReportButton';
 import { ClosePageButton } from '@/components/features/chat/ClosePageButton';
+import { ReportThreeDotMenu } from '@/components/features/reports/ReportThreeDotMenu';
 import { useIsChatMode, useIsFileMode } from '@/context/Chats/useMode';
 import { useIsReportReadOnly } from '@/context/Reports/useIsReportReadOnly';
 import { getIsEffectiveOwner } from '@/lib/share';
-import { ReportThreeDotMenu } from '../../../components/features/reports/ReportThreeDotMenu';
 import { FileButtonContainer } from '../FileButtonContainer';
 import { HideButtonContainer } from '../HideButtonContainer';
 
@@ -26,7 +26,7 @@ export const ReportContainerHeaderButtons: React.FC<ReportContainerHeaderButtons
   const { isViewingOldVersion } = useIsReportReadOnly({
     reportId: reportId || '',
   });
-  const { error: reportError, data: permission } = useGetReport(
+  const { data: permission } = useGetReport(
     { id: reportId },
     { select: useCallback((x: GetReportResponse) => x.permission, []) }
   );
