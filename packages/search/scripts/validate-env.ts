@@ -8,8 +8,9 @@ loadRootEnv();
 
 // Define required environment variables for this package
 const requiredEnv = {
-  DATABASE_URL: process.env.DATABASE_URL,
-  OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+  // NODE_ENV is optional - will default to 'development' if not set
+  // TURBOPUFFER_API_KEY is optional for development, required for production
+  TURBOPUFFER_API_KEY: process.env.TURBOPUFFER_API_KEY,
 };
 
 // Validate environment variables

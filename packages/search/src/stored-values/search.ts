@@ -1,6 +1,4 @@
-import { openai } from '@ai-sdk/openai';
 import { getClient } from '@buster/database';
-import { embed } from 'ai';
 import {
   type EmbeddingOptions,
   EmbeddingOptionsSchema,
@@ -33,7 +31,7 @@ export class StoredValuesError extends Error {
  * Searches for values based on semantic similarity using embeddings.
  *
  * @param dataSourceId - UUID of the data source to construct the schema name
- * @param queryEmbedding - The pre-computed embedding array for the query (1536 dimensions)
+ * @param queryEmbedding - The pre-computed embedding array for the query (512 dimensions)
  * @param options - Search options including limit and similarity threshold
  * @returns A Promise containing an array of StoredValueResult ordered by similarity
  *
@@ -119,7 +117,7 @@ export async function searchValuesByEmbedding(
  * Searches for values based on semantic similarity using embeddings with specific filters.
  *
  * @param dataSourceId - UUID of the data source to construct the schema name
- * @param queryEmbedding - The pre-computed embedding array for the query (1536 dimensions)
+ * @param queryEmbedding - The pre-computed embedding array for the query (512 dimensions)
  * @param options - Search options including limit and similarity threshold
  * @param databaseName - Optional filter for database name
  * @param schemaName - Optional filter for schema name within the source database
@@ -232,7 +230,7 @@ export async function searchValuesByEmbeddingWithFilters(
  * Searches for values across multiple specified tables and columns in parallel.
  *
  * @param dataSourceId - UUID of the data source
- * @param queryEmbedding - The pre-computed embedding array for the query (1536 dimensions)
+ * @param queryEmbedding - The pre-computed embedding array for the query (512 dimensions)
  * @param targets - Array of SearchTarget specifying which tables/columns to search
  * @param limitPerTarget - Maximum number of results per target
  * @param options - Search options including similarity threshold
@@ -305,50 +303,9 @@ export async function searchValuesAcrossTargets(
   }
 }
 
-/**
- * Generates embeddings for search terms using OpenAI's text-embedding-3-small model.
- *
- * @param searchTerms - Array of search terms to generate embeddings for
- * @param options - Embedding generation options including retry configuration
- * @returns A Promise containing the embedding array (1536 dimensions)
- *
- * @throws {StoredValuesError} When validation fails or embedding generation fails
- *
- * @example
- * ```typescript
- * const embedding = await generateEmbedding(
- *   ['user', 'email', 'address'],
- *   { maxRetries: 5 }
- * );
- * ```
- */
-export async function generateEmbedding(
-  searchTerms: string[],
-  options: EmbeddingOptions = { maxRetries: 3 }
-): Promise<number[]> {
-  try {
-    // Validate inputs
-    const validSearchTerms = SearchTermsSchema.parse(searchTerms);
-    const validOptions = EmbeddingOptionsSchema.parse(options);
-
-    const embedOptions = {
-      model: openai.embedding('text-embedding-3-small'),
-      value: validSearchTerms.join(' '),
-      maxRetries: validOptions.maxRetries,
-      ...(validOptions.abortSignal && { abortSignal: validOptions.abortSignal }),
-    };
-
-    const { embedding } = await embed(embedOptions);
-
-    // Validate output
-    return EmbeddingSchema.parse(embedding);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new StoredValuesError(`Failed to generate embedding: ${error.message}`, error);
-    }
-    throw new StoredValuesError('Failed to generate embedding', error);
-  }
-}
+// Note: generateEmbedding function has been removed to avoid circular dependencies.
+// Users should use embedding generation directly from @buster/ai package:
+// import { generateSingleValueEmbedding } from '@buster/ai';
 
 /**
  * Extracts searchable columns from dataset YAML content.

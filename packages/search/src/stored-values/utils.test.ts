@@ -148,7 +148,7 @@ describe('utils.ts - Unit Tests', () => {
     });
 
     it('should accept large embeddings', () => {
-      const embedding = new Array(1536).fill(0).map((_, i) => i * 0.001);
+      const embedding = new Array(512).fill(0).map((_, i) => i * 0.001);
       const result = isValidEmbedding(embedding);
       expect(result).toBe(true);
     });

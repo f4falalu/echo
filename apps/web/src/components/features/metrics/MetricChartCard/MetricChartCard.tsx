@@ -9,6 +9,7 @@ import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { inputHasText } from '@/lib/text';
 import { cn } from '@/lib/utils';
 import { MetricViewChartContent } from './MetricViewChartContent';
+import { MetricViewChartProvider } from './MetricViewChartContext';
 import { MetricViewChartHeader } from './MetricViewChartHeader';
 
 export type MetricChartCardProps = {
@@ -152,16 +153,18 @@ const MetricViewChartCardContainer = React.forwardRef<
   }, [isTable, loadingData, hasData, errorData]);
 
   return (
-    <div
-      ref={ref}
-      className={cn(
-        'bg-background flex flex-col overflow-hidden rounded border shadow h-full',
-        cardClass,
-        className
-      )}
-    >
-      {children}
-    </div>
+    <MetricViewChartProvider>
+      <div
+        ref={ref}
+        className={cn(
+          'bg-background flex flex-col overflow-hidden rounded border shadow h-full',
+          cardClass,
+          className
+        )}
+      >
+        {children}
+      </div>
+    </MetricViewChartProvider>
   );
 });
 

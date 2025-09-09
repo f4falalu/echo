@@ -44,7 +44,7 @@ interface AnimationStyleProps {
 
 export const createAnimationStyle = ({
   animation = 'fadeIn',
-  animationDuration = 700,
+  animationDuration = 300,
   animationTimingFunction = 'ease-in-out',
   isStreamFinished = false,
 }: AnimationStyleProps) => {

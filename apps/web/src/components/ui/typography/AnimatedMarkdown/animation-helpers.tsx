@@ -10,7 +10,7 @@ export const animateTokenizedText = (
     'animation' | 'animationDuration' | 'animationTimingFunction' | 'isStreamFinished'
   >
 ) => {
-  if (!animationsProps.animation) {
+  if (!animationsProps.animation || animationsProps.animation.includes('none')) {
     return text;
   }
 

@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useUpdateCollectionShare } from '@/api/buster_rest/collections';
 import { useUpdateDashboardShare } from '@/api/buster_rest/dashboards';
 import { useUpdateMetricShare } from '@/api/buster_rest/metrics';
+import { useUpdateReportShare } from '@/api/buster_rest/reports';
 import { Button } from '@/components/ui/buttons';
 import { DatePicker } from '@/components/ui/date';
 import { Eye, EyeSlash, Link } from '@/components/ui/icons';
@@ -33,6 +34,7 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
       useUpdateDashboardShare();
     const { mutateAsync: onShareCollection, isPending: isPublishingCollection } =
       useUpdateCollectionShare();
+    const { mutateAsync: onShareReport, isPending: isPublishingReport } = useUpdateReportShare();
     const [isPasswordProtected, setIsPasswordProtected] = useState<boolean>(!!password);
     const [_password, _setPassword] = React.useState<string>(password || '');
 
@@ -110,6 +112,12 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
         await onShareDashboard(payload);
       } else if (assetType === 'collection') {
         await onShareCollection(payload);
+      } else if (assetType === 'report') {
+        await onShareReport(payload);
+      } else if (assetType === 'chat') {
+        console.warn('Chat sharing is not implemented');
+      } else {
+        const _exhaustiveCheck: never = assetType;
       }
     };
 
@@ -132,6 +140,12 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
         await onShareDashboard(payload);
       } else if (assetType === 'collection') {
         await onShareCollection(payload);
+      } else if (assetType === 'report') {
+        await onShareReport(payload);
+      } else if (assetType === 'chat') {
+        console.warn('Chat sharing is not implemented');
+      } else {
+        const _exhaustiveCheck: never = assetType;
       }
       _setPassword(password || '');
       if (password) openInfoMessage('Password updated');
@@ -153,6 +167,12 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
         await onShareDashboard(payload);
       } else if (assetType === 'collection') {
         await onShareCollection(payload);
+      } else if (assetType === 'report') {
+        await onShareReport(payload);
+      } else if (assetType === 'chat') {
+        console.warn('Chat sharing is not implemented');
+      } else {
+        const _exhaustiveCheck: never = assetType;
       }
     };
 

@@ -310,7 +310,9 @@ export class ModelParsingError extends Error {
     super(message);
     this.name = 'ModelParsingError';
     this.file = file;
-    this.zodError = zodError;
+    if (zodError) {
+      this.zodError = zodError;
+    }
   }
 
   getDetailedMessage(): string {

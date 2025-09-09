@@ -7,5 +7,5 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
-  return <div>Hello "/app/_settings/_permissions/settings/users/$userId/permission-groups"!</div>;
+  return <div>Coming soon</div>;
 }
