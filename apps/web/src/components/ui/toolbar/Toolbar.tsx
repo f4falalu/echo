@@ -64,7 +64,7 @@ export function ToolbarSeparator({
 
 // From toggleVariants
 const toolbarButtonVariants = cva(
-  "inline-flex cursor-pointer items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-[color,box-shadow] outline-none hover:bg-muted hover:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-checked:bg-accent aria-checked:text-accent-foreground aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "inline-flex cursor-pointer items-center justify-center gap-2 rounded text-sm font-medium whitespace-nowrap transition-[color,box-shadow] outline-none hover:bg-item-hover  disabled:pointer-events-none disabled:opacity-50 aria-checked:bg-accent aria-checked:text-accent-foreground aria-invalid:border-destructive [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     defaultVariants: {
       size: 'default',
@@ -72,9 +72,9 @@ const toolbarButtonVariants = cva(
     },
     variants: {
       size: {
-        default: 'h-9 min-w-9 px-2',
-        lg: 'h-10 min-w-10 px-2.5',
-        sm: 'h-8 min-w-8 px-1.5',
+        default: 'h-6 min-w-6',
+        lg: 'h-7 min-w-7',
+        sm: 'h-5 min-w-5',
       },
       variant: {
         default: 'bg-transparent',
@@ -121,7 +121,7 @@ export const ToolbarButton = withTooltip(function ToolbarButton({
   className,
   isDropdown,
   pressed,
-  size = 'sm',
+  size = 'default',
   variant,
   ...props
 }: ToolbarButtonProps) {
@@ -133,7 +133,7 @@ export const ToolbarButton = withTooltip(function ToolbarButton({
             size,
             variant,
           }),
-          isDropdown && 'justify-between gap-1 pr-1',
+          isDropdown && 'justify-between gap-1.5 pr-1',
           className
         )}
         value={pressed ? 'single' : ''}
@@ -142,7 +142,7 @@ export const ToolbarButton = withTooltip(function ToolbarButton({
         {isDropdown ? (
           <>
             <div className="flex flex-1 items-center gap-2 whitespace-nowrap">{children}</div>
-            <div className="size-3.5 text-muted-foreground">
+            <div className="text-icon-color text-[10px]">
               <ChevronDown data-icon />
             </div>
           </>
@@ -258,7 +258,7 @@ export function ToolbarToggleItem({
 export function ToolbarGroup({ children, className }: React.ComponentProps<'div'>) {
   return (
     <div className={cn('group/toolbar-group', 'relative hidden has-[button]:flex', className)}>
-      <div className="flex items-center">{children}</div>
+      <div className="flex items-center space-x-1">{children}</div>
 
       <div className="mx-1.5 py-0.5 group-last/toolbar-group:hidden!">
         <Separator orientation="vertical" />
@@ -318,7 +318,7 @@ function TooltipContent({
       <TooltipPrimitive.Content
         className={cn(
           'bg-popover text-popover-foreground',
-          'rounded border px-1.5 py-1.5',
+          'rounded-sm border px-1.5 py-1.5',
           'text-sm shadow',
           'animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-100 overflow-hidden',
           className
@@ -328,8 +328,6 @@ function TooltipContent({
         {...props}
       >
         {children}
-        {/* CHANGE */}
-        {/* <TooltipPrimitive.Arrow className="z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px] bg-primary fill-primary" /> */}
       </TooltipPrimitive.Content>
     </TooltipPrimitive.Portal>
   );
