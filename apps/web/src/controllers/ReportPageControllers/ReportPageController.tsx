@@ -6,8 +6,10 @@ import { useTrackAndUpdateReportChanges } from '@/api/buster-electric/reports/ho
 import DynamicReportEditor from '@/components/ui/report/DynamicReportEditor';
 import type { IReportEditor } from '@/components/ui/report/ReportEditor';
 import { ReportEditorSkeleton } from '@/components/ui/report/ReportEditorSkeleton';
+import type { BusterReportEditor } from '@/components/ui/report/types';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useMount } from '@/hooks/useMount';
+import { useEditorContext } from '@/layouts/AssetContainer/ReportAssetContainer';
 import { cn } from '@/lib/utils';
 import { chatQueryKeys } from '../../api/query_keys/chat';
 import { useGetCurrentMessageId, useIsStreamingMessage } from '../../context/Chats';
@@ -23,6 +25,7 @@ export const ReportPageController: React.FC<{
 }> = React.memo(
   ({ reportId, readOnly = false, className = '', onReady: onReadyProp, mode = 'default' }) => {
     const { data: report } = useGetReport({ id: reportId, versionNumber: undefined });
+    const { setEditor } = useEditorContext();
     const isStreamingMessage = useIsStreamingMessage();
     const messageId = useGetCurrentMessageId();
 
@@ -71,6 +74,11 @@ export const ReportPageController: React.FC<{
       updateReport({ reportId, content });
     });
 
+    const onReady = useMemoizedFn((editor: BusterReportEditor) => {
+      setEditor(editor);
+      onReadyProp?.(editor);
+    });
+
     useTrackAndUpdateReportChanges({ reportId, subscribe: isStreamingMessage });
 
     const containerRef = useRef<HTMLDivElement>(null);
@@ -102,7 +110,7 @@ export const ReportPageController: React.FC<{
             onValueChange={onChangeContent}
             readOnly={readOnly || !report}
             mode={mode}
-            onReady={onReadyProp}
+            onReady={onReady}
             isStreaming={isStreamingMessage}
             containerRef={containerRef}
             preEditorChildren={

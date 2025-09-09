@@ -16,6 +16,7 @@ import { useListReportVersionDropdownItems } from '@/components/features/version
 import { Button } from '@/components/ui/buttons';
 import {
   createDropdownItem,
+  createDropdownItems,
   Dropdown,
   DropdownContent,
   type IDropdownItem,
@@ -23,12 +24,19 @@ import {
 } from '@/components/ui/dropdown';
 import { Dots, History, PenSparkle, ShareRight, Star } from '@/components/ui/icons';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
-import { Download4, Refresh } from '@/components/ui/icons/NucleoIconOutlined';
+import {
+  Download4,
+  DuplicatePlus,
+  Redo,
+  Refresh,
+  Undo,
+} from '@/components/ui/icons/NucleoIconOutlined';
 import { useStartChatFromAsset } from '@/context/BusterAssets/useStartChatFromAsset';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useGetChatId } from '@/context/Chats/useGetChatId';
 import { useReportPageExport } from '@/context/Reports/useReportPageExport';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { useEditorContext } from '@/layouts/AssetContainer/ReportAssetContainer';
 import { canEdit, getIsEffectiveOwner } from '@/lib/share';
 
 export const ReportThreeDotMenu = React.memo(
@@ -46,9 +54,10 @@ export const ReportThreeDotMenu = React.memo(
     const saveToLibrary = useSaveToLibrary({ reportId });
     const favoriteItem = useFavoriteReportSelectMenu({ reportId });
     const versionHistory = useVersionHistorySelectMenu({ reportId });
+    const undoRedo = useUndoRedo();
+    const duplicateReport = useDuplicateReportSelectMenu({ reportId });
     // const verificationItem = useReportVerificationSelectMenu(); // Hidden - not supported yet
     const refreshReportItem = useRefreshReportSelectMenu({ reportId });
-    // const duplicateReportItem = useDuplicateReportSelectMenu();
     const { dropdownItem: downloadPdfItem, exportPdfContainer } = useDownloadPdfSelectMenu({
       reportId,
     });
@@ -68,11 +77,13 @@ export const ReportThreeDotMenu = React.memo(
         saveToLibrary,
         favoriteItem,
         { type: 'divider' },
+        ...undoRedo,
+        { type: 'divider' },
         versionHistory,
         // verificationItem, // Hidden - not supported yet
         { type: 'divider' },
         isEditor && refreshReportItem,
-        // duplicateReportItem,
+        duplicateReport,
         downloadPdfItem,
       ];
     }, [
@@ -293,7 +304,6 @@ const useReportVerificationSelectMenu = (): IDropdownItem => {
 
 // Refresh report with latest data
 const useRefreshReportSelectMenu = ({ reportId }: { reportId: string }): IDropdownItem => {
-  const navigate = useNavigate();
   const { onCreateFileClick, loading: isPending } = useStartChatFromAsset({
     assetId: reportId,
     assetType: 'report',
@@ -373,4 +383,43 @@ const useDownloadPdfSelectMenu = ({
       exportPdfContainer: ExportContainer,
     };
   }, [reportId, exportReportAsPDF, cancelExport, ExportContainer]);
+};
+
+const useUndoRedo = (): IDropdownItems => {
+  const { editor, setEditor } = useEditorContext();
+  return createDropdownItems([
+    {
+      label: 'Undo',
+      value: 'undo',
+      icon: <Undo />,
+      onClick: () => {
+        console.log('Undo');
+        console.log(editor);
+        //  editor?.tf.undo();
+      },
+    },
+    {
+      label: 'Redo',
+      value: 'redo',
+      icon: <Redo />,
+      onClick: () => {
+        console.log('Redo');
+        //  editor?.tf.redo();
+      },
+    },
+  ]);
+};
+
+const useDuplicateReportSelectMenu = ({ reportId }: { reportId: string }): IDropdownItem => {
+  return useMemo(
+    () => ({
+      label: 'Duplicate',
+      value: 'duplicate-report',
+      icon: <DuplicatePlus />,
+      onClick: () => {
+        console.log('Duplicate report');
+      },
+    }),
+    [reportId]
+  );
 };
