@@ -1,7 +1,13 @@
-import type { TComboboxInputElement } from 'platejs';
+import type { TElement } from 'platejs';
 import type { PlateElementProps } from 'platejs/react';
-import { PlateElement } from 'platejs/react';
+import { PlateElement, usePluginOption } from 'platejs/react';
 import { getSlashGroups } from '../config/addMenuItems';
+import { SlashInputPlugin } from '../plugins/slash-kit';
+
+interface TSlashInputElement extends TElement {
+  value: string;
+  placeholder: string;
+}
 
 import {
   InlineCombobox,
@@ -15,20 +21,19 @@ import {
 
 const groups = getSlashGroups();
 
-export function SlashInputElement(props: PlateElementProps<TComboboxInputElement>) {
+export function SlashInputElement(props: PlateElementProps<TSlashInputElement>) {
   const { editor, element } = props;
+
+  const placeholder = usePluginOption(SlashInputPlugin, 'placeholder') || 'Filter...';
 
   return (
     <PlateElement {...props} as="span" data-slate-value={element.value}>
       <InlineCombobox
         element={element}
         trigger="/"
-        className="bg-item-select relative rounded-l px-1 min-h-7 overflow-hidden flex items-center w-fit"
+        className="bg-item-select relative rounded pl-1 pr-2 gap-x-1 min-h-7 overflow-hidden flex items-center w-fit"
       >
-        <InlineComboboxInput
-          placeholder="Filter..."
-          className="pl-1 py-0.5 bg-item-select text-gray-light rounded-r"
-        />
+        <InlineComboboxInput placeholder={placeholder} className="bg-item-select text-gray-light" />
 
         <InlineComboboxContent>
           <InlineComboboxEmpty>No results</InlineComboboxEmpty>

@@ -1,7 +1,16 @@
-import { SlashInputPlugin, SlashPlugin } from '@platejs/slash-command/react';
+import {
+  SlashInputPlugin as SlashInputPluginImport,
+  SlashPlugin,
+} from '@platejs/slash-command/react';
 import { KEYS } from 'platejs';
 
 import { SlashInputElement } from '../elements/SlashNode';
+
+export const SlashInputPlugin = SlashInputPluginImport.extend({
+  options: {
+    placeholder: 'Filter...',
+  },
+});
 
 export const SlashKit = [
   SlashPlugin.configure({
