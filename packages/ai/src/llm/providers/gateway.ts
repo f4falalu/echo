@@ -4,7 +4,7 @@ import { BraintrustMiddleware } from 'braintrust';
 
 export const DEFAULT_ANTHROPIC_OPTIONS = {
   gateway: {
-    order: ['bedrock', 'anthropic', 'vertex'],
+    order: ['anthropic', 'bedrock', 'vertex'],
   },
   headers: {},
   anthropic: { cacheControl: { type: 'ephemeral' } },
