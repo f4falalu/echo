@@ -196,6 +196,7 @@ export const NodeTypeIcons = {
   trash: Trash2,
   check: Check,
   copy: Copy,
+  duplicate: DuplicatePlus,
   formatCode: BracketsCurly,
   indent: IndentIncrease,
   outdent: IndentDecrease,

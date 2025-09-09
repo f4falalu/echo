@@ -157,7 +157,7 @@ function BlockContextMenuComponent({ children }: { children: React.ReactNode }) 
               editor.getTransforms(BlockSelectionPlugin).blockSelection.duplicate();
             }}
           >
-            <MenuItemContent icon={NodeTypeIcons.copy} labelKey="duplicate" />
+            <MenuItemContent icon={NodeTypeIcons.duplicate} labelKey="duplicate" />
           </ContextMenuItem>
           <ContextMenuItem
             onClick={() => {
