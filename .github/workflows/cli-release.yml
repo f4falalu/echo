@@ -17,27 +17,8 @@ permissions:
   actions: read
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            target: linux-x64
-            artifact_name: buster-cli-linux-x86_64.tar.gz
-            bun_target: linux-x64-modern
-          - os: macos-latest
-            target: darwin-x64
-            artifact_name: buster-cli-darwin-x86_64.tar.gz
-            bun_target: darwin-x64
-          - os: macos-latest
-            target: darwin-arm64
-            artifact_name: buster-cli-darwin-arm64.tar.gz
-            bun_target: darwin-arm64
-          - os: windows-2022
-            target: windows-x64
-            artifact_name: buster-cli-windows-x86_64.zip
-            bun_target: win32-x64
-    runs-on: ${{ matrix.os }}
+  build-deps:
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -50,10 +31,9 @@ jobs:
           install-filter: "@buster-app/cli..."
 
       - name: Mount Turbo cache sticky disk
-        if: runner.os != 'Windows'
         uses: useblacksmith/stickydisk@v1
         with:
-          key: ${{ github.repository }}-turbo-cache-cli-${{ matrix.target }}
+          key: ${{ github.repository }}-turbo-cache-cli
           path: ./.turbo
 
       - name: Build dependencies with Turbo
@@ -66,80 +46,219 @@ jobs:
           TURBO_CACHE_DIR: .turbo
           TURBO_TELEMETRY_DISABLED: 1
 
-      - name: Build standalone CLI binary
+      - name: Cache built dependencies
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/node_modules
+            apps/*/dist
+            packages/*/dist
+            .turbo
+          key: cli-deps-${{ github.sha }}
+
+  build-linux:
+    needs: build-deps
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node Environment
+        uses: ./.github/actions/setup-node-env
+        with:
+          install-filter: "@buster-app/cli..."
+
+      - name: Restore built dependencies
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/node_modules
+            apps/*/dist
+            packages/*/dist
+            .turbo
+          key: cli-deps-${{ github.sha }}
+
+      - name: Build Linux binary
         working-directory: ./apps/cli
         run: |
-          echo "📦 Building standalone CLI binary for ${{ matrix.target }}..."
-          # Note: Bun compiles for the host platform, cross-compilation happens via matrix strategy
-          # Using --minify for production builds to reduce binary size
-          bun build src/index.tsx --compile --minify --outfile dist/buster-cli
+          echo "📦 Building Linux x64 binary..."
+          mkdir -p dist
+          bun build src/index.tsx --compile --target=bun-linux-x64 --minify --outfile dist/buster-linux-x64
+          chmod +x dist/buster-linux-x64
           
-          # Make binary executable on Unix systems
-          if [[ "${{ runner.os }}" != "Windows" ]]; then
-            chmod +x dist/buster-cli
-          fi
-          
-          # Display binary info
-          ls -lah dist/
-        shell: bash
+          echo "🧪 Testing Linux binary..."
+          ./dist/buster-linux-x64 --version || echo "Version command not implemented yet"
+          ./dist/buster-linux-x64 --help || echo "Help command output"
 
-      - name: Test binary (Unix)
-        if: runner.os != 'Windows'
-        working-directory: ./apps/cli
+      - name: Package Linux binary
+        working-directory: ./apps/cli/dist
         run: |
-          echo "🧪 Testing CLI binary..."
-          ./dist/buster-cli --version || echo "Version command not implemented yet"
-          ./dist/buster-cli --help || echo "Help command output"
+          cp buster-linux-x64 buster
+          tar czf buster-cli-linux-x86_64.tar.gz buster
+          sha256sum buster-cli-linux-x86_64.tar.gz > buster-cli-linux-x86_64.tar.gz.sha256
+          ls -lah *.tar.gz *.sha256
 
-      - name: Test binary (Windows)
-        if: runner.os == 'Windows'
-        working-directory: ./apps/cli
-        shell: pwsh
-        run: |
-          echo "🧪 Testing CLI binary..."
-          .\dist\buster-cli.exe --version
-          .\dist\buster-cli.exe --help
-
-      - name: Compress binary (Unix)
-        if: runner.os != 'Windows'
-        working-directory: ./apps/cli
-        run: |
-          cd dist
-          # Rename to just 'buster' for end users
-          mv buster-cli buster
-          tar czf ${{ matrix.artifact_name }} buster
-          if [[ "${{ runner.os }}" == "macOS" ]]; then
-            shasum -a 256 ${{ matrix.artifact_name }} > ${{ matrix.artifact_name }}.sha256
-          else
-            sha256sum ${{ matrix.artifact_name }} > ${{ matrix.artifact_name }}.sha256
-          fi
-          echo "📦 Archive created:"
-          ls -lah ${{ matrix.artifact_name }}*
-
-      - name: Compress binary (Windows)
-        if: runner.os == 'Windows'
-        working-directory: ./apps/cli
-        shell: pwsh
-        run: |
-          cd dist
-          # Rename to just 'buster.exe' for end users
-          Rename-Item -Path "buster-cli.exe" -NewName "buster.exe"
-          Compress-Archive -Path buster.exe -DestinationPath ${{ matrix.artifact_name }}
-          Get-FileHash -Algorithm SHA256 ${{ matrix.artifact_name }} | Select-Object -ExpandProperty Hash > "${{ matrix.artifact_name }}.sha256"
-          echo "📦 Archive created:"
-          Get-ChildItem ${{ matrix.artifact_name }}*
-
-      - name: Upload artifacts
+      - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: buster-cli-${{ matrix.target }}
+          name: buster-cli-linux-x64
           path: |
-            apps/cli/dist/${{ matrix.artifact_name }}
-            apps/cli/dist/${{ matrix.artifact_name }}.sha256
+            apps/cli/dist/buster-cli-linux-x86_64.tar.gz
+            apps/cli/dist/buster-cli-linux-x86_64.tar.gz.sha256
+          retention-days: 1
+
+  build-macos-x64:
+    needs: build-deps
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node Environment
+        uses: ./.github/actions/setup-node-env
+        with:
+          install-filter: "@buster-app/cli..."
+
+      - name: Restore built dependencies
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/node_modules
+            apps/*/dist
+            packages/*/dist
+            .turbo
+          key: cli-deps-${{ github.sha }}
+
+      - name: Build macOS x64 binary
+        working-directory: ./apps/cli
+        run: |
+          echo "📦 Building macOS x64 (Intel) binary..."
+          mkdir -p dist
+          bun build src/index.tsx --compile --target=bun-darwin-x64 --minify --outfile dist/buster-darwin-x64
+          chmod +x dist/buster-darwin-x64
+
+      - name: Package macOS x64 binary
+        working-directory: ./apps/cli/dist
+        run: |
+          cp buster-darwin-x64 buster
+          tar czf buster-cli-darwin-x86_64.tar.gz buster
+          sha256sum buster-cli-darwin-x86_64.tar.gz > buster-cli-darwin-x86_64.tar.gz.sha256
+          ls -lah *.tar.gz *.sha256
+
+      - name: Upload macOS x64 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: buster-cli-darwin-x64
+          path: |
+            apps/cli/dist/buster-cli-darwin-x86_64.tar.gz
+            apps/cli/dist/buster-cli-darwin-x86_64.tar.gz.sha256
+          retention-days: 1
+
+  build-macos-arm64:
+    needs: build-deps
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node Environment
+        uses: ./.github/actions/setup-node-env
+        with:
+          install-filter: "@buster-app/cli..."
+
+      - name: Restore built dependencies
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/node_modules
+            apps/*/dist
+            packages/*/dist
+            .turbo
+          key: cli-deps-${{ github.sha }}
+
+      - name: Build macOS ARM64 binary
+        working-directory: ./apps/cli
+        run: |
+          echo "📦 Building macOS ARM64 (Apple Silicon) binary..."
+          mkdir -p dist
+          bun build src/index.tsx --compile --target=bun-darwin-arm64 --minify --outfile dist/buster-darwin-arm64
+          chmod +x dist/buster-darwin-arm64
+
+      - name: Package macOS ARM64 binary
+        working-directory: ./apps/cli/dist
+        run: |
+          cp buster-darwin-arm64 buster
+          tar czf buster-cli-darwin-arm64.tar.gz buster
+          sha256sum buster-cli-darwin-arm64.tar.gz > buster-cli-darwin-arm64.tar.gz.sha256
+          ls -lah *.tar.gz *.sha256
+
+      - name: Upload macOS ARM64 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: buster-cli-darwin-arm64
+          path: |
+            apps/cli/dist/buster-cli-darwin-arm64.tar.gz
+            apps/cli/dist/buster-cli-darwin-arm64.tar.gz.sha256
+          retention-days: 1
+
+  build-windows:
+    needs: build-deps
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node Environment
+        uses: ./.github/actions/setup-node-env
+        with:
+          install-filter: "@buster-app/cli..."
+
+      - name: Restore built dependencies
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/node_modules
+            apps/*/dist
+            packages/*/dist
+            .turbo
+          key: cli-deps-${{ github.sha }}
+
+      - name: Build Windows binary
+        working-directory: ./apps/cli
+        run: |
+          echo "📦 Building Windows x64 binary..."
+          mkdir -p dist
+          bun build src/index.tsx --compile --target=bun-windows-x64 --minify --outfile dist/buster-windows-x64.exe
+
+      - name: Package Windows binary
+        working-directory: ./apps/cli/dist
+        run: |
+          cp buster-windows-x64.exe buster.exe
+          zip buster-cli-windows-x86_64.zip buster.exe
+          sha256sum buster-cli-windows-x86_64.zip > buster-cli-windows-x86_64.zip.sha256
+          ls -lah *.zip *.sha256
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: buster-cli-windows-x64
+          path: |
+            apps/cli/dist/buster-cli-windows-x86_64.zip
+            apps/cli/dist/buster-cli-windows-x86_64.zip.sha256
           retention-days: 1
 
   release:
-    needs: build
+    needs: [build-linux, build-macos-x64, build-macos-arm64, build-windows]
     runs-on: blacksmith-2vcpu-ubuntu-2404
     outputs:
       cli_version: ${{ steps.get_version.outputs.version }}
