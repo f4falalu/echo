@@ -18,12 +18,9 @@ import {
   useHTMLInputCursorState,
 } from '@platejs/combobox/react';
 import { cva } from 'class-variance-authority';
-import { motion } from 'framer-motion';
 import type { Point, TElement } from 'platejs';
 import { useComposedRef, useEditorRef } from 'platejs/react';
 import * as React from 'react';
-import { useMount } from '@/hooks/useMount';
-import { useUnmount } from '@/hooks/useUnmount';
 import { measureTextWidth } from '@/lib/canvas';
 import { cn } from '@/lib/utils';
 import { THEME_RESET_STYLE } from '@/styles/report-editor-theme';
@@ -170,7 +167,7 @@ const InlineCombobox = ({
   }, [items, store]);
 
   return (
-    <div contentEditable={false} className={className}>
+    <span contentEditable={false} className={className}>
       <ComboboxProvider
         open={(items.length > 0 || hasEmpty) && (!hideWhenNoValue || value.length > 0)}
         store={store}
@@ -179,7 +176,7 @@ const InlineCombobox = ({
           {children}
         </InlineComboboxContext.Provider>
       </ComboboxProvider>
-    </div>
+    </span>
   );
 };
 
@@ -197,7 +194,6 @@ const InlineComboboxInput = React.forwardRef<
   // biome-ignore lint/style/noNonNullAssertion: living on the edge
   const store = useComboboxContext()!;
   const value = store.useState('value');
-  const isOpen = store.useState('open');
 
   const hasValue = value.length > 0;
 
@@ -252,6 +248,7 @@ const InlineComboboxInput = React.forwardRef<
 InlineComboboxInput.displayName = 'InlineComboboxInput';
 
 const InlineComboboxContent: typeof ComboboxPopover = ({ className, style, ...props }) => {
+  // Portal prevents CSS from leaking into popover
   return (
     <Portal>
       <ComboboxPopover
@@ -259,15 +256,8 @@ const InlineComboboxContent: typeof ComboboxPopover = ({ className, style, ...pr
           'bg-popover z-500 max-h-[300px] min-w-[210px] overflow-y-auto rounded border shadow',
           className
         )}
-        {...props}
         style={{ ...THEME_RESET_STYLE, ...style }}
-        render={
-          <motion.div
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.125 }}
-          />
-        }
+        {...props}
       />
     </Portal>
   );
@@ -307,7 +297,7 @@ const InlineComboboxItem = ({
 
   const { filter, removeInput } = React.useContext(InlineComboboxContext);
 
-  // biome-ignore lint/style/noNonNullAssertion: your momma
+  // biome-ignore lint/style/noNonNullAssertion: just do it
   const store = useComboboxContext()!;
 
   // Optimization: Do not subscribe to value if filter is false

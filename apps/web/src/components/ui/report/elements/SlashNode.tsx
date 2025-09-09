@@ -28,13 +28,21 @@ export function SlashInputElement(props: PlateElementProps<TSlashInputElement>) 
   const placeholder = element.placeholder || placeholderGlobal;
 
   return (
-    <PlateElement {...props} as="span" data-slate-value={element.value}>
+    <PlateElement
+      {...props}
+      as="div"
+      className="!absolute top-0 left-0 py-1 bg-item-select flex pr-1 pl-0 rounded -translate-y-0.5 -translate-x-0.5"
+      data-slate-value={element.value}
+    >
       <InlineCombobox
         element={element}
         trigger="/"
-        className="bg-item-select relative rounded pl-1 pr-2 gap-x-1 min-h-7 overflow-hidden flex items-center w-fit"
+        className="bg-item-select relative rounded pl-2 pr-1.5 mr-1 overflow-hidden w-fit flex items-center"
       >
-        <InlineComboboxInput placeholder={placeholder} className="bg-item-select text-gray-light" />
+        <InlineComboboxInput
+          placeholder={placeholder}
+          className="bg-item-select text-gray-light ml-1 rounded-r"
+        />
 
         <InlineComboboxContent>
           <InlineComboboxEmpty>No results</InlineComboboxEmpty>
