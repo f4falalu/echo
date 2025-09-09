@@ -72,8 +72,10 @@ export const useReportVersionHistoryMode = () => {
   };
 };
 
-const stableSetEditorSelector = (x: ReturnType<typeof useReportAssetContext>) => x.setEditor;
-const stableForceUpdateSelector = (x: ReturnType<typeof useReportAssetContext>) => x.forceUpdate;
+const stableSetEditorSelector = (x: ReturnType<typeof useReportAssetContext> | undefined) =>
+  x?.setEditor;
+const stableForceUpdateSelector = (x: ReturnType<typeof useReportAssetContext> | undefined) =>
+  x?.forceUpdate;
 export const useEditorContext = () => {
   const forceUpdate = useContextSelector(ReportAssetContext, stableForceUpdateSelector);
   const setEditor = useContextSelector(ReportAssetContext, stableSetEditorSelector);
@@ -81,12 +83,6 @@ export const useEditorContext = () => {
     ReportAssetContext,
     useCallback((x) => x.editor, [forceUpdate])
   );
-
-  if (!setEditor) {
-    console.warn(
-      'ReportAssetContext is not defined. useEditorContext must be used within a ReportAssetContextProvider.'
-    );
-  }
 
   return {
     editor,
