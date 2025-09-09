@@ -1,9 +1,9 @@
 import type { SlateElementProps, TCalloutElement } from 'platejs';
 import { SlateElement } from 'platejs';
-import { Button } from '@/components/ui/buttons';
-import { NodeTypeIcons } from '../config/icons';
 import * as React from 'react';
+import { Button } from '@/components/ui/buttons';
 import { cn } from '@/lib/utils';
+import { NodeTypeIcons } from '../config/icons';
 
 export function CalloutElementStatic({
   children,
@@ -42,7 +42,10 @@ export function CalloutElementStatic({
 
   return (
     <SlateElement
-      className={cn('bg-muted my-2.5 flex rounded-sm p-2 pl-3 relative group text-[15px] leading-[150%] font-normal', className)}
+      className={cn(
+        'bg-muted my-2.5 flex rounded-sm p-2 pl-3 relative group text-[15px] leading-[150%] font-normal',
+        className
+      )}
       style={{
         backgroundColor: props.element.backgroundColor as string,
       }}
@@ -60,7 +63,7 @@ export function CalloutElementStatic({
         </div>
         <div className="w-full">{children}</div>
       </div>
-      
+
       {/* Copy button - hidden by default, shown on hover */}
       <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
         <Button

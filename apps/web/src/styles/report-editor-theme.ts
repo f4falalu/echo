@@ -1,6 +1,6 @@
 import type React from 'react';
 
-export const FONT_BASE_THEME = {
+const REPORT_EDITOR_THEME = {
   // '--font-heading': 'ui-sans-serif, -apple-system, BlinkMacSystemFont',
   // '--font-sans': 'ui-sans-serif, -apple-system, BlinkMacSystemFont',
   // '--font-mono':
@@ -16,19 +16,19 @@ export const FONT_BASE_THEME = {
   '--text-xs--line-height': 'calc(1 / 0.75)',
   '--text-sm': '0.875rem',
   '--text-sm--line-height': 'calc(1.25 / 0.875)',
-  '--text-base': '1rem',
-  '--text-base--line-height': 'calc(1.5 / 1)',
-  '--text-lg': '1.125rem',
-  '--text-lg--line-height': 'calc(1.75 / 1.125)',
-  '--text-xl': '1.25rem',
-  '--text-xl--line-height': 'calc(1.75 / 1.25)',
-  '--text-2xl': '1.5rem',
-  '--text-2xl--line-height': 'calc(2 / 1.5)',
-  '--text-3xl': '1.875rem',
-  '--text-3xl--line-height': 'calc(2.25 / 1.875)',
-  '--text-4xl': '2.25rem',
-  '--text-4xl--line-height': 'calc(2.5 / 2.25)',
-  '--text-5xl': '3rem',
+  '--text-base': '15px',
+  '--text-base--line-height': '150%',
+  '--text-lg': '17px',
+  '--text-lg--line-height': '150%',
+  '--text-xl': '19px',
+  '--text-xl--line-height': '150%',
+  '--text-2xl': '22px',
+  '--text-2xl--line-height': '150%',
+  '--text-3xl': '24px',
+  '--text-3xl--line-height': '150%',
+  '--text-4xl': '30px',
+  '--text-4xl--line-height': '150%',
+  '--text-5xl': '36px',
   '--text-5xl--line-height': '1',
   '--font-weight-light': '300',
   '--font-weight-normal': '400',
@@ -100,7 +100,7 @@ export const THEME_RESET_COLORS = {
 } as const;
 
 export const THEME_RESET_STYLE = {
-  ...FONT_BASE_THEME,
+  ...REPORT_EDITOR_THEME,
   fontFamily: 'var(--font-sans), "Inter", sans-serif',
   fontSynthesisWeight: 'normal' as 'none',
   fontVariationSettings: 'normal',

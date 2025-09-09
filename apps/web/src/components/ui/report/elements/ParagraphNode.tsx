@@ -6,7 +6,10 @@ import { cn } from '@/lib/utils';
 
 export function ParagraphElement(props: PlateElementProps) {
   return (
-    <PlateElement {...props} className={cn('m-0 px-0 py-1')}>
+    <PlateElement
+      {...props}
+      className={cn('mb-2 text-base text-gray-dark  [&_strong]:font-semibold')}
+    >
       {props.children}
     </PlateElement>
   );

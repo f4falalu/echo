@@ -26,7 +26,7 @@ import { useMount } from '@/hooks/useMount';
 import { useUnmount } from '@/hooks/useUnmount';
 import { measureTextWidth } from '@/lib/canvas';
 import { cn } from '@/lib/utils';
-import { THEME_RESET_STYLE } from '@/styles/theme-reset';
+import { THEME_RESET_STYLE } from '@/styles/report-editor-theme';
 
 type FilterFn = (
   item: { value: string; group?: string; keywords?: string[]; label?: string },
