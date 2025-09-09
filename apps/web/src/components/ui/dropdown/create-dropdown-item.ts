@@ -11,7 +11,9 @@ export function createDropdownItem<
   TRouter extends RegisteredRouter,
   TOptions,
   TFrom extends string = string,
->(item: IDropdownItem<T, TRouter, TOptions, TFrom>): IDropdownItem<T, TRouter, TOptions, TFrom> {
+>(
+  item: IDropdownItem<T, TRouter, TOptions, TFrom> | DropdownDivider
+): IDropdownItem<T, TRouter, TOptions, TFrom> | DropdownDivider {
   return item;
 }
 

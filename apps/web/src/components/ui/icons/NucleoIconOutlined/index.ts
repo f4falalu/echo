@@ -143,7 +143,6 @@ export { default as TextUnderline } from './text-underline';
 export { default as ThumbsDown } from './thumbs-down';
 export { default as ThumbsUp } from './thumbs-up';
 export { default as Trash } from './trash';
-export { default as Trash2 } from './trash-2';
 export { default as TriangleWarning } from './triangle-warning';
 export { default as TypeScale } from './type-scale';
 export { default as Undo } from './undo';
