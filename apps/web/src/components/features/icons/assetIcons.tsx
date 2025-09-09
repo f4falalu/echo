@@ -9,9 +9,11 @@ import {
   SquareChart,
   Table,
 } from '@/components/ui/icons';
+import SquareChartPlus from '@/components/ui/icons/NucleoIconOutlined/square-chart-plus';
 
 export const ASSET_ICONS = {
   metrics: SquareChart,
+  metircsAdd: SquareChartPlus,
   chats: Messages,
   dashboards: Grid,
   collections: Folder5,

@@ -116,6 +116,7 @@ import ReplaceObjs from '@/components/ui/icons/NucleoIconOutlined/replace-objs';
 export const NodeTypeIcons = {
   // Metrics
   metric: ASSET_ICONS.metrics,
+  metricAdd: ASSET_ICONS.metircsAdd,
 
   // Text formatting
   bold: TextBold,
