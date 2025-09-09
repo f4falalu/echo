@@ -70,10 +70,15 @@ export const NodeTypeLabels = {
     keyboard: undefined,
     keywords: ['citation', 'blockquote', '>'],
   },
+  columnsTwo: {
+    label: '2 columns',
+    keyboard: undefined,
+    keywords: ['two', '2', 'columns', '2 columns'],
+  },
   columnsThree: {
     label: '3 columns',
     keyboard: undefined,
-    keywords: ['three', '3', 'columns'],
+    keywords: ['three', '3', 'columns', '3 columns'],
   },
 
   // Text formatting

@@ -4,7 +4,12 @@ import { KEYS } from 'platejs';
 import type { PlateEditor } from 'platejs/react';
 import type * as React from 'react';
 import { Minus } from '@/components/ui/icons';
-import { insertBlock, insertInlineElement } from '../elements/transforms';
+import {
+  ACTION_THREE_COLUMNS,
+  ACTION_TWO_COLUMNS,
+  insertBlock,
+  insertInlineElement,
+} from '../elements/transforms';
 import { NodeTypeIcons } from './icons';
 import { CUSTOM_KEYS } from './keys';
 import { MenuGroupLabels, NodeTypeLabels } from './labels';
@@ -70,12 +75,12 @@ export const menuGroups: MenuGroup[] = [
         label: NodeTypeLabels.h3.label,
         value: 'h3',
       },
-      {
-        icon: <NodeTypeIcons.table />,
-        keywords: NodeTypeLabels.table.keywords,
-        label: NodeTypeLabels.table.label,
-        value: KEYS.table,
-      },
+      // {
+      //   icon: <NodeTypeIcons.table />,
+      //   keywords: NodeTypeLabels.table.keywords,
+      //   label: NodeTypeLabels.table.label,
+      //   value: KEYS.table,
+      // },
       {
         icon: <NodeTypeIcons.code />,
         keywords: NodeTypeLabels.codeBlock.keywords,
@@ -187,10 +192,16 @@ export const menuGroups: MenuGroup[] = [
         value: KEYS.toc,
       },
       {
+        icon: <NodeTypeIcons.columnsTwo />,
+        keywords: NodeTypeLabels.columnsTwo.keywords,
+        label: NodeTypeLabels.columnsTwo.label,
+        value: ACTION_TWO_COLUMNS,
+      },
+      {
         icon: <NodeTypeIcons.columnsThree />,
         keywords: NodeTypeLabels.columnsThree.keywords,
         label: NodeTypeLabels.columnsThree.label,
-        value: 'action_three_columns',
+        value: ACTION_THREE_COLUMNS,
       },
       // {
       //   focusEditor: false,

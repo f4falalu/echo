@@ -144,6 +144,7 @@ export const NodeTypeIcons = {
   paragraph: TypeScape,
   quote: Quote,
   toggle: ChevronRight,
+  columnsTwo: GridLayoutCols3,
   columnsThree: GridLayoutCols3,
 
   // Table
