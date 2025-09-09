@@ -256,7 +256,7 @@ const InlineComboboxContent: typeof ComboboxPopover = ({ className, style, ...pr
     <Portal>
       <ComboboxPopover
         className={cn(
-          'bg-popover z-500 max-h-[288px] w-[300px] overflow-y-auto rounded border shadow',
+          'bg-popover z-500 max-h-[300px] min-w-[210px] overflow-y-auto rounded border shadow',
           className
         )}
         {...props}
