@@ -1,2 +1,2 @@
-export * from './interfaces';
-export * from './permissionInterfaces';
+export type * from './interfaces';
+export type * from './permissionInterfaces';

@@ -32,7 +32,7 @@ export const animations: Record<MarkdownAnimation, string> = {
   highlight: 'animated-md-highlight',
   blurAndSharpen: 'animated-md-blurAndSharpen',
   dropIn: 'animated-md-dropIn',
-  none: 'none'
+  none: 'none',
 };
 
 interface AnimationStyleProps {
@@ -44,15 +44,15 @@ interface AnimationStyleProps {
 
 export const createAnimationStyle = ({
   animation = 'fadeIn',
-  animationDuration = 700,
+  animationDuration = 300,
   animationTimingFunction = 'ease-in-out',
-  isStreamFinished = false
+  isStreamFinished = false,
 }: AnimationStyleProps) => {
   if (animation === 'none' || isStreamFinished) {
     return { animation: 'none' };
   }
 
   return {
-    animation: `${animations[animation]} ${animationDuration}ms ${animationTimingFunction}`
+    animation: `${animations[animation]} ${animationDuration}ms ${animationTimingFunction}`,
   };
 };

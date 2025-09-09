@@ -1,5 +1,12 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { isUrlFromAcceptedDomain } from './url';
+
+// Mock the env import
+vi.mock('@/env', () => ({
+  env: {
+    VITE_PUBLIC_URL: 'https://example.com',
+  },
+}));
 
 describe('isUrlFromAcceptedDomain', () => {
   beforeEach(() => {
@@ -17,6 +24,8 @@ describe('isUrlFromAcceptedDomain', () => {
     expect(isUrlFromAcceptedDomain('https://vimeo.com/123456')).toBe(true);
     expect(isUrlFromAcceptedDomain('http://twitter.com')).toBe(true);
     expect(isUrlFromAcceptedDomain('https://youtu.be/QrM39m22jH4?list=RDQrM39m22jH4')).toBe(true);
+    // Test the mocked env.VITE_PUBLIC_URL
+    expect(isUrlFromAcceptedDomain('https://example.com/page')).toBe(true);
   });
 
   it('should return true for URLs from subdomains of accepted domains', () => {

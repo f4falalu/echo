@@ -34,9 +34,9 @@ export const addOpacityToColor = (color: string, opacity: number): string => {
     // RGB color (rgb(r, g, b))
     const rgbValues = color.match(/\d+/g);
     if (rgbValues) {
-      const r = Number.parseInt(rgbValues[0]);
-      const g = Number.parseInt(rgbValues[1]);
-      const b = Number.parseInt(rgbValues[2]);
+      const r = Number.parseInt(rgbValues[0], 10);
+      const g = Number.parseInt(rgbValues[1], 10);
+      const b = Number.parseInt(rgbValues[2], 10);
       return `rgba(${r}, ${g}, ${b}, ${opacity})`;
     }
   } else {
@@ -50,9 +50,9 @@ export const addOpacityToColor = (color: string, opacity: number): string => {
 
     const rgbValues = rgb.match(/\d+/g);
     if (rgbValues) {
-      const r = Number.parseInt(rgbValues[0]);
-      const g = Number.parseInt(rgbValues[1]);
-      const b = Number.parseInt(rgbValues[2]);
+      const r = Number.parseInt(rgbValues[0], 10);
+      const g = Number.parseInt(rgbValues[1], 10);
+      const b = Number.parseInt(rgbValues[2], 10);
       return `rgba(${r}, ${g}, ${b}, ${opacity})`;
     }
   }

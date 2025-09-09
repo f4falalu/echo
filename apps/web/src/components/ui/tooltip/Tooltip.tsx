@@ -1,13 +1,12 @@
-import omit from 'lodash/omit';
 import React from 'react';
+import { cn } from '@/lib/utils';
 import { KeyboardShortcutPill } from '../pills/KeyboardShortcutPills';
 import {
   TooltipBase,
   TooltipContent as TooltipContentBase,
-  TooltipProvider,
-  TooltipTrigger
+  type TooltipProvider,
+  TooltipTrigger,
 } from './TooltipBase';
-import { cn } from '@/lib/classMerge';
 
 export interface TooltipProps
   extends Pick<React.ComponentProps<typeof TooltipContentBase>, 'align' | 'side' | 'sideOffset'>,
@@ -33,7 +32,7 @@ export const Tooltip = React.forwardRef<HTMLSpanElement, TooltipProps>(
       side,
       open,
       triggerClassName,
-      contentClassName
+      contentClassName,
     },
     ref
   ) => {
@@ -50,7 +49,8 @@ export const Tooltip = React.forwardRef<HTMLSpanElement, TooltipProps>(
           align={align}
           side={side}
           sideOffset={sideOffset}
-          className={contentClassName}>
+          className={contentClassName}
+        >
           <TooltipContent title={title} shortcut={shortcuts} />
         </TooltipContentBase>
       </TooltipBase>

@@ -1,7 +1,7 @@
-import { formatLabel } from '@/lib/columnFormatter';
 import type { Chart, ChartType as ChartJSChartType, TooltipItem } from 'chart.js';
 import type React from 'react';
 import { useMemo } from 'react';
+import { formatLabel } from '@/lib/columnFormatter';
 import type { BusterChartProps } from '../../../../BusterChart.types';
 import { BusterChartTooltip } from '../../../../BusterChartTooltip';
 import type { ITooltipItem } from '../../../../BusterChartTooltip/interfaces';
@@ -27,7 +27,7 @@ export const BusterChartJSTooltip: React.FC<{
   hasCategoryAxis,
   keyToUsePercentage,
   lineGroupType,
-  barGroupType
+  barGroupType,
 }) => {
   const isPieChart = selectedChartType === 'pie';
   const isScatter = selectedChartType === 'scatter';
@@ -48,7 +48,6 @@ export const BusterChartJSTooltip: React.FC<{
     return undefined;
   }, [isBar, barGroupType, isLine, lineGroupType]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies:we are tracking the dataPoints and chart
   const tooltipItems: ITooltipItem[] = useMemo(() => {
     if (isBar || isLine || isComboChart) {
       const hasMultipleShownDatasets = datasets.filter((dataset) => !dataset.hidden).length > 1;
@@ -74,14 +73,13 @@ export const BusterChartJSTooltip: React.FC<{
     return [];
   }, []);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies:we are tracking the dataPoints and chart
   const title = useMemo(() => {
     if (isScatter) {
       if (!hasCategoryAxis) return undefined;
       return {
         title: tooltipItems[0]?.formattedLabel || '',
         color: tooltipItems[0]?.color || '',
-        seriesType: 'scatter'
+        seriesType: 'scatter',
       };
     }
 

@@ -6,7 +6,6 @@ export interface ChartMountedPluginOptions {
 }
 
 declare module 'chart.js' {
-  // biome-ignore lint/correctness/noUnusedVariables: we need to define the plugin options
   interface PluginOptionsByType<TType extends ChartType> {
     chartMounted?: ChartMountedPluginOptions;
   }
@@ -38,6 +37,6 @@ export const ChartMountedPlugin: Plugin<ChartType, ChartMountedPluginOptions> = 
   },
   defaults: {
     onMounted: () => {},
-    onInitialAnimationEnd: () => {}
-  }
+    onInitialAnimationEnd: () => {},
+  },
 };

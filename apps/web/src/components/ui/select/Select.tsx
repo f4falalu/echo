@@ -1,16 +1,37 @@
+import { cva, type VariantProps } from 'class-variance-authority';
 import React, { useRef } from 'react';
+import { Check, ChevronDown, Xmark } from '@/components/ui/icons';
+import { cn } from '@/lib/classMerge';
 import {
   Command,
   CommandEmpty,
   CommandGroup,
+  CommandInput,
   CommandItem,
   CommandList,
-  CommandInput
-} from '@/components/ui/command';
-import { PopoverRoot, PopoverContent, PopoverTrigger } from '@/components/ui/popover/PopoverBase';
-import { cn } from '@/lib/classMerge';
+} from '../command';
 import { CircleSpinnerLoader } from '../loaders';
-import { Check, ChevronDown, Xmark } from '@/components/ui/icons';
+import { PopoverContent, PopoverRoot, PopoverTrigger } from '../popover/PopoverBase';
+
+const selectVariants = cva(
+  'w-full flex gap-x-1 transition-all duration-300 rounded pr-1.5 pl-2.5',
+  {
+    variants: {
+      variant: {
+        default: 'border bg-background',
+        ghost: 'border-none hover:bg-item-select',
+      },
+      size: {
+        default: 'h-7 text-base',
+        small: 'h-5 text-[11px]',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      size: 'default',
+    },
+  }
+);
 
 interface SelectItemGroup<T = string> {
   label: string;
@@ -46,6 +67,7 @@ interface BaseSelectProps<T> {
   open?: boolean;
   showIndex?: boolean;
   className?: string;
+  inputClassName?: string;
   dataTestId?: string;
   loading?: boolean;
   showLoadingIcon?: boolean;
@@ -74,7 +96,8 @@ interface NonClearableSelectProps<T = string> extends BaseSelectProps<T> {
 }
 
 // Union type for type-safe props
-export type SelectProps<T = string> = ClearableSelectProps<T> | NonClearableSelectProps<T>;
+export type SelectProps<T = string> = VariantProps<typeof selectVariants> &
+  (ClearableSelectProps<T> | NonClearableSelectProps<T>);
 
 function isGroupedItems<T>(
   items: SelectItem<T>[] | SelectItemGroup<T>[]
@@ -103,7 +126,7 @@ const SelectItemComponent = React.memo(
     index,
     value,
     showIndex,
-    onSelect
+    onSelect,
   }: {
     item: SelectItem<T>;
     index: number;
@@ -122,7 +145,8 @@ const SelectItemComponent = React.memo(
           'flex min-h-7 items-center gap-2 px-2',
           item.disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
           isSelected && 'bg-item-select'
-        )}>
+        )}
+      >
         {item.icon}
         <span className="flex-1">
           {showIndex && `${index + 1}. `}
@@ -168,7 +192,10 @@ function SelectComponent<T = string>({
   hideChevron = false,
   onPressEnter,
   clearOnSelect = true,
-  closeOnSelect = true
+  closeOnSelect = true,
+  inputClassName,
+  variant,
+  size,
 }: SelectProps<T>) {
   const [internalInputValue, setInternalInputValue] = React.useState('');
   const [isFocused, setIsFocused] = React.useState(false);
@@ -311,7 +338,7 @@ function SelectComponent<T = string>({
           altKey: e.altKey,
           metaKey: e.metaKey,
           bubbles: true,
-          cancelable: true
+          cancelable: true,
         });
         commandInput.dispatchEvent(newEvent);
         e.preventDefault();
@@ -405,10 +432,19 @@ function SelectComponent<T = string>({
     return true;
   }, [emptyMessage, filteredItems.length]);
 
+  const classNames = selectVariants({ variant, size });
+
   return (
     <PopoverRoot open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild ref={triggerRef}>
-        <div className={cn('relative w-full', className)}>
+        <div
+          className={cn(
+            classNames,
+            !selectedItem && !currentInputValue && 'text-text-secondary',
+            type === 'input' ? 'cursor-text' : 'cursor-pointer',
+            className
+          )}
+        >
           <input
             ref={inputRef}
             type="text"
@@ -426,15 +462,14 @@ function SelectComponent<T = string>({
             autoComplete="off"
             readOnly={search === false}
             className={cn(
-              'flex h-7 w-full items-center justify-between rounded border px-2.5 text-base',
-              'bg-background transition-all duration-300',
-              'focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
-              disabled ? 'bg-disabled text-gray-light' : '',
-              !selectedItem && !currentInputValue && 'text-text-secondary',
-              type === 'input' ? 'cursor-text' : 'cursor-pointer'
+              'focus-visible:outline-none disabled:cursor-not-allowed transition-all duration-300 disabled:opacity-50',
+              disabled && 'bg-disabled text-gray-light',
+              'field-sizing-content',
+              type === 'input' ? 'cursor-text' : 'cursor-pointer',
+              inputClassName
             )}
           />
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+          <div className="pointer-events-none inset-y-0 flex items-center">
             {loading && showLoadingIcon && (
               <div className="mr-1 flex items-center justify-center">
                 <CircleSpinnerLoader size={13} />
@@ -445,7 +480,8 @@ function SelectComponent<T = string>({
                 type="button"
                 onClick={handleClear}
                 className="hover:text-foreground text-icon-color pointer-events-auto mr-1 flex h-4 w-4 cursor-pointer items-center justify-center rounded"
-                aria-label="Clear selection">
+                aria-label="Clear selection"
+              >
                 <Xmark />
               </button>
             )}
@@ -454,8 +490,9 @@ function SelectComponent<T = string>({
                 className="flex h-4 w-4 shrink-0 items-center justify-center opacity-50 transition-transform duration-200 ease-in-out"
                 style={{
                   transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
-                  transformOrigin: 'center'
-                }}>
+                  transformOrigin: 'center',
+                }}
+              >
                 <ChevronDown />
               </div>
             )}
@@ -474,7 +511,8 @@ function SelectComponent<T = string>({
         onOpenAutoFocus={(e) => {
           e.preventDefault();
           inputRef.current?.focus();
-        }}>
+        }}
+      >
         <Command ref={commandRef} shouldFilter={false}>
           {/* Hidden input that Command uses for keyboard navigation */}
           <CommandInput

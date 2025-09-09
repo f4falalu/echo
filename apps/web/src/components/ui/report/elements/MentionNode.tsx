@@ -1,16 +1,12 @@
-'use client';
-
-import * as React from 'react';
+import { getMentionOnSelectItem } from '@platejs/mention';
 
 import type { TComboboxInputElement, TMentionElement } from 'platejs';
-import type { PlateElementProps } from 'platejs/react';
-
-import { getMentionOnSelectItem } from '@platejs/mention';
 import { IS_APPLE, KEYS } from 'platejs';
+import type { PlateElementProps } from 'platejs/react';
 import { PlateElement, useFocused, useReadOnly, useSelected } from 'platejs/react';
-
-import { cn } from '@/lib/utils';
+import * as React from 'react';
 import { useMounted } from '@/hooks/useMount';
+import { cn } from '@/lib/utils';
 
 import {
   InlineCombobox,
@@ -18,7 +14,7 @@ import {
   InlineComboboxEmpty,
   InlineComboboxGroup,
   InlineComboboxInput,
-  InlineComboboxItem
+  InlineComboboxItem,
 } from './InlineCombobox';
 
 export function MentionElement(
@@ -40,7 +36,7 @@ export function MentionElement(
         'bg-muted inline-block rounded-md px-1.5 py-0.5 align-baseline text-sm font-medium',
         !readOnly && 'cursor-pointer',
         selected && focused && 'ring-ring ring-2',
-        element.children[0][KEYS.bold] === true && 'font-bold',
+        element.children[0][KEYS.bold] === true && 'font-semibold',
         element.children[0][KEYS.italic] === true && 'italic',
         element.children[0][KEYS.underline] === true && 'underline'
       )}
@@ -48,8 +44,9 @@ export function MentionElement(
         ...props.attributes,
         contentEditable: false,
         'data-slate-value': element.value,
-        draggable: true
-      }}>
+        draggable: true,
+      }}
+    >
       {mounted && IS_APPLE ? (
         // Mac OS IME https://github.com/ianstormtaylor/slate/issues/3490
         <React.Fragment>
@@ -82,7 +79,8 @@ export function MentionInputElement(props: PlateElementProps<TComboboxInputEleme
         element={element}
         setValue={setSearch}
         showTrigger={false}
-        trigger="@">
+        trigger="@"
+      >
         <span className="bg-muted ring-ring inline-block rounded-md px-1.5 py-0.5 align-baseline text-sm focus-within:ring-2">
           <InlineComboboxInput />
         </span>
@@ -95,7 +93,8 @@ export function MentionInputElement(props: PlateElementProps<TComboboxInputEleme
               <InlineComboboxItem
                 key={item.key}
                 value={item.text}
-                onClick={() => onSelectItem(editor, item, search)}>
+                onClick={() => onSelectItem(editor, item, search)}
+              >
                 {item.text}
               </InlineComboboxItem>
             ))}
@@ -113,32 +112,32 @@ const MENTIONABLES = [
   { key: '1', text: 'Adi Gallia' },
   {
     key: '2',
-    text: 'Admiral Dodd Rancit'
+    text: 'Admiral Dodd Rancit',
   },
   {
     key: '3',
-    text: 'Admiral Firmus Piett'
+    text: 'Admiral Firmus Piett',
   },
   {
     key: '4',
-    text: 'Admiral Gial Ackbar'
+    text: 'Admiral Gial Ackbar',
   },
   { key: '5', text: 'Admiral Ozzel' },
   { key: '6', text: 'Admiral Raddus' },
   {
     key: '7',
-    text: 'Admiral Terrinald Screed'
+    text: 'Admiral Terrinald Screed',
   },
   { key: '8', text: 'Admiral Trench' },
   {
     key: '9',
-    text: 'Admiral U.O. Statura'
+    text: 'Admiral U.O. Statura',
   },
   { key: '10', text: 'Agen Kolar' },
   { key: '11', text: 'Agent Kallus' },
   {
     key: '12',
-    text: 'Aiolin and Morit Astarte'
+    text: 'Aiolin and Morit Astarte',
   },
   { key: '13', text: 'Aks Moe' },
   { key: '14', text: 'Almec' },
@@ -166,7 +165,7 @@ const MENTIONABLES = [
   { key: '36', text: 'Bib Fortuna' },
   {
     key: '37',
-    text: 'Biggs Darklighter'
+    text: 'Biggs Darklighter',
   },
   { key: '38', text: 'Black Krrsantan' },
   { key: '39', text: 'Bo-Katan Kryze' },
@@ -178,9 +177,9 @@ const MENTIONABLES = [
   { key: '45', text: 'Bossk' },
   {
     key: '46',
-    text: 'Breha Antilles-Organa'
+    text: 'Breha Antilles-Organa',
   },
   { key: '47', text: 'Bren Derlin' },
   { key: '48', text: 'Brendol Hux' },
-  { key: '49', text: 'BT-1' }
+  { key: '49', text: 'BT-1' },
 ];

@@ -38,28 +38,28 @@
     "braintrust:push:tools:staged": "npx braintrust push evals/agents/analyst-agent/tool-order/staged-scorers.ts"
   },
   "dependencies": {
-    "@ai-sdk/gateway": "^1.0.15",
+    "@ai-sdk/gateway": "^1.0.18",
     "@ai-sdk/provider": "^2.0.0",
     "@buster/access-controls": "workspace:*",
     "@buster/data-source": "workspace:*",
     "@buster/database": "workspace:*",
     "@buster/env-utils": "workspace:*",
     "@buster/sandbox": "workspace:*",
+    "@buster/search": "workspace:*",
     "@buster/server-shared": "workspace:*",
-    "@buster/stored-values": "workspace:*",
     "@buster/test-utils": "workspace:*",
     "@buster/typescript-config": "workspace:*",
     "@buster/vitest-config": "workspace:*",
     "@buster/web-tools": "workspace:*",
     "ai": "catalog:",
-    "autoevals": "^0.0.130",
+    "autoevals": "^0.0.131",
     "braintrust": "catalog:",
     "drizzle-orm": "catalog:",
     "glob": "^11.0.3",
     "minimatch": "^10.0.3",
-    "node-sql-parser": "^5.3.10",
+    "node-sql-parser": "^5.3.12",
     "uuid": "^11.1.0",
-    "yaml": "^2.8.0",
+    "yaml": "^2.8.1",
     "zod": "catalog:"
   }
 }

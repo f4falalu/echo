@@ -1,21 +1,19 @@
-'use client';
-
 import React, { useMemo, useState } from 'react';
 import type { BusterDashboardListItem } from '@/api/asset_interfaces';
-import { FavoriteStar } from '@/components/features/list';
+import { FavoriteStar } from '@/components/features/favorites';
 import { getShareStatus } from '@/components/features/metrics/StatusBadgeIndicator/helpers';
-import { NewDashboardModal } from '@/components/features/modal/NewDashboardModal';
+import { NewDashboardModal } from '@/components/features/modals/NewDashboardModal';
 import { Avatar } from '@/components/ui/avatar';
 import {
   BusterList,
   type BusterListColumn,
   type BusterListRowItem,
-  ListEmptyStateWithButton
+  createListItem,
+  ListEmptyStateWithButton,
 } from '@/components/ui/list';
 import { Text } from '@/components/ui/typography';
-import { useMemoizedFn } from '@/hooks';
-import { formatDate } from '@/lib';
-import { BusterRoutes, createBusterRoute } from '@/routes';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { formatDate } from '@/lib/date';
 import { DashboardSelectedOptionPopup } from './DashboardSelectedPopup';
 
 const columns: BusterListColumn<BusterDashboardListItem>[] = [
@@ -36,25 +34,25 @@ const columns: BusterListColumn<BusterDashboardListItem>[] = [
           />
         </div>
       );
-    }
+    },
   },
   {
     dataIndex: 'last_edited',
     title: 'Last edited',
     width: 140,
-    render: (data) => formatDate({ date: data, format: 'lll' })
+    render: (data) => formatDate({ date: data, format: 'lll' }),
   },
   {
     dataIndex: 'created_at',
     title: 'Created at',
     width: 140,
-    render: (data) => formatDate({ date: data, format: 'lll' })
+    render: (data) => formatDate({ date: data, format: 'lll' }),
   },
   {
     dataIndex: 'status',
     title: 'Sharing',
     width: 65,
-    render: (_, data) => getShareStatus(data)
+    render: (_, data) => getShareStatus(data),
   },
   {
     dataIndex: 'owner',
@@ -62,8 +60,8 @@ const columns: BusterListColumn<BusterDashboardListItem>[] = [
     width: 55,
     render: (_, data: BusterDashboardListItem) => {
       return <Avatar image={data?.owner?.avatar_url} name={data?.owner?.name} size={18} />;
-    }
-  }
+    },
+  },
 ];
 
 export const DashboardListContent: React.FC<{
@@ -78,26 +76,30 @@ export const DashboardListContent: React.FC<{
     dashboardsList,
     openNewDashboardModal,
     setOpenNewDashboardModal,
-    className = ''
+    className = '',
   }) => {
     const [selectedDashboardIds, setSelectedDashboardIds] = useState<string[]>([]);
 
+    const createDashboardListItem = createListItem<BusterDashboardListItem>();
+
     const rows: BusterListRowItem<BusterDashboardListItem>[] = useMemo(() => {
       return dashboardsList.map((dashboard) => {
-        return {
+        return createDashboardListItem({
           id: dashboard.id,
           data: dashboard,
-          link: createBusterRoute({
-            route: BusterRoutes.APP_DASHBOARD_ID,
-            dashboardId: dashboard.id
-          })
-        };
+          link: {
+            to: '/app/dashboards/$dashboardId',
+            params: {
+              dashboardId: dashboard.id,
+            },
+          },
+        });
       });
     }, [dashboardsList]);
 
-    const onClickEmptyState = useMemoizedFn(async () => {
+    const onClickEmptyState = async () => {
       setOpenNewDashboardModal(true);
-    });
+    };
 
     return (
       <div className={`${className} relative flex h-full flex-col items-center`}>

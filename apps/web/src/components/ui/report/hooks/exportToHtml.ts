@@ -16,7 +16,7 @@ export const exportToHtml = async ({
   editor,
   filename = 'buster-report.html',
   openInfoMessage,
-  openErrorMessage
+  openErrorMessage,
 }: ExportToHtmlOptions) => {
   try {
     const html = await buildExportHtml(editor, { title: filename.replace(/\.html$/i, '') });

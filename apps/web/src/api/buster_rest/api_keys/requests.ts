@@ -1,9 +1,9 @@
 import {
   BusterApiKeyListItemSchema,
   CreateApiKeyResponseSchema,
-  GetApiKeysResponseSchema
-} from '@/api/asset_interfaces/api_keys';
-import mainApi from '@/api/buster_rest/instances';
+  GetApiKeysResponseSchema,
+} from '@buster/server-shared/api';
+import { mainApi } from '../instances';
 
 // Get API Keys
 export const getApiKeys = async () => {

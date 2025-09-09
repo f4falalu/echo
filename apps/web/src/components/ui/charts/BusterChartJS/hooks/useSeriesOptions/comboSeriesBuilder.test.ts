@@ -13,7 +13,7 @@ describe('comboSeriesBuilder_data', () => {
       xAxisKeys: mockXAxisKeys,
       columnSettings: {
         metric1: { ...DEFAULT_COLUMN_SETTINGS, columnVisualization: 'bar' as const },
-        metric2: { ...DEFAULT_COLUMN_SETTINGS, columnVisualization: 'line' as const }
+        metric2: { ...DEFAULT_COLUMN_SETTINGS, columnVisualization: 'line' as const },
       },
       columnLabelFormats: {},
       datasetOptions: {
@@ -24,7 +24,7 @@ describe('comboSeriesBuilder_data', () => {
             axisType: 'y' as const,
             data: [10, 20],
             label: [{ key: 'metric1', value: 'Metric 1' }],
-            tooltipData: [[{ key: 'value', value: 10 }], [{ key: 'value', value: 20 }]]
+            tooltipData: [[{ key: 'value', value: 10 }], [{ key: 'value', value: 20 }]],
           },
           {
             id: 'metric2',
@@ -32,11 +32,11 @@ describe('comboSeriesBuilder_data', () => {
             axisType: 'y2' as const,
             data: [30, 40],
             label: [{ key: 'metric2', value: 'Metric 2' }],
-            tooltipData: [[{ key: 'value', value: 30 }], [{ key: 'value', value: 40 }]]
-          }
+            tooltipData: [[{ key: 'value', value: 30 }], [{ key: 'value', value: 40 }]],
+          },
         ],
         ticks: mockTicks,
-        ticksKey: mockTicksKey
+        ticksKey: mockTicksKey,
       },
       lineGroupType: 'stack' as const,
       barGroupType: 'group' as const,
@@ -45,7 +45,7 @@ describe('comboSeriesBuilder_data', () => {
       barShowTotalAtTop: false,
       yAxisKeys: ['metric1'],
       y2AxisKeys: ['metric2'],
-      trendlines: []
+      trendlines: [],
     };
 
     const result = comboSeriesBuilder_data(props);
@@ -60,7 +60,7 @@ describe('comboSeriesBuilder_data', () => {
       colors: mockColors,
       xAxisKeys: mockXAxisKeys,
       columnSettings: {
-        metric1: { ...DEFAULT_COLUMN_SETTINGS, columnVisualization: 'bar' as const }
+        metric1: { ...DEFAULT_COLUMN_SETTINGS, columnVisualization: 'bar' as const },
       },
       columnLabelFormats: {},
       datasetOptions: {
@@ -71,11 +71,11 @@ describe('comboSeriesBuilder_data', () => {
             axisType: 'y' as const,
             data: testData,
             label: [{ key: 'metric1', value: 'Metric 1' }],
-            tooltipData: [[{ key: 'value', value: 10 }], [{ key: 'value', value: 20 }]]
-          }
+            tooltipData: [[{ key: 'value', value: 10 }], [{ key: 'value', value: 20 }]],
+          },
         ],
         ticks: mockTicks,
-        ticksKey: mockTicksKey
+        ticksKey: mockTicksKey,
       },
       lineGroupType: 'stack' as const,
       barGroupType: 'group' as const,
@@ -84,7 +84,7 @@ describe('comboSeriesBuilder_data', () => {
       barShowTotalAtTop: false,
       yAxisKeys: ['metric1'],
       y2AxisKeys: [],
-      trendlines: []
+      trendlines: [],
     };
 
     const result = comboSeriesBuilder_data(props);

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { StreamingMessageStatus } from './StreamingMessageStatus';
 
 const meta: Meta<typeof StreamingMessageStatus> = {
@@ -10,8 +10,8 @@ const meta: Meta<typeof StreamingMessageStatus> = {
       <div className="bg-background p-4">
         <Story />
       </div>
-    )
-  ]
+    ),
+  ],
 };
 
 export default meta;
@@ -19,18 +19,18 @@ type Story = StoryObj<typeof StreamingMessageStatus>;
 
 export const Loading: Story = {
   args: {
-    status: 'loading'
-  }
+    status: 'loading',
+  },
 };
 
 export const Completed: Story = {
   args: {
-    status: 'completed'
-  }
+    status: 'completed',
+  },
 };
 
 export const Failed: Story = {
   args: {
-    status: 'failed'
-  }
+    status: 'failed',
+  },
 };

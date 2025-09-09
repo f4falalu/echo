@@ -9,7 +9,10 @@ export * from './auth';
 export * from './chats';
 export * from './dashboards';
 export * from './datasets';
+// Export deploy module as namespace to avoid conflicts with datasets
+export * as deploy from './deploy';
 export * from './dictionary';
+export * from './docs';
 export * from './github';
 export * from './message';
 export * from './metrics';
@@ -25,3 +28,4 @@ export * from './teams';
 export * from './title';
 export * from './type-utilities';
 export * from './user';
+export * from './healthcheck';

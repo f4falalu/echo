@@ -1,14 +1,13 @@
+import type { ShareAssetType } from '@buster/server-shared/share';
 import React, { useMemo } from 'react';
-import { ShareAssetType } from '@buster/server-shared/share';
 import type { SegmentedItem } from '@/components/ui/segmented';
 import { AppSegmented } from '@/components/ui/segmented';
-import { useMemoizedFn } from '@/hooks';
 import { CopyLinkButton } from './CopyLinkButton';
 
 export enum ShareMenuTopBarOptions {
   Share = 'Share',
   Publish = 'Publish',
-  Embed = 'Embed'
+  Embed = 'Embed',
 }
 
 export const ShareMenuTopBar: React.FC<{
@@ -24,26 +23,26 @@ export const ShareMenuTopBar: React.FC<{
         {
           value: ShareMenuTopBarOptions.Share,
           label: 'Share',
-          show: canEditPermissions
+          show: canEditPermissions,
         },
         {
           value: ShareMenuTopBarOptions.Publish,
           label: 'Publish',
-          show: assetType !== 'collection' && assetType !== 'report' && canEditPermissions
+          show: assetType !== 'collection' && canEditPermissions,
         },
         {
           value: ShareMenuTopBarOptions.Embed,
           label: 'Embed',
-          show: assetType !== 'collection' && assetType !== 'report' && canEditPermissions
-        }
+          show: assetType !== 'collection' && canEditPermissions,
+        },
       ]
         .filter((o) => o.show)
         .map((o) => ({ ...o, show: undefined }));
     }, [assetType, canEditPermissions]);
 
-    const onChange = useMemoizedFn((v: SegmentedItem<ShareMenuTopBarOptions>) => {
+    const onChange = (v: SegmentedItem<ShareMenuTopBarOptions>) => {
       onChangeSelectedOption(v.value);
-    });
+    };
 
     return (
       <div className="flex items-center justify-between">

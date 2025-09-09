@@ -1,9 +1,7 @@
-'use client';
-
 import type React from 'react';
 import { useState } from 'react';
 import { useGetDashboardsList } from '@/api/buster_rest/dashboards';
-import { AppPageLayout } from '@/components/ui/layouts';
+import { AppPageLayout } from '@/components/ui/layouts/AppPageLayout';
 import { DashboardHeader } from './DashboardHeader';
 import { DashboardListContent } from './DashboardListContent';
 
@@ -26,7 +24,8 @@ export const DashboardListController: React.FC = () => {
           onSetDashboardListFilters={setDashboardListFilters}
           setOpenNewDashboardModal={setOpenNewDashboardModal}
         />
-      }>
+      }
+    >
       <DashboardListContent
         loading={!isFetchedDashboardsList}
         dashboardsList={dashboardsList}

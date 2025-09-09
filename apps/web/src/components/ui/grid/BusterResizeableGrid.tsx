@@ -1,5 +1,3 @@
-'use client';
-
 import {
   type CollisionDetection,
   closestCenter,
@@ -11,13 +9,15 @@ import {
   PointerSensor,
   pointerWithin,
   useSensor,
-  useSensors
+  useSensors,
 } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
+import { ClientOnly } from '@tanstack/react-router';
 import isEqual from 'lodash/isEqual';
-import React, { use, useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { useMemoizedFn, useUpdateEffect } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 import { cn } from '@/lib/utils';
 import { BusterSortableOverlay } from './_BusterSortableOverlay';
 import { BusterResizeRows } from './BusterResizeRows';
@@ -26,14 +26,14 @@ import type { BusterResizeableGridRow } from './interfaces';
 
 const measuringConfig = {
   droppable: {
-    strategy: MeasuringStrategy.Always
-  }
+    strategy: MeasuringStrategy.Always,
+  },
 };
 
 const pointerSensors = {
   activationConstraint: {
-    distance: 2
-  }
+    distance: 2,
+  },
 };
 
 export const BusterResizeableGrid: React.FC<{
@@ -52,7 +52,7 @@ export const BusterResizeableGrid: React.FC<{
     rows: serverRows,
     onRowLayoutChange,
     onStartDrag,
-    onEndDrag
+    onEndDrag,
   }) => {
     const [rows, setRows] = useState<BusterResizeableGridRow[]>(() => newRowPreflight(serverRows));
     const styleRef = useRef<HTMLStyleElement>(undefined);
@@ -81,7 +81,7 @@ export const BusterResizeableGrid: React.FC<{
             ...args,
             droppableContainers: args.droppableContainers.filter((container) =>
               rows.map((v) => v.id).includes(container.id as string)
-            )
+            ),
           });
         }
 
@@ -108,7 +108,7 @@ export const BusterResizeableGrid: React.FC<{
                   (container) =>
                     container.id !== overId &&
                     containerItems.map((v) => v.id).includes(container.id as string)
-                )
+                ),
               })[0]?.id;
             }
           }
@@ -166,154 +166,152 @@ export const BusterResizeableGrid: React.FC<{
       [onStartDrag]
     );
 
-    const onDragEnd = useMemoizedFn(
-      ({ over, active, delta, activatorEvent, collisions }: DragEndEvent) => {
-        document.body.style.cursor = '';
-        if (styleRef.current) {
-          document.head.removeChild(styleRef.current);
+    const onDragEnd = useMemoizedFn(({ over, active, delta, activatorEvent }: DragEndEvent) => {
+      document.body.style.cursor = '';
+      if (styleRef.current) {
+        document.head.removeChild(styleRef.current);
+      }
+      const activeContainer = findContainer(active.id as string);
+      onEndDrag?.({ id: active.id as string });
+
+      if (!activeContainer) {
+        setActiveId(null);
+        return;
+      }
+
+      const overId = over?.id as string;
+
+      if (overId == null) {
+        setActiveId(null);
+        return;
+      }
+
+      //COMPLETELY NEW ROW!
+      if (overId.includes(NEW_ROW_ID)) {
+        const newRowId = uuidv4();
+        const newRowDroppedId = over?.data.current?.id;
+
+        const filteredRows = rows.map((row) => {
+          if (row.id === activeContainer) {
+            return {
+              ...row,
+              items: row.items.filter((item) => item.id !== active.id),
+            };
+          }
+          return row;
+        });
+        const newRow =
+          rows
+            .find((row) => row.id === activeContainer)
+            ?.items.filter((item) => item.id === active.id) || [];
+
+        const newRowConfig = {
+          id: newRowId,
+          items: newRow,
+          columnSizes: [12],
+          rowHeight: MIN_ROW_HEIGHT,
+        };
+
+        if (newRowDroppedId === TOP_SASH_ID) {
+          return onRowLayoutChangePreflight([newRowConfig, ...filteredRows]);
         }
-        const activeContainer = findContainer(active.id as string);
-        onEndDrag?.({ id: active.id as string });
 
-        if (!activeContainer) {
-          setActiveId(null);
-          return;
+        if (newRowDroppedId) {
+          const numericId = Number.parseInt(newRowDroppedId) + 1;
+          const newRows = filteredRows.reduce<BusterResizeableGridRow[]>((acc, row, index) => {
+            if (index === numericId) {
+              acc.push(newRowConfig);
+            }
+            acc.push(row);
+            return acc;
+          }, [] as BusterResizeableGridRow[]);
+          return onRowLayoutChangePreflight(newRows);
         }
+        return onRowLayoutChangePreflight([...filteredRows, newRowConfig]);
+      }
 
-        const overId = over?.id as string;
+      const overContainer = findContainer(overId as string);
+      const numberOfItemsInOverExeeds = over?.data.current?.sortable?.items.length >= 4;
 
-        if (overId == null) {
-          setActiveId(null);
-          return;
+      if (overContainer !== activeContainer && numberOfItemsInOverExeeds) {
+        setActiveId(null);
+        return;
+      }
+
+      if (activeContainer !== overContainer && !overId.includes(NEW_ROW_ID)) {
+        const activeItems = rows.find((row) => row.id === activeContainer)?.items || [];
+        const overItems = rows.find((row) => row.id === overContainer)?.items || [];
+        const overIndex = overItems.findIndex((item) => item.id === overId);
+        const activeIndex = activeItems.findIndex((item) => item.id === active.id);
+
+        const isOverLastItem =
+          over?.id === overId && over?.data.current?.sortable?.index === overItems.length - 1;
+        let modifier = 0;
+        if (isOverLastItem) {
+          const widthOfItem = over?.rect.width;
+          const leftSideOfItem = over?.rect.left;
+          const initialMouseX = (activatorEvent as MouseEvent)?.clientX || 0;
+          const movedDistanceX = initialMouseX + delta.x;
+          const mouseLeft = movedDistanceX;
+          const isOverLeftHalf = mouseLeft < leftSideOfItem + widthOfItem / 2;
+          modifier = isOverLeftHalf ? 0 : 1;
         }
+        const newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
 
-        //COMPLETELY NEW ROW!
-        if (overId.includes(NEW_ROW_ID)) {
-          const newRowId = uuidv4();
-          const newRowDroppedId = over?.data.current?.id;
+        recentlyMovedToNewContainer.current = true;
 
-          const filteredRows = rows.map((row) => {
+        return onRowLayoutChangePreflight([
+          ...rows.map((row) => {
             if (row.id === activeContainer) {
               return {
                 ...row,
-                items: row.items.filter((item) => item.id !== active.id)
+                items: row.items.filter((item) => item.id !== active.id),
+              };
+            }
+            if (row.id === overContainer) {
+              return {
+                ...row,
+                items: [
+                  ...row.items.slice(0, newIndex),
+                  activeItems[activeIndex],
+                  ...row.items.slice(newIndex, row.items.length),
+                ],
               };
             }
             return row;
-          });
-          const newRow =
-            rows
-              .find((row) => row.id === activeContainer)
-              ?.items.filter((item) => item.id === active.id) || [];
-
-          const newRowConfig = {
-            id: newRowId,
-            items: newRow,
-            columnSizes: [12],
-            rowHeight: MIN_ROW_HEIGHT
-          };
-
-          if (newRowDroppedId === TOP_SASH_ID) {
-            return onRowLayoutChangePreflight([newRowConfig, ...filteredRows]);
-          }
-
-          if (newRowDroppedId) {
-            const numericId = Number.parseInt(newRowDroppedId) + 1;
-            const newRows = filteredRows.reduce<BusterResizeableGridRow[]>((acc, row, index) => {
-              if (index === numericId) {
-                acc.push(newRowConfig);
-              }
-              acc.push(row);
-              return acc;
-            }, [] as BusterResizeableGridRow[]);
-            return onRowLayoutChangePreflight(newRows);
-          }
-          return onRowLayoutChangePreflight([...filteredRows, newRowConfig]);
-        }
-
-        const overContainer = findContainer(overId as string);
-        const numberOfItemsInOverExeeds = over?.data.current?.sortable?.items.length >= 4;
-
-        if (overContainer !== activeContainer && numberOfItemsInOverExeeds) {
-          setActiveId(null);
-          return;
-        }
-
-        if (activeContainer !== overContainer && !overId.includes(NEW_ROW_ID)) {
-          const activeItems = rows.find((row) => row.id === activeContainer)?.items || [];
-          const overItems = rows.find((row) => row.id === overContainer)?.items || [];
-          const overIndex = overItems.findIndex((item) => item.id === overId);
-          const activeIndex = activeItems.findIndex((item) => item.id === active.id);
-
-          const isOverLastItem =
-            over?.id === overId && over?.data.current?.sortable?.index === overItems.length - 1;
-          let modifier = 0;
-          if (isOverLastItem) {
-            const widthOfItem = over?.rect.width;
-            const leftSideOfItem = over?.rect.left;
-            const initialMouseX = (activatorEvent as MouseEvent)?.clientX || 0;
-            const movedDistanceX = initialMouseX + delta.x;
-            const mouseLeft = movedDistanceX;
-            const isOverLeftHalf = mouseLeft < leftSideOfItem + widthOfItem / 2;
-            modifier = isOverLeftHalf ? 0 : 1;
-          }
-          const newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
-
-          recentlyMovedToNewContainer.current = true;
-
-          return onRowLayoutChangePreflight([
-            ...rows.map((row) => {
-              if (row.id === activeContainer) {
-                return {
-                  ...row,
-                  items: row.items.filter((item) => item.id !== active.id)
-                };
-              }
-              if (row.id === overContainer) {
-                return {
-                  ...row,
-                  items: [
-                    ...row.items.slice(0, newIndex),
-                    activeItems[activeIndex],
-                    ...row.items.slice(newIndex, row.items.length)
-                  ]
-                };
-              }
-              return row;
-            })
-          ]);
-        }
-
-        if (overContainer) {
-          const activeIndex = rows
-            .find((r) => r.id === activeContainer)
-            ?.items.findIndex((row) => row.id === active.id);
-          const overIndex = rows
-            .find((r) => r.id === overContainer)
-            ?.items.findIndex((row) => row.id === overId);
-
-          if (activeIndex !== overIndex && activeIndex !== undefined && overIndex !== undefined) {
-            const newRows = rows.map((row) => {
-              if (row.id === overContainer) {
-                return {
-                  ...row,
-                  items: arrayMove(row.items, activeIndex, overIndex),
-                  columnSizes: arrayMove(row.columnSizes || [], activeIndex, overIndex)
-                };
-              }
-
-              return row;
-            });
-
-            onRowLayoutChangePreflight(newRows);
-          } else {
-            onRowLayoutChangePreflight(rows);
-          }
-        }
-
-        setActiveId(null);
+          }),
+        ]);
       }
-    );
+
+      if (overContainer) {
+        const activeIndex = rows
+          .find((r) => r.id === activeContainer)
+          ?.items.findIndex((row) => row.id === active.id);
+        const overIndex = rows
+          .find((r) => r.id === overContainer)
+          ?.items.findIndex((row) => row.id === overId);
+
+        if (activeIndex !== overIndex && activeIndex !== undefined && overIndex !== undefined) {
+          const newRows = rows.map((row) => {
+            if (row.id === overContainer) {
+              return {
+                ...row,
+                items: arrayMove(row.items, activeIndex, overIndex),
+                columnSizes: arrayMove(row.columnSizes || [], activeIndex, overIndex),
+              };
+            }
+
+            return row;
+          });
+
+          onRowLayoutChangePreflight(newRows);
+        } else {
+          onRowLayoutChangePreflight(rows);
+        }
+      }
+
+      setActiveId(null);
+    });
 
     useEffect(() => {
       requestAnimationFrame(() => {
@@ -331,30 +329,33 @@ export const BusterResizeableGrid: React.FC<{
     }, [serverRows]);
 
     return (
-      <DndContext
-        measuring={measuringConfig}
-        onDragStart={onDragStart}
-        onDragEnd={onDragEnd}
-        onDragCancel={onDragCancel}
-        collisionDetection={collisionDetectionStrategy}
-        sensors={sensors}>
-        <div className={cn('buster-resizeable-grid h-full w-full', className)}>
-          <BusterResizeRows
-            rows={rows}
-            className={className}
-            readOnly={readOnly}
-            onRowLayoutChange={onRowLayoutChangePreflight}
-          />
-        </div>
+      <ClientOnly>
+        <DndContext
+          measuring={measuringConfig}
+          onDragStart={onDragStart}
+          onDragEnd={onDragEnd}
+          onDragCancel={onDragCancel}
+          collisionDetection={collisionDetectionStrategy}
+          sensors={sensors}
+        >
+          <div className={cn('buster-resizeable-grid h-full w-full', className)}>
+            <BusterResizeRows
+              rows={rows}
+              className={className}
+              readOnly={readOnly}
+              onRowLayoutChange={onRowLayoutChangePreflight}
+            />
+          </div>
 
-        {!readOnly && (
-          <BusterSortableOverlay
-            activeId={activeId}
-            overlayComponent={overlayComponent}
-            rows={rows}
-          />
-        )}
-      </DndContext>
+          {!readOnly && (
+            <BusterSortableOverlay
+              activeId={activeId}
+              overlayComponent={overlayComponent}
+              rows={rows}
+            />
+          )}
+        </DndContext>
+      </ClientOnly>
     );
   }
 );
@@ -377,8 +378,8 @@ const checkRowEquality = (
           return {
             ...row,
             items: row.items.map((item) => ({
-              id: item.id
-            }))
+              id: item.id,
+            })),
           };
         })
     );
@@ -407,7 +408,7 @@ const newRowPreflight = (newRows: BusterResizeableGridRow[]) => {
 
       return {
         ...row,
-        columnSizes: newColumnSizes
+        columnSizes: newColumnSizes,
       };
     }
     return row;

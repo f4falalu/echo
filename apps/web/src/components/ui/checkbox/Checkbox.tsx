@@ -10,36 +10,36 @@ const checkboxVariants = cva(
     variants: {
       variant: {
         default:
-          '  data-[state=unchecked]:border-border data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:disabled:bg-primary data-[state=checked]:text-background bg-background hover:bg-gray-light/10 disabled:bg-gray-light/10'
+          '  data-[state=unchecked]:border-border data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:disabled:bg-primary data-[state=checked]:text-background bg-background hover:bg-gray-light/10 disabled:bg-gray-light/10',
       },
       size: {
         default: 'h-4 w-4 text-sm',
         sm: 'h-3 w-3 text-[8px]',
-        lg: 'h-5 w-5 text-base'
+        lg: 'h-5 w-5 text-base',
       },
       disabled: {
         true: 'opacity-60 cursor-not-allowed ',
-        false: 'cursor-pointer'
+        false: 'cursor-pointer',
       },
       checked: {
         true: '',
         false: '',
-        indeterminate: ''
-      }
+        indeterminate: '',
+      },
     },
     defaultVariants: {
       variant: 'default',
       size: 'default',
-      disabled: false
+      disabled: false,
     },
     compoundVariants: [
       {
         variant: 'default',
         checked: 'indeterminate',
         className:
-          'bg-primary-light text-background border-primary-light hover:bg-primary! hover:border-primary! hover:disabled:bg-inherit'
-      }
-    ]
+          'bg-primary-light text-background border-primary-light hover:bg-primary! hover:border-primary! hover:disabled:bg-inherit',
+      },
+    ],
   }
 );
 
@@ -73,9 +73,11 @@ const Checkbox = React.forwardRef<React.ElementRef<typeof CheckboxPrimitive.Root
         disabled={disabled || false}
         className={cn(checkboxVariants({ variant, size, disabled, checked }), className)}
         checked={checked || false}
-        {...props}>
+        {...props}
+      >
         <CheckboxPrimitive.Indicator
-          className={cn('absolute inset-0 flex items-center justify-center')}>
+          className={cn('absolute inset-0 flex items-center justify-center')}
+        >
           <div className="text-background flex">
             {checked === 'indeterminate' ? <Minus /> : <Check />}
           </div>

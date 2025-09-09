@@ -1,6 +1,6 @@
-import { formatLabel } from '@/lib/columnFormatter';
 import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import type { Context } from 'chartjs-plugin-datalabels';
+import { formatLabel } from '@/lib/columnFormatter';
 
 export const formatBarAndLineDataLabel = (
   value: number,
@@ -26,6 +26,6 @@ export const formatBarAndLineDataLabel = (
   return formatLabel(percentage, {
     ...columnLabelFormat,
     style: 'percent',
-    columnType: 'number'
+    columnType: 'number',
   });
 };

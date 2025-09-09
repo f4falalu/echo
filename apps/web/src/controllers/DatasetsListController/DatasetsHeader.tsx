@@ -1,13 +1,11 @@
-'use client';
-
 import React, { useMemo } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useIndividualDataset } from '@/api/buster_rest/datasets';
-import { Breadcrumb, type BreadcrumbItemType } from '@/components/ui/breadcrumb';
-import { AppSegmented, type SegmentedItem } from '@/components/ui/segmented';
-import { useUserConfigContextSelector } from '@/context/Users';
-import { useMemoizedFn } from '@/hooks';
-import { BusterRoutes } from '@/routes';
+import {
+  Breadcrumb,
+  type BreadcrumbItemType,
+  createBreadcrumbItems,
+} from '@/components/ui/breadcrumb';
 
 export const DatasetHeader: React.FC<{
   datasetFilter: 'all' | 'published' | 'drafts';
@@ -15,45 +13,40 @@ export const DatasetHeader: React.FC<{
   datasetId?: string;
   setOpenNewDatasetModal: (open: boolean) => void;
   openNewDatasetModal: boolean;
-}> = React.memo(
-  ({ datasetFilter, setDatasetFilter, datasetId, setOpenNewDatasetModal, openNewDatasetModal }) => {
-    const isAdmin = useUserConfigContextSelector((state) => state.isAdmin);
-    const { dataset } = useIndividualDataset({ datasetId });
-    const datasetTitle = dataset?.data?.name || 'Datasets';
+}> = React.memo(({ datasetId, setOpenNewDatasetModal }) => {
+  const { dataset } = useIndividualDataset({ datasetId });
+  const datasetTitle = dataset?.data?.name || 'Datasets';
 
-    const breadcrumbItems: BreadcrumbItemType[] = useMemo(
-      () => [
+  const breadcrumbItems: BreadcrumbItemType[] = useMemo(
+    () =>
+      createBreadcrumbItems([
         {
           label: datasetTitle,
-          route: datasetId
+          link: datasetId
             ? {
-                route: BusterRoutes.APP_DATASETS_ID_OVERVIEW,
-                datasetId: datasetId
+                to: '/app/datasets/$datasetId/overview',
+                params: { datasetId },
               }
-            : { route: BusterRoutes.APP_DATASETS }
-        }
-      ],
-      [datasetId, datasetTitle]
-    );
+            : { to: '/app/datasets' },
+        },
+      ]),
+    [datasetId, datasetTitle]
+  );
 
-    const onCloseNewDatasetModal = useMemoizedFn(() => {
-      setOpenNewDatasetModal(false);
-    });
+  const onOpenNewDatasetModal = () => {
+    setOpenNewDatasetModal(true);
+  };
 
-    const onOpenNewDatasetModal = useMemoizedFn(() => {
-      setOpenNewDatasetModal(true);
-    });
+  useHotkeys('d', onOpenNewDatasetModal);
 
-    useHotkeys('d', onOpenNewDatasetModal);
+  return (
+    <>
+      <div className="flex space-x-3">
+        <Breadcrumb items={breadcrumbItems} />
+        {/* <DatasetFilters datasetFilter={datasetFilter} setDatasetFilter={setDatasetFilter} /> */}
+      </div>
 
-    return (
-      <>
-        <div className="flex space-x-3">
-          <Breadcrumb items={breadcrumbItems} />
-          {/* <DatasetFilters datasetFilter={datasetFilter} setDatasetFilter={setDatasetFilter} /> */}
-        </div>
-
-        {/* <div className="flex items-center">
+      {/* <div className="flex items-center">
           {isAdmin && (
             <AppTooltip title={'Create new dashboard'} shortcuts={['D']}>
               <Button prefix={<Plus />} onClick={onOpenNewDatasetModal}>
@@ -64,33 +57,32 @@ export const DatasetHeader: React.FC<{
         </div>
 
         {isAdmin && <NewDatasetModal open={openNewDatasetModal} onClose={onCloseNewDatasetModal} />} */}
-      </>
-    );
-  }
-);
+    </>
+  );
+});
 DatasetHeader.displayName = 'DatasetHeader';
 
-const DatasetFilters: React.FC<{
-  datasetFilter: 'all' | 'published' | 'drafts';
-  setDatasetFilter: (filter: 'all' | 'published' | 'drafts') => void;
-}> = ({ datasetFilter, setDatasetFilter }) => {
-  const options: SegmentedItem<'all' | 'published' | 'drafts'>[] = useMemo(
-    () => [
-      { label: 'All', value: 'all' },
-      { label: 'Published', value: 'published' },
-      { label: 'Drafts', value: 'drafts' }
-    ],
-    []
-  );
+// const DatasetFilters: React.FC<{
+//   datasetFilter: 'all' | 'published' | 'drafts';
+//   setDatasetFilter: (filter: 'all' | 'published' | 'drafts') => void;
+// }> = ({ datasetFilter, setDatasetFilter }) => {
+//   const options: SegmentedItem<'all' | 'published' | 'drafts'>[] = useMemo(
+//     () => [
+//       { label: 'All', value: 'all' },
+//       { label: 'Published', value: 'published' },
+//       { label: 'Drafts', value: 'drafts' },
+//     ],
+//     []
+//   );
 
-  return (
-    <AppSegmented
-      options={options}
-      value={datasetFilter}
-      type="button"
-      onChange={(value) => {
-        setDatasetFilter(value.value);
-      }}
-    />
-  );
-};
+//   return (
+//     <AppSegmented
+//       options={options}
+//       value={datasetFilter}
+//       type="button"
+//       onChange={(value) => {
+//         setDatasetFilter(value.value);
+//       }}
+//     />
+//   );
+// };

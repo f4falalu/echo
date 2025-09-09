@@ -1,15 +1,14 @@
-'use client';
-
 import React from 'react';
-import { SettingsCards } from '../settings/SettingsCard';
-import { Switch } from '@/components/ui/switch';
-import { Input } from '@/components/ui/inputs';
-import { Button } from '@/components/ui/buttons';
-import { Text } from '@/components/ui/typography';
-import { Copy2, Refresh } from '@/components/ui/icons';
-import { useBusterNotifications } from '@/context/BusterNotifications';
-import { AppTooltip } from '@/components/ui/tooltip';
 import { useGetInviteLink, useUpdateInviteLinks } from '@/api/buster_rest/security/queryRequests';
+import { Button } from '@/components/ui/buttons';
+import { Copy2 } from '@/components/ui/icons';
+import Refresh from '@/components/ui/icons/NucleoIconOutlined/refresh';
+import { Input } from '@/components/ui/inputs';
+import { Switch } from '@/components/ui/switch';
+import { AppTooltip } from '@/components/ui/tooltip';
+import { Text } from '@/components/ui/typography';
+import { useBusterNotifications } from '@/context/BusterNotifications';
+import { SettingsCards } from '../settings/SettingsCard';
 
 export const InviteLinks = React.memo(() => {
   const { data: inviteLink } = useGetInviteLink();
@@ -68,9 +67,9 @@ export const InviteLinks = React.memo(() => {
                   Copy
                 </Button>
               </div>
-            )
-          ].filter(Boolean)
-        }
+            ),
+          ].filter(Boolean),
+        },
       ]}
     />
   );

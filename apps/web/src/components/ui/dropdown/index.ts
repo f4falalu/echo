@@ -1,2 +1,3 @@
+export * from './create-dropdown-item';
 export * from './Dropdown';
-export * from './DropdownLabel';
+export type * from './dropdown-items.types';

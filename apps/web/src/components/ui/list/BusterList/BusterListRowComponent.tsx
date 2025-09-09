@@ -1,8 +1,9 @@
+import { Link, type LinkProps } from '@tanstack/react-router';
 import get from 'lodash/get';
-import Link from 'next/link';
 import React, { useMemo } from 'react';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { cn } from '@/lib/classMerge';
+import type { ILinkProps } from '@/types/routes';
 import { CheckboxColumn } from './CheckboxColumn';
 import { HEIGHT_OF_ROW } from './config';
 import type { BusterListColumn, BusterListProps, BusterListRowItem } from './interfaces';
@@ -32,7 +33,7 @@ const BusterListRowComponentInner = React.forwardRef(
       onContextMenuClick,
       rowClassName = '',
       isLastChild,
-      useRowClickSelectChange
+      useRowClickSelectChange,
     }: BusterListRowComponentProps<T>,
     ref: React.ForwardedRef<HTMLDivElement>
   ) => {
@@ -46,21 +47,28 @@ const BusterListRowComponentInner = React.forwardRef(
       onSelectChange?.(newChecked, row.id, e);
     });
 
-    const onContainerClick = useMemoizedFn((e: React.MouseEvent) => {
+    const onContainerClick = (e: React.MouseEvent) => {
       if (useRowClickSelectChange) {
         onChange(!checked, e);
       }
       row.onClick?.();
-    });
+    };
 
     const rowStyles = {
       height: `${HEIGHT_OF_ROW}px`,
       minHeight: `${HEIGHT_OF_ROW}px`,
-      ...style
+      ...style,
     };
 
+    const linkProps = row.link
+      ? {
+          preloadDelay: row.preloadDelay,
+          preload: row.preload,
+        }
+      : undefined;
+
     return (
-      <LinkWrapper href={link}>
+      <LinkWrapper link={link} {...linkProps}>
         <div
           onClick={onContainerClick}
           style={rowStyles}
@@ -77,7 +85,8 @@ const BusterListRowComponentInner = React.forwardRef(
             rowClassName,
             'group'
           )}
-          ref={ref}>
+          ref={ref}
+        >
           {onSelectChange ? (
             <CheckboxColumn checkStatus={checked ? 'checked' : 'unchecked'} onChange={onChange} />
           ) : null}
@@ -125,12 +134,12 @@ const BusterListCellComponent = <T,>({
   render,
   isFirstCell,
   isLastCell,
-  onSelectChange
+  onSelectChange,
 }: BusterListCellComponentProps<T>) => {
   const memoizedStyle = useMemo(() => {
     return {
       width: width || '100%',
-      flex: width ? 'none' : 1
+      flex: width ? 'none' : 1,
     };
   }, [width, isLastCell, onSelectChange]);
 
@@ -140,7 +149,8 @@ const BusterListCellComponent = <T,>({
         'row-cell flex h-full items-center overflow-hidden px-0',
         isFirstCell ? 'text-text-default text-base' : 'text-text-tertiary text-sm'
       )}
-      style={memoizedStyle}>
+      style={memoizedStyle}
+    >
       <div className="leading-1.3 w-full truncate">
         {render ? render(dataItem, row) : String(dataItem)}
       </div>
@@ -148,13 +158,20 @@ const BusterListCellComponent = <T,>({
   );
 };
 
-const LinkWrapper: React.FC<{
-  href?: string;
-  children: React.ReactNode;
-}> = ({ href, children }) => {
-  if (!href) return <>{children}</>;
+const LinkWrapper: React.FC<
+  {
+    link?: ILinkProps;
+    children: React.ReactNode;
+  } & LinkProps
+> = ({ link, children, preload, preloadDelay, activeOptions }) => {
+  if (!link) return <>{children}</>;
   return (
-    <Link href={href} prefetch={false}>
+    <Link
+      {...link}
+      preload={preload ?? false}
+      preloadDelay={preloadDelay}
+      activeOptions={activeOptions}
+    >
       {children}
     </Link>
   );

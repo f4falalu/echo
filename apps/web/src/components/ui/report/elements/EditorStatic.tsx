@@ -1,9 +1,7 @@
-import * as React from 'react';
-
 import type { VariantProps } from 'class-variance-authority';
-
 import { cva } from 'class-variance-authority';
-import { type PlateStaticProps, PlateStatic } from 'platejs';
+import { PlateStatic, type PlateStaticProps } from 'platejs';
+import * as React from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -13,18 +11,18 @@ export const editorVariants = cva(
     'relative w-full cursor-text overflow-x-hidden break-words whitespace-pre-wrap select-text',
     'rounded-md ring-offset-background focus-visible:outline-none',
     'placeholder:text-muted-foreground/80 **:data-slate-placeholder:top-[auto_!important] **:data-slate-placeholder:text-muted-foreground/80 **:data-slate-placeholder:opacity-100!',
-    '[&_strong]:font-bold'
+    '[&_strong]:font-semibold'
   ),
   {
     defaultVariants: {
-      variant: 'none'
+      variant: 'none',
     },
     variants: {
       disabled: {
-        true: 'cursor-not-allowed opacity-50'
+        true: 'cursor-not-allowed opacity-50',
       },
       focused: {
-        true: 'ring-2 ring-ring ring-offset-2'
+        true: 'ring-2 ring-ring ring-offset-2',
       },
       variant: {
         ai: 'w-full px-0 text-base md:text-sm',
@@ -34,9 +32,9 @@ export const editorVariants = cva(
         demo: 'size-full px-16 pt-4 pb-72 text-base sm:px-[max(64px,calc(50%-350px))]',
         fullWidth: 'size-full px-16 pt-4 pb-72 text-base sm:px-24',
         none: '',
-        select: 'px-3 py-2 text-base data-readonly:w-fit'
-      }
-    }
+        select: 'px-3 py-2 text-base data-readonly:w-fit',
+      },
+    },
   }
 );
 

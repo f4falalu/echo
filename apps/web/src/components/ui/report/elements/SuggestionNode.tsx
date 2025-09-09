@@ -1,12 +1,8 @@
-'use client';
-
-import * as React from 'react';
-
 import type { TSuggestionData, TSuggestionText } from 'platejs';
 import type { PlateLeafProps, RenderNodeWrapper } from 'platejs/react';
-
-import { SquareArrowDownLeft } from '@/components/ui/icons';
 import { PlateLeaf, useEditorPlugin, usePluginOption } from 'platejs/react';
+import * as React from 'react';
+import SquareArrowDownLeft from '@/components/ui/icons/NucleoIconOutlined/square-arrow-down-left';
 
 import { cn } from '@/lib/utils';
 import { type SuggestionConfig, suggestionPlugin } from '../plugins/suggestion-kit';
@@ -41,8 +37,9 @@ export function SuggestionLeaf(props: PlateLeafProps<TSuggestionText>) {
       attributes={{
         ...props.attributes,
         onMouseEnter: () => setOption('hoverId', leafId),
-        onMouseLeave: () => setOption('hoverId', null)
-      }}>
+        onMouseLeave: () => setOption('hoverId', null),
+      }}
+    >
       {props.children}
     </PlateLeaf>
   );
@@ -91,9 +88,10 @@ function SuggestionLineBreakContent({ suggestionData }: { suggestionData: TSugge
       )}
       style={{
         bottom: 4.5,
-        height: 21
+        height: 21,
       }}
-      contentEditable={false}>
+      contentEditable={false}
+    >
       <div className="mt-0.5 size-4">
         <SquareArrowDownLeft />
       </div>

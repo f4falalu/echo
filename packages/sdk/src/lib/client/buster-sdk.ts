@@ -1,21 +1,18 @@
-import type { DeployRequest, DeployResponse, ValidateApiKeyResponse } from '@buster/server-shared';
-import { isApiKeyValid, validateApiKey } from '../auth';
+import type { deploy as deployTypes } from '@buster/server-shared';
+import { isApiKeyValid } from '../auth';
 import { type SDKConfig, SDKConfigSchema } from '../config';
-import { deployDatasets, getDatasets } from '../datasets';
-import { get } from '../http';
+import { deploy } from '../deploy';
 
-// SDK instance interface
+type UnifiedDeployRequest = deployTypes.UnifiedDeployRequest;
+type UnifiedDeployResponse = deployTypes.UnifiedDeployResponse;
+
+// Simplified SDK interface - only what the CLI actually uses
 export interface BusterSDK {
   readonly config: SDKConfig;
-  healthcheck: () => Promise<{ status: string; [key: string]: unknown }>;
   auth: {
-    validateApiKey: (apiKey?: string) => Promise<ValidateApiKeyResponse>;
     isApiKeyValid: (apiKey?: string) => Promise<boolean>;
   };
-  datasets: {
-    deploy: (request: DeployRequest) => Promise<DeployResponse>;
-    get: (dataSourceId?: string) => Promise<{ datasets: unknown[] }>;
-  };
+  deploy: (request: UnifiedDeployRequest) => Promise<UnifiedDeployResponse>;
 }
 
 // Create SDK instance
@@ -25,14 +22,9 @@ export function createBusterSDK(config: Partial<SDKConfig>): BusterSDK {
 
   return {
     config: validatedConfig,
-    healthcheck: () => get(validatedConfig, '/healthcheck'),
     auth: {
-      validateApiKey: (apiKey?: string) => validateApiKey(validatedConfig, apiKey),
       isApiKeyValid: (apiKey?: string) => isApiKeyValid(validatedConfig, apiKey),
     },
-    datasets: {
-      deploy: (request: DeployRequest) => deployDatasets(validatedConfig, request),
-      get: (dataSourceId?: string) => getDatasets(validatedConfig, dataSourceId),
-    },
+    deploy: (request) => deploy(validatedConfig, request),
   };
 }

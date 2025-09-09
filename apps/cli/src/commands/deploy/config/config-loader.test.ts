@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import yaml from 'js-yaml';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { BusterConfig, ProjectContext } from '../schemas';
+import type { BusterConfig } from '../schemas';
 import { loadBusterConfig, resolveConfiguration } from './config-loader';
 
 describe('config-loader', () => {

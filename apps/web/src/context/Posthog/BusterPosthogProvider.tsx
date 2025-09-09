@@ -1,13 +1,19 @@
-'use client';
-
 import { isServer } from '@tanstack/react-query';
+import { ClientOnly } from '@tanstack/react-router';
 import type { PostHogConfig } from 'posthog-js';
 import React, { type PropsWithChildren, useEffect, useState } from 'react';
-import { isDev } from '@/config';
-import { useUserConfigContextSelector } from '../Users';
-import type { Team } from '@buster/server-shared/teams';
+import { useGetUserTeams } from '@/api/buster_rest/users';
+import {
+  useGetUserBasicInfo,
+  useGetUserOrganization,
+} from '@/api/buster_rest/users/useGetUserInfo';
+import { ComponentErrorCard } from '@/components/features/global/ComponentErrorCard';
+import { isDev } from '@/config/dev';
+import { env } from '@/env';
+import packageJson from '../../../package.json';
 
-const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+const version = packageJson.version;
+const POSTHOG_KEY = env.VITE_PUBLIC_POSTHOG_KEY;
 const DEBUG_POSTHOG = false;
 
 export const BusterPosthogProvider: React.FC<PropsWithChildren> = ({ children }) => {
@@ -15,34 +21,41 @@ export const BusterPosthogProvider: React.FC<PropsWithChildren> = ({ children })
     return <>{children}</>;
   }
 
-  return <PosthogWrapper>{children}</PosthogWrapper>;
+  return (
+    <ComponentErrorCard
+      header="Posthog failed to load"
+      message="Our team has been notified via Slack. We'll take a look at the issue ASAP and get back to you."
+    >
+      <PosthogWrapper>{children}</PosthogWrapper>
+    </ComponentErrorCard>
+  );
 };
 BusterPosthogProvider.displayName = 'BusterPosthogProvider';
 
 const options: Partial<PostHogConfig> = {
-  api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+  api_host: env.VITE_PUBLIC_POSTHOG_HOST,
   person_profiles: 'always',
   session_recording: {
-    recordBody: true
+    recordBody: true,
   },
 
   loaded: () => {
     console.log(
-      '%c🚀 Welcome to Buster',
+      `🚀 Welcome to Buster v${version}`,
       'background: linear-gradient(to right, #a21caf, #8b1cb1, #6b21a8); color: white; font-size: 16px; font-weight: bold; padding: 10px; border-radius: 5px;'
     );
     console.log(
       '%cBuster is your open-source data analytics platform. Found a bug? The code is open-source! Report it at https://github.com/buster-so/buster. Better yet, fix it yourself and send a PR.',
       'background: #6b21a8; color: white; font-size: 10px; font-weight: normal; padding: 8px; border-radius: 4px;'
     );
-  }
+  },
 };
 
 const PosthogWrapper: React.FC<PropsWithChildren> = ({ children }) => {
-  const user = useUserConfigContextSelector((state) => state.user);
-  const userTeams = useUserConfigContextSelector((state) => state.userTeams);
-  const userOrganizations = useUserConfigContextSelector((state) => state.userOrganizations);
-  const team: Team | undefined = userTeams?.[0];
+  const user = useGetUserBasicInfo();
+  const { data: userTeams } = useGetUserTeams({ userId: user?.id ?? '' });
+  const userOrganizations = useGetUserOrganization();
+  const team = userTeams?.[0];
 
   const [posthogModules, setPosthogModules] = useState<{
     posthog: typeof import('posthog-js').default;
@@ -56,7 +69,7 @@ const PosthogWrapper: React.FC<PropsWithChildren> = ({ children }) => {
       try {
         const [{ default: posthog }, { PostHogProvider }] = await Promise.all([
           import('posthog-js'),
-          import('posthog-js/react')
+          import('posthog-js/react'),
         ]);
 
         setPosthogModules({ posthog, PostHogProvider });
@@ -85,7 +98,7 @@ const PosthogWrapper: React.FC<PropsWithChildren> = ({ children }) => {
       posthog.identify(email, {
         user,
         organization: userOrganizations,
-        team
+        team,
       });
       posthog.group(team?.id, team?.name);
     }
@@ -97,5 +110,14 @@ const PosthogWrapper: React.FC<PropsWithChildren> = ({ children }) => {
   }
 
   const { PostHogProvider } = posthogModules;
-  return <PostHogProvider client={posthogModules.posthog}>{children}</PostHogProvider>;
+
+  if (isServer) {
+    return <>{children}</>;
+  }
+
+  return (
+    <ClientOnly>
+      <PostHogProvider client={posthogModules.posthog}>{children}</PostHogProvider>
+    </ClientOnly>
+  );
 };

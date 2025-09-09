@@ -1,21 +1,20 @@
-'use client';
-
 import React, { useMemo, useState } from 'react';
 import type { BusterCollection, BusterCollectionItemAsset } from '@/api/asset_interfaces';
-import { ASSET_ICONS } from '@/components/features/config/assetIcons';
-import { AddToCollectionModal } from '@/components/features/modal/AddToCollectionModal';
+import { AddToCollectionModal } from '@/components/features/collections/AddToCollectionModal';
+import { ASSET_ICONS } from '@/components/features/icons/assetIcons';
 import { Avatar } from '@/components/ui/avatar';
 import {
   BusterList,
   type BusterListColumn,
   type BusterListRowItem,
-  ListEmptyStateWithButton
+  createListItem,
+  ListEmptyStateWithButton,
 } from '@/components/ui/list';
 import { Text } from '@/components/ui/typography';
-import { useMemoizedFn } from '@/hooks';
-import { formatDate } from '@/lib';
-import { canEdit } from '@/lib/share';
-import { BusterRoutes, createBusterRoute } from '@/routes';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { formatDate } from '@/lib/date';
+import { createSimpleAssetRoute } from '@/lib/routes/createSimpleAssetRoute';
+import { canEdit } from '../../lib/share';
 import { CollectionIndividualSelectedPopup } from './CollectionsIndividualPopup';
 
 export const CollectionIndividualContent: React.FC<{
@@ -72,19 +71,19 @@ const columns: BusterListColumn<BusterCollectionItemAsset>[] = [
           </Text>
         </div>
       );
-    }
+    },
   },
   {
     dataIndex: 'updated_at',
     title: 'Last edited',
     width: 145,
-    render: (v) => formatDate({ date: v, format: 'lll' })
+    render: (v) => formatDate({ date: v, format: 'lll' }),
   },
   {
     dataIndex: 'created_at',
     title: 'Created at',
     width: 145,
-    render: (v) => formatDate({ date: v, format: 'lll' })
+    render: (v) => formatDate({ date: v, format: 'lll' }),
   },
   {
     dataIndex: 'created_by',
@@ -94,8 +93,8 @@ const columns: BusterListColumn<BusterCollectionItemAsset>[] = [
       return (
         <Avatar image={created_by?.avatar_url || undefined} name={created_by?.name} size={18} />
       );
-    }
-  }
+    },
+  },
 ];
 
 const CollectionList: React.FC<{
@@ -108,15 +107,18 @@ const CollectionList: React.FC<{
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
 
   const items: BusterListRowItem<BusterCollectionItemAsset>[] = useMemo(() => {
-    return assetList.map((asset) => ({
-      id: asset.id,
-      link: createAssetLink(asset, selectedCollection.id),
-      data: {
-        ...asset,
-        name: asset.name || `New ${asset.asset_type}`,
-        asset_type: asset.asset_type
-      }
-    }));
+    const createAssetLinkItem = createListItem<BusterCollectionItemAsset>();
+    return assetList.map((asset) =>
+      createAssetLinkItem({
+        id: asset.id,
+        link: createSimpleAssetRoute(asset),
+        data: {
+          ...asset,
+          name: asset.name || `New ${asset.asset_type}`,
+          asset_type: asset.asset_type,
+        },
+      })
+    );
   }, [assetList, selectedCollection.id]);
 
   const onSelectChange = useMemoizedFn((selectedRowKeys: string[]) => {
@@ -159,36 +161,5 @@ CollectionList.displayName = 'CollectionList';
 const CollectionIconRecord: Record<string, React.ReactNode> = {
   dashboard: <ASSET_ICONS.dashboards />,
   metric: <ASSET_ICONS.metrics />,
-  report: <ASSET_ICONS.reports />
-};
-
-const createAssetLink = (asset: BusterCollectionItemAsset, collectionId: string) => {
-  if (asset.asset_type === 'metric') {
-    return createBusterRoute({
-      route: BusterRoutes.APP_METRIC_ID_CHART,
-      metricId: asset.id
-    });
-  }
-
-  if (asset.asset_type === 'dashboard') {
-    return createBusterRoute({
-      route: BusterRoutes.APP_DASHBOARD_ID,
-      dashboardId: asset.id
-    });
-  }
-
-  if (asset.asset_type === 'report') {
-    return createBusterRoute({
-      route: BusterRoutes.APP_REPORTS_ID,
-      reportId: asset.id
-    });
-  }
-
-  if (asset.asset_type === 'collection') {
-    return createBusterRoute({
-      route: BusterRoutes.APP_COLLECTIONS
-    });
-  }
-
-  return '#';
+  report: <ASSET_ICONS.reports />,
 };

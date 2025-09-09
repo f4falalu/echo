@@ -4,7 +4,7 @@ export enum DataSourceStatus {
   ACTIVE = 'active',
   SYNCING = 'syncing',
   FAILED = 'failed',
-  PAUSED = 'paused'
+  PAUSED = 'paused',
 }
 
 export enum DataSourceTypes {
@@ -18,7 +18,7 @@ export enum DataSourceTypes {
   sqlserver = 'sqlserver',
   databricks = 'databricks',
   athena = 'athena',
-  other = 'other'
+  other = 'other',
 }
 
 export const SUPPORTED_DATASOURCES = [
@@ -30,7 +30,7 @@ export const SUPPORTED_DATASOURCES = [
   DataSourceTypes.redshift,
   DataSourceTypes.bigquery,
   DataSourceTypes.databricks,
-  DataSourceTypes.snowflake
+  DataSourceTypes.snowflake,
 ];
 export const DatabaseNames: Record<DataSourceTypes, string> = {
   [DataSourceTypes.postgres]: 'Postgres',
@@ -43,17 +43,17 @@ export const DatabaseNames: Record<DataSourceTypes, string> = {
   [DataSourceTypes.sqlserver]: 'SQL Server',
   [DataSourceTypes.mariadb]: 'MariaDB',
   [DataSourceTypes.athena]: 'Athena',
-  [DataSourceTypes.other]: 'Other'
+  [DataSourceTypes.other]: 'Other',
 };
 
 export enum DataSourceTenetTypes {
   single = 'single',
-  multi = 'multi'
+  multi = 'multi',
 }
 
 export enum DataSourceEnvironment {
   production = 'production',
-  development = 'development'
+  development = 'development',
 }
 
 export const PostgresCredentialsSchema = z.object({
@@ -69,7 +69,7 @@ export const PostgresCredentialsSchema = z.object({
   username: z.string().check(z.minLength(1, 'Username must not be empty')),
   password: z.string().check(z.minLength(1, 'Password must not be empty')),
   default_database: z.string().check(z.minLength(1, 'Database must not be empty')), // postgres
-  default_schema: z.string().check(z.minLength(1, 'Schema must not be empty')) // public
+  default_schema: z.string().check(z.minLength(1, 'Schema must not be empty')), // public
 });
 
 export type PostgresCredentials = z.infer<typeof PostgresCredentialsSchema>;
@@ -86,7 +86,7 @@ export const MySQLCredentialsSchema = z.object({
     ),
   username: z.string().check(z.minLength(1, 'Username must not be empty')),
   password: z.string().check(z.minLength(1, 'Password must not be empty')),
-  default_database: z.string().check(z.minLength(1, 'Database must not be empty'))
+  default_database: z.string().check(z.minLength(1, 'Database must not be empty')),
 });
 
 export type MySQLCredentials = z.infer<typeof MySQLCredentialsSchema>;
@@ -96,7 +96,7 @@ export const BigQueryCredentialsSchema = z.object({
   type: z.literal('bigquery'),
   service_role_key: z.string().check(z.minLength(1, 'Service role key must not be empty')),
   default_project_id: z.string().check(z.minLength(1, 'Project ID must not be empty')),
-  default_dataset_id: z.string().check(z.minLength(1, 'Dataset ID must not be empty'))
+  default_dataset_id: z.string().check(z.minLength(1, 'Dataset ID must not be empty')),
 });
 
 export type BigQueryCredentials = z.infer<typeof BigQueryCredentialsSchema>;
@@ -114,7 +114,7 @@ export const RedshiftCredentialsSchema = z.object({
   username: z.string().check(z.minLength(1, 'Username must not be empty')),
   password: z.string().check(z.minLength(1, 'Password must not be empty')),
   default_database: z.string().check(z.minLength(1, 'Database must not be empty')),
-  default_schema: z.string().check(z.minLength(1, 'Schema must not be empty'))
+  default_schema: z.string().check(z.minLength(1, 'Schema must not be empty')),
 });
 
 export type RedshiftCredentials = z.infer<typeof RedshiftCredentialsSchema>;
@@ -132,7 +132,7 @@ export const SnowflakeCredentialsSchema = z.object({
     z.minLength(1, 'Schema must not be empty'),
     z.toUpperCase(),
     z.refine((val) => val === val.toUpperCase(), 'Must be all uppercase')
-  )
+  ),
 });
 
 export type SnowflakeCredentials = z.infer<typeof SnowflakeCredentialsSchema>;
@@ -144,7 +144,7 @@ export const DatabricksCredentialsSchema = z.object({
   api_key: z.string().check(z.refine((val) => val.length > 0, 'API key is required')),
   warehouse_id: z.string().check(z.refine((val) => val.length > 0, 'Warehouse ID is required')),
   default_catalog: z.string(),
-  default_schema: z.string()
+  default_schema: z.string(),
 });
 
 export type DatabricksCredentials = z.infer<typeof DatabricksCredentialsSchema>;
@@ -162,20 +162,20 @@ export const SQLServerCredentialsSchema = z.object({
   username: z.string().check(z.minLength(1, 'Username must not be empty')),
   password: z.string().check(z.minLength(1, 'Password must not be empty')),
   default_database: z.string().check(z.minLength(1, 'Database must not be empty')),
-  default_schema: z.string().check(z.minLength(1, 'Schema must not be empty'))
+  default_schema: z.string().check(z.minLength(1, 'Schema must not be empty')),
 });
 
 export type SQLServerCredentials = z.infer<typeof SQLServerCredentialsSchema>;
 
 export const DataSetSchema = z.object({
   id: z.string().check(z.refine((val) => val.length > 0, 'Dataset ID is required')),
-  name: z.string().check(z.refine((val) => val.length > 0, 'Dataset name is required'))
+  name: z.string().check(z.refine((val) => val.length > 0, 'Dataset name is required')),
 });
 
 export const CreatedBySchema = z.object({
   email: z.string().check(z.refine((val) => val.length > 0, 'Email is required')),
   id: z.string().check(z.refine((val) => val.length > 0, 'User ID is required')),
-  name: z.string().check(z.refine((val) => val.length > 0, 'User name is required'))
+  name: z.string().check(z.refine((val) => val.length > 0, 'User name is required')),
 });
 
 export const DataSourceSchema = z.object({
@@ -188,13 +188,13 @@ export const DataSourceSchema = z.object({
     z.omit(RedshiftCredentialsSchema, { name: true }),
     z.omit(SnowflakeCredentialsSchema, { name: true }),
     z.omit(DatabricksCredentialsSchema, { name: true }),
-    z.omit(SQLServerCredentialsSchema, { name: true })
+    z.omit(SQLServerCredentialsSchema, { name: true }),
   ]),
   data_sets: z.array(DataSetSchema),
   id: z.string().check(z.refine((val) => val.length > 0, 'Data source ID is required')),
   name: z.string().check(z.refine((val) => val.length > 0, 'Data source name is required')),
   type: z.enum(DataSourceTypes),
-  updated_at: z.string()
+  updated_at: z.string(),
 });
 
 export type DataSource = z.infer<typeof DataSourceSchema>;

@@ -1,3 +1,1 @@
-export * from './config';
-export * from './dashboardConfigInterfaces';
-export * from './interfaces';
+export type * from './interfaces';

@@ -177,11 +177,11 @@ jobs:
             ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.WEB_IMAGE_NAME }}:${{ github.sha }}-${{ matrix.platform }}
             ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.WEB_IMAGE_NAME }}:latest-${{ matrix.platform }}
           build-args: |
-            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
-            NEXT_PUBLIC_URL=${{ secrets.NEXT_PUBLIC_URL }}
-            NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-            NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-            NEXT_PUBLIC_WEB_SOCKET_URL=${{ secrets.NEXT_PUBLIC_WEB_SOCKET_URL }}
+            VITE_PUBLIC_API_URL=${{ secrets.VITE_PUBLIC_API_URL }}
+            VITE_PUBLIC_URL=${{ secrets.VITE_PUBLIC_URL }}
+            VITE_PUBLIC_SUPABASE_URL=${{ secrets.VITE_PUBLIC_SUPABASE_URL }}
+            VITE_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.VITE_PUBLIC_SUPABASE_ANON_KEY }}
+            VITE_PUBLIC_WEB_SOCKET_URL=${{ secrets.VITE_PUBLIC_WEB_SOCKET_URL }}
       - name: Set Web Package Visibility to Public
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

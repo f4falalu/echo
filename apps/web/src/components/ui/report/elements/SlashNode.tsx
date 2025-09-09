@@ -1,10 +1,5 @@
-'use client';
-
-import * as React from 'react';
-
+import type { TComboboxInputElement } from 'platejs';
 import type { PlateElementProps } from 'platejs/react';
-
-import { type TComboboxInputElement } from 'platejs';
 import { PlateElement } from 'platejs/react';
 import { getSlashGroups } from '../config/addMenuItems';
 
@@ -15,7 +10,7 @@ import {
   InlineComboboxGroup,
   InlineComboboxGroupLabel,
   InlineComboboxInput,
-  InlineComboboxItem
+  InlineComboboxItem,
 } from './InlineCombobox';
 
 const groups = getSlashGroups();
@@ -25,8 +20,15 @@ export function SlashInputElement(props: PlateElementProps<TComboboxInputElement
 
   return (
     <PlateElement {...props} as="span" data-slate-value={element.value}>
-      <InlineCombobox element={element} trigger="/">
-        <InlineComboboxInput />
+      <InlineCombobox
+        element={element}
+        trigger="/"
+        className="bg-item-select relative rounded-l px-1 min-h-7 overflow-hidden flex items-center w-fit"
+      >
+        <InlineComboboxInput
+          placeholder="Filter..."
+          className="pl-1 py-0.5 bg-item-select text-gray-light rounded-r"
+        />
 
         <InlineComboboxContent>
           <InlineComboboxEmpty>No results</InlineComboboxEmpty>
@@ -43,8 +45,9 @@ export function SlashInputElement(props: PlateElementProps<TComboboxInputElement
                   label={label}
                   focusEditor={focusEditor}
                   group={group}
-                  keywords={keywords ? [...keywords] : undefined}>
-                  <div className="text-muted-foreground mr-2">{icon}</div>
+                  keywords={keywords ? [...keywords] : undefined}
+                >
+                  <div className="text-icon-color mr-2">{icon}</div>
                   {label ?? value}
                 </InlineComboboxItem>
               ))}
@@ -52,7 +55,6 @@ export function SlashInputElement(props: PlateElementProps<TComboboxInputElement
           ))}
         </InlineComboboxContent>
       </InlineCombobox>
-
       {props.children}
     </PlateElement>
   );

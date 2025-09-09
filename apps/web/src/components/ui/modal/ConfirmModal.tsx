@@ -37,7 +37,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = React.memo(
     onClose,
     showClose = true,
     primaryButtonProps,
-    preventCloseOnClickOutside = true
+    preventCloseOnClickOutside = true,
   }) => {
     return (
       <AppModal
@@ -48,20 +48,21 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = React.memo(
         showClose={showClose}
         header={{
           title,
-          description
+          description,
         }}
         footer={{
           secondaryButton: onCancel
             ? {
                 text: cancelButtonProps?.text ?? 'Cancel',
-                onClick: onCancel
+                onClick: onCancel,
               }
             : undefined,
           primaryButton: {
             text: primaryButtonProps?.text ?? 'Submit',
-            onClick: onOk
-          }
-        }}>
+            onClick: onOk,
+          },
+        }}
+      >
         {content}
       </AppModal>
     );

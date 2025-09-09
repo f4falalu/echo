@@ -1,0 +1,25 @@
+{
+    "folders": [
+      { "path": "../apps/server" },
+      { "path": "../packages/access-controls" },
+      { "path": "../packages/database" },
+      { "path": "../packages/server-shared" },
+      { "path": "../packages/github" },
+      { "path": "../packages/trigger" },
+      { "path": "../packages/data-source" },
+      { "path": "../packages/ai" },
+      { "path": "../packages/rerank" },
+      { "path": "../packages/slack" },
+      { "path": "../packages/search" },
+      { "path": "../packages/web-tools" },
+    ],
+    "settings": {
+    },
+    "extensions": {
+      "recommendations": [
+        "biomejs.biome",
+        "vitest.explorer"
+      ]
+    }
+  }
+    

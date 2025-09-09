@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import type { dashboardsGetList } from '@/api/buster_rest/dashboards';
 import { Button } from '@/components/ui/buttons';
@@ -46,20 +44,20 @@ DashboardHeader.displayName = 'DashboardHeader';
 const filters: SegmentedItem<string>[] = [
   {
     label: 'All ',
-    value: JSON.stringify({})
+    value: JSON.stringify({}),
   },
   {
     label: 'My dashboards',
     value: JSON.stringify({
-      only_my_dashboards: true
-    })
+      only_my_dashboards: true,
+    }),
   },
   {
     label: 'Shared with me',
     value: JSON.stringify({
-      shared_with_me: true
-    })
-  }
+      shared_with_me: true,
+    }),
+  },
 ];
 
 const DashboardFilters: React.FC<{

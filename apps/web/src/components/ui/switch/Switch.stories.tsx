@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Switch } from './Switch';
 
 const meta: Meta<typeof Switch> = {
@@ -9,39 +9,39 @@ const meta: Meta<typeof Switch> = {
     className: { control: 'text' },
     defaultChecked: { control: 'boolean' },
     disabled: { control: 'boolean' },
-    checked: { control: 'boolean' }
-  }
+    checked: { control: 'boolean' },
+  },
 };
 
 export default meta;
 type Story = StoryObj<typeof Switch>;
 
 export const Default: Story = {
-  args: {}
+  args: {},
 };
 
 export const Checked: Story = {
   args: {
-    defaultChecked: true
-  }
+    defaultChecked: true,
+  },
 };
 
 export const Disabled: Story = {
   args: {
-    disabled: true
-  }
+    disabled: true,
+  },
 };
 
 export const DisabledChecked: Story = {
   args: {
     disabled: true,
-    defaultChecked: true
-  }
+    defaultChecked: true,
+  },
 };
 
 export const WithCustomClassName: Story = {
   args: {
     className: 'data-[state=checked]:bg-green-500',
-    defaultChecked: true
-  }
+    defaultChecked: true,
+  },
 };

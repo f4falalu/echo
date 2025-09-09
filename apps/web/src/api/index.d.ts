@@ -1,4 +1,4 @@
-import type { RustApiError } from './buster_rest/errors';
+import type { RustApiError } from './errors';
 
 declare module '@tanstack/react-query' {
   interface Register {

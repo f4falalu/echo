@@ -1,26 +1,24 @@
-import * as React from 'react';
-
 import {
   useEditorRef,
   useEditorSelector,
   useElement,
   useReadOnly,
   useRemoveNodeButton,
-  useSelected
+  useSelected,
 } from 'platejs/react';
-
+import * as React from 'react';
+import { AddMetricModal } from '@/components/features/dashboard/AddMetricModal';
 import { Button } from '@/components/ui/buttons';
-import { PopoverBase, PopoverAnchor, PopoverContent } from '@/components/ui/popover';
+import { PopoverAnchor, PopoverBase, PopoverContent } from '@/components/ui/popover';
+import { Separator } from '@/components/ui/separator';
 import { NodeTypeIcons } from '../../config/icons';
 import { NodeTypeLabels } from '../../config/labels';
-import { AddMetricModal } from '@/components/features/modal/AddMetricModal';
 import { MetricPlugin, type TMetricElement } from '../../plugins/metric-kit';
-import { Separator } from '@/components/ui/separator';
 import { CaptionButton } from '../CaptionNode';
 
 export function MetricToolbar({
   children,
-  selectedMetricId
+  selectedMetricId,
 }: {
   children: React.ReactNode;
   selectedMetricId?: string;
@@ -84,7 +82,7 @@ export function MetricToolbar({
       <AddMetricModal
         open={openEditModal}
         loading={false}
-        selectedMetrics={preselectedMetrics}
+        initialSelectedMetrics={preselectedMetrics}
         onClose={onCloseEdit}
         onAddMetrics={handleAddMetrics}
         selectionMode="single"

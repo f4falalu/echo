@@ -6,7 +6,7 @@ import {
   BaseH4Plugin,
   BaseH5Plugin,
   BaseH6Plugin,
-  BaseHorizontalRulePlugin
+  BaseHorizontalRulePlugin,
 } from '@platejs/basic-nodes';
 import { BaseParagraphPlugin } from 'platejs';
 
@@ -17,7 +17,7 @@ import {
   H3ElementStatic,
   H4ElementStatic,
   H5ElementStatic,
-  H6ElementStatic
+  H6ElementStatic,
 } from '../elements/HeaderNodeStatic';
 import { HrElementStatic } from '../elements/HrNodeStatic';
 import { ParagraphElementStatic } from '../elements/ParagraphNodeStatic';
@@ -31,5 +31,5 @@ export const BaseBasicBlocksKit = [
   BaseH5Plugin.withComponent(H5ElementStatic),
   BaseH6Plugin.withComponent(H6ElementStatic),
   BaseBlockquotePlugin.withComponent(BlockquoteElementStatic),
-  BaseHorizontalRulePlugin.withComponent(HrElementStatic)
+  BaseHorizontalRulePlugin.withComponent(HrElementStatic),
 ];

@@ -1,7 +1,3 @@
-'use client';
-
-import type { PlateEditor } from 'platejs/react';
-
 import { insertCallout } from '@platejs/callout';
 import { insertCodeBlock } from '@platejs/code-block';
 import { insertDate } from '@platejs/date';
@@ -12,12 +8,13 @@ import {
   insertAudioPlaceholder,
   insertFilePlaceholder,
   insertImagePlaceholder,
-  insertVideoPlaceholder
+  insertVideoPlaceholder,
 } from '@platejs/media';
 import { SuggestionPlugin } from '@platejs/suggestion/react';
 import { TablePlugin } from '@platejs/table/react';
 import { insertToc } from '@platejs/toc';
-import { type NodeEntry, type Path, type TElement, KEYS, PathApi } from 'platejs';
+import { KEYS, type NodeEntry, type Path, PathApi, type TElement } from 'platejs';
+import type { PlateEditor } from 'platejs/react';
 import { CUSTOM_KEYS } from '../config/keys';
 import { insertMetric } from '../plugins/metric-kit';
 
@@ -27,7 +24,7 @@ const insertList = (editor: PlateEditor, type: string) => {
   editor.tf.insertNodes(
     editor.api.create.block({
       indent: 1,
-      listStyleType: type
+      listStyleType: type,
     }),
     { select: true }
   );
@@ -49,11 +46,11 @@ const insertBlockMap: Record<string, (editor: PlateEditor, type: string) => void
   //  [KEYS.table]: (editor) => editor.getTransforms(TablePlugin).insert.table({}, { select: true }),
   [KEYS.toc]: (editor) => insertToc(editor, { select: true }),
   [KEYS.video]: (editor) => insertVideoPlaceholder(editor, { select: true }),
-  [CUSTOM_KEYS.metric]: (editor) => insertMetric(editor, { select: true })
+  [CUSTOM_KEYS.metric]: (editor) => insertMetric(editor, { select: true }),
 };
 
 const insertInlineMap: Record<string, (editor: PlateEditor, type: string) => void> = {
-  [KEYS.date]: (editor) => insertDate(editor, { select: true })
+  [KEYS.date]: (editor) => insertDate(editor, { select: true }),
   //[KEYS.inlineEquation]: (editor) => insertInlineEquation(editor, '', { select: true }),
   //  [KEYS.link]: (editor) => triggerFloatingLink(editor, { focused: true })
 };
@@ -71,7 +68,7 @@ export const insertBlock = (editor: PlateEditor, type: string) => {
     } else {
       editor.tf.insertNodes(editor.api.create.block({ type }), {
         at: PathApi.next(block[1]),
-        select: true
+        select: true,
       });
     }
     // Only remove the previous block when replacing an empty paragraph.
@@ -103,10 +100,10 @@ const setList = (editor: PlateEditor, type: string, entry: NodeEntry<TElement>) 
   editor.tf.setNodes(
     editor.api.create.block({
       indent: 1,
-      listStyleType: type
+      listStyleType: type,
     }),
     {
-      at: entry[1]
+      at: entry[1],
     }
   );
 };
@@ -118,7 +115,7 @@ const setBlockMap: Record<
   [KEYS.listTodo]: setList,
   [KEYS.ol]: setList,
   [KEYS.ul]: setList,
-  [ACTION_THREE_COLUMNS]: (editor) => toggleColumnGroup(editor, { columns: 3 })
+  [ACTION_THREE_COLUMNS]: (editor) => toggleColumnGroup(editor, { columns: 3 }),
 };
 
 export const setBlockType = (editor: PlateEditor, type: string, { at }: { at?: Path } = {}) => {
@@ -149,7 +146,9 @@ export const setBlockType = (editor: PlateEditor, type: string, { at }: { at?: P
 
     const entries = editor.api.blocks({ mode: 'lowest' });
 
-    entries.forEach((entry) => setEntry(entry));
+    entries.forEach((entry) => {
+      setEntry(entry);
+    });
   });
 };
 

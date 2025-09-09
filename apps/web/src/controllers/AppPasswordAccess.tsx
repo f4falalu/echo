@@ -1,28 +1,29 @@
-'use client';
-
-import React, { useRef } from 'react';
+import type { ResponseMessageFileType } from '@buster/server-shared/chats';
 import type { ShareAssetType } from '@buster/server-shared/share';
+import type React from 'react';
+import { useRef } from 'react';
 import { BusterLogo } from '@/assets/svg/BusterLogo';
 import { Button } from '@/components/ui/buttons';
 import { Input } from '@/components/ui/inputs';
-import { Title } from '@/components/ui/typography';
-import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
-import { useMemoizedFn } from '@/hooks';
+import { Text, Title } from '@/components/ui/typography';
+import {
+  setProtectedAssetPassword,
+  useProtectedAsset,
+} from '@/context/BusterAssets/useProtectedAssetStore';
 
 export const AppPasswordAccess: React.FC<{
   assetId: string;
-  type: ShareAssetType;
+  type: ShareAssetType | ResponseMessageFileType;
   children: React.ReactNode;
 }> = ({ children, assetId, type }) => {
-  const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);
-  const { password, error } = getAssetPassword(assetId);
+  const { password, error } = useProtectedAsset(assetId);
 
   if (password && !error) {
     return <>{children}</>;
   }
 
   return (
-    <AppPasswordInputComponent password={password} error={error} assetId={assetId} type={type} />
+    <AppPasswordInputComponent password={password} assetId={assetId} type={type} error={error} />
   );
 };
 
@@ -30,33 +31,37 @@ AppPasswordAccess.displayName = 'AppPasswordAccess';
 
 const AppPasswordInputComponent: React.FC<{
   password: string | undefined;
-  error: string | null;
   assetId: string;
-  type: ShareAssetType;
+  type: ShareAssetType | ResponseMessageFileType;
+  error: string | null;
 }> = ({ password, error, assetId, type }) => {
-  const onSetAssetPassword = useBusterAssetsContextSelector((state) => state.onSetAssetPassword);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const onEnterPassword = useMemoizedFn((v: string) => {
-    onSetAssetPassword(assetId, v, type);
-  });
+  const onEnterPassword = (v: string) => {
+    setProtectedAssetPassword({
+      assetId,
+      password: v,
+      type,
+    });
+  };
 
-  const onPressEnter = useMemoizedFn((v: React.KeyboardEvent<HTMLInputElement>) => {
+  const onPressEnter = (v: React.KeyboardEvent<HTMLInputElement>) => {
     onEnterPassword(v.currentTarget.value);
-  });
+  };
 
-  const onEnterButtonPress = useMemoizedFn(() => {
+  const onEnterButtonPress = () => {
     const value = inputRef.current?.value;
     if (!value) return;
     onEnterPassword(value || '');
-  });
+  };
 
   return (
     <div
       className="flex h-full min-h-[100vh] w-full justify-center"
       style={{
-        paddingTop: '25vh'
-      }}>
+        paddingTop: '25vh',
+      }}
+    >
       <div className="flex max-w-[440px] flex-col items-center space-y-6">
         <BusterLogo className="h-16 w-16" />
 
@@ -77,11 +82,11 @@ const AppPasswordInputComponent: React.FC<{
               type="password"
               autoFocus
             />
-            {/* {error ? (
+            {error ? (
               <Text className="mb-1!" variant="danger">
                 {error}
               </Text>
-            ) : null} */}
+            ) : null}
           </div>
 
           <Button block variant="black" onClick={onEnterButtonPress}>

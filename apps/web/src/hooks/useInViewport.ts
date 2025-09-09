@@ -1,7 +1,5 @@
-'use client';
-
 import type React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface UseInViewportOptions {
   /** The percentage of the element that needs to be visible (0 to 1) */
@@ -37,7 +35,7 @@ export const useInViewport = (
       },
       {
         threshold: options.threshold ?? 0,
-        rootMargin: options.rootMargin ?? '0px'
+        rootMargin: options.rootMargin ?? '0px',
       }
     );
 
@@ -54,4 +52,18 @@ export const useInViewport = (
   }, [ref, options.threshold, options.rootMargin]);
 
   return [inViewport] as const;
+};
+
+export const useHasBeenInViewport = (
+  ref: React.RefObject<HTMLElement | null>,
+  options: UseInViewportOptions = {}
+) => {
+  const hasBeenInViewport = useRef(false);
+
+  const [inViewport] = useInViewport(ref, options);
+  if (inViewport && !hasBeenInViewport.current) {
+    hasBeenInViewport.current = true;
+  }
+
+  return hasBeenInViewport.current;
 };

@@ -1,10 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { ColumnLabelFormat, Trendline } from '@buster/server-shared/metrics';
 import {
+  type BarAndLineAxis,
   DEFAULT_COLUMN_LABEL_FORMAT,
   DEFAULT_COLUMN_SETTINGS,
-  type BarAndLineAxis
 } from '@buster/server-shared/metrics';
-import type { ColumnLabelFormat, Trendline } from '@buster/server-shared/metrics';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { generateBarChartData } from '../../../../mocks/chart/chartMocks';
 import { BusterChart } from '../BusterChart';
 import { sharedMeta } from './BusterChartShared';
@@ -39,7 +39,7 @@ const generateRegion = (index: number) => {
     'Central',
     'Southeast',
     'Southwest',
-    'Northeast'
+    'Northeast',
   ];
   return regions[index % regions.length];
 };
@@ -48,7 +48,7 @@ type BarChartData = ReturnType<typeof generateBarChartData>;
 
 const meta: Meta<typeof BusterChart> = {
   ...sharedMeta,
-  title: 'UI/Charts/BusterChart/Bar'
+  title: 'UI/Charts/BusterChart/Bar',
 } as Meta<typeof BusterChart>;
 
 export default meta;
@@ -62,7 +62,7 @@ export const Default: Story = {
       x: ['category'],
       y: ['sales', 'units', 'returns'],
       category: [],
-      tooltip: null
+      tooltip: null,
     },
     columnLabelFormats: {
       sales: {
@@ -70,26 +70,26 @@ export const Default: Story = {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
-        displayName: 'SALES'
+        displayName: 'SALES',
       } as ColumnLabelFormat,
       units: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
+        numberSeparatorStyle: ',',
       } as ColumnLabelFormat,
       returns: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
+        numberSeparatorStyle: ',',
       } as ColumnLabelFormat,
       category: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
-        style: 'string'
-      } as ColumnLabelFormat as any
-    } as any
+        style: 'string',
+      } as ColumnLabelFormat as any,
+    } as any,
   },
   render: (args) => {
     return (
@@ -97,7 +97,7 @@ export const Default: Story = {
         <BusterChart {...args} />
       </div>
     );
-  }
+  },
 };
 
 export const MultipleYAxis: Story = {
@@ -108,32 +108,32 @@ export const MultipleYAxis: Story = {
       x: ['category'],
       y: ['sales', 'units'],
       category: [],
-      tooltip: null
+      tooltip: null,
     } satisfies BarAndLineAxis,
     columnLabelFormats: {
       category: {
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
+        numberSeparatorStyle: ',',
       } as ColumnLabelFormat,
       returns: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
-      } as ColumnLabelFormat
+        numberSeparatorStyle: ',',
+      } as ColumnLabelFormat,
     } as any,
     y2AxisShowAxisLabel: true,
     y2AxisShowAxisTitle: true,
-    y2AxisAxisTitle: 'Returns'
+    y2AxisAxisTitle: 'Returns',
   },
   render: (args) => {
     return (
@@ -141,7 +141,7 @@ export const MultipleYAxis: Story = {
         <BusterChart {...args} />
       </div>
     );
-  }
+  },
 };
 
 export const WithCategory: Story = {
@@ -151,50 +151,50 @@ export const WithCategory: Story = {
       {
         region: 'North',
         product: 'Product 1',
-        sales: 1000
+        sales: 1000,
       },
       {
         region: 'North',
         product: 'Product 2',
-        sales: 800
+        sales: 800,
       },
       {
         region: 'South',
         product: 'Product 1',
-        sales: 1200
+        sales: 1200,
       },
       {
         region: 'South',
         product: 'Product 2',
-        sales: 300
-      }
+        sales: 300,
+      },
     ],
     barAndLineAxis: {
       x: ['region'],
       y: ['sales'],
       category: ['product'],
-      tooltip: null
+      tooltip: null,
     },
     columnLabelFormats: {
       region: {
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       product: {
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
-      } as ColumnLabelFormat
-    }
+        numberSeparatorStyle: ',',
+      } as ColumnLabelFormat,
+    },
   },
   render: (args) => {
     return (
@@ -202,7 +202,7 @@ export const WithCategory: Story = {
         <BusterChart {...args} />
       </div>
     );
-  }
+  },
 };
 
 export const WithCategoryAndMultipleYAxis: Story = {
@@ -212,34 +212,34 @@ export const WithCategoryAndMultipleYAxis: Story = {
       region: generateRegion(index),
       product: generateProductName(index),
       sales: generateNumber(5000, 1000, index),
-      units: generateNumber(500, 100, index)
+      units: generateNumber(500, 100, index),
     })),
     barAndLineAxis: {
       x: ['region'],
       y: ['sales', 'units'],
       category: ['product'],
-      tooltip: null
+      tooltip: null,
     },
     columnLabelFormats: {
       region: {
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       product: {
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
-      } as ColumnLabelFormat
-    }
+        numberSeparatorStyle: ',',
+      } as ColumnLabelFormat,
+    },
   },
   render: (args) => {
     return (
@@ -247,7 +247,7 @@ export const WithCategoryAndMultipleYAxis: Story = {
         <BusterChart {...args} />
       </div>
     );
-  }
+  },
 };
 
 export const DateXAxis: Story = {
@@ -259,33 +259,33 @@ export const DateXAxis: Story = {
       return {
         date: date.toISOString(),
         sales: generateNumber(5000, 1000, index),
-        units: generateNumber(500, 100, index)
+        units: generateNumber(500, 100, index),
       };
     }),
     barAndLineAxis: {
       x: ['date'],
       y: ['sales', 'units'],
       category: [],
-      tooltip: null
+      tooltip: null,
     },
     columnLabelFormats: {
       date: {
         columnType: 'date',
         style: 'date',
-        dateFormat: 'LL'
+        dateFormat: 'LL',
       } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
-      } as ColumnLabelFormat
+        numberSeparatorStyle: ',',
+      } as ColumnLabelFormat,
     },
-    xAxisTimeInterval: 'day'
+    xAxisTimeInterval: 'day',
   },
   render: (args) => {
     return (
@@ -293,7 +293,7 @@ export const DateXAxis: Story = {
         <BusterChart {...args} />
       </div>
     );
-  }
+  },
 };
 
 export const HorizontalBar: Story = {
@@ -304,31 +304,31 @@ export const HorizontalBar: Story = {
       x: ['category'],
       y: ['sales'],
       category: [],
-      tooltip: null
+      tooltip: null,
     },
     columnLabelFormats: {
       category: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
+        numberSeparatorStyle: ',',
       } as ColumnLabelFormat,
       returns: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
-      } as ColumnLabelFormat
+        numberSeparatorStyle: ',',
+      } as ColumnLabelFormat,
     },
-    barLayout: 'horizontal'
+    barLayout: 'horizontal',
   },
   render: (args) => {
     return (
@@ -336,7 +336,7 @@ export const HorizontalBar: Story = {
         <BusterChart {...args} />
       </div>
     );
-  }
+  },
 };
 
 export const WithDataLabels: Story = {
@@ -347,41 +347,41 @@ export const WithDataLabels: Story = {
       x: ['category'],
       y: ['sales', 'units'],
       category: [],
-      tooltip: null
+      tooltip: null,
     },
     columnSettings: {
       sales: {
         ...DEFAULT_COLUMN_SETTINGS,
         showDataLabels: true,
-        showDataLabelsAsPercentage: false
+        showDataLabelsAsPercentage: false,
       },
       units: {
         ...DEFAULT_COLUMN_SETTINGS,
         showDataLabels: true,
-        showDataLabelsAsPercentage: false
-      }
+        showDataLabelsAsPercentage: false,
+      },
     },
     columnLabelFormats: {
       category: {
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
+        numberSeparatorStyle: ',',
       } as ColumnLabelFormat,
       returns: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
-      } as ColumnLabelFormat
-    }
+        numberSeparatorStyle: ',',
+      } as ColumnLabelFormat,
+    },
   },
   render: (args) => {
     return (
@@ -389,7 +389,7 @@ export const WithDataLabels: Story = {
         <BusterChart {...args} />
       </div>
     );
-  }
+  },
 };
 
 export const WithDataLabelsAndStackTotal: Story = {
@@ -400,7 +400,7 @@ export const WithDataLabelsAndStackTotal: Story = {
       x: ['category'],
       y: ['units', 'sales'],
       category: [],
-      tooltip: null
+      tooltip: null,
     },
     barGroupType: 'stack',
     barShowTotalAtTop: true,
@@ -408,35 +408,35 @@ export const WithDataLabelsAndStackTotal: Story = {
       sales: {
         ...DEFAULT_COLUMN_SETTINGS,
         showDataLabels: true,
-        showDataLabelsAsPercentage: false
+        showDataLabelsAsPercentage: false,
       },
       units: {
         ...DEFAULT_COLUMN_SETTINGS,
         showDataLabels: true,
-        showDataLabelsAsPercentage: false
-      }
+        showDataLabelsAsPercentage: false,
+      },
     },
     columnLabelFormats: {
       category: {
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
+        numberSeparatorStyle: ',',
       } as ColumnLabelFormat,
       returns: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
-      } as ColumnLabelFormat
-    }
+        numberSeparatorStyle: ',',
+      } as ColumnLabelFormat,
+    },
   },
   render: (args) => {
     return (
@@ -444,7 +444,7 @@ export const WithDataLabelsAndStackTotal: Story = {
         <BusterChart {...args} />
       </div>
     );
-  }
+  },
 };
 
 export const WithDataLabelAsPercentageInStackedBar: Story = {
@@ -453,7 +453,7 @@ export const WithDataLabelAsPercentageInStackedBar: Story = {
     data: [
       { category: 'Cat 1', sales: 3000, units: 3000, returns: 100 },
       { category: 'Cat 2', sales: 10000, units: 1000, returns: 100 },
-      { category: 'Cat 3', sales: 8000, units: 1900, returns: 100 }
+      { category: 'Cat 3', sales: 8000, units: 1900, returns: 100 },
     ],
     barGroupType: 'stack',
     columnSettings: {
@@ -461,31 +461,31 @@ export const WithDataLabelAsPercentageInStackedBar: Story = {
       units: {
         ...DEFAULT_COLUMN_SETTINGS,
         ...WithDataLabelsAndStackTotal.args!.columnSettings!.units,
-        showDataLabelsAsPercentage: true
+        showDataLabelsAsPercentage: true,
       },
       sales: {
         ...DEFAULT_COLUMN_SETTINGS,
         ...WithDataLabelsAndStackTotal.args!.columnSettings!.sales,
-        showDataLabelsAsPercentage: false
-      }
-    }
-  }
+        showDataLabelsAsPercentage: false,
+      },
+    },
+  },
 };
 
 export const WithDataLabelAsPercentageInGroupedBar: Story = {
   args: {
     ...WithDataLabelAsPercentageInStackedBar.args,
     barGroupType: 'group',
-    barShowTotalAtTop: false
-  }
+    barShowTotalAtTop: false,
+  },
 };
 
 export const WithDataLabelAndPercentageStackedBar: Story = {
   args: {
     ...WithDataLabelAsPercentageInStackedBar.args,
     barGroupType: 'percentage-stack',
-    barShowTotalAtTop: false
-  }
+    barShowTotalAtTop: false,
+  },
 };
 
 export const LargeDataset: Story = {
@@ -496,36 +496,36 @@ export const LargeDataset: Story = {
       category: generateProductName(index),
       sales: generateNumber(25000, 5000, index),
       units: generateNumber(500, 100, index),
-      returns: generateNumber(500, 100, index)
+      returns: generateNumber(500, 100, index),
     })),
     barAndLineAxis: {
       x: ['category'],
       y: ['sales', 'units', 'returns'],
       category: [],
-      tooltip: null
+      tooltip: null,
     },
     columnLabelFormats: {
       category: {
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
+        numberSeparatorStyle: ',',
       } as ColumnLabelFormat,
       returns: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
-      } as ColumnLabelFormat
-    }
-  }
+        numberSeparatorStyle: ',',
+      } as ColumnLabelFormat,
+    },
+  },
 };
 
 export const LargeDatasetWithDualYAxis: Story = {
@@ -535,36 +535,36 @@ export const LargeDatasetWithDualYAxis: Story = {
       category: generateProductName(index),
       sales: generateNumber(25000, 5000, index),
       units: generateNumber(500, 100, index),
-      returns: generateNumber(500, 100, index)
+      returns: generateNumber(500, 100, index),
     })),
     comboChartAxis: {
       x: ['category'],
       y: ['sales', 'returns'],
       y2: ['units'],
       category: [],
-      tooltip: null
+      tooltip: null,
     },
     columnLabelFormats: {
       category: {
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
+        numberSeparatorStyle: ',',
       } as ColumnLabelFormat,
       returns: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
-      } as ColumnLabelFormat
-    }
+        numberSeparatorStyle: ',',
+      } as ColumnLabelFormat,
+    },
   },
   render: (args) => {
     return (
@@ -572,7 +572,7 @@ export const LargeDatasetWithDualYAxis: Story = {
         <BusterChart {...args} />
       </div>
     );
-  }
+  },
 };
 
 export const WithSorting: Story = {
@@ -582,10 +582,10 @@ export const WithSorting: Story = {
       x: ['category'],
       y: ['sales'],
       category: [],
-      tooltip: null
+      tooltip: null,
     },
-    barSortBy: ['asc']
-  }
+    barSortBy: ['asc'],
+  },
 };
 
 export const WithDatesInXAxis: Story = {
@@ -593,27 +593,27 @@ export const WithDatesInXAxis: Story = {
     ...Default.args,
     data: Array.from({ length: 7 }, (_, index) => ({
       date: generateDate(index),
-      sales: generateNumber(5000, 1000, index)
+      sales: generateNumber(5000, 1000, index),
     })),
     barAndLineAxis: {
       x: ['date'],
       y: ['sales'],
       category: [],
-      tooltip: null
+      tooltip: null,
     },
     columnLabelFormats: {
       date: {
         columnType: 'date',
         style: 'date',
-        dateFormat: 'LL'
+        dateFormat: 'LL',
       } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
-      } as ColumnLabelFormat
-    }
-  }
+        currency: 'USD',
+      } as ColumnLabelFormat,
+    },
+  },
 };
 
 export const WithDatesInXAxisAndSorting: Story = {
@@ -621,28 +621,28 @@ export const WithDatesInXAxisAndSorting: Story = {
     ...Default.args,
     data: Array.from({ length: 7 }, (_, index) => ({
       date: generateDate(index),
-      sales: generateNumber(5000, 1000, index)
+      sales: generateNumber(5000, 1000, index),
     })),
     barAndLineAxis: {
       x: ['date'],
       y: ['sales'],
       category: [],
-      tooltip: null
+      tooltip: null,
     },
     barSortBy: ['asc'],
     columnLabelFormats: {
       date: {
         columnType: 'date',
         style: 'date',
-        dateFormat: 'LL'
+        dateFormat: 'LL',
       } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
-      } as ColumnLabelFormat
-    }
-  }
+        currency: 'USD',
+      } as ColumnLabelFormat,
+    },
+  },
 };
 
 export const HorizontalBarWithGoalLine: Story = {
@@ -651,34 +651,34 @@ export const HorizontalBarWithGoalLine: Story = {
     data: [
       { category: 'Cat 1', sales: 4000, units: 1000, returns: 100 },
       { category: 'Cat 2', sales: 10000, units: 1000, returns: 100 },
-      { category: 'Cat 3', sales: 8000, units: 1000, returns: 100 }
+      { category: 'Cat 3', sales: 8000, units: 1000, returns: 100 },
     ],
     barAndLineAxis: {
       x: ['category'],
       y: ['sales'],
       category: [],
-      tooltip: null
+      tooltip: null,
     },
     columnLabelFormats: {
       category: {
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
+        numberSeparatorStyle: ',',
       } as ColumnLabelFormat,
       returns: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
-      } as ColumnLabelFormat
+        numberSeparatorStyle: ',',
+      } as ColumnLabelFormat,
     },
     barLayout: 'horizontal',
     goalLines: [
@@ -687,9 +687,9 @@ export const HorizontalBarWithGoalLine: Story = {
         value: 7500,
         showGoalLineLabel: true,
         goalLineLabel: 'Target Sales',
-        goalLineColor: '#FF6B6B'
-      }
-    ]
+        goalLineColor: '#FF6B6B',
+      },
+    ],
   },
   render: (args) => {
     return (
@@ -697,7 +697,7 @@ export const HorizontalBarWithGoalLine: Story = {
         <BusterChart {...args} />
       </div>
     );
-  }
+  },
 };
 
 export const GroupedBar: Story = {
@@ -715,7 +715,7 @@ export const GroupedBar: Story = {
             (index2 + 1.23) *
             (1 + Math.cos(index * 0.5) * 0.3 + Math.sin(index2 * 0.7) * 0.2),
           units: generateNumber(250, 50, index) * (index + 1.13) * (index2 + 1.03),
-          returns: generateNumber(50, 10, index) * (index + 1.83) * (index2 + 1.93)
+          returns: generateNumber(50, 10, index) * (index + 1.83) * (index2 + 1.93),
         };
       });
     }),
@@ -723,34 +723,34 @@ export const GroupedBar: Story = {
       x: ['region'],
       y: ['sales'],
       category: ['product'],
-      tooltip: null
+      tooltip: null,
     },
     barGroupType: 'group',
     columnLabelFormats: {
       region: {
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       product: {
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
+        numberSeparatorStyle: ',',
       } as ColumnLabelFormat,
       returns: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
-      } as ColumnLabelFormat
-    }
+        numberSeparatorStyle: ',',
+      } as ColumnLabelFormat,
+    },
   },
   render: (args) => {
     return (
@@ -758,7 +758,7 @@ export const GroupedBar: Story = {
         <BusterChart {...args} />
       </div>
     );
-  }
+  },
 };
 
 export const PercentageStackedBar: Story = {
@@ -776,7 +776,7 @@ export const PercentageStackedBar: Story = {
             (index2 + 1.23) *
             (1 + Math.cos(index * 0.15) * 0.3 + Math.sin(index2 * 0.15) * 0.2),
           units: generateNumber(250, 50, index) * (index + 1.13) * (index2 + 1.03),
-          returns: generateNumber(50, 10, index) * (index + 1.83) * (index2 + 1.93)
+          returns: generateNumber(50, 10, index) * (index + 1.83) * (index2 + 1.93),
         };
       });
     }),
@@ -784,44 +784,44 @@ export const PercentageStackedBar: Story = {
       x: ['region'],
       y: ['sales'],
       category: ['product'],
-      tooltip: null
+      tooltip: null,
     },
     barGroupType: 'percentage-stack',
     columnSettings: {
       sales: {
         ...DEFAULT_COLUMN_SETTINGS,
-        showDataLabels: true
+        showDataLabels: true,
       },
       units: {
         ...DEFAULT_COLUMN_SETTINGS,
-        showDataLabels: true
+        showDataLabels: true,
       },
       returns: {
         ...DEFAULT_COLUMN_SETTINGS,
-        showDataLabels: true
-      }
+        showDataLabels: true,
+      },
     },
     columnLabelFormats: {
       category: {
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
+        numberSeparatorStyle: ',',
       } as ColumnLabelFormat,
       returns: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
-      } as ColumnLabelFormat
-    }
+        numberSeparatorStyle: ',',
+      } as ColumnLabelFormat,
+    },
   },
   render: (args) => {
     return (
@@ -829,7 +829,7 @@ export const PercentageStackedBar: Story = {
         <BusterChart {...args} />
       </div>
     );
-  }
+  },
 };
 
 export const ExtraLargeDataset: Story = {
@@ -839,30 +839,30 @@ export const ExtraLargeDataset: Story = {
     data: Array.from({ length: 500 }, (_, index) => ({
       category: generateProductName(index),
       sales: generateNumber(25000, 5000, index),
-      units: generateNumber(500, 100, index)
+      units: generateNumber(500, 100, index),
     })),
     barAndLineAxis: {
       x: ['category'],
       y: ['sales'],
       category: [],
-      tooltip: null
+      tooltip: null,
     },
     columnLabelFormats: {
       category: {
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
-      } as ColumnLabelFormat
-    }
+        numberSeparatorStyle: ',',
+      } as ColumnLabelFormat,
+    },
   },
   render: (args) => {
     return (
@@ -870,7 +870,7 @@ export const ExtraLargeDataset: Story = {
         <BusterChart {...args} />
       </div>
     );
-  }
+  },
 };
 
 export const ExtraLargeDatasetWithCategory: Story = {
@@ -881,34 +881,34 @@ export const ExtraLargeDatasetWithCategory: Story = {
       product: generateProductName(index),
       sales: generateNumber(25000, 5000, index),
       units: generateNumber(500, 100, index),
-      category: generateDepartment(index)
+      category: generateDepartment(index),
     })),
     barAndLineAxis: {
       x: ['product'],
       y: ['sales'],
       category: [],
-      tooltip: null
+      tooltip: null,
     },
     columnLabelFormats: {
       category: {
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       product: {
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
-      } as ColumnLabelFormat
-    }
+        numberSeparatorStyle: ',',
+      } as ColumnLabelFormat,
+    },
   },
   render: (args) => {
     return (
@@ -916,7 +916,7 @@ export const ExtraLargeDatasetWithCategory: Story = {
         <BusterChart {...args} />
       </div>
     );
-  }
+  },
 };
 
 export const ManyUnPlottedTooltipItems: Story = {
@@ -927,74 +927,74 @@ export const ManyUnPlottedTooltipItems: Story = {
       sales: generateNumber(25000, 5000, index),
       customerRating: generateNumber(3.5, 1, index),
       stockLevel: generateNumber(50, 10, index),
-      returnRate: generateNumber(1, 15, index)
+      returnRate: generateNumber(1, 15, index),
     })),
     barAndLineAxis: {
       x: ['category'],
       y: ['sales'],
       category: [],
-      tooltip: ['sales', 'customerRating', 'stockLevel', 'returnRate']
+      tooltip: ['sales', 'customerRating', 'stockLevel', 'returnRate'],
     },
     columnSettings: {
       sales: {
         ...DEFAULT_COLUMN_SETTINGS,
-        columnVisualization: 'bar'
+        columnVisualization: 'bar',
       },
       customerRating: {
         ...DEFAULT_COLUMN_SETTINGS,
         columnVisualization: 'line',
         lineSymbolSize: 6,
-        lineWidth: 2
+        lineWidth: 2,
       },
       stockLevel: {
         ...DEFAULT_COLUMN_SETTINGS,
         columnVisualization: 'line',
         lineSymbolSize: 4,
-        lineWidth: 2
+        lineWidth: 2,
       },
       returnRate: {
         ...DEFAULT_COLUMN_SETTINGS,
         columnVisualization: 'line',
         lineSymbolSize: 4,
-        lineWidth: 2
-      }
+        lineWidth: 2,
+      },
     },
     columnLabelFormats: {
       category: {
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
-        numberSeparatorStyle: ','
+        numberSeparatorStyle: ',',
       } as ColumnLabelFormat,
       customerRating: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ',',
-        suffix: ' ★'
+        suffix: ' ★',
       } as ColumnLabelFormat,
       stockLevel: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ',',
-        suffix: ' units'
+        suffix: ' units',
       } as ColumnLabelFormat,
       returnRate: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ',',
-        suffix: '%'
-      } as ColumnLabelFormat
+        suffix: '%',
+      } as ColumnLabelFormat,
     },
     yAxisAxisTitle: 'Sales Revenue',
     y2AxisAxisTitle: 'Multiple Metrics',
     gridLines: true,
     showLegend: true,
-    className: 'w-[600px] h-[400px]'
-  }
+    className: 'w-[600px] h-[400px]',
+  },
 };
 
 export const WithLegendHeadline: Story = {
@@ -1009,18 +1009,18 @@ export const WithLegendHeadline: Story = {
         ...Default.args!.columnLabelFormats!.sales!,
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
-      }
-    }
-  }
+        currency: 'USD',
+      },
+    },
+  },
 };
 
 export const WithLegendHeadlineMultipleYAxis: Story = {
   args: {
     ...MultipleYAxis.args,
     showLegend: true,
-    showLegendHeadline: 'current'
-  }
+    showLegendHeadline: 'current',
+  },
 };
 
 export const WithMultipleXAxis: Story = {
@@ -1030,31 +1030,31 @@ export const WithMultipleXAxis: Story = {
       {
         month: 'January',
         year: 2023,
-        sales: 13000
+        sales: 13000,
       },
       {
         month: 'February',
         year: 2023,
-        sales: 14000
+        sales: 14000,
       },
       {
         month: 'January',
         year: 2024,
-        sales: 10000
+        sales: 10000,
       },
       {
         month: 'February',
         year: 2024,
-        sales: 20000
-      }
+        sales: 20000,
+      },
     ],
     barAndLineAxis: {
       x: ['month', 'year'],
       y: ['sales'],
       category: [],
-      tooltip: null
-    } satisfies BarAndLineAxis
-  }
+      tooltip: null,
+    } satisfies BarAndLineAxis,
+  },
 };
 
 export const WithGoalLinesSimilar: Story = {
@@ -1062,7 +1062,7 @@ export const WithGoalLinesSimilar: Story = {
     ...Default.args,
     barAndLineAxis: {
       ...Default.args!.barAndLineAxis!,
-      y: ['sales', 'units']
+      y: ['sales', 'units'],
     },
     columnLabelFormats: {
       ...Default.args!.columnLabelFormats,
@@ -1070,14 +1070,14 @@ export const WithGoalLinesSimilar: Story = {
         ...Default.args!.columnLabelFormats!.sales!,
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       },
       units: {
         ...Default.args!.columnLabelFormats!.units!,
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
-      }
+        currency: 'USD',
+      },
     },
     goalLines: [
       {
@@ -1085,10 +1085,10 @@ export const WithGoalLinesSimilar: Story = {
         value: 7500,
         showGoalLineLabel: true,
         goalLineLabel: 'Target Sales',
-        goalLineColor: '#FF6B6B'
-      }
-    ]
-  }
+        goalLineColor: '#FF6B6B',
+      },
+    ],
+  },
 };
 
 export const WithGoalLinesNotSimilar: Story = {
@@ -1100,10 +1100,10 @@ export const WithGoalLinesNotSimilar: Story = {
         value: 7500,
         showGoalLineLabel: true,
         goalLineLabel: 'Target Sales',
-        goalLineColor: '#FF6B6B'
-      }
-    ]
-  }
+        goalLineColor: '#FF6B6B',
+      },
+    ],
+  },
 };
 
 export const WithTrendlines: Story = {
@@ -1116,7 +1116,7 @@ export const WithTrendlines: Story = {
         showTrendlineLabel: false,
         trendlineLabel: 'Testing Max',
         trendLineColor: 'red',
-        columnId: 'sales'
+        columnId: 'sales',
       } as Trendline,
       {
         type: 'min',
@@ -1124,7 +1124,7 @@ export const WithTrendlines: Story = {
         showTrendlineLabel: true,
         trendlineLabel: 'Testing Min',
         trendLineColor: 'blue',
-        columnId: 'sales'
+        columnId: 'sales',
       } as Trendline,
       {
         type: 'average',
@@ -1132,7 +1132,7 @@ export const WithTrendlines: Story = {
         showTrendlineLabel: true,
         trendlineLabel: 'Testing Average',
         trendLineColor: 'green',
-        columnId: 'sales'
+        columnId: 'sales',
       } as Trendline,
       {
         type: 'median',
@@ -1140,10 +1140,10 @@ export const WithTrendlines: Story = {
         showTrendlineLabel: true,
         trendlineLabel: 'Testing Median',
         trendLineColor: 'yellow',
-        columnId: 'sales'
-      } as Trendline
-    ]
-  }
+        columnId: 'sales',
+      } as Trendline,
+    ],
+  },
 };
 
 //IT got the x and y axis mixed up... which is fair...
@@ -1155,7 +1155,7 @@ export const ProblematicBarChart: Story = {
       x: ['metric_clv_all_time'],
       y: ['customer_name'],
       category: [],
-      tooltip: null
+      tooltip: null,
     },
     columnLabelFormats: {
       customer_name: {
@@ -1163,7 +1163,7 @@ export const ProblematicBarChart: Story = {
         columnType: 'text',
         style: 'string',
         numberSeparatorStyle: null,
-        replaceMissingDataWith: null
+        replaceMissingDataWith: null,
       },
       metric_clv_all_time: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
@@ -1171,50 +1171,50 @@ export const ProblematicBarChart: Story = {
         style: 'currency',
         numberSeparatorStyle: ',',
         replaceMissingDataWith: 0,
-        currency: 'USD'
-      }
+        currency: 'USD',
+      },
     },
     data: [
       {
         customer_name: 'Customer A',
-        metric_clv_all_time: 800000.0
+        metric_clv_all_time: 800000.0,
       },
       {
         customer_name: 'Customer B',
-        metric_clv_all_time: 780000.0
+        metric_clv_all_time: 780000.0,
       },
       {
         customer_name: 'Customer C',
-        metric_clv_all_time: 760000.0
+        metric_clv_all_time: 760000.0,
       },
       {
         customer_name: 'Customer D',
-        metric_clv_all_time: 740000.0
+        metric_clv_all_time: 740000.0,
       },
       {
         customer_name: 'Customer E',
-        metric_clv_all_time: 720000.0
+        metric_clv_all_time: 720000.0,
       },
       {
         customer_name: 'Customer F',
-        metric_clv_all_time: 700000.0
+        metric_clv_all_time: 700000.0,
       },
       {
         customer_name: 'Customer G',
-        metric_clv_all_time: 680000.0
+        metric_clv_all_time: 680000.0,
       },
       {
         customer_name: 'Customer H',
-        metric_clv_all_time: 660000.0
+        metric_clv_all_time: 660000.0,
       },
       {
         customer_name: 'Customer I',
-        metric_clv_all_time: 640000.0
+        metric_clv_all_time: 640000.0,
       },
       {
         customer_name: 'Customer J',
-        metric_clv_all_time: 620000.0
-      }
-    ]
-  }
+        metric_clv_all_time: 620000.0,
+      },
+    ],
+  },
 };

@@ -1,7 +1,7 @@
-import { cn } from '@/lib/utils';
-import { PlateContainer } from 'platejs/react';
 import { cva, type VariantProps } from 'class-variance-authority';
+import { PlateContainer } from 'platejs/react';
 import React from 'react';
+import { cn } from '@/lib/utils';
 
 interface EditorContainerProps {
   className?: string;
@@ -25,16 +25,16 @@ const editorContainerVariants = cva(
         select: cn(
           'group rounded-md border border-input ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
           'has-data-readonly:w-fit has-data-readonly:cursor-default has-data-readonly:border-transparent has-data-readonly:focus-within:[box-shadow:none]'
-        )
+        ),
       },
       readOnly: {
-        true: 'cursor-default user-select-none '
-      }
+        true: 'cursor-default user-select-none ',
+      },
     },
     defaultVariants: {
       variant: 'default',
-      readOnly: false
-    }
+      readOnly: false,
+    },
   }
 );
 
@@ -52,7 +52,8 @@ export const EditorContainer = React.forwardRef<
         editorContainerVariants({ variant, readOnly }),
         className
       )}
-      {...htmlProps}>
+      {...htmlProps}
+    >
       <PlateContainer>{children}</PlateContainer>
     </div>
   );

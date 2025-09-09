@@ -1,8 +1,5 @@
-'use client';
-
 import React, { useMemo } from 'react';
 import { Select, type SelectItem } from '../select/Select';
-import { cn } from '@/lib/utils';
 
 export interface InputSearchDropdownProps<T = string> {
   options: SelectItem<T>[];
@@ -31,14 +28,14 @@ export const InputSearchDropdown = <T extends string>({
   className,
   onChange,
   loading = false,
-  disabled = false
+  disabled = false,
 }: InputSearchDropdownProps<T>) => {
   const handleSearch = useMemo(() => {
     return {
       type: 'async' as const,
       fn: async (searchTerm: string) => {
         await onSearch(searchTerm);
-      }
+      },
     };
   }, [onSearch]);
 

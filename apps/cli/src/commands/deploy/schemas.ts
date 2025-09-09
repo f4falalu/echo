@@ -9,16 +9,17 @@ import {
   DeployColumnSchema,
   type DeployModel,
   DeployModelSchema,
-  type DeployRequest,
-  DeployRequestSchema,
-  type DeployResponse,
-  DeployResponseSchema,
   type DeploymentFailure,
   DeploymentFailureSchema,
   type DeploymentItem,
   DeploymentItemSchema,
+  type DeployRequest,
+  DeployRequestSchema,
+  type DeployResponse,
+  DeployResponseSchema,
   type Dimension,
   DimensionSchema,
+  deploy,
   type Filter,
   FilterSchema,
   type Measure,
@@ -31,6 +32,10 @@ import {
   RelationshipSchema,
 } from '@buster/server-shared';
 import { z } from 'zod';
+
+// Get DocDeployResultSchema from deploy namespace
+const DocDeployResultSchema = deploy.DocDeployResultSchema;
+type DocDeployResult = deploy.DocDeployResult;
 
 // Re-export all the shared schemas from server-shared
 export {
@@ -65,6 +70,8 @@ export {
   type DeploymentFailure,
   type DeployResponse,
 };
+
+// Re-export deploy schemas from server-shared deploy namespace (already imported above)
 
 // Alias for backward compatibility in CLI
 export { DatasetMetricSchema as MetricSchema } from '@buster/server-shared';
@@ -123,6 +130,8 @@ export const TodoFileSchema = z.object({
   modelName: z.string().optional(),
 });
 
+// Use DocDeployResultSchema from server-shared instead of duplicating
+
 export const CLIDeploymentResultSchema = z.object({
   success: z.array(CLIDeploymentItemSchema).default([]),
   updated: z.array(CLIDeploymentItemSchema).default([]),
@@ -130,6 +139,7 @@ export const CLIDeploymentResultSchema = z.object({
   failures: z.array(CLIDeploymentFailureSchema).default([]),
   excluded: z.array(DeploymentExcludedSchema).default([]),
   todos: z.array(TodoFileSchema).default([]), // New field for TODO files
+  docs: DocDeployResultSchema.optional(), // Track doc deployment results
 });
 
 // ============================================================================

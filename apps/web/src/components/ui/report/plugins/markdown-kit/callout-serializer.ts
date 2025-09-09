@@ -1,9 +1,9 @@
 import {
-  type MdNodeParser,
   convertChildrenDeserialize,
   deserializeMd,
+  type MdNodeParser,
   parseAttributes,
-  serializeMd
+  serializeMd,
 } from '@platejs/markdown';
 
 export const calloutSerializer: MdNodeParser<'callout'> = {
@@ -17,15 +17,15 @@ export const calloutSerializer: MdNodeParser<'callout'> = {
 
     const content = serializeMd(options.editor, {
       ...options,
-      value: node.children
+      value: node.children,
     });
 
     return {
       type: 'html',
-      value: `<callout icon="${icon}" content="${content}"></callout>`
+      value: `<callout icon="${icon}" content="${content}"></callout>`,
     };
   },
-  deserialize: (node, deco, options) => {
+  deserialize: (node, _, options) => {
     // Extract the icon attribute from the HTML element
     const typedAttributes = parseAttributes(node.attributes) as {
       icon: string;
@@ -41,15 +41,15 @@ export const calloutSerializer: MdNodeParser<'callout'> = {
       return {
         type: 'callout',
         icon: typedAttributes.icon,
-        children: deserializedContent
+        children: deserializedContent,
       };
     } catch (error) {
       console.error('Error deserializing content', error);
       return {
         type: 'callout',
         icon: typedAttributes.icon,
-        children: [{ text: typedAttributes.content }]
+        children: [{ text: typedAttributes.content }],
       };
     }
-  }
+  },
 };

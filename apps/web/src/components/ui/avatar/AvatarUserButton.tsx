@@ -1,7 +1,7 @@
 import React from 'react';
+import { cn } from '@/lib/classMerge';
 import { Text } from '../typography/Text';
 import { Avatar } from './Avatar';
-import { cn } from '@/lib/classMerge';
 
 export const AvatarUserButton = React.forwardRef<
   HTMLDivElement,

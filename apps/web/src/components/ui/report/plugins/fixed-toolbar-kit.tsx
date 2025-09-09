@@ -1,5 +1,3 @@
-'use client';
-
 import { createPlatePlugin } from 'platejs/react';
 
 import { FixedToolbar } from '../elements/FixedToolbar';
@@ -15,7 +13,7 @@ export const FixedToolbarKit = [
         <FixedToolbar>
           <FixedToolbarButtons />
         </FixedToolbar>
-      )
-    }
-  })
+      ),
+    },
+  }),
 ];

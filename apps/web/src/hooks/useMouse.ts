@@ -1,5 +1,3 @@
-'use client';
-
 import type React from 'react';
 import { useEffect, useState } from 'react';
 import { useMemoizedFn } from './useMemoizedFn';
@@ -36,7 +34,7 @@ export function useMouse(options: UseMouseOptions = {}) {
     pageX: 0,
     pageY: 0,
     elementX: 0,
-    elementY: 0
+    elementY: 0,
   });
 
   const moveTimer = useState<ReturnType<typeof setTimeout> | null>(null);
@@ -45,7 +43,7 @@ export function useMouse(options: UseMouseOptions = {}) {
     const element = target?.current ?? document.documentElement;
     const rect = element.getBoundingClientRect();
 
-    setState((prev) => ({
+    setState((_prev) => ({
       x: event.x,
       y: event.y,
       screenX: event.screenX,
@@ -55,7 +53,7 @@ export function useMouse(options: UseMouseOptions = {}) {
       pageX: event.pageX,
       pageY: event.pageY,
       elementX: event.clientX - rect.left,
-      elementY: event.clientY - rect.top
+      elementY: event.clientY - rect.top,
     }));
 
     // Reset isMoving after the specified throttle time
@@ -76,11 +74,11 @@ export function useMouse(options: UseMouseOptions = {}) {
 
     const element = target?.current ?? document;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Element can be Document or HTMLElement with different event listener signatures
+    // biome-ignore lint/suspicious/noExplicitAny: Element can be Document or HTMLElement with different event listener signatures
     element.addEventListener('mousemove', updateMouseState as any);
 
     return () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Element can be Document or HTMLElement with different event listener signatures
+      // biome-ignore lint/suspicious/noExplicitAny: Element can be Document or HTMLElement with different event listener signatures
       element.removeEventListener('mousemove', updateMouseState as any);
 
       // Clear any pending timers

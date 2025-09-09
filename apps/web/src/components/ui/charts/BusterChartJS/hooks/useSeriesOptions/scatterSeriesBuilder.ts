@@ -1,8 +1,8 @@
+import { DEFAULT_CHART_CONFIG, DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
+import type { BubbleDataPoint, ScriptableContext } from 'chart.js';
 import { addOpacityToColor } from '@/lib/colors';
 import { createDayjsDate } from '@/lib/date';
 import { isDateColumnType } from '@/lib/messages';
-import { DEFAULT_CHART_CONFIG, DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
-import type { BubbleDataPoint, ScriptableContext } from 'chart.js';
 import { formatLabelForDataset } from '../../../commonHelpers';
 import type { ChartProps } from '../../core';
 import { createTrendlineOnSeries } from './createTrendlines';
@@ -32,7 +32,7 @@ export const scatterSeriesBuilder_data = ({
   xAxisKeys,
   sizeOptions,
   datasetOptions,
-  trendlines
+  trendlines,
 }: SeriesBuilderProps): ChartProps<'bubble'>['data']['datasets'] => {
   const xAxisKey = xAxisKeys[0] || '';
   const xAxisColumnLabelFormat = columnLabelFormats[xAxisKey] || DEFAULT_COLUMN_LABEL_FORMAT;
@@ -49,8 +49,8 @@ export const scatterSeriesBuilder_data = ({
     ? {
         point: {
           radius: (context: ScriptableContext<'bubble'>) =>
-            radiusMethod(context, sizeOptions, scatterDotSize)
-        }
+            radiusMethod(context, sizeOptions, scatterDotSize),
+        },
       }
     : undefined;
 
@@ -82,28 +82,28 @@ export const scatterSeriesBuilder_data = ({
         trendlines,
         datasetColor: color,
         yAxisKey: dataset.dataKey,
-        columnLabelFormats
+        columnLabelFormats,
       }),
       data: dataset.data.reduce<BubbleDataPoint[]>((acc, yData, index) => {
         if (yData !== null) {
           acc.push({
             x: getScatterXValue({
               isXAxisDate,
-              xValue: dataset.ticksForScatter?.[index]?.[0] ?? null
+              xValue: dataset.ticksForScatter?.[index]?.[0] ?? null,
             }),
             y: yData,
-            originalR: dataset.sizeData?.[index] ?? 0
+            originalR: dataset.sizeData?.[index] ?? 0,
           });
         }
         return acc;
-      }, [])
+      }, []),
     } satisfies ChartProps<'bubble'>['data']['datasets'][number];
   });
 };
 
 const getScatterXValue = ({
   isXAxisDate,
-  xValue
+  xValue,
 }: {
   isXAxisDate: boolean;
   xValue: number | string | Date | null;

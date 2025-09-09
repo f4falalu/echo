@@ -1,67 +1,52 @@
-'use client';
-
-import { useParams } from 'next/navigation';
-import { useState } from 'react';
-import { useUpdateMetric } from '@/api/buster_rest/metrics';
-import { useMemoizedFn } from '@/hooks';
-import { timeout } from '@/lib/timeout';
-import { useGetMetricMemoized } from './useGetMetricMemoized';
-import { useOriginalMetricStore } from './useOriginalMetricStore';
 import {
-  DEFAULT_CHART_CONFIG,
-  DEFAULT_COLUMN_LABEL_FORMAT,
   type ChartConfigProps,
   type ColumnLabelFormat,
-  type ColumnSettings
+  type ColumnSettings,
+  DEFAULT_CHART_CONFIG,
+  DEFAULT_COLUMN_LABEL_FORMAT,
 } from '@buster/server-shared/metrics';
+import { useParams } from '@tanstack/react-router';
+import { useState } from 'react';
+import { useUpdateMetric } from '@/api/buster_rest/metrics';
+import { useGetMetricMemoized } from '@/api/buster_rest/metrics/metricQueryHelpers';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { timeout } from '@/lib/timeout';
+import { getOriginalMetric, setOriginalMetric } from './useOriginalMetricStore';
 
-export const useUpdateMetricChart = (props?: { metricId?: string; chatId?: string }) => {
-  const params = useParams<{ metricId?: string; chatId?: string }>();
-  const metricId = props?.metricId ?? params.metricId ?? '';
-  const chatId = props?.chatId ?? params.chatId ?? '';
+export const useUpdateMetricChart = (props?: { metricId: string; chatId?: string }) => {
+  const { chatId: chatIdParam, metricId: metricIdParam } = useParams({ strict: false }) as {
+    chatId: string | undefined;
+    metricId: string | undefined;
+  };
+  const metricId = props?.metricId || metricIdParam || '';
+  const chatId = props?.chatId || chatIdParam || '';
   const [isSaving, setIsSaving] = useState(false);
-  const getOriginalMetric = useOriginalMetricStore((x) => x.getOriginalMetric);
-  const setOriginalMetric = useOriginalMetricStore((x) => x.setOriginalMetric);
   const { mutate: onUpdateMetric } = useUpdateMetric({
     updateVersion: false,
     updateOnSave: false,
-    saveToServer: false
+    saveToServer: false,
   });
   const { mutateAsync: saveMetricToServer } = useUpdateMetric({
     updateOnSave: true,
     saveToServer: true,
-    updateVersion: !chatId
+    updateVersion: !chatId,
   });
 
   const getMetricMemoized = useGetMetricMemoized();
 
   const onUpdateMetricChartConfig = useMemoizedFn(
-    ({
-      chartConfig,
-      ignoreUndoRedo
-    }: {
-      chartConfig: Partial<ChartConfigProps>;
-      ignoreUndoRedo?: boolean;
-    }) => {
+    ({ chartConfig }: { chartConfig: Partial<ChartConfigProps> }) => {
       const currentMetric = getMetricMemoized(metricId);
-
-      if (!ignoreUndoRedo) {
-        // undoRedoParams.addToUndoStack({
-        //   metricId: editMetric.id,
-        //   messageId: editMessage.id,
-        //   chartConfig: editMessage.chart_config
-        // });
-      }
 
       const newChartConfig: ChartConfigProps = {
         ...DEFAULT_CHART_CONFIG,
         ...currentMetric.chart_config,
-        ...chartConfig
+        ...chartConfig,
       };
 
       onUpdateMetric({
         id: metricId,
-        chart_config: newChartConfig
+        chart_config: newChartConfig,
       });
     }
   );
@@ -69,7 +54,7 @@ export const useUpdateMetricChart = (props?: { metricId?: string; chatId?: strin
   const onUpdateColumnLabelFormat = useMemoizedFn(
     ({
       columnId,
-      columnLabelFormat
+      columnLabelFormat,
     }: {
       columnId: string;
       columnLabelFormat: Partial<ColumnLabelFormat>;
@@ -81,16 +66,16 @@ export const useUpdateMetricChart = (props?: { metricId?: string; chatId?: strin
       const newColumnLabelFormat: ColumnLabelFormat = {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         ...existingColumnLabelFormat,
-        ...columnLabelFormat
+        ...columnLabelFormat,
       };
       const columnLabelFormats: Record<string, ColumnLabelFormat> = {
         ...existingColumnLabelFormats,
-        [columnId]: newColumnLabelFormat
+        [columnId]: newColumnLabelFormat,
       };
       onUpdateMetricChartConfig({
         chartConfig: {
-          columnLabelFormats
-        }
+          columnLabelFormats,
+        },
       });
     }
   );
@@ -104,16 +89,16 @@ export const useUpdateMetricChart = (props?: { metricId?: string; chatId?: strin
       const existingColumnSetting = currentMetric.chart_config.columnSettings[columnId];
       const newColumnSetting: Required<ColumnSettings> = {
         ...existingColumnSetting,
-        ...columnSetting
+        ...columnSetting,
       };
       const newColumnSettings: Record<string, Required<ColumnSettings>> = {
         ...existingColumnSettings,
-        [columnId]: newColumnSetting
+        [columnId]: newColumnSetting,
       };
       onUpdateMetricChartConfig({
         chartConfig: {
-          columnSettings: newColumnSettings
-        }
+          columnSettings: newColumnSettings,
+        },
       });
     }
   );
@@ -121,7 +106,7 @@ export const useUpdateMetricChart = (props?: { metricId?: string; chatId?: strin
   const onUpdateMetricName = useMemoizedFn(({ name }: { name?: string }) => {
     onUpdateMetric({
       id: metricId,
-      name
+      name,
     });
   });
 
@@ -140,12 +125,12 @@ export const useUpdateMetricChart = (props?: { metricId?: string; chatId?: strin
         const newChartConfig: ChartConfigProps = {
           ...DEFAULT_CHART_CONFIG,
           ...originalMetric.chart_config,
-          tableColumnWidths
+          tableColumnWidths,
         };
 
         setOriginalMetric({
           ...originalMetric,
-          chart_config: newChartConfig
+          chart_config: newChartConfig,
         });
       }
     }
@@ -158,6 +143,6 @@ export const useUpdateMetricChart = (props?: { metricId?: string; chatId?: strin
     onUpdateColumnSetting,
     onUpdateMetricName,
     onInitializeTableColumnWidths,
-    isSaving
+    isSaving,
   };
 };

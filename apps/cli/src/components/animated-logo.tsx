@@ -1,5 +1,5 @@
 import { Box, Text } from 'ink';
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 // ASCII art for the Buster "b" logo - compact version
 const BUSTER_LOGO_FRAMES = [
@@ -84,7 +84,7 @@ export function AnimatedLogo({ color = '#7C3AED' }: AnimatedLogoProps) {
   const currentFrame = BUSTER_LOGO_FRAMES[opacity];
 
   return (
-    <Box flexDirection='column' alignItems='center'>
+    <Box flexDirection="column" alignItems="center">
       <Text color={color}>{currentFrame}</Text>
     </Box>
   );

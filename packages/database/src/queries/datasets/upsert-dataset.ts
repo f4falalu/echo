@@ -1,49 +1,42 @@
 import { and, eq, isNull, sql } from 'drizzle-orm';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import { z } from 'zod';
 import { getErrorHint, parseDatabaseError } from '../../helpers/error-parser';
-import { datasetColumns, datasets } from '../../schema';
+import { datasets } from '../../schema';
 
-// Local type definitions to avoid circular dependency
-interface DeployColumn {
-  name: string;
-  type?: string;
-  description?: string;
-  semantic_type?: string;
-  expr?: string;
-  searchable?: boolean;
-  agg?: string;
-}
+// Define the schema for upserting a dataset
+export const UpsertDatasetSchema = z.object({
+  name: z.string(),
+  dataSourceId: z.string().uuid(),
+  organizationId: z.string().uuid(),
+  database: z.string().optional(),
+  schema: z.string(),
+  description: z.string().optional(),
+  sql_definition: z.string().optional(),
+  yml_file: z.string().optional(),
+  userId: z.string().uuid(),
+});
 
-interface DeployModel {
-  name: string;
-  data_source_name: string;
-  database?: string;
-  schema: string;
-  description?: string;
-  sql_definition?: string;
-  columns: DeployColumn[];
-  yml_file?: string;
-  metrics?: unknown[];
-  filters?: unknown[];
-  relationships?: unknown[];
-}
+export type UpsertDatasetParams = z.infer<typeof UpsertDatasetSchema>;
 
 /**
- * Upsert a dataset and its columns
+ * Upsert a dataset
  * Returns the dataset ID and whether it was updated or created
  */
 export async function upsertDataset(
   db: PostgresJsDatabase,
-  model: DeployModel,
-  userId: string,
-  organizationId: string,
-  dataSourceId: string
+  params: UpsertDatasetParams
 ): Promise<{ datasetId: string; updated: boolean }> {
+  // Validate params at runtime
+  const validatedParams = UpsertDatasetSchema.parse(params);
+  const { name, dataSourceId, organizationId, database, schema, sql_definition, yml_file, userId } =
+    validatedParams;
+
   const debug = process.env.BUSTER_DEBUG === 'true';
 
   if (debug) {
-    console.info(`[upsertDataset] Starting upsert for model: ${model.name}`);
-    console.info(`[upsertDataset] Data source: ${model.data_source_name} (${dataSourceId})`);
+    console.info(`[upsertDataset] Starting upsert for dataset: ${name}`);
+    console.info(`[upsertDataset] Data source ID: ${dataSourceId}`);
   }
 
   try {
@@ -54,10 +47,10 @@ export async function upsertDataset(
       .from(datasets)
       .where(
         and(
-          eq(datasets.name, model.name),
-          eq(datasets.schema, model.schema),
-          model.database
-            ? eq(datasets.databaseIdentifier, model.database)
+          eq(datasets.name, name),
+          eq(datasets.schema, schema),
+          database
+            ? eq(datasets.databaseIdentifier, database)
             : isNull(datasets.databaseIdentifier),
           eq(datasets.dataSourceId, dataSourceId),
           eq(datasets.organizationId, organizationId),
@@ -74,19 +67,19 @@ export async function upsertDataset(
 
     // Prepare the dataset data
     const datasetData = {
-      name: model.name,
-      databaseName: model.database || model.schema,
-      schema: model.schema,
+      name,
+      databaseName: database || schema,
+      schema,
       type: 'view' as const,
-      definition: model.sql_definition || `SELECT * FROM ${model.schema}.${model.name}`,
+      definition: sql_definition || `SELECT * FROM ${schema}.${name}`,
       enabled: true,
       imported: true,
       dataSourceId,
       organizationId,
       updatedBy: userId,
-      model: model.name,
-      ymlFile: model.yml_file,
-      databaseIdentifier: model.database,
+      model: name,
+      ymlFile: yml_file,
+      databaseIdentifier: database,
       updatedAt: sql`now()`,
       deletedAt: null, // Ensure we're not soft-deleted
     };
@@ -131,15 +124,8 @@ export async function upsertDataset(
       }
     }
 
-    // Upsert columns
     if (debug) {
-      console.info(`[upsertDataset] Upserting ${model.columns.length} columns`);
-    }
-
-    await upsertDatasetColumns(db, datasetId, model.columns);
-
-    if (debug) {
-      console.info(`[upsertDataset] Successfully upserted model: ${model.name}`);
+      console.info(`[upsertDataset] Successfully upserted dataset: ${name}`);
     }
 
     return { datasetId, updated: isUpdate };
@@ -148,7 +134,7 @@ export async function upsertDataset(
     const hint = getErrorHint(parsed);
 
     // Log detailed error information
-    console.error(`[upsertDataset] Failed to upsert model: ${model.name}`);
+    console.error(`[upsertDataset] Failed to upsert dataset: ${name}`);
     console.error(`[upsertDataset] Error type: ${parsed.type}`);
     console.error(`[upsertDataset] Error message: ${parsed.message}`);
     if (parsed.detail) {
@@ -160,7 +146,7 @@ export async function upsertDataset(
 
     if (debug) {
       console.error(`[upsertDataset] Full error:`, parsed.originalError);
-      console.error(`[upsertDataset] Model data:`, JSON.stringify(model, null, 2));
+      console.error(`[upsertDataset] Dataset data:`, JSON.stringify(params, null, 2));
     }
 
     // Create enhanced error message
@@ -172,79 +158,5 @@ export async function upsertDataset(
     const enhancedError = new Error(errorMessage) as Error & { parsedError: typeof parsed };
     enhancedError.parsedError = parsed;
     throw enhancedError;
-  }
-}
-
-/**
- * Upsert columns for a dataset
- * Deletes columns not in the new list and upserts the provided columns
- */
-async function upsertDatasetColumns(
-  db: PostgresJsDatabase,
-  datasetId: string,
-  columns: DeployColumn[]
-): Promise<void> {
-  // Get existing columns
-  const existingColumns = await db
-    .select({ name: datasetColumns.name })
-    .from(datasetColumns)
-    .where(and(eq(datasetColumns.datasetId, datasetId), isNull(datasetColumns.deletedAt)));
-
-  const existingColumnNames = new Set(existingColumns.map((c) => c.name));
-  const newColumnNames = new Set(columns.map((c) => c.name));
-
-  // Soft delete columns that are no longer in the model
-  const columnsToDelete = existingColumns.filter((c) => !newColumnNames.has(c.name));
-  if (columnsToDelete.length > 0) {
-    await db
-      .update(datasetColumns)
-      .set({
-        deletedAt: sql`now()`,
-        updatedAt: sql`now()`,
-      })
-      .where(
-        and(
-          eq(datasetColumns.datasetId, datasetId),
-          sql`${datasetColumns.name} IN (${sql.join(
-            columnsToDelete.map((c) => sql`${c.name}`),
-            sql`, `
-          )})`
-        )
-      );
-  }
-
-  // Upsert columns
-  for (const column of columns) {
-    const columnData = {
-      datasetId,
-      name: column.name,
-      type: column.type || 'string',
-      description: column.description || null,
-      nullable: true,
-      semanticType: column.semantic_type,
-      expr: column.expr,
-      updatedAt: sql`now()`,
-    };
-
-    if (existingColumnNames.has(column.name)) {
-      // Update existing column
-      await db
-        .update(datasetColumns)
-        .set(columnData)
-        .where(
-          and(
-            eq(datasetColumns.datasetId, datasetId),
-            eq(datasetColumns.name, column.name),
-            isNull(datasetColumns.deletedAt)
-          )
-        );
-    } else {
-      // Insert new column
-      await db.insert(datasetColumns).values({
-        id: crypto.randomUUID(),
-        ...columnData,
-        createdAt: sql`now()`,
-      });
-    }
   }
 }

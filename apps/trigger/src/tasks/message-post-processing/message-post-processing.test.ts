@@ -367,6 +367,309 @@ describe('messagePostProcessingTask', () => {
     });
   });
 
+  describe('Slack notification skip logic', () => {
+    it('should skip Slack notification when no issues found AND no major assumptions', async () => {
+      const messageId = '123e4567-e89b-12d3-a456-426614174000';
+
+      const workflowOutput = {
+        flagChatResult: {
+          type: 'noIssuesFound' as const,
+          message: 'No issues found',
+        },
+        assumptionsResult: {
+          toolCalled: 'noAssumptions',
+          assumptions: undefined,
+        },
+        formattedMessage: undefined,
+      };
+
+      vi.mocked(helpers.fetchMessageWithContext).mockResolvedValue({
+        id: messageId,
+        chatId: 'chat-123',
+        createdBy: 'user-123',
+        createdAt: new Date(),
+        rawLlmMessages: [] as any,
+        userName: 'John Doe',
+        organizationId: 'org-123',
+      });
+      vi.mocked(helpers.fetchPreviousPostProcessingMessages).mockResolvedValue([]);
+      vi.mocked(helpers.fetchUserDatasets).mockResolvedValue({
+        datasets: [],
+        total: 0,
+        page: 0,
+        pageSize: 1000,
+      });
+      vi.mocked(helpers.getExistingSlackMessageForChat).mockResolvedValue({ exists: false });
+      vi.mocked(helpers.buildWorkflowInput).mockReturnValue({
+        conversationHistory: undefined,
+        userName: 'John Doe',
+        isFollowUp: false,
+        isSlackFollowUp: false,
+        datasets: '',
+      });
+      vi.mocked(postProcessingWorkflow).mockResolvedValue(workflowOutput);
+
+      await runTask({ messageId });
+
+      // Verify Slack notification was NOT sent
+      expect(helpers.sendSlackNotification).not.toHaveBeenCalled();
+      expect(helpers.sendSlackReplyNotification).not.toHaveBeenCalled();
+    });
+
+    it('should skip Slack notification with only minor assumptions', async () => {
+      const messageId = '123e4567-e89b-12d3-a456-426614174000';
+
+      const workflowOutput = {
+        flagChatResult: {
+          type: 'noIssuesFound' as const,
+          message: 'No issues found',
+        },
+        assumptionsResult: {
+          toolCalled: 'listAssumptions',
+          assumptions: [
+            {
+              descriptiveTitle: 'Minor assumption',
+              classification: 'fieldMapping',
+              explanation: 'Test explanation',
+              label: 'minor' as const,
+            },
+          ],
+        },
+        formattedMessage: undefined,
+      };
+
+      vi.mocked(helpers.fetchMessageWithContext).mockResolvedValue({
+        id: messageId,
+        chatId: 'chat-123',
+        createdBy: 'user-123',
+        createdAt: new Date(),
+        rawLlmMessages: [] as any,
+        userName: 'John Doe',
+        organizationId: 'org-123',
+      });
+      vi.mocked(helpers.fetchPreviousPostProcessingMessages).mockResolvedValue([]);
+      vi.mocked(helpers.fetchUserDatasets).mockResolvedValue({
+        datasets: [],
+        total: 0,
+        page: 0,
+        pageSize: 1000,
+      });
+      vi.mocked(helpers.getExistingSlackMessageForChat).mockResolvedValue({ exists: false });
+      vi.mocked(helpers.buildWorkflowInput).mockReturnValue({
+        conversationHistory: undefined,
+        userName: 'John Doe',
+        isFollowUp: false,
+        isSlackFollowUp: false,
+        datasets: '',
+      });
+      vi.mocked(postProcessingWorkflow).mockResolvedValue(workflowOutput);
+
+      await runTask({ messageId });
+
+      // Verify Slack notification was NOT sent (only minor assumptions)
+      expect(helpers.sendSlackNotification).not.toHaveBeenCalled();
+      expect(helpers.sendSlackReplyNotification).not.toHaveBeenCalled();
+    });
+
+    it('should send Slack notification when flagChat even without major assumptions', async () => {
+      const messageId = '123e4567-e89b-12d3-a456-426614174000';
+
+      const workflowOutput = {
+        flagChatResult: {
+          type: 'flagChat' as const,
+          summaryMessage: 'Issues found',
+          summaryTitle: 'Issue Title',
+        },
+        assumptionsResult: {
+          toolCalled: 'noAssumptions',
+          assumptions: undefined,
+        },
+        formattedMessage: 'Formatted message',
+      };
+
+      vi.mocked(helpers.fetchMessageWithContext).mockResolvedValue({
+        id: messageId,
+        chatId: 'chat-123',
+        createdBy: 'user-123',
+        createdAt: new Date(),
+        rawLlmMessages: [] as any,
+        userName: 'John Doe',
+        organizationId: 'org-123',
+      });
+      vi.mocked(helpers.fetchPreviousPostProcessingMessages).mockResolvedValue([]);
+      vi.mocked(helpers.fetchUserDatasets).mockResolvedValue({
+        datasets: [],
+        total: 0,
+        page: 0,
+        pageSize: 1000,
+      });
+      vi.mocked(helpers.getExistingSlackMessageForChat).mockResolvedValue({ exists: false });
+      vi.mocked(helpers.sendSlackNotification).mockResolvedValue({
+        sent: true,
+        messageTs: 'msg-ts-123',
+        integrationId: 'int-123',
+        channelId: 'C123456',
+      });
+      vi.mocked(helpers.buildWorkflowInput).mockReturnValue({
+        conversationHistory: undefined,
+        userName: 'John Doe',
+        isFollowUp: false,
+        isSlackFollowUp: false,
+        datasets: '',
+      });
+      vi.mocked(postProcessingWorkflow).mockResolvedValue(workflowOutput);
+
+      await runTask({ messageId });
+
+      // Verify Slack notification WAS sent (flagChat type)
+      expect(helpers.sendSlackNotification).toHaveBeenCalledWith({
+        organizationId: 'org-123',
+        userName: 'John Doe',
+        chatId: 'chat-123',
+        summaryTitle: 'Issue Title',
+        summaryMessage: 'Issues found',
+        toolCalled: 'noAssumptions',
+      });
+    });
+
+    it('should send Slack notification when major assumptions exist even with noIssuesFound', async () => {
+      const messageId = '123e4567-e89b-12d3-a456-426614174000';
+
+      const workflowOutput = {
+        flagChatResult: {
+          type: 'noIssuesFound' as const,
+          message: 'No issues',
+        },
+        assumptionsResult: {
+          toolCalled: 'listAssumptions',
+          assumptions: [
+            {
+              descriptiveTitle: 'Major assumption',
+              classification: 'fieldMapping',
+              explanation: 'Test',
+              label: 'major' as const,
+            },
+          ],
+        },
+        formattedMessage: 'Major assumptions found',
+      };
+
+      vi.mocked(helpers.fetchMessageWithContext).mockResolvedValue({
+        id: messageId,
+        chatId: 'chat-123',
+        createdBy: 'user-123',
+        createdAt: new Date(),
+        rawLlmMessages: [] as any,
+        userName: 'John Doe',
+        organizationId: 'org-123',
+      });
+      vi.mocked(helpers.fetchPreviousPostProcessingMessages).mockResolvedValue([]);
+      vi.mocked(helpers.fetchUserDatasets).mockResolvedValue({
+        datasets: [],
+        total: 0,
+        page: 0,
+        pageSize: 1000,
+      });
+      vi.mocked(helpers.getExistingSlackMessageForChat).mockResolvedValue({ exists: false });
+      vi.mocked(helpers.sendSlackNotification).mockResolvedValue({
+        sent: true,
+        messageTs: 'msg-ts-123',
+        integrationId: 'int-123',
+        channelId: 'C123456',
+      });
+      vi.mocked(helpers.buildWorkflowInput).mockReturnValue({
+        conversationHistory: undefined,
+        userName: 'John Doe',
+        isFollowUp: false,
+        isSlackFollowUp: false,
+        datasets: '',
+      });
+      vi.mocked(postProcessingWorkflow).mockResolvedValue(workflowOutput);
+
+      await runTask({ messageId });
+
+      // Verify Slack notification WAS sent (major assumptions exist)
+      expect(helpers.sendSlackNotification).toHaveBeenCalled();
+    });
+
+    it('should handle undefined isSlackFollowUp in workflow input correctly', async () => {
+      const messageId = '123e4567-e89b-12d3-a456-426614174000';
+
+      const workflowOutput = {
+        flagChatResult: {
+          type: 'flagChat' as const,
+          summaryMessage: 'Issues found',
+          summaryTitle: 'Issue Title',
+        },
+        assumptionsResult: {
+          toolCalled: 'listAssumptions',
+          assumptions: [
+            {
+              descriptiveTitle: 'Major assumption',
+              classification: 'fieldMapping',
+              explanation: 'Test',
+              label: 'major' as const,
+            },
+          ],
+        },
+        formattedMessage: 'Formatted message from workflow',
+      };
+
+      vi.mocked(helpers.fetchMessageWithContext).mockResolvedValue({
+        id: messageId,
+        chatId: 'chat-123',
+        createdBy: 'user-123',
+        createdAt: new Date(),
+        rawLlmMessages: [] as any,
+        userName: 'John Doe',
+        organizationId: 'org-123',
+      });
+      vi.mocked(helpers.fetchPreviousPostProcessingMessages).mockResolvedValue([]);
+      vi.mocked(helpers.fetchUserDatasets).mockResolvedValue({
+        datasets: [],
+        total: 0,
+        page: 0,
+        pageSize: 1000,
+      });
+      vi.mocked(helpers.getExistingSlackMessageForChat).mockResolvedValue({ exists: false });
+      vi.mocked(helpers.sendSlackNotification).mockResolvedValue({
+        sent: true,
+        messageTs: 'msg-ts-123',
+        integrationId: 'int-123',
+        channelId: 'C123456',
+      });
+      vi.mocked(helpers.buildWorkflowInput).mockReturnValue({
+        conversationHistory: undefined,
+        userName: 'John Doe',
+        isFollowUp: false,
+        isSlackFollowUp: undefined, // Critical: undefined case
+        datasets: '',
+      });
+      vi.mocked(postProcessingWorkflow).mockResolvedValue(workflowOutput);
+
+      await runTask({ messageId });
+
+      // Verify workflow was called with undefined isSlackFollowUp
+      expect(postProcessingWorkflow).toHaveBeenCalledWith({
+        conversationHistory: undefined,
+        userName: 'John Doe',
+        isFollowUp: false,
+        isSlackFollowUp: undefined,
+        datasets: '',
+      });
+
+      // Verify Slack notification WAS sent with formatted message
+      expect(helpers.sendSlackNotification).toHaveBeenCalledWith({
+        organizationId: 'org-123',
+        userName: 'John Doe',
+        chatId: 'chat-123',
+        summaryTitle: 'Issue Title',
+        summaryMessage: 'Issues found',
+        toolCalled: 'listAssumptions',
+      });
+    });
+  });
+
   it('should return error result for database update failure', async () => {
     const messageId = '123e4567-e89b-12d3-a456-426614174000';
     const dbError = new Error('Database update failed');

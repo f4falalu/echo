@@ -1,16 +1,16 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { PostProcessingMessage } from '@buster/server-shared/message';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useRef } from 'react';
 import { Button } from '@/components/ui/buttons';
 import { MessageAssumptions, type MessageAssumptionsRef } from './MessageAssumptions';
-import type { PostProcessingMessage } from '@buster/server-shared/message';
 
 const meta: Meta<typeof MessageAssumptions> = {
   title: 'Features/MessageAssumptions',
   component: MessageAssumptions,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
-  tags: ['autodocs']
+  tags: ['autodocs'],
 };
 
 export default meta;
@@ -18,7 +18,7 @@ type Story = StoryObj<typeof MessageAssumptions>;
 
 // Story wrapper component to demonstrate imperative ref usage
 const MessageAssumptionsDemo = ({
-  assumptions
+  assumptions,
 }: {
   assumptions: PostProcessingMessage['assumptions'];
 }) => {
@@ -38,7 +38,7 @@ const MessageAssumptionsDemo = ({
     confidence_score: 'low',
     assumptions,
     tool_called: 'tool',
-    user_name: 'user'
+    user_name: 'user',
   };
 
   return (
@@ -60,38 +60,38 @@ export const Default: Story = {
           classification: 'dataFormat',
           explanation: 'This is a major assumption',
           label: 'major',
-          descriptive_title: 'Descriptive Title'
+          descriptive_title: 'Descriptive Title',
         },
         {
           classification: 'timePeriodGranularity',
           explanation: 'This is a minor assumption',
           label: 'minor',
-          descriptive_title: 'Descriptive Title'
+          descriptive_title: 'Descriptive Title',
         },
         {
           classification: 'dataFormat',
           explanation: 'This is a minor assumption',
           label: 'minor',
-          descriptive_title: 'Descriptive Title'
+          descriptive_title: 'Descriptive Title',
         },
         {
           classification: 'businessLogic',
           explanation: 'This is a minor assumption',
           label: 'minor',
-          descriptive_title: 'Descriptive Title'
+          descriptive_title: 'Descriptive Title',
         },
         {
           classification: 'filtering',
           explanation: 'This is a minor assumption',
           label: 'minor',
-          descriptive_title: 'Descriptive Title'
+          descriptive_title: 'Descriptive Title',
         },
         {
           classification: 'tableRelationship',
           explanation: 'This is a minor assumption',
           label: 'minor',
-          descriptive_title: 'Descriptive Title'
-        }
+          descriptive_title: 'Descriptive Title',
+        },
       ]}
     />
   ),
@@ -99,10 +99,10 @@ export const Default: Story = {
     docs: {
       description: {
         story:
-          'This story demonstrates the MessageAssumptions component with imperative ref controls. Use the buttons to open and close the sheet programmatically.'
-      }
-    }
-  }
+          'This story demonstrates the MessageAssumptions component with imperative ref controls. Use the buttons to open and close the sheet programmatically.',
+      },
+    },
+  },
 };
 
 export const Empty: Story = {
@@ -110,8 +110,8 @@ export const Empty: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'This story demonstrates the MessageAssumptions component with empty assumptions.'
-      }
-    }
-  }
+        story: 'This story demonstrates the MessageAssumptions component with empty assumptions.',
+      },
+    },
+  },
 };

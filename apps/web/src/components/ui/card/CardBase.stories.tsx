@@ -1,13 +1,13 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './CardBase';
 
 const meta = {
   title: 'UI/Cards/Card',
   component: Card,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
-  tags: ['autodocs']
+  tags: ['autodocs'],
 } satisfies Meta<typeof Card>;
 
 export default meta;
@@ -32,7 +32,7 @@ export const Complete: Story = {
         <p>Footer with border</p>
       </CardFooter>
     </Card>
-  )
+  ),
 };
 // Showcase different header variants
 export const HeaderVariants: Story = {
@@ -62,7 +62,7 @@ export const HeaderVariants: Story = {
         <CardContent>Content</CardContent>
       </Card>
     </div>
-  )
+  ),
 };
 
 // Showcase different sizes
@@ -93,7 +93,7 @@ export const Sizes: Story = {
         </CardFooter>
       </Card>
     </div>
-  )
+  ),
 };
 
 // Showcase footer variants
@@ -114,5 +114,5 @@ export const FooterVariants: Story = {
         </CardFooter>
       </Card>
     </div>
-  )
+  ),
 };

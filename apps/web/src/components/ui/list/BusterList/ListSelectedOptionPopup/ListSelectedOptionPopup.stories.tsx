@@ -1,8 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
-import { fn } from 'storybook/test';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
+import { fn } from 'storybook/test';
 import { Button } from '@/components/ui/buttons';
-import { Cat, Dog, Garage } from '@/components/ui/icons';
+import Cat from '@/components/ui/icons/NucleoIconOutlined/cat';
+import Dog from '@/components/ui/icons/NucleoIconOutlined/dog';
+import Garage from '@/components/ui/icons/NucleoIconOutlined/garage';
 import { BusterListSelectedOptionPopupContainer } from './ListSelectedOptionPopup';
 
 const meta: Meta<typeof BusterListSelectedOptionPopupContainer> = {
@@ -10,21 +12,21 @@ const meta: Meta<typeof BusterListSelectedOptionPopupContainer> = {
   component: BusterListSelectedOptionPopupContainer,
   tags: ['autodocs'],
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
   argTypes: {
     selectedRowKeys: { control: 'object' },
     onSelectChange: { action: 'onSelectChange' },
     buttons: { control: 'object' },
-    show: { control: 'boolean' }
+    show: { control: 'boolean' },
   },
   decorators: [
     (Story) => (
       <div className="bg-background relative h-[200px] w-full min-w-[500px]">
         <Story />
       </div>
-    )
-  ]
+    ),
+  ],
 };
 
 export default meta;
@@ -45,8 +47,8 @@ export const Default: Story = {
   args: {
     selectedRowKeys: sampleSelectedRowKeys,
     onSelectChange: (keys) => selectionChangedAction(keys),
-    show: true
-  }
+    show: true,
+  },
 };
 
 export const WithButtons: Story = {
@@ -59,18 +61,18 @@ export const WithButtons: Story = {
       </Button>,
       <Button key="edit" prefix={<Dog />} onClick={editAction}>
         Edit
-      </Button>
+      </Button>,
     ],
-    show: true
-  }
+    show: true,
+  },
 };
 
 export const Hidden: Story = {
   args: {
     selectedRowKeys: [],
     onSelectChange: (keys) => selectionChangedAction(keys),
-    show: false
-  }
+    show: false,
+  },
 };
 
 export const ForceShow: Story = {
@@ -80,11 +82,11 @@ export const ForceShow: Story = {
     buttons: [
       <Button key="add" prefix={<Garage />} onClick={addAction}>
         Add
-      </Button>
+      </Button>,
     ],
-    show: true
+    show: true,
   },
-  name: 'Force Show (Even With Empty Selection)'
+  name: 'Force Show (Even With Empty Selection)',
 };
 
 export const SingleSelection: Story = {
@@ -97,8 +99,8 @@ export const SingleSelection: Story = {
       </Button>,
       <Button key="delete" prefix={<Dog />} onClick={deleteAction}>
         Delete
-      </Button>
+      </Button>,
     ],
-    show: true
-  }
+    show: true,
+  },
 };

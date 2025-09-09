@@ -6,7 +6,7 @@ import { canSupportTrendlineRecord } from './canSupportTrendline';
 
 // Mock the isNumericColumnType function
 vi.mock('@/lib/messages', () => ({
-  isNumericColumnType: vi.fn()
+  isNumericColumnType: vi.fn(),
 }));
 
 const mockedIsNumericColumnType = vi.mocked(isNumericColumnType);
@@ -20,7 +20,7 @@ describe('canSupportTrendlineRecord', () => {
     'min',
     'max',
     'median',
-    'average'
+    'average',
   ];
 
   const columnId = 'test-column';
@@ -28,8 +28,8 @@ describe('canSupportTrendlineRecord', () => {
     [columnId]: {
       ...DEFAULT_COLUMN_LABEL_FORMAT,
       columnType: 'number',
-      style: 'number'
-    }
+      style: 'number',
+    },
   };
 
   beforeEach(() => {
@@ -46,7 +46,7 @@ describe('canSupportTrendlineRecord', () => {
         columnId,
         show: true,
         showTrendlineLabel: true,
-        trendlineLabel: 'Test Label'
+        trendlineLabel: 'Test Label',
       } as Trendline;
 
       // Act
@@ -68,7 +68,7 @@ describe('canSupportTrendlineRecord', () => {
         columnId,
         show: true,
         showTrendlineLabel: true,
-        trendlineLabel: 'Test Label'
+        trendlineLabel: 'Test Label',
       } as Trendline;
 
       // Act
@@ -90,7 +90,7 @@ describe('canSupportTrendlineRecord', () => {
         columnId: 'non-existent',
         show: true,
         showTrendlineLabel: true,
-        trendlineLabel: 'Test Label'
+        trendlineLabel: 'Test Label',
       } as Trendline;
 
       // Act

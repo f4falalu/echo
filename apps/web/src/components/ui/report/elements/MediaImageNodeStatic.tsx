@@ -1,8 +1,6 @@
-import * as React from 'react';
-
 import type { SlateElementProps, TCaptionProps, TImageElement, TResizableProps } from 'platejs';
-
 import { NodeApi, SlateElement } from 'platejs';
+import * as React from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -12,7 +10,7 @@ export function ImageElementStatic(
   const { align = 'center', caption, url, width } = props.element;
 
   return (
-    <SlateElement {...props} className="py-2.5">
+    <SlateElement {...props} className=" mt-2.5 mb-4.5">
       <figure className="group relative m-0 inline-block" style={{ width }}>
         <div className="relative max-w-full min-w-[92px]" style={{ textAlign: align }}>
           <img

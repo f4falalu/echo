@@ -1,12 +1,15 @@
-'use client';
-
-import dynamic from 'next/dynamic';
+import { ClientOnly } from '@tanstack/react-router';
+import { lazy, Suspense } from 'react';
 import { PreparingYourRequestLoader } from './LoadingComponents/ChartLoadingComponents';
 
-export const BusterChartDynamic = dynamic(
-  () => import('./BusterChart').then((mod) => ({ default: mod.BusterChart })),
-  {
-    ssr: false,
-    loading: () => <PreparingYourRequestLoader text="Loading chart..." />
-  }
+const BusterChartLazy = lazy(() =>
+  import('./BusterChart').then((mod) => ({ default: mod.BusterChart }))
+);
+
+export const BusterChartDynamic = (props: Parameters<typeof BusterChartLazy>[0]) => (
+  <Suspense fallback={<PreparingYourRequestLoader text="Loading chart..." />}>
+    <ClientOnly>
+      <BusterChartLazy {...props} />
+    </ClientOnly>
+  </Suspense>
 );

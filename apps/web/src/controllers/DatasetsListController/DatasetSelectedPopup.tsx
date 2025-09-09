@@ -3,7 +3,6 @@ import { useDeleteDataset } from '@/api/buster_rest/datasets';
 import { Button } from '@/components/ui/buttons';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useMemoizedFn } from '@/hooks';
 
 export const DatasetSelectedOptionPopup: React.FC<{
   selectedRowKeys: string[];
@@ -18,7 +17,7 @@ export const DatasetSelectedOptionPopup: React.FC<{
           key="delete"
           selectedRowKeys={selectedRowKeys}
           onSelectChange={onSelectChange}
-        />
+        />,
       ]}
       show={selectedRowKeys.length > 0}
     />
@@ -33,16 +32,16 @@ const DeleteButton: React.FC<{
   const { mutateAsync: onDeleteDataset } = useDeleteDataset();
   const { openConfirmModal } = useBusterNotifications();
 
-  const onDeleteClick = useMemoizedFn(async () => {
+  const onDeleteClick = async () => {
     await openConfirmModal({
       title: 'Delete dataset',
       content: 'Are you sure you want to delete this dataset?',
       onOk: async () => {
         await onDeleteDataset(selectedRowKeys);
         onSelectChange([]);
-      }
+      },
     });
-  });
+  };
 
   return <Button onClick={onDeleteClick}>Delete</Button>;
 };

@@ -1,8 +1,7 @@
 import { faker } from '@faker-js/faker';
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
-import React from 'react';
-import { useSet } from '@/hooks';
+import { useSet } from '@/hooks/useSet';
 import { InputSelectModal, type InputSelectModalProps } from './InputSelectModal';
 
 // Define the data type for the list items
@@ -15,9 +14,9 @@ const meta: Meta<typeof InputSelectModal<ListItemData>> = {
   title: 'UI/Modal/InputSelectModal',
   component: InputSelectModal,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
-  tags: ['autodocs']
+  tags: ['autodocs'],
 };
 
 export default meta;
@@ -45,28 +44,28 @@ export const Default: Story = {
     footer: {
       primaryButton: {
         text: 'Confirm',
-        onClick: fn()
+        onClick: fn(),
       },
       secondaryButton: {
         text: 'Cancel',
         onClick: fn(),
-        variant: 'ghost'
-      }
+        variant: 'ghost',
+      },
     },
     columns: [
       {
         title: 'Name',
-        dataIndex: 'name' as const
+        dataIndex: 'name' as const,
       },
       {
         title: 'Email',
-        dataIndex: 'email' as const
-      }
+        dataIndex: 'email' as const,
+      },
     ] satisfies InputSelectModalProps<ListItemData>['columns'],
     selectedRowKeys: [],
     rows: Array.from({ length: 3000 }, () => ({
       id: faker.string.uuid(),
-      data: { name: faker.person.fullName(), email: faker.internet.email() } as ListItemData
-    }))
-  }
+      data: { name: faker.person.fullName(), email: faker.internet.email() } as ListItemData,
+    })),
+  },
 };

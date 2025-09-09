@@ -1,21 +1,21 @@
 import { relative, resolve } from 'node:path';
 import { getConfigBaseDir, loadBusterConfig, resolveConfiguration } from './config/config-loader';
 import {
-  createParseFailures,
   formatDeploymentSummary,
   mergeDeploymentResults,
   processDeploymentResponse,
 } from './deployment/results';
 import {
-  type DeployFunction,
   createAuthenticatedDeployer,
   createDryRunDeployer,
+  type DeployFunction,
 } from './deployment/strategies';
 import {
   createModelFileMap,
   prepareDeploymentRequest,
   validateModelsForDeployment,
 } from './deployment/transformers';
+import { discoverAndPrepareDocs } from './docs/discovery';
 import { discoverModelFiles, filterModelFiles } from './models/discovery';
 import {
   formatZodIssues,
@@ -187,10 +187,20 @@ async function processProject(
     throw createDeploymentValidationError(errorMessage, validationFailures, []);
   }
 
-  // 6. Prepare deployment request (pure)
-  const deployRequest = prepareDeploymentRequest(validModels);
+  // 6. Discover and prepare docs (I/O)
+  const { docs, fileCount: docFileCount } = await discoverAndPrepareDocs(
+    resolvedConfig.include,
+    configBaseDir
+  );
 
-  // 7. Create model-to-file mapping for result processing (pure)
+  if (docFileCount > 0) {
+    console.info(`  ✓ Found ${docFileCount} documentation files`);
+  }
+
+  // 7. Prepare unified deployment request (pure)
+  const deployRequest = prepareDeploymentRequest(validModels, docs);
+
+  // 8. Create model-to-file mapping for result processing (pure)
   const modelFileMap = createModelFileMap(
     included.map((file) => ({
       file: relative(configBaseDir, file),
@@ -204,22 +214,39 @@ async function processProject(
     }))
   );
 
-  // 8. Execute deployment (I/O via strategy function)
-  // At this point, all models are valid and ready for deployment
+  // Create doc-to-file mapping
+  const docFileMap = new Map<string, string>();
+  for (const doc of docs) {
+    docFileMap.set(doc.name, doc.name); // Doc name is already the relative path
+  }
+
+  // 9. Execute deployment (I/O via strategy function)
+  // At this point, all models and docs are ready for deployment
   try {
     const response = await deploy(deployRequest);
 
-    // 9. Process response (pure)
-    const result = processDeploymentResponse(response, modelFileMap);
+    // 10. Process response (pure)
+    const result = processDeploymentResponse(response, modelFileMap, docFileMap);
 
     // Add exclusions (no failures or todos since we failed early on those)
     result.excluded.push(...excluded);
 
     // Log deleted models if any (only in verbose mode)
-    if (options.verbose && response.deleted && response.deleted.length > 0) {
-      console.info(`  ℹ Soft-deleted ${response.deleted.length} models not included in deployment`);
-      for (const name of response.deleted) {
-        console.info(`    - ${name}`);
+    if (options.verbose) {
+      if (response.models?.deleted && response.models.deleted.length > 0) {
+        console.info(
+          `  ℹ Deleted ${response.models.deleted.length} models not included in deployment`
+        );
+        for (const name of response.models.deleted) {
+          console.info(`    - ${name}`);
+        }
+      }
+
+      if (response.docs?.deleted && response.docs.deleted.length > 0) {
+        console.info(`  ℹ Deleted ${response.docs.deleted.length} docs not included in deployment`);
+        for (const name of response.docs.deleted) {
+          console.info(`    - ${name}`);
+        }
       }
     }
 

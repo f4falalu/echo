@@ -1,5 +1,5 @@
 import React from 'react';
-import { VersionPill } from '../tags/VersionPill';
+import { VersionPill } from '../pills/VersionPill';
 import { Text } from './Text';
 
 export const TextAndVersionPill = React.memo(

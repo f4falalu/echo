@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { LegendItem } from './LegendItem';
 import type { BusterChartLegendItem } from './interfaces';
+import { LegendItem } from './LegendItem';
 
 describe('LegendItem', () => {
   const mockItem: BusterChartLegendItem = {
@@ -11,15 +11,15 @@ describe('LegendItem', () => {
     inactive: false,
     data: [],
     id: 'test-1',
-    yAxisKey: 'test'
+    yAxisKey: 'test',
   };
 
   const mockItemWithHeadline: BusterChartLegendItem = {
     ...mockItem,
     headline: {
       type: 'current',
-      titleAmount: '100'
-    }
+      titleAmount: '100',
+    },
   };
 
   it('renders basic legend item correctly', () => {
@@ -90,18 +90,18 @@ describe('LegendItem', () => {
   it('renders different headline types correctly', () => {
     const headlineTypes = ['average', 'total', 'median', 'min', 'max'] as const;
 
-    headlineTypes.forEach((type) => {
+    for (const type of headlineTypes) {
       const item = {
         ...mockItem,
         headline: {
           type,
-          titleAmount: '100'
-        }
+          titleAmount: '100',
+        },
       };
 
       const { unmount } = render(<LegendItem item={item} />);
       expect(screen.getByText('100')).toBeInTheDocument();
       unmount();
-    });
+    }
   });
 });

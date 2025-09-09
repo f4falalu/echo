@@ -1,26 +1,20 @@
-'use client';
-
-import * as React from 'react';
-
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
-import type { TElement } from 'platejs';
-
 import { DropdownMenuItemIndicator } from '@radix-ui/react-dropdown-menu';
-import { Check } from '@/components/ui/icons';
-import { NodeTypeIcons } from '../config/icons';
-import { createLabel, NodeTypeLabels, createMenuItem } from '../config/labels';
+import type { TElement } from 'platejs';
 import { KEYS } from 'platejs';
 import { useEditorRef, useSelectionFragmentProp } from 'platejs/react';
-
+import * as React from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuRadioItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { getBlockType, setBlockType } from './transforms';
-
+import { Check } from '@/components/ui/icons';
 import { ToolbarButton, ToolbarMenuGroup } from '@/components/ui/toolbar/Toolbar';
+import { NodeTypeIcons } from '../config/icons';
+import { createLabel, createMenuItem, NodeTypeLabels } from '../config/labels';
+import { getBlockType, setBlockType } from './transforms';
 
 const turnIntoItems = [
   createMenuItem('paragraph', KEYS.p, <NodeTypeIcons.paragraph />),
@@ -36,7 +30,7 @@ const turnIntoItems = [
   createMenuItem('toggleList', KEYS.toggle, <NodeTypeIcons.toggle />),
   createMenuItem('codeBlock', KEYS.codeBlock, <NodeTypeIcons.codeBlock />),
   createMenuItem('blockquote', KEYS.blockquote, <NodeTypeIcons.quote />),
-  createMenuItem('columnsThree', 'action_three_columns', <NodeTypeIcons.columnsThree />)
+  createMenuItem('columnsThree', 'action_three_columns', <NodeTypeIcons.columnsThree />),
 ];
 
 export function TurnIntoToolbarButton(props: DropdownMenuProps) {
@@ -45,7 +39,7 @@ export function TurnIntoToolbarButton(props: DropdownMenuProps) {
 
   const value = useSelectionFragmentProp({
     defaultValue: KEYS.p,
-    getProp: (node) => getBlockType(node as TElement)
+    getProp: (node) => getBlockType(node as TElement),
   });
   const selectedItem = React.useMemo(
     () => turnIntoItems.find((item) => item.value === (value ?? KEYS.p)) ?? turnIntoItems[0],
@@ -59,7 +53,8 @@ export function TurnIntoToolbarButton(props: DropdownMenuProps) {
           className="min-w-[125px]"
           pressed={open}
           tooltip={createLabel('turnInto')}
-          isDropdown>
+          isDropdown
+        >
           {selectedItem.label}
         </ToolbarButton>
       </DropdownMenuTrigger>
@@ -70,18 +65,21 @@ export function TurnIntoToolbarButton(props: DropdownMenuProps) {
           e.preventDefault();
           editor.tf.focus();
         }}
-        align="start">
+        align="start"
+      >
         <ToolbarMenuGroup
           value={value}
           onValueChange={(type) => {
             setBlockType(editor, type);
           }}
-          label={NodeTypeLabels.turnInto.label}>
+          label={NodeTypeLabels.turnInto.label}
+        >
           {turnIntoItems.map(({ icon, label, value: itemValue }) => (
             <DropdownMenuRadioItem
               key={itemValue}
               className="min-w-[180px] pl-2 *:first:[span]:hidden"
-              value={itemValue}>
+              value={itemValue}
+            >
               <span className="pointer-events-none absolute right-2 flex size-3.5 items-center justify-center">
                 <DropdownMenuItemIndicator>
                   <Check />

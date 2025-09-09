@@ -1,353 +1,351 @@
-import type { editor } from 'monaco-editor';
-
-const theme: editor.IStandaloneThemeData = {
+const theme = {
   inherit: true,
   base: 'vs-dark',
   rules: [
     {
       foreground: '#DCDCAA',
-      token: 'entity.name.function'
+      token: 'entity.name.function',
     },
     {
       foreground: '#DCDCAA',
-      token: 'support.function'
+      token: 'support.function',
     },
     {
       foreground: '#DCDCAA',
-      token: 'support.constant.handlebars'
+      token: 'support.constant.handlebars',
     },
     {
       foreground: '#DCDCAA',
-      token: 'source.powershell variable.other.member'
+      token: 'source.powershell variable.other.member',
     },
     {
       foreground: '#DCDCAA',
-      token: 'entity.name.operator.custom-literal'
+      token: 'entity.name.operator.custom-literal',
     },
     {
       foreground: '#4EC9B0',
-      token: 'meta.return-type'
+      token: 'meta.return-type',
     },
     {
       foreground: '#4EC9B0',
-      token: 'support.class'
+      token: 'support.class',
     },
     {
       foreground: '#4EC9B0',
-      token: 'support.type'
+      token: 'support.type',
     },
     {
       foreground: '#4EC9B0',
-      token: 'entity.name.type'
+      token: 'entity.name.type',
     },
     {
       foreground: '#4EC9B0',
-      token: 'entity.name.namespace'
+      token: 'entity.name.namespace',
     },
     {
       foreground: '#4EC9B0',
-      token: 'entity.other.attribute'
+      token: 'entity.other.attribute',
     },
     {
       foreground: '#4EC9B0',
-      token: 'entity.name.scope-resolution'
+      token: 'entity.name.scope-resolution',
     },
     {
       foreground: '#4EC9B0',
-      token: 'entity.name.class'
+      token: 'entity.name.class',
     },
     {
       foreground: '#4EC9B0',
-      token: 'storage.type.numeric.go'
+      token: 'storage.type.numeric.go',
     },
     {
       foreground: '#4EC9B0',
-      token: 'storage.type.byte.go'
+      token: 'storage.type.byte.go',
     },
     {
       foreground: '#4EC9B0',
-      token: 'storage.type.boolean.go'
+      token: 'storage.type.boolean.go',
     },
     {
       foreground: '#4EC9B0',
-      token: 'storage.type.string.go'
+      token: 'storage.type.string.go',
     },
     {
       foreground: '#4EC9B0',
-      token: 'storage.type.uintptr.go'
+      token: 'storage.type.uintptr.go',
     },
     {
       foreground: '#4EC9B0',
-      token: 'storage.type.error.go'
+      token: 'storage.type.error.go',
     },
     {
       foreground: '#4EC9B0',
-      token: 'storage.type.rune.go'
+      token: 'storage.type.rune.go',
     },
     {
       foreground: '#4EC9B0',
-      token: 'storage.type.cs'
+      token: 'storage.type.cs',
     },
     {
       foreground: '#4EC9B0',
-      token: 'storage.type.generic.cs'
+      token: 'storage.type.generic.cs',
     },
     {
       foreground: '#4EC9B0',
-      token: 'storage.type.modifier.cs'
+      token: 'storage.type.modifier.cs',
     },
     {
       foreground: '#4EC9B0',
-      token: 'storage.type.variable.cs'
+      token: 'storage.type.variable.cs',
     },
     {
       foreground: '#4EC9B0',
-      token: 'storage.type.annotation.java'
+      token: 'storage.type.annotation.java',
     },
     {
       foreground: '#4EC9B0',
-      token: 'storage.type.generic.java'
+      token: 'storage.type.generic.java',
     },
     {
       foreground: '#4EC9B0',
-      token: 'storage.type.java'
+      token: 'storage.type.java',
     },
     {
       foreground: '#4EC9B0',
-      token: 'storage.type.object.array.java'
+      token: 'storage.type.object.array.java',
     },
     {
       foreground: '#4EC9B0',
-      token: 'storage.type.primitive.array.java'
+      token: 'storage.type.primitive.array.java',
     },
     {
       foreground: '#4EC9B0',
-      token: 'storage.type.primitive.java'
+      token: 'storage.type.primitive.java',
     },
     {
       foreground: '#4EC9B0',
-      token: 'storage.type.token.java'
+      token: 'storage.type.token.java',
     },
     {
       foreground: '#4EC9B0',
-      token: 'storage.type.groovy'
+      token: 'storage.type.groovy',
     },
     {
       foreground: '#4EC9B0',
-      token: 'storage.type.annotation.groovy'
+      token: 'storage.type.annotation.groovy',
     },
     {
       foreground: '#4EC9B0',
-      token: 'storage.type.parameters.groovy'
+      token: 'storage.type.parameters.groovy',
     },
     {
       foreground: '#4EC9B0',
-      token: 'storage.type.generic.groovy'
+      token: 'storage.type.generic.groovy',
     },
     {
       foreground: '#4EC9B0',
-      token: 'storage.type.object.array.groovy'
+      token: 'storage.type.object.array.groovy',
     },
     {
       foreground: '#4EC9B0',
-      token: 'storage.type.primitive.array.groovy'
+      token: 'storage.type.primitive.array.groovy',
     },
     {
       foreground: '#4EC9B0',
-      token: 'storage.type.primitive.groovy'
+      token: 'storage.type.primitive.groovy',
     },
     {
       foreground: '#4EC9B0',
-      token: 'meta.type.cast.expr'
+      token: 'meta.type.cast.expr',
     },
     {
       foreground: '#4EC9B0',
-      token: 'meta.type.new.expr'
+      token: 'meta.type.new.expr',
     },
     {
       foreground: '#4EC9B0',
-      token: 'support.constant.math'
+      token: 'support.constant.math',
     },
     {
       foreground: '#4EC9B0',
-      token: 'support.constant.dom'
+      token: 'support.constant.dom',
     },
     {
       foreground: '#4EC9B0',
-      token: 'support.constant.json'
+      token: 'support.constant.json',
     },
     {
       foreground: '#4EC9B0',
-      token: 'entity.other.inherited-class'
+      token: 'entity.other.inherited-class',
     },
     {
       foreground: '#C586C0',
-      token: 'keyword.control'
+      token: 'keyword.control',
     },
     {
       foreground: '#C586C0',
-      token: 'source.cpp keyword.operator.new'
+      token: 'source.cpp keyword.operator.new',
     },
     {
       foreground: '#C586C0',
-      token: 'keyword.operator.delete'
+      token: 'keyword.operator.delete',
     },
     {
       foreground: '#C586C0',
-      token: 'keyword.other.using'
+      token: 'keyword.other.using',
     },
     {
       foreground: '#C586C0',
-      token: 'keyword.other.operator'
+      token: 'keyword.other.operator',
     },
     {
       foreground: '#C586C0',
-      token: 'entity.name.operator'
+      token: 'entity.name.operator',
     },
     {
       foreground: '#9CDCFE',
-      token: 'variable'
+      token: 'variable',
     },
     {
       foreground: '#9CDCFE',
-      token: 'meta.definition.variable.name'
+      token: 'meta.definition.variable.name',
     },
     {
       foreground: '#9CDCFE',
-      token: 'support.variable'
+      token: 'support.variable',
     },
     {
       foreground: '#9CDCFE',
-      token: 'entity.name.variable'
+      token: 'entity.name.variable',
     },
     {
       foreground: '#4FC1FF',
-      token: 'variable.other.constant'
+      token: 'variable.other.constant',
     },
     {
       foreground: '#4FC1FF',
-      token: 'variable.other.enummember'
+      token: 'variable.other.enummember',
     },
     {
       foreground: '#9CDCFE',
-      token: 'meta.object-literal.key'
+      token: 'meta.object-literal.key',
     },
     {
       foreground: '#CE9178',
-      token: 'support.constant.property-value'
+      token: 'support.constant.property-value',
     },
     {
       foreground: '#CE9178',
-      token: 'support.constant.font-name'
+      token: 'support.constant.font-name',
     },
     {
       foreground: '#CE9178',
-      token: 'support.constant.media-type'
+      token: 'support.constant.media-type',
     },
     {
       foreground: '#CE9178',
-      token: 'support.constant.media'
+      token: 'support.constant.media',
     },
     {
       foreground: '#CE9178',
-      token: 'constant.other.color.rgb-value'
+      token: 'constant.other.color.rgb-value',
     },
     {
       foreground: '#CE9178',
-      token: 'constant.other.rgb-value'
+      token: 'constant.other.rgb-value',
     },
     {
       foreground: '#CE9178',
-      token: 'support.constant.color'
+      token: 'support.constant.color',
     },
     {
       foreground: '#CE9178',
-      token: 'punctuation.definition.group.regexp'
+      token: 'punctuation.definition.group.regexp',
     },
     {
       foreground: '#CE9178',
-      token: 'punctuation.definition.group.assertion.regexp'
+      token: 'punctuation.definition.group.assertion.regexp',
     },
     {
       foreground: '#CE9178',
-      token: 'punctuation.definition.character-class.regexp'
+      token: 'punctuation.definition.character-class.regexp',
     },
     {
       foreground: '#CE9178',
-      token: 'punctuation.character.set.begin.regexp'
+      token: 'punctuation.character.set.begin.regexp',
     },
     {
       foreground: '#CE9178',
-      token: 'punctuation.character.set.end.regexp'
+      token: 'punctuation.character.set.end.regexp',
     },
     {
       foreground: '#CE9178',
-      token: 'keyword.operator.negation.regexp'
+      token: 'keyword.operator.negation.regexp',
     },
     {
       foreground: '#CE9178',
-      token: 'support.other.parenthesis.regexp'
+      token: 'support.other.parenthesis.regexp',
     },
     {
       foreground: '#d16969',
-      token: 'constant.character.character-class.regexp'
+      token: 'constant.character.character-class.regexp',
     },
     {
       foreground: '#d16969',
-      token: 'constant.other.character-class.set.regexp'
+      token: 'constant.other.character-class.set.regexp',
     },
     {
       foreground: '#d16969',
-      token: 'constant.other.character-class.regexp'
+      token: 'constant.other.character-class.regexp',
     },
     {
       foreground: '#d16969',
-      token: 'constant.character.set.regexp'
+      token: 'constant.character.set.regexp',
     },
     {
       foreground: '#DCDCAA',
-      token: 'keyword.operator.or.regexp'
+      token: 'keyword.operator.or.regexp',
     },
     {
       foreground: '#DCDCAA',
-      token: 'keyword.control.anchor.regexp'
+      token: 'keyword.control.anchor.regexp',
     },
     {
       foreground: '#d7ba7d',
-      token: 'keyword.operator.quantifier.regexp'
+      token: 'keyword.operator.quantifier.regexp',
     },
     {
       foreground: '#569cd6',
-      token: 'constant.character'
+      token: 'constant.character',
     },
     {
       foreground: '#d7ba7d',
-      token: 'constant.character.escape'
+      token: 'constant.character.escape',
     },
     {
       foreground: '#C8C8C8',
-      token: 'entity.name.label'
+      token: 'entity.name.label',
     },
     {
       foreground: '#569CD6',
-      token: 'constant.language'
+      token: 'constant.language',
     },
     {
       foreground: '#569CD6',
-      token: 'entity.name.tag'
+      token: 'entity.name.tag',
     },
     {
       foreground: '#569cd6',
-      token: 'storage'
-    }
+      token: 'storage',
+    },
   ],
   colors: {
     'editor.foreground': '#DCDCAA',
     'editor.background': '#1E1E1E',
     'editorCursor.foreground': '#DCDCAA',
-    'editorWhitespace.foreground': '#DCDCAA'
+    'editorWhitespace.foreground': '#DCDCAA',
   },
-  encodedTokensColors: []
+  encodedTokensColors: [],
 };
 
 export default theme;

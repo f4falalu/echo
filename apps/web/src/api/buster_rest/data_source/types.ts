@@ -12,7 +12,7 @@ import type {
   updatePostgresDataSource,
   updateRedshiftDataSource,
   updateSnowflakeDataSource,
-  updateSQLServerDataSource
+  updateSQLServerDataSource,
 } from './requests';
 
 // Type definitions for the create datasource parameters

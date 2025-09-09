@@ -6,9 +6,14 @@ export const DashboardConfigSchema = z.object({
   rows: z
     .array(
       z.object({
-        columnSizes: z.array(z.number().min(1).max(12)).optional(), // columns sizes 1 - 12. MUST add up to 12
+        columnSizes: z
+          .array(z.number().min(1).max(12))
+          .refine((arr) => arr.reduce((sum, n) => sum + n, 0) === 12, {
+            message: 'columnSizes must add up to 12',
+          })
+          .optional(), // columns sizes 1 - 12. MUST add up to 12
         rowHeight: z.number().optional(), // pixel based!
-        id: z.number(),
+        id: z.string(),
         items: z.array(
           z.object({
             id: z.string(),

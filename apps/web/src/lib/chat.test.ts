@@ -8,7 +8,7 @@ describe('updateChatToIChat', () => {
     const mockChat: BusterChat = {
       ...MOCK_CHAT(),
       message_ids: [],
-      messages: {}
+      messages: {},
     };
 
     const { iChat, iChatMessages } = updateChatToIChat(mockChat);
@@ -71,8 +71,8 @@ describe('updateChatToIChat', () => {
       ...fullMockChat,
       message_ids: [singleMessageId],
       messages: {
-        [singleMessageId]: fullMockChat.messages[singleMessageId]
-      }
+        [singleMessageId]: fullMockChat.messages[singleMessageId],
+      },
     };
 
     // Test both new and existing chat scenarios

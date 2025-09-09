@@ -91,8 +91,8 @@ export async function runMessagePostProcessingWorkflow(
         conversationHistory: validatedInput.conversationHistory,
       });
       formattedMessage = followUpResult.summaryMessage;
-    } else if (validatedInput.isSlackFollowUp === false) {
-      // Format initial message
+    } else if (!validatedInput.isSlackFollowUp) {
+      // Format initial message (when isSlackFollowUp is false or undefined)
       const initialResult = await runFormatInitialMessageStep({
         userName: validatedInput.userName,
         flaggedIssues,

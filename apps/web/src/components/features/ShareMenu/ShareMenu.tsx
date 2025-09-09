@@ -1,10 +1,7 @@
-'use client';
-
-import React, { type PropsWithChildren, useState } from 'react';
 import type { ShareAssetType, ShareConfig } from '@buster/server-shared/share';
+import React, { type PropsWithChildren, useState } from 'react';
 import { Popover } from '@/components/ui/popover/Popover';
 import { AppTooltip } from '@/components/ui/tooltip';
-import { useMemoizedFn } from '@/hooks';
 import { canShare } from '@/lib/share';
 import { ShareMenuContent } from './ShareMenuContent';
 
@@ -17,9 +14,9 @@ export const ShareMenu: React.FC<
 > = ({ children, shareAssetConfig, assetId, assetType }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const onOpenChange = useMemoizedFn((v: boolean) => {
+  const onOpenChange = (v: boolean) => {
     setIsOpen(v);
-  });
+  };
 
   const showShareMenu = canShare(shareAssetConfig?.permission);
 
@@ -41,7 +38,8 @@ export const ShareMenu: React.FC<
             assetType={assetType}
           />
         ) : null
-      }>
+      }
+    >
       <AppTooltip title={!isOpen ? 'Share item' : ''}>
         <div className="flex">{children}</div>
       </AppTooltip>

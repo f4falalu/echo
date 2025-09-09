@@ -1,7 +1,7 @@
-import type { AnimatedMarkdownProps } from './AnimatedMarkdown';
 import React from 'react';
-import TokenizedText from './TokenizedText';
 import { createAnimationStyle } from '../animation-common';
+import type { AnimatedMarkdownProps } from './AnimatedMarkdown';
+import TokenizedText from './TokenizedText';
 
 export const animateTokenizedText = (
   text: string | React.ReactNode,
@@ -10,7 +10,7 @@ export const animateTokenizedText = (
     'animation' | 'animationDuration' | 'animationTimingFunction' | 'isStreamFinished'
   >
 ) => {
-  if (!animationsProps.animation) {
+  if (!animationsProps.animation || animationsProps.animation.includes('none')) {
     return text;
   }
 
@@ -20,15 +20,8 @@ export const animateTokenizedText = (
     if (typeof item === 'string') {
       return <TokenizedText key={`text-${index}`} text={item} {...animationsProps} />;
     } else if (React.isValidElement(item)) {
-      const noAnimateElementTypes: Array<React.ElementType> = ['br', 'ul', 'ol', 'td', 'th'];
-      const inlineElementTypes: Array<React.ElementType> = [
-        'strong',
-        'em',
-        'del',
-        'code',
-        'a',
-        'span'
-      ];
+      const noAnimateElementTypes: React.ElementType[] = ['br', 'ul', 'ol', 'td', 'th'];
+      const inlineElementTypes: React.ElementType[] = ['strong', 'em', 'del', 'code', 'a', 'span'];
 
       let typeName = item.type;
       if (typeof typeName === 'function') {
@@ -59,8 +52,9 @@ export const animateTokenizedText = (
           style={{
             ...createAnimationStyle(animationsProps),
             whiteSpace: 'pre-wrap',
-            display: isInlineElement ? 'inline' : 'inline-block'
-          }}>
+            display: isInlineElement ? 'inline' : 'inline-block',
+          }}
+        >
           {item}
         </span>
       );
@@ -72,8 +66,9 @@ export const animateTokenizedText = (
         style={{
           ...createAnimationStyle(animationsProps),
           whiteSpace: 'pre-wrap',
-          display: 'inline'
-        }}>
+          display: 'inline',
+        }}
+      >
         {item}
       </span>
     );

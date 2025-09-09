@@ -1,6 +1,6 @@
-import { formatLabel } from '@/lib/columnFormatter';
 import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import type { Chart, ChartTypeRegistry, TooltipItem } from 'chart.js';
+import { formatLabel } from '@/lib/columnFormatter';
 import type { ITooltipItem } from '../../../../BusterChartTooltip/interfaces';
 import { getPercentage } from './helpers';
 
@@ -56,9 +56,9 @@ export const barAndLineTooltipHelper = (
               chart,
               hasMultipleShownDatasets,
               percentageMode
-            )
-          }
-        ]
+            ),
+          },
+        ],
       };
     });
   });

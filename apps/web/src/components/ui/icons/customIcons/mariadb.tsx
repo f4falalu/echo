@@ -13,7 +13,8 @@ export const MariaDB: React.FC<{
       height={props.size || 24}
       viewBox="0 -43 256 256"
       version="1.1"
-      preserveAspectRatio="xMidYMid">
+      preserveAspectRatio="xMidYMid"
+    >
       <title>MariaDB Icon</title>
       <g>
         <path

@@ -3,7 +3,7 @@ import {
   type EffectCallback,
   useEffect,
   type useLayoutEffect,
-  useRef
+  useRef,
 } from 'react';
 import { depsAreSame } from '@/lib/depAreSame';
 import type { BasicTarget } from '@/lib/domTarget';
@@ -27,7 +27,7 @@ const createEffectWithTarget = (useEffectType: typeof useEffect | typeof useLayo
     const lastElementRef = useRef<(Element | null | undefined)[]>([]);
     const lastDepsRef = useRef<DependencyList>([]);
 
-    const unLoadRef = useRef<ReturnType<EffectCallback>>();
+    const unLoadRef = useRef<ReturnType<EffectCallback>>(null);
 
     useEffectType(() => {
       const targets = Array.isArray(target) ? target : [target];

@@ -10,3 +10,6 @@ export { SDKError, NetworkError } from './errors';
 
 // Auth exports
 export { validateApiKey, isApiKeyValid } from './auth';
+
+// Deploy function
+export { deploy } from './deploy';

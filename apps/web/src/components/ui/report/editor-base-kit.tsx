@@ -1,5 +1,3 @@
-'use client';
-
 import { BaseAlignKit } from './plugins/align-base-kit';
 import { BaseBasicBlocksKit } from './plugins/basic-blocks-base-kit';
 import { BaseBasicMarksKit } from './plugins/basic-marks-base-kit';
@@ -16,12 +14,12 @@ import { MarkdownKit } from './plugins/markdown-kit';
 import { BaseMathKit } from './plugins/math-base-kit';
 import { BaseMediaKit } from './plugins/media-base-kit';
 import { BaseMentionKit } from './plugins/mention-base-kit';
+import { MetricKit } from './plugins/metric-kit';
 import { MetricBaseKit } from './plugins/metric-kit/metric-base-kit';
 import { BaseSuggestionKit } from './plugins/suggestion-base-kit';
 import { BaseTableKit } from './plugins/table-base-kit';
 import { BaseTocKit } from './plugins/toc-base-kit';
 import { BaseToggleKit } from './plugins/toggle-base-kit';
-import { MetricKit } from './plugins/metric-kit';
 
 //THIS EXCLUDES ALL "INTERACTIVE" PLUGINS LIKE DND, TOOLTIPS, ETC.
 export const BaseEditorKit = [
@@ -45,5 +43,5 @@ export const BaseEditorKit = [
   ...BaseCommentKit,
   ...BaseSuggestionKit,
   ...MarkdownKit,
-  ...MetricBaseKit
+  ...MetricBaseKit,
 ];

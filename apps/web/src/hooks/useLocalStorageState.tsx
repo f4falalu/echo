@@ -1,9 +1,6 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import { useMemoizedFn } from './useMemoizedFn';
-import { useMount } from './useMount';
 import { isServer } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { useMemoizedFn } from './useMemoizedFn';
 
 type SetState<S> = S | ((prevState?: S) => S);
 
@@ -27,14 +24,14 @@ interface Options<T> {
 export function useLocalStorageState<T>(
   key: string,
   options?: Options<T>
-): [T | undefined, (value?: SetState<T>) => void] {
+): [T, (value?: SetState<T>) => void] {
   const {
     defaultValue,
     serializer = JSON.stringify,
     deserializer = JSON.parse,
     onError,
     bustStorageOnInit = false,
-    expirationTime = DEFAULT_EXPIRATION_TIME
+    expirationTime = DEFAULT_EXPIRATION_TIME,
   } = options || {};
 
   // Get initial value from localStorage or use default
@@ -92,7 +89,7 @@ export function useLocalStorageState<T>(
     }
   });
 
-  const [state, setState] = useState<T | undefined>(getInitialValue);
+  const [state, setState] = useState<T>(getInitialValue as T);
 
   // Initialize state from localStorage on mount
   // useMount(() => {
@@ -108,7 +105,7 @@ export function useLocalStorageState<T>(
         // Create storage data with current timestamp
         const storageData: StorageData<T> = {
           value: JSON.parse(serializer(state)),
-          timestamp: Date.now()
+          timestamp: Date.now(),
         };
         window.localStorage.setItem(key, JSON.stringify(storageData));
       }
@@ -126,7 +123,7 @@ export function useLocalStorageState<T>(
           return newState;
         });
       } else {
-        setState(value);
+        setState(value as T);
       }
     } catch (error) {
       onError?.(error);

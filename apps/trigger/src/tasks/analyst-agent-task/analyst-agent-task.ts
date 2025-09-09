@@ -8,7 +8,9 @@ import {
   getBraintrustMetadata,
   getChatConversationHistory,
   getMessageContext,
+  getOrganizationAnalystDoc,
   getOrganizationDataSource,
+  getOrganizationDocs,
 } from '@buster/database';
 
 // Access control imports
@@ -307,15 +309,34 @@ export const analystAgentTask: ReturnType<
       // Fetch Braintrust metadata in parallel
       const braintrustMetadataPromise = getBraintrustMetadata({ messageId: payload.message_id });
 
+      // Fetch analyst instructions in parallel
+      const analystInstructionsPromise = messageContextPromise.then((context) =>
+        getOrganizationAnalystDoc({ organizationId: context.organizationId })
+      );
+
+      // Fetch all organization docs (data catalog docs) in parallel
+      const organizationDocsPromise = messageContextPromise.then((context) =>
+        getOrganizationDocs({ organizationId: context.organizationId })
+      );
+
       // Wait for all operations to complete
-      const [messageContext, conversationHistory, dataSource, datasets, braintrustMetadata] =
-        await Promise.all([
-          messageContextPromise,
-          conversationHistoryPromise,
-          dataSourcePromise,
-          datasetsPromise,
-          braintrustMetadataPromise,
-        ]);
+      const [
+        messageContext,
+        conversationHistory,
+        dataSource,
+        datasets,
+        braintrustMetadata,
+        analystInstructions,
+        organizationDocs,
+      ] = await Promise.all([
+        messageContextPromise,
+        conversationHistoryPromise,
+        dataSourcePromise,
+        datasetsPromise,
+        braintrustMetadataPromise,
+        analystInstructionsPromise,
+        organizationDocsPromise,
+      ]);
 
       const dataLoadEnd = Date.now();
       const dataLoadTime = dataLoadEnd - dataLoadStart;
@@ -332,8 +353,10 @@ export const analystAgentTask: ReturnType<
           id: d.id,
           name: d.name,
         })),
+        organizationDocsCount: organizationDocs.length,
         dataLoadTimeMs: dataLoadTime,
         braintrustMetadata, // Log the metadata to verify it's working
+        hasAnalystInstructions: !!analystInstructions,
       });
 
       // Log performance after data loading
@@ -361,6 +384,8 @@ export const analystAgentTask: ReturnType<
         dataSourceId: dataSource.dataSourceId,
         dataSourceSyntax: dataSource.dataSourceSyntax,
         datasets,
+        analystInstructions: analystInstructions || undefined,
+        organizationDocs,
       };
 
       logger.log('Workflow input prepared', {

@@ -1,5 +1,5 @@
 import type { BusterDashboard } from '@/api/asset_interfaces/dashboard';
-import { NUMBER_OF_COLUMNS } from '../../../../components/ui/grid/helpers';
+import { NUMBER_OF_COLUMNS } from '../../../asset_interfaces/dashboard/config';
 
 export const removeMetricFromDashboardConfig = (
   metricIds: string[],
@@ -8,7 +8,7 @@ export const removeMetricFromDashboardConfig = (
   // Create a new config object to avoid mutating the original
   const newConfig = {
     ...existingConfig,
-    rows: [...(existingConfig.rows || [])]
+    rows: [...(existingConfig.rows || [])],
   };
 
   // Filter out rows that contain metrics to be removed
@@ -29,7 +29,7 @@ export const removeMetricFromDashboardConfig = (
       return {
         ...row,
         items: filteredItems,
-        columnSizes
+        columnSizes,
       };
     })
     .filter((row): row is NonNullable<typeof row> => row !== null);

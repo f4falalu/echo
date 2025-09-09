@@ -12,7 +12,8 @@ export const GoogleIcon: React.FC<{
       className="h-5 w-5"
       viewBox="0 0 21 20"
       fill="none"
-      xmlns="http://www.w3.org/2000/svg">
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>Google Icon</title>
       <g clipPath="url(#clip0_13183_10121)">
         <path

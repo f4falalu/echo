@@ -7,6 +7,10 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "default": "./dist/types.js"
+    },
     "./helpers/*": {
       "types": "./dist/helpers/*/index.d.ts",
       "default": "./dist/helpers/*/index.js"
@@ -55,8 +59,8 @@
     "ai": "catalog:",
     "drizzle-kit": "^0.31.4",
     "drizzle-orm": "catalog:",
-    "drizzle-zod": "^0.8.2",
-    "lru-cache": "^11.1.0",
+    "drizzle-zod": "^0.8.3",
+    "lru-cache": "^11.2.1",
     "postgres": "^3.4.7",
     "zod": "catalog:"
   }

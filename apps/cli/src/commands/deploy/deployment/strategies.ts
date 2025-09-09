@@ -1,27 +1,38 @@
 import { type BusterSDK, createBusterSDK } from '@buster/sdk';
+import type { deploy } from '@buster/server-shared';
+
+type UnifiedDeployRequest = deploy.UnifiedDeployRequest;
+type UnifiedDeployResponse = deploy.UnifiedDeployResponse;
+
 import { loadCredentials } from '../../../utils/credentials';
-import type { DeployRequest, DeployResponse, DeploymentFailure, DeploymentItem } from '../schemas';
+import type { DeploymentFailure, DeploymentItem } from '../schemas';
 
 /**
  * Type definition for a deployment function
+ * Now uses unified deploy request/response
  */
-export type DeployFunction = (request: DeployRequest) => Promise<DeployResponse>;
+export type DeployFunction = (request: UnifiedDeployRequest) => Promise<UnifiedDeployResponse>;
 
 /**
  * Creates a dry-run deployer that simulates deployment without API calls
  * Pure function that returns another function - perfect for testing
  */
 export function createDryRunDeployer(verbose = false): DeployFunction {
-  return async (request: DeployRequest): Promise<DeployResponse> => {
+  return async (request: UnifiedDeployRequest): Promise<UnifiedDeployResponse> => {
     if (verbose) {
       console.info('[DRY RUN] Would deploy:');
+      console.info(`  Models:`);
       for (const model of request.models) {
-        console.info(`  - ${model.name} to ${model.data_source_name}.${model.schema}`);
+        console.info(`    - ${model.name} to ${model.data_source_name}.${model.schema}`);
+      }
+      console.info(`  Docs:`);
+      for (const doc of request.docs) {
+        console.info(`    - ${doc.name} (${doc.type})`);
       }
     }
 
-    // Simulate successful deployment for all models
-    const successItems: DeploymentItem[] = request.models.map((model) => ({
+    // Simulate successful deployment for all items
+    const modelSuccessItems: DeploymentItem[] = request.models.map((model) => ({
       name: model.name,
       dataSource: model.data_source_name,
       schema: model.schema,
@@ -29,18 +40,31 @@ export function createDryRunDeployer(verbose = false): DeployFunction {
     }));
 
     return {
-      success: successItems,
-      updated: [],
-      noChange: [],
-      failures: [],
-      deleted: [],
-      summary: {
-        totalModels: request.models.length,
-        successCount: successItems.length,
-        updateCount: 0,
-        noChangeCount: 0,
-        failureCount: 0,
-        deletedCount: 0,
+      models: {
+        success: modelSuccessItems,
+        updated: [],
+        failures: [],
+        deleted: [],
+        summary: {
+          totalModels: request.models.length,
+          successCount: modelSuccessItems.length,
+          updateCount: 0,
+          failureCount: 0,
+          deletedCount: 0,
+        },
+      },
+      docs: {
+        created: request.docs.map((d) => d.name),
+        updated: [],
+        deleted: [],
+        failed: [],
+        summary: {
+          totalDocs: request.docs.length,
+          createdCount: request.docs.length,
+          updatedCount: 0,
+          deletedCount: 0,
+          failedCount: 0,
+        },
       },
     };
   };
@@ -51,8 +75,8 @@ export function createDryRunDeployer(verbose = false): DeployFunction {
  * This is a higher-order function that captures the SDK instance
  */
 export function createLiveDeployer(sdk: BusterSDK): DeployFunction {
-  return async (request: DeployRequest): Promise<DeployResponse> => {
-    return sdk.datasets.deploy(request);
+  return async (request: UnifiedDeployRequest): Promise<UnifiedDeployResponse> => {
+    return sdk.deploy(request);
   };
 }
 
@@ -80,9 +104,9 @@ export async function createAuthenticatedDeployer(): Promise<DeployFunction> {
  * Useful for pre-deployment validation
  */
 export function createValidationDeployer(): DeployFunction {
-  return async (request: DeployRequest): Promise<DeployResponse> => {
-    const failures: DeploymentFailure[] = [];
-    const success: DeploymentItem[] = [];
+  return async (request: UnifiedDeployRequest): Promise<UnifiedDeployResponse> => {
+    const modelFailures: DeploymentFailure[] = [];
+    const modelSuccess: DeploymentItem[] = [];
 
     for (const model of request.models) {
       const errors: string[] = [];
@@ -94,13 +118,13 @@ export function createValidationDeployer(): DeployFunction {
       if (model.columns.length === 0) errors.push('At least one column is required');
 
       if (errors.length > 0) {
-        failures.push({
+        modelFailures.push({
           name: model.name || 'unknown',
           dataSource: model.data_source_name,
           errors,
         });
       } else {
-        success.push({
+        modelSuccess.push({
           name: model.name,
           dataSource: model.data_source_name,
           schema: model.schema,
@@ -109,19 +133,45 @@ export function createValidationDeployer(): DeployFunction {
       }
     }
 
+    const docFailures: Array<{ name: string; error: string }> = [];
+    const docSuccess: string[] = [];
+
+    for (const doc of request.docs) {
+      if (!doc.name) {
+        docFailures.push({ name: 'unknown', error: 'Doc name is required' });
+      } else if (!doc.content) {
+        docFailures.push({ name: doc.name, error: 'Doc content is required' });
+      } else {
+        docSuccess.push(doc.name);
+      }
+    }
+
     return {
-      success,
-      updated: [],
-      noChange: [],
-      failures,
-      deleted: [],
-      summary: {
-        totalModels: request.models.length,
-        successCount: success.length,
-        updateCount: 0,
-        noChangeCount: 0,
-        failureCount: failures.length,
-        deletedCount: 0,
+      models: {
+        success: modelSuccess,
+        updated: [],
+        failures: modelFailures,
+        deleted: [],
+        summary: {
+          totalModels: request.models.length,
+          successCount: modelSuccess.length,
+          updateCount: 0,
+          failureCount: modelFailures.length,
+          deletedCount: 0,
+        },
+      },
+      docs: {
+        created: docSuccess,
+        updated: [],
+        deleted: [],
+        failed: docFailures,
+        summary: {
+          totalDocs: request.docs.length,
+          createdCount: docSuccess.length,
+          updatedCount: 0,
+          deletedCount: 0,
+          failedCount: docFailures.length,
+        },
       },
     };
   };
@@ -132,14 +182,14 @@ export function createValidationDeployer(): DeployFunction {
  * Useful for validation + deployment chains
  */
 export function composeDeployers(...deployers: DeployFunction[]): DeployFunction {
-  return async (request: DeployRequest): Promise<DeployResponse> => {
-    let lastResponse: DeployResponse | null = null;
+  return async (request: UnifiedDeployRequest): Promise<UnifiedDeployResponse> => {
+    let lastResponse: UnifiedDeployResponse | null = null;
 
     for (const deployer of deployers) {
       const response = await deployer(request);
 
       // If any deployer has failures, stop the chain
-      if (response.failures.length > 0) {
+      if (response.models.failures.length > 0 || response.docs.failed.length > 0) {
         return response;
       }
 
@@ -162,7 +212,7 @@ export function createRetryableDeployer(
   maxRetries = 3,
   delayMs = 1000
 ): DeployFunction {
-  return async (request: DeployRequest): Promise<DeployResponse> => {
+  return async (request: UnifiedDeployRequest): Promise<UnifiedDeployResponse> => {
     let lastError: Error | null = null;
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -180,22 +230,37 @@ export function createRetryableDeployer(
 
     // If all retries failed, return a failure response
     return {
-      success: [],
-      updated: [],
-      noChange: [],
-      failures: request.models.map((model) => ({
-        name: model.name,
-        dataSource: model.data_source_name,
-        errors: [lastError?.message || 'Deployment failed after retries'],
-      })),
-      deleted: [],
-      summary: {
-        totalModels: request.models.length,
-        successCount: 0,
-        updateCount: 0,
-        noChangeCount: 0,
-        failureCount: request.models.length,
-        deletedCount: 0,
+      models: {
+        success: [],
+        updated: [],
+        failures: request.models.map((model) => ({
+          name: model.name,
+          errors: [lastError?.message || 'Deployment failed after retries'],
+        })),
+        deleted: [],
+        summary: {
+          totalModels: request.models.length,
+          successCount: 0,
+          updateCount: 0,
+          failureCount: request.models.length,
+          deletedCount: 0,
+        },
+      },
+      docs: {
+        created: [],
+        updated: [],
+        deleted: [],
+        failed: request.docs.map((doc) => ({
+          name: doc.name,
+          error: lastError?.message || 'Deployment failed after retries',
+        })),
+        summary: {
+          totalDocs: request.docs.length,
+          createdCount: 0,
+          updatedCount: 0,
+          deletedCount: 0,
+          failedCount: request.docs.length,
+        },
       },
     };
   };

@@ -1,5 +1,3 @@
-'use client';
-
 import * as ContextMenuPrimitive from '@radix-ui/react-context-menu';
 import * as React from 'react';
 import { Check, ShapeCircle as Circle } from '@/components/ui/icons';
@@ -37,7 +35,8 @@ const ContextMenuSubTrigger = React.forwardRef<
       inset && 'pl-8',
       className
     )}
-    {...props}>
+    {...props}
+  >
     {children}
     <div className="text-icon-color text-3xs ml-auto">
       <CaretRight />
@@ -122,7 +121,8 @@ const ContextMenuCheckboxItem = React.forwardRef<
       className
     )}
     checked={checked}
-    {...props}>
+    {...props}
+  >
     <span className="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
       <ContextMenuPrimitive.ItemIndicator>
         <div className="flex h-4 w-4 items-center justify-center">
@@ -145,7 +145,8 @@ const ContextMenuRadioItem = React.forwardRef<
       'focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center rounded-sm py-1.5 pr-2 pl-8 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       className
     )}
-    {...props}>
+    {...props}
+  >
     <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
       <ContextMenuPrimitive.ItemIndicator>
         <div className="fill-content h-2 w-2">
@@ -215,5 +216,5 @@ export {
   ContextMenuSubContent,
   ContextMenuSubTrigger,
   ContextMenuRadioGroup,
-  ContextMenuLink
+  ContextMenuLink,
 };

@@ -1,18 +1,16 @@
-'use client';
-
-import { useMemoizedFn } from '@/hooks/useMemoizedFn';
-import { useUnmount } from '@/hooks/useUnmount';
-import { cn } from '@/lib/classMerge';
-import { isNumericColumnType } from '@/lib/messages';
 import {
   type ChartEncodes,
   type ComboChartAxis,
-  DEFAULT_COLUMN_LABEL_FORMAT
+  DEFAULT_COLUMN_LABEL_FORMAT,
 } from '@buster/server-shared/metrics';
 import type { TooltipOptions } from 'chart.js';
 import { useEffect, useMemo, useRef } from 'react';
 import { renderToString } from 'react-dom/server';
 import type { DeepPartial } from 'utility-types';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { useUnmount } from '@/hooks/useUnmount';
+import { cn } from '@/lib/classMerge';
+import { isNumericColumnType } from '@/lib/messages';
 import type { BusterChartProps } from '../../../../BusterChart.types';
 import type { ChartJSOrUndefined } from '../../../core/types';
 import { BusterChartJSTooltip } from './BusterChartJSTooltip';
@@ -45,7 +43,7 @@ export const useTooltipOptions = ({
   columnSettings,
   selectedAxis,
   disableTooltip,
-  colors
+  colors,
 }: UseTooltipOptionsProps): DeepPartial<TooltipOptions> => {
   const tooltipCache = useRef<Record<string, string>>({});
 
@@ -76,7 +74,7 @@ export const useTooltipOptions = ({
     const hasMultipleMeasures = allYAxis.length > 1;
     return {
       hasCategoryAxis: !!categoryAxis && categoryAxis.length > 0,
-      hasMultipleMeasures
+      hasMultipleMeasures,
     };
   }, [(selectedAxis as ComboChartAxis).category, selectedAxis]);
 
@@ -139,7 +137,7 @@ export const useTooltipOptions = ({
     () => ({
       enabled: false,
       mode,
-      external: disableTooltip ? undefined : memoizedExternal
+      external: disableTooltip ? undefined : memoizedExternal,
     }),
     [mode, disableTooltip, memoizedExternal, selectedChartType]
   );
@@ -154,7 +152,7 @@ export const useTooltipOptions = ({
 
     // Remove tooltip element if it exists
     const tooltipEl = document.getElementById('buster-chartjs-tooltip');
-    if (tooltipEl && tooltipEl.parentNode) {
+    if (tooltipEl?.parentNode) {
       tooltipEl.parentNode.removeChild(tooltipEl);
     }
   });
@@ -176,7 +174,7 @@ const createTooltipCacheKey = (
     chart.tooltip.body?.map((b) => b.lines.join('')).join(''),
     keyToUsePercentage?.join(''),
     columnLabelFormatsString,
-    colorsStringCache
+    colorsStringCache,
   ];
 
   return parts.join('');

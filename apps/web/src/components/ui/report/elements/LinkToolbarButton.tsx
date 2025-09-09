@@ -1,12 +1,8 @@
-'use client';
-
-import * as React from 'react';
-
 import { useLinkToolbarButton, useLinkToolbarButtonState } from '@platejs/link/react';
+import type * as React from 'react';
+import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
 import { NodeTypeIcons } from '../config/icons';
 import { createLabel } from '../config/labels';
-
-import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
 
 export function LinkToolbarButton(props: React.ComponentProps<typeof ToolbarButton>) {
   const state = useLinkToolbarButtonState();

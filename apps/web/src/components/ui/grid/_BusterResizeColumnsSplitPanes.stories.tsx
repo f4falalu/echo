@@ -1,20 +1,20 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
-import { fn } from 'storybook/test';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
+import { fn } from 'storybook/test';
 import { BusterResizeColumnsSplitPanes } from './_BusterResizeColumnsSplitPanes';
 
 const meta: Meta<typeof BusterResizeColumnsSplitPanes> = {
   title: 'UI/Grid/BusterResizeColumnsSplitPanes',
   component: BusterResizeColumnsSplitPanes,
   parameters: {
-    layout: 'fullscreen'
+    layout: 'fullscreen',
   },
   tags: ['autodocs'],
   args: {
     onDragStart: fn(),
     onDragEnd: fn(),
-    onChange: fn()
-  }
+    onChange: fn(),
+  },
 };
 
 export default meta;
@@ -23,7 +23,8 @@ type Story = StoryObj<typeof meta>;
 const SampleColumn = ({ title, color }: { title: string; color: string }) => (
   <div
     className="flex h-32 items-center justify-center rounded-lg font-semibold text-white"
-    style={{ backgroundColor: color }}>
+    style={{ backgroundColor: color }}
+  >
     {title}
   </div>
 );
@@ -44,14 +45,15 @@ export const TwoColumns: Story = {
           allowResize={true}
           onChange={handleChange}
           onDragStart={args.onDragStart}
-          onDragEnd={args.onDragEnd}>
+          onDragEnd={args.onDragEnd}
+        >
           <SampleColumn title="Column 1" color="#3b82f6" />
           <SampleColumn title="Column 2" color="#ef4444" />
         </BusterResizeColumnsSplitPanes>
         <div className="mt-4 text-sm text-gray-600">Column spans: {columnSpans.join(', ')}</div>
       </div>
     );
-  }
+  },
 };
 
 export const ThreeColumns: Story = {
@@ -70,7 +72,8 @@ export const ThreeColumns: Story = {
           allowResize={true}
           onChange={handleChange}
           onDragStart={args.onDragStart}
-          onDragEnd={args.onDragEnd}>
+          onDragEnd={args.onDragEnd}
+        >
           <SampleColumn title="Column 1" color="#3b82f6" />
           <SampleColumn title="Column 2" color="#ef4444" />
           <SampleColumn title="Column 3" color="#10b981" />
@@ -78,7 +81,7 @@ export const ThreeColumns: Story = {
         <div className="mt-4 text-sm text-gray-600">Column spans: {columnSpans.join(', ')}</div>
       </div>
     );
-  }
+  },
 };
 
 export const FourColumns: Story = {
@@ -97,7 +100,8 @@ export const FourColumns: Story = {
           allowResize={true}
           onChange={handleChange}
           onDragStart={args.onDragStart}
-          onDragEnd={args.onDragEnd}>
+          onDragEnd={args.onDragEnd}
+        >
           <SampleColumn title="Column 1" color="#3b82f6" />
           <SampleColumn title="Column 2" color="#ef4444" />
           <SampleColumn title="Column 3" color="#10b981" />
@@ -106,7 +110,7 @@ export const FourColumns: Story = {
         <div className="mt-4 text-sm text-gray-600">Column spans: {columnSpans.join(', ')}</div>
       </div>
     );
-  }
+  },
 };
 
 export const ReadOnly: Story = {
@@ -118,7 +122,8 @@ export const ReadOnly: Story = {
         <BusterResizeColumnsSplitPanes
           columnSpans={columnSpans}
           allowResize={false}
-          onChange={() => {}}>
+          onChange={() => {}}
+        >
           <SampleColumn title="Column 1 (Read Only)" color="#6b7280" />
           <SampleColumn title="Column 2 (Read Only)" color="#9ca3af" />
         </BusterResizeColumnsSplitPanes>
@@ -127,7 +132,7 @@ export const ReadOnly: Story = {
         </div>
       </div>
     );
-  }
+  },
 };
 
 export const Disabled: Story = {
@@ -139,7 +144,8 @@ export const Disabled: Story = {
         <BusterResizeColumnsSplitPanes
           columnSpans={columnSpans}
           disabled={true}
-          onChange={() => {}}>
+          onChange={() => {}}
+        >
           <SampleColumn title="Column 1 (Disabled)" color="#6b7280" />
           <SampleColumn title="Column 2 (Disabled)" color="#9ca3af" />
         </BusterResizeColumnsSplitPanes>
@@ -148,7 +154,7 @@ export const Disabled: Story = {
         </div>
       </div>
     );
-  }
+  },
 };
 
 export const SingleColumn: Story = {
@@ -160,7 +166,8 @@ export const SingleColumn: Story = {
         <BusterResizeColumnsSplitPanes
           columnSpans={columnSpans}
           allowResize={true}
-          onChange={() => {}}>
+          onChange={() => {}}
+        >
           {[<SampleColumn key="single" title="Single Column" color="#8b5cf6" />]}
         </BusterResizeColumnsSplitPanes>
         <div className="mt-4 text-sm text-gray-600">
@@ -168,7 +175,7 @@ export const SingleColumn: Story = {
         </div>
       </div>
     );
-  }
+  },
 };
 
 export const FourColumnsNoResize: Story = {
@@ -180,7 +187,8 @@ export const FourColumnsNoResize: Story = {
         <BusterResizeColumnsSplitPanes
           columnSpans={columnSpans}
           allowResize={true}
-          onChange={() => {}}>
+          onChange={() => {}}
+        >
           <SampleColumn title="Column 1" color="#3b82f6" />
           <SampleColumn title="Column 2" color="#ef4444" />
           <SampleColumn title="Column 3" color="#10b981" />
@@ -191,7 +199,7 @@ export const FourColumnsNoResize: Story = {
         </div>
       </div>
     );
-  }
+  },
 };
 
 export const UnevenColumns: Story = {
@@ -210,12 +218,13 @@ export const UnevenColumns: Story = {
           allowResize={true}
           onChange={handleChange}
           onDragStart={args.onDragStart}
-          onDragEnd={args.onDragEnd}>
+          onDragEnd={args.onDragEnd}
+        >
           <SampleColumn title="Small Column" color="#8b5cf6" />
           <SampleColumn title="Large Column" color="#ec4899" />
         </BusterResizeColumnsSplitPanes>
         <div className="mt-4 text-sm text-gray-600">Column spans: {columnSpans.join(', ')}</div>
       </div>
     );
-  }
+  },
 };

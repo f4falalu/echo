@@ -11,7 +11,8 @@ export const BarChartSortAscIcon: React.FC<{
       width="12"
       height="12"
       viewBox="0 0 12 12"
-      fill="none">
+      fill="none"
+    >
       <title>Bar Chart Sort Asc Icon</title>
       <path
         d="M6.60547 9.9375L6.60542 5.125"

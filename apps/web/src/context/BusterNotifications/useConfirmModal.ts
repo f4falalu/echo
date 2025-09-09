@@ -1,22 +1,23 @@
 import { useMemo, useState } from 'react';
 import type {
   ConfirmProps as BaseConfirmProps,
-  ConfirmModalProps
+  ConfirmModalProps,
 } from '@/components/ui/modal/ConfirmModal';
-import { USER_CANCELLED_ERROR } from '../BusterReactQuery/queryClientConfig';
+import { USER_CANCELLED_ERROR } from '../../integrations/tanstack-query/query-client-config';
 
-interface ConfirmProps<T = unknown> extends Omit<BaseConfirmProps, 'onOk'> {
+interface ConfirmProps<T = unknown, C = unknown>
+  extends Omit<BaseConfirmProps, 'onOk' | 'onCancel'> {
   title: string | React.ReactNode;
   content: string | React.ReactNode;
   onOk: () => T | Promise<T>;
   onCancel?: () => Promise<void>;
 }
 
-const defaultConfirmModalProps: ConfirmProps<unknown> = {
+const defaultConfirmModalProps: ConfirmProps<unknown, unknown> = {
   title: '',
   content: '',
   onOk: () => undefined,
-  onCancel: async () => Promise.reject(USER_CANCELLED_ERROR)
+  onCancel: async () => Promise.reject(USER_CANCELLED_ERROR),
 };
 
 interface QueuedModal<T = unknown> extends Omit<ConfirmProps<T>, 'onOk' | 'onCancel'> {
@@ -27,11 +28,13 @@ interface QueuedModal<T = unknown> extends Omit<ConfirmProps<T>, 'onOk' | 'onCan
   onCancel?: () => Promise<void>;
 }
 
-export const useOpenConfirmModal = () => {
+export const useConfirmModalContext = () => {
   const [modalQueue, setModalQueue] = useState<QueuedModal[]>([]);
   const currentModal = modalQueue[0]; // Get the first modal in the queue
 
-  const openConfirmModal = <T = unknown>(props: ConfirmProps<T>): Promise<T | undefined> | T => {
+  const openConfirmModal = <T = unknown, C = unknown>(
+    props: ConfirmProps<T>
+  ): Promise<T | undefined> | T => {
     return new Promise<T | undefined>((resolve, reject) => {
       const newModal: QueuedModal<T> = {
         ...props,
@@ -65,7 +68,7 @@ export const useOpenConfirmModal = () => {
         onClose: () => {
           resolve(undefined);
           setModalQueue((prev) => prev.slice(1));
-        }
+        },
       };
 
       setModalQueue((prev) => [...prev, newModal] as QueuedModal<unknown>[]);
@@ -76,12 +79,12 @@ export const useOpenConfirmModal = () => {
     return currentModal
       ? {
           ...currentModal,
-          open: true
+          open: true,
         }
       : {
           ...defaultConfirmModalProps,
           open: false,
-          onClose: () => {}
+          onClose: () => {},
         };
   }, [currentModal]);
 

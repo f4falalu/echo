@@ -1,6 +1,5 @@
-import { cn } from '@/lib/classMerge';
-
 import ChartStackedBar from '@/components/ui/icons/NucleoIconFilled/chart-line-2';
+import { cn } from '@/lib/classMerge';
 
 export type SkeletonElement =
   | 'toolbar'
@@ -49,11 +48,12 @@ const DEFAULT_ELEMENTS: SkeletonElement[] = ['header', 'chart', 'paragraphs', 'a
 
 export function ReportEditorSkeleton({
   className,
-  elements = DEFAULT_ELEMENTS
+  elements = DEFAULT_ELEMENTS,
 }: ReportEditorSkeletonProps) {
   return (
     <div
-      className={cn('mx-auto mt-8 w-full space-y-6 sm:px-[max(64px,calc(50%-350px))]', className)}>
+      className={cn('mx-auto mt-8 w-full space-y-6 sm:px-[max(64px,calc(50%-350px))]', className)}
+    >
       {/* Toolbar skeleton */}
       {elements.includes('toolbar') && (
         <div className="border-border flex h-11 w-full animate-pulse items-center justify-between border-b bg-transparent px-3">
@@ -92,7 +92,8 @@ export function ReportEditorSkeleton({
                   className="text-muted-foreground/40 h-8 w-8"
                   fill="none"
                   stroke="currentColor"
-                  viewBox="0 0 24 24">
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"

@@ -129,6 +129,8 @@ export const workspaceSharingEnum = pgEnum('workspace_sharing_enum', [
   'full_access',
 ]);
 
+export const docsTypeEnum = pgEnum('docs_type_enum', ['analyst', 'normal']);
+
 export const apiKeys = pgTable(
   'api_keys',
   {
@@ -2288,5 +2290,31 @@ export const messagesToSlackMessages = pgTable(
       'btree',
       table.slackMessageId.asc().nullsLast().op('uuid_ops')
     ),
+  ]
+);
+
+export const docs = pgTable(
+  'docs',
+  {
+    id: uuid().defaultRandom().primaryKey().notNull(),
+    name: varchar('name', { length: 255 }).notNull(),
+    content: text().notNull(),
+    type: docsTypeEnum().default('normal').notNull(),
+    organizationId: uuid('organization_id').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.organizationId],
+      foreignColumns: [organizations.id],
+      name: 'docs_organization_id_fkey',
+    }).onDelete('cascade'),
+    unique('docs_name_organization_id_key').on(table.name, table.organizationId),
   ]
 );

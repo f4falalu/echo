@@ -1,11 +1,11 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { AppDiffCodeEditor } from './AppDiffCodeEditor';
 
 const meta: Meta<typeof AppDiffCodeEditor> = {
   title: 'UI/Inputs/AppDiffCodeEditor',
   component: AppDiffCodeEditor,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
   tags: ['autodocs'],
   argTypes: {
@@ -13,16 +13,16 @@ const meta: Meta<typeof AppDiffCodeEditor> = {
       control: 'radio',
       options: ['side-by-side', 'inline'],
       defaultValue: 'side-by-side',
-      description: 'Controls whether the diff is displayed side-by-side or inline'
-    }
+      description: 'Controls whether the diff is displayed side-by-side or inline',
+    },
   },
   decorators: [
     (Story) => (
       <div className="min-h-[500px] min-w-[80vw]">
         <Story />
       </div>
-    )
-  ]
+    ),
+  ],
 };
 
 export default meta;
@@ -89,8 +89,8 @@ export const Default: Story = {
     height: '300px',
     language: 'yaml',
     variant: 'bordered',
-    viewMode: 'side-by-side'
-  }
+    viewMode: 'side-by-side',
+  },
 };
 
 export const InlineView: Story = {
@@ -100,8 +100,8 @@ export const InlineView: Story = {
     height: '300px',
     language: 'yaml',
     variant: 'bordered',
-    viewMode: 'inline'
-  }
+    viewMode: 'inline',
+  },
 };
 
 export const SQL: Story = {
@@ -111,8 +111,8 @@ export const SQL: Story = {
     height: '300px',
     language: 'sql',
     variant: 'bordered',
-    viewMode: 'side-by-side'
-  }
+    viewMode: 'side-by-side',
+  },
 };
 
 export const SQLInline: Story = {
@@ -122,8 +122,8 @@ export const SQLInline: Story = {
     height: '300px',
     language: 'sql',
     variant: 'bordered',
-    viewMode: 'inline'
-  }
+    viewMode: 'inline',
+  },
 };
 
 export const ReadOnly: Story = {
@@ -135,8 +135,8 @@ export const ReadOnly: Story = {
     readOnly: true,
     variant: 'bordered',
     readOnlyMessage: 'This is a read-only view',
-    viewMode: 'side-by-side'
-  }
+    viewMode: 'side-by-side',
+  },
 };
 
 export const TallerView: Story = {
@@ -416,8 +416,8 @@ LIMIT 1000;`,
     height: '600px',
     language: 'sql',
     variant: 'bordered',
-    viewMode: 'side-by-side'
-  }
+    viewMode: 'side-by-side',
+  },
 };
 
 export const EmptyEditor: Story = {
@@ -425,6 +425,6 @@ export const EmptyEditor: Story = {
     height: '300px',
     language: 'yaml',
     variant: 'bordered',
-    viewMode: 'side-by-side'
-  }
+    viewMode: 'side-by-side',
+  },
 };

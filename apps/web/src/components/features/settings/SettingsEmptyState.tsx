@@ -1,5 +1,3 @@
-'use client';
-
 import type React from 'react';
 import { Button } from '@/components/ui/buttons';
 import {
@@ -7,7 +5,7 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle
+  CardTitle,
 } from '@/components/ui/card/CardBase';
 import { Plus } from '@/components/ui/icons';
 import { useBusterNotifications } from '@/context/BusterNotifications';
@@ -25,7 +23,7 @@ export const SettingsEmptyState: React.FC<{
   buttonAction,
   buttonText = 'Request support',
   buttonIcon = <Plus />,
-  showButton = true
+  showButton = true,
 }) => {
   const { openInfoMessage } = useBusterNotifications();
 
@@ -47,7 +45,8 @@ export const SettingsEmptyState: React.FC<{
               } else {
                 openInfoMessage('Requesting support is not currently supported');
               }
-            }}>
+            }}
+          >
             {buttonText}
           </Button>
         </CardContent>

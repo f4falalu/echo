@@ -1,5 +1,5 @@
-import React from 'react';
 import type { VerificationStatus } from '@buster/server-shared/share';
+import type React from 'react';
 import { Dropdown } from '@/components/ui/dropdown';
 import { useStatusDropdownContent } from './useStatusDropdownContent';
 
@@ -13,7 +13,7 @@ export const StatusDropdownContent: React.FC<{
   const dropdownProps = useStatusDropdownContent({
     isAdmin,
     selectedStatus: status,
-    onChangeStatus
+    onChangeStatus,
   });
 
   //TODO move this to a combobox

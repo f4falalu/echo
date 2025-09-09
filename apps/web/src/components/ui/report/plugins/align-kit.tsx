@@ -1,5 +1,3 @@
-'use client';
-
 import { TextAlignPlugin } from '@platejs/basic-styles/react';
 import { KEYS } from 'platejs';
 
@@ -10,9 +8,9 @@ export const AlignKit = [
         defaultNodeValue: 'start',
         nodeKey: 'align',
         styleKey: 'textAlign',
-        validNodeValues: ['start', 'left', 'center', 'right', 'end', 'justify']
+        validNodeValues: ['start', 'left', 'center', 'right', 'end', 'justify'],
       },
-      targetPlugins: [...KEYS.heading, KEYS.p, KEYS.img, KEYS.mediaEmbed]
-    }
-  })
+      targetPlugins: [...KEYS.heading, KEYS.p, KEYS.img, KEYS.mediaEmbed],
+    },
+  }),
 ];

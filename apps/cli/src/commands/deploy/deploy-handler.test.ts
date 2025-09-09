@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import yaml from 'js-yaml';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { deployHandler, validateDeployOptions } from './deploy-handler';
-import type { BusterConfig, DeployOptions, DeployRequest, DeployResponse, Model } from './schemas';
+import type { BusterConfig, DeployOptions, DeployRequest, DeployResponse } from './schemas';
 import { isDeploymentValidationError } from './utils/errors';
 
 // Mock the deployment strategies module

@@ -1,15 +1,11 @@
 import isFunction from 'lodash/isFunction';
-import type { MutableRefObject } from 'react';
 import isBrowser from './isBrowser';
 
 type TargetValue<T> = T | undefined | null;
 
 type TargetType = HTMLElement | Element | Window | Document;
 
-export type BasicTarget<T extends TargetType = Element> =
-  | (() => TargetValue<T>)
-  | TargetValue<T>
-  | MutableRefObject<TargetValue<T>>;
+export type BasicTarget<T extends TargetType = Element> = (() => TargetValue<T>) | TargetValue<T>;
 
 export function getTargetElement<T extends TargetType>(target: BasicTarget<T>, defaultElement?: T) {
   if (!isBrowser) {
@@ -25,7 +21,7 @@ export function getTargetElement<T extends TargetType>(target: BasicTarget<T>, d
   if (isFunction(target)) {
     targetElement = target();
   } else if ('current' in target) {
-    targetElement = target.current;
+    targetElement = target.current as TargetValue<T>;
   } else {
     targetElement = target;
   }

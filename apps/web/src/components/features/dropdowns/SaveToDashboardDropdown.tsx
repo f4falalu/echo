@@ -1,14 +1,14 @@
+import { useNavigate } from '@tanstack/react-router';
 import type React from 'react';
 import { useMemo, useState } from 'react';
 import type { BusterDashboardListItem } from '@/api/asset_interfaces';
 import { useGetDashboardsList } from '@/api/buster_rest/dashboards';
+import { NewDashboardModal } from '@/components/features/modals/NewDashboardModal';
 import { Button } from '@/components/ui/buttons';
+import { createDropdownItem } from '@/components/ui/dropdown';
 import { Dropdown, type DropdownProps } from '@/components/ui/dropdown/Dropdown';
 import { Plus } from '@/components/ui/icons';
-import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import { useMemoizedFn } from '@/hooks';
-import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
-import { NewDashboardModal } from '../modal/NewDashboardModal';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 
 export const SaveToDashboardDropdown: React.FC<{
   children: React.ReactNode;
@@ -25,8 +25,9 @@ export const SaveToDashboardDropdown: React.FC<{
   selectedDashboards,
   side = 'bottom',
   align = 'end',
-  onOpenChange: onOpenChangeProp
+  onOpenChange: onOpenChangeProp,
 }) => {
+  const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
 
   const onOpenChange = useMemoizedFn((open: boolean) => {
@@ -37,7 +38,7 @@ export const SaveToDashboardDropdown: React.FC<{
   const { ModalComponent, ...dropdownProps } = useSaveToDashboardDropdownContent({
     selectedDashboards,
     onSaveToDashboard,
-    onRemoveFromDashboard
+    onRemoveFromDashboard,
   });
 
   return (
@@ -47,7 +48,8 @@ export const SaveToDashboardDropdown: React.FC<{
         align={align}
         open={showDropdown}
         onOpenChange={onOpenChange}
-        {...dropdownProps}>
+        {...dropdownProps}
+      >
         {children}
       </Dropdown>
       {ModalComponent}
@@ -58,7 +60,7 @@ export const SaveToDashboardDropdown: React.FC<{
 export const useSaveToDashboardDropdownContent = ({
   selectedDashboards,
   onSaveToDashboard,
-  onRemoveFromDashboard
+  onRemoveFromDashboard,
 }: {
   selectedDashboards: string[];
   onSaveToDashboard: (dashboardId: string[]) => Promise<void>;
@@ -69,8 +71,8 @@ export const useSaveToDashboardDropdownContent = ({
 > & {
   ModalComponent: React.ReactNode;
 } => {
+  const navigate = useNavigate();
   const { data: dashboardsList } = useGetDashboardsList({}, { staleTime: 60 * 1000 });
-  const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const [openNewDashboardModal, setOpenNewDashboardModal] = useState(false);
 
   const onClickItem = useMemoizedFn(async (dashboard: BusterDashboardListItem) => {
@@ -85,7 +87,7 @@ export const useSaveToDashboardDropdownContent = ({
   const items: DropdownProps['items'] = useMemo(
     () =>
       (dashboardsList || [])?.map((dashboard) => {
-        return {
+        return createDropdownItem({
           value: dashboard.id,
           label: dashboard.name || 'New dashboard',
           selected: selectedDashboards.some((d) => d === dashboard.id),
@@ -95,20 +97,24 @@ export const useSaveToDashboardDropdownContent = ({
             e.preventDefault();
             onClickItem(dashboard);
           },
-          link: createBusterRoute({
-            route: BusterRoutes.APP_DASHBOARD_ID,
-            dashboardId: dashboard.id
-          })
-        };
+          link: {
+            to: '/app/dashboards/$dashboardId',
+            params: {
+              dashboardId: dashboard.id,
+            },
+          },
+        });
       }),
     [dashboardsList, selectedDashboards]
   );
 
   const onDashboardCreated = useMemoizedFn(async (dashboardId: string) => {
     await onSaveToDashboard([dashboardId]);
-    onChangePage({
-      route: BusterRoutes.APP_DASHBOARD_ID,
-      dashboardId: dashboardId
+    navigate({
+      to: '/app/dashboards/$dashboardId',
+      params: {
+        dashboardId: dashboardId,
+      },
     });
   });
 
@@ -119,7 +125,8 @@ export const useSaveToDashboardDropdownContent = ({
         className="justify-start!"
         block
         prefix={<Plus />}
-        onClick={() => setOpenNewDashboardModal(true)}>
+        onClick={() => setOpenNewDashboardModal(true)}
+      >
         New dashboard
       </Button>
     );
@@ -147,7 +154,7 @@ export const useSaveToDashboardDropdownContent = ({
           useChangePage={false}
           onDashboardCreated={onDashboardCreated}
         />
-      )
+      ),
     }),
     [items, footerContent, menuHeader, openNewDashboardModal, onDashboardCreated]
   );

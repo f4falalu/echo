@@ -4,5 +4,5 @@ import { ColumnElementStatic, ColumnGroupElementStatic } from '../elements/Colum
 
 export const BaseColumnKit = [
   BaseColumnPlugin.withComponent(ColumnGroupElementStatic),
-  BaseColumnItemPlugin.withComponent(ColumnElementStatic)
+  BaseColumnItemPlugin.withComponent(ColumnElementStatic),
 ];

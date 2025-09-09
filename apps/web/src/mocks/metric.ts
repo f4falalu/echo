@@ -1,6 +1,6 @@
-import type { BusterMetricListItem, BusterMetric } from '@/api/asset_interfaces/metric';
-import { ChartType, DEFAULT_CHART_CONFIG } from '@buster/server-shared/metrics';
 import type { ChartConfigProps, DataMetadata } from '@buster/server-shared/metrics';
+import { type ChartType, DEFAULT_CHART_CONFIG } from '@buster/server-shared/metrics';
+import type { BusterMetric, BusterMetricListItem } from '@/api/asset_interfaces/metric';
 
 // Utility functions for predictable mock data generation
 const CHART_TYPES: ChartType[] = ['bar', 'table', 'line', 'pie', 'scatter', 'metric'];
@@ -11,7 +11,7 @@ const PRODUCT_NAMES = [
   'Mega Tool',
   'Ultra Device',
   'Pro Instrument',
-  'Advanced System'
+  'Advanced System',
 ];
 
 const generatePredictableWords = (id: string, count: number): string => {
@@ -23,7 +23,7 @@ const generatePredictableWords = (id: string, count: number): string => {
     'revenue',
     'growth',
     'trends',
-    'insights'
+    'insights',
   ];
   const hash = Array.from(id).reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const result = [];
@@ -67,26 +67,26 @@ const createMockChartConfig = (id: string): ChartConfigProps => {
       x: ['date'],
       y: ['sales'],
       category: [],
-      tooltip: null
+      tooltip: null,
     },
     pieChartAxis: {
       x: ['product'],
       y: ['sales'],
-      tooltip: null
+      tooltip: null,
     },
     scatterAxis: {
       x: ['date'],
       y: ['sales'],
       category: [],
       size: [],
-      tooltip: null
+      tooltip: null,
     },
     metricColumnId: 'sales',
     metricHeader: {
       columnId: 'sales',
       useValue: false,
-      aggregate: 'sum'
-    }
+      aggregate: 'sum',
+    },
   };
 };
 
@@ -99,7 +99,7 @@ const dataMetadata: DataMetadata = {
       max_value: 1000,
       unique_values: 10,
       simple_type: 'number',
-      type: 'integer'
+      type: 'integer',
     },
     {
       name: 'date',
@@ -107,7 +107,7 @@ const dataMetadata: DataMetadata = {
       max_value: '2024-01-31',
       unique_values: 31,
       simple_type: 'date',
-      type: 'date'
+      type: 'date',
     },
     {
       name: 'product',
@@ -115,10 +115,10 @@ const dataMetadata: DataMetadata = {
       max_value: 'Product Z',
       unique_values: 26,
       simple_type: 'text',
-      type: 'text'
-    }
+      type: 'text',
+    },
   ],
-  row_count: 10
+  row_count: 10,
 };
 
 export const createMockMetric = (id: string): BusterMetric => {
@@ -214,7 +214,7 @@ export const createMockMetric = (id: string): BusterMetric => {
     permission: 'owner',
     id,
     workspace_sharing: 'none',
-    workspace_member_count: 20
+    workspace_member_count: 20,
   };
 };
 
@@ -262,5 +262,5 @@ export const createMockListMetric = (id: string): BusterMetricListItem => ({
   created_by_email: generatePredictableEmail(id),
   created_by_avatar: `https://avatar.example.com/${id}`,
   status: 'verified',
-  is_shared: true
+  is_shared: true,
 });

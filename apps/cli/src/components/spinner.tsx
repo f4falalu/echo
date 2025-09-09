@@ -1,5 +1,5 @@
 import { Text } from 'ink';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface SpinnerProps {
   label?: string;
@@ -37,7 +37,7 @@ export function Spinner({ label = 'Loading', type = 'dots' }: SpinnerProps) {
   }, [spinner]);
 
   return (
-    <Text color='cyan'>
+    <Text color="cyan">
       {spinner.frames[frame]} {label}
     </Text>
   );

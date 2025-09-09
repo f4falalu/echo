@@ -25,7 +25,6 @@
     "db:stop": "pnpm --filter @buster/database run db:stop",
     "db:studio": "pnpm --filter @buster/database run db:studio",
     "dev": "turbo dev",
-    "dev:fast": "turbo run dev:fast",
     "dev:no-web": "turbo dev --filter \"!@buster-app/web\"",
     "dev:server": "turbo run dev --filter \"@buster-app/server\"",
     "dev:server:reset": "pnpm run dev:db-init && turbo run dev --filter \"@buster-app/server\"",
@@ -51,26 +50,23 @@
   },
   "dependencies": {
     "dotenv": "catalog:",
-    "dotenv-cli": "^8.0.0",
+    "dotenv-cli": "^10.0.0",
     "typescript": "^5.9.2"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@types/node": "^20.19.4",
+    "@types/node": "^22.11.0",
     "tsx": "catalog:",
     "turbo": "^2.5.6",
     "vitest": "catalog:"
   },
   "peerDependencies": {
-    "bun": "^1.2.15",
     "typescript": "^5"
   },
-  "packageManager": "pnpm@10.15.0",
+  "packageManager": "pnpm@10.15.1",
   "pnpm": {
     "peerDependencyRules": {
-      "ignoreMissing": [
-        "shiki"
-      ],
+      "ignoreMissing": ["shiki"],
       "allowedVersions": {
         "shiki": "3"
       }

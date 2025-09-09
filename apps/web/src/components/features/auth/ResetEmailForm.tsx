@@ -1,6 +1,4 @@
-'use client';
-
-import Link from 'next/link';
+import { Link } from '@tanstack/react-router';
 import type React from 'react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/buttons';
@@ -8,16 +6,14 @@ import { SuccessCard } from '@/components/ui/card/SuccessCard';
 import { Input } from '@/components/ui/inputs';
 import { Text, Title } from '@/components/ui/typography';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useMemoizedFn } from '@/hooks';
+import { resetPasswordEmailSend } from '@/integrations/supabase/resetPassword';
+import { cn } from '@/lib/classMerge';
 import { isValidEmail } from '@/lib/email';
 import { timeout } from '@/lib/timeout';
-import { cn } from '@/lib/classMerge';
-import { BusterRoutes, createBusterRoute } from '@/routes';
 
 export const ResetEmailForm: React.FC<{
   queryEmail: string;
-  resetPasswordEmailSend: (d: { email: string }) => Promise<{ error: string } | undefined>;
-}> = ({ queryEmail, resetPasswordEmailSend }) => {
+}> = ({ queryEmail }) => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState(queryEmail);
   const [emailSent, setEmailSent] = useState(false);
@@ -25,17 +21,17 @@ export const ResetEmailForm: React.FC<{
 
   const disabled = !email || !isValidEmail(email);
 
-  const handleResetPassword = useMemoizedFn(async () => {
+  const handleResetPassword = async () => {
     if (disabled) return;
     setLoading(true);
-    const [res] = await Promise.all([resetPasswordEmailSend({ email }), timeout(450)]);
+    const [res] = await Promise.all([resetPasswordEmailSend({ data: { email } }), timeout(450)]);
     if (res?.error) {
       openErrorNotification(res.error);
     } else {
       setEmailSent(true);
     }
     setLoading(false);
-  });
+  };
 
   if (emailSent) {
     return (
@@ -69,7 +65,8 @@ export const ResetEmailForm: React.FC<{
           loading={loading}
           variant="black"
           disabled={disabled}
-          onClick={handleResetPassword}>
+          onClick={handleResetPassword}
+        >
           Send reset password email
         </Button>
       </div>
@@ -78,9 +75,8 @@ export const ResetEmailForm: React.FC<{
         className={cn(
           'text-primary flex w-full cursor-pointer justify-center text-center font-normal'
         )}
-        href={createBusterRoute({
-          route: BusterRoutes.AUTH_LOGIN
-        })}>
+        to={'/auth/login'}
+      >
         <Text variant="link" size="xs">
           Return to login
         </Text>

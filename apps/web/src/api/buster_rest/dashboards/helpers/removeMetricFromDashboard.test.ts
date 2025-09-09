@@ -4,13 +4,13 @@ import { removeMetricFromDashboardConfig } from './removeMetricFromDashboard';
 
 describe('removeMetricFromDashboardConfig', () => {
   const createEmptyConfig = (): BusterDashboard['config'] => ({
-    rows: []
+    rows: [],
   });
 
   const createConfigWithRows = (
     rows: BusterDashboard['config']['rows']
   ): BusterDashboard['config'] => ({
-    rows
+    rows,
   });
 
   it('should return the same config if no metrics to remove are provided', () => {
@@ -19,8 +19,8 @@ describe('removeMetricFromDashboardConfig', () => {
         id: 'row1',
         items: [{ id: 'metric1' }],
         columnSizes: [12],
-        rowHeight: 320
-      }
+        rowHeight: 320,
+      },
     ]);
     const result = removeMetricFromDashboardConfig([], config);
     expect(result.rows).toHaveLength(1);
@@ -33,8 +33,8 @@ describe('removeMetricFromDashboardConfig', () => {
         id: 'row1',
         items: [{ id: 'metric1' }, { id: 'metric2' }],
         columnSizes: [6, 6],
-        rowHeight: 320
-      }
+        rowHeight: 320,
+      },
     ]);
     const result = removeMetricFromDashboardConfig(['metric1'], config);
 
@@ -51,8 +51,8 @@ describe('removeMetricFromDashboardConfig', () => {
         id: 'row1',
         items: [{ id: 'metric1' }, { id: 'metric2' }, { id: 'metric3' }, { id: 'metric4' }],
         columnSizes: [3, 3, 3, 3],
-        rowHeight: 320
-      }
+        rowHeight: 320,
+      },
     ]);
     const result = removeMetricFromDashboardConfig(['metric1', 'metric3'], config);
 
@@ -68,14 +68,14 @@ describe('removeMetricFromDashboardConfig', () => {
         id: 'row1',
         items: [{ id: 'metric1' }, { id: 'metric2' }],
         columnSizes: [6, 6],
-        rowHeight: 320
+        rowHeight: 320,
       },
       {
         id: 'row2',
         items: [{ id: 'metric3' }],
         columnSizes: [12],
-        rowHeight: 320
-      }
+        rowHeight: 320,
+      },
     ]);
     const result = removeMetricFromDashboardConfig(['metric1', 'metric2'], config);
 
@@ -93,14 +93,14 @@ describe('removeMetricFromDashboardConfig', () => {
         id: 'row1',
         items: [{ id: 'metric1' }, { id: 'metric2' }],
         columnSizes: [6, 6],
-        rowHeight: 320
+        rowHeight: 320,
       },
       {
         id: 'row2',
         items: [{ id: 'metric3' }, { id: 'metric4' }],
         columnSizes: [6, 6],
-        rowHeight: 320
-      }
+        rowHeight: 320,
+      },
     ]);
     const result = removeMetricFromDashboardConfig(['metric1', 'metric4'], config);
 
@@ -119,8 +119,8 @@ describe('removeMetricFromDashboardConfig', () => {
         id: 'row1',
         items: [{ id: 'metric1' }, { id: 'metric2' }],
         columnSizes: [6, 6],
-        rowHeight: 320
-      }
+        rowHeight: 320,
+      },
     ]);
     const result = removeMetricFromDashboardConfig(['nonexistent1', 'nonexistent2'], config);
 
@@ -142,14 +142,14 @@ describe('removeMetricFromDashboardConfig', () => {
         id: 'row1',
         items: [{ id: 'metric1' }, { id: 'metric2' }, { id: 'metric3' }],
         columnSizes: [4, 4, 4],
-        rowHeight: 320
-      }
+        rowHeight: 320,
+      },
     ]);
     const result = removeMetricFromDashboardConfig(['metric2'], config);
 
     expect(result.rows?.[0]).toMatchObject({
       id: 'row1',
-      rowHeight: 320
+      rowHeight: 320,
     });
     expect(result.rows?.[0].items).toHaveLength(2);
     expect(result.rows?.[0].columnSizes).toEqual([6, 6]);
@@ -161,14 +161,14 @@ describe('removeMetricFromDashboardConfig', () => {
         id: 'row1',
         items: [{ id: 'metric1' }, { id: 'metric2' }],
         columnSizes: [6, 6],
-        rowHeight: 320
+        rowHeight: 320,
       },
       {
         id: 'row2',
         items: [{ id: 'metric3' }],
         columnSizes: [12],
-        rowHeight: 320
-      }
+        rowHeight: 320,
+      },
     ]);
     const result = removeMetricFromDashboardConfig(['metric1', 'metric2', 'metric3'], config);
 
@@ -181,32 +181,32 @@ describe('removeMetricFromDashboardConfig', () => {
         id: 'row1',
         items: [{ id: 'metric1' }, { id: 'metric2' }],
         columnSizes: [6, 6],
-        rowHeight: 320
+        rowHeight: 320,
       },
       {
         id: 'row2',
         items: [{ id: 'metric3' }, { id: 'metric4' }, { id: 'metric5' }],
         columnSizes: [4, 4, 4],
-        rowHeight: 320
+        rowHeight: 320,
       },
       {
         id: 'row3',
         items: [{ id: 'metric6' }],
         columnSizes: [12],
-        rowHeight: 320
+        rowHeight: 320,
       },
       {
         id: 'row4',
         items: [{ id: 'metric7' }, { id: 'metric8' }, { id: 'metric9' }, { id: 'metric10' }],
         columnSizes: [3, 3, 3, 3],
-        rowHeight: 320
+        rowHeight: 320,
       },
       {
         id: 'row5',
         items: [{ id: 'metric11' }, { id: 'metric12' }],
         columnSizes: [6, 6],
-        rowHeight: 320
-      }
+        rowHeight: 320,
+      },
     ]);
 
     const result = removeMetricFromDashboardConfig(['metric2', 'metric4', 'metric11'], config);
@@ -238,14 +238,14 @@ describe('removeMetricFromDashboardConfig', () => {
         id: 'row1',
         items: [{ id: 'metric1' }, { id: 'metric2' }, { id: 'metric3' }],
         columnSizes: [4, 4, 4],
-        rowHeight: 320
+        rowHeight: 320,
       },
       {
         id: 'row2',
         items: [{ id: 'metric4' }, { id: 'metric5' }],
         columnSizes: [6, 6],
-        rowHeight: 320
-      }
+        rowHeight: 320,
+      },
     ]);
 
     const result = removeMetricFromDashboardConfig(

@@ -1,5 +1,3 @@
-'use client';
-
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useMemoizedFn } from './useMemoizedFn';
 
@@ -20,7 +18,7 @@ import { useMemoizedFn } from './useMemoizedFn';
  * ```
  */
 export function useSetInterval(callback: () => void, delay: number | null) {
-  const intervalRef = useRef<NodeJS.Timeout>();
+  const intervalRef = useRef<NodeJS.Timeout>(null);
   const savedCallback = useMemoizedFn(callback);
   const [isActive, setIsActive] = useState(false);
 

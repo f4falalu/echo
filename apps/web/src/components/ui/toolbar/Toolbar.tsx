@@ -1,17 +1,13 @@
-'use client';
-
-import * as React from 'react';
-
 import * as ToolbarPrimitive from '@radix-ui/react-toolbar';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
-import { type VariantProps, cva } from 'class-variance-authority';
-import { ChevronDown } from '@/components/ui/icons/NucleoIconOutlined';
-
+import { cva, type VariantProps } from 'class-variance-authority';
+import * as React from 'react';
 import {
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
-  DropdownMenuSeparator
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import { ChevronDown } from '@/components/ui/icons/NucleoIconOutlined';
 import { Separator } from '@/components/ui/separator';
 import { TooltipBase as Tooltip, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
@@ -71,20 +67,20 @@ const toolbarButtonVariants = cva(
   {
     defaultVariants: {
       size: 'default',
-      variant: 'default'
+      variant: 'default',
     },
     variants: {
       size: {
         default: 'h-9 min-w-9 px-2',
         lg: 'h-10 min-w-10 px-2.5',
-        sm: 'h-8 min-w-8 px-1.5'
+        sm: 'h-8 min-w-8 px-1.5',
       },
       variant: {
         default: 'bg-transparent',
         outline:
-          'border border-input bg-transparent shadow-xs hover:bg-accent hover:text-accent-foreground'
-      }
-    }
+          'border border-input bg-transparent shadow-xs hover:bg-accent hover:text-accent-foreground',
+      },
+    },
   }
 );
 
@@ -95,21 +91,21 @@ const dropdownArrowVariants = cva(
   {
     defaultVariants: {
       size: 'sm',
-      variant: 'default'
+      variant: 'default',
     },
     variants: {
       size: {
         default: 'h-9 w-6',
         lg: 'h-10 w-8',
-        sm: 'h-8 w-4'
+        sm: 'h-8 w-4',
       },
       variant: {
         default:
           'bg-transparent hover:bg-muted hover:text-muted-foreground aria-checked:bg-accent aria-checked:text-accent-foreground',
         outline:
-          'border border-l-0 border-input bg-transparent hover:bg-accent hover:text-accent-foreground'
-      }
-    }
+          'border border-l-0 border-input bg-transparent hover:bg-accent hover:text-accent-foreground',
+      },
+    },
   }
 );
 
@@ -147,13 +143,14 @@ const ToolbarButtonBase = React.forwardRef<
         className={cn(
           toolbarButtonVariants({
             size,
-            variant
+            variant,
           }),
           isDropdown && 'justify-between gap-1 pr-1',
           className
         )}
         value={pressed ? 'single' : ''}
-        {...props}>
+        {...props}
+      >
         {isDropdown ? (
           <>
             <div className="flex flex-1 items-center gap-2 whitespace-nowrap">{children}</div>
@@ -172,12 +169,13 @@ const ToolbarButtonBase = React.forwardRef<
       className={cn(
         toolbarButtonVariants({
           size,
-          variant
+          variant,
         }),
         isDropdown && 'pr-1',
         className
       )}
-      {...props}>
+      {...props}
+    >
       {children}
     </ToolbarPrimitive.Button>
   );
@@ -215,13 +213,14 @@ export function ToolbarSplitButtonPrimary({
       className={cn(
         toolbarButtonVariants({
           size,
-          variant
+          variant,
         }),
         'rounded-r-none',
         'group-data-[pressed=true]:bg-accent group-data-[pressed=true]:text-accent-foreground',
         className
       )}
-      {...props}>
+      {...props}
+    >
       {children}
     </span>
   );
@@ -242,14 +241,14 @@ export const ToolbarSplitButtonSecondary = React.forwardRef<
       className={cn(
         dropdownArrowVariants({
           size,
-          variant
+          variant,
         }),
         'group-data-[pressed=true]:bg-accent group-data-[pressed=true]:text-accent-foreground',
         className
       )}
       onClick={(e) => e.stopPropagation()}
-      role="button"
-      {...props}>
+      {...props}
+    >
       <div className="text-muted-foreground size-3.5">
         <ChevronDown data-icon />
       </div>
@@ -269,15 +268,18 @@ export function ToolbarGroup({ children, className }: React.ComponentProps<'div'
   );
 }
 
-type TooltipProps<T extends React.ElementType> = {
+type TooltipWrapperProps = {
   tooltip?: React.ReactNode;
   tooltipContentProps?: Omit<React.ComponentPropsWithoutRef<typeof TooltipContent>, 'children'>;
   tooltipProps?: Omit<React.ComponentPropsWithoutRef<typeof Tooltip>, 'children'>;
   tooltipTriggerProps?: React.ComponentPropsWithoutRef<typeof TooltipTrigger>;
-} & React.ComponentProps<T>;
+};
 
-function withTooltip<T extends React.ElementType>(Component: T) {
-  return React.forwardRef<React.ElementRef<T>, TooltipProps<T>>(function ExtendComponent(
+function withTooltip(Component: typeof ToolbarButtonBase) {
+  return React.forwardRef<
+    React.ElementRef<typeof ToolbarButtonBase>,
+    React.ComponentPropsWithoutRef<typeof ToolbarButtonBase> & TooltipWrapperProps
+  >(function ExtendComponent(
     { tooltip, tooltipContentProps, tooltipProps, tooltipTriggerProps, ...props },
     ref
   ) {
@@ -287,10 +289,7 @@ function withTooltip<T extends React.ElementType>(Component: T) {
       setMounted(true);
     }, []);
 
-    const component = React.createElement(Component, {
-      ref,
-      ...(props as React.ComponentProps<T>)
-    });
+    const component = <Component ref={ref} {...props} />;
 
     if (tooltip && mounted) {
       return (
@@ -298,7 +297,6 @@ function withTooltip<T extends React.ElementType>(Component: T) {
           <TooltipTrigger asChild {...tooltipTriggerProps}>
             {component}
           </TooltipTrigger>
-
           <TooltipContent {...tooltipContentProps}>{tooltip}</TooltipContent>
         </Tooltip>
       );
@@ -324,7 +322,8 @@ function TooltipContent({
         )}
         data-slot="tooltip-content"
         sideOffset={sideOffset}
-        {...props}>
+        {...props}
+      >
         {children}
         {/* CHANGE */}
         {/* <TooltipPrimitive.Arrow className="z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px] bg-primary fill-primary" /> */}
@@ -354,7 +353,8 @@ export function ToolbarMenuGroup({
           'hidden',
           'peer/menu-group group/menu-group my-1.5 has-[[role=menuitem]]:block has-[[role=menuitemradio]]:block has-[[role=option]]:block',
           className
-        )}>
+        )}
+      >
         {label && (
           <DropdownMenuLabel className="text-muted-foreground text-xs font-semibold select-none">
             {label}

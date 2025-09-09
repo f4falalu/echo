@@ -1,10 +1,7 @@
-'use client';
-
-import * as React from 'react';
 import * as SheetPrimitive from '@radix-ui/react-dialog';
-import { Xmark } from '../icons';
-
+import type * as React from 'react';
 import { cn } from '@/lib/utils';
+import { Xmark } from '../icons';
 
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;
@@ -63,7 +60,8 @@ function SheetContent({
             'data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom right-2 bottom-2 left-2 h-auto rounded border-t',
           className
         )}
-        {...props}>
+        {...props}
+      >
         {children}
         {/* <SheetPrimitive.Close className="ring-offset-background focus:ring-ring data-[state=open]:bg-secondary absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none">
           <div className="size-4">
@@ -127,5 +125,5 @@ export {
   SheetHeader,
   SheetFooter,
   SheetTitle,
-  SheetDescription
+  SheetDescription,
 };

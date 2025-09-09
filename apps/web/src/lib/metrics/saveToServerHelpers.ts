@@ -1,21 +1,21 @@
+import {
+  type BarAndLineAxis,
+  type ChartConfigProps,
+  type ColumnLabelFormat,
+  type ColumnSettings,
+  type ComboChartAxis,
+  type DataMetadata,
+  DEFAULT_CHART_CONFIG_ENTRIES,
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  DEFAULT_COLUMN_SETTINGS,
+  type PieChartAxis,
+  type ScatterAxis,
+} from '@buster/server-shared/metrics';
 import isEqual from 'lodash/isEqual';
 import type { BusterMetric } from '@/api/asset_interfaces/metric';
 import type { updateMetric } from '@/api/buster_rest/metrics';
 import { getChangedValues } from '@/lib/objects';
 import { createDefaultChartConfig } from './messageAutoChartHandler';
-import {
-  DEFAULT_COLUMN_SETTINGS,
-  DEFAULT_COLUMN_LABEL_FORMAT,
-  type ChartConfigProps,
-  type BarAndLineAxis,
-  type ScatterAxis,
-  type PieChartAxis,
-  type ComboChartAxis,
-  type ColumnSettings,
-  type ColumnLabelFormat,
-  DEFAULT_CHART_CONFIG_ENTRIES,
-  type DataMetadata
-} from '@buster/server-shared/metrics';
 
 const DEFAULT_COLUMN_SETTINGS_ENTRIES = Object.entries(DEFAULT_COLUMN_SETTINGS);
 const DEFAULT_COLUMN_LABEL_FORMATS_ENTRIES = Object.entries(DEFAULT_COLUMN_LABEL_FORMAT);
@@ -78,7 +78,7 @@ const keySpecificHandlers: Partial<Record<keyof ChartConfigProps, (value: unknow
       for (const [settingKey, defaultValue] of DEFAULT_COLUMN_LABEL_FORMATS_ENTRIES) {
         const columnSettingValue = value[settingKey as keyof ColumnLabelFormat];
         if (!isEqual(defaultValue, columnSettingValue)) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- this is a workaround to avoid type errors
+          // biome-ignore lint/suspicious/noExplicitAny: this is a workaround to avoid type errors
           changedSettings[settingKey as keyof ColumnLabelFormat] = columnSettingValue as any;
           hasChanges = true;
         }
@@ -90,7 +90,7 @@ const keySpecificHandlers: Partial<Record<keyof ChartConfigProps, (value: unknow
     }
 
     return diff;
-  }
+  },
 };
 
 export const getChangesFromDefaultChartConfig = (newMetric: BusterMetric) => {
@@ -107,14 +107,14 @@ export const getChangesFromDefaultChartConfig = (newMetric: BusterMetric) => {
     if (handler) {
       const valueToUse = handler(chartConfigValue);
       if (valueToUse && Object.keys(valueToUse).length > 0) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- this is a workaround to avoid type errors
+        // biome-ignore lint/suspicious/noExplicitAny: this is a workaround to avoid type errors
         diff[key] = valueToUse as any;
       }
       continue;
     }
 
     if (!isEqual(chartConfigValue, defaultValue)) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- this is a workaround to avoid type errors
+      // biome-ignore lint/suspicious/noExplicitAny: this is a workaround to avoid type errors
       diff[key] = chartConfigValue as any;
     }
   }
@@ -128,7 +128,7 @@ export const combineChangeFromDefaultChartConfig = (
 ) => {
   const chartConfig = createDefaultChartConfig({
     chart_config: newMetric.chart_config,
-    data_metadata: dataMetadata
+    data_metadata: dataMetadata,
   });
   return chartConfig;
 };
@@ -148,6 +148,6 @@ export const prepareMetricUpdateMetric = (
   return {
     ...changedTopLevelValues,
     chart_config: changedChartConfig,
-    id: newMetric.id
+    id: newMetric.id,
   };
 };

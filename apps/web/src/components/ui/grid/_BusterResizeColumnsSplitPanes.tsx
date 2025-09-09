@@ -1,8 +1,6 @@
-'use client';
-
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/lib/classMerge';
-import { NUMBER_OF_COLUMNS, MIN_NUMBER_OF_COLUMNS, MAX_NUMBER_OF_COLUMNS } from './helpers';
+import { MAX_NUMBER_OF_COLUMNS, MIN_NUMBER_OF_COLUMNS, NUMBER_OF_COLUMNS } from './helpers';
 
 interface BusterResizeColumnsSplitPanesProps {
   children: React.ReactNode[];
@@ -32,7 +30,8 @@ const ColumnMarkers = React.memo<{
   return (
     <div
       className="animate-fade-in pointer-events-none absolute -top-0.5 right-0 left-0 flex h-2 items-center justify-between transition-opacity duration-100"
-      style={{ transform: 'translateY(-100%)' }}>
+      style={{ transform: 'translateY(-100%)' }}
+    >
       <div className="relative h-full w-full px-1.5">
         {positions.map((position, index) => {
           const isVisible = visiblePositions.includes(index);
@@ -49,7 +48,7 @@ const ColumnMarkers = React.memo<{
               )}
               style={{
                 left: `${position}%`,
-                transform: 'translateX(-50%)'
+                transform: 'translateX(-50%)',
               }}
             />
           );
@@ -85,7 +84,8 @@ const Sash = React.memo<{
       )}
       style={{ left: '100%' }}
       onMouseDown={handleMouseDown}
-      data-sash-index={index}></div>
+      data-sash-index={index}
+    ></div>
   );
 });
 
@@ -99,7 +99,7 @@ export const BusterResizeColumnsSplitPanes: React.FC<BusterResizeColumnsSplitPan
   onDragStart,
   onDragEnd,
   onChange,
-  className
+  className,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragState, setDragState] = useState<DragState>({
@@ -107,7 +107,7 @@ export const BusterResizeColumnsSplitPanes: React.FC<BusterResizeColumnsSplitPan
     dragIndex: null,
     startX: 0,
     startColumnSpans: [],
-    currentColumnSpans: columnSpans
+    currentColumnSpans: columnSpans,
   });
   const [preventTransition, setPreventTransition] = useState(true);
 
@@ -257,7 +257,7 @@ export const BusterResizeColumnsSplitPanes: React.FC<BusterResizeColumnsSplitPan
 
         setDragState((prev) => ({
           ...prev,
-          currentColumnSpans: newColumnSpans
+          currentColumnSpans: newColumnSpans,
         }));
       }
     },
@@ -308,7 +308,7 @@ export const BusterResizeColumnsSplitPanes: React.FC<BusterResizeColumnsSplitPan
         dragIndex: null,
         startX: 0,
         startColumnSpans: [],
-        currentColumnSpans: columnSpans
+        currentColumnSpans: columnSpans,
       });
     },
     [handleMouseMove, columnSpans, onChangeRef, onDragEndRef, dragStateRef]
@@ -335,7 +335,7 @@ export const BusterResizeColumnsSplitPanes: React.FC<BusterResizeColumnsSplitPan
         dragIndex: index,
         startX,
         startColumnSpans: [...columnSpans],
-        currentColumnSpans: [...columnSpans]
+        currentColumnSpans: [...columnSpans],
       };
 
       setDragState(newDragState);
@@ -372,7 +372,7 @@ export const BusterResizeColumnsSplitPanes: React.FC<BusterResizeColumnsSplitPan
         dragIndex: null,
         startX: 0,
         startColumnSpans: [],
-        currentColumnSpans: columnSpans
+        currentColumnSpans: columnSpans,
       });
     }
   }, [canResize, columnSpans, cleanupDrag]);
@@ -387,7 +387,7 @@ export const BusterResizeColumnsSplitPanes: React.FC<BusterResizeColumnsSplitPan
           dragIndex: null,
           startX: 0,
           startColumnSpans: [],
-          currentColumnSpans: columnSpans
+          currentColumnSpans: columnSpans,
         });
       }
     };
@@ -432,8 +432,9 @@ export const BusterResizeColumnsSplitPanes: React.FC<BusterResizeColumnsSplitPan
               style={{
                 width: `${widthPercentage}%`,
                 transition:
-                  dragState.isDragging || preventTransition ? 'none' : 'width 200ms ease-out'
-              }}>
+                  dragState.isDragging || preventTransition ? 'none' : 'width 200ms ease-out',
+              }}
+            >
               {child}
 
               {/* Sash positioned at the right edge of this column */}

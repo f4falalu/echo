@@ -1,11 +1,9 @@
-'use client';
-
-import * as React from 'react';
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
-import { Check3 as Check, ChevronRight, RadioUnchecked } from '../icons/NucleoIconOutlined';
-
+import type * as React from 'react';
 import { cn } from '@/lib/utils';
-import { THEME_RESET_STYLE } from '@/styles/theme-reset';
+import { THEME_RESET_STYLE } from '@/styles/report-editor-theme';
+import { Check3 as Check, ChevronRight } from '../icons/NucleoIconOutlined';
+import RadioUnchecked from '../icons/NucleoIconOutlined/radio-unchecked';
 
 function DropdownMenu({ ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
   return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
@@ -86,7 +84,8 @@ function DropdownMenuCheckboxItem({
         className
       )}
       checked={checked}
-      {...props}>
+      {...props}
+    >
       <span className="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
         <DropdownMenuPrimitive.ItemIndicator>
           <div className="text-icon-color size-4">
@@ -117,7 +116,8 @@ function DropdownMenuRadioItem({
         "focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className
       )}
-      {...props}>
+      {...props}
+    >
       <span className="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
         <DropdownMenuPrimitive.ItemIndicator>
           <div className="text-icon-color size-4">
@@ -190,7 +190,8 @@ function DropdownMenuSubTrigger({
         'focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[inset]:pl-8',
         className
       )}
-      {...props}>
+      {...props}
+    >
       {children}
       <div className="text-icon-color ml-auto size-4">
         <ChevronRight />
@@ -230,5 +231,5 @@ export {
   DropdownMenuShortcut,
   DropdownMenuSub,
   DropdownMenuSubTrigger,
-  DropdownMenuSubContent
+  DropdownMenuSubContent,
 };

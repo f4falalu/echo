@@ -1,11 +1,9 @@
-import { serverFetch } from '../../createServerInstance';
-import type { GetTitleResponse, GetTitleRequest } from '@buster/server-shared/title';
-import { BASE_URL_V2 } from '../config';
+import type { GetTitleRequest, GetTitleResponse } from '@buster/server-shared/title';
+import { mainApiV2 } from '../instances';
 
-export const getTitle_server = async (params: GetTitleRequest) => {
-  return serverFetch<GetTitleResponse>(`/title`, {
-    method: 'GET',
-    params,
-    baseURL: BASE_URL_V2
-  });
+export const getTitle = async (params: GetTitleRequest) => {
+  return mainApiV2
+    .get<GetTitleResponse>('/title', { params })
+    .then((res) => res.data.title)
+    .catch(() => undefined);
 };

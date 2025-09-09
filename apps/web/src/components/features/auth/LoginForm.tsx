@@ -1,7 +1,5 @@
-'use client';
-
+import { Link, useNavigate } from '@tanstack/react-router';
 import Cookies from 'js-cookie';
-import Link from 'next/link';
 import React, { useMemo, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { Button } from '@/components/ui/buttons';
@@ -10,123 +8,42 @@ import Github from '@/components/ui/icons/customIcons/Github';
 import Google from '@/components/ui/icons/customIcons/Google';
 import Microsoft from '@/components/ui/icons/customIcons/Microsoft';
 import { Input } from '@/components/ui/inputs';
+import { AppTooltip } from '@/components/ui/tooltip';
 import { Text, Title } from '@/components/ui/typography';
-import { useMemoizedFn } from '@/hooks';
+import { env } from '@/env';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { cn } from '@/lib/classMerge';
 import { isValidEmail } from '@/lib/email';
-import {
-  signInWithAzure,
-  signInWithEmailAndPassword,
-  signInWithGithub,
-  signInWithGoogle,
-  signUp
-} from '@/lib/supabase/signIn';
-import { inputHasText } from '@/lib/text';
-import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
+import { inputHasText, truncateText } from '@/lib/text';
 import { PolicyCheck } from './PolicyCheck';
+import { useAuthMutations } from './useAuthMutations';
+import { type LastUsedReturnType, useLastUsed } from './useLastUsed';
 
-const DEFAULT_CREDENTIALS = {
-  email: process.env.NEXT_PUBLIC_USER || '',
-  password: process.env.NEXT_PUBLIC_USER_PASSWORD || ''
-};
+export const LoginForm: React.FC<{
+  redirectTo: string | null | undefined;
+  isAnonymousUser?: boolean;
+}> = ({ redirectTo }) => {
+  const lastUsedProps = useLastUsed();
 
-export const LoginForm: React.FC<{ redirectTo?: string | null }> = ({ redirectTo }) => {
-  const [loading, setLoading] = useState<'google' | 'github' | 'azure' | 'email' | null>(null);
-  const [errorMessages, setErrorMessages] = useState<string[]>([]);
-  const [signUpFlow, setSignUpFlow] = useState(true);
+  const [signUpFlow, setSignUpFlow] = useState(
+    lastUsedProps.isAnonymousUser && !env.VITE_PUBLIC_USER
+  );
   const [signUpSuccess, setSignUpSuccess] = useState(false);
 
-  const onSignInWithUsernameAndPassword = useMemoizedFn(
-    async ({ email, password }: { email: string; password: string }) => {
-      setLoading('email');
-      try {
-        const result = await signInWithEmailAndPassword({ email, password, redirectTo });
-        if (result && 'success' in result && !result.success) {
-          setErrorMessages([result.error]);
-          setLoading(null);
-        }
-      } catch (error: unknown) {
-        console.error(error);
-        setErrorMessages(['An unexpected error occurred. Please try again.']);
-        setLoading(null);
-      }
-    }
-  );
+  // Use the centralized auth mutations hook
+  const {
+    onSignInWithGoogle,
+    onSignInWithGithub,
+    onSignInWithAzure,
+    onSubmitClick,
+    loadingType,
+    errorMessages,
+    clearErrors,
+  } = useAuthMutations(redirectTo, () => setSignUpSuccess(true));
 
-  const onSignInWithGoogle = useMemoizedFn(async () => {
-    setLoading('google');
-    try {
-      const result = await signInWithGoogle({ redirectTo });
-      if (result && 'success' in result && !result.success) {
-        setErrorMessages([result.error]);
-        setLoading(null);
-      }
-    } catch (error: unknown) {
-      console.error(error);
-      setErrorMessages(['An unexpected error occurred. Please try again.']);
-      setLoading(null);
-    }
-  });
-
-  const onSignInWithGithub = useMemoizedFn(async () => {
-    setLoading('github');
-    try {
-      const result = await signInWithGithub({ redirectTo });
-      if (result && 'success' in result && !result.success) {
-        setErrorMessages([result.error]);
-        setLoading(null);
-      }
-    } catch (error: unknown) {
-      console.error(error);
-      setErrorMessages(['An unexpected error occurred. Please try again.']);
-      setLoading(null);
-    }
-  });
-
-  const onSignInWithAzure = useMemoizedFn(async () => {
-    setLoading('azure');
-    try {
-      const result = await signInWithAzure({ redirectTo });
-      if (result && 'success' in result && !result.success) {
-        setErrorMessages([result.error]);
-        setLoading(null);
-      }
-    } catch (error: unknown) {
-      console.error(error);
-      setErrorMessages(['An unexpected error occurred. Please try again.']);
-      setLoading(null);
-    }
-  });
-
-  const onSignUp = useMemoizedFn(async (d: { email: string; password: string }) => {
-    setLoading('email');
-    try {
-      const result = await signUp({ ...d, redirectTo });
-      if (result && 'success' in result && !result.success) {
-        setErrorMessages([result.error]);
-        setLoading(null);
-      } else {
-        setSignUpSuccess(true);
-      }
-    } catch (error: unknown) {
-      console.error(error);
-      setErrorMessages(['An unexpected error occurred. Please try again.']);
-      setLoading(null);
-    }
-  });
-
-  const onSubmitClick = useMemoizedFn((d: { email: string; password: string }) => {
-    try {
-      setErrorMessages([]);
-      setLoading('email');
-
-      if (signUpFlow) onSignUp(d);
-      else onSignInWithUsernameAndPassword(d);
-    } catch (error: unknown) {
-      console.error(error);
-      setErrorMessages(['An unexpected error occurred. Please try again.']);
-      setLoading(null);
-    }
+  // Wrapper for submit to handle sign up flow
+  const handleSubmitClick = useMemoizedFn((d: { email: string; password: string }) => {
+    onSubmitClick(d, signUpFlow);
   });
 
   return (
@@ -136,15 +53,16 @@ export const LoginForm: React.FC<{ redirectTo?: string | null }> = ({ redirectTo
           <SignUpSuccess setSignUpSuccess={setSignUpSuccess} setSignUpFlow={setSignUpFlow} />
         ) : (
           <LoginOptions
-            onSubmitClick={onSubmitClick}
+            onSubmitClick={handleSubmitClick}
             setSignUpFlow={setSignUpFlow}
             errorMessages={errorMessages}
-            loading={loading}
-            setErrorMessages={setErrorMessages}
+            loading={loadingType}
+            setErrorMessages={clearErrors}
             signUpFlow={signUpFlow}
             onSignInWithGoogle={onSignInWithGoogle}
             onSignInWithGithub={onSignInWithGithub}
             onSignInWithAzure={onSignInWithAzure}
+            lastUsedProps={lastUsedProps}
           />
         )}
       </div>
@@ -162,6 +80,7 @@ const LoginOptions: React.FC<{
   loading: 'google' | 'github' | 'azure' | 'email' | null;
   setErrorMessages: (value: string[]) => void;
   signUpFlow: boolean;
+  lastUsedProps: LastUsedReturnType;
 }> = ({
   onSubmitClick,
   onSignInWithGoogle,
@@ -171,12 +90,16 @@ const LoginOptions: React.FC<{
   errorMessages,
   loading,
   setErrorMessages,
-  signUpFlow
+  signUpFlow,
+  lastUsedProps,
 }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState(
+    lastUsedProps.supabaseUser?.email || env.VITE_PUBLIC_USER || ''
+  );
+  const [password, setPassword] = useState(env.VITE_PUBLIC_USER_PASSWORD || '');
   const [password2, setPassword2] = useState('');
   const [passwordCheck, setPasswordCheck] = useState(false);
+
   const disableSubmitButton =
     !inputHasText(password) || !inputHasText(password2) || password !== password2 || !passwordCheck;
 
@@ -190,26 +113,28 @@ const LoginOptions: React.FC<{
     sessionStorage.clear();
   });
 
-  const onSubmitClickPreflight = useMemoizedFn(async (d: { email: string; password: string }) => {
-    onSubmitClick(d);
-  });
-
   useHotkeys(
     'meta+shift+b',
     (e) => {
+      e.preventDefault();
       setSignUpFlow(false);
-      onSubmitClickPreflight({
+      const DEFAULT_CREDENTIALS = {
+        email: env.VITE_PUBLIC_USER || '',
+        password: env.VITE_PUBLIC_USER_PASSWORD || '',
+      };
+
+      onSubmitClick({
         email: DEFAULT_CREDENTIALS.email,
-        password: DEFAULT_CREDENTIALS.password
+        password: DEFAULT_CREDENTIALS.password,
       });
     },
-    { preventDefault: true }
+    { preventDefault: true, enabled: !!env.VITE_PUBLIC_USER }
   );
 
   return (
     <>
       <div className="flex flex-col items-center text-center">
-        <WelcomeText signUpFlow={signUpFlow} />
+        <WelcomeText signUpFlow={signUpFlow} lastUsedProps={lastUsedProps} />
       </div>
 
       <div className="mt-6 mb-4 flex flex-col space-y-3">
@@ -223,7 +148,8 @@ const LoginOptions: React.FC<{
           }}
           block={true}
           loading={loading === 'google'}
-          tabIndex={0}>
+          tabIndex={0}
+        >
           {!signUpFlow ? 'Continue with Google' : 'Sign up with Google'}
         </Button>
         <Button
@@ -236,7 +162,8 @@ const LoginOptions: React.FC<{
           }}
           block={true}
           loading={loading === 'github'}
-          tabIndex={-1}>
+          tabIndex={-1}
+        >
           {!signUpFlow ? 'Continue with Github' : 'Sign up with Github'}
         </Button>
         <Button
@@ -249,7 +176,8 @@ const LoginOptions: React.FC<{
           }}
           block={true}
           loading={loading === 'azure'}
-          tabIndex={-2}>
+          tabIndex={-2}
+        >
           {!signUpFlow ? 'Continue with Azure' : 'Sign up with Azure'}
         </Button>
       </div>
@@ -261,9 +189,10 @@ const LoginOptions: React.FC<{
           clearAllCookies();
           onSubmitClick({
             email,
-            password
+            password,
           });
-        }}>
+        }}
+      >
         <div className="bg-border mb-4 h-[0.5px] w-full" />
 
         <Input
@@ -331,9 +260,18 @@ const LoginOptions: React.FC<{
           type="submit"
           loading={loading === 'email'}
           variant="black"
-          disabled={!signUpFlow ? false : disableSubmitButton}>
+          disabled={!signUpFlow ? false : disableSubmitButton}
+        >
           {!signUpFlow ? 'Sign in' : 'Sign up'}
         </Button>
+
+        {lastUsedProps.isCurrentlySignedIn && !signUpFlow && (
+          <Link to="/app/home">
+            <Button size={'tall'} block={true} type="button" className="truncate" variant="black">
+              Continue with {truncateText(lastUsedProps.supabaseUser?.email || '', 35)}
+            </Button>
+          </Link>
+        )}
       </form>
 
       <div className="mt-2 flex flex-col gap-y-2">
@@ -342,6 +280,7 @@ const LoginOptions: React.FC<{
           setPassword2={setPassword2}
           setSignUpFlow={setSignUpFlow}
           signUpFlow={signUpFlow}
+          lastUsedProps={lastUsedProps}
         />
 
         {!signUpFlow && <ResetPasswordLink email={email} tabIndex={-7} />}
@@ -366,9 +305,10 @@ const SignUpSuccess: React.FC<{
           onClick={() => {
             setSignUpSuccess(false);
             setSignUpFlow(true);
-          }}>
+          }}
+        >
           Go to Login
-        </Button>
+        </Button>,
       ]}
     />
   );
@@ -376,13 +316,21 @@ const SignUpSuccess: React.FC<{
 
 const WelcomeText: React.FC<{
   signUpFlow: boolean;
-}> = ({ signUpFlow }) => {
+  lastUsedProps: LastUsedReturnType;
+}> = ({ signUpFlow, lastUsedProps }) => {
   const text = !signUpFlow ? 'Sign in' : 'Sign up for free';
+  const { isCurrentlySignedIn, supabaseUser } = lastUsedProps;
 
   return (
-    <Title className="mb-0" as="h1">
-      {text}
-    </Title>
+    <div className="flex items-center justify-center gap-2">
+      <AppTooltip
+        title={isCurrentlySignedIn ? `Currently signed in as ${supabaseUser?.email}` : undefined}
+      >
+        <Title className="mb-0" as="h1">
+          {text}
+        </Title>
+      </AppTooltip>
+    </div>
   );
 };
 
@@ -401,24 +349,30 @@ const AlreadyHaveAccount: React.FC<{
   setPassword2: (value: string) => void;
   setSignUpFlow: (value: boolean) => void;
   signUpFlow: boolean;
-}> = React.memo(({ setErrorMessages, setPassword2, setSignUpFlow, signUpFlow }) => {
-  return (
-    <div className="flex items-center justify-center gap-0.5">
-      <Text className="" variant="secondary" size="xs">
-        {signUpFlow ? 'Already have an account? ' : "Don't already have an account?"}
-      </Text>
+  lastUsedProps: LastUsedReturnType;
+}> = React.memo(({ setErrorMessages, setPassword2, setSignUpFlow, signUpFlow, lastUsedProps }) => {
+  const { isCurrentlySignedIn, supabaseUser } = lastUsedProps;
 
-      <Text
-        variant="primary"
-        size="xs"
-        className={cn('ml-1 cursor-pointer font-normal')}
-        onClick={() => {
-          setErrorMessages([]);
-          setPassword2('');
-          setSignUpFlow(!signUpFlow);
-        }}>
-        {!signUpFlow ? 'Sign up' : 'Sign in'}
-      </Text>
+  return (
+    <div className="flex flex-col items-center justify-center gap-1.5">
+      <div className="flex items-center justify-center gap-0.5">
+        <Text className="" variant="secondary" size="xs">
+          {signUpFlow ? 'Already have an account? ' : "Don't already have an account?"}
+        </Text>
+
+        <Text
+          variant="primary"
+          size="xs"
+          className={cn('ml-1 cursor-pointer font-normal')}
+          onClick={() => {
+            setErrorMessages([]);
+            setPassword2('');
+            setSignUpFlow(!signUpFlow);
+          }}
+        >
+          {!signUpFlow ? 'Sign up' : 'Sign in'}
+        </Text>
+      </div>
     </div>
   );
 });
@@ -428,7 +382,7 @@ const ResetPasswordLink: React.FC<{ email: string; tabIndex?: number }> = ({ ema
   const scrubbedEmail = useMemo(() => {
     if (!email || !isValidEmail(email)) return '';
     try {
-      return encodeURIComponent(email.trim());
+      return email.trim();
     } catch (error) {
       console.error('Error encoding email:', error);
       return '';
@@ -438,10 +392,10 @@ const ResetPasswordLink: React.FC<{ email: string; tabIndex?: number }> = ({ ema
   return (
     <Link
       className={cn('flex w-full cursor-pointer justify-center text-center font-normal')}
-      href={`${createBusterRoute({
-        route: BusterRoutes.AUTH_RESET_PASSWORD_EMAIL
-      })}?email=${scrubbedEmail}`}
-      tabIndex={tabIndex}>
+      to={`/auth/reset-password`}
+      search={{ email: scrubbedEmail }}
+      tabIndex={tabIndex}
+    >
       <Text variant="primary" size="xs">
         Reset password
       </Text>

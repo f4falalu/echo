@@ -1,7 +1,6 @@
 #!/usr/bin/env bun
 import { program } from 'commander';
 import { render } from 'ink';
-import React from 'react';
 import { Auth } from './commands/auth.js';
 import { DeployCommand } from './commands/deploy/deploy.js';
 import { DeployOptionsSchema } from './commands/deploy/schemas.js';
@@ -11,7 +10,7 @@ import { InitCommand } from './commands/init.js';
 program
   .name('buster')
   .description('Buster CLI - AI-powered data analytics platform')
-  .version('0.1.0');
+  .version('0.3.0');
 
 // Auth command - authentication management
 program
