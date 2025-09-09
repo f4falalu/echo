@@ -1,8 +1,6 @@
 import type { TComboboxInputElement } from 'platejs';
-
 import type { PlateElementProps } from 'platejs/react';
 import { PlateElement } from 'platejs/react';
-import { cn } from '@/lib/utils';
 import { getSlashGroups } from '../config/addMenuItems';
 
 import {
@@ -49,7 +47,7 @@ export function SlashInputElement(props: PlateElementProps<TComboboxInputElement
                   group={group}
                   keywords={keywords ? [...keywords] : undefined}
                 >
-                  <div className="text-muted-foreground mr-2">{icon}</div>
+                  <div className="text-icon-color mr-2">{icon}</div>
                   {label ?? value}
                 </InlineComboboxItem>
               ))}
