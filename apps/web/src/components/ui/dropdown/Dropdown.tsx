@@ -364,6 +364,7 @@ const DropdownItem = <
   showIndex: boolean;
 }) => {
   const onClickItem = useMemoizedFn((e: React.MouseEvent<HTMLDivElement> | KeyboardEvent) => {
+    console.log('onClickItem', e, disabled, onClick, onSelect, value);
     if (disabled) return;
     if (onClick) onClick(e);
     if (onSelect) onSelect(value as T);
