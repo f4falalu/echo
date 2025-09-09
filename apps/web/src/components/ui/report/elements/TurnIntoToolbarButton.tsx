@@ -30,7 +30,7 @@ const turnIntoItems = [
   createMenuItem('toggleList', KEYS.toggle, <NodeTypeIcons.toggle />),
   createMenuItem('codeBlock', KEYS.codeBlock, <NodeTypeIcons.codeBlock />),
   createMenuItem('blockquote', KEYS.blockquote, <NodeTypeIcons.quote />),
-  createMenuItem('columnsThree', 'action_three_columns', <NodeTypeIcons.columnsThree />),
+  // createMenuItem('columnsThree', 'action_three_columns', <NodeTypeIcons.columnsThree />),
 ];
 
 export function TurnIntoToolbarButton(props: DropdownMenuProps) {
