@@ -72,7 +72,7 @@ export const createConnection = (useDisk = true): Promise<DuckDBConnection> => {
     // The database file will be automatically cleaned up
     const dbPath = useDisk ? `/tmp/duckdb-dedupe-${Date.now()}.db` : ':memory:';
 
-    const db = new duckdb.Database(dbPath, (err) => {
+    const db = new duckdb.Database(dbPath, (err: Error | null) => {
       if (err) {
         reject(new Error(`Failed to create DuckDB database: ${err.message}`));
         return;
@@ -82,10 +82,10 @@ export const createConnection = (useDisk = true): Promise<DuckDBConnection> => {
 
       // Configure DuckDB for optimal performance with large datasets
       if (useDisk) {
-        conn.exec("SET memory_limit='2GB';", (err) => {
+        conn.exec("SET memory_limit='2GB';", (err: Error | null) => {
           if (err) console.warn('Failed to set memory limit:', err);
         });
-        conn.exec('SET threads=4;', (err) => {
+        conn.exec('SET threads=4;', (err: Error | null) => {
           if (err) console.warn('Failed to set thread count:', err);
         });
       }
@@ -138,7 +138,7 @@ export const closeConnection = (connection: DuckDBConnection): Promise<void> => 
  */
 export const executeQuery = <T = unknown>(conn: duckdb.Connection, sql: string): Promise<T[]> => {
   return new Promise((resolve, reject) => {
-    conn.all(sql, (err, result) => {
+    conn.all(sql, (err: Error | null, result: unknown) => {
       if (err) {
         reject(new Error(`DuckDB query failed: ${err.message}\nSQL: ${sql}`));
       } else {
