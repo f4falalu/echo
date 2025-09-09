@@ -54,7 +54,11 @@ const useReportMetricThreeDotMenu = ({
   });
   const downloadCSV = useDownloadMetricDataCSV({ metricId, metricVersionNumber });
   const downloadPNG = useDownloadPNGSelectMenu({ metricId, metricVersionNumber });
-  const renameMetric = useRenameMetricOnPage({ metricId, metricVersionNumber });
+  const renameMetric = useRenameMetricOnPage({
+    metricId,
+    metricVersionNumber,
+    isNotMetricPage: true,
+  });
 
   return useMemo(
     () => [

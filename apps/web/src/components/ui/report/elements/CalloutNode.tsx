@@ -3,10 +3,7 @@ import { useEmojiDropdownMenuState } from '@platejs/emoji/react';
 import type { TCalloutElement } from 'platejs';
 import type { PlateElementProps } from 'platejs/react';
 import { PlateElement } from 'platejs/react';
-import * as React from 'react';
-import { Button } from '@/components/ui/buttons';
 import { cn } from '@/lib/utils';
-import { EmojiPicker, EmojiPopover } from './EmojiToolbarButton';
 
 export function CalloutElement({
   attributes,
@@ -25,7 +22,10 @@ export function CalloutElement({
 
   return (
     <PlateElement
-      className={cn('bg-muted flex rounded-sm p-4 pl-3', attributes.className)}
+      className={cn(
+        'bg-item-select flex rounded-sm p-6 my-2.5 relative group text-[15px] leading-[150%] font-normal',
+        attributes.className
+      )}
       style={{
         ...attributes.style,
         backgroundColor: element.backgroundColor,
@@ -36,8 +36,9 @@ export function CalloutElement({
       }}
       {...props}
     >
-      <div className="flex w-full gap-2 rounded-md">
-        <EmojiPopover
+      {children}
+      {/* <div className="flex w-full gap-2 p-6 rounded"> */}
+      {/* <EmojiPopover
           {...emojiToolbarDropdownProps}
           control={
             <Button
@@ -54,9 +55,9 @@ export function CalloutElement({
           }
         >
           <EmojiPicker {...emojiPickerState} {...calloutProps} />
-        </EmojiPopover>
-        <div className="mt-0.5 w-full">{children}</div>
-      </div>
+        </EmojiPopover> */}
+      {/* <div className="mt-0.5 w-full">{children}</div> */}
+      {/* </div> */}
     </PlateElement>
   );
 }

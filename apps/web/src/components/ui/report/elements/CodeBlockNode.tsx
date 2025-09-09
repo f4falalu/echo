@@ -11,16 +11,9 @@ import {
 } from 'platejs/react';
 import * as React from 'react';
 import { Button } from '@/components/ui/buttons';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
-import { PopoverBase, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useBusterNotifications } from '@/context/BusterNotifications';
 import { cn } from '@/lib/utils';
+import { Select } from '../../select';
 import { NodeTypeIcons } from '../config/icons';
 import { NodeTypeLabels } from '../config/labels';
 
@@ -32,39 +25,33 @@ export function CodeBlockElement(props: PlateElementProps<TCodeBlockElement>) {
 
   return (
     <PlateElement
-      className="bg-transparent p-1 **:[.hljs-addition]:bg-[#f0fff4] **:[.hljs-addition]:text-[#22863a] dark:**:[.hljs-addition]:bg-[#3c5743] dark:**:[.hljs-addition]:text-[#ceead5] **:[.hljs-attr,.hljs-attribute,.hljs-literal,.hljs-meta,.hljs-number,.hljs-operator,.hljs-selector-attr,.hljs-selector-class,.hljs-selector-id,.hljs-variable]:text-[#005cc5] dark:**:[.hljs-attr,.hljs-attribute,.hljs-literal,.hljs-meta,.hljs-number,.hljs-operator,.hljs-selector-attr,.hljs-selector-class,.hljs-selector-id,.hljs-variable]:text-[#6596cf] **:[.hljs-built\\\\_in,.hljs-symbol]:text-[#e36209] dark:**:[.hljs-built\\\\_in,.hljs-symbol]:text-[#c3854e] **:[.hljs-bullet]:text-[#735c0f] **:[.hljs-comment,.hljs-code,.hljs-formula]:text-[#6a737d] dark:**:[.hljs-comment,.hljs-code,.hljs-formula]:text-[#6a737d] **:[.hljs-deletion]:bg-[#ffeef0] **:[.hljs-deletion]:text-[#b31d28] dark:**:[.hljs-deletion]:bg-[#473235] dark:**:[.hljs-deletion]:text-[#e7c7cb] **:[.hljs-emphasis]:italic **:[.hljs-keyword,.hljs-doctag,.hljs-template-tag,.hljs-template-variable,.hljs-type,.hljs-variable.language\\\\_]:text-[#d73a49] dark:**:[.hljs-keyword,.hljs-doctag,.hljs-template-tag,.hljs-template-variable,.hljs-type,.hljs-variable.language\\\\_]:text-[#ee6960] **:[.hljs-name,.hljs-quote,.hljs-selector-tag,.hljs-selector-pseudo]:text-[#22863a] dark:**:[.hljs-name,.hljs-quote,.hljs-selector-tag,.hljs-selector-pseudo]:text-[#36a84f] **:[.hljs-regexp,.hljs-string,.hljs-meta_.hljs-string]:text-[#032f62] dark:**:[.hljs-regexp,.hljs-string,.hljs-meta_.hljs-string]:text-[#3593ff] **:[.hljs-section]:font-bold **:[.hljs-section]:text-[#005cc5] dark:**:[.hljs-section]:text-[#61a5f2] **:[.hljs-strong]:font-bold **:[.hljs-title,.hljs-title.class\\\\_,.hljs-title.class\\\\_.inherited\\\\_\\\\_,.hljs-title.function\\\\_]:text-[#6f42c1] dark:**:[.hljs-title,.hljs-title.class\\\\_,.hljs-title.class\\\\_.inherited\\\\_\\\\_,.hljs-title.function\\\\_]:text-[#a77bfa]"
+      className="group flex flex-col bg-item-select relative px-2.5 pt-1 pb-6 my-2.5"
       {...props}
     >
-      <div className="bg-muted/50 relative rounded-md py-1">
-        <pre className="overflow-x-auto p-8 pr-4 font-mono text-sm leading-[normal] [tab-size:2] print:break-inside-avoid">
+      <div
+        className="w-full flex items-center justify-between gap-0.5 py-0.5 select-none opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+        contentEditable={false}
+      >
+        <CodeBlockCombobox />
+
+        <CopyButton value={() => NodeApi.string(element)} />
+      </div>
+      <div className={cn('rounded py-2 px-2.5')}>
+        <pre
+          spellCheck={false}
+          className={cn(
+            'overflow-x-auto  font-mono text-base leading-[normal] [tab-size:2] print:break-inside-avoid',
+            ' **:[.hljs-addition]:bg-[#f0fff4] **:[.hljs-addition]:text-[#22863a] dark:**:[.hljs-addition]:bg-[#3c5743] dark:**:[.hljs-addition]:text-[#ceead5] **:[.hljs-attr,.hljs-attribute,.hljs-literal,.hljs-meta,.hljs-number,.hljs-operator,.hljs-selector-attr,.hljs-selector-class,.hljs-selector-id,.hljs-variable]:text-[#005cc5] dark:**:[.hljs-attr,.hljs-attribute,.hljs-literal,.hljs-meta,.hljs-number,.hljs-operator,.hljs-selector-attr,.hljs-selector-class,.hljs-selector-id,.hljs-variable]:text-[#6596cf] **:[.hljs-built\\\\_in,.hljs-symbol]:text-[#e36209] dark:**:[.hljs-built\\\\_in,.hljs-symbol]:text-[#c3854e] **:[.hljs-bullet]:text-[#735c0f] **:[.hljs-comment,.hljs-code,.hljs-formula]:text-[#6a737d] dark:**:[.hljs-comment,.hljs-code,.hljs-formula]:text-[#6a737d] **:[.hljs-deletion]:bg-[#ffeef0] **:[.hljs-deletion]:text-[#b31d28] dark:**:[.hljs-deletion]:bg-[#473235] dark:**:[.hljs-deletion]:text-[#e7c7cb] **:[.hljs-emphasis]:italic **:[.hljs-keyword,.hljs-doctag,.hljs-template-tag,.hljs-template-variable,.hljs-type,.hljs-variable.language\\\\_]:text-[#d73a49] dark:**:[.hljs-keyword,.hljs-doctag,.hljs-template-tag,.hljs-template-variable,.hljs-type,.hljs-variable.language\\\\_]:text-[#ee6960] **:[.hljs-name,.hljs-quote,.hljs-selector-tag,.hljs-selector-pseudo]:text-[#22863a] dark:**:[.hljs-name,.hljs-quote,.hljs-selector-tag,.hljs-selector-pseudo]:text-[#36a84f] **:[.hljs-regexp,.hljs-string,.hljs-meta_.hljs-string]:text-[#032f62] dark:**:[.hljs-regexp,.hljs-string,.hljs-meta_.hljs-string]:text-[#3593ff] **:[.hljs-section]:font-semibold **:[.hljs-section]:text-[#005cc5] dark:**:[.hljs-section]:text-[#61a5f2] **:[.hljs-strong]:font-semibold **:[.hljs-title,.hljs-title.class\\\\_,.hljs-title.class\\\\_.inherited\\\\_\\\\_,.hljs-title.function\\\\_]:text-[#6f42c1] dark:**:[.hljs-title,.hljs-title.class\\\\_,.hljs-title.class\\\\_.inherited\\\\_\\\\_,.hljs-title.function\\\\_]:text-[#a77bfa]'
+          )}
+        >
           <code>{props.children}</code>
         </pre>
-
-        <div
-          className="absolute top-1 right-1 z-10 flex gap-0.5 select-none"
-          contentEditable={false}
-        >
-          {isLangSupported(element.lang) && (
-            <Button
-              variant="ghost"
-              size={'small'}
-              onClick={() => formatCodeBlock(editor, { element })}
-              title={NodeTypeLabels.formatCode.label}
-              prefix={<NodeTypeIcons.formatCode />}
-            ></Button>
-          )}
-
-          <CodeBlockCombobox />
-
-          <CopyButton value={() => NodeApi.string(element)} />
-        </div>
       </div>
     </PlateElement>
   );
 }
 
 const CodeBlockCombobox = React.memo(() => {
-  const [open, setOpen] = React.useState(false);
   const readOnly = useReadOnly();
   const editor = useEditorRef();
   const element = useElement<TCodeBlockElement>();
@@ -83,46 +70,28 @@ const CodeBlockCombobox = React.memo(() => {
   if (readOnly) return null;
 
   return (
-    <PopoverBase open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button variant="ghost" size={'small'} aria-expanded={open} role="combobox">
-          {languages.find((language) => language.value === value)?.label ??
-            NodeTypeLabels.plainText.label}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0" onCloseAutoFocus={() => setSearchValue('')}>
-        <Command shouldFilter={false}>
-          <CommandInput
-            className="h-9"
-            value={searchValue}
-            onValueChange={(value) => setSearchValue(value)}
-            placeholder={NodeTypeLabels.searchLanguage.label}
-          />
-          <CommandEmpty>{NodeTypeLabels.noLanguageFound.label}</CommandEmpty>
-          <CommandList className="overflow-y-auto">
-            <CommandGroup>
-              {items.map((language) => (
-                <CommandItem
-                  key={language.label}
-                  className="cursor-pointer"
-                  value={language.value}
-                  onSelect={(value) => {
-                    editor.tf.setNodes<TCodeBlockElement>({ lang: value }, { at: element });
-                    setSearchValue(value);
-                    setOpen(false);
-                  }}
-                >
-                  <div className={cn(value === language.value ? 'opacity-100' : 'opacity-0')}>
-                    <NodeTypeIcons.check />
-                  </div>
-                  {language.label}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </PopoverBase>
+    <Select
+      className="w-fit"
+      inputClassName="min-w-[4ch] max-w-[30ch] cursor-pointer"
+      variant="ghost"
+      size="small"
+      items={items}
+      value={value}
+      search
+      type="select"
+      onChange={(value) => {
+        editor.tf.setNodes<TCodeBlockElement>({ lang: value }, { at: element });
+        setSearchValue('');
+      }}
+      onPressEnter={(value) => {
+        const isValue = items.find((item) => item.value === value);
+        if (isValue) {
+          editor.tf.setNodes<TCodeBlockElement>({ lang: value }, { at: element });
+          setSearchValue('');
+        }
+      }}
+      closeOnSelect
+    />
   );
 });
 
@@ -132,21 +101,35 @@ function CopyButton({
   value,
 }: { value: (() => string) | string } & Omit<React.ComponentProps<typeof Button>, 'value'>) {
   const [hasCopied, setHasCopied] = React.useState(false);
+  const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const { openInfoMessage } = useBusterNotifications();
+
+  const clearTimeoutRef = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+  };
 
   React.useEffect(() => {
-    setTimeout(() => {
-      setHasCopied(false);
-    }, 2000);
-  }, [hasCopied]);
+    return () => {
+      clearTimeoutRef();
+    };
+  }, []);
 
   return (
     <Button
       variant="ghost"
+      className="text-[11px]"
       size={'small'}
       prefix={hasCopied ? <NodeTypeIcons.check /> : <NodeTypeIcons.copy />}
       onClick={() => {
         void navigator.clipboard.writeText(typeof value === 'function' ? value() : value);
+        openInfoMessage('Code copied to clipboard');
         setHasCopied(true);
+        clearTimeoutRef();
+        timeoutRef.current = setTimeout(() => {
+          setHasCopied(false);
+        }, 3500);
       }}
     >
       {NodeTypeLabels.copy.label}

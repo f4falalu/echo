@@ -14,7 +14,7 @@ const requiredEnv = {
 };
 
 // Validate environment variables
-const { hasErrors } = validateEnv(requiredEnv, { skipInProduction: false, skipInCI: false, skipInDocker: false });
+const { hasErrors } = validateEnv(requiredEnv, { skipInProduction: false, skipInCI: false, skipInDocker: false, logPublicVars: true });
 
 if (hasErrors) {
   process.exit(1);

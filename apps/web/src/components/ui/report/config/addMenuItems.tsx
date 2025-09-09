@@ -108,10 +108,10 @@ export const menuGroups: MenuGroup[] = [
     })),
   },
   {
-    group: 'Metrics and charts',
+    group: 'Charts',
     items: [
       {
-        icon: <NodeTypeIcons.metric />,
+        icon: <NodeTypeIcons.metricAdd />,
         keywords: NodeTypeLabels.metric.keywords,
         label: NodeTypeLabels.metric.label,
         value: CUSTOM_KEYS.metric,

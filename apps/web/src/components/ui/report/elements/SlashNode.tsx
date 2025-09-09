@@ -2,7 +2,7 @@ import type { TComboboxInputElement } from 'platejs';
 
 import type { PlateElementProps } from 'platejs/react';
 import { PlateElement } from 'platejs/react';
-import * as React from 'react';
+import { cn } from '@/lib/utils';
 import { getSlashGroups } from '../config/addMenuItems';
 
 import {
@@ -22,8 +22,15 @@ export function SlashInputElement(props: PlateElementProps<TComboboxInputElement
 
   return (
     <PlateElement {...props} as="span" data-slate-value={element.value}>
-      <InlineCombobox element={element} trigger="/">
-        <InlineComboboxInput />
+      <InlineCombobox
+        element={element}
+        trigger="/"
+        className="bg-item-select relative rounded-l px-1 min-h-7 overflow-hidden flex items-center w-fit"
+      >
+        <InlineComboboxInput
+          placeholder="Filter..."
+          className="pl-1 py-0.5 bg-item-select text-gray-light rounded-r"
+        />
 
         <InlineComboboxContent>
           <InlineComboboxEmpty>No results</InlineComboboxEmpty>
@@ -50,7 +57,6 @@ export function SlashInputElement(props: PlateElementProps<TComboboxInputElement
           ))}
         </InlineComboboxContent>
       </InlineCombobox>
-
       {props.children}
     </PlateElement>
   );

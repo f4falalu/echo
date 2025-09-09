@@ -12,13 +12,13 @@ import {
 import {
   Code,
   Download4,
+  Edit,
   History,
-  Pencil,
-  SquareChart,
+  Image,
+  PenSparkle,
   SquareChartPen,
   Star,
   Table,
-  WandSparkle,
 } from '@/components/ui/icons';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import { useBusterNotifications } from '@/context/BusterNotifications';
@@ -108,7 +108,7 @@ export const useMetricDrilldownItem = ({ metricId }: { metricId: string }): IDro
           buttonText="Submit request"
         />,
       ],
-      icon: <WandSparkle />,
+      icon: <PenSparkle />,
     }),
     [metricId]
   );
@@ -117,9 +117,11 @@ export const useMetricDrilldownItem = ({ metricId }: { metricId: string }): IDro
 export const useRenameMetricOnPage = ({
   metricId,
   metricVersionNumber,
+  isNotMetricPage = false,
 }: {
   metricId: string;
   metricVersionNumber: number | undefined;
+  isNotMetricPage?: boolean;
 }) => {
   const navigate = useNavigate();
 
@@ -127,11 +129,13 @@ export const useRenameMetricOnPage = ({
     () => ({
       label: 'Rename metric',
       value: 'rename-metric',
-      icon: <Pencil />,
+      icon: <Edit />,
       onClick: async () => {
         await navigate({
           unsafeRelative: 'path',
-          to: '../chart' as '/app/metrics/$metricId/chart',
+          to: isNotMetricPage
+            ? '/app/metrics/$metricId/chart'
+            : ('../chart' as '/app/metrics/$metricId/chart'),
           params: (prev) => ({ ...prev, metricId }),
           search: metricVersionNumber ? { metric_version_number: metricVersionNumber } : undefined,
         });
@@ -202,10 +206,10 @@ export const useDownloadPNGSelectMenu = ({
 
   return useMemo(
     () => ({
-      label: 'Download as PNG',
+      label: 'Download as PNG (coming soon)',
       value: 'download-png',
       disabled: true,
-      icon: <SquareChart />,
+      icon: <Image />,
       onClick: async () => {
         const node = document.getElementById(METRIC_CHART_CONTAINER_ID(metricId)) as HTMLElement;
         if (node) {

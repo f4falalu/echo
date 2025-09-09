@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 
-import { THEME_RESET_COLORS, THEME_RESET_STYLE } from '@/styles/theme-reset';
+import { THEME_RESET_COLORS, THEME_RESET_STYLE } from '@/styles/report-editor-theme';
 
 interface ThemeWrapperProps extends React.ComponentProps<'div'> {
   defaultTheme?: string;
