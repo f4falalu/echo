@@ -12,9 +12,9 @@ import {
 import {
   Code,
   Download4,
+  Edit,
   History,
   Image,
-  Pencil,
   PenSparkle,
   SquareChartPen,
   Star,
@@ -127,7 +127,7 @@ export const useRenameMetricOnPage = ({
     () => ({
       label: 'Rename metric',
       value: 'rename-metric',
-      icon: <Pencil />,
+      icon: <Edit />,
       onClick: async () => {
         await navigate({
           unsafeRelative: 'path',

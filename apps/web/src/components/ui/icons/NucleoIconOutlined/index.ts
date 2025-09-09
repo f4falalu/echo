@@ -43,6 +43,7 @@ export { default as DoubleChevronRight } from './double-chevron-right';
 export { default as Download } from './download';
 export { default as Download4 } from './download-4';
 export { default as DuplicatePlus } from './duplicate-plus';
+export { default as Edit } from './edit';
 export { default as Equation } from './equation';
 export { default as Eraser } from './eraser';
 export { default as ExternalLink } from './external-link';
