@@ -64,7 +64,7 @@ export function FloatingToolbar({
         {...rootProps}
         ref={ref}
         className={cn(
-          'scrollbar-hide bg-popover absolute z-50 overflow-x-auto rounded-md border p-1 whitespace-nowrap opacity-100 shadow-md print:hidden',
+          'scrollbar-hide bg-popover absolute z-50 overflow-x-auto rounded-md border p-2 whitespace-nowrap opacity-100 shadow print:hidden',
           'max-w-[80vw]',
           className
         )}
