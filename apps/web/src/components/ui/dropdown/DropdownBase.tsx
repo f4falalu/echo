@@ -100,7 +100,7 @@ const DropdownMenuItem = React.forwardRef<
       'group',
       className
     )}
-    onClick={(e) => {
+    onMouseDown={(e) => {
       if (!closeOnSelect) {
         e.stopPropagation();
         e.preventDefault();

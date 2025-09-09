@@ -2,12 +2,12 @@ import type { RegisteredRouter } from '@tanstack/react-router';
 import type { ILinkProps } from '@/types/routes';
 import type { DropdownProps } from './Dropdown';
 
-export interface IDropdownItem<
+export type IDropdownItem<
   T = string,
   TRouter extends RegisteredRouter = RegisteredRouter,
   TOptions = unknown,
   TFrom extends string = string,
-> {
+> = {
   label: React.ReactNode | string;
   truncate?: boolean;
   searchLabel?: string; // Used for filtering
@@ -25,7 +25,7 @@ export interface IDropdownItem<
   linkTarget?: '_blank' | '_self';
   linkIcon?: 'arrow-right' | 'arrow-external' | 'caret-right' | 'none';
   selectType?: DropdownProps<T>['selectType'];
-}
+};
 
 export interface DropdownDivider {
   type: 'divider';
