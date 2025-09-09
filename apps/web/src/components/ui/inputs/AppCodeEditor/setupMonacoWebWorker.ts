@@ -6,7 +6,8 @@ import { isServer } from '@/lib/window';
 
 export const setupMonacoWebWorker = (): void => {
   if (!isServer) {
-    //@ts-expect-error
+    // biome-ignore lint/suspicious/noTsIgnore: false positive
+    //@ts-ignore
     window.MonacoEnvironment = {
       getWorker(_moduleId: string, label: string) {
         switch (label) {
