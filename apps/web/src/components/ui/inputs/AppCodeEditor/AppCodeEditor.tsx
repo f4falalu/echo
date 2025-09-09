@@ -191,7 +191,7 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
               onMount={onMountCodeEditor}
               onChange={onChangeCodeEditor}
               options={memoizedMonacoEditorOptions}
-              loading={<LoadingCodeEditor />}
+              loading={null}
             />
           </Suspense>
         </ClientOnly>
