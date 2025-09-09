@@ -514,6 +514,8 @@ const AddNewBlockButton = function AddNewBlockButton({
 
     // Use the insertBlock function which handles positioning automatically
     insertBlock(editor, KEYS.p);
+    
+    editor.tf.insertText('/');
   });
 
   return (
