@@ -46,12 +46,12 @@
     // Production Environment
     "production": {
       "name": "web-production",
-      "routes": [
-        {
-          "pattern": "app.buster.so",
-          "custom_domain": true
-        }
-      ],
+      // "routes": [
+      //   {
+      //     "pattern": "app.buster.so",
+      //     "custom_domain": true
+      //   }
+      // ],
       "vars": {
         "VITE_PUBLIC_API_URL": "https://api.buster.so",
         "VITE_PUBLIC_URL": "https://platform.buster.so",
