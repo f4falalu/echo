@@ -29,7 +29,7 @@ export function CodeBlockElement(props: PlateElementProps<TCodeBlockElement>) {
       {...props}
     >
       <div
-        className="w-full flex items-center justify-between gap-0.5 py-0.5 select-none"
+        className="w-full flex items-center justify-between gap-0.5 py-0.5 select-none opacity-0 group-hover:opacity-100 transition-opacity duration-200"
         contentEditable={false}
       >
         <CodeBlockCombobox />
