@@ -21,7 +21,7 @@ import {
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
 import { useIsTouchDevice } from '@/hooks/useIsTouchDevice';
-import { THEME_RESET_STYLE } from '@/styles/theme-reset';
+import { THEME_RESET_STYLE } from '@/styles/report-editor-theme';
 import { NodeTypeIcons } from '../config/icons';
 import { NodeTypeLabels } from '../config/labels';
 

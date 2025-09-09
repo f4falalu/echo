@@ -36,7 +36,7 @@ export function MentionElement(
         'bg-muted inline-block rounded-md px-1.5 py-0.5 align-baseline text-sm font-medium',
         !readOnly && 'cursor-pointer',
         selected && focused && 'ring-ring ring-2',
-        element.children[0][KEYS.bold] === true && 'font-bold',
+        element.children[0][KEYS.bold] === true && 'font-semibold',
         element.children[0][KEYS.italic] === true && 'italic',
         element.children[0][KEYS.underline] === true && 'underline'
       )}

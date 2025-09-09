@@ -391,7 +391,7 @@ function NoEmoji({ i18n }: Pick<UseEmojiPickerType, 'i18n'>) {
     <div className="border-muted flex h-14 max-h-14 min-h-14 items-center border-t p-2">
       <div className="flex items-center justify-center text-2xl">😢</div>
       <div className="overflow-hidden pl-2">
-        <div className="truncate text-sm font-bold">{i18n.searchNoResultsTitle}</div>
+        <div className="truncate text-sm font-semibold">{i18n.searchNoResultsTitle}</div>
         <div className="truncate text-sm">{i18n.searchNoResultsSubtitle}</div>
       </div>
     </div>

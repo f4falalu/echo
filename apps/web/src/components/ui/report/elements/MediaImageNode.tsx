@@ -23,7 +23,7 @@ export const ImageElement = withHOC(
 
     return (
       <MediaToolbar plugin={ImagePlugin}>
-        <PlateElement {...props} className="py-2.5">
+        <PlateElement {...props} className="mt-2.5 mb-4.5">
           <figure className="group relative m-0" contentEditable={false}>
             <Resizable
               align={align}

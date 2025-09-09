@@ -1,12 +1,10 @@
 import { CodeBlockPlugin, CodeLinePlugin, CodeSyntaxPlugin } from '@platejs/code-block/react';
-import { common, createLowlight } from 'lowlight';
-
-import { CodeBlockElement, CodeLineElement, CodeSyntaxLeaf } from '../elements/CodeBlockNode';
-
-// import sql from 'highlight.js/lib/languages/sql';
-// import yaml from 'highlight.js/lib/languages/yaml';
 // import javascript from 'highlight.js/lib/languages/javascript';
+// import sql from 'highlight.js/lib/languages/sql';
 // import typescript from 'highlight.js/lib/languages/typescript';
+// import yaml from 'highlight.js/lib/languages/yaml';
+import { common, createLowlight } from 'lowlight';
+import { CodeBlockElement, CodeLineElement, CodeSyntaxLeaf } from '../elements/CodeBlockNode';
 
 const lowlight = createLowlight();
 const isClient = typeof window !== 'undefined';
