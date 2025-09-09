@@ -137,9 +137,8 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
           model: Sonnet4,
           providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
           headers: {
-            'anthropic-beta':
-              'fine-grained-tool-streaming-2025-05-14,extended-cache-ttl-2025-04-11',
-            anthropic_beta: 'fine-grained-tool-streaming-2025-05-14,extended-cache-ttl-2025-04-11',
+            'anthropic-beta': 'fine-grained-tool-streaming-2025-05-14',
+            anthropic_beta: 'fine-grained-tool-streaming-2025-05-14',
           },
           tools: {
             [CREATE_METRICS_TOOL_NAME]: createMetrics,
