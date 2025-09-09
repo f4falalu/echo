@@ -10,7 +10,7 @@
       { "path": "../packages/ai" },
       { "path": "../packages/rerank" },
       { "path": "../packages/slack" },
-      { "path": "../packages/stored-values" },
+      { "path": "../packages/search" },
       { "path": "../packages/web-tools" },
     ],
     "settings": {

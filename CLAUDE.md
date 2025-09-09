@@ -31,7 +31,6 @@ This is a pnpm-based monorepo using Turborepo with the following structure:
 - `packages/database` - Database schema, migrations, and utilities (Drizzle ORM)
 - `packages/data-source` - Data source adapters (PostgreSQL, MySQL, BigQuery, Snowflake, etc.)
 - `packages/access-controls` - Permission and access control logic
-- `packages/stored-values` - Stored values management
 - `packages/rerank` - Document reranking functionality
 - `packages/server-shared` - Shared server types and utilities
 - `packages/sdk` - TypeScript SDK for Buster API (functional programming patterns)

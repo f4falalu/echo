@@ -33,9 +33,9 @@ export const SearchTargetSchema = z.object({
 export type SearchTarget = z.infer<typeof SearchTargetSchema>;
 
 /**
- * Schema for embedding array (1536 dimensions for text-embedding-3-small)
+ * Schema for embedding array (default dimensions for text-embedding-3-small)
  */
-export const EmbeddingSchema = z.array(z.number()).length(1536);
+export const EmbeddingSchema = z.array(z.number());
 
 /**
  * Schema for search options

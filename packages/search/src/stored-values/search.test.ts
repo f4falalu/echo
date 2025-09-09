@@ -1,12 +1,10 @@
 import { getClient } from '@buster/database';
-import { embed } from 'ai';
 import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   type SearchTarget,
   type StoredValueResult,
   StoredValuesError,
   extractSearchableColumnsFromYaml,
-  generateEmbedding,
   healthCheck,
   searchValuesAcrossTargets,
   searchValuesByEmbedding,
@@ -16,16 +14,6 @@ import {
 // Mock dependencies
 vi.mock('@buster/database', () => ({
   getClient: vi.fn(),
-}));
-
-vi.mock('ai', () => ({
-  embed: vi.fn(),
-}));
-
-vi.mock('@ai-sdk/openai', () => ({
-  openai: {
-    embedding: vi.fn(() => 'mock-embedding-model'),
-  },
 }));
 
 describe('search.ts - Unit Tests', () => {
@@ -51,7 +39,7 @@ describe('search.ts - Unit Tests', () => {
       },
     ];
 
-    const validEmbedding = new Array(1536).fill(0.1);
+    const validEmbedding = new Array(512).fill(0.1);
 
     it('should search values with valid embedding', async () => {
       mockClient.unsafe.mockResolvedValue(mockResults);
@@ -104,10 +92,17 @@ describe('search.ts - Unit Tests', () => {
       );
     });
 
-    it('should throw StoredValuesError for invalid embedding', async () => {
-      await expect(
-        searchValuesByEmbedding('cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', [0.1, 0.2, 0.3])
-      ).rejects.toThrow(StoredValuesError);
+    it('should accept embeddings of any length', async () => {
+      mockClient.unsafe.mockResolvedValue(mockResults);
+
+      // Should now accept smaller embeddings since the schema was changed
+      const result = await searchValuesByEmbedding(
+        'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a',
+        [0.1, 0.2, 0.3]
+      );
+
+      expect(result).toEqual(mockResults);
+      expect(mockClient.unsafe).toHaveBeenCalledTimes(1);
     });
 
     it('should handle database errors gracefully', async () => {
@@ -120,7 +115,7 @@ describe('search.ts - Unit Tests', () => {
   });
 
   describe('searchValuesByEmbeddingWithFilters', () => {
-    const validEmbedding = new Array(1536).fill(0.1);
+    const validEmbedding = new Array(512).fill(0.1);
 
     it('should apply all filters when provided', async () => {
       mockClient.unsafe.mockResolvedValue([]);
@@ -201,7 +196,7 @@ describe('search.ts - Unit Tests', () => {
   });
 
   describe('searchValuesAcrossTargets', () => {
-    const validEmbedding = new Array(1536).fill(0.1);
+    const validEmbedding = new Array(512).fill(0.1);
 
     it('should search multiple targets in parallel', async () => {
       const mockResults1 = [{ id: '1', value: 'result1' } as StoredValueResult];
@@ -279,58 +274,6 @@ describe('search.ts - Unit Tests', () => {
           5
         )
       ).rejects.toThrow(StoredValuesError);
-    });
-  });
-
-  describe('generateEmbedding', () => {
-    const mockEmbedding = new Array(1536).fill(0.1);
-
-    it('should generate embedding for search terms', async () => {
-      (embed as Mock).mockResolvedValue({ embedding: mockEmbedding });
-
-      const result = await generateEmbedding(['test', 'search', 'terms']);
-
-      expect(result).toEqual(mockEmbedding);
-      expect(embed).toHaveBeenCalledWith({
-        model: 'mock-embedding-model',
-        value: 'test search terms',
-        maxRetries: 3,
-        abortSignal: undefined,
-      });
-    });
-
-    it('should use custom options', async () => {
-      (embed as Mock).mockResolvedValue({ embedding: mockEmbedding });
-      const controller = new AbortController();
-
-      await generateEmbedding(['test'], {
-        maxRetries: 5,
-        abortSignal: controller.signal,
-      });
-
-      expect(embed).toHaveBeenCalledWith({
-        model: 'mock-embedding-model',
-        value: 'test',
-        maxRetries: 5,
-        abortSignal: controller.signal,
-      });
-    });
-
-    it('should validate search terms', async () => {
-      await expect(generateEmbedding([])).rejects.toThrow(StoredValuesError);
-    });
-
-    it('should throw StoredValuesError when embedding generation fails', async () => {
-      (embed as Mock).mockRejectedValue(new Error('API error'));
-
-      await expect(generateEmbedding(['test'])).rejects.toThrow(StoredValuesError);
-    });
-
-    it('should validate embedding output dimensions', async () => {
-      const invalidEmbedding = [0.1, 0.2, 0.3]; // wrong dimensions
-      (embed as Mock).mockResolvedValue({ embedding: invalidEmbedding });
-
-      await expect(generateEmbedding(['test'])).rejects.toThrow(StoredValuesError);
     });
   });
 

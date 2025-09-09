@@ -29,27 +29,27 @@ describe('schemas.ts - Unit Tests', () => {
   });
 
   describe('EmbeddingSchema', () => {
-    it('should validate correct embedding array (1536 dimensions)', () => {
-      const embedding = new Array(1536).fill(0).map((_, i) => i * 0.001);
+    it('should validate correct embedding array (512 dimensions)', () => {
+      const embedding = new Array(512).fill(0).map((_, i) => i * 0.001);
       const result = EmbeddingSchema.parse(embedding);
       expect(result).toEqual(embedding);
-      expect(result).toHaveLength(1536);
+      expect(result).toHaveLength(512);
     });
 
-    it('should reject wrong dimension arrays', () => {
-      expect(() => EmbeddingSchema.parse([0.1, 0.2, 0.3])).toThrow();
-      expect(() => EmbeddingSchema.parse(new Array(1537).fill(0.1))).toThrow();
-      expect(() => EmbeddingSchema.parse([])).toThrow();
+    it('should accept arrays of any length', () => {
+      expect(() => EmbeddingSchema.parse([0.1, 0.2, 0.3])).not.toThrow();
+      expect(() => EmbeddingSchema.parse(new Array(513).fill(0.1))).not.toThrow();
+      expect(() => EmbeddingSchema.parse([])).not.toThrow();
     });
 
     it('should reject non-number values', () => {
-      const invalidEmbedding = new Array(1536).fill(0);
+      const invalidEmbedding = new Array(512).fill(0);
       invalidEmbedding[100] = 'not a number';
       expect(() => EmbeddingSchema.parse(invalidEmbedding)).toThrow();
     });
 
     it('should allow negative numbers', () => {
-      const embedding = new Array(1536).fill(-0.5);
+      const embedding = new Array(512).fill(-0.5);
       const result = EmbeddingSchema.parse(embedding);
       expect(result).toEqual(embedding);
     });

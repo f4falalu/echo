@@ -3,7 +3,6 @@ export {
   searchValuesByEmbedding,
   searchValuesByEmbeddingWithFilters,
   searchValuesAcrossTargets,
-  generateEmbedding,
   extractSearchableColumnsFromYaml,
   healthCheck,
   StoredValuesError,
@@ -24,11 +23,11 @@ export {
   SearchTermsSchema,
 } from './schemas';
 
-// Export utility functions
+// Export utility functions (with prefixed names to avoid conflicts)
 export {
-  formatSchemaName,
-  escapeSqlString,
+  formatSchemaName as formatStoredValuesSchemaName,
+  escapeSqlString as escapeStoredValuesSqlString,
   formatHalfvecLiteral,
-  buildWhereClause,
+  buildWhereClause as buildStoredValuesWhereClause,
   isValidEmbedding,
 } from './utils';
