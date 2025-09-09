@@ -33,8 +33,8 @@ interface UseMarkdownComponentsProps {
 }
 
 export const useMarkdownComponents = ({
-  animation = 'fadeIn',
-  animationDuration = 700,
+  animation = 'blurIn',
+  animationDuration = 300,
   animationTimingFunction = 'ease-in-out',
   isStreamFinished = true,
   stripFormatting = true,

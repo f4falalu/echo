@@ -14,8 +14,9 @@ export const ReportPageHeader = React.forwardRef<
     updatedAt?: string;
     onChangeName: (name: string) => void;
     isStreaming: boolean;
+    readOnly: boolean;
   }
->(({ name = '', updatedAt = '', className = '', onChangeName, isStreaming }, ref) => {
+>(({ name = '', updatedAt = '', className = '', onChangeName, isStreaming, readOnly }, ref) => {
   const updatedAtFormatted = useMemo(() => {
     if (!updatedAt) return '';
     return formatDate({ date: updatedAt, format: 'll' });
@@ -24,7 +25,7 @@ export const ReportPageHeader = React.forwardRef<
   return (
     <div className={cn('flex flex-col space-y-1.5', className)}>
       <EditableTitle
-        readOnly={isStreaming}
+        readOnly={isStreaming || readOnly}
         className="text-foreground! h-9"
         level={1}
         ref={ref}

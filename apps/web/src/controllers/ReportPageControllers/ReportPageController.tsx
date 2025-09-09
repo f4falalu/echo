@@ -76,7 +76,7 @@ export const ReportPageController: React.FC<{
     });
 
     const onReady = useMemoizedFn((editor: BusterReportEditor) => {
-      setEditor(editor);
+      setEditor?.(editor);
       onReadyProp?.(editor);
     });
 
@@ -121,6 +121,7 @@ export const ReportPageController: React.FC<{
                 onChangeName={onChangeName}
                 className={commonClassName}
                 isStreaming={isStreamingMessage}
+                readOnly={readOnly}
               />
             }
             postEditorChildren={
