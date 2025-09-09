@@ -1,17 +1,26 @@
+import type { deploy } from '@buster/server-shared';
+
+type DeployDoc = deploy.DeployDoc;
+type UnifiedDeployRequest = deploy.UnifiedDeployRequest;
+
 import yaml from 'js-yaml';
 import { generateDefaultSQL } from '../models/parsing';
-import type { DeployColumn, DeployModel, DeployRequest, Model } from '../schemas';
+import type { DeployColumn, DeployModel, Model } from '../schemas';
 
 /**
- * Pure function to prepare a deployment request from models
+ * Pure function to prepare a unified deployment request from models and docs
  */
 export function prepareDeploymentRequest(
   models: Model[],
-  deleteAbsentModels = true
-): DeployRequest {
+  docs: DeployDoc[] = [],
+  deleteAbsentModels = true,
+  deleteAbsentDocs = true
+): UnifiedDeployRequest {
   return {
     models: models.map(modelToDeployModel),
+    docs,
     deleteAbsentModels,
+    deleteAbsentDocs,
   };
 }
 

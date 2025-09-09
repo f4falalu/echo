@@ -37,6 +37,18 @@ export const AnalystAgentOptionsSchema = z.object({
   messageId: z.string(),
   datasets: z.array(z.custom<PermissionedDataset>()),
   workflowStartTime: z.number(),
+  analystInstructions: z.string().optional(),
+  organizationDocs: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        content: z.string(),
+        type: z.string(),
+        updatedAt: z.string(),
+      })
+    )
+    .optional(),
 });
 
 export const AnalystStreamOptionsSchema = z.object({
@@ -49,7 +61,7 @@ export type AnalystAgentOptions = z.infer<typeof AnalystAgentOptionsSchema>;
 export type AnalystStreamOptions = z.infer<typeof AnalystStreamOptionsSchema>;
 
 export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
-  const { datasets } = analystAgentOptions;
+  const { datasets, analystInstructions, organizationDocs } = analystAgentOptions;
 
   const systemMessage = {
     role: 'system',
@@ -60,16 +72,31 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
   // Create second system message with datasets information
   const datasetsContent = datasets
     .filter((d) => d.ymlContent)
+    .sort((a, b) => a.name.localeCompare(b.name)) // Sort by name for consistency
     .map((d) => d.ymlContent)
     .join('\n\n');
 
   const datasetsSystemMessage = {
     role: 'system',
     content: datasetsContent
-      ? `<database_context>\n${datasetsContent}\n</database_context>`
-      : '<database_context>\nNo datasets available\n</database_context>',
+      ? `<datasets>\n${datasetsContent}\n</datasets>`
+      : '<datasets>\nNo datasets available\n</datasets>',
     providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
   } as ModelMessage;
+
+  // Create third system message with data catalog docs
+  const docsContent = organizationDocs
+    ?.sort((a, b) => a.name.localeCompare(b.name)) // Sort by name for consistency
+    .map((doc) => `# ${doc.name}\n\n${doc.content}`)
+    .join('\n\n---\n\n');
+
+  const docsSystemMessage = docsContent
+    ? ({
+        role: 'system',
+        content: `<data_catalog_docs>\n${docsContent}\n</data_catalog_docs>`,
+        providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
+      } as ModelMessage)
+    : null;
 
   async function stream({ messages }: AnalystStreamOptions) {
     const createMetrics = createCreateMetricsTool(analystAgentOptions);
@@ -95,6 +122,15 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
       availableTools,
     };
 
+    // Create analyst instructions system message with proper escaping
+    const analystInstructionsMessage = analystInstructions
+      ? ({
+          role: 'system',
+          content: `<organization_instructions>\n${analystInstructions}\n</organization_instructions>`,
+          providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
+        } as ModelMessage)
+      : null;
+
     return wrapTraced(
       () =>
         streamText({
@@ -114,7 +150,13 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
             [MODIFY_REPORTS_TOOL_NAME]: modifyReports,
             [DONE_TOOL_NAME]: doneTool,
           },
-          messages: [systemMessage, datasetsSystemMessage, ...messages],
+          messages: [
+            systemMessage,
+            datasetsSystemMessage,
+            ...(docsSystemMessage ? [docsSystemMessage] : []),
+            ...(analystInstructionsMessage ? [analystInstructionsMessage] : []),
+            ...messages,
+          ],
           stopWhen: STOP_CONDITIONS,
           toolChoice: 'required',
           maxOutputTokens: 25000,

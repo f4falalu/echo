@@ -1,19 +1,49 @@
 import { relative } from 'node:path';
-import type { CLIDeploymentResult, DeployResponse, Model } from '../schemas';
+import type { deploy } from '@buster/server-shared';
+import type { CLIDeploymentResult, Model } from '../schemas';
+
+type UnifiedDeployResponse = deploy.UnifiedDeployResponse;
 
 /**
  * Pure function to merge multiple deployment results into one
  */
 export function mergeDeploymentResults(results: CLIDeploymentResult[]): CLIDeploymentResult {
   return results.reduce(
-    (acc, result) => ({
-      success: [...acc.success, ...result.success],
-      updated: [...acc.updated, ...result.updated],
-      noChange: [...acc.noChange, ...result.noChange],
-      failures: [...acc.failures, ...result.failures],
-      excluded: [...acc.excluded, ...result.excluded],
-      todos: [...acc.todos, ...(result.todos || [])],
-    }),
+    (acc, result) => {
+      // Merge model results
+      const base: CLIDeploymentResult = {
+        success: [...acc.success, ...result.success],
+        updated: [...acc.updated, ...result.updated],
+        noChange: [...acc.noChange, ...result.noChange],
+        failures: [...acc.failures, ...result.failures],
+        excluded: [...acc.excluded, ...result.excluded],
+        todos: [...acc.todos, ...(result.todos || [])],
+      };
+
+      // Merge doc results if present
+      if (result.docs || acc.docs) {
+        const created = [...(acc.docs?.created || []), ...(result.docs?.created || [])];
+        const updated = [...(acc.docs?.updated || []), ...(result.docs?.updated || [])];
+        const deleted = [...(acc.docs?.deleted || []), ...(result.docs?.deleted || [])];
+        const failed = [...(acc.docs?.failed || []), ...(result.docs?.failed || [])];
+
+        base.docs = {
+          created,
+          updated,
+          deleted,
+          failed,
+          summary: {
+            totalDocs: created.length + updated.length,
+            createdCount: created.length,
+            updatedCount: updated.length,
+            deletedCount: deleted.length,
+            failedCount: failed.length,
+          },
+        };
+      }
+
+      return base;
+    },
     {
       success: [],
       updated: [],
@@ -21,16 +51,18 @@ export function mergeDeploymentResults(results: CLIDeploymentResult[]): CLIDeplo
       failures: [],
       excluded: [],
       todos: [],
-    }
+    } as CLIDeploymentResult
   );
 }
 
 /**
- * Pure function to process deployment response into CLI result format
+ * Pure function to process unified deployment response into CLI result format
+ * Now handles both models and docs from the unified response
  */
 export function processDeploymentResponse(
-  response: DeployResponse,
-  modelFileMap: Map<string, string>
+  response: UnifiedDeployResponse,
+  modelFileMap: Map<string, string>,
+  _docFileMap: Map<string, string>
 ): CLIDeploymentResult {
   const result: CLIDeploymentResult = {
     success: [],
@@ -41,40 +73,51 @@ export function processDeploymentResponse(
     todos: [],
   };
 
-  // Process successful deployments
-  for (const item of response.success) {
-    result.success.push({
-      file: modelFileMap.get(item.name) || 'unknown',
-      modelName: item.name,
-      dataSource: item.dataSource,
-    });
+  // Process model results
+  if (response.models) {
+    // Process successful deployments
+    for (const item of response.models.success) {
+      result.success.push({
+        file: modelFileMap.get(item.name) || 'unknown',
+        modelName: item.name,
+        dataSource: item.dataSource || 'unknown',
+      });
+    }
+
+    // Process updated deployments
+    for (const item of response.models.updated) {
+      result.updated.push({
+        file: modelFileMap.get(item.name) || 'unknown',
+        modelName: item.name,
+        dataSource: item.dataSource || 'unknown',
+      });
+    }
+
+    // Process failures
+    for (const failure of response.models.failures) {
+      result.failures.push({
+        file: modelFileMap.get(failure.name) || 'unknown',
+        modelName: failure.name,
+        errors: failure.errors,
+      });
+    }
   }
 
-  // Process updated deployments
-  for (const item of response.updated) {
-    result.updated.push({
-      file: modelFileMap.get(item.name) || 'unknown',
-      modelName: item.name,
-      dataSource: item.dataSource,
-    });
-  }
-
-  // Process unchanged deployments
-  for (const item of response.noChange) {
-    result.noChange.push({
-      file: modelFileMap.get(item.name) || 'unknown',
-      modelName: item.name,
-      dataSource: item.dataSource,
-    });
-  }
-
-  // Process failures
-  for (const failure of response.failures) {
-    result.failures.push({
-      file: modelFileMap.get(failure.name) || 'unknown',
-      modelName: failure.name,
-      errors: failure.errors,
-    });
+  // Process doc results
+  if (response.docs) {
+    result.docs = {
+      created: response.docs.created || [],
+      updated: response.docs.updated || [],
+      deleted: response.docs.deleted || [],
+      failed: response.docs.failed || [],
+      summary: response.docs.summary || {
+        totalDocs: 0,
+        createdCount: 0,
+        updatedCount: 0,
+        deletedCount: 0,
+        failedCount: 0,
+      },
+    };
   }
 
   return result;
@@ -103,7 +146,7 @@ export function formatDeploymentSummary(
 
   // Models deployed summary
   if (totalSuccess > 0) {
-    lines.push(`  ${totalSuccess} models deployed`);
+    lines.push(`  ${totalSuccess} ${totalSuccess === 1 ? 'model' : 'models'} deployed`);
     if (result.success.length > 0) {
       lines.push(`    • ${result.success.length} new`);
     }
@@ -113,14 +156,108 @@ export function formatDeploymentSummary(
     if (result.noChange.length > 0) {
       lines.push(`    • ${result.noChange.length} unchanged`);
     }
+
+    // Only show model details in verbose mode
+    if (verbose) {
+      if (result.success.length > 0) {
+        lines.push('    New models:');
+        for (const model of result.success.slice(0, 5)) {
+          lines.push(`      - ${model.modelName} (${model.file})`);
+        }
+        if (result.success.length > 5) {
+          lines.push(`      ... and ${result.success.length - 5} more`);
+        }
+      }
+      if (result.updated.length > 0) {
+        lines.push('    Updated models:');
+        for (const model of result.updated.slice(0, 5)) {
+          lines.push(`      - ${model.modelName} (${model.file})`);
+        }
+        if (result.updated.length > 5) {
+          lines.push(`      ... and ${result.updated.length - 5} more`);
+        }
+      }
+      if (result.noChange.length > 0) {
+        lines.push('    Unchanged models:');
+        for (const model of result.noChange.slice(0, 5)) {
+          lines.push(`      - ${model.modelName} (${model.file})`);
+        }
+        if (result.noChange.length > 5) {
+          lines.push(`      ... and ${result.noChange.length - 5} more`);
+        }
+      }
+    }
   } else if (totalFailed === 0 && totalTodos === 0) {
     lines.push('  No models to deploy');
+  }
+
+  // Docs deployed summary
+  if (result.docs) {
+    const totalDocs = (result.docs.created?.length || 0) + (result.docs.updated?.length || 0);
+    if (totalDocs > 0 || result.docs.deleted?.length > 0) {
+      lines.push('');
+      lines.push(`  ${totalDocs} ${totalDocs === 1 ? 'doc' : 'docs'} deployed`);
+      if (result.docs.created?.length > 0) {
+        lines.push(`    • ${result.docs.created.length} new`);
+      }
+      if (result.docs.updated?.length > 0) {
+        lines.push(`    • ${result.docs.updated.length} updated`);
+      }
+      if (result.docs.deleted?.length > 0) {
+        lines.push(`    • ${result.docs.deleted.length} deleted`);
+      }
+
+      // Only show file details in verbose mode
+      if (verbose) {
+        if (result.docs.created?.length > 0) {
+          lines.push('    New docs:');
+          for (const doc of result.docs.created.slice(0, 5)) {
+            lines.push(`      - ${doc}`);
+          }
+          if (result.docs.created.length > 5) {
+            lines.push(`      ... and ${result.docs.created.length - 5} more`);
+          }
+        }
+        if (result.docs.updated?.length > 0) {
+          lines.push('    Updated docs:');
+          for (const doc of result.docs.updated.slice(0, 5)) {
+            lines.push(`      - ${doc}`);
+          }
+          if (result.docs.updated.length > 5) {
+            lines.push(`      ... and ${result.docs.updated.length - 5} more`);
+          }
+        }
+        if (result.docs.deleted?.length > 0) {
+          lines.push('    Deleted docs:');
+          for (const doc of result.docs.deleted.slice(0, 5)) {
+            lines.push(`      - ${doc}`);
+          }
+          if (result.docs.deleted.length > 5) {
+            lines.push(`      ... and ${result.docs.deleted.length - 5} more`);
+          }
+        }
+      }
+    }
+
+    // Doc failures
+    if (result.docs.failed?.length > 0) {
+      lines.push('');
+      lines.push(
+        `  ${result.docs.failed.length} ${result.docs.failed.length === 1 ? 'doc' : 'docs'} failed:`
+      );
+      for (const failure of result.docs.failed.slice(0, verbose ? 10 : 3)) {
+        lines.push(`    • ${failure.name}: ${failure.error}`);
+      }
+      if (result.docs.failed.length > (verbose ? 10 : 3)) {
+        lines.push(`    ... and ${result.docs.failed.length - (verbose ? 10 : 3)} more`);
+      }
+    }
   }
 
   // Failures section
   if (totalFailed > 0) {
     lines.push('');
-    lines.push(`  ${totalFailed} models failed:`);
+    lines.push(`  ${totalFailed} ${totalFailed === 1 ? 'model' : 'models'} failed:`);
 
     // Group failures by error message for better readability
     const failuresByError = groupFailuresByError(result.failures);
@@ -170,7 +307,7 @@ export function formatDeploymentSummary(
   // TODOs section
   if (totalTodos > 0) {
     lines.push('');
-    lines.push(`  ${totalTodos} files need completion:`);
+    lines.push(`  ${totalTodos} ${totalTodos === 1 ? 'file needs' : 'files need'} completion:`);
 
     const maxTodos = verbose ? result.todos.length : 5;
     for (let i = 0; i < Math.min(maxTodos, result.todos.length); i++) {
@@ -189,7 +326,7 @@ export function formatDeploymentSummary(
   // Excluded section (only in verbose mode)
   if (verbose && totalExcluded > 0) {
     lines.push('');
-    lines.push(`  ${totalExcluded} files excluded:`);
+    lines.push(`  ${totalExcluded} ${totalExcluded === 1 ? 'file' : 'files'} excluded:`);
 
     for (const excluded of result.excluded) {
       // Show full paths in verbose mode
@@ -200,9 +337,14 @@ export function formatDeploymentSummary(
 
   // Final status line
   lines.push('');
-  if (totalFailed > 0) {
+  const docFailures = result.docs?.failed?.length || 0;
+  const totalAllFailures = totalFailed + docFailures;
+
+  if (totalAllFailures > 0) {
     const mode = isDryRun ? 'Dry run' : 'Deployment';
-    lines.push(`✗ ${mode} completed with ${totalFailed} error${totalFailed === 1 ? '' : 's'}`);
+    lines.push(
+      `✗ ${mode} completed with ${totalAllFailures} error${totalAllFailures === 1 ? '' : 's'}`
+    );
     if (!verbose) {
       lines.push('  Run with --verbose for full error details');
     }
@@ -211,8 +353,11 @@ export function formatDeploymentSummary(
     lines.push(
       `⚠ ${mode} completed with ${totalTodos} file${totalTodos === 1 ? '' : 's'} needing completion`
     );
-  } else if (totalSuccess === 0) {
-    lines.push('⚠ No models found to deploy');
+  } else if (
+    totalSuccess === 0 &&
+    (!result.docs || (result.docs.created?.length || 0) + (result.docs.updated?.length || 0) === 0)
+  ) {
+    lines.push('⚠ No models or docs found to deploy');
   } else {
     const mode = isDryRun ? 'Dry run' : 'Deployment';
     lines.push(`✓ ${mode} completed successfully`);

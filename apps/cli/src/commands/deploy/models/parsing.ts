@@ -304,7 +304,7 @@ export function generateDefaultSQL(model: Model): string {
  */
 export class ModelParsingError extends Error {
   public file: string;
-  public zodError?: ZodError;
+  public zodError: ZodError | undefined;
 
   constructor(message: string, file: string, zodError?: ZodError) {
     super(message);
