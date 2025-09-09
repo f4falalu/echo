@@ -386,28 +386,38 @@ const useDownloadPdfSelectMenu = ({
 };
 
 const useUndoRedo = (): IDropdownItems => {
-  const { editor, setEditor } = useEditorContext();
-  return createDropdownItems([
-    {
-      label: 'Undo',
-      value: 'undo',
-      icon: <Undo />,
-      onClick: () => {
-        console.log('Undo');
-        console.log(editor);
-        //  editor?.tf.undo();
-      },
-    },
-    {
-      label: 'Redo',
-      value: 'redo',
-      icon: <Redo />,
-      onClick: () => {
-        console.log('Redo');
-        //  editor?.tf.redo();
-      },
-    },
-  ]);
+  const { editor } = useEditorContext();
+  const getEditor = () => {
+    if (!editor?.current) {
+      console.warn('Editor is not defined');
+      return;
+    }
+    return editor?.current;
+  };
+  return useMemo(
+    () =>
+      createDropdownItems([
+        {
+          label: 'Undo',
+          value: 'undo',
+          icon: <Undo />,
+          onClick: () => {
+            const editorInstance = getEditor();
+            editorInstance?.undo();
+          },
+        },
+        {
+          label: 'Redo',
+          value: 'redo',
+          icon: <Redo />,
+          onClick: () => {
+            const editorInstance = getEditor();
+            editorInstance?.redo();
+          },
+        },
+      ]),
+    []
+  );
 };
 
 const useDuplicateReportSelectMenu = ({ reportId }: { reportId: string }): IDropdownItem => {

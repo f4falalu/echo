@@ -5,13 +5,8 @@ import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 
 const useReportAssetContext = () => {
   const [forceUpdate, startForceUpdate] = useTransition();
-  const [hasEditor, setHasEditor] = useState(false);
   const [versionHistoryMode, setVersionHistoryMode] = useState<number | false>(false);
   const editor = useRef<BusterReportEditor | null>(null);
-  const undo = useRef<(() => void) | null>(null);
-  const redo = useRef<(() => void) | null>(null);
-
-  console.log('hasEditor', editor.current, !!undo.current, !!redo.current, hasEditor, forceUpdate);
 
   const openReportVersionHistoryMode = useMemoizedFn((versionNumber: number) => {
     setVersionHistoryMode(versionNumber);
@@ -21,19 +16,13 @@ const useReportAssetContext = () => {
     setVersionHistoryMode(false);
   });
 
-  const setEditor = useMemoizedFn((editor: BusterReportEditor) => {
-    if (!editor) {
+  const setEditor = useMemoizedFn((editorInstance: BusterReportEditor) => {
+    if (!editorInstance) {
       return;
     }
 
-    editor.current = editor;
-    undo.current = editor.undo;
-    redo.current = editor.redo;
-
     startForceUpdate(() => {
-      setHasEditor(true);
-      console.log('setEditor2', editor.current);
-      console.log('editor.current', editor.current);
+      editor.current = editorInstance;
     });
   });
 
@@ -42,7 +31,7 @@ const useReportAssetContext = () => {
     closeVersionHistoryMode,
     versionHistoryMode,
     setEditor,
-    hasEditor,
+    forceUpdate,
     editor,
   };
 };
@@ -84,13 +73,13 @@ export const useReportVersionHistoryMode = () => {
 };
 
 const stableSetEditorSelector = (x: ReturnType<typeof useReportAssetContext>) => x.setEditor;
-const stableHasEditorSelector = (x: ReturnType<typeof useReportAssetContext>) => x.hasEditor;
+const stableForceUpdateSelector = (x: ReturnType<typeof useReportAssetContext>) => x.forceUpdate;
 export const useEditorContext = () => {
-  const hasEditor = useContextSelector(ReportAssetContext, stableHasEditorSelector);
+  const forceUpdate = useContextSelector(ReportAssetContext, stableForceUpdateSelector);
   const setEditor = useContextSelector(ReportAssetContext, stableSetEditorSelector);
   const editor = useContextSelector(
     ReportAssetContext,
-    useCallback((x) => x.editor, [hasEditor])
+    useCallback((x) => x.editor, [forceUpdate])
   );
 
   if (!setEditor) {
