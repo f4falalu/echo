@@ -16,6 +16,8 @@ import { useGetCurrentMessageId, useIsStreamingMessage } from '../../context/Cha
 import { GeneratingContent } from './GeneratingContent';
 import { ReportPageHeader } from './ReportPageHeader';
 
+const commonClassName = 'sm:px-[max(64px,calc(50%-350px))]';
+
 export const ReportPageController: React.FC<{
   reportId: string;
   readOnly?: boolean;
@@ -48,7 +50,6 @@ export const ReportPageController: React.FC<{
 
     const content = report?.content || '';
     const showGeneratingContent = isThisReportBeingGenerated;
-    const commonClassName = 'sm:px-[max(64px,calc(50%-350px))]';
 
     const { mutate: updateReport } = useUpdateReport();
 
@@ -123,9 +124,11 @@ export const ReportPageController: React.FC<{
               />
             }
             postEditorChildren={
-              showGeneratingContent ? (
-                <GeneratingContent messageId={messageId || ''} className={commonClassName} />
-              ) : null
+              <GeneratingContent
+                messageId={messageId || ''}
+                className={commonClassName}
+                show={showGeneratingContent}
+              />
             }
           />
         ) : (
