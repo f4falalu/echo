@@ -12,9 +12,9 @@ import {
 import {
   Code,
   Download4,
+  Edit,
   History,
   Image,
-  Pencil,
   PenSparkle,
   SquareChartPen,
   Star,
@@ -117,9 +117,11 @@ export const useMetricDrilldownItem = ({ metricId }: { metricId: string }): IDro
 export const useRenameMetricOnPage = ({
   metricId,
   metricVersionNumber,
+  isNotMetricPage = false,
 }: {
   metricId: string;
   metricVersionNumber: number | undefined;
+  isNotMetricPage?: boolean;
 }) => {
   const navigate = useNavigate();
 
@@ -127,11 +129,13 @@ export const useRenameMetricOnPage = ({
     () => ({
       label: 'Rename metric',
       value: 'rename-metric',
-      icon: <Pencil />,
+      icon: <Edit />,
       onClick: async () => {
         await navigate({
           unsafeRelative: 'path',
-          to: '../chart' as '/app/metrics/$metricId/chart',
+          to: isNotMetricPage
+            ? '/app/metrics/$metricId/chart'
+            : ('../chart' as '/app/metrics/$metricId/chart'),
           params: (prev) => ({ ...prev, metricId }),
           search: metricVersionNumber ? { metric_version_number: metricVersionNumber } : undefined,
         });

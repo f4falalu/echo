@@ -22,7 +22,7 @@ export const prefetchGetUserFavorites = async (queryClient: QueryClient) => {
     ...userQueryKeys.favoritesGetList,
     queryFn: getUserFavorites,
   });
-  return queryClient;
+  return queryClient.getQueryData(userQueryKeys.favoritesGetList.queryKey);
 };
 
 export const useAddUserFavorite = () => {

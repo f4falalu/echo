@@ -27,26 +27,31 @@ export const Route = createFileRoute('/app')({
   },
   loader: async ({ context }) => {
     const { queryClient, accessToken } = context;
-    const [initialLayout, user] = await Promise.all([
-      getAppLayout({ id: PRIMARY_APP_LAYOUT_ID }),
-      getSupabaseUser(),
-      prefetchGetMyUserInfo(queryClient),
-      prefetchGetUserFavorites(queryClient),
-      prefetchListDatasources(queryClient),
-      prefetchGetDatasets(queryClient),
-    ]);
+    try {
+      const [initialLayout, user] = await Promise.all([
+        getAppLayout({ id: PRIMARY_APP_LAYOUT_ID }),
+        getSupabaseUser(),
+        prefetchGetMyUserInfo(queryClient),
+        prefetchGetUserFavorites(queryClient),
+        prefetchListDatasources(queryClient),
+        prefetchGetDatasets(queryClient),
+      ]);
 
-    if (!user) {
+      if (!user) {
+        throw redirect({ to: '/auth/login' });
+      }
+
+      return {
+        initialLayout,
+        layoutId: PRIMARY_APP_LAYOUT_ID,
+        defaultLayout: DEFAULT_LAYOUT,
+        accessToken,
+        user,
+      };
+    } catch (error) {
+      console.error('Error in app route loader:', error);
       throw redirect({ to: '/auth/login' });
     }
-
-    return {
-      initialLayout,
-      layoutId: PRIMARY_APP_LAYOUT_ID,
-      defaultLayout: DEFAULT_LAYOUT,
-      accessToken,
-      user,
-    };
   },
   component: () => {
     const { user, accessToken } = Route.useLoaderData();

@@ -7,6 +7,7 @@ import {
   useGetUserBasicInfo,
   useGetUserOrganization,
 } from '@/api/buster_rest/users/useGetUserInfo';
+import { ComponentErrorCard } from '@/components/features/global/ComponentErrorCard';
 import { isDev } from '@/config/dev';
 import { env } from '@/env';
 import packageJson from '../../../package.json';
@@ -20,7 +21,14 @@ export const BusterPosthogProvider: React.FC<PropsWithChildren> = ({ children })
     return <>{children}</>;
   }
 
-  return <PosthogWrapper>{children}</PosthogWrapper>;
+  return (
+    <ComponentErrorCard
+      header="Posthog failed to load"
+      message="Our team has been notified via Slack. We'll take a look at the issue ASAP and get back to you."
+    >
+      <PosthogWrapper>{children}</PosthogWrapper>
+    </ComponentErrorCard>
+  );
 };
 BusterPosthogProvider.displayName = 'BusterPosthogProvider';
 

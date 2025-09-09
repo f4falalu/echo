@@ -1,8 +1,8 @@
 export const NodeTypeLabels = {
   metric: {
-    label: 'Metric',
+    label: 'Add existing metric',
     keyboard: undefined,
-    keywords: ['metric', 'chart', 'charts', 'graph', 'report'],
+    keywords: ['metric', 'chart', 'charts', 'graph', 'report', 'existing', 'add existing metric'],
   },
   // Block types
   paragraph: {
@@ -187,7 +187,7 @@ export const NodeTypeLabels = {
     keywords: [],
   },
   indentation: {
-    label: 'Indentation',
+    label: 'Indent',
     keyboard: undefined,
     keywords: ['indent', 'outdent'],
   },

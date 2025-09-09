@@ -21,7 +21,7 @@
     "typecheck": "tsc --noEmit",
     "dev": "tsc --watch",
     "dev:fast": "tsc --watch",
-    "lint": "biome check",
+    "lint": "biome check --write",
     "test": "dotenv -e .env -- vitest run",
     "test:unit": "vitest run --exclude '**/*.int.test.ts' --exclude '**/*.integration.test.ts' --passWithNoTests",
     "test:watch": "dotenv -e .env -- vitest watch",

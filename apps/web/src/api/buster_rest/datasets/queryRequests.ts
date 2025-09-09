@@ -38,7 +38,7 @@ export const prefetchGetDatasets = async (
     datasetQueryKeys.datasetsListQueryOptions(params).queryKey
   );
 
-  return { datasets, queryClient };
+  return datasets;
 };
 
 export const useGetDatasetData = (datasetId: string | undefined) => {

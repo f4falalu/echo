@@ -19,6 +19,7 @@ import {
   Code,
   Code2,
   Compass,
+  Copy,
   Copy2,
   Dots,
   Download,
@@ -109,9 +110,13 @@ import {
   Xmark,
 } from '@/components/ui/icons';
 
+import DuplicatePlus from '@/components/ui/icons/NucleoIconOutlined/duplicate-plus';
+import ReplaceObjs from '@/components/ui/icons/NucleoIconOutlined/replace-objs';
+
 export const NodeTypeIcons = {
   // Metrics
   metric: ASSET_ICONS.metrics,
+  metricAdd: ASSET_ICONS.metircsAdd,
 
   // Text formatting
   bold: TextBold,
@@ -191,12 +196,13 @@ export const NodeTypeIcons = {
   superscript: Superscript,
   trash: Trash2,
   check: Check,
-  copy: Copy2,
+  copy: Copy,
+  duplicate: DuplicatePlus,
   formatCode: BracketsCurly,
   indent: IndentIncrease,
   outdent: IndentDecrease,
   download: Download,
-  turnInto: Pilcrow,
+  turnInto: ReplaceObjs,
 
   // Tools
   equation: Equation,
