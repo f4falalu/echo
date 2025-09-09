@@ -36,7 +36,13 @@ export async function discoverModelFiles(
     cwd: baseDir, // Set the working directory for glob patterns
   });
 
-  return files.sort(); // Sort for consistent ordering
+  // Filter to only YAML files (exclude .md files which are docs)
+  const yamlFiles = files.filter((file) => {
+    const ext = file.toLowerCase();
+    return ext.endsWith('.yml') || ext.endsWith('.yaml');
+  });
+
+  return yamlFiles.sort(); // Sort for consistent ordering
 }
 
 /**

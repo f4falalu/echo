@@ -4,6 +4,7 @@ import healthcheckRoutes from '../healthcheck';
 import authRoutes from './auth';
 import chatsRoutes from './chats';
 import datasetsRoutes from './datasets';
+import deployRoutes from './deploy';
 import dictionariesRoutes from './dictionaries';
 import docsRoutes from './docs';
 import electricShapeRoutes from './electric-shape';
@@ -23,6 +24,7 @@ const app = new Hono()
   .route('/auth', authRoutes)
   .route('/users', userRoutes)
   .route('/datasets', datasetsRoutes)
+  .route('/deploy', deployRoutes)
   .route('/docs', docsRoutes)
   .route('/electric-shape', electricShapeRoutes)
   .route('/healthcheck', healthcheckRoutes)

@@ -1,14 +1,18 @@
 import { and, eq, isNull } from 'drizzle-orm';
+import { z } from 'zod';
 import { db } from '../../connection';
 import { docs } from '../../schema';
 
-export interface DeleteDocParams {
-  id: string;
-  organizationId: string;
-}
+export const DeleteDocParamsSchema = z.object({
+  id: z.string().uuid(),
+  organizationId: z.string().uuid(),
+});
+
+export type DeleteDocParams = z.infer<typeof DeleteDocParamsSchema>;
 
 export async function deleteDoc(params: DeleteDocParams) {
-  const { id, organizationId } = params;
+  // Validate params at runtime
+  const { id, organizationId } = DeleteDocParamsSchema.parse(params);
 
   // Soft delete by setting deletedAt
   const [deletedDoc] = await db

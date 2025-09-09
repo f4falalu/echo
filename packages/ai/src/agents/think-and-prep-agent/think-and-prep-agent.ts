@@ -53,6 +53,22 @@ export const ThinkAndPrepAgentOptionsSchema = z.object({
     .describe('The analysis mode to determine which prompt to use.')
     .optional(),
   workflowStartTime: z.number().describe('The start time of the workflow'),
+  analystInstructions: z
+    .string()
+    .optional()
+    .describe('Custom analyst instructions from the organization.'),
+  organizationDocs: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        content: z.string(),
+        type: z.string(),
+        updatedAt: z.string(),
+      })
+    )
+    .optional()
+    .describe('Organization data catalog documentation.'),
 });
 
 export const ThinkAndPrepStreamOptionsSchema = z.object({
@@ -65,7 +81,8 @@ export type ThinkAndPrepAgentOptions = z.infer<typeof ThinkAndPrepAgentOptionsSc
 export type ThinkAndPrepStreamOptions = z.infer<typeof ThinkAndPrepStreamOptionsSchema>;
 
 export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAgentOptions) {
-  const { messageId, datasets, workflowStartTime } = thinkAndPrepAgentSchema;
+  const { messageId, datasets, workflowStartTime, analystInstructions, organizationDocs } =
+    thinkAndPrepAgentSchema;
 
   const systemMessage = {
     role: 'system',
@@ -79,16 +96,31 @@ export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAge
   // Create second system message with datasets information
   const datasetsContent = datasets
     .filter((d) => d.ymlContent)
+    .sort((a, b) => a.name.localeCompare(b.name)) // Sort by name for consistency
     .map((d) => d.ymlContent)
     .join('\n\n');
 
   const datasetsSystemMessage = {
     role: 'system',
     content: datasetsContent
-      ? `<database_context>\n${datasetsContent}\n</database_context>`
-      : '<database_context>\nNo datasets available\n</database_context>',
+      ? `<datasets>\n${datasetsContent}\n</datasets>`
+      : '<datasets>\nNo datasets available\n</datasets>',
     providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
   } as ModelMessage;
+
+  // Create third system message with data catalog docs
+  const docsContent = organizationDocs
+    ?.sort((a, b) => a.name.localeCompare(b.name)) // Sort by name for consistency
+    .map((doc) => `# ${doc.name}\n\n${doc.content}`)
+    .join('\n\n---\n\n');
+
+  const docsSystemMessage = docsContent
+    ? ({
+        role: 'system',
+        content: `<data_catalog_docs>\n${docsContent}\n</data_catalog_docs>`,
+        providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
+      } as ModelMessage)
+    : null;
 
   async function stream({ messages }: ThinkAndPrepStreamOptions) {
     const sequentialThinking = createSequentialThinkingTool({ messageId });
@@ -130,6 +162,15 @@ export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAge
       ],
     };
 
+    // Create analyst instructions system message with proper escaping
+    const analystInstructionsMessage = analystInstructions
+      ? ({
+          role: 'system',
+          content: `<organization_instructions>\n${analystInstructions}\n</organization_instructions>`,
+          providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
+        } as ModelMessage)
+      : null;
+
     return wrapTraced(
       () =>
         streamText({
@@ -147,7 +188,13 @@ export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAge
             [SUBMIT_THOUGHTS_TOOL_NAME]: submitThoughts,
             [MESSAGE_USER_CLARIFYING_QUESTION_TOOL_NAME]: messageUserClarifyingQuestion,
           },
-          messages: [systemMessage, datasetsSystemMessage, ...messages],
+          messages: [
+            systemMessage,
+            datasetsSystemMessage,
+            ...(docsSystemMessage ? [docsSystemMessage] : []),
+            ...(analystInstructionsMessage ? [analystInstructionsMessage] : []),
+            ...messages,
+          ],
           stopWhen: STOP_CONDITIONS,
           toolChoice: 'required',
           maxOutputTokens: 25000,

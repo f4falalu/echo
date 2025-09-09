@@ -13,7 +13,9 @@ export const UpsertDocSchema = z.object({
 export type UpsertDocParams = z.infer<typeof UpsertDocSchema>;
 
 export async function upsertDoc(params: UpsertDocParams) {
-  const { name, content, type = 'normal', organizationId } = params;
+  // Validate params at runtime
+  const validatedParams = UpsertDocSchema.parse(params);
+  const { name, content, type = 'normal', organizationId } = validatedParams;
 
   try {
     // Update existing doc and unmark deleted_at if it was soft deleted

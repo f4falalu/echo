@@ -88,6 +88,85 @@ describe('formatDeploymentSummary', () => {
     expect(summary).toContain('⚠ Deployment completed with 3 files needing completion');
   });
 
+  it('should format deployment with doc results', () => {
+    const result: CLIDeploymentResult = {
+      success: [{ file: 'models/users.yml', modelName: 'users', dataSource: 'postgres' }],
+      updated: [],
+      noChange: [],
+      failures: [],
+      excluded: [],
+      todos: [],
+      docs: {
+        created: ['README.md', 'API.md'],
+        updated: ['CHANGELOG.md'],
+        deleted: ['deprecated.md'],
+        failed: [{ name: 'failed.md', error: 'Storage error' }],
+      },
+    };
+
+    const summary = formatDeploymentSummary(result, false, false);
+
+    expect(summary).toContain('1 models deployed');
+    expect(summary).toContain('3 docs deployed');
+    expect(summary).toContain('• 2 new');
+    expect(summary).toContain('• 1 updated');
+    expect(summary).toContain('• 1 deleted');
+    expect(summary).toContain('1 docs failed');
+    expect(summary).toContain('failed.md: Storage error');
+    expect(summary).toContain('✗ Deployment completed with 1 error');
+  });
+
+  it('should show doc details in verbose mode', () => {
+    const result: CLIDeploymentResult = {
+      success: [],
+      updated: [],
+      noChange: [],
+      failures: [],
+      excluded: [],
+      todos: [],
+      docs: {
+        created: ['README.md', 'API.md', 'GUIDE.md'],
+        updated: ['CHANGELOG.md'],
+        deleted: ['old1.md', 'old2.md'],
+        failed: [],
+      },
+    };
+
+    const summary = formatDeploymentSummary(result, true, false);
+
+    expect(summary).toContain('New docs:');
+    expect(summary).toContain('- README.md');
+    expect(summary).toContain('- API.md');
+    expect(summary).toContain('- GUIDE.md');
+    expect(summary).toContain('Updated docs:');
+    expect(summary).toContain('- CHANGELOG.md');
+    expect(summary).toContain('Deleted docs:');
+    expect(summary).toContain('- old1.md');
+    expect(summary).toContain('- old2.md');
+  });
+
+  it('should limit doc details in non-verbose mode', () => {
+    const result: CLIDeploymentResult = {
+      success: [],
+      updated: [],
+      noChange: [],
+      failures: [],
+      excluded: [],
+      todos: [],
+      docs: {
+        created: Array.from({ length: 10 }, (_, i) => `doc${i}.md`),
+        updated: [],
+        deleted: [],
+        failed: [],
+      },
+    };
+
+    const summary = formatDeploymentSummary(result, false, false);
+
+    expect(summary).toContain('10 docs deployed');
+    expect(summary).not.toContain('New docs:'); // Details only in verbose
+  });
+
   it('should format mixed results with failures and TODOs', () => {
     const result: CLIDeploymentResult = {
       success: [{ file: 'models/users.yml', modelName: 'users', dataSource: 'postgres' }],
@@ -112,6 +191,30 @@ describe('formatDeploymentSummary', () => {
     expect(summary).not.toContain('files excluded'); // excluded only shown in verbose mode
     expect(summary).toContain('✗'); // failure indicator
     expect(summary).toContain('completed with 1 error');
+  });
+
+  it('should calculate total errors including doc failures', () => {
+    const result: CLIDeploymentResult = {
+      success: [],
+      updated: [],
+      noChange: [],
+      failures: [{ file: 'model1.yml', modelName: 'model1', errors: ['Model error'] }],
+      excluded: [],
+      todos: [],
+      docs: {
+        created: [],
+        updated: [],
+        deleted: [],
+        failed: [
+          { name: 'doc1.md', error: 'Doc error 1' },
+          { name: 'doc2.md', error: 'Doc error 2' },
+        ],
+      },
+    };
+
+    const summary = formatDeploymentSummary(result, false, false);
+
+    expect(summary).toContain('✗ Deployment completed with 3 errors');
   });
 
   it('should limit output in non-verbose mode', () => {
@@ -220,6 +323,86 @@ describe('mergeDeploymentResults', () => {
     expect(merged.todos).toHaveLength(2);
   });
 
+  it('should merge doc results when present', () => {
+    const results: CLIDeploymentResult[] = [
+      {
+        success: [],
+        updated: [],
+        noChange: [],
+        failures: [],
+        excluded: [],
+        todos: [],
+        docs: {
+          created: ['doc1.md'],
+          updated: ['doc2.md'],
+          deleted: [],
+          failed: [],
+        },
+      },
+      {
+        success: [],
+        updated: [],
+        noChange: [],
+        failures: [],
+        excluded: [],
+        todos: [],
+        docs: {
+          created: ['doc3.md'],
+          updated: [],
+          deleted: ['doc4.md'],
+          failed: [{ name: 'doc5.md', error: 'Storage failed' }],
+        },
+      },
+    ];
+
+    const merged = mergeDeploymentResults(results);
+
+    expect(merged.docs).toEqual({
+      created: ['doc1.md', 'doc3.md'],
+      updated: ['doc2.md'],
+      deleted: ['doc4.md'],
+      failed: [{ name: 'doc5.md', error: 'Storage failed' }],
+    });
+  });
+
+  it('should handle mixed results with and without docs', () => {
+    const results: CLIDeploymentResult[] = [
+      {
+        success: [{ file: 'model1.yml', modelName: 'model1', dataSource: 'pg' }],
+        updated: [],
+        noChange: [],
+        failures: [],
+        excluded: [],
+        todos: [],
+        docs: {
+          created: ['doc1.md'],
+          updated: [],
+          deleted: [],
+          failed: [],
+        },
+      },
+      {
+        success: [{ file: 'model2.yml', modelName: 'model2', dataSource: 'pg' }],
+        updated: [],
+        noChange: [],
+        failures: [],
+        excluded: [],
+        todos: [],
+        // No docs field
+      },
+    ];
+
+    const merged = mergeDeploymentResults(results);
+
+    expect(merged.success).toHaveLength(2);
+    expect(merged.docs).toEqual({
+      created: ['doc1.md'],
+      updated: [],
+      deleted: [],
+      failed: [],
+    });
+  });
+
   it('should handle empty results', () => {
     const merged = mergeDeploymentResults([]);
 
@@ -229,20 +412,42 @@ describe('mergeDeploymentResults', () => {
     expect(merged.failures).toHaveLength(0);
     expect(merged.excluded).toHaveLength(0);
     expect(merged.todos).toHaveLength(0);
+    expect(merged.docs).toBeUndefined();
   });
 });
 
 describe('processDeploymentResponse', () => {
   it('should process deployment response into CLI result format', () => {
     const response = {
-      success: [
-        { name: 'users', dataSource: 'postgres' },
-        { name: 'orders', dataSource: 'postgres' },
-      ],
-      updated: [{ name: 'products', dataSource: 'postgres' }],
-      noChange: [{ name: 'customers', dataSource: 'postgres' }],
-      failures: [{ name: 'inventory', errors: ['Error 1', 'Error 2'] }],
-      deleted: [],
+      models: {
+        success: [
+          { name: 'users', dataSource: 'postgres' },
+          { name: 'orders', dataSource: 'postgres' },
+        ],
+        updated: [{ name: 'products', dataSource: 'postgres' }],
+        failures: [{ name: 'inventory', errors: ['Error 1', 'Error 2'] }],
+        deleted: [],
+        summary: {
+          totalModels: 5,
+          successCount: 2,
+          updateCount: 1,
+          failureCount: 1,
+          deletedCount: 0,
+        },
+      },
+      docs: {
+        created: [],
+        updated: [],
+        deleted: [],
+        failed: [],
+        summary: {
+          totalDocs: 0,
+          createdCount: 0,
+          updatedCount: 0,
+          deletedCount: 0,
+          failedCount: 0,
+        },
+      },
     };
 
     const modelFileMap = new Map([
@@ -253,7 +458,9 @@ describe('processDeploymentResponse', () => {
       ['inventory', 'models/inventory.yml'],
     ]);
 
-    const result = processDeploymentResponse(response, modelFileMap);
+    const docFileMap = new Map<string, string>();
+
+    const result = processDeploymentResponse(response, modelFileMap, docFileMap);
 
     expect(result.success).toHaveLength(2);
     expect(result.success[0]).toEqual({
@@ -269,13 +476,96 @@ describe('processDeploymentResponse', () => {
       dataSource: 'postgres',
     });
 
-    expect(result.noChange).toHaveLength(1);
+    expect(result.noChange).toHaveLength(0);
     expect(result.failures).toHaveLength(1);
     expect(result.failures[0]).toEqual({
       file: 'models/inventory.yml',
       modelName: 'inventory',
       errors: ['Error 1', 'Error 2'],
     });
+
+    expect(result.docs).toEqual({
+      created: [],
+      updated: [],
+      deleted: [],
+      failed: [],
+    });
+  });
+
+  it('should process doc deployment results', () => {
+    const response = {
+      models: {
+        success: [],
+        updated: [],
+        failures: [],
+        deleted: [],
+        summary: {
+          totalModels: 0,
+          successCount: 0,
+          updateCount: 0,
+          failureCount: 0,
+          deletedCount: 0,
+        },
+      },
+      docs: {
+        created: ['README.md', 'API.md'],
+        updated: ['CHANGELOG.md'],
+        deleted: ['deprecated.md'],
+        failed: [
+          { name: 'failed.md', error: 'Storage error' },
+          { name: 'another-failed.md', error: 'Permission denied' },
+        ],
+        summary: {
+          totalDocs: 5,
+          createdCount: 2,
+          updatedCount: 1,
+          deletedCount: 1,
+          failedCount: 2,
+        },
+      },
+    };
+
+    const modelFileMap = new Map<string, string>();
+    const docFileMap = new Map<string, string>();
+
+    const result = processDeploymentResponse(response, modelFileMap, docFileMap);
+
+    expect(result.docs).toEqual({
+      created: ['README.md', 'API.md'],
+      updated: ['CHANGELOG.md'],
+      deleted: ['deprecated.md'],
+      failed: [
+        { name: 'failed.md', error: 'Storage error' },
+        { name: 'another-failed.md', error: 'Permission denied' },
+      ],
+    });
+  });
+
+  it('should handle missing model or doc data gracefully', () => {
+    const response = {
+      models: {
+        success: [{ name: 'test', dataSource: 'pg' }],
+        updated: [],
+        failures: [],
+        deleted: [],
+        summary: {
+          totalModels: 1,
+          successCount: 1,
+          updateCount: 0,
+          failureCount: 0,
+          deletedCount: 0,
+        },
+      },
+      // docs field missing
+    } as any;
+
+    const modelFileMap = new Map([['test', 'test.yml']]);
+    const docFileMap = new Map<string, string>();
+
+    const result = processDeploymentResponse(response, modelFileMap, docFileMap);
+
+    expect(result.success).toHaveLength(1);
+    expect(result.docs).toBeUndefined();
   });
 });
 

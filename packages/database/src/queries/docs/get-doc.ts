@@ -1,14 +1,18 @@
 import { and, eq, isNull } from 'drizzle-orm';
+import { z } from 'zod';
 import { db } from '../../connection';
 import { docs } from '../../schema';
 
-export interface GetDocParams {
-  id: string;
-  organizationId: string;
-}
+export const GetDocParamsSchema = z.object({
+  id: z.string().uuid(),
+  organizationId: z.string().uuid(),
+});
+
+export type GetDocParams = z.infer<typeof GetDocParamsSchema>;
 
 export async function getDoc(params: GetDocParams) {
-  const { id, organizationId } = params;
+  // Validate params at runtime
+  const { id, organizationId } = GetDocParamsSchema.parse(params);
 
   const [doc] = await db
     .select()

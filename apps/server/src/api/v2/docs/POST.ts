@@ -49,6 +49,13 @@ export async function createDocHandler(
     };
   } catch (error) {
     console.error('Error creating doc:', error);
+
+    // Re-throw HTTPExceptions as-is
+    if (error instanceof HTTPException) {
+      throw error;
+    }
+
+    // Handle other errors as 500
     throw new HTTPException(500, {
       message: 'Failed to create doc',
     });

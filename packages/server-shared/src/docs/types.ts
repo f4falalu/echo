@@ -1,7 +1,17 @@
-import { docsTypeEnum } from '@buster/database';
+import type { docsTypeEnum } from '@buster/database';
 import { z } from 'zod';
 
-export const DocsTypeEnum = z.enum(docsTypeEnum.enumValues);
+type DocsTypeBase = (typeof docsTypeEnum.enumValues)[number];
+
+const DocsTypeEnums: Record<DocsTypeBase, DocsTypeBase> = Object.freeze({
+  analyst: 'analyst',
+  normal: 'normal',
+});
+
+export const DocsTypeEnum = z.enum(
+  Object.values(DocsTypeEnums) as [DocsTypeBase, ...DocsTypeBase[]]
+);
+
 export type DocsType = z.infer<typeof DocsTypeEnum>;
 
 export const DocSchema = z.object({

@@ -1,17 +1,22 @@
 import { and, eq, isNull, like, sql } from 'drizzle-orm';
+import { z } from 'zod';
 import { db } from '../../connection';
 import { docs } from '../../schema';
 
-export interface ListDocsParams {
-  organizationId: string;
-  type?: 'analyst' | 'normal';
-  search?: string;
-  page?: number;
-  pageSize?: number;
-}
+export const ListDocsParamsSchema = z.object({
+  organizationId: z.string().uuid(),
+  type: z.enum(['analyst', 'normal']).optional(),
+  search: z.string().optional(),
+  page: z.number().min(1).default(1),
+  pageSize: z.number().min(1).max(100).default(20),
+});
+
+export type ListDocsParams = z.infer<typeof ListDocsParamsSchema>;
 
 export async function listDocs(params: ListDocsParams) {
-  const { organizationId, type, search, page = 1, pageSize = 20 } = params;
+  // Validate params at runtime
+  const validatedParams = ListDocsParamsSchema.parse(params);
+  const { organizationId, type, search, page = 1, pageSize = 20 } = validatedParams;
 
   const offset = (page - 1) * pageSize;
 

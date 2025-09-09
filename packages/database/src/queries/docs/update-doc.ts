@@ -1,17 +1,22 @@
 import { and, eq, isNull } from 'drizzle-orm';
+import { z } from 'zod';
 import { db } from '../../connection';
 import { docs } from '../../schema';
 
-export interface UpdateDocParams {
-  id: string;
-  organizationId: string;
-  name?: string;
-  content?: string;
-  type?: 'analyst' | 'normal';
-}
+export const UpdateDocParamsSchema = z.object({
+  id: z.string().uuid(),
+  organizationId: z.string().uuid(),
+  name: z.string().min(1).max(255).optional(),
+  content: z.string().optional(),
+  type: z.enum(['analyst', 'normal']).optional(),
+});
+
+export type UpdateDocParams = z.infer<typeof UpdateDocParamsSchema>;
 
 export async function updateDoc(params: UpdateDocParams) {
-  const { id, organizationId, ...updates } = params;
+  // Validate params at runtime
+  const validatedParams = UpdateDocParamsSchema.parse(params);
+  const { id, organizationId, ...updates } = validatedParams;
 
   // Filter out undefined values
   const updateData: Record<string, string> = {};

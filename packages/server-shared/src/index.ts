@@ -9,6 +9,8 @@ export * from './auth';
 export * from './chats';
 export * from './dashboards';
 export * from './datasets';
+// Export deploy module as namespace to avoid conflicts with datasets
+export * as deploy from './deploy';
 export * from './dictionary';
 export * from './docs';
 export * from './github';
