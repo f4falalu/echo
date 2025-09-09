@@ -1,5 +1,6 @@
 import { Box, Text } from 'ink';
-import BigText from 'ink-big-text';
+import React from 'react';
+import { SimpleBigText } from './simple-big-text.js';
 
 interface BannerProps {
   showSubtitle?: boolean;
@@ -8,17 +9,16 @@ interface BannerProps {
 
 /**
  * Shared Buster banner component for consistent branding across CLI
+ * Uses SimpleBigText to avoid font loading issues in standalone binaries
  */
 export function BusterBanner({ showSubtitle = true, inline = false }: BannerProps = {}) {
   const content = (
     <>
       <Box>
-        <Text color="#7C3AED">
-          <BigText text="BUSTER" font="block" />
-        </Text>
+        <SimpleBigText text="BUSTER" color="#7C3AED" />
       </Box>
       {showSubtitle && (
-        <Box>
+        <Box marginTop={1}>
           <Text bold>Welcome to Buster</Text>
         </Box>
       )}

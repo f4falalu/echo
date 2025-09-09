@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useCallback, useRef, useState, useTransition } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
+import type { BusterReportEditor } from '@/components/ui/report/types';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 
 const useReportAssetContext = () => {
+  const [forceUpdate, startForceUpdate] = useTransition();
   const [versionHistoryMode, setVersionHistoryMode] = useState<number | false>(false);
+  const editor = useRef<BusterReportEditor | null>(null);
 
   const openReportVersionHistoryMode = useMemoizedFn((versionNumber: number) => {
     setVersionHistoryMode(versionNumber);
@@ -13,10 +16,23 @@ const useReportAssetContext = () => {
     setVersionHistoryMode(false);
   });
 
+  const setEditor = useMemoizedFn((editorInstance: BusterReportEditor) => {
+    if (!editorInstance) {
+      return;
+    }
+
+    startForceUpdate(() => {
+      editor.current = editorInstance;
+    });
+  });
+
   return {
     openReportVersionHistoryMode,
     closeVersionHistoryMode,
     versionHistoryMode,
+    setEditor,
+    forceUpdate,
+    editor,
   };
 };
 
@@ -53,5 +69,27 @@ export const useReportVersionHistoryMode = () => {
     versionHistoryMode,
     openReportVersionHistoryMode,
     closeVersionHistoryMode,
+  };
+};
+
+const stableSetEditorSelector = (x: ReturnType<typeof useReportAssetContext>) => x.setEditor;
+const stableForceUpdateSelector = (x: ReturnType<typeof useReportAssetContext>) => x.forceUpdate;
+export const useEditorContext = () => {
+  const forceUpdate = useContextSelector(ReportAssetContext, stableForceUpdateSelector);
+  const setEditor = useContextSelector(ReportAssetContext, stableSetEditorSelector);
+  const editor = useContextSelector(
+    ReportAssetContext,
+    useCallback((x) => x.editor, [forceUpdate])
+  );
+
+  if (!setEditor) {
+    console.warn(
+      'ReportAssetContext is not defined. useEditorContext must be used within a ReportAssetContextProvider.'
+    );
+  }
+
+  return {
+    editor,
+    setEditor,
   };
 };

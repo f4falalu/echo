@@ -6,13 +6,17 @@ import { useTrackAndUpdateReportChanges } from '@/api/buster-electric/reports/ho
 import DynamicReportEditor from '@/components/ui/report/DynamicReportEditor';
 import type { IReportEditor } from '@/components/ui/report/ReportEditor';
 import { ReportEditorSkeleton } from '@/components/ui/report/ReportEditorSkeleton';
+import type { BusterReportEditor } from '@/components/ui/report/types';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useMount } from '@/hooks/useMount';
+import { useEditorContext } from '@/layouts/AssetContainer/ReportAssetContainer';
 import { cn } from '@/lib/utils';
 import { chatQueryKeys } from '../../api/query_keys/chat';
 import { useGetCurrentMessageId, useIsStreamingMessage } from '../../context/Chats';
 import { GeneratingContent } from './GeneratingContent';
 import { ReportPageHeader } from './ReportPageHeader';
+
+const commonClassName = 'sm:px-[max(64px,calc(50%-350px))]';
 
 export const ReportPageController: React.FC<{
   reportId: string;
@@ -23,6 +27,7 @@ export const ReportPageController: React.FC<{
 }> = React.memo(
   ({ reportId, readOnly = false, className = '', onReady: onReadyProp, mode = 'default' }) => {
     const { data: report } = useGetReport({ id: reportId, versionNumber: undefined });
+    const { setEditor } = useEditorContext();
     const isStreamingMessage = useIsStreamingMessage();
     const messageId = useGetCurrentMessageId();
 
@@ -45,7 +50,6 @@ export const ReportPageController: React.FC<{
 
     const content = report?.content || '';
     const showGeneratingContent = isThisReportBeingGenerated;
-    const commonClassName = 'sm:px-[max(64px,calc(50%-350px))]';
 
     const { mutate: updateReport } = useUpdateReport();
 
@@ -69,6 +73,11 @@ export const ReportPageController: React.FC<{
         return;
       }
       updateReport({ reportId, content });
+    });
+
+    const onReady = useMemoizedFn((editor: BusterReportEditor) => {
+      setEditor(editor);
+      onReadyProp?.(editor);
     });
 
     useTrackAndUpdateReportChanges({ reportId, subscribe: isStreamingMessage });
@@ -102,7 +111,7 @@ export const ReportPageController: React.FC<{
             onValueChange={onChangeContent}
             readOnly={readOnly || !report}
             mode={mode}
-            onReady={onReadyProp}
+            onReady={onReady}
             isStreaming={isStreamingMessage}
             containerRef={containerRef}
             preEditorChildren={
@@ -115,9 +124,11 @@ export const ReportPageController: React.FC<{
               />
             }
             postEditorChildren={
-              showGeneratingContent ? (
-                <GeneratingContent messageId={messageId || ''} className={commonClassName} />
-              ) : null
+              <GeneratingContent
+                messageId={messageId || ''}
+                className={commonClassName}
+                show={showGeneratingContent}
+              />
             }
           />
         ) : (

@@ -99,7 +99,3 @@ export const EditorKit = ({
   // Dnd
   ...DndKit({ containerRef }),
 ];
-
-export type MyEditor = TPlateEditor<Value, ReturnType<typeof EditorKit>[number]>;
-
-export const useEditor = () => useEditorRef<MyEditor>();
