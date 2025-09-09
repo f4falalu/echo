@@ -1,1 +1,0 @@
-ALTER TABLE "docs" ADD CONSTRAINT "docs_name_organization_id_key" UNIQUE("name","organization_id");
