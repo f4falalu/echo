@@ -45,8 +45,8 @@ async function generateTitleWithLLM(messages: ModelMessage[]): Promise<string> {
         const { object } = await generateObject({
           model: Haiku35,
           headers: {
-            'anthropic-beta': 'fine-grained-tool-streaming-2025-05-14',
-            anthropic_beta: 'fine-grained-tool-streaming-2025-05-14',
+            'anthropic-beta': 'fine-grained-tool-streaming-2025-05-14,context-1m-2025-08-07',
+            anthropic_beta: 'fine-grained-tool-streaming-2025-05-14,context-1m-2025-08-07',
           },
           schema: llmOutputSchema,
           messages: titleMessages,

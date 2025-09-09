@@ -176,8 +176,8 @@ export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAge
         streamText({
           model: Sonnet4,
           headers: {
-            'anthropic-beta': 'fine-grained-tool-streaming-2025-05-14',
-            anthropic_beta: 'fine-grained-tool-streaming-2025-05-14',
+            'anthropic-beta': 'fine-grained-tool-streaming-2025-05-14,context-1m-2025-08-07',
+            anthropic_beta: 'fine-grained-tool-streaming-2025-05-14,context-1m-2025-08-07',
           },
           providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
           tools: {
