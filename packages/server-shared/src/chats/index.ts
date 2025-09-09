@@ -6,6 +6,7 @@ export * from './requests';
 export * from './responses';
 
 // Re-export message schemas from database package to maintain backward compatibility
+// Using /types entry point to avoid triggering database connection
 export {
   StatusSchema,
   ResponseMessageSchema,
@@ -25,4 +26,4 @@ export {
   type ReasoningFileType,
   type ResponseMessageFileType,
   type ReasoingMessage_ThoughtFileType,
-} from '@buster/database';
+} from '@buster/database/types';
