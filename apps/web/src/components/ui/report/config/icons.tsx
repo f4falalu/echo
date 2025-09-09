@@ -68,10 +68,8 @@ import {
   // Actions
   PenSparkle,
   // Structure
-  Pilcrow,
   Plus,
   Quote,
-  RectArrowDownLeft,
   Redo,
   SearchContent,
   SelectDropdown,
@@ -109,9 +107,9 @@ import {
   VolumeUp,
   Xmark,
 } from '@/components/ui/icons';
-
 import DuplicatePlus from '@/components/ui/icons/NucleoIconOutlined/duplicate-plus';
 import ReplaceObjs from '@/components/ui/icons/NucleoIconOutlined/replace-objs';
+import TypeScape from '@/components/ui/icons/NucleoIconOutlined/type-scale';
 
 export const NodeTypeIcons = {
   // Metrics
@@ -143,7 +141,7 @@ export const NodeTypeIcons = {
   checkList: SquareCode,
 
   // Structure
-  paragraph: Pilcrow,
+  paragraph: TypeScape,
   quote: Quote,
   toggle: ChevronRight,
   columnsThree: GridLayoutCols3,

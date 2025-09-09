@@ -102,7 +102,6 @@ export { default as Pen } from './pen';
 export { default as PenSparkle } from './pen-sparkle';
 export { default as Pencil } from './pencil';
 export { default as Pencil2 } from './pencil-2';
-export { default as Pilcrow } from './pilcrow';
 export { default as Plus } from './plus'; // Plus/add icon
 export { default as Quote } from './quote';
 export { default as RectArrowDownLeft } from './rect-arrow-down-left';
@@ -146,6 +145,7 @@ export { default as ThumbsUp } from './thumbs-up';
 export { default as Trash } from './trash';
 export { default as Trash2 } from './trash-2';
 export { default as TriangleWarning } from './triangle-warning';
+export { default as TypeScale } from './type-scale';
 export { default as Undo } from './undo';
 export { default as Ungroup } from './ungroup';
 export { default as UnorderedList } from './unordered-list';
