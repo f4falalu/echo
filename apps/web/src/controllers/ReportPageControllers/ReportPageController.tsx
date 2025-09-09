@@ -49,7 +49,7 @@ export const ReportPageController: React.FC<{
     }, [currentMessage, isStreamingMessage, messageId, reportId]);
 
     const content = report?.content || '';
-    const showGeneratingContent = isThisReportBeingGenerated || true;
+    const showGeneratingContent = isThisReportBeingGenerated;
 
     const { mutate: updateReport } = useUpdateReport();
 
