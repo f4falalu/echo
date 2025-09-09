@@ -234,11 +234,11 @@ export const messagePostProcessingTask: ReturnType<
       // Step 7: Send Slack notification if conditions are met
       let slackNotificationSent = false;
 
-      // Skip Slack notification if tool_called is "noIssuesFound" and there are no major assumptions
+      // Skip Slack notification if no issues were flagged and there are no major assumptions
       const hasMajorAssumptions =
         dbData.assumptions?.some((assumption) => assumption.label === 'major') ?? false;
       const shouldSkipSlackNotification =
-        dbData.tool_called === 'noIssuesFound' && !hasMajorAssumptions;
+        validatedOutput.flagChatResult.type === 'noIssuesFound' && !hasMajorAssumptions;
 
       try {
         logger.log('Checking Slack notification conditions', {
