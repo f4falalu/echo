@@ -83,9 +83,7 @@ export const MetricViewChartHeader: React.FC<MetricViewChartHeaderProps> = React
               </>
             ) : null}
           </div>
-          {headerSecondaryContent && (
-            <div className="group-hover:block hidden">{headerSecondaryContent}</div>
-          )}
+          {headerSecondaryContent}
         </div>
       </LinkWrapper>
     );
