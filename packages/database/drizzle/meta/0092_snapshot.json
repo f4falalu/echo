@@ -1,5 +1,5 @@
 {
-  "id": "ca418ae2-696e-4f4c-9149-9352fe49bc65",
+  "id": "a4ecb59c-6169-47eb-b65a-f9f17a48b6ee",
   "prevId": "ca69431e-0a76-4006-ac7d-9f7ddb3706d3",
   "version": "7",
   "dialect": "postgresql",
@@ -2639,7 +2639,16 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "docs_name_organization_id_key": {
+          "name": "docs_name_organization_id_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name",
+            "organization_id"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
