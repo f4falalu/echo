@@ -19,13 +19,12 @@ jobs:
     with:
       environment: production
       branch: main
-      api_url: "https://api.buster.so"
-      public_url: "https://platform.buster.so"
-      supabase_url: "https://aofftppzkoydkyfrhrcj.supabase.co"
-      supabase_anon_key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvZmZ0cHB6a295ZGt5ZnJocmNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjYzNTUzNDUsImV4cCI6MjA0MTkzMTM0NX0.sg_4VkZDpVDO51bMBsAOhNdU_AAXnH8bGqeK3UHHe-Q"
-      posthog_key: "phc_CtxCFcicGmtdan7MnQTRc3AypAifI7FYsoVFv3WnCQc"
-      api2_url: "https://api2.buster.so"
-      enable_tanstack_panel: "false"
+      api_url: https://api.buster.so
+      public_url: https://platform.buster.so
+      supabase_url: https://aofftppzkoydkyfrhrcj.supabase.co
+      supabase_anon_key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvZmZ0cHB6a295ZGt5ZnJocmNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjYzNTUzNDUsImV4cCI6MjA0MTkzMTM0NX0.sg_4VkZDpVDO51bMBsAOhNdU_AAXnH8bGqeK3UHHe-Q
+      posthog_key: phc_CtxCFcicGmtdan7MnQTRc3AypAifI7FYsoVFv3WnCQc
+      api2_url: https://api2.buster.so
       wrangler_env: production
       worker_name: web-production
     secrets: inherit

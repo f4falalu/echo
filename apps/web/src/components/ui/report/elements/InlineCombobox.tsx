@@ -253,7 +253,7 @@ const InlineComboboxContent: typeof ComboboxPopover = ({ className, style, ...pr
     <Portal>
       <ComboboxPopover
         className={cn(
-          'bg-popover z-500 max-h-[300px] min-w-[210px] overflow-y-auto rounded border shadow',
+          'bg-popover z-500 max-h-[300px] min-w-[210px] p-1 overflow-y-auto rounded border shadow',
           className
         )}
         style={{ ...THEME_RESET_STYLE, ...style }}
@@ -264,7 +264,7 @@ const InlineComboboxContent: typeof ComboboxPopover = ({ className, style, ...pr
 };
 
 const comboboxItemVariants = cva(
-  'relative mx-1 flex h-[28px] items-center rounded-sm px-2 text-sm text-foreground outline-none select-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
+  'relative flex h-7 items-center rounded-sm px-2 text-sm text-foreground outline-none select-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
   {
     defaultVariants: {
       interactive: true,
@@ -272,7 +272,7 @@ const comboboxItemVariants = cva(
     variants: {
       interactive: {
         false: '',
-        true: 'cursor-pointer transition-colors hover:bg-accent hover:text-accent-foreground data-[active-item=true]:bg-accent data-[active-item=true]:text-accent-foreground',
+        true: 'cursor-pointer transition-colors hover:bg-item-hover data-[active-item=true]:bg-item-active',
       },
     },
   }
@@ -349,7 +349,10 @@ function InlineComboboxGroup({ className, ...props }: React.ComponentProps<typeo
   return (
     <ComboboxGroup
       {...props}
-      className={cn('hidden py-1.5 not-last:border-b [&:has([role=option])]:block', className)}
+      className={cn(
+        'hidden py-1.5 not-last:border-b [&:has([role=option])]:block first:pt-0 last:pb-0',
+        className
+      )}
     />
   );
 }
@@ -361,7 +364,7 @@ function InlineComboboxGroupLabel({
   return (
     <ComboboxGroupLabel
       {...props}
-      className={cn('text-muted-foreground font-base mt-1.5 mb-2 px-3 text-xs', className)}
+      className={cn('text-secondary font-base mt-1.5 mb-2 px-2.5 text-xs', className)}
     />
   );
 }

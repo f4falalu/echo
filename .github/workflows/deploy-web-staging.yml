@@ -25,7 +25,7 @@ jobs:
       supabase_anon_key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsZWxydGx4b2l4dmF5bmF1ZGF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjM3MzEyNzgsImV4cCI6MjAzOTMwNzI3OH0.nK2gZggez6r_F00Ci_fcMXPle5HWo9boGQ5mG3CERFs
       posthog_key: phc_CtxCFcicGmtdan7MnQTRc3AypAifI7FYsoVFv3WnCQc
       api2_url: https://stagingapi.buster.so
-      enable_tanstack_panel: "true"
+      enable_tanstack_panel: true
       wrangler_env: staging
       worker_name: web-staging
     secrets: inherit
