@@ -36,6 +36,7 @@ import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useGetChatId } from '@/context/Chats/useGetChatId';
 import { useReportPageExport } from '@/context/Reports/useReportPageExport';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { useIsMac } from '@/hooks/usePlatform';
 import { useEditorContext } from '@/layouts/AssetContainer/ReportAssetContainer';
 import { canEdit, getIsEffectiveOwner } from '@/lib/share';
 
@@ -387,6 +388,7 @@ const useDownloadPdfSelectMenu = ({
 
 const useUndoRedo = (): IDropdownItems => {
   const { editor } = useEditorContext();
+  const isMac = useIsMac();
   const getEditor = () => {
     if (!editor?.current) {
       console.warn('Editor is not defined');
@@ -400,6 +402,7 @@ const useUndoRedo = (): IDropdownItems => {
         {
           label: 'Undo',
           value: 'undo',
+          shortcut: isMac ? '⌘+Z' : 'Ctrl+Z',
           icon: <Undo />,
           onClick: () => {
             const editorInstance = getEditor();
@@ -409,6 +412,7 @@ const useUndoRedo = (): IDropdownItems => {
         {
           label: 'Redo',
           value: 'redo',
+          shortcut: isMac ? '⌘+⇧+Z' : 'Ctrl+⇧+Z',
           icon: <Redo />,
           onClick: () => {
             const editorInstance = getEditor();
@@ -416,7 +420,7 @@ const useUndoRedo = (): IDropdownItems => {
           },
         },
       ]),
-    []
+    [isMac]
   );
 };
 
