@@ -72,7 +72,7 @@ const CodeBlockCombobox = React.memo(() => {
   return (
     <Select
       className="w-fit"
-      inputClassName="min-w-[4ch] max-w-[30ch] cursor-pointer"
+      inputClassName="min-w-[4ch] max-w-[30ch] cursor-pointer field-sizing-content w-fit!"
       variant="ghost"
       size="small"
       items={items}
