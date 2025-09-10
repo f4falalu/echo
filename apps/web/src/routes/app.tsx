@@ -66,7 +66,4 @@ export const Route = createFileRoute('/app')({
       </AppProviders>
     );
   },
-  staleTime: Infinity,
-  preloadStaleTime: Infinity,
-  gcTime: 10 * 60 * 1000, // 10 minutes
 });
