@@ -16,17 +16,22 @@ export const Route = createFileRoute('/app')({
   ssr: true,
   beforeLoad: async () => {
     console.log('beforeLoad app route');
-    const { isExpired, accessToken = '' } = await getSupabaseSession();
-    console.log('beforeLoad app route done');
+    try {
+      const { isExpired, accessToken = '' } = await getSupabaseSession();
+      console.log('beforeLoad app route done');
 
-    if (isExpired || !accessToken) {
-      console.error('Access token is expired or not found');
+      if (isExpired || !accessToken) {
+        console.error('Access token is expired or not found');
+        throw redirect({ to: '/auth/login', replace: true });
+      }
+
+      return {
+        accessToken,
+      };
+    } catch (error) {
+      console.error('Error in app route beforeLoad:', error);
       throw redirect({ to: '/auth/login', replace: true });
     }
-
-    return {
-      accessToken,
-    };
   },
   loader: async ({ context }) => {
     const { queryClient, accessToken } = context;
