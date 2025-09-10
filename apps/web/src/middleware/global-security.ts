@@ -9,7 +9,6 @@ export const securityMiddleware = createMiddleware({ type: 'function' }).server(
     const url = new URL(request.url);
     const isEmbed = url.pathname.startsWith('/embed/');
 
-    // Set security headers BEFORE calling next() to ensure they're set only once
     setHeaders(createSecurityHeaders(isEmbed));
 
     const result = await next();

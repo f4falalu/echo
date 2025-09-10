@@ -13,6 +13,6 @@ export const Route = createFileRoute('/auth/logout')({
   preload: false,
   loader: async () => {
     await signOut();
-    throw redirect({ to: '/auth/login', statusCode: 301 });
+    throw redirect({ to: '/auth/login', statusCode: 307 });
   },
 });
