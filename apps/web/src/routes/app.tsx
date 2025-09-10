@@ -15,6 +15,7 @@ export const Route = createFileRoute('/app')({
   context: ({ context }) => ({ ...context, getAppLayout }),
   ssr: true,
   beforeLoad: async () => {
+    console.log('before load app');
     const { isExpired, accessToken = '' } = await getSupabaseSession();
 
     if (isExpired || !accessToken) {
@@ -29,6 +30,7 @@ export const Route = createFileRoute('/app')({
   loader: async ({ context }) => {
     const { queryClient, accessToken } = context;
     try {
+      console.log('loader app');
       const [initialLayout, user] = await Promise.all([
         getAppLayout({ id: PRIMARY_APP_LAYOUT_ID }),
         getSupabaseUser(),
@@ -37,6 +39,7 @@ export const Route = createFileRoute('/app')({
         prefetchListDatasources(queryClient),
         prefetchGetDatasets(queryClient),
       ]);
+      console.log('loader app done', user, initialLayout);
 
       if (!user) {
         throw redirect({ to: '/auth/login' });
