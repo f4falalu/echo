@@ -3,6 +3,7 @@ import { DEFAULT_USER_SUGGESTED_PROMPTS, type UserSuggestedPromptsField } from '
 import { generateObject } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
+import { GPT5Nano } from '../../llm';
 import SUGGESTED_PROMPTS_SYSTEM_PROMPT from './suggested-prompts-system-prompt.txt';
 
 // Schema for LLM output
@@ -49,20 +50,19 @@ Generate suggestions that are relevant to the conversation context and available
     const tracedGeneration = wrapTraced(
       async () => {
         const result = await generateObject({
-          model: openai('gpt-5-nano'),
+          model: GPT5Nano,
           prompt: userMessage,
-          temperature: 0.7,
-          maxOutputTokens: 10000,
+          maxOutputTokens: 3000,
           system: systemPromptWithContext,
           schema: SuggestedMessagesOutputSchema,
           providerOptions: {
             gateway: {
               order: ['openai'],
-              openai: {
-                parallelToolCalls: false,
-                reasoningEffort: 'minimal',
-                verbosity: 'low',
-              },
+            },
+            openai: {
+              parallelToolCalls: false,
+              reasoningEffort: 'minimal',
+              verbosity: 'low',
             },
           },
         });
