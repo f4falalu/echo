@@ -33,7 +33,7 @@ export const MetricElement = withHOC(
     const isSelected = useSelected();
     const isFocused = useFocused();
     const showFocused = isSelected && isFocused;
-    const className = cn(showFocused && 'ring-ring bg-brand/10 ring-1 ring-offset-4');
+    const className = cn(showFocused && 'ring-ring bg-brand/5 ring-1 ring-offset-4');
 
     const content = metricId ? (
       <MetricToolbar selectedMetricId={metricId}>
@@ -62,8 +62,7 @@ export const MetricElement = withHOC(
         }}
         {...props}
       >
-        <div contentEditable={false}>{content}</div>
-
+        <span contentEditable={false}>{content}</span>
         {children}
       </PlateElement>
     );
@@ -77,10 +76,9 @@ const MetricResizeContainer: React.FC<PropsWithChildren> = ({ children }) => {
   const editor = useEditorRef();
   const editorWidth = useSize(ref)?.width ?? 700;
   const isSelected = useSelected();
-
-  const { isDragging, handleRef } = useDraggable({
-    element: element,
-  });
+  // const { isDragging, handleRef } = useDraggable({
+  //   element: element,
+  // });
   const align = 'center'; // Default align for metrics
 
   const selectNode = () => {
@@ -118,11 +116,11 @@ const MetricResizeContainer: React.FC<PropsWithChildren> = ({ children }) => {
         />
 
         <div
-          ref={handleRef}
+          // ref={handleRef}
           className={cn(
             'min-h-64',
-            !height && 'min-h-[390px] bg-red-500 opacity-50',
-            isDragging && 'cursor-grabbing opacity-50'
+            !height && 'min-h-[390px]'
+            //   isDragging && 'cursor-grabbing opacity-50'
           )}
           style={{ height }}
         >
