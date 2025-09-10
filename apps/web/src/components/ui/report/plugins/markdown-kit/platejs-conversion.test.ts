@@ -1496,3 +1496,23 @@ describe('platejs to markdown and back to platejs', () => {
     expect(actualWithoutIds).toEqual(expectedWithoutIds);
   });
 });
+
+describe('toggle serializer', () => {
+  it('should serialize a toggle', async () => {
+    const markdown = `<details>
+<summary>Toggle</summary>
+
+
+Nested
+
+​
+
+</details>`;
+    const platejs = await markdownToPlatejs(editor, markdown);
+    expect(platejs).toBeDefined();
+    expect(platejs[0].type).toBe('toggle');
+    expect(platejs[0].children[0].text).toBe('Toggle');
+    expect(platejs[1].type).toBe('p');
+    expect(platejs[1].children[0].text).toBe('Nested');
+  });
+});
