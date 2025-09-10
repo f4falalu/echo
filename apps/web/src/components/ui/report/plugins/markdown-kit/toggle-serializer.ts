@@ -1,9 +1,4 @@
-import {
-  deserializeMd,
-  type MdNodeParser,
-  parseAttributes,
-  serializeMd,
-} from '@platejs/markdown';
+import { deserializeMd, type MdNodeParser, parseAttributes, serializeMd } from '@platejs/markdown';
 
 export const toggleSerializer: MdNodeParser<'toggle'> = {
   serialize: (node, options) => {
@@ -11,10 +6,14 @@ export const toggleSerializer: MdNodeParser<'toggle'> = {
       throw new Error('Editor is required');
     }
 
+    console.log(node);
+
     const content = serializeMd(options.editor, {
       ...options,
       value: node.children,
     });
+
+    console.log('content', content);
 
     return {
       type: 'html',
