@@ -48,7 +48,7 @@ const CharacterCounterElement = ({
   return (
     <PlateElement
       className={cn(
-        'rounded-md bg-purple-100 p-2 text-black',
+        'rounded bg-purple-100 p-2 text-black',
         selected && 'ring-ring rounded bg-red-200 ring-2 ring-offset-2'
       )}
       attributes={{
