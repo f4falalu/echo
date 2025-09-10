@@ -50,11 +50,12 @@ export function MetricToolbar({
   }, []);
 
   const handleAddMetrics = React.useCallback(
-    async (metrics: { id: string; name: string }[]) => {
+    async (metrics: { id: string; name: string; versionNumber: number | undefined }[]) => {
       const id = metrics?.[0]?.id;
+      const versionNumber = metrics?.[0]?.versionNumber;
       const at = editor.api.findPath(element);
       if (!id || !at) return onCloseEdit();
-      plugin.api.metric.updateMetric(id, { at });
+      plugin.api.metric.updateMetric(id, versionNumber, { at });
       onCloseEdit();
     },
     [editor, element, onCloseEdit, plugin.api.metric]
@@ -85,7 +86,7 @@ export function MetricToolbar({
         </div>
       </PopoverContent>
 
-      <AddMetricModal
+      {/* <AddMetricModal
         open={openEditModal}
         loading={false}
         initialSelectedMetrics={preselectedMetrics}
@@ -93,7 +94,7 @@ export function MetricToolbar({
         onAddMetrics={handleAddMetrics}
         selectionMode="single"
         saveButtonText="Update metric"
-      />
+      /> */}
     </PopoverBase>
   );
 }

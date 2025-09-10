@@ -365,6 +365,7 @@ export const MetricElementSchema = z.object({
   type: z.literal('metric'),
   id: z.string().optional(), //THIS IS A UNIQUE ID THAT PLATEJS USES. WE SHOULD NOT SET IT.
   metricId: z.string(),
+  versionNumber: z.number().optional(),
   width: z.union([z.number(), z.string().regex(/^(?:\d+px|\d+%)$/)]).optional(),
   children: z.array(VoidTextSchema).default([]),
   caption: z
