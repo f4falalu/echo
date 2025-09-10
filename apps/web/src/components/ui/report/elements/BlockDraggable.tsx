@@ -124,7 +124,7 @@ function Draggable(props: PlateElementProps) {
       className={cn(
         'relative',
         isDragging && 'opacity-50',
-        getPluginByType(editor, element.type)?.node.isContainer ? 'group/container' : 'group'
+        getPluginByType(editor, element.type)?.node.isContainer ? 'group/container' : 'group/block'
       )}
       onMouseEnter={() => {
         if (isDragging) return;
@@ -206,7 +206,7 @@ function Gutter({ children, className, ...props }: React.ComponentProps<'div'>) 
         'absolute top-0 z-50 flex -translate-x-full cursor-text hover:opacity-100 sm:opacity-0',
         getPluginByType(editor, element.type)?.node.isContainer
           ? 'group-hover/container:opacity-100'
-          : 'group-hover:opacity-100',
+          : 'group-hover/block:opacity-100',
         isSelectionAreaVisible && 'hidden',
         !selected && 'opacity-0',
         className

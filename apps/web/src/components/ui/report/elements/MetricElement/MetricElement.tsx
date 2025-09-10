@@ -99,7 +99,7 @@ const MetricResizeContainer: React.FC<PropsWithChildren> = ({ children }) => {
       ref={ref}
       contentEditable={false}
       className={cn(
-        'group relative m-0 w-full cursor-default transition-all',
+        'relative m-0 w-full cursor-default transition-all',
         isSelected && 'bg-item-hover/10 rounded'
       )}
     >
