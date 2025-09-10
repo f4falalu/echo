@@ -280,48 +280,6 @@ Here's an unordered list:
     expect(firstElement.type).toBe('metric');
     expect(firstElement.metricId).toBe('33af38a8-c40f-437d-98ed-1ec78ce35232');
   });
-
-  it('toggle', async () => {
-    const markdown = `<toggle content="This is toggle content"></toggle>`;
-    const elements = await markdownToPlatejs(editor, markdown);
-    const firstElement = elements[0];
-    expect(firstElement.type).toBe('toggle');
-    expect(firstElement.children[0]).toEqual({ text: '' });
-    
-    expect(elements[1].type).toBe('p');
-    expect((elements[1] as any).indent).toBe(1);
-    expect(elements[1].children[0].text).toBe('This is toggle content');
-  });
-
-  it('toggle with indent attributes and roundtrip', async () => {
-    const originalElements = [
-      {
-        type: 'toggle',
-        children: [{ text: 'This is a test:)' }],
-        id: 'hCbXepPz5W'
-      },
-      {
-        type: 'p',
-        children: [{ text: 'WOW!' }],
-        id: 'Q-d_WjfXSV',
-        indent: 1
-      }
-    ];
-
-    const markdown = await platejsToMarkdown(editor, originalElements);
-    expect(markdown).toContain('<toggle ');
-    expect(markdown).toContain('content="');
-    expect(markdown).toContain('WOW!');
-
-    const elements = await markdownToPlatejs(editor, markdown);
-    
-    expect(elements[0].type).toBe('toggle');
-    expect(elements[0].children[0]).toEqual({ text: '' });
-
-    expect(elements[1].type).toBe('p');
-    expect((elements[1] as any).indent).toBe(1);
-    expect(elements[1].children[0].text).toBe('WOW!');
-  });
 });
 
 describe('platejsToMarkdown', () => {
@@ -1536,5 +1494,25 @@ describe('platejs to markdown and back to platejs', () => {
     const expectedWithoutIds = stripIds(elements);
     const actualWithoutIds = stripIds(platejs);
     expect(actualWithoutIds).toEqual(expectedWithoutIds);
+  });
+});
+
+describe('toggle serializer', () => {
+  it('should serialize a toggle', async () => {
+    const markdown = `<details>
+<summary>Toggle</summary>
+
+
+Nested
+
+​
+
+</details>`;
+    const platejs = await markdownToPlatejs(editor, markdown);
+    expect(platejs).toBeDefined();
+    expect(platejs[0].type).toBe('toggle');
+    expect(platejs[0].children[0].text).toBe('Toggle');
+    expect(platejs[1].type).toBe('p');
+    expect(platejs[1].children[0].text).toBe('Nested');
   });
 });

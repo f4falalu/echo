@@ -11,6 +11,7 @@ const MarkdownPlugin = PlateMarkdownPlugin.configure({
       callout: calloutSerializer,
       metric: metricSerializer,
       toggle: toggleSerializer,
+      details: toggleSerializer,
     },
   },
 });
