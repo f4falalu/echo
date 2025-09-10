@@ -34,6 +34,16 @@ const app = new Hono().get(
 
       const currentSuggestedPrompts = await getUserSuggestedPrompts({ userId });
 
+      // If no prompts exist, try to generate new ones or return defaults
+      if (!currentSuggestedPrompts) {
+        try {
+          const newPrompts = await buildNewSuggestedPrompts(userId);
+          return c.json(newPrompts);
+        } catch {
+          return c.json(DEFAULT_USER_SUGGESTED_PROMPTS);
+        }
+      }
+
       // Check if the updatedAt date is from today
       const today = new Date();
       const updatedDate = new Date(currentSuggestedPrompts.updatedAt);

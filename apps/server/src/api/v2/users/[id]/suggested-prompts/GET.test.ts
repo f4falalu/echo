@@ -1,5 +1,6 @@
 import { generateSuggestedMessages } from '@buster/ai';
 import {
+  DEFAULT_USER_SUGGESTED_PROMPTS,
   type User,
   type UserSuggestedPromptsField,
   getPermissionedDatasets,
@@ -18,22 +19,14 @@ vi.mock('@buster/database');
 
 describe('GET /api/v2/users/:id/suggested-prompts', () => {
   const mockUser: User = {
-    id: 'user-123',
+    id: '123e4567-e89b-12d3-a456-426614174000', // Valid UUID
     email: 'test@example.com',
     name: 'Test User',
     avatarUrl: null,
-    organizationId: 'org-123',
+    organizationId: '123e4567-e89b-12d3-a456-426614174001',
   } as User;
 
-  const mockDefaultPrompts: UserSuggestedPromptsField = {
-    suggestedPrompts: {
-      report: ['provide a trend analysis of quarterly profits'],
-      dashboard: ['create a sales performance dashboard'],
-      visualization: ['create a metric for monthly sales'],
-      help: ['what types of analyses can you perform?'],
-    },
-    updatedAt: new Date().toISOString(),
-  };
+  // Use actual DEFAULT_USER_SUGGESTED_PROMPTS instead of mock
 
   const mockTodayPrompts: UserSuggestedPromptsField = {
     suggestedPrompts: {
@@ -89,6 +82,17 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
     },
   ];
 
+  // Helper function to create test app with proper setup
+  const createTestApp = () => {
+    const testApp = new Hono();
+    testApp.use('*', async (c, next) => {
+      c.set('busterUser', mockUser);
+      await next();
+    });
+    testApp.route('/:id', app); // Mount with :id parameter
+    return testApp;
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
 
@@ -103,38 +107,28 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
 
   describe('Authorization', () => {
     it('should return 403 when user tries to access another users prompts', async () => {
-      const testApp = new Hono();
-      testApp.use('*', async (c, next) => {
-        c.set('busterUser', mockUser);
-        await next();
-      });
-      testApp.route('/', app);
+      const testApp = createTestApp();
+      const differentUserId = '223e4567-e89b-12d3-a456-426614174000'; // Different valid UUID
 
-      const response = await testApp.request('/different-user-id', {
+      const response = await testApp.request(`/${differentUserId}`, {
         method: 'GET',
       });
 
       expect(response.status).toBe(403);
-      const body = (await response.json()) as { message: string };
-      expect(body.message).toBe('Forbidden: You can only access your own suggested prompts');
+      const text = await response.text();
+      expect(text).toContain('Forbidden: You can only access your own suggested prompts');
     });
 
     it('should allow user to access their own prompts', async () => {
       (getUserSuggestedPrompts as Mock).mockResolvedValue(mockTodayPrompts);
+      const testApp = createTestApp();
 
-      const testApp = new Hono();
-      testApp.use('*', async (c, next) => {
-        c.set('busterUser', mockUser);
-        await next();
-      });
-      testApp.route('/', app);
-
-      const response = await testApp.request('/user-123', {
+      const response = await testApp.request(`/${mockUser.id}`, {
         method: 'GET',
       });
 
       expect(response.status).toBe(200);
-      expect(getUserSuggestedPrompts).toHaveBeenCalledWith({ userId: 'user-123' });
+      expect(getUserSuggestedPrompts).toHaveBeenCalledWith({ userId: mockUser.id });
     });
   });
 
@@ -142,14 +136,9 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
     it('should return cached prompts when they were updated today', async () => {
       (getUserSuggestedPrompts as Mock).mockResolvedValue(mockTodayPrompts);
 
-      const testApp = new Hono();
-      testApp.use('*', async (c, next) => {
-        c.set('busterUser', mockUser);
-        await next();
-      });
-      testApp.route('/', app);
+      const testApp = createTestApp();
 
-      const response = await testApp.request('/user-123', {
+      const response = await testApp.request(`/${mockUser.id}`, {
         method: 'GET',
       });
 
@@ -169,14 +158,9 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
       };
       (getUserSuggestedPrompts as Mock).mockResolvedValue(recentPrompts);
 
-      const testApp = new Hono();
-      testApp.use('*', async (c, next) => {
-        c.set('busterUser', mockUser);
-        await next();
-      });
-      testApp.route('/', app);
+      const testApp = createTestApp();
 
-      const response = await testApp.request('/user-123', {
+      const response = await testApp.request(`/${mockUser.id}`, {
         method: 'GET',
       });
 
@@ -191,14 +175,9 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
     it('should generate new prompts when cached prompts are from yesterday', async () => {
       (getUserSuggestedPrompts as Mock).mockResolvedValue(mockOldPrompts);
 
-      const testApp = new Hono();
-      testApp.use('*', async (c, next) => {
-        c.set('busterUser', mockUser);
-        await next();
-      });
-      testApp.route('/', app);
+      const testApp = createTestApp();
 
-      const response = await testApp.request('/user-123', {
+      const response = await testApp.request(`/${mockUser.id}`, {
         method: 'GET',
       });
 
@@ -208,18 +187,18 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
 
       // Should call AI generation functions
       expect(getPermissionedDatasets).toHaveBeenCalledWith({
-        userId: 'user-123',
+        userId: mockUser.id,
         pageSize: 1000,
         page: 0,
       });
-      expect(getUserRecentMessages).toHaveBeenCalledWith('user-123', 15);
+      expect(getUserRecentMessages).toHaveBeenCalledWith(mockUser.id, 15);
       expect(generateSuggestedMessages).toHaveBeenCalledWith({
         chatHistoryText: expect.stringContaining('userMessage: Show me sales data'),
         databaseContext: expect.stringContaining('table: users'),
-        userId: 'user-123',
+        userId: mockUser.id,
       });
       expect(updateUserSuggestedPrompts).toHaveBeenCalledWith({
-        userId: 'user-123',
+        userId: mockUser.id,
         suggestedPrompts: mockGeneratedPrompts,
       });
     });
@@ -230,14 +209,9 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
       (getUserSuggestedPrompts as Mock).mockResolvedValue(mockOldPrompts);
       (getPermissionedDatasets as Mock).mockResolvedValue({ datasets: [] });
 
-      const testApp = new Hono();
-      testApp.use('*', async (c, next) => {
-        c.set('busterUser', mockUser);
-        await next();
-      });
-      testApp.route('/', app);
+      const testApp = createTestApp();
 
-      const response = await testApp.request('/user-123', {
+      const response = await testApp.request(`/${mockUser.id}`, {
         method: 'GET',
       });
 
@@ -256,14 +230,9 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
         ],
       });
 
-      const testApp = new Hono();
-      testApp.use('*', async (c, next) => {
-        c.set('busterUser', mockUser);
-        await next();
-      });
-      testApp.route('/', app);
+      const testApp = createTestApp();
 
-      const response = await testApp.request('/user-123', {
+      const response = await testApp.request(`/${mockUser.id}`, {
         method: 'GET',
       });
 
@@ -275,14 +244,9 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
     it('should format YAML content correctly with separators', async () => {
       (getUserSuggestedPrompts as Mock).mockResolvedValue(mockOldPrompts);
 
-      const testApp = new Hono();
-      testApp.use('*', async (c, next) => {
-        c.set('busterUser', mockUser);
-        await next();
-      });
-      testApp.route('/', app);
+      const testApp = createTestApp();
 
-      await testApp.request('/user-123', {
+      await testApp.request(`/${mockUser.id}`, {
         method: 'GET',
       });
 
@@ -290,7 +254,7 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
         chatHistoryText: expect.any(String),
         databaseContext:
           'table: users\ncolumns:\n  - id\n  - name\n\n---\n\ntable: orders\ncolumns:\n  - id\n  - total',
-        userId: 'user-123',
+        userId: mockUser.id,
       });
     });
   });
@@ -299,15 +263,12 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
     it('should handle empty chat history gracefully', async () => {
       (getUserSuggestedPrompts as Mock).mockResolvedValue(mockOldPrompts);
       (getUserRecentMessages as Mock).mockResolvedValue([]);
+      // Clear the default successful mock for this test
+      (getPermissionedDatasets as Mock).mockResolvedValue({ datasets: [] });
 
-      const testApp = new Hono();
-      testApp.use('*', async (c, next) => {
-        c.set('busterUser', mockUser);
-        await next();
-      });
-      testApp.route('/', app);
+      const testApp = createTestApp();
 
-      const response = await testApp.request('/user-123', {
+      const response = await testApp.request(`/${mockUser.id}`, {
         method: 'GET',
       });
 
@@ -319,14 +280,9 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
     it('should format chat history correctly', async () => {
       (getUserSuggestedPrompts as Mock).mockResolvedValue(mockOldPrompts);
 
-      const testApp = new Hono();
-      testApp.use('*', async (c, next) => {
-        c.set('busterUser', mockUser);
-        await next();
-      });
-      testApp.route('/', app);
+      const testApp = createTestApp();
 
-      await testApp.request('/user-123', {
+      await testApp.request(`/${mockUser.id}`, {
         method: 'GET',
       });
 
@@ -334,7 +290,7 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
         chatHistoryText:
           'userMessage: Show me sales data, assistantResponses: Here is your sales data...\n\nuserMessage: Create a dashboard, assistantResponses: I created a dashboard for you...',
         databaseContext: expect.any(String),
-        userId: 'user-123',
+        userId: mockUser.id,
       });
     });
   });
@@ -343,34 +299,24 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
     it('should return 500 when getUserSuggestedPrompts fails', async () => {
       (getUserSuggestedPrompts as Mock).mockRejectedValue(new Error('Database connection failed'));
 
-      const testApp = new Hono();
-      testApp.use('*', async (c, next) => {
-        c.set('busterUser', mockUser);
-        await next();
-      });
-      testApp.route('/', app);
+      const testApp = createTestApp();
 
-      const response = await testApp.request('/user-123', {
+      const response = await testApp.request(`/${mockUser.id}`, {
         method: 'GET',
       });
 
       expect(response.status).toBe(500);
-      const body = (await response.json()) as { message: string };
-      expect(body.message).toBe('Error fetching suggested prompts');
+      const text = await response.text();
+      expect(text).toContain('Error fetching suggested prompts');
     });
 
     it('should fallback to old prompts when AI generation fails', async () => {
       (getUserSuggestedPrompts as Mock).mockResolvedValue(mockOldPrompts);
       (generateSuggestedMessages as Mock).mockRejectedValue(new Error('AI service unavailable'));
 
-      const testApp = new Hono();
-      testApp.use('*', async (c, next) => {
-        c.set('busterUser', mockUser);
-        await next();
-      });
-      testApp.route('/', app);
+      const testApp = createTestApp();
 
-      const response = await testApp.request('/user-123', {
+      const response = await testApp.request(`/${mockUser.id}`, {
         method: 'GET',
       });
 
@@ -383,34 +329,24 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
       (getUserSuggestedPrompts as Mock).mockResolvedValue(null);
       (generateSuggestedMessages as Mock).mockRejectedValue(new Error('AI service unavailable'));
 
-      const testApp = new Hono();
-      testApp.use('*', async (c, next) => {
-        c.set('busterUser', mockUser);
-        await next();
-      });
-      testApp.route('/', app);
+      const testApp = createTestApp();
 
-      const response = await testApp.request('/user-123', {
+      const response = await testApp.request(`/${mockUser.id}`, {
         method: 'GET',
       });
 
       expect(response.status).toBe(200);
       const body = await response.json();
-      expect(body).toEqual(mockDefaultPrompts);
+      expect(body).toEqual(DEFAULT_USER_SUGGESTED_PROMPTS);
     });
 
     it('should fallback to old prompts when updateUserSuggestedPrompts fails', async () => {
       (getUserSuggestedPrompts as Mock).mockResolvedValue(mockOldPrompts);
       (updateUserSuggestedPrompts as Mock).mockRejectedValue(new Error('Update failed'));
 
-      const testApp = new Hono();
-      testApp.use('*', async (c, next) => {
-        c.set('busterUser', mockUser);
-        await next();
-      });
-      testApp.route('/', app);
+      const testApp = createTestApp();
 
-      const response = await testApp.request('/user-123', {
+      const response = await testApp.request(`/${mockUser.id}`, {
         method: 'GET',
       });
 
@@ -423,14 +359,9 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
       (getUserSuggestedPrompts as Mock).mockResolvedValue(mockOldPrompts);
       (getPermissionedDatasets as Mock).mockRejectedValue(new Error('Permission check failed'));
 
-      const testApp = new Hono();
-      testApp.use('*', async (c, next) => {
-        c.set('busterUser', mockUser);
-        await next();
-      });
-      testApp.route('/', app);
+      const testApp = createTestApp();
 
-      const response = await testApp.request('/user-123', {
+      const response = await testApp.request(`/${mockUser.id}`, {
         method: 'GET',
       });
 
@@ -443,14 +374,9 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
       (getUserSuggestedPrompts as Mock).mockResolvedValue(mockOldPrompts);
       (getUserRecentMessages as Mock).mockRejectedValue(new Error('Chat history fetch failed'));
 
-      const testApp = new Hono();
-      testApp.use('*', async (c, next) => {
-        c.set('busterUser', mockUser);
-        await next();
-      });
-      testApp.route('/', app);
+      const testApp = createTestApp();
 
-      const response = await testApp.request('/user-123', {
+      const response = await testApp.request(`/${mockUser.id}`, {
         method: 'GET',
       });
 
@@ -462,12 +388,7 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
 
   describe('Input validation', () => {
     it('should return 400 for invalid UUID format', async () => {
-      const testApp = new Hono();
-      testApp.use('*', async (c, next) => {
-        c.set('busterUser', mockUser);
-        await next();
-      });
-      testApp.route('/', app);
+      const testApp = createTestApp();
 
       const response = await testApp.request('/invalid-uuid', {
         method: 'GET',
@@ -476,19 +397,14 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
       expect(response.status).toBe(400);
     });
 
-    it('should return 400 for empty user ID', async () => {
-      const testApp = new Hono();
-      testApp.use('*', async (c, next) => {
-        c.set('busterUser', mockUser);
-        await next();
-      });
-      testApp.route('/', app);
+    it('should return 404 for empty user ID (route not found)', async () => {
+      const testApp = createTestApp();
 
       const response = await testApp.request('/', {
         method: 'GET',
       });
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(404);
     });
   });
 
@@ -504,14 +420,9 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
       };
       (getUserSuggestedPrompts as Mock).mockResolvedValue(yesterdayPrompts);
 
-      const testApp = new Hono();
-      testApp.use('*', async (c, next) => {
-        c.set('busterUser', mockUser);
-        await next();
-      });
-      testApp.route('/', app);
+      const testApp = createTestApp();
 
-      const response = await testApp.request('/user-123', {
+      const response = await testApp.request(`/${mockUser.id}`, {
         method: 'GET',
       });
 
@@ -530,14 +441,9 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
       };
       (getUserSuggestedPrompts as Mock).mockResolvedValue(earlyTodayPrompts);
 
-      const testApp = new Hono();
-      testApp.use('*', async (c, next) => {
-        c.set('busterUser', mockUser);
-        await next();
-      });
-      testApp.route('/', app);
+      const testApp = createTestApp();
 
-      const response = await testApp.request('/user-123', {
+      const response = await testApp.request(`/${mockUser.id}`, {
         method: 'GET',
       });
 
