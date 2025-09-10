@@ -323,7 +323,7 @@ export const NodeTypeLabels = {
     keywords: [],
   },
   caption: {
-    label: 'Caption',
+    label: 'Add caption',
     keyboard: undefined,
     keywords: [],
   },
