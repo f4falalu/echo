@@ -652,6 +652,13 @@
       "when": 1757436911658,
       "tag": "0092_premium_scarlet_witch",
       "breakpoints": true
+    },
+    {
+      "idx": 93,
+      "version": "7",
+      "when": 1757461864906,
+      "tag": "0093_silly_wiccan",
+      "breakpoints": true
     }
   ]
 }
