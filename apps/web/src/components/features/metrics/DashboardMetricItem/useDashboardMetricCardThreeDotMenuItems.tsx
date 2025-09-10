@@ -149,27 +149,22 @@ const useShareMenuSelectMenu = ({ metricId }: { metricId: string }): IDropdownIt
 };
 
 const useEditWithAI = ({ metricId }: { metricId: string }): IDropdownItem => {
-  const { mutateAsync: startChatFromAsset, isPending } = useStartChatFromAsset();
-  const navigate = useNavigate();
+  const { onCreateFileClick, loading } = useStartChatFromAsset({
+    assetId: metricId,
+    assetType: 'metric',
+  });
 
   return useMemo(
     () => ({
       label: 'Edit with AI',
       value: 'edit-with-ai',
       icon: <PenSparkle />,
-      loading: isPending,
+      loading: loading,
       onClick: async () => {
-        const result = await startChatFromAsset({ asset_id: metricId, asset_type: 'metric' });
-        navigate({
-          to: '/app/chats/$chatId/metrics/$metricId',
-          params: {
-            metricId,
-            chatId: result.id,
-          },
-        });
+        await onCreateFileClick();
       },
     }),
-    [metricId, startChatFromAsset, isPending]
+    [metricId, onCreateFileClick, loading]
   );
 };
 

@@ -3,8 +3,13 @@ import type React from 'react';
 import { useMemo } from 'react';
 import { useDeleteChat, useDuplicateChat, useGetChat } from '@/api/buster_rest/chats';
 import { useFavoriteStar } from '@/components/features/favorites';
-import { createDropdownItems, Dropdown, type IDropdownItems } from '@/components/ui/dropdown';
-import { DuplicatePlus, Pencil, Star, Trash } from '@/components/ui/icons';
+import {
+  createDropdownItem,
+  createDropdownItems,
+  Dropdown,
+  type IDropdownItems,
+} from '@/components/ui/dropdown';
+import { ArrowRight, DuplicatePlus, Pencil, Star, Trash } from '@/components/ui/icons';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useGetChatId } from '@/context/Chats/useGetChatId';
@@ -32,40 +37,9 @@ export const ChatContainerHeaderDropdown: React.FC<{
   });
 
   const menuItem: IDropdownItems = useMemo(() => {
-    return createDropdownItems([
+    return [
       {
-        label: 'Delete chat',
-        value: 'delete',
-        icon: <Trash />,
-        loading: isDeleting,
-        onClick: () =>
-          chatId &&
-          deleteChat(
-            { data: [chatId] },
-            {
-              onSuccess: () => {
-                navigate({ to: '/app/chats' });
-                openSuccessMessage('Chat deleted');
-              },
-            }
-          ),
-      },
-      {
-        label: 'Duplicate chat',
-        value: 'duplicate',
-        icon: <DuplicatePlus />,
-        loading: isDuplicating,
-        onClick: async () => {
-          if (chatId) {
-            const res = await duplicateChat({ id: chatId });
-            await timeout(100);
-            await navigate({ to: '/app/chats/$chatId', params: { chatId: res.id } });
-            openSuccessMessage('Chat duplicated');
-          }
-        },
-      },
-      {
-        label: 'Edit chat title',
+        label: 'Rename',
         value: 'edit-chat-title',
         icon: <Pencil />,
         onClick: async () => {
@@ -83,7 +57,50 @@ export const ChatContainerHeaderDropdown: React.FC<{
         icon: isFavorited ? <StarFilled /> : <Star />,
         onClick: () => onFavoriteClick(),
       },
-    ]);
+      createDropdownItem({
+        label: 'Open in new tab',
+        value: 'open-in-new-tab',
+        icon: <ArrowRight />,
+        link: {
+          to: '/app/chats/$chatId',
+          params: { chatId: chatId || '' },
+        },
+      }),
+      {
+        type: 'divider',
+      },
+      {
+        label: 'Duplicate chat',
+        value: 'duplicate',
+        icon: <DuplicatePlus />,
+        loading: isDuplicating,
+        onClick: async () => {
+          if (chatId) {
+            const res = await duplicateChat({ id: chatId });
+            await timeout(100);
+            await navigate({ to: '/app/chats/$chatId', params: { chatId: res.id } });
+            openSuccessMessage('Chat duplicated');
+          }
+        },
+      },
+      {
+        label: 'Delete chat',
+        value: 'delete',
+        icon: <Trash />,
+        loading: isDeleting,
+        onClick: () =>
+          chatId &&
+          deleteChat(
+            { data: [chatId] },
+            {
+              onSuccess: () => {
+                navigate({ to: '/app/chats' });
+                openSuccessMessage('Chat deleted');
+              },
+            }
+          ),
+      },
+    ];
   }, [
     chatId,
     isDeleting,
