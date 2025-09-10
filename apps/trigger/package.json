@@ -32,6 +32,7 @@
     "@buster/typescript-config": "workspace:*",
     "@buster/vitest-config": "workspace:*",
     "@buster/web-tools": "workspace:*",
+    "@duckdb/node-api": "1.3.2-alpha.26",
     "@trigger.dev/sdk": "catalog:",
     "ai": "catalog:",
     "braintrust": "catalog:",
