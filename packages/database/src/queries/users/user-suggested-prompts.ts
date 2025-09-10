@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
 import { users } from '../../schema';
-import type { UserSuggestedPrompts } from '../../schema-types';
+import type { UserSuggestedPromptsField } from '../../schema-types';
 
 // Input validation schemas
 const UpdateSuggestedPromptsInputSchema = z.object({
@@ -27,11 +27,11 @@ type GetSuggestedPromptsInput = z.infer<typeof GetSuggestedPromptsInputSchema>;
  */
 export async function updateUserSuggestedPrompts(
   params: UpdateSuggestedPromptsInput
-): Promise<UserSuggestedPrompts> {
+): Promise<UserSuggestedPromptsField> {
   try {
     const { userId, suggestedPrompts } = UpdateSuggestedPromptsInputSchema.parse(params);
 
-    const updatedPrompts: UserSuggestedPrompts = {
+    const updatedPrompts: UserSuggestedPromptsField = {
       suggestedPrompts: suggestedPrompts,
       updatedAt: new Date().toISOString(),
     };
@@ -48,6 +48,9 @@ export async function updateUserSuggestedPrompts(
     if (!result.length || !result[0]) {
       throw new Error('User not found');
     }
+    if (!result[0].suggestedPrompts) {
+      throw new Error('Failed to update user suggested prompts');
+    }
 
     return result[0].suggestedPrompts;
   } catch (error) {
@@ -63,7 +66,7 @@ export async function updateUserSuggestedPrompts(
  */
 export async function getUserSuggestedPrompts(
   params: GetSuggestedPromptsInput
-): Promise<UserSuggestedPrompts> {
+): Promise<UserSuggestedPromptsField> {
   try {
     const { userId } = GetSuggestedPromptsInputSchema.parse(params);
 
@@ -77,6 +80,9 @@ export async function getUserSuggestedPrompts(
 
     if (!user) {
       throw new Error('User not found');
+    }
+    if (!user.suggestedPrompts) {
+      throw new Error('User suggested prompts not found');
     }
 
     return user.suggestedPrompts;

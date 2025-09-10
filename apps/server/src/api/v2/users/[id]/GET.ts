@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import suggestedPromptsRoutes from './id/suggested-prompts';
+import suggestedPromptsRoutes from './suggested-prompts';
 
 const app = new Hono()
   .get('/', (c) => {

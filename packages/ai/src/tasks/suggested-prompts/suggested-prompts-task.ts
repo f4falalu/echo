@@ -1,4 +1,5 @@
 import { openai } from '@ai-sdk/openai';
+import { DEFAULT_USER_SUGGESTED_PROMPTS, type UserSuggestedPromptsField } from '@buster/database';
 import { generateObject } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
@@ -91,62 +92,18 @@ Generate suggestions that are relevant to the conversation context and available
       help: suggestions.help.slice(0, 4),
     };
 
-    // Ensure minimum of 2 suggestions per category
+    // Ensure minimum of 1 suggestions per category
     Object.keys(validatedSuggestions).forEach((key) => {
       const categoryKey = key as keyof SuggestedMessagesOutput;
-      if (validatedSuggestions[categoryKey].length < 2) {
-        // Add fallback suggestions if we don't have enough
-        const fallbacks = getFallbackSuggestions(categoryKey);
-        validatedSuggestions[categoryKey] = [
-          ...validatedSuggestions[categoryKey],
-          ...fallbacks.slice(0, 2 - validatedSuggestions[categoryKey].length),
-        ];
+      if (validatedSuggestions[categoryKey].length < 1) {
+        validatedSuggestions[categoryKey] =
+          DEFAULT_USER_SUGGESTED_PROMPTS.suggestedPrompts[categoryKey];
       }
     });
 
     return validatedSuggestions;
   } catch (error) {
     console.error('[GenerateSuggestedMessages] Failed to generate suggestions:', error);
-
-    return {
-      report: getFallbackSuggestions('report'),
-      dashboard: getFallbackSuggestions('dashboard'),
-      visualization: getFallbackSuggestions('visualization'),
-      help: getFallbackSuggestions('help'),
-    };
+    throw error;
   }
-}
-
-/**
- * Provides fallback suggestions when AI generation fails or produces insufficient results
- */
-function getFallbackSuggestions(category: keyof SuggestedMessagesOutput): string[] {
-  const fallbacks = {
-    report: [
-      'Generate a monthly performance summary report',
-      'Create a comparative analysis report for this quarter',
-      'Show me a detailed breakdown of key metrics',
-      'Analyze trends and patterns in recent data',
-    ],
-    dashboard: [
-      'Create a key metrics overview dashboard',
-      'Build a real-time performance monitoring dashboard',
-      'Set up a weekly summary dashboard',
-      'Design an executive summary dashboard',
-    ],
-    visualization: [
-      'Show me a trend chart of recent activity',
-      'Create a comparison chart between categories',
-      'Display the top 10 items in a bar chart',
-      'Generate a pie chart showing distribution',
-    ],
-    help: [
-      'How do I create a new dashboard?',
-      'What types of charts can I create?',
-      'How do I filter my data?',
-      'Show me tips for better data analysis',
-    ],
-  };
-
-  return fallbacks[category] || [];
 }
