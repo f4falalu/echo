@@ -17,72 +17,24 @@ permissions:
   actions: read
 
 jobs:
-  build-deps:
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+  build-linux:
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Node Environment
-        uses: ./.github/actions/setup-node-env
-        with:
-          install-filter: "@buster-app/cli..."
-
-      - name: Build dependencies with Turbo
-        run: |
-          echo "🔨 Building CLI dependencies with Turbo..."
-          pnpm turbo build --filter=@buster-app/cli^...
-        env:
-          NODE_ENV: production
-          SKIP_ENV_CHECK: true
-          TURBO_CACHE_DIR: .turbo
-          TURBO_TELEMETRY_DISABLED: 1
-
-      - name: Create archive of built workspace
-        run: |
-          echo "Creating workspace archive..."
-          tar czf workspace-deps.tar.gz \
-            --exclude='*.log' \
-            --exclude='.git' \
-            node_modules \
-            apps/*/node_modules \
-            packages/*/node_modules \
-            apps/*/dist \
-            packages/*/dist \
-            pnpm-lock.yaml
-          echo "Archive size: $(du -h workspace-deps.tar.gz | cut -f1)"
-
-      - name: Upload workspace archive
-        uses: actions/upload-artifact@v4
-        with:
-          name: workspace-deps
-          path: workspace-deps.tar.gz
-          retention-days: 1
-
-  build-linux:
-    needs: build-deps
-    runs-on: blacksmith-2vcpu-ubuntu-2404
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
-      - name: Download workspace archive
-        uses: actions/download-artifact@v4
-        with:
-          name: workspace-deps
-
-      - name: Extract workspace archive
+      - name: Install dependencies
+        working-directory: ./apps/cli
         run: |
-          echo "Extracting workspace archive..."
-          tar xzf workspace-deps.tar.gz
-          echo "Workspace restored"
+          echo "📦 Installing CLI dependencies..."
+          bun install --frozen-lockfile
 
       - name: Build Linux binary
         working-directory: ./apps/cli
@@ -114,7 +66,6 @@ jobs:
           retention-days: 1
 
   build-macos-x64:
-    needs: build-deps
     runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - name: Checkout code
@@ -125,16 +76,11 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Download workspace archive
-        uses: actions/download-artifact@v4
-        with:
-          name: workspace-deps
-
-      - name: Extract workspace archive
+      - name: Install dependencies
+        working-directory: ./apps/cli
         run: |
-          echo "Extracting workspace archive..."
-          tar xzf workspace-deps.tar.gz
-          echo "Workspace restored"
+          echo "📦 Installing CLI dependencies..."
+          bun install --frozen-lockfile
 
       - name: Build macOS x64 binary
         working-directory: ./apps/cli
@@ -162,7 +108,6 @@ jobs:
           retention-days: 1
 
   build-macos-arm64:
-    needs: build-deps
     runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - name: Checkout code
@@ -173,16 +118,11 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Download workspace archive
-        uses: actions/download-artifact@v4
-        with:
-          name: workspace-deps
-
-      - name: Extract workspace archive
+      - name: Install dependencies
+        working-directory: ./apps/cli
         run: |
-          echo "Extracting workspace archive..."
-          tar xzf workspace-deps.tar.gz
-          echo "Workspace restored"
+          echo "📦 Installing CLI dependencies..."
+          bun install --frozen-lockfile
 
       - name: Build macOS ARM64 binary
         working-directory: ./apps/cli
@@ -210,7 +150,6 @@ jobs:
           retention-days: 1
 
   build-windows:
-    needs: build-deps
     runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - name: Checkout code
@@ -221,16 +160,11 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Download workspace archive
-        uses: actions/download-artifact@v4
-        with:
-          name: workspace-deps
-
-      - name: Extract workspace archive
+      - name: Install dependencies
+        working-directory: ./apps/cli
         run: |
-          echo "Extracting workspace archive..."
-          tar xzf workspace-deps.tar.gz
-          echo "Workspace restored"
+          echo "📦 Installing CLI dependencies..."
+          bun install --frozen-lockfile
 
       - name: Build Windows binary
         working-directory: ./apps/cli
