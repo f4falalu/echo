@@ -67,16 +67,16 @@ export function MetricToolbar({
       <PopoverAnchor>{children}</PopoverAnchor>
 
       <PopoverContent className="w-auto p-2" onOpenAutoFocus={(e) => e.preventDefault()}>
-        <div className="box-content flex items-center space-x-1">
+        <div className="box-content flex items-center space-x-2">
           {/* <Button onClick={onOpenEdit} variant="ghost">
             {NodeTypeLabels.editMetric?.label}
           </Button> */}
 
-          <CaptionButton variant="ghost">{NodeTypeLabels.caption.label}</CaptionButton>
+          <CaptionButton />
 
-          {/* <Separator orientation="vertical" className="mx-1 h-6" /> */}
+          <Separator orientation="vertical" className=" h-6" />
 
-          <Button prefix={<NodeTypeIcons.trash />} variant="ghost" {...removeButtonProps}>
+          <Button prefix={<NodeTypeIcons.trash />} {...removeButtonProps}>
             Delete
           </Button>
         </div>

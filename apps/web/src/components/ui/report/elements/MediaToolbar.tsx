@@ -82,11 +82,11 @@ export function MediaToolbar({
               {NodeTypeLabels.editLink.label}
             </FloatingMediaPrimitive.EditButton>
 
-            <CaptionButton variant="ghost">{NodeTypeLabels.caption.label}</CaptionButton>
+            <CaptionButton />
 
             <Separator orientation="vertical" className="mx-1 h-6" />
 
-            <Button prefix={<NodeTypeIcons.trash />} variant="ghost" {...buttonProps}></Button>
+            <Button prefix={<NodeTypeIcons.trash />} {...buttonProps}></Button>
           </div>
         )}
       </PopoverContent>
