@@ -4,7 +4,12 @@ import { isServer } from '@/lib/window';
 
 export const Route = createFileRoute('/')({
   head: () => ({
-    meta: [{ 'http-equiv': 'refresh', content: '0; url=/app/home' }],
+    meta: [
+      { 'http-equiv': 'refresh', content: '0; url=/app/home' },
+      { 'http-equiv': 'Cache-Control', content: 'no-cache, no-store, must-revalidate' },
+      { 'http-equiv': 'Pragma', content: 'no-cache' },
+      { 'http-equiv': 'Expires', content: '0' },
+    ],
   }),
   beforeLoad: async () => {
     // Only redirect on client-side to avoid SSR issues during cold starts
@@ -19,16 +24,5 @@ export const Route = createFileRoute('/')({
     }
     return {};
   },
-  component: () => {
-    const data = Route.useLoaderData();
-
-    // Client-side redirect after hydration
-    React.useEffect(() => {
-      if (data?.shouldRedirect) {
-        window.location.href = data.redirectTo;
-      }
-    }, [data]);
-
-    return <div>Redirecting...</div>;
-  },
+  component: () => null,
 });

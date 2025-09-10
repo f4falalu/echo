@@ -5,7 +5,7 @@ export const Route = createFileRoute('/app/_settings/settings/')({
     throw redirect({
       to: '/app/settings/profile',
       replace: true,
-      statusCode: 301,
+      statusCode: 307,
     });
   },
 });

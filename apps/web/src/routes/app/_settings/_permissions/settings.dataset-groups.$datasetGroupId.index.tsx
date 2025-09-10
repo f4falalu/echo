@@ -8,7 +8,7 @@ export const Route = createFileRoute(
       to: '/app/settings/dataset-groups/$datasetGroupId/datasets',
       params,
       replace: true,
-      statusCode: 301,
+      statusCode: 307,
     });
   },
 });
