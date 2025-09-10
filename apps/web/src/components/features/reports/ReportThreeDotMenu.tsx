@@ -1,6 +1,5 @@
 import type { GetReportResponse } from '@buster/server-shared/reports';
 import type { VerificationStatus } from '@buster/server-shared/share';
-import { useNavigate } from '@tanstack/react-router';
 import React, { useCallback, useMemo } from 'react';
 import {
   useAddReportToCollection,
@@ -44,7 +43,6 @@ import { canEdit, getIsEffectiveOwner } from '@/lib/share';
 export const ReportThreeDotMenu = React.memo(
   ({
     reportId,
-    reportVersionNumber,
     isViewingOldVersion,
   }: {
     reportId: string;
