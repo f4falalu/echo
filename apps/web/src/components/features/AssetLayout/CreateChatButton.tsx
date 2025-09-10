@@ -2,7 +2,7 @@ import type { ChatAssetType } from '@buster/server-shared/chats';
 import React from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { Button } from '@/components/ui/buttons';
-import { PenSparkle, Stars } from '@/components/ui/icons';
+import { PenSparkle } from '@/components/ui/icons';
 import { AppTooltip } from '@/components/ui/tooltip';
 import { useStartChatFromAsset } from '@/context/BusterAssets/useStartChatFromAsset';
 

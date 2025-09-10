@@ -25,6 +25,7 @@ import {
 import { Dots, History, PenSparkle, ShareRight, Star } from '@/components/ui/icons';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import {
+  ArrowUpRight,
   Download4,
   DuplicatePlus,
   Redo,
@@ -50,6 +51,8 @@ export const ReportThreeDotMenu = React.memo(
     reportVersionNumber: number | undefined;
     isViewingOldVersion: boolean;
   }) => {
+    const chatId = useGetChatId();
+    const openReport = useOpenReport({ reportId });
     const editWithAI = useEditWithAI({ reportId });
     const shareMenu = useShareMenuSelectMenu({ reportId });
     const saveToLibrary = useSaveToLibrary({ reportId });
@@ -72,6 +75,7 @@ export const ReportThreeDotMenu = React.memo(
 
     const items: IDropdownItems = useMemo(() => {
       return [
+        chatId && openReport,
         editWithAI,
         { type: 'divider' },
         isEffectiveOwner && !isViewingOldVersion && shareMenu,
@@ -86,8 +90,10 @@ export const ReportThreeDotMenu = React.memo(
         isEditor && refreshReportItem,
         duplicateReport,
         downloadPdfItem,
-      ];
+      ].filter(Boolean) as IDropdownItems;
     }, [
+      chatId,
+      openReport,
       reportId,
       reportVersionNumber,
       editWithAI,
@@ -434,6 +440,25 @@ const useDuplicateReportSelectMenu = ({ reportId }: { reportId: string }): IDrop
         console.log('Duplicate report');
       },
     }),
+    [reportId]
+  );
+};
+
+const useOpenReport = ({ reportId }: { reportId: string }): IDropdownItem => {
+  return useMemo(
+    () =>
+      createDropdownItem({
+        label: 'Open report',
+        value: 'open-report',
+        icon: <ArrowUpRight />,
+        linkIcon: 'none',
+        link: {
+          to: '/app/reports/$reportId',
+          params: {
+            reportId,
+          },
+        },
+      }),
     [reportId]
   );
 };
