@@ -79,6 +79,7 @@ const useEditorServerUpdates = ({
   const { run: throttleStreamUpdate } = useThrottleFn(
     (v: string) => {
       const streamContentPlugin = editor.getPlugin(StreamContentPlugin);
+
       streamContentPlugin.api.streamContent.start();
       markdownToPlatejs(editor, v).then((elements) => {
         streamContentPlugin.api.streamContent.streamFull(elements);
