@@ -13,6 +13,6 @@ export const signOut = createServerFn({ method: 'POST' }).handler(async () => {
   throw redirect({
     href: '/',
     replace: true,
-    statusCode: 302,
+    statusCode: 301,
   });
 });
