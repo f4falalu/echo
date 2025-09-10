@@ -30,16 +30,10 @@ jobs:
         with:
           install-filter: "@buster-app/cli..."
 
-      - name: Mount Turbo cache sticky disk
-        uses: useblacksmith/stickydisk@v1
-        with:
-          key: ${{ github.repository }}-turbo-cache-cli
-          path: ./.turbo
-
       - name: Build dependencies with Turbo
         run: |
           echo "🔨 Building CLI dependencies with Turbo..."
-          pnpm turbo run build --filter=@buster-app/cli^...
+          pnpm turbo build --filter=@buster-app/cli^...
         env:
           NODE_ENV: production
           SKIP_ENV_CHECK: true
@@ -57,7 +51,6 @@ jobs:
             packages/*/node_modules \
             apps/*/dist \
             packages/*/dist \
-            .turbo \
             pnpm-lock.yaml
           echo "Archive size: $(du -h workspace-deps.tar.gz | cut -f1)"
 
