@@ -5,6 +5,12 @@ import { z } from 'zod';
 import { loadRootEnv } from '@buster/env-utils';
 loadRootEnv();
 
+// Initialize Braintrust logger
+import { initBraintrustLogger } from '@buster/ai';
+
+// Initialize Braintrust logger
+initBraintrustLogger();
+
 // Import custom middleware
 import { corsMiddleware } from './middleware/cors';
 import { loggerMiddleware } from './middleware/logger';
