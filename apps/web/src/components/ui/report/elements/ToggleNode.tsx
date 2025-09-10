@@ -12,7 +12,7 @@ export function ToggleElement(props: PlateElementProps) {
   const hasContent = element.children.some((child) => child.text);
 
   return (
-    <PlateElement {...props} className="pl-6">
+    <PlateElement {...props} className="pl-6 my-2">
       <Button
         size="small"
         variant="ghost"
