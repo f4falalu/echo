@@ -88,8 +88,18 @@ export {
   closeConnection,
   executeQuery,
   // Types
-  type DuckDBConnection,
+  type DuckDBContext,
 } from './deduplicate';
+
+// Export DuckDB helper functions for type safety
+export {
+  isConnectionOpen,
+  hasActiveConnection,
+  withConnection,
+  withContext,
+  safeCleanup,
+  createConnectionWithCleanup,
+} from './duckdb-helpers';
 
 // Export parquet caching functionality
 export {

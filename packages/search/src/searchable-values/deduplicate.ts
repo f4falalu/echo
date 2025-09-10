@@ -3,7 +3,7 @@
  * Uses functional composition and Zod validation
  */
 
-import duckdb from 'duckdb';
+import { type DuckDBConnection, DuckDBInstance } from '@duckdb/node-api';
 import { z } from 'zod';
 import {
   type DeduplicationResult,
@@ -56,96 +56,100 @@ export const formatSqlInClause = (values: string[]): string => {
 // DUCKDB CONNECTION MANAGEMENT
 // ============================================================================
 
-export interface DuckDBConnection {
-  db: duckdb.Database;
-  conn: duckdb.Connection;
-  dbPath?: string; // Store path for cleanup
+export interface DuckDBContext {
+  conn: DuckDBConnection;
+  dbPath?: string; // Store path for cleanup only if using disk
 }
 
 /**
  * Create a DuckDB connection with optimized settings for large datasets
  * Uses disk storage for better memory management
  */
-export const createConnection = (useDisk = true): Promise<DuckDBConnection> => {
-  return new Promise((resolve, reject) => {
+export const createConnection = async (useDisk = true): Promise<DuckDBContext> => {
+  try {
     // Use disk storage for large datasets to avoid memory issues
     // The database file will be automatically cleaned up
     const dbPath = useDisk ? `/tmp/duckdb-dedupe-${Date.now()}.db` : ':memory:';
 
-    const db = new duckdb.Database(dbPath, (err: Error | null) => {
-      if (err) {
-        reject(new Error(`Failed to create DuckDB database: ${err.message}`));
-        return;
-      }
+    const config: Record<string, string> = {};
+    if (useDisk) {
+      config.memory_limit = '2GB';
+      config.threads = '4';
+    }
 
-      const conn = db.connect();
+    // Create instance and get connection
+    // Instance will be garbage collected after connection is created
+    const instance = await DuckDBInstance.create(dbPath, config);
+    const conn = await instance.connect();
 
-      // Configure DuckDB for optimal performance with large datasets
-      if (useDisk) {
-        conn.exec("SET memory_limit='2GB';", (err: Error | null) => {
-          if (err) console.warn('Failed to set memory limit:', err);
-        });
-        conn.exec('SET threads=4;', (err: Error | null) => {
-          if (err) console.warn('Failed to set thread count:', err);
-        });
+    // Configure DuckDB for optimal performance with large datasets
+    if (useDisk) {
+      try {
+        await conn.run("SET memory_limit='2GB'");
+        await conn.run('SET threads=4');
+      } catch (err) {
+        console.warn('Failed to set DuckDB configuration:', err);
       }
+    }
 
-      const connection: DuckDBConnection = { db, conn };
-      if (useDisk && dbPath) {
-        connection.dbPath = dbPath;
-      }
-      resolve(connection);
-    });
-  });
+    const context: DuckDBContext = { conn };
+    if (useDisk && dbPath !== ':memory:') {
+      context.dbPath = dbPath;
+    }
+    return context;
+  } catch (error) {
+    throw new Error(
+      `Failed to create DuckDB database: ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
 };
 
 /**
- * Close DuckDB connection and database
+ * Close DuckDB connection and clean up resources
  * Also cleans up temporary database files if using disk storage
  */
-export const closeConnection = (connection: DuckDBConnection): Promise<void> => {
-  return new Promise((resolve) => {
-    connection.conn.close(() => {
-      connection.db.close(() => {
-        // Clean up temporary database file if it exists
-        if (connection.dbPath && connection.dbPath !== ':memory:') {
-          const fs = require('node:fs');
-          try {
-            // DuckDB creates additional WAL and temporary files
-            const files = [
-              connection.dbPath,
-              `${connection.dbPath}.wal`,
-              `${connection.dbPath}.tmp`,
-            ];
+export const closeConnection = async (context: DuckDBContext): Promise<void> => {
+  try {
+    // Close connection synchronously
+    context.conn.closeSync();
 
-            files.forEach((file) => {
-              if (fs.existsSync(file)) {
-                fs.unlinkSync(file);
-              }
-            });
-          } catch (err) {
-            console.warn(`Failed to clean up temporary DuckDB file: ${err}`);
+    // Clean up temporary database file if it exists
+    if (context.dbPath && context.dbPath !== ':memory:') {
+      const fs = await import('node:fs');
+      try {
+        // DuckDB creates additional WAL and temporary files
+        const files = [context.dbPath, `${context.dbPath}.wal`, `${context.dbPath}.tmp`];
+
+        for (const file of files) {
+          if (fs.existsSync(file)) {
+            fs.unlinkSync(file);
           }
         }
-        resolve();
-      });
-    });
-  });
+      } catch (err) {
+        console.warn(`Failed to clean up temporary DuckDB file: ${err}`);
+      }
+    }
+  } catch (error) {
+    console.warn('Error closing DuckDB connection:', error);
+  }
 };
 
 /**
  * Execute a SQL query and return results
  */
-export const executeQuery = <T = unknown>(conn: duckdb.Connection, sql: string): Promise<T[]> => {
-  return new Promise((resolve, reject) => {
-    conn.all(sql, (err: Error | null, result: unknown) => {
-      if (err) {
-        reject(new Error(`DuckDB query failed: ${err.message}\nSQL: ${sql}`));
-      } else {
-        resolve((result as T[]) || []);
-      }
-    });
-  });
+export const executeQuery = async <T = unknown>(
+  conn: DuckDBConnection,
+  sql: string
+): Promise<T[]> => {
+  try {
+    const result = await conn.run(sql);
+    const reader = await result.getRowObjectsJson();
+    return reader as T[];
+  } catch (err) {
+    throw new Error(
+      `DuckDB query failed: ${err instanceof Error ? err.message : String(err)}\nSQL: ${sql}`
+    );
+  }
 };
 
 // ============================================================================
@@ -157,7 +161,7 @@ export const executeQuery = <T = unknown>(conn: duckdb.Connection, sql: string):
  * Optimized for large datasets with increased batch sizes and indexes
  */
 const setupTables = async (
-  conn: duckdb.Connection,
+  conn: DuckDBConnection,
   existingKeys: string[],
   newKeys: string[]
 ): Promise<void> => {
@@ -225,7 +229,7 @@ const setupTables = async (
 /**
  * Find keys that exist only in new_keys table
  */
-const findUniqueNewKeys = async (conn: duckdb.Connection): Promise<string[]> => {
+const findUniqueNewKeys = async (conn: DuckDBConnection): Promise<string[]> => {
   const result = await executeQuery<{ key: string }>(
     conn,
     `
@@ -266,7 +270,7 @@ const performDeduplication = async (
     return { uniqueValues: newValues, duplicateCount: 0 };
   }
 
-  let connection: DuckDBConnection | null = null;
+  let context: DuckDBContext | null = null;
 
   try {
     // Determine whether to use disk based on dataset size
@@ -279,13 +283,13 @@ const performDeduplication = async (
     }
 
     // Create DuckDB connection
-    connection = await createConnection(useDisk);
+    context = await createConnection(useDisk);
 
     // Setup tables and insert data
-    await setupTables(connection.conn, existingKeys, newKeys);
+    await setupTables(context.conn, existingKeys, newKeys);
 
     // Find unique keys
-    const uniqueKeys = await findUniqueNewKeys(connection.conn);
+    const uniqueKeys = await findUniqueNewKeys(context.conn);
 
     // Map unique keys back to values
     const uniqueValues = uniqueKeys
@@ -297,8 +301,8 @@ const performDeduplication = async (
     return { uniqueValues, duplicateCount };
   } finally {
     // Always clean up connection
-    if (connection) {
-      await closeConnection(connection);
+    if (context) {
+      await closeConnection(context);
     }
   }
 };
