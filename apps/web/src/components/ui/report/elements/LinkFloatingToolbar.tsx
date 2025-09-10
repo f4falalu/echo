@@ -24,11 +24,11 @@ import { NodeTypeIcons } from '../config/icons';
 import { NodeTypeLabels } from '../config/labels';
 
 const popoverVariants = cva(
-  'z-50 w-auto rounded border bg-popover p-1 text-popover-foreground shadow-md outline-hidden'
+  'scrollbar-hide bg-popover absolute z-50 overflow-x-auto rounded border p-2 whitespace-nowrap opacity-100 shadow print:hidden'
 );
 
 const linkInputVariants = cva(
-  'flex h-[28px] w-full rounded border-none bg-transparent px-1.5 py-1 text-base placeholder:text-muted-foreground focus-visible:ring-transparent focus-visible:outline-none md:text-sm'
+  'flex h-7 w-full rounded border-none bg-transparent px-1.5 py-1 text-base placeholder:text-muted-foreground focus-visible:ring-transparent focus-visible:outline-none md:text-sm'
 );
 
 export function LinkFloatingToolbar({ state }: { state?: LinkFloatingToolbarState }) {
