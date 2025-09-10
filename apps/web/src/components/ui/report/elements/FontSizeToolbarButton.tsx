@@ -80,7 +80,7 @@ export function FontSizeToolbarButton() {
   const displayValue = isFocused ? inputValue : cursorFontSize;
 
   return (
-    <div className="bg-muted/60 flex h-7 items-center gap-1 rounded-md p-0">
+    <div className="bg-muted/60 flex h-7 items-center gap-1 rounded p-0">
       <ToolbarButton onClick={() => handleFontSizeChange(-1)}>
         <Minus />
       </ToolbarButton>

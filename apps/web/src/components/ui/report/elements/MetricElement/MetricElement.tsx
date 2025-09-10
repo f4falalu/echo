@@ -53,7 +53,7 @@ export const MetricElement = withHOC(
 
     return (
       <PlateElement
-        className="rounded-md mt-2.5 mb-4.5"
+        className="rounded mt-2.5 mb-4.5"
         attributes={{
           ...attributes,
           'data-plate-open-context-menu': true,
