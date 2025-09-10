@@ -66,7 +66,7 @@ export function MetricToolbar({
     <PopoverBase open={isOpen} modal={false}>
       <PopoverAnchor>{children}</PopoverAnchor>
 
-      <PopoverContent className="w-auto p-2 mt-1" onOpenAutoFocus={(e) => e.preventDefault()}>
+      <PopoverContent className="w-auto p-2" onOpenAutoFocus={(e) => e.preventDefault()}>
         <div className="box-content flex items-center space-x-1">
           {/* <Button onClick={onOpenEdit} variant="ghost">
             {NodeTypeLabels.editMetric?.label}
