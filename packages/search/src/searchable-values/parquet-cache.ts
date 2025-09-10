@@ -8,12 +8,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { type StorageProvider, getDefaultProvider } from '@buster/data-source';
-import {
-  type DuckDBConnection,
-  closeConnection,
-  createConnection,
-  executeQuery,
-} from './deduplicate';
+import { type DuckDBContext, closeConnection, createConnection, executeQuery } from './deduplicate';
 import type { SearchableValue } from './types';
 
 // ============================================================================
@@ -87,14 +82,14 @@ export async function exportValuesToParquet(values: string[], outputPath: string
     throw new Error('Cannot export empty values to parquet');
   }
 
-  let connection: DuckDBConnection | null = null;
+  let context: DuckDBContext | null = null;
 
   try {
     // Create DuckDB connection (in-memory for this operation)
-    connection = await createConnection(false);
+    context = await createConnection(false);
 
     // Create table with values
-    await executeQuery(connection.conn, `CREATE TABLE values_table (value VARCHAR)`);
+    await executeQuery(context.conn, `CREATE TABLE values_table (value VARCHAR)`);
 
     // Insert values in batches for better performance
     const BATCH_SIZE = 10000;
@@ -102,20 +97,20 @@ export async function exportValuesToParquet(values: string[], outputPath: string
       const batch = values.slice(i, i + BATCH_SIZE);
       const valuesClause = batch.map((v) => `('${v.replace(/'/g, "''")}')`).join(',');
 
-      await executeQuery(connection.conn, `INSERT INTO values_table VALUES ${valuesClause}`);
+      await executeQuery(context.conn, `INSERT INTO values_table VALUES ${valuesClause}`);
     }
 
     // Export to parquet file
     await executeQuery(
-      connection.conn,
+      context.conn,
       `COPY (SELECT DISTINCT value FROM values_table ORDER BY value) 
        TO '${outputPath}' (FORMAT PARQUET, COMPRESSION 'SNAPPY')`
     );
 
     console.info(`Exported ${values.length} values to parquet: ${outputPath}`);
   } finally {
-    if (connection) {
-      await closeConnection(connection);
+    if (context) {
+      await closeConnection(context);
     }
   }
 }
@@ -128,15 +123,15 @@ export async function readValuesFromParquet(filePath: string): Promise<string[]>
     throw new Error(`Parquet file not found: ${filePath}`);
   }
 
-  let connection: DuckDBConnection | null = null;
+  let context: DuckDBContext | null = null;
 
   try {
     // Create DuckDB connection (in-memory for this operation)
-    connection = await createConnection(false);
+    context = await createConnection(false);
 
     // Read parquet file
     const result = await executeQuery<{ value: string }>(
-      connection.conn,
+      context.conn,
       `SELECT value FROM read_parquet('${filePath}') ORDER BY value`
     );
 
@@ -145,8 +140,8 @@ export async function readValuesFromParquet(filePath: string): Promise<string[]>
 
     return values;
   } finally {
-    if (connection) {
-      await closeConnection(connection);
+    if (context) {
+      await closeConnection(context);
     }
   }
 }
@@ -169,18 +164,18 @@ export async function findNewValues(
     return [];
   }
 
-  let connection: DuckDBConnection | null = null;
+  let context: DuckDBContext | null = null;
 
   try {
     // Use disk-based DuckDB for large datasets
     const totalValues = existingValues.length + currentValues.length;
     const useDisk = totalValues > 50000;
 
-    connection = await createConnection(useDisk);
+    context = await createConnection(useDisk);
 
     // Create tables
-    await executeQuery(connection.conn, `CREATE TABLE existing_values (value VARCHAR)`);
-    await executeQuery(connection.conn, `CREATE TABLE current_values (value VARCHAR)`);
+    await executeQuery(context.conn, `CREATE TABLE existing_values (value VARCHAR)`);
+    await executeQuery(context.conn, `CREATE TABLE current_values (value VARCHAR)`);
 
     // Insert values in batches
     const BATCH_SIZE = 10000;
@@ -190,7 +185,7 @@ export async function findNewValues(
       const batch = existingValues.slice(i, i + BATCH_SIZE);
       const valuesClause = batch.map((v) => `('${v.replace(/'/g, "''")}')`).join(',');
 
-      await executeQuery(connection.conn, `INSERT INTO existing_values VALUES ${valuesClause}`);
+      await executeQuery(context.conn, `INSERT INTO existing_values VALUES ${valuesClause}`);
     }
 
     // Insert current values
@@ -198,16 +193,16 @@ export async function findNewValues(
       const batch = currentValues.slice(i, i + BATCH_SIZE);
       const valuesClause = batch.map((v) => `('${v.replace(/'/g, "''")}')`).join(',');
 
-      await executeQuery(connection.conn, `INSERT INTO current_values VALUES ${valuesClause}`);
+      await executeQuery(context.conn, `INSERT INTO current_values VALUES ${valuesClause}`);
     }
 
     // Create indexes for better performance
-    await executeQuery(connection.conn, `CREATE INDEX idx_existing ON existing_values(value)`);
-    await executeQuery(connection.conn, `CREATE INDEX idx_current ON current_values(value)`);
+    await executeQuery(context.conn, `CREATE INDEX idx_existing ON existing_values(value)`);
+    await executeQuery(context.conn, `CREATE INDEX idx_current ON current_values(value)`);
 
     // Find new values (in current but not in existing)
     const result = await executeQuery<{ value: string }>(
-      connection.conn,
+      context.conn,
       `SELECT DISTINCT value FROM current_values
        WHERE value NOT IN (SELECT value FROM existing_values)
        ORDER BY value`
@@ -218,8 +213,8 @@ export async function findNewValues(
 
     return newValues;
   } finally {
-    if (connection) {
-      await closeConnection(connection);
+    if (context) {
+      await closeConnection(context);
     }
   }
 }

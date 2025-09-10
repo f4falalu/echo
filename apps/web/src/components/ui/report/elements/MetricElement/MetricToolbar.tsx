@@ -11,6 +11,7 @@ import { AddMetricModal } from '@/components/features/dashboard/AddMetricModal';
 import { Button } from '@/components/ui/buttons';
 import { PopoverAnchor, PopoverBase, PopoverContent } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
+import { AppTooltip } from '@/components/ui/tooltip';
 import { NodeTypeIcons } from '../../config/icons';
 import { NodeTypeLabels } from '../../config/labels';
 import { MetricPlugin, type TMetricElement } from '../../plugins/metric-kit';
@@ -65,17 +66,19 @@ export function MetricToolbar({
     <PopoverBase open={isOpen} modal={false}>
       <PopoverAnchor>{children}</PopoverAnchor>
 
-      <PopoverContent className="w-auto p-1" onOpenAutoFocus={(e) => e.preventDefault()}>
-        <div className="box-content flex items-center">
-          <Button onClick={onOpenEdit} variant="ghost">
-            {NodeTypeLabels.editMetric?.label ?? 'Edit metric'}
+      <PopoverContent className="w-auto p-2" onOpenAutoFocus={(e) => e.preventDefault()}>
+        <div className="box-content flex items-center space-x-2">
+          {/* <Button onClick={onOpenEdit} variant="ghost">
+            {NodeTypeLabels.editMetric?.label}
+          </Button> */}
+
+          <CaptionButton />
+
+          <Separator orientation="vertical" className=" h-6" />
+
+          <Button prefix={<NodeTypeIcons.trash />} {...removeButtonProps}>
+            Delete
           </Button>
-
-          <CaptionButton variant="ghost">{NodeTypeLabels.caption.label}</CaptionButton>
-
-          <Separator orientation="vertical" className="mx-1 h-6" />
-
-          <Button prefix={<NodeTypeIcons.trash />} variant="ghost" {...removeButtonProps}></Button>
         </div>
       </PopoverContent>
 

@@ -11,7 +11,6 @@ import {
   type RenderNodeWrapper,
   useEditorRef,
   useElement,
-  usePath,
   usePluginOption,
   useSelected,
 } from 'platejs/react';
@@ -73,6 +72,8 @@ export const BlockDraggable: RenderNodeWrapper = (props) => {
 function Draggable(props: PlateElementProps) {
   const { children, editor, element, path } = props;
   const blockSelectionApi = editor.getApi(BlockSelectionPlugin).blockSelection;
+  const [previewTop, setPreviewTop] = React.useState(0);
+  const [dragButtonTop, setDragButtonTop] = React.useState(0);
 
   const { isAboutToDrag, isDragging, nodeRef, previewRef, handleRef } = useDraggable({
     element,
@@ -90,7 +91,12 @@ function Draggable(props: PlateElementProps) {
   const isInTable = path.length === 4;
   const showAddNewBlockButton = !isInColumn && !isInTable;
 
-  const [previewTop, setPreviewTop] = React.useState(0);
+  const dragOffset = React.useMemo(() => {
+    if (element.type === 'h1') return dragButtonTop + 4;
+    if (element.type === 'h2') return dragButtonTop + 2;
+    if (element.type === 'h3') return dragButtonTop + 1;
+    return dragButtonTop;
+  }, [dragButtonTop, element.type]);
 
   const resetPreview = () => {
     if (previewRef.current) {
@@ -111,10 +117,7 @@ function Draggable(props: PlateElementProps) {
     if (isAboutToDrag) {
       previewRef.current?.classList.remove('opacity-0');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAboutToDrag]);
-
-  const [dragButtonTop, setDragButtonTop] = React.useState(0);
 
   return (
     <div
@@ -133,12 +136,12 @@ function Draggable(props: PlateElementProps) {
           <div className={cn('slate-blockToolbarWrapper flex', isInColumn && 'h-4')}>
             <div
               className={cn(
-                'slate-blockToolbar pointer-events-auto relative mr-1 flex w-13 items-center justify-center space-x-0.5',
+                'slate-blockToolbar pointer-events-auto mr-1 flex w-13 items-center justify-center space-x-0.5',
                 isInColumn && 'mr-1.5 w-8!',
                 'mr-1 flex items-center'
               )}
             >
-              <div className="absolute top-0 left-0" style={{ top: `${dragButtonTop + 6}px` }}>
+              <div className="absolute top-0 left-0" style={{ top: `${dragOffset}px` }}>
                 {showAddNewBlockButton && (
                   <AddNewBlockButton isDragging={isDragging} element={element} editor={editor} />
                 )}
@@ -200,7 +203,7 @@ function Gutter({ children, className, ...props }: React.ComponentProps<'div'>) 
       {...props}
       className={cn(
         'slate-gutterLeft',
-        'absolute top-0 z-50 flex -translate-x-full cursor-text hover:opacity-100 sm:opacity-0',
+        'absolute top-0 z-50 flex -translate-x-full cursor-text hover:opacity-100 sm:opacity-60',
         getPluginByType(editor, element.type)?.node.isContainer
           ? 'group-hover/container:opacity-100'
           : 'group-hover:opacity-100',
@@ -477,10 +480,8 @@ const calculatePreviewTop = (
 
 const calcDragButtonTop = (editor: PlateEditor, element: TElement): number => {
   const child = editor.api.toDOMNode(element)!;
-
   const currentMarginTopString = window.getComputedStyle(child).marginTop;
   const currentMarginTop = Number(currentMarginTopString.replace('px', ''));
-
   return currentMarginTop;
 };
 
