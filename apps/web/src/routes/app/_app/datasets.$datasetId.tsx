@@ -13,7 +13,7 @@ export const Route = createFileRoute('/app/_app/datasets/$datasetId')({
         to: '/app/datasets/$datasetId/overview',
         params,
         replace: true,
-        statusCode: 302,
+        statusCode: 301,
       });
     }
   },
