@@ -169,8 +169,8 @@ jobs:
       - name: Extract version from package.json
         id: get_version
         run: |
-          # Update this to 0.3.0 as requested
-          VERSION="0.3.0"
+          # Update this to 0.3.1 as requested
+          VERSION="0.3.1"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Extracted version: $VERSION"
           

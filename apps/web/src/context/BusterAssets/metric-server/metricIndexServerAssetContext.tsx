@@ -13,5 +13,6 @@ export const beforeLoad = ({
     params,
     search,
     unsafeRelative: 'path',
+    replace: true,
   });
 };
