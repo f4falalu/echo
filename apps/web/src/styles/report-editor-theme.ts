@@ -1,10 +1,6 @@
 import type React from 'react';
 
 const REPORT_EDITOR_THEME = {
-  // '--font-heading': 'ui-sans-serif, -apple-system, BlinkMacSystemFont',
-  // '--font-sans': 'ui-sans-serif, -apple-system, BlinkMacSystemFont',
-  // '--font-mono':
-  //   'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
   '--breakpoint-xl': '80rem',
   '--breakpoint-2xl': '96rem',
   '--container-sm': '24rem',
