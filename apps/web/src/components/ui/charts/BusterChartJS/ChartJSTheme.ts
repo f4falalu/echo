@@ -38,9 +38,7 @@ const chartJSThemefontFamily = isServer
 const chartJSThemecolor = isServer
   ? '#575859'
   : getComputedStyle(document.documentElement).getPropertyValue('--color-text-secondary');
-const chartJSThemebackgroundColor = isServer
-  ? '#ffffff'
-  : getComputedStyle(document.documentElement).getPropertyValue('--color-background');
+const chartJSThemebackgroundColor = isServer ? '#ffffff' : 'transparent'; //used to be white but the report selected state made it weird
 
 ChartJS.register(
   LineController,
