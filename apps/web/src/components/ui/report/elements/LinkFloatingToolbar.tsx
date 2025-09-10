@@ -1,5 +1,5 @@
 import { flip, offset, type UseVirtualFloatingOptions } from '@platejs/floating';
-import { getLinkAttributes } from '@platejs/link';
+import { getLinkAttributes, safeDecodeUrl } from '@platejs/link';
 import {
   FloatingLinkUrlInput,
   type LinkFloatingToolbarState,
@@ -8,6 +8,7 @@ import {
   useFloatingLinkInsert,
   useFloatingLinkInsertState,
 } from '@platejs/link/react';
+import ReturnKeyIcon from '@/components/ui/icons/NucleoIconOutlined/return-key';
 
 // Types
 type FloatingLinkEditState = ReturnType<typeof useFloatingLinkEditState>;
@@ -16,6 +17,7 @@ type FloatingLinkEditButtonProps = ReturnType<typeof useFloatingLinkEdit>['editB
 type FloatingLinkUnlinkButtonProps = ReturnType<typeof useFloatingLinkEdit>['unlinkButtonProps'];
 type PopoverProps = React.HTMLAttributes<HTMLDivElement>;
 
+import { validateUrl } from '@platejs/link';
 import { cva } from 'class-variance-authority';
 import type { TLinkElement } from 'platejs';
 import { KEYS } from 'platejs';
@@ -28,6 +30,9 @@ import {
 import * as React from 'react';
 import { Button } from '@/components/ui/buttons';
 import { Separator } from '@/components/ui/separator';
+import { useBusterNotifications } from '@/context/BusterNotifications';
+import { cn } from '@/lib/utils';
+import { AppTooltip } from '../../tooltip';
 import { NodeTypeIcons } from '../config/icons';
 import { NodeTypeLabels } from '../config/labels';
 
@@ -221,13 +226,39 @@ function LinkEditPopoverContent({
 
 function LinkUrlInputField() {
   const inputClassName = linkInputVariants();
+  const editor = useEditorRef();
+  const { openInfoNotification } = useBusterNotifications();
+  const [isFocused, setIsFocused] = React.useState(false);
 
   return (
-    <div className="flex items-center">
-      <div className="text-muted-foreground flex items-center pr-1 pl-2">
+    <div className="group flex items-center">
+      <div className="text-icon-color flex items-center pr-1 pl-2">
         <NodeTypeIcons.linkIcon />
       </div>
-      <FloatingLinkUrlInput className={inputClassName} placeholder="Paste link" data-plate-focus />
+      <div className="flex w-full items-center">
+        <FloatingLinkUrlInput
+          className={inputClassName}
+          placeholder="Paste link"
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          onKeyDown={(e) => {
+            const isEnterKey = e.key === 'Enter';
+            if (isEnterKey) {
+              const value = e.currentTarget.value;
+              const isValid = validateUrl(editor, value);
+              if (!isValid) {
+                openInfoNotification({
+                  title: 'Please enter a valid URL',
+                  message:
+                    'Valid URL formats include: https://www.example.com, http://www.example.com, www.example.com',
+                });
+              }
+            }
+          }}
+          data-plate-focus
+        />
+        <ReturnKeyIconTooltip show={isFocused} />
+      </div>
     </div>
   );
 }
@@ -238,18 +269,34 @@ function LinkTextInputField({
   textInputProps: FloatingLinkInsertTextInputProps;
 }) {
   const inputClassName = linkInputVariants();
+  const [isFocused, setIsFocused] = React.useState(false);
 
   return (
-    <div className="flex items-center">
+    <div className="group flex items-center">
       <div className="text-muted-foreground flex items-center pr-1 pl-2">
         <NodeTypeIcons.textLink />
       </div>
-      <input
-        className={inputClassName}
-        placeholder="Text to display"
-        data-plate-focus
-        {...textInputProps}
-      />
+      <div className="flex w-full items-center">
+        <input
+          className={inputClassName}
+          placeholder="Text to display"
+          data-plate-focus
+          {...textInputProps}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+        />
+        <ReturnKeyIconTooltip show={isFocused} />
+      </div>
     </div>
   );
 }
+
+const ReturnKeyIconTooltip = ({ show }: { show: boolean }) => {
+  return (
+    <AppTooltip title="Press Enter to insert link">
+      <div className={cn('text-icon-color group-hover:flex hidden items-center', show && 'flex!')}>
+        <ReturnKeyIcon />
+      </div>
+    </AppTooltip>
+  );
+};
