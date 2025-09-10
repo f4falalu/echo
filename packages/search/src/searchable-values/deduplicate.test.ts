@@ -168,8 +168,11 @@ describe('DuckDB Connection Management', () => {
     const connection = await createConnection();
 
     expect(connection).toBeDefined();
-    expect(connection.db).toBeDefined();
     expect(connection.conn).toBeDefined();
+    // dbPath is optional, only present when using disk storage
+    if (connection.dbPath) {
+      expect(typeof connection.dbPath).toBe('string');
+    }
 
     // Should close without error
     await expect(closeConnection(connection)).resolves.toBeUndefined();
