@@ -280,6 +280,14 @@ Here's an unordered list:
     expect(firstElement.type).toBe('metric');
     expect(firstElement.metricId).toBe('33af38a8-c40f-437d-98ed-1ec78ce35232');
   });
+
+  it('toggle', async () => {
+    const markdown = `<toggle content="This is toggle content"></toggle>`;
+    const elements = await markdownToPlatejs(editor, markdown);
+    const firstElement = elements[0];
+    expect(firstElement.type).toBe('toggle');
+    expect(firstElement.children[0]).toEqual({ type: 'p', children: [{ text: 'This is toggle content' }] });
+  });
 });
 
 describe('platejsToMarkdown', () => {

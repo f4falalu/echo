@@ -2,6 +2,7 @@ import { MarkdownPlugin as PlateMarkdownPlugin, remarkMdx, remarkMention } from 
 import remarkGfm from 'remark-gfm';
 import { calloutSerializer } from './callout-serializer';
 import { metricSerializer } from './metric-serializer';
+import { toggleSerializer } from './toggle-serializer';
 
 const MarkdownPlugin = PlateMarkdownPlugin.configure({
   options: {
@@ -9,6 +10,7 @@ const MarkdownPlugin = PlateMarkdownPlugin.configure({
     rules: {
       callout: calloutSerializer,
       metric: metricSerializer,
+      toggle: toggleSerializer,
     },
   },
 });
