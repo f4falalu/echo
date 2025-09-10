@@ -22,11 +22,9 @@ export function ToggleElement(props: PlateElementProps) {
       const children = (element.children ?? []) as Child[];
 
       const hasBlockChildren = children.some((c) => typeof c.type === 'string');
-      const hasNonEmptyText = children.some(
-        (c) => typeof c.text === 'string' && c.text.trim().length > 0
-      );
+      const hasTextContent = children.some((c) => c.text);
 
-      if (!hasBlockChildren && !hasNonEmptyText) {
+      if (!hasBlockChildren && !hasTextContent) {
         const path = editor.api.findPath(element);
         if (path) {
           const newParagraph = editor.api.create.block();
