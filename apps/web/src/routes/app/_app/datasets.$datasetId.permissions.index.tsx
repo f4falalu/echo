@@ -6,6 +6,7 @@ export const Route = createFileRoute('/app/_app/datasets/$datasetId/permissions/
       to: '/app/datasets/$datasetId/permissions/overview',
       params,
       replace: true,
+      statusCode: 302,
     });
   },
 });
