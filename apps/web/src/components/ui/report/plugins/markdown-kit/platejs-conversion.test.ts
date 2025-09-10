@@ -286,7 +286,41 @@ Here's an unordered list:
     const elements = await markdownToPlatejs(editor, markdown);
     const firstElement = elements[0];
     expect(firstElement.type).toBe('toggle');
-    expect(firstElement.children[0]).toEqual({ type: 'p', children: [{ text: 'This is toggle content' }] });
+    expect(firstElement.children[0]).toEqual({ text: '' });
+    
+    expect(elements[1].type).toBe('p');
+    expect((elements[1] as any).indent).toBe(1);
+    expect(elements[1].children[0].text).toBe('This is toggle content');
+  });
+
+  it('toggle with indent attributes and roundtrip', async () => {
+    const originalElements = [
+      {
+        type: 'toggle',
+        children: [{ text: 'This is a test:)' }],
+        id: 'hCbXepPz5W'
+      },
+      {
+        type: 'p',
+        children: [{ text: 'WOW!' }],
+        id: 'Q-d_WjfXSV',
+        indent: 1
+      }
+    ];
+
+    const markdown = await platejsToMarkdown(editor, originalElements);
+    expect(markdown).toContain('<toggle ');
+    expect(markdown).toContain('content="');
+    expect(markdown).toContain('WOW!');
+
+    const elements = await markdownToPlatejs(editor, markdown);
+    
+    expect(elements[0].type).toBe('toggle');
+    expect(elements[0].children[0]).toEqual({ text: '' });
+
+    expect(elements[1].type).toBe('p');
+    expect((elements[1] as any).indent).toBe(1);
+    expect(elements[1].children[0].text).toBe('WOW!');
   });
 });
 
