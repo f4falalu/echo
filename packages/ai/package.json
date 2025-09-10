@@ -40,8 +40,8 @@
     "braintrust:push:tools:staged": "npx braintrust push evals/agents/analyst-agent/tool-order/staged-scorers.ts"
   },
   "dependencies": {
-    "@ai-sdk/gateway": "^1.0.18",
-    "@ai-sdk/openai": "^2.0.27",
+    "@ai-sdk/gateway": "^1.0.20",
+    "@ai-sdk/openai": "^2.0.28",
     "@ai-sdk/provider": "^2.0.0",
     "@buster/access-controls": "workspace:*",
     "@buster/data-source": "workspace:*",
