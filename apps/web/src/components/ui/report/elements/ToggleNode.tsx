@@ -1,4 +1,6 @@
-import { useToggleButton, useToggleButtonState } from '@platejs/toggle/react';
+import { indent } from '@platejs/indent';
+import { buildToggleIndex, useToggleButton, useToggleButtonState } from '@platejs/toggle/react';
+import { KEYS } from 'platejs';
 import type { PlateElementProps } from 'platejs/react';
 import { PlateElement, useEditorRef, useElement, useElementSelector } from 'platejs/react';
 import * as React from 'react';
@@ -11,33 +13,37 @@ export function ToggleElement(props: PlateElementProps) {
   const state = useToggleButtonState(element.id as string);
   const { buttonProps, open } = useToggleButton(state);
   const editor = useEditorRef();
-  const prevOpenRef = React.useRef(open);
+
+  const toggleParentHasContent = element.children.some((child) => child.text);
+  const hasContent = useToggleHasContent(element.id as string);
 
   React.useEffect(() => {
-    const wasOpen = prevOpenRef.current;
-    prevOpenRef.current = open;
+    if (open && !hasContent) {
+      // Find the path of the current toggle element
+      const togglePath = editor.api.findPath(element);
 
-    if (!wasOpen && open) {
-      type Child = { type?: string; text?: string };
-      const children = (element.children ?? []) as Child[];
+      if (togglePath) {
+        // Insert a paragraph after the toggle element
+        const paragraphPath = [togglePath[0] + 1];
+        const paragraphNode = {
+          type: KEYS.p,
+          children: [{ text: '' }],
+        };
 
-      const hasBlockChildren = children.some((c) => typeof c.type === 'string');
-      const hasTextContent = children.some((c) => c.text);
-
-      if (!hasBlockChildren && !hasTextContent) {
-        const path = editor.api.findPath(element);
-        if (path) {
-          const newParagraph = editor.api.create.block();
-          editor.tf.insertNodes(newParagraph, {
-            at: path.concat(children.length),
-            select: true,
-          });
-        }
+        editor.tf.withoutNormalizing(() => {
+          editor.tf.insertNodes(paragraphNode, { at: paragraphPath });
+          // Select the paragraph after insertion
+          const endPoint = {
+            path: [...paragraphPath, 0],
+            offset: 0,
+          };
+          editor.tf.select(endPoint);
+          // Apply indentation to make it part of the toggle's content
+          indent(editor);
+        });
       }
     }
-  }, [editor, element, open]);
-
-  const hasContent = element.children.some((child) => child.text);
+  }, [open, hasContent, editor, element]);
 
   return (
     <PlateElement {...props} className="pl-6 my-2">
@@ -53,7 +59,7 @@ export function ToggleElement(props: PlateElementProps) {
           </div>
         }
       />
-      {!hasContent && (
+      {!toggleParentHasContent && (
         <span
           contentEditable={false}
           className="absolute top-0 left-6.5 select-none text-text-tertiary pointer-events-none"
@@ -64,4 +70,21 @@ export function ToggleElement(props: PlateElementProps) {
       {props.children}
     </PlateElement>
   );
+}
+
+function useToggleHasContent(toggleId: string): boolean {
+  const editor = useEditorRef();
+
+  return React.useMemo(() => {
+    const toggleIndex = buildToggleIndex(editor.children);
+
+    // Check if any elements are enclosed within this toggle
+    for (const [_elementId, enclosingToggleIds] of toggleIndex.entries()) {
+      if (enclosingToggleIds.includes(toggleId)) {
+        return true;
+      }
+    }
+
+    return false;
+  }, [editor.children, toggleId]);
 }
