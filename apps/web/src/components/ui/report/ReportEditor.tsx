@@ -109,10 +109,8 @@ export const ReportEditor = React.memo(
         editor: TPlateEditor<Value, AnyPluginConfig>;
       }) => {
         if (isReady.current && !readOnly && onValueChange && !isStreaming) {
-          console.log('value', value);
           platejsToMarkdown(editor, value as ReportElementsWithIds)
             .then((markdown) => {
-              console.log('markdown', markdown);
               onValueChange(markdown);
             })
             .catch((error) => {
