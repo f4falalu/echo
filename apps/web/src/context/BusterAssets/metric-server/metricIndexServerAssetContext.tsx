@@ -14,5 +14,6 @@ export const beforeLoad = ({
     search,
     unsafeRelative: 'path',
     replace: true,
+    statusCode: 302,
   });
 };

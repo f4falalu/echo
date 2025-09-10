@@ -13,7 +13,6 @@ const DEFAULT_LAYOUT: LayoutSize = ['230px', 'auto'];
 
 export const Route = createFileRoute('/app')({
   context: ({ context }) => ({ ...context, getAppLayout }),
-  ssr: true,
   beforeLoad: async () => {
     console.log('beforeLoad app route');
     try {
@@ -22,7 +21,7 @@ export const Route = createFileRoute('/app')({
 
       if (isExpired || !accessToken) {
         console.error('Access token is expired or not found');
-        throw redirect({ to: '/auth/login', replace: true });
+        throw redirect({ to: '/auth/login', replace: true, statusCode: 302 });
       }
 
       return {
@@ -30,7 +29,7 @@ export const Route = createFileRoute('/app')({
       };
     } catch (error) {
       console.error('Error in app route beforeLoad:', error);
-      throw redirect({ to: '/auth/login', replace: true });
+      throw redirect({ to: '/auth/login', replace: true, statusCode: 302 });
     }
   },
   loader: async ({ context }) => {
@@ -45,10 +44,11 @@ export const Route = createFileRoute('/app')({
         prefetchListDatasources(queryClient),
         prefetchGetDatasets(queryClient),
       ]);
-      console.log('app route loaded', user);
+      console.log('app route loaded', user?.id);
 
       if (!user) {
-        throw redirect({ to: '/auth/login', replace: true });
+        console.error('User not found - redirecting to login');
+        throw redirect({ to: '/auth/login', replace: true, statusCode: 302 });
       }
 
       return {
@@ -60,7 +60,7 @@ export const Route = createFileRoute('/app')({
       };
     } catch (error) {
       console.error('Error in app route loader:', error);
-      throw redirect({ to: '/auth/login', replace: true });
+      throw redirect({ to: '/auth/login', replace: true, statusCode: 302 });
     }
   },
   component: () => {

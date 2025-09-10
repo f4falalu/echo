@@ -7,7 +7,7 @@ export const Route = createFileRoute('/app/_settings/_restricted_layout/_admin_o
     const { queryClient } = context;
     const userData = await prefetchGetMyUserInfo(queryClient);
     if (!userData || !userData.organizations || !checkIfUserIsAdmin(userData.organizations[0])) {
-      throw redirect({ to: '/auth/login', replace: true });
+      throw redirect({ to: '/auth/login', replace: true, statusCode: 302 });
     }
   },
 
