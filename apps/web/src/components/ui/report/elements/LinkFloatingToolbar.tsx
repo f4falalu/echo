@@ -8,6 +8,14 @@ import {
   useFloatingLinkInsert,
   useFloatingLinkInsertState,
 } from '@platejs/link/react';
+
+// Types
+type FloatingLinkEditState = ReturnType<typeof useFloatingLinkEditState>;
+type FloatingLinkInsertTextInputProps = ReturnType<typeof useFloatingLinkInsert>['textInputProps'];
+type FloatingLinkEditButtonProps = ReturnType<typeof useFloatingLinkEdit>['editButtonProps'];
+type FloatingLinkUnlinkButtonProps = ReturnType<typeof useFloatingLinkEdit>['unlinkButtonProps'];
+type PopoverProps = React.HTMLAttributes<HTMLDivElement>;
+
 import { cva } from 'class-variance-authority';
 import type { TLinkElement } from 'platejs';
 import { KEYS } from 'platejs';
@@ -78,37 +86,85 @@ export function LinkFloatingToolbar({ state }: { state?: LinkFloatingToolbarStat
 
   if (hidden) return null;
 
-  const input = <LinkEditPopoverContent textInputProps={textInputProps} />;
+  return (
+    <>
+      <LinkInsertPopover ref={insertRef} props={insertProps} textInputProps={textInputProps} />
+      <LinkEditPopover
+        ref={editRef}
+        props={editProps}
+        editState={editState}
+        editButtonProps={editButtonProps}
+        unlinkButtonProps={unlinkButtonProps}
+        textInputProps={textInputProps}
+      />
+    </>
+  );
+}
 
-  const editContent = editState.isEditing ? (
-    input
+const LinkInsertPopover = React.forwardRef<
+  HTMLDivElement,
+  {
+    props: PopoverProps;
+    textInputProps: FloatingLinkInsertTextInputProps;
+  }
+>(({ props, textInputProps }, ref) => {
+  return (
+    <div ref={ref} className={popoverVariants()} {...props}>
+      <LinkEditPopoverContent textInputProps={textInputProps} />
+    </div>
+  );
+});
+LinkInsertPopover.displayName = 'LinkInsertPopover';
+
+const LinkEditPopover = React.forwardRef<
+  HTMLDivElement,
+  {
+    props: PopoverProps;
+    editState: FloatingLinkEditState;
+    editButtonProps: FloatingLinkEditButtonProps;
+    unlinkButtonProps: FloatingLinkUnlinkButtonProps;
+    textInputProps: FloatingLinkInsertTextInputProps;
+  }
+>(({ props, editState, editButtonProps, unlinkButtonProps, textInputProps }, ref) => {
+  const content = editState.isEditing ? (
+    <LinkEditPopoverContent textInputProps={textInputProps} />
   ) : (
-    <div className="box-content flex items-center space-x-0">
+    <LinkEditButtons editButtonProps={editButtonProps} unlinkButtonProps={unlinkButtonProps} />
+  );
+
+  return (
+    <div ref={ref} className={popoverVariants()} {...props}>
+      {content}
+    </div>
+  );
+});
+LinkEditPopover.displayName = 'LinkEditPopover';
+
+function LinkEditButtons({
+  editButtonProps,
+  unlinkButtonProps,
+}: {
+  editButtonProps: FloatingLinkEditButtonProps;
+  unlinkButtonProps: FloatingLinkUnlinkButtonProps;
+}) {
+  return (
+    <div className="box-content flex items-center">
       <Button variant={'ghost'} size={'default'} {...editButtonProps}>
         {NodeTypeLabels.editLink.label}
       </Button>
 
-      <LinkOpenButton />
+      <Separator orientation="vertical" className="mx-2 h-4" />
 
-      <Button
-        variant={'ghost'}
-        size={'default'}
-        prefix={<NodeTypeIcons.unlink />}
-        {...unlinkButtonProps}
-      ></Button>
+      <div className="flex items-center space-x-1">
+        <LinkOpenButton />
+        <Button
+          variant={'ghost'}
+          size={'default'}
+          prefix={<NodeTypeIcons.unlink />}
+          {...unlinkButtonProps}
+        />
+      </div>
     </div>
-  );
-
-  return (
-    <>
-      <div ref={insertRef} className={popoverVariants()} {...insertProps}>
-        {input}
-      </div>
-
-      <div ref={editRef} className={popoverVariants()} {...editProps}>
-        {editContent}
-      </div>
-    </>
   );
 }
 
@@ -145,43 +201,55 @@ function LinkOpenButton() {
   );
 }
 
-const LinkEditPopoverContent = ({
+function LinkEditPopoverContent({
   textInputProps,
 }: {
-  textInputProps: ReturnType<typeof useFloatingLinkInsert>['textInputProps'];
-}) => {
+  textInputProps: FloatingLinkInsertTextInputProps;
+}) {
   const inputProps = useFormInputProps({
     preventDefaultOnEnterKeydown: true,
   });
 
+  return (
+    <div className="flex w-[330px] flex-col" {...inputProps}>
+      <LinkUrlInputField />
+      <Separator className="my-1" />
+      <LinkTextInputField textInputProps={textInputProps} />
+    </div>
+  );
+}
+
+function LinkUrlInputField() {
   const inputClassName = linkInputVariants();
 
   return (
-    <div className="flex w-[330px] flex-col" {...inputProps}>
-      <div className="flex items-center">
-        <div className="text-muted-foreground flex items-center pr-1 pl-2">
-          <NodeTypeIcons.linkIcon />
-        </div>
-
-        <FloatingLinkUrlInput
-          className={inputClassName}
-          placeholder="Paste link"
-          data-plate-focus
-        />
+    <div className="flex items-center">
+      <div className="text-muted-foreground flex items-center pr-1 pl-2">
+        <NodeTypeIcons.linkIcon />
       </div>
-      <Separator className="my-1" />
-      <div className="flex items-center">
-        <div className="text-muted-foreground flex items-center pr-1 pl-2">
-          <NodeTypeIcons.textLink />
-        </div>
-
-        <input
-          className={inputClassName}
-          placeholder="Text to display"
-          data-plate-focus
-          {...textInputProps}
-        />
-      </div>
+      <FloatingLinkUrlInput className={inputClassName} placeholder="Paste link" data-plate-focus />
     </div>
   );
-};
+}
+
+function LinkTextInputField({
+  textInputProps,
+}: {
+  textInputProps: FloatingLinkInsertTextInputProps;
+}) {
+  const inputClassName = linkInputVariants();
+
+  return (
+    <div className="flex items-center">
+      <div className="text-muted-foreground flex items-center pr-1 pl-2">
+        <NodeTypeIcons.textLink />
+      </div>
+      <input
+        className={inputClassName}
+        placeholder="Text to display"
+        data-plate-focus
+        {...textInputProps}
+      />
+    </div>
+  );
+}
