@@ -244,7 +244,7 @@ export const analystAgentTask: ReturnType<
   >
 > = schemaTask({
   id: 'analyst-agent-task',
-  machine: 'small-2x',
+  machine: 'medium-1x',
   schema: AnalystAgentTaskInputSchema,
   queue: analystQueue,
   maxDuration: 1200, // 20 minutes for complex analysis

@@ -98,7 +98,7 @@ import {
   TextStrikethrough,
   TextTool2,
   TextUnderline,
-  Trash2,
+  Trash,
   Undo,
   Ungroup,
   // Lists
@@ -144,6 +144,7 @@ export const NodeTypeIcons = {
   paragraph: TypeScape,
   quote: Quote,
   toggle: ChevronRight,
+  columnsTwo: GridLayoutCols3,
   columnsThree: GridLayoutCols3,
 
   // Table
@@ -155,7 +156,7 @@ export const NodeTypeIcons = {
   tableArrowRight: ArrowRight,
   tableMerge: Merge,
   tableUngroup: Ungroup,
-  tableDelete: Trash2,
+  tableDelete: Trash,
   tableRemove: Xmark,
   tableMergeCells: Merge3,
   tableEraser: Eraser,
@@ -192,7 +193,7 @@ export const NodeTypeIcons = {
   keyboard: Keyboard,
   subscript: Subscript,
   superscript: Superscript,
-  trash: Trash2,
+  trash: Trash,
   check: Check,
   copy: Copy,
   duplicate: DuplicatePlus,

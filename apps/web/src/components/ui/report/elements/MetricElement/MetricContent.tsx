@@ -9,6 +9,7 @@ export const MetricContent = React.memo(
     metricVersionNumber,
     isExportMode = false,
     readOnly = false,
+    className,
   }: {
     metricId: string;
     metricVersionNumber: number | undefined;
@@ -36,6 +37,7 @@ export const MetricContent = React.memo(
         readOnly
         renderChartContent={renderChart}
         animate={!isExportMode}
+        className={className}
         headerSecondaryContent={
           !readOnly && (
             <ReportMetricThreeDotMenu

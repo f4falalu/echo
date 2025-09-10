@@ -2,23 +2,20 @@ import { insertCallout } from '@platejs/callout';
 import { insertCodeBlock } from '@platejs/code-block';
 import { insertDate } from '@platejs/date';
 import { insertColumnGroup, toggleColumnGroup } from '@platejs/layout';
-import { triggerFloatingLink } from '@platejs/link/react';
-import { insertEquation, insertInlineEquation } from '@platejs/math';
 import {
   insertAudioPlaceholder,
   insertFilePlaceholder,
-  insertImagePlaceholder,
   insertVideoPlaceholder,
 } from '@platejs/media';
 import { SuggestionPlugin } from '@platejs/suggestion/react';
-import { TablePlugin } from '@platejs/table/react';
 import { insertToc } from '@platejs/toc';
 import { KEYS, type NodeEntry, type Path, PathApi, type TElement } from 'platejs';
 import type { PlateEditor } from 'platejs/react';
 import { CUSTOM_KEYS } from '../config/keys';
 import { insertMetric } from '../plugins/metric-kit';
 
-const ACTION_THREE_COLUMNS = 'action_three_columns';
+export const ACTION_TWO_COLUMNS = 'action_two_columns';
+export const ACTION_THREE_COLUMNS = 'action_three_columns';
 
 const insertList = (editor: PlateEditor, type: string) => {
   editor.tf.insertNodes(
@@ -34,6 +31,7 @@ const insertBlockMap: Record<string, (editor: PlateEditor, type: string) => void
   [KEYS.listTodo]: insertList,
   [KEYS.ol]: insertList,
   [KEYS.ul]: insertList,
+  [ACTION_TWO_COLUMNS]: (editor) => insertColumnGroup(editor, { columns: 2, select: true }),
   [ACTION_THREE_COLUMNS]: (editor) => insertColumnGroup(editor, { columns: 3, select: true }),
   [KEYS.audio]: (editor) => insertAudioPlaceholder(editor, { select: true }),
   [KEYS.callout]: (editor) => insertCallout(editor, { select: true }),

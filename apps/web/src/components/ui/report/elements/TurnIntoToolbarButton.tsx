@@ -13,7 +13,7 @@ import {
 import { Check } from '@/components/ui/icons';
 import { ToolbarButton, ToolbarMenuGroup } from '@/components/ui/toolbar/Toolbar';
 import { NodeTypeIcons } from '../config/icons';
-import { createLabel, createMenuItem, NodeTypeLabels } from '../config/labels';
+import { createMenuItem, NodeTypeLabels } from '../config/labels';
 import { getBlockType, setBlockType } from './transforms';
 
 const turnIntoItems = [
@@ -30,7 +30,7 @@ const turnIntoItems = [
   createMenuItem('toggleList', KEYS.toggle, <NodeTypeIcons.toggle />),
   createMenuItem('codeBlock', KEYS.codeBlock, <NodeTypeIcons.codeBlock />),
   createMenuItem('blockquote', KEYS.blockquote, <NodeTypeIcons.quote />),
-  createMenuItem('columnsThree', 'action_three_columns', <NodeTypeIcons.columnsThree />),
+  // createMenuItem('columnsThree', 'action_three_columns', <NodeTypeIcons.columnsThree />),
 ];
 
 export function TurnIntoToolbarButton(props: DropdownMenuProps) {
@@ -49,18 +49,13 @@ export function TurnIntoToolbarButton(props: DropdownMenuProps) {
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
       <DropdownMenuTrigger asChild>
-        <ToolbarButton
-          className="min-w-[125px]"
-          pressed={open}
-          tooltip={createLabel('turnInto')}
-          isDropdown
-        >
+        <ToolbarButton pressed={open} tooltip="Turn into" isDropdown>
           {selectedItem.label}
         </ToolbarButton>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
-        className="ignore-click-outside/toolbar min-w-0"
+        className="ignore-click-outside/toolbar"
         onCloseAutoFocus={(e) => {
           e.preventDefault();
           editor.tf.focus();
@@ -77,7 +72,7 @@ export function TurnIntoToolbarButton(props: DropdownMenuProps) {
           {turnIntoItems.map(({ icon, label, value: itemValue }) => (
             <DropdownMenuRadioItem
               key={itemValue}
-              className="min-w-[180px] pl-2 *:first:[span]:hidden"
+              className="min-w-[160px] pl-2 *:first:[span]:hidden"
               value={itemValue}
             >
               <span className="pointer-events-none absolute right-2 flex size-3.5 items-center justify-center">

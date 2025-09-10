@@ -16,18 +16,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
 import { cn } from '@/lib/utils';
-// import {
-//   ArrowDown,
-//   ArrowLeft,
-//   ArrowRight,
-//   ArrowUp,
-//   Combine,
-//   Grid3x3Icon,
-//   Table,
-//   Trash2Icon,
-//   Ungroup,
-//   XIcon
-// } from 'lucide-react';
 import { NodeTypeIcons } from '../config/icons';
 import { createLabel } from '../config/labels';
 
