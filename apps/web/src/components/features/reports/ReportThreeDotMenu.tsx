@@ -75,7 +75,7 @@ export const ReportThreeDotMenu = React.memo(
 
     const items: IDropdownItems = useMemo(() => {
       return [
-        chatId && openReport,
+        ...(chatId ? [openReport, { type: 'divider' }] : []),
         editWithAI,
         { type: 'divider' },
         isEffectiveOwner && !isViewingOldVersion && shareMenu,
@@ -94,17 +94,18 @@ export const ReportThreeDotMenu = React.memo(
     }, [
       chatId,
       openReport,
-      reportId,
-      reportVersionNumber,
       editWithAI,
+      isEffectiveOwner,
+      isViewingOldVersion,
       shareMenu,
-      favoriteItem,
-      versionHistory,
-      // verificationItem,
-      refreshReportItem,
-      // duplicateReportItem,
-      downloadPdfItem,
       saveToLibrary,
+      favoriteItem,
+      undoRedo,
+      versionHistory,
+      isEditor,
+      refreshReportItem,
+      duplicateReport,
+      downloadPdfItem,
     ]);
 
     return (

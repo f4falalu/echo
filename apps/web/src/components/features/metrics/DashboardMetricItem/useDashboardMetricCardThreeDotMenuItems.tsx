@@ -1,6 +1,5 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import React, { useMemo } from 'react';
-import { useStartChatFromAsset } from '@/api/buster_rest/chats';
 import { useRemoveMetricsFromDashboard } from '@/api/buster_rest/dashboards';
 import { useGetMetric } from '@/api/buster_rest/metrics';
 import { ASSET_ICONS } from '@/components/features/icons/assetIcons';
@@ -18,6 +17,7 @@ import {
   type IDropdownItems,
 } from '@/components/ui/dropdown';
 import { Code, PenSparkle, ShareRight, SquareChartPen, Trash } from '@/components/ui/icons';
+import { useStartChatFromAsset } from '@/context/BusterAssets/useStartChatFromAsset';
 import { useGetChatId } from '@/context/Chats/useGetChatId';
 import { useMetricEditToggle } from '@/layouts/AssetContainer/MetricAssetContainer';
 import { getIsEffectiveOwner } from '@/lib/share';

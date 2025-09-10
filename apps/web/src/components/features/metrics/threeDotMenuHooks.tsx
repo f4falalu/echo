@@ -21,6 +21,7 @@ import {
   Table,
 } from '@/components/ui/icons';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
+import { useStartChatFromAsset } from '@/context/BusterAssets/useStartChatFromAsset';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { ensureElementExists } from '@/lib/element';
 import { downloadElementToImage, exportJSONToCSV } from '@/lib/exportUtils';
@@ -305,4 +306,23 @@ export const useNavigatetoMetricItem = ({
       },
     ]);
   }, [metricId, metricVersionNumber]);
+};
+
+export const useEditMetricWithAI = ({ metricId }: { metricId: string }): IDropdownItem => {
+  const { onCreateFileClick, loading } = useStartChatFromAsset({
+    assetId: metricId,
+    assetType: 'metric',
+  });
+
+  return useMemo(
+    () =>
+      createDropdownItem({
+        label: 'Edit with AI',
+        value: 'edit-with-ai',
+        icon: <PenSparkle />,
+        onClick: onCreateFileClick,
+        loading,
+      }),
+    [metricId, onCreateFileClick, loading]
+  );
 };

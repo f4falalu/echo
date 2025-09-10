@@ -1,6 +1,8 @@
 import type { ReportResponse } from '@buster/server-shared/reports';
 import React, { useCallback } from 'react';
 import { useGetReport, useUpdateReport } from '@/api/buster_rest/reports';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { ReportPageController } from '@/controllers/ReportPageControllers';
 import { useVersionHistoryModalCommon } from './useVersionHistoryModalCommon';
 import { VersionHistoryModal, type VersionHistoryModalProps } from './VersionHistoryModal';
 
@@ -56,7 +58,11 @@ export const ReportVersionModal = React.memo(
         isRestoringVersion={isRestoringVersion}
         learnMoreButton={learnMoreButton}
       >
-        {versionNumber && 'TODO: Report Version Modal'}
+        {versionNumber && (
+          <ScrollArea className="h-full">
+            <ReportPageController reportId={reportId} readOnly />
+          </ScrollArea>
+        )}
       </VersionHistoryModal>
     );
   }
