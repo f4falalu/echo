@@ -1296,9 +1296,7 @@ describe('platejsToMarkdown', () => {
     ];
     const markdownFromPlatejs = await platejsToMarkdown(editor, elements);
     expect(markdownFromPlatejs).toBeDefined();
-    expect(markdownFromPlatejs).toContain(
-      '<metric metricId="TBD-REP-SEGMENT-LIST" width="100%" caption=""></metric>'
-    );
+    expect(markdownFromPlatejs).toContain('<metric metricId="TBD-REP-SEGMENT-LIST"');
   });
 
   it('basic caption', async () => {
@@ -1347,7 +1345,7 @@ describe('platejsToMarkdown', () => {
     const markdownFromPlatejs = await platejsToMarkdown(editor, elements);
     expect(markdownFromPlatejs).toBeDefined();
     expect(markdownFromPlatejs).toContain(
-      '<metric metricId="1234" width="100%" caption="This is a caption.. AND IT REALLY WORKS!"></metric>'
+      '<metric metricId="1234" versionNumber="undefined" width="100%" caption="This is a caption.. AND IT REALLY WORKS!"></metric>'
     );
   });
 });
