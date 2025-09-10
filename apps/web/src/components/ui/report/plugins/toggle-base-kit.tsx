@@ -2,7 +2,7 @@
 
 import { TogglePlugin } from '@platejs/toggle/react';
 
-import { ToggleElement } from '@/components/ui/report/elements/ToggleNode';
+import { ToggleElementStatic } from '@/components/ui/report/elements/ToggleNodeStatic';
 import { IndentKit } from './indent-kit';
 
-export const ToggleKit = [...IndentKit, TogglePlugin.withComponent(ToggleElement)];
+export const BaseToggleKit = [...IndentKit, TogglePlugin.withComponent(ToggleElementStatic)];
