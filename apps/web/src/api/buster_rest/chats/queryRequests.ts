@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-query';
 import last from 'lodash/last';
 import { useMemo } from 'react';
+import { create } from 'mutative';
 import type { BusterChatMessage } from '@/api/asset_interfaces/chat';
 import type { IBusterChat } from '@/api/asset_interfaces/chat/iChatInterfaces';
 import { chatQueryKeys } from '@/api/query_keys/chat';
@@ -27,8 +28,11 @@ import {
   getChat,
   getListChats,
   getListLogs,
+  shareChat,
+  unshareChat,
   updateChat,
   updateChatMessageFeedback,
+  updateChatShare,
 } from './requests';
 
 export const useGetListChats = (
@@ -336,6 +340,98 @@ export const useRemoveChatFromCollections = () => {
           (id) => collectionQueryKeys.collectionsGetCollection(id).queryKey
         ),
         refetchType: 'all',
+      });
+    },
+  });
+};
+
+export const useShareChat = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: shareChat,
+    onMutate: ({ id, params }) => {
+      const queryKey = chatQueryKeys.chatsGetChat(id).queryKey;
+
+      queryClient.setQueryData(queryKey, (previousData: IBusterChat | undefined) => {
+        if (!previousData) return previousData;
+        return create(previousData, (draft: IBusterChat) => {
+          draft.individual_permissions = [
+            ...params.map((p) => ({
+              ...p,
+              name: p.name,
+              avatar_url: p.avatar_url || null,
+            })),
+            ...(draft.individual_permissions || []),
+          ].sort((a, b) => a.email.localeCompare(b.email));
+        });
+      });
+    },
+    onSuccess: (data) => {
+      const upgradedChat = updateChatToIChat(data).iChat;
+      queryClient.setQueryData(
+        chatQueryKeys.chatsGetChat(data.id).queryKey,
+        upgradedChat
+      );
+    },
+  });
+};
+
+export const useUnshareChat = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: unshareChat,
+    onMutate: (variables) => {
+      const queryKey = chatQueryKeys.chatsGetChat(variables.id).queryKey;
+      queryClient.setQueryData(queryKey, (previousData: IBusterChat | undefined) => {
+        if (!previousData) return previousData;
+        return create(previousData, (draft: IBusterChat) => {
+          draft.individual_permissions = (
+            draft.individual_permissions?.filter((t) => !variables.data.includes(t.email)) || []
+          ).sort((a, b) => a.email.localeCompare(b.email));
+        });
+      });
+    },
+    onSuccess: (data) => {
+      const upgradedChat = updateChatToIChat(data).iChat;
+      queryClient.setQueryData(
+        chatQueryKeys.chatsGetChat(upgradedChat.id).queryKey,
+        upgradedChat
+      );
+    },
+  });
+};
+
+export const useUpdateChatShare = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateChatShare,
+    onMutate: (variables) => {
+      const queryKey = chatQueryKeys.chatsGetChat(variables.id).queryKey;
+      queryClient.setQueryData(queryKey, (previousData: IBusterChat | undefined) => {
+        if (!previousData) return previousData;
+        return create(previousData, (draft: IBusterChat) => {
+          draft.individual_permissions = (
+            draft.individual_permissions?.map((t) => {
+              const found = variables.params.users?.find((v) => v.email === t.email);
+              if (found) return { ...t, ...found };
+              return t;
+            }) || []
+          ).sort((a, b) => a.email.localeCompare(b.email));
+
+          if (variables.params.publicly_accessible !== undefined) {
+            draft.publicly_accessible = variables.params.publicly_accessible;
+          }
+          if (variables.params.public_password !== undefined) {
+            draft.public_password = variables.params.public_password;
+          }
+          if (variables.params.public_expiry_date !== undefined) {
+            draft.public_expiry_date = variables.params.public_expiry_date;
+          }
+          if (variables.params.workspace_sharing !== undefined) {
+            draft.workspace_sharing = variables.params.workspace_sharing;
+          }
+        });
       });
     },
   });
