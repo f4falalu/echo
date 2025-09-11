@@ -1,13 +1,14 @@
-import { Link, useNavigate } from '@tanstack/react-router';
 import React, { useMemo } from 'react';
 import { useRemoveMetricsFromDashboard } from '@/api/buster_rest/dashboards';
 import { useGetMetric } from '@/api/buster_rest/metrics';
-import { ASSET_ICONS } from '@/components/features/icons/assetIcons';
 import {
   useFavoriteMetricSelectMenu,
   useMetricDrilldownItem,
   useMetricVersionHistorySelectMenu,
+  useNavigateToDashboardMetricItem,
+  useNavigatetoMetricItem,
   useOpenChartItem,
+  useRenameMetricOnPage,
 } from '@/components/features/metrics/threeDotMenuHooks';
 import { getShareAssetConfig } from '@/components/features/ShareMenu/helpers';
 import { ShareMenuContent } from '@/components/features/ShareMenu/ShareMenuContent';
@@ -19,17 +20,18 @@ import {
 import { Code, PenSparkle, ShareRight, SquareChartPen, Trash } from '@/components/ui/icons';
 import { useStartChatFromAsset } from '@/context/BusterAssets/useStartChatFromAsset';
 import { useGetChatId } from '@/context/Chats/useGetChatId';
-import { useMetricEditToggle } from '@/layouts/AssetContainer/MetricAssetContainer';
 import { getIsEffectiveOwner } from '@/lib/share';
 
 export const useDashboardMetricCardThreeDotMenuItems = ({
   dashboardId,
   metricId,
   metricVersionNumber,
+  dashboardVersionNumber,
 }: {
   dashboardId: string;
   metricId: string;
   metricVersionNumber: number | undefined;
+  dashboardVersionNumber?: number | undefined;
 }) => {
   const chatId = useGetChatId();
   const removeFromDashboardItem = useRemoveFromDashboardItem({ dashboardId, metricId });
@@ -37,21 +39,15 @@ export const useDashboardMetricCardThreeDotMenuItems = ({
   const drilldownItem = useMetricDrilldownItem({ metricId });
   const shareMenu = useShareMenuSelectMenu({ metricId });
   const editWithAI = useEditWithAI({ metricId });
-  const editChartButton = useEditChartButton({
-    metricVersionNumber,
+  const navigateToDashboardMetricItem = useNavigateToDashboardMetricItem({
     metricId,
-    dashboardId,
-    chatId,
-  });
-  const viewResultsButton = useViewResultsButton({
-    metricId,
-    dashboardId,
-    chatId,
     metricVersionNumber,
+    dashboardId,
+    dashboardVersionNumber,
   });
-  const viewSQLButton = useViewSQLButton({ metricId, dashboardId, chatId, metricVersionNumber });
   const versionHistoryButton = useMetricVersionHistorySelectMenu({ metricId });
   const favoriteMetricButton = useFavoriteMetricSelectMenu({ metricId });
+  const renameMetric = useRenameMetricOnPage({ metricId, metricVersionNumber });
 
   const dropdownItems: IDropdownItems = useMemo(
     () =>
@@ -59,18 +55,16 @@ export const useDashboardMetricCardThreeDotMenuItems = ({
         openChartItem,
         removeFromDashboardItem,
         { type: 'divider' },
-        // drilldownItem,
-        shareMenu,
-        { type: 'divider' },
         editWithAI,
-        editChartButton,
-        viewResultsButton,
-        viewSQLButton,
-        versionHistoryButton,
+        { type: 'divider' },
+        // shareMenu,
+        ...navigateToDashboardMetricItem,
+        // versionHistoryButton,
         //TODO add DOWNLOAD CSV
         //TODO add DOWNLOAD PNG
         { type: 'divider' },
-        favoriteMetricButton,
+        renameMetric,
+        //  favoriteMetricButton,
         //TODO add rename ability
       ].filter(Boolean) as IDropdownItems,
     [
@@ -79,9 +73,7 @@ export const useDashboardMetricCardThreeDotMenuItems = ({
       drilldownItem,
       shareMenu,
       editWithAI,
-      editChartButton,
-      viewResultsButton,
-      viewSQLButton,
+      navigateToDashboardMetricItem,
       versionHistoryButton,
       favoriteMetricButton,
     ]
@@ -168,91 +160,65 @@ const useEditWithAI = ({ metricId }: { metricId: string }): IDropdownItem => {
   );
 };
 
-const useEditChartButton = ({
-  metricId,
-  dashboardId,
-  chatId,
-  metricVersionNumber,
-}: {
-  metricId: string;
-  dashboardId: string;
-  chatId: string | undefined;
-  metricVersionNumber: number | undefined;
-}): IDropdownItem => {
-  const toggleChartEdit = useMetricEditToggle();
-  return useMemo(
-    () =>
-      createDropdownItem({
-        label: 'Edit chart',
-        value: 'edit-chart',
-        icon: <SquareChartPen />,
-        onClick: () => {
-          toggleChartEdit(true, { metricId, metricVersionNumber });
-        },
-      }),
-    [metricId, dashboardId, chatId, metricVersionNumber]
-  );
-};
+// const useViewResultsButton = ({
+//   metricId,
+//   dashboardId,
+//   metricVersionNumber,
+// }: {
+//   metricId: string;
+//   dashboardId: string;
+//   chatId: string | undefined;
+//   metricVersionNumber: number | undefined;
+// }): IDropdownItem => {
+//   return useMemo(
+//     () =>
+//       createDropdownItem({
+//         label: 'View results',
+//         value: 'view-results',
+//         icon: <ASSET_ICONS.table />,
+//         link: {
+//           to: '/app/dashboards/$dashboardId/metrics/$metricId/results',
+//           params: {
+//             dashboardId,
+//             metricId,
+//           },
+//           search: {
+//             metric_version_number: metricVersionNumber,
+//           },
+//         },
+//       }),
+//     [metricId, dashboardId, metricVersionNumber]
+//   );
+// };
 
-const useViewResultsButton = ({
-  metricId,
-  dashboardId,
-  metricVersionNumber,
-}: {
-  metricId: string;
-  dashboardId: string;
-  chatId: string | undefined;
-  metricVersionNumber: number | undefined;
-}): IDropdownItem => {
-  return useMemo(
-    () =>
-      createDropdownItem({
-        label: 'View results',
-        value: 'view-results',
-        icon: <ASSET_ICONS.table />,
-        link: {
-          to: '/app/dashboards/$dashboardId/metrics/$metricId/results',
-          params: {
-            dashboardId,
-            metricId,
-          },
-          search: {
-            metric_version_number: metricVersionNumber,
-          },
-        },
-      }),
-    [metricId, dashboardId, metricVersionNumber]
-  );
-};
-
-const useViewSQLButton = ({
-  metricId,
-  dashboardId,
-  chatId,
-  metricVersionNumber,
-}: {
-  metricId: string;
-  dashboardId: string;
-  chatId: string | undefined;
-  metricVersionNumber: number | undefined;
-}): IDropdownItem => {
-  return useMemo(
-    () =>
-      createDropdownItem({
-        label: 'View SQL',
-        value: 'view-sql',
-        icon: <Code />,
-        link: {
-          to: '/app/dashboards/$dashboardId/metrics/$metricId/sql',
-          params: {
-            dashboardId,
-            metricId,
-          },
-          search: {
-            metric_version_number: metricVersionNumber,
-          },
-        },
-      }),
-    [metricId, dashboardId, chatId]
-  );
-};
+// const useViewSQLButton = ({
+//   metricId,
+//   dashboardId,
+//   chatId,
+//   metricVersionNumber,
+// }: {
+//   metricId: string;
+//   dashboardId: string;
+//   chatId: string | undefined;
+//   metricVersionNumber: number | undefined;
+// }): IDropdownItem => {
+//   return useMemo(
+//     () =>
+//       createDropdownItem({
+//         label: 'View SQL',
+//         value: 'view-sql',
+//         icon: <Code />,
+//         link: {
+//           to: '/app/dashboards/$dashboardId/metrics/$metricId/sql',
+//           params: {
+//             dashboardId,
+//             metricId,
+//           },
+//           search: {
+//             metric_version_number: metricVersionNumber,
+//           },
+//         },
+//       }),
+//     [metricId, dashboardId, chatId]
+//   );
+// };
