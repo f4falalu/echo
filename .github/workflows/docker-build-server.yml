@@ -66,7 +66,7 @@ jobs:
         run: |
           echo "📦 Creating server bundle with bun..."
           cd apps/server
-          bun build src/index.ts --outdir ./dist --target bun --external pino-pretty
+          bun build src/index.ts --outdir ./dist --target bun --external pino-pretty --external @duckdb/node-bindings --external @duckdb/node-bindings-linux-arm64 --external @duckdb/node-bindings-darwin-arm64 --external @duckdb/node-bindings-darwin-x64 --external @duckdb/node-bindings-win32-x64
           ls -la dist/
           cd ../..
       
