@@ -12,6 +12,7 @@ export const Route = createFileRoute('/app/_app/datasets/$datasetId')({
       throw redirect({
         to: '/app/datasets/$datasetId/overview',
         params,
+        replace: true,
       });
     }
   },

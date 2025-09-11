@@ -9,7 +9,7 @@ export const Route = createFileRoute('/app/_settings/_permissions')({
     const { queryClient } = context;
     const userData = await prefetchGetMyUserInfo(queryClient);
     if (!userData || !userData.organizations || !checkIfUserIsAdmin(userData.organizations[0])) {
-      throw redirect({ to: '/auth/login' });
+      throw redirect({ to: '/auth/login', replace: true });
     }
   },
 });

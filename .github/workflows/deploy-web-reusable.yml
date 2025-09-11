@@ -94,6 +94,12 @@ jobs:
         env:
           NODE_ENV: production
 
+      - name: Purge Cloudflare Cache
+        uses: nathanvaughn/actions-cloudflare-purge@master
+        with:
+          cf_zone: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          cf_auth: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
       - name: Get commit info
         id: commit
         run: |
@@ -114,6 +120,7 @@ jobs:
           echo "- **Commit:** \`${SHA}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Full SHA:** \`${{ steps.commit.outputs.sha_full }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Cache:** Purged ✅" >> $GITHUB_STEP_SUMMARY
           echo "- **Time:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
 
       - name: Handle deployment failure

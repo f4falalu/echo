@@ -7,6 +7,7 @@ export const Route = createFileRoute(
     throw redirect({
       to: '/app/settings/dataset-groups/$datasetGroupId/datasets',
       params,
+      replace: true,
     });
   },
 });

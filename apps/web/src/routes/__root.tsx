@@ -12,11 +12,20 @@ export const Route = createRootRouteWithContext<AppRouterContext>()({
     meta: [
       { charSet: 'utf-8' },
       { title: 'Buster' },
-      { name: 'viewport', content: 'width=1024, initial-scale=1, user-scalable=no' },
-      { name: 'description', content: 'Buster.so is the open source, AI-native data platform.' },
+      {
+        name: 'viewport',
+        content: 'width=1024, initial-scale=1, user-scalable=no',
+      },
+      {
+        name: 'description',
+        content: 'Buster.so is the open source, AI-native data platform.',
+      },
       { name: 'og:image', content: shareImage },
       { name: 'og:title', content: 'Buster' },
-      { name: 'og:description', content: 'Buster.so is the open source, AI-native data platform.' },
+      {
+        name: 'og:description',
+        content: 'Buster.so is the open source, AI-native data platform.',
+      },
       { name: 'og:url', content: 'https://buster.so' },
       { name: 'og:type', content: 'website' },
       { name: 'og:locale', content: 'en_US' },
@@ -33,7 +42,6 @@ export const Route = createRootRouteWithContext<AppRouterContext>()({
     const isEmbed = matches.some((match) => match.pathname.startsWith('/embed/'));
     return createSecurityHeaders(isEmbed);
   },
-  staleTime: 30 * 60 * 1000,
   shellComponent: RootDocument,
 });
 

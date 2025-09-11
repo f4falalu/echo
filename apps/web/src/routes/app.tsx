@@ -19,7 +19,7 @@ export const Route = createFileRoute('/app')({
 
     if (isExpired || !accessToken) {
       console.error('Access token is expired or not found');
-      throw redirect({ to: '/auth/login' });
+      throw redirect({ to: '/auth/login', replace: true });
     }
 
     return {
@@ -39,7 +39,7 @@ export const Route = createFileRoute('/app')({
       ]);
 
       if (!user) {
-        throw redirect({ to: '/auth/login' });
+        throw redirect({ to: '/auth/login', replace: true });
       }
 
       return {
@@ -51,7 +51,7 @@ export const Route = createFileRoute('/app')({
       };
     } catch (error) {
       console.error('Error in app route loader:', error);
-      throw redirect({ to: '/auth/login' });
+      throw redirect({ to: '/auth/login', replace: true });
     }
   },
   component: () => {
@@ -63,7 +63,4 @@ export const Route = createFileRoute('/app')({
       </AppProviders>
     );
   },
-  staleTime: Infinity,
-  preloadStaleTime: Infinity,
-  gcTime: 10 * 60 * 1000, // 10 minutes
 });

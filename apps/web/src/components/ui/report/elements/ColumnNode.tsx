@@ -68,7 +68,7 @@ export const ColumnElement = withHOC(
         >
           <div
             className={cn(
-              'relative h-full border border-transparent p-1.5 rounded-md border-dashed',
+              'relative h-full border border-transparent p-1.5 rounded border-dashed',
               'group-hover:border-border',
               isDragging && 'opacity-50',
               'group-[.is-selected]:border-border'
