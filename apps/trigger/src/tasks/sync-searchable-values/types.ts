@@ -6,10 +6,14 @@ import { z } from 'zod';
 
 /**
  * Input schema for processing an individual sync job
- * This will be used in Ticket 8 for the actual sync orchestration
+ * Uses dataset-based syncing from YAML files
  */
 export const SyncJobPayloadSchema = z.object({
-  jobId: z.string().uuid('Job ID must be a valid UUID'),
+  // Dataset identification
+  datasetId: z.string().uuid('Dataset ID must be a valid UUID'),
+  datasetName: z.string().optional(),
+
+  // Data source and column information
   dataSourceId: z.string().uuid('Data source ID must be a valid UUID'),
   databaseName: z.string().min(1, 'Database name is required'),
   schemaName: z.string().min(1, 'Schema name is required'),
@@ -25,7 +29,7 @@ export type SyncJobPayload = z.infer<typeof SyncJobPayloadSchema>;
  * Output schema for sync job processing result
  */
 export const SyncJobResultSchema = z.object({
-  jobId: z.string().uuid(),
+  datasetId: z.string().uuid(),
   success: z.boolean(),
   processedCount: z.number().int().min(0).optional(),
   existingCount: z.number().int().min(0).optional(),
@@ -141,19 +145,35 @@ export type SyncError = z.infer<typeof SyncErrorSchema>;
 // HELPER TYPES
 // ============================================================================
 
-/**
- * Status of a sync job
- * Matches the database schema from Ticket 6
- */
-export const SyncJobStatusSchema = z.enum([
-  'pending',
-  'pending_manual',
-  'pending_initial',
-  'in_progress',
-  'completed',
-  'failed',
-  'cancelled',
-  'skipped',
-]);
+// Removed SyncJobStatus as we no longer track job status in database
 
-export type SyncJobStatus = z.infer<typeof SyncJobStatusSchema>;
+// ============================================================================
+// DATASET SYNC TYPES
+// ============================================================================
+
+/**
+ * Schema for dataset with YAML content
+ * Matches what we get from the database query
+ */
+export const DatasetWithYmlSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  dataSourceId: z.string().uuid(),
+  databaseName: z.string(),
+  schema: z.string(),
+  ymlFile: z.string().nullable(),
+});
+
+export type DatasetWithYml = z.infer<typeof DatasetWithYmlSchema>;
+
+/**
+ * Schema for a searchable field parsed from YAML
+ */
+export const SearchableFieldSchema = z.object({
+  name: z.string(),
+  type: z.enum(['dimension', 'measure']),
+  description: z.string().optional(),
+  dataType: z.string().optional(),
+});
+
+export type SearchableField = z.infer<typeof SearchableFieldSchema>;
