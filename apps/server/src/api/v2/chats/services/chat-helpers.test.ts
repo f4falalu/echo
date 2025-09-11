@@ -343,6 +343,7 @@ describe('chat-helpers', () => {
         'asset-123',
         'metric',
         'Tell me about this metric',
+        'auto',
         mockUser,
         createMockChat()
       );
@@ -361,6 +362,7 @@ describe('chat-helpers', () => {
         chatId: 'chat-123',
         content: 'Tell me about this metric',
         userId: 'user-123',
+        messageAnalysisMode: 'auto',
       });
 
       // Verify both messages were added to chat in correct order
@@ -409,6 +411,7 @@ describe('chat-helpers', () => {
         'dashboard-123',
         'dashboard',
         'Explain this dashboard',
+        'auto',
         mockUser,
         createMockChat()
       );
@@ -441,6 +444,7 @@ describe('chat-helpers', () => {
         'asset-123',
         'metric',
         'Tell me about this metric',
+        'auto',
         mockUser,
         createMockChat()
       );
@@ -475,6 +479,7 @@ describe('chat-helpers', () => {
         'asset-123',
         'metric',
         'Tell me about this metric',
+        'auto',
         mockUser,
         createMockChat()
       );
@@ -515,6 +520,7 @@ describe('chat-helpers', () => {
         'asset-123',
         'metric',
         'Tell me about this metric',
+        'auto',
         mockUser,
         chatWithExistingMessages
       );

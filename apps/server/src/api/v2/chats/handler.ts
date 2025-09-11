@@ -56,13 +56,17 @@ export async function createChatHandler(
       throw new ChatError(ChatErrorCode.INVALID_REQUEST, 'prompt or asset_id is required', 400);
     }
 
+    if (request.prompt && !request.message_analysis_mode) {
+      request.message_analysis_mode = 'auto';
+    }
+
     // Initialize chat (new or existing)
     // When we have both asset and prompt, we'll skip creating the initial message
     // since handleAssetChatWithPrompt will create both the import and prompt messages
     const shouldCreateInitialMessage = !(request.asset_id && request.asset_type && request.prompt);
     const modifiedRequest = shouldCreateInitialMessage
       ? request
-      : { ...request, prompt: undefined };
+      : { ...request, prompt: undefined, message_analysis_mode: undefined };
 
     const { chatId, messageId, chat } = await initializeChat(modifiedRequest, user, organizationId);
 
@@ -92,6 +96,7 @@ export async function createChatHandler(
           request.asset_id,
           request.asset_type,
           request.prompt,
+          request.message_analysis_mode,
           user,
           chat
         );

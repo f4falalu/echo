@@ -131,6 +131,12 @@ export const workspaceSharingEnum = pgEnum('workspace_sharing_enum', [
 
 export const docsTypeEnum = pgEnum('docs_type_enum', ['analyst', 'normal']);
 
+export const messageAnalysisModeEnum = pgEnum('message_analysis_mode_enum', [
+  'auto',
+  'standard',
+  'investigation',
+]);
+
 export const apiKeys = pgTable(
   'api_keys',
   {
@@ -869,6 +875,7 @@ export const messages = pgTable(
     id: uuid().defaultRandom().primaryKey().notNull(),
     requestMessage: text('request_message'),
     responseMessages: jsonb('response_messages').default([]).notNull(),
+    messageAnalysisMode: messageAnalysisModeEnum('message_analysis_mode').default('auto').notNull(),
     reasoning: jsonb().default([]).notNull(),
     title: text().notNull(),
     rawLlmMessages: jsonb('raw_llm_messages').default([]).notNull(),

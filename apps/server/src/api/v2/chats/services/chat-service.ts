@@ -41,7 +41,14 @@ export async function initializeChat(
     }
 
     if (chatId) {
-      return handleExistingChat(chatId, messageId, request.prompt, user, redoFromMessageId);
+      return handleExistingChat(
+        chatId,
+        messageId,
+        request.prompt,
+        request.message_analysis_mode,
+        user,
+        redoFromMessageId
+      );
     }
 
     const title = '';
@@ -49,6 +56,7 @@ export async function initializeChat(
       title,
       messageId,
       prompt: request.prompt,
+      messageAnalysisMode: request.message_analysis_mode,
       user,
       organizationId,
     });

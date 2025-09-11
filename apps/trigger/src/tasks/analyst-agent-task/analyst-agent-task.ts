@@ -378,6 +378,7 @@ export const analystAgentTask: ReturnType<
       const workflowInput: AnalystWorkflowInput = {
         messages: modelMessages,
         messageId: payload.message_id,
+        messageAnalysisMode: messageContext.messageAnalysisMode,
         chatId: messageContext.chatId,
         userId: messageContext.userId,
         organizationId: messageContext.organizationId,

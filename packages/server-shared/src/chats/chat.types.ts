@@ -6,6 +6,9 @@ import { ChatMessageSchema } from './chat-message.types';
 // Asset Permission Role enum (matching database enum)
 export const ChatAssetTypeSchema = AssetTypeSchema.exclude(['chat', 'collection']);
 
+// Message Analysis Mode enum (matching database enum)
+export const MessageAnalysisModeSchema = z.enum(['auto', 'standard', 'investigation']);
+
 // Main ChatWithMessages schema
 export const ChatWithMessagesSchema = z.object({
   id: z.string(),
@@ -33,6 +36,7 @@ export const ChatCreateRequestSchema = z
     prompt: z.string().optional(),
     chat_id: z.string().optional(),
     message_id: z.string().optional(),
+    message_analysis_mode: MessageAnalysisModeSchema.optional(),
     asset_id: z.string().optional(),
     asset_type: ChatAssetTypeSchema.optional(),
     // Legacy fields for backward compatibility
@@ -47,6 +51,7 @@ export const ChatCreateRequestSchema = z
 // Handler request schema (internal - without legacy fields)
 export const ChatCreateHandlerRequestSchema = z.object({
   prompt: z.string().optional(),
+  message_analysis_mode: MessageAnalysisModeSchema.optional(),
   chat_id: z.string().optional(),
   message_id: z.string().optional(),
   asset_id: z.string().optional(),
@@ -65,3 +70,4 @@ export type ChatCreateRequest = z.infer<typeof ChatCreateRequestSchema>;
 export type ChatCreateHandlerRequest = z.infer<typeof ChatCreateHandlerRequestSchema>;
 export type CancelChatParams = z.infer<typeof CancelChatParamsSchema>;
 export type ChatAssetType = z.infer<typeof ChatAssetTypeSchema>;
+export type MessageAnalysisMode = z.infer<typeof MessageAnalysisModeSchema>;

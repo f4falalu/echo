@@ -17,6 +17,7 @@ import type {
   ChatMessageReasoningMessage,
   ChatMessageResponseMessage,
   ChatWithMessages,
+  MessageAnalysisMode,
 } from '@buster/server-shared/chats';
 import { ChatError, ChatErrorCode } from '@buster/server-shared/chats';
 import { PostProcessingMessageSchema } from '@buster/server-shared/message';
@@ -199,6 +200,7 @@ export async function handleExistingChat(
   chatId: string,
   messageId: string,
   prompt: string | undefined,
+  messageAnalysisMode: MessageAnalysisMode | undefined,
   user: User,
   redoFromMessageId?: string
 ): Promise<{
@@ -255,6 +257,7 @@ export async function handleExistingChat(
       ? createMessage({
           chatId,
           content: prompt,
+          messageAnalysisMode: messageAnalysisMode,
           userId: user.id,
           messageId,
         })
@@ -287,12 +290,14 @@ export async function handleNewChat({
   title,
   messageId,
   prompt,
+  messageAnalysisMode,
   user,
   organizationId,
 }: {
   title: string;
   messageId: string;
   prompt: string | undefined;
+  messageAnalysisMode: MessageAnalysisMode | undefined;
   user: User;
   organizationId: string;
 }): Promise<{
@@ -327,6 +332,7 @@ export async function handleNewChat({
           chatId: newChat.id,
           createdBy: user.id,
           requestMessage: prompt,
+          messageAnalysisMode: messageAnalysisMode,
           title: prompt,
           isCompleted: false,
           responseMessages: [],
@@ -487,6 +493,7 @@ export async function handleAssetChatWithPrompt(
   assetId: string,
   chatAssetType: ChatAssetType,
   prompt: string,
+  messageAnalysisMode: MessageAnalysisMode | undefined,
   user: User,
   chat: ChatWithMessages
 ): Promise<ChatWithMessages> {
@@ -609,6 +616,7 @@ export async function handleAssetChatWithPrompt(
       messageId: userMessageId,
       chatId,
       content: prompt,
+      messageAnalysisMode: messageAnalysisMode,
       userId: user.id,
     });
 
@@ -662,6 +670,7 @@ export async function handleAssetChatWithPrompt(
       chatId,
       content: prompt,
       userId: user.id,
+      messageAnalysisMode,
     });
 
     const chatMessage: ChatMessage = {

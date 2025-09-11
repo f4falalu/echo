@@ -1,6 +1,7 @@
 // input for the workflow
 
 import type { PermissionedDataset } from '@buster/access-controls';
+import { messageAnalysisModeEnum } from '@buster/database';
 import type { ModelMessage } from 'ai';
 import { z } from 'zod';
 import {
@@ -32,6 +33,7 @@ import {
 const AnalystWorkflowInputSchema = z.object({
   messages: z.array(z.custom<ModelMessage>()),
   messageId: z.string().uuid(),
+  messageAnalysisMode: z.enum(messageAnalysisModeEnum.enumValues).optional(),
   chatId: z.string().uuid(),
   userId: z.string().uuid(),
   organizationId: z.string().uuid(),
@@ -229,6 +231,7 @@ const AnalystPrepStepSchema = z.object({
   dataSourceId: z.string().uuid(),
   chatId: z.string().uuid(),
   messageId: z.string().uuid(),
+  messageAnalysisMode: z.enum(messageAnalysisModeEnum.enumValues).optional(),
 });
 
 type AnalystPrepStepInput = z.infer<typeof AnalystPrepStepSchema>;
@@ -238,6 +241,7 @@ async function runAnalystPrepSteps({
   dataSourceId,
   chatId,
   messageId,
+  messageAnalysisMode,
 }: AnalystPrepStepInput): Promise<{
   todos: CreateTodosResult;
   values: ExtractValuesSearchResult;
@@ -259,6 +263,7 @@ async function runAnalystPrepSteps({
     }),
     runAnalysisTypeRouterStep({
       messages,
+      messageAnalysisMode,
     }),
   ]);
 

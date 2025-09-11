@@ -1,3 +1,4 @@
+import { messageAnalysisModeEnum } from '@buster/database';
 import { generateObject } from 'ai';
 import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
@@ -9,6 +10,7 @@ import { formatAnalysisTypeRouterPrompt } from './format-analysis-type-router-pr
 // Zod schemas first - following Zod-first approach
 export const analysisTypeRouterParamsSchema = z.object({
   messages: z.array(z.custom<ModelMessage>()).describe('The conversation history'),
+  messageAnalysisMode: z.enum(messageAnalysisModeEnum.enumValues).optional(),
 });
 
 export const analysisTypeRouterResultSchema = z.object({
@@ -98,6 +100,18 @@ export async function runAnalysisTypeRouterStep(
   params: AnalysisTypeRouterParams
 ): Promise<AnalysisTypeRouterResult> {
   try {
+    if (params.messageAnalysisMode && params.messageAnalysisMode !== 'auto') {
+      console.info(
+        '[Analysis Type Router] SKIPPING DECISION due to provided message analysis mode:',
+        params.messageAnalysisMode
+      );
+
+      return {
+        analysisType: params.messageAnalysisMode,
+        reasoning: 'Using the message analysis mode provided',
+      };
+    }
+
     const result = await generateAnalysisTypeWithLLM(params.messages);
 
     console.info('[Analysis Type Router] Decision:', {

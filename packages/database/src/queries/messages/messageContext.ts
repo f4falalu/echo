@@ -1,12 +1,14 @@
 import { and, eq, isNull } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
-import { chats, messages } from '../../schema';
+import { chats, messageAnalysisModeEnum, messages } from '../../schema';
 
 // Zod schemas for validation
 export const MessageContextInputSchema = z.object({
   messageId: z.string().uuid('Message ID must be a valid UUID'),
 });
+
+const MessageAnalysisModeEnumSchema = z.enum(messageAnalysisModeEnum.enumValues).optional();
 
 export const MessageContextOutputSchema = z.object({
   messageId: z.string(),
@@ -14,10 +16,12 @@ export const MessageContextOutputSchema = z.object({
   chatId: z.string(),
   organizationId: z.string(),
   requestMessage: z.string(),
+  messageAnalysisMode: MessageAnalysisModeEnumSchema,
 });
 
 export type MessageContextInput = z.infer<typeof MessageContextInputSchema>;
 export type MessageContextOutput = z.infer<typeof MessageContextOutputSchema>;
+export type MessageAnalysisMode = z.infer<typeof MessageAnalysisModeEnumSchema>;
 
 /**
  * Get message context for runtime setup
@@ -35,12 +39,14 @@ export async function getMessageContext(input: MessageContextInput): Promise<Mes
       chatId: string;
       userId: string;
       organizationId: string | null;
+      messageAnalysisMode: MessageAnalysisMode | null;
     }>;
     try {
       result = await db
         .select({
           messageId: messages.id,
           requestMessage: messages.requestMessage,
+          messageAnalysisMode: messages.messageAnalysisMode,
           chatId: messages.chatId,
           userId: messages.createdBy,
           organizationId: chats.organizationId,
@@ -80,6 +86,7 @@ export async function getMessageContext(input: MessageContextInput): Promise<Mes
       chatId: row.chatId,
       organizationId: row.organizationId,
       requestMessage: row.requestMessage,
+      messageAnalysisMode: row.messageAnalysisMode,
     };
 
     // Validate output with error handling

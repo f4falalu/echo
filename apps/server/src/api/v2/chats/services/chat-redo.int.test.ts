@@ -233,6 +233,7 @@ describe('Chat Message Redo Integration Tests', () => {
         testChatId,
         newMessageId,
         newPrompt,
+        'auto',
         testUser,
         message2Id // redoFromMessageId
       );
@@ -340,6 +341,7 @@ describe('Chat Message Redo Integration Tests', () => {
         testChatId,
         newMessageId,
         newPrompt,
+        'auto',
         testUser,
         message1Id // redo from the very first message
       );
@@ -438,6 +440,7 @@ describe('Chat Message Redo Integration Tests', () => {
         testChatId,
         newMessageId,
         newPrompt,
+        'auto',
         testUser,
         message2Id
       );
@@ -564,6 +567,7 @@ describe('Chat Message Redo Integration Tests', () => {
           testChatId,
           '00000000-0000-0000-0000-000000000031',
           'This should fail',
+          'auto',
           testUser,
           anotherMessageId
         )
@@ -643,6 +647,7 @@ describe('Chat Message Redo Integration Tests', () => {
         testChatId,
         newMessageId1,
         'First redo',
+        'auto',
         testUser,
         message2Id
       );
@@ -662,6 +667,7 @@ describe('Chat Message Redo Integration Tests', () => {
         testChatId,
         newMessageId2,
         'Second redo',
+        'auto',
         testUser,
         newMessageId1
       );

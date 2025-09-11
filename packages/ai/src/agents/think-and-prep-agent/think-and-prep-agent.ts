@@ -1,4 +1,5 @@
 import type { PermissionedDataset } from '@buster/access-controls';
+import { messageAnalysisModeEnum } from '@buster/database';
 import { type ModelMessage, hasToolCall, stepCountIs, streamText } from 'ai';
 import { wrapTraced } from 'braintrust';
 import z from 'zod';

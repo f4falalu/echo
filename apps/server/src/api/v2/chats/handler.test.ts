@@ -105,7 +105,7 @@ describe('createChatHandler', () => {
     const result = await createChatHandler({ prompt: 'Hello' }, mockUser);
 
     expect(initializeChat).toHaveBeenCalledWith(
-      { prompt: 'Hello' },
+      { prompt: 'Hello', message_analysis_mode: 'auto' },
       mockUser,
       '550e8400-e29b-41d4-a716-446655440000'
     );
@@ -257,7 +257,12 @@ describe('createChatHandler', () => {
 
     // Verify initializeChat was called without prompt (to avoid duplicate message)
     expect(initializeChat).toHaveBeenCalledWith(
-      { prompt: undefined, asset_id: 'asset-123', asset_type: 'metric' },
+      {
+        prompt: undefined,
+        message_analysis_mode: undefined,
+        asset_id: 'asset-123',
+        asset_type: 'metric',
+      },
       mockUser,
       '550e8400-e29b-41d4-a716-446655440000'
     );
@@ -269,6 +274,7 @@ describe('createChatHandler', () => {
       'asset-123',
       'metric',
       'Hello',
+      'auto',
       mockUser,
       emptyChat
     );
