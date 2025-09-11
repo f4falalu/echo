@@ -6,6 +6,7 @@ import type {
 } from '@buster/server-shared/share';
 import pluralize from 'pluralize';
 import React from 'react';
+import { useUnshareChat, useUpdateChatShare } from '@/api/buster_rest/chats';
 import { useUnshareCollection, useUpdateCollectionShare } from '@/api/buster_rest/collections';
 import { useUnshareDashboard, useUpdateDashboardShare } from '@/api/buster_rest/dashboards';
 import { useUnshareMetric, useUpdateMetricShare } from '@/api/buster_rest/metrics';
@@ -74,10 +75,12 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
     const { mutateAsync: onUpdateDashboardShare } = useUpdateDashboardShare();
     const { mutateAsync: onUpdateCollectionShare } = useUpdateCollectionShare();
     const { mutateAsync: onUpdateReportShare } = useUpdateReportShare();
+    const { mutateAsync: onUpdateChatShare } = useUpdateChatShare();
     const { mutateAsync: onUnshareMetric } = useUnshareMetric();
     const { mutateAsync: onUnshareDashboard } = useUnshareDashboard();
     const { mutateAsync: onUnshareCollection } = useUnshareCollection();
     const { mutateAsync: onUnshareReport } = useUnshareReport();
+    const { mutateAsync: onUnshareChat } = useUnshareChat();
 
     const hasIndividualPermissions = !!individual_permissions?.length;
     const workspaceMemberCount = shareAssetConfig.workspace_member_count || 0;
@@ -93,11 +96,10 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
         } else if (assetType === 'report') {
           return await onUpdateReportShare(payload);
         } else if (assetType === 'chat') {
-          // TODO: Implement chat sharing when available
-          return;
+          return await onUpdateChatShare(payload);
+        } else {
+          const _exhaustiveCheck: never = assetType;
         }
-
-        const _exhaustiveCheck: never = assetType;
       }
     );
 
@@ -129,7 +131,9 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
         } else if (assetType === 'report') {
           await onUnshareReport(payload);
         } else if (assetType === 'chat') {
-          // TODO: Implement chat unsharing when available
+          await onUnshareChat(payload);
+        } else {
+          const _exhaustiveCheck: never = assetType;
         }
       }
     });

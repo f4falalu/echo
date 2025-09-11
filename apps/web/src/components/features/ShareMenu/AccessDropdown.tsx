@@ -169,41 +169,9 @@ const dashboardItems: IDropdownItem<ShareRole>[] = [
   },
 ];
 
-const collectionItems: IDropdownItem<ShareRole>[] = [
-  {
-    value: 'full_access',
-    label: 'Full access',
-    secondaryLabel: 'Can edit and share with others.',
-  },
-  {
-    value: 'can_edit',
-    label: 'Can edit',
-    secondaryLabel: 'Can edit but not share with others.',
-  },
-  {
-    value: 'can_view',
-    label: 'Can view',
-    secondaryLabel: 'Can view assets but not edit.',
-  },
-];
+const collectionItems: IDropdownItem<ShareRole>[] = metricItems;
 
-const reportItems: IDropdownItem<ShareRole>[] = [
-  {
-    value: 'full_access',
-    label: 'Full access',
-    secondaryLabel: 'Can edit and share with others.',
-  },
-  {
-    value: 'can_edit',
-    label: 'Can edit',
-    secondaryLabel: 'Can edit but not share with others.',
-  },
-  {
-    value: 'can_view',
-    label: 'Can view',
-    secondaryLabel: 'Can view asset but not edit.',
-  },
-];
+const reportItems: IDropdownItem<ShareRole>[] = metricItems;
 
 const workspaceItems: IDropdownItem<WorkspaceShareRole>[] = [
   {
