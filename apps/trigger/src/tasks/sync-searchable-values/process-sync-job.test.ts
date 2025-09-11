@@ -17,8 +17,6 @@ vi.mock('@buster/data-source', () => ({
 
 vi.mock('@buster/database', () => ({
   getDataSourceCredentials: vi.fn(),
-  markSyncJobCompleted: vi.fn(),
-  markSyncJobFailed: vi.fn(),
 }));
 
 vi.mock('@buster/search', () => ({
@@ -47,11 +45,7 @@ vi.mock('@trigger.dev/sdk', () => ({
 // Import mocked modules
 import { generateSearchableValueEmbeddings } from '@buster/ai';
 import { createAdapter, getDefaultProvider } from '@buster/data-source';
-import {
-  getDataSourceCredentials,
-  markSyncJobCompleted,
-  markSyncJobFailed,
-} from '@buster/database';
+import { getDataSourceCredentials } from '@buster/database';
 import {
   deduplicateValues,
   generateNamespace,
@@ -63,7 +57,8 @@ import {
 
 describe('processSyncJob', () => {
   const mockPayload: SyncJobPayload = {
-    jobId: 'test-job-123',
+    datasetId: 'dataset-123',
+    datasetName: 'customers',
     dataSourceId: 'ds-456',
     databaseName: 'test_db',
     schemaName: 'public',
@@ -87,20 +82,7 @@ describe('processSyncJob', () => {
     // Reset all mock implementations to default behavior
     vi.mocked(getDataSourceCredentials).mockResolvedValue({ type: 'postgresql' });
     vi.mocked(createAdapter).mockResolvedValue(mockAdapter as any);
-    vi.mocked(markSyncJobCompleted).mockResolvedValue({
-      id: 'test-job-123',
-      status: 'success',
-      updatedAt: new Date().toISOString(),
-      lastSyncedAt: new Date().toISOString(),
-      errorMessage: null,
-    });
-    vi.mocked(markSyncJobFailed).mockResolvedValue({
-      id: 'test-job-123',
-      status: 'failed',
-      updatedAt: new Date().toISOString(),
-      lastSyncedAt: null,
-      errorMessage: 'Error message',
-    });
+    // Removed markSyncJobCompleted and markSyncJobFailed mocks as they're no longer used
     mockAdapter.testConnection.mockResolvedValue(undefined);
     mockAdapter.close.mockResolvedValue(undefined);
     mockAdapter.query.mockResolvedValue({ rows: [], fields: [] });
@@ -159,7 +141,7 @@ describe('processSyncJob', () => {
 
       // Verify result
       expect(result).toEqual({
-        jobId: 'test-job-123',
+        datasetId: 'dataset-123',
         success: true,
         processedCount: 3,
         existingCount: 1,
@@ -202,14 +184,7 @@ describe('processSyncJob', () => {
           }),
         ]),
       });
-      expect(markSyncJobCompleted).toHaveBeenCalledWith(
-        'test-job-123',
-        expect.objectContaining({
-          processedCount: 3,
-          existingCount: 1,
-          newCount: 2,
-        })
-      );
+      // No longer calling markSyncJobCompleted
       expect(mockAdapter.close).toHaveBeenCalled();
     });
 
@@ -227,7 +202,7 @@ describe('processSyncJob', () => {
 
       // Verify result
       expect(result).toEqual({
-        jobId: 'test-job-123',
+        datasetId: 'dataset-123',
         success: true,
         processedCount: 0,
         existingCount: 0,
@@ -235,15 +210,7 @@ describe('processSyncJob', () => {
         duration: expect.any(Number),
       });
 
-      // Verify early exit
-      expect(markSyncJobCompleted).toHaveBeenCalledWith(
-        'test-job-123',
-        expect.objectContaining({
-          processedCount: 0,
-          existingCount: 0,
-          newCount: 0,
-        })
-      );
+      // Verify early exit (no longer calling markSyncJobCompleted)
       expect(processWithCache).not.toHaveBeenCalled();
       expect(generateSearchableValueEmbeddings).not.toHaveBeenCalled();
       expect(mockAdapter.close).toHaveBeenCalled();
@@ -284,7 +251,7 @@ describe('processSyncJob', () => {
 
       // Verify result
       expect(result).toEqual({
-        jobId: 'test-job-123',
+        datasetId: 'dataset-123',
         success: true,
         processedCount: 2,
         existingCount: 2,
@@ -295,14 +262,7 @@ describe('processSyncJob', () => {
       // Verify no embeddings or upserts were needed
       expect(generateSearchableValueEmbeddings).not.toHaveBeenCalled();
       expect(upsertSearchableValues).not.toHaveBeenCalled();
-      expect(markSyncJobCompleted).toHaveBeenCalledWith(
-        'test-job-123',
-        expect.objectContaining({
-          processedCount: 2,
-          existingCount: 2,
-          newCount: 0,
-        })
-      );
+      // No longer calling markSyncJobCompleted
       expect(mockAdapter.close).toHaveBeenCalled();
     });
 
@@ -362,14 +322,11 @@ describe('processSyncJob', () => {
 
       // Verify error handling
       expect(result).toEqual({
-        jobId: 'test-job-123',
+        datasetId: 'dataset-123',
         success: false,
         error: 'Failed to fetch credentials from vault',
       });
-      expect(markSyncJobFailed).toHaveBeenCalledWith(
-        'test-job-123',
-        'Failed to fetch credentials from vault'
-      );
+      // No longer calling markSyncJobFailed
     });
 
     it('should handle database connection errors', async () => {
@@ -383,11 +340,11 @@ describe('processSyncJob', () => {
 
       // Verify error handling
       expect(result).toEqual({
-        jobId: 'test-job-123',
+        datasetId: 'dataset-123',
         success: false,
         error: 'Connection timeout',
       });
-      expect(markSyncJobFailed).toHaveBeenCalledWith('test-job-123', 'Connection timeout');
+      // No longer calling markSyncJobFailed
       expect(mockAdapter.close).toHaveBeenCalled(); // Cleanup attempted
     });
 
@@ -402,11 +359,11 @@ describe('processSyncJob', () => {
 
       // Verify error handling
       expect(result).toEqual({
-        jobId: 'test-job-123',
+        datasetId: 'dataset-123',
         success: false,
         error: expect.stringContaining('Failed to query distinct values'),
       });
-      expect(markSyncJobFailed).toHaveBeenCalled();
+      // No longer calling markSyncJobFailed
       expect(mockAdapter.close).toHaveBeenCalled();
     });
 
@@ -447,14 +404,11 @@ describe('processSyncJob', () => {
 
       // Verify error handling
       expect(result).toEqual({
-        jobId: 'test-job-123',
+        datasetId: 'dataset-123',
         success: false,
         error: 'OpenAI API rate limit exceeded',
       });
-      expect(markSyncJobFailed).toHaveBeenCalledWith(
-        'test-job-123',
-        'OpenAI API rate limit exceeded'
-      );
+      // No longer calling markSyncJobFailed
       expect(mockAdapter.close).toHaveBeenCalled();
     });
 
@@ -494,11 +448,11 @@ describe('processSyncJob', () => {
 
       // Verify error handling
       expect(result).toEqual({
-        jobId: 'test-job-123',
+        datasetId: 'dataset-123',
         success: false,
         error: 'Turbopuffer API error',
       });
-      expect(markSyncJobFailed).toHaveBeenCalledWith('test-job-123', 'Turbopuffer API error');
+      // No longer calling markSyncJobFailed
       expect(mockAdapter.close).toHaveBeenCalled();
     });
 

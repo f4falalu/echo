@@ -1,5 +1,6 @@
-import { getExistingSyncJobs } from '@buster/database';
+import { getDatasetsWithYml } from '@buster/database';
 import { logger, schedules } from '@trigger.dev/sdk';
+import { isValidFieldName, parseSearchableFields } from './parse-searchable-fields';
 import { processSyncJob } from './process-sync-job';
 import type { DailySyncReport, DataSourceSyncSummary, SyncJobPayload } from './types';
 
@@ -7,9 +8,10 @@ import type { DailySyncReport, DataSourceSyncSummary, SyncJobPayload } from './t
  * Daily scheduled task to sync searchable values from data sources
  *
  * This task runs every day at 2 AM UTC and:
- * 1. Retrieves existing sync jobs from stored_values_sync_jobs table
- * 2. Triggers sync jobs for processing (fire and forget)
- * 3. Reports on the number of jobs triggered
+ * 1. Retrieves datasets with YAML files from the datasets table
+ * 2. Parses YAML files to find fields marked as searchable
+ * 3. Triggers sync jobs for each searchable field (fire and forget)
+ * 4. Reports on the number of syncs triggered
  *
  * The actual sync logic is handled asynchronously by process-sync-job.ts
  */
@@ -36,31 +38,37 @@ export const syncSearchableValues = schedules.task({
     });
 
     try {
-      // Step 1: Get all existing sync jobs from the stored_values_sync_jobs table
-      const syncJobsResult = await getExistingSyncJobs({
-        statuses: ['pending', 'success'],
-      });
+      // Step 1: Get all enabled datasets with YAML files
+      const datasets = await getDatasetsWithYml();
 
-      logger.info('Found existing sync jobs', {
+      logger.info('Found datasets with YAML files', {
         executionId,
-        totalJobs: syncJobsResult.totalCount,
-        dataSourceCount: Object.keys(syncJobsResult.byDataSource).length,
+        totalDatasets: datasets.length,
       });
 
-      if (syncJobsResult.totalCount === 0) {
-        logger.info('No sync jobs found to process', { executionId });
+      if (datasets.length === 0) {
+        logger.info('No datasets with YAML found to process', { executionId });
         return createReport(executionId, startTime, [], errors);
       }
 
-      // Step 2: Process sync jobs grouped by data source
-      for (const dataSourceId in syncJobsResult.byDataSource) {
-        const dataSourceInfo = syncJobsResult.byDataSource[dataSourceId];
-        if (!dataSourceInfo) continue;
+      // Step 2: Group datasets by data source for efficient processing
+      const datasetsByDataSource = new Map<string, typeof datasets>();
+      for (const dataset of datasets) {
+        const existing = datasetsByDataSource.get(dataset.dataSourceId) || [];
+        existing.push(dataset);
+        datasetsByDataSource.set(dataset.dataSourceId, existing);
+      }
+
+      // Step 3: Process datasets grouped by data source
+      for (const [dataSourceId, datasetsForSource] of datasetsByDataSource) {
+        // Get first dataset name for logging (all should have same data source)
+        const firstDataset = datasetsForSource[0];
+        const dataSourceName = firstDataset?.name || 'Unknown';
 
         const summary: DataSourceSyncSummary = {
           dataSourceId,
-          dataSourceName: dataSourceInfo.dataSourceName,
-          totalColumns: dataSourceInfo.jobCount,
+          dataSourceName,
+          totalColumns: 0, // Will be calculated from searchable fields
           successfulSyncs: 0,
           failedSyncs: 0,
           skippedSyncs: 0,
@@ -72,54 +80,93 @@ export const syncSearchableValues = schedules.task({
           logger.info('Processing data source', {
             executionId,
             dataSourceId,
-            dataSourceName: dataSourceInfo.dataSourceName,
-            jobCount: dataSourceInfo.jobCount,
+            dataSourceName,
+            datasetCount: datasetsForSource.length,
           });
 
-          // Step 3: Trigger sync jobs for this data source (fire and forget)
-          const jobs = dataSourceInfo.jobs;
           let triggeredCount = 0;
           let triggerFailureCount = 0;
+          let totalSearchableFields = 0;
 
-          for (const job of jobs) {
-            try {
-              // Prepare payload for processing
-              const syncPayload: SyncJobPayload = {
-                jobId: job.id,
-                dataSourceId: job.dataSourceId,
-                databaseName: job.databaseName,
-                schemaName: job.schemaName,
-                tableName: job.tableName,
-                columnName: job.columnName,
-                // No limit on values - process all distinct values
-              };
-
-              // Trigger the sync job without waiting
-              await processSyncJob.trigger(syncPayload);
-              triggeredCount++;
-
-              logger.info('Sync job triggered', {
-                executionId,
-                jobId: job.id,
-                table: job.tableName,
-                column: job.columnName,
+          // Process each dataset for this data source
+          for (const dataset of datasetsForSource) {
+            if (!dataset.ymlFile) {
+              logger.warn('Dataset has no YAML file, skipping', {
+                datasetId: dataset.id,
+                datasetName: dataset.name,
               });
-            } catch (error) {
-              triggerFailureCount++;
-              const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-              summary.errors.push(
-                `Failed to trigger job ${job.tableName}.${job.columnName}: ${errorMsg}`
-              );
+              continue;
+            }
 
-              logger.error('Failed to trigger sync job', {
-                executionId,
-                jobId: job.id,
-                table: job.tableName,
-                column: job.columnName,
-                error: errorMsg,
-              });
+            // Parse YAML to find searchable fields
+            const searchableFields = parseSearchableFields(dataset.ymlFile);
+            totalSearchableFields += searchableFields.length;
+
+            logger.info('Found searchable fields in dataset', {
+              executionId,
+              datasetId: dataset.id,
+              datasetName: dataset.name,
+              searchableFieldCount: searchableFields.length,
+            });
+
+            // Trigger sync for each searchable field
+            for (const field of searchableFields) {
+              // Validate field name to prevent SQL injection
+              if (!isValidFieldName(field.name)) {
+                logger.error('Invalid field name, skipping', {
+                  datasetId: dataset.id,
+                  fieldName: field.name,
+                });
+                summary.errors.push(`Invalid field name in dataset ${dataset.name}: ${field.name}`);
+                continue;
+              }
+
+              try {
+                // Prepare payload for processing
+                const syncPayload: SyncJobPayload = {
+                  datasetId: dataset.id,
+                  datasetName: dataset.name,
+                  dataSourceId: dataset.dataSourceId,
+                  databaseName: dataset.databaseName,
+                  schemaName: dataset.schema,
+                  tableName: dataset.name, // Dataset name is the table name
+                  columnName: field.name,
+                  columnType: field.dataType,
+                  // No limit on values - process all distinct values
+                };
+
+                // Trigger the sync job without waiting
+                await processSyncJob.trigger(syncPayload);
+                triggeredCount++;
+
+                logger.info('Sync job triggered for searchable field', {
+                  executionId,
+                  datasetId: dataset.id,
+                  datasetName: dataset.name,
+                  table: dataset.name,
+                  column: field.name,
+                  fieldType: field.type,
+                });
+              } catch (error) {
+                triggerFailureCount++;
+                const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+                summary.errors.push(
+                  `Failed to trigger sync for ${dataset.name}.${field.name}: ${errorMsg}`
+                );
+
+                logger.error('Failed to trigger sync job', {
+                  executionId,
+                  datasetId: dataset.id,
+                  datasetName: dataset.name,
+                  table: dataset.name,
+                  column: field.name,
+                  error: errorMsg,
+                });
+              }
             }
           }
+
+          summary.totalColumns = totalSearchableFields;
 
           summary.successfulSyncs = triggeredCount;
           summary.failedSyncs = triggerFailureCount;
@@ -128,15 +175,13 @@ export const syncSearchableValues = schedules.task({
         } catch (error) {
           const errorMsg = error instanceof Error ? error.message : 'Unknown error';
           summary.errors.push(`Data source processing failed: ${errorMsg}`);
-          errors.push(
-            `Failed to process data source ${dataSourceInfo.dataSourceName}: ${errorMsg}`
-          );
+          errors.push(`Failed to process data source ${dataSourceName}: ${errorMsg}`);
           dataSourceSummaries.push(summary);
 
           logger.error('Error processing data source', {
             executionId,
             dataSourceId,
-            dataSourceName: dataSourceInfo.dataSourceName,
+            dataSourceName,
             error: errorMsg,
           });
         }

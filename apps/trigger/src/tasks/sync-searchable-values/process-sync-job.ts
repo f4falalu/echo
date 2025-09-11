@@ -1,11 +1,7 @@
 import { generateSearchableValueEmbeddings } from '@buster/ai';
 import { type DatabaseAdapter, createAdapter } from '@buster/data-source';
 import { getDefaultProvider } from '@buster/data-source';
-import {
-  getDataSourceCredentials,
-  markSyncJobCompleted,
-  markSyncJobFailed,
-} from '@buster/database';
+import { getDataSourceCredentials } from '@buster/database';
 import {
   type SearchableValue,
   processWithCache,
@@ -45,8 +41,13 @@ export const processSyncJob: ReturnType<
   run: async (payload): Promise<SyncJobResult> => {
     const startTime = Date.now();
 
+    // Use datasetId for logging
+    const identifier = payload.datasetId || 'unknown';
+    const identifierType = 'datasetId';
+
     logger.info('Starting sync job processing', {
-      jobId: payload.jobId,
+      [identifierType]: identifier,
+      datasetName: payload.datasetName,
       dataSourceId: payload.dataSourceId,
       column: {
         database: payload.databaseName,
@@ -89,14 +90,14 @@ export const processSyncJob: ReturnType<
       });
 
       logger.info('Retrieved distinct values', {
-        jobId: payload.jobId,
+        [identifierType]: identifier,
         totalValues: distinctValues.length,
       });
 
       if (distinctValues.length === 0) {
         // No values to sync
         const result: SyncJobResult = {
-          jobId: payload.jobId,
+          datasetId: payload.datasetId,
           success: true,
           processedCount: 0,
           existingCount: 0,
@@ -104,21 +105,14 @@ export const processSyncJob: ReturnType<
           duration: Date.now() - startTime,
         };
 
-        await markSyncJobCompleted(payload.jobId, {
-          processedCount: 0,
-          existingCount: 0,
-          newCount: 0,
-          duration: result.duration || 0,
-        });
-
-        logger.info('No values to sync', { jobId: payload.jobId });
+        logger.info('No values to sync', { [identifierType]: identifier });
         return result;
       }
 
       // Step 4: Use parquet cache to find existing and new values
       // This replaces the Turbopuffer query with R2-based caching
       logger.info('Processing with parquet cache', {
-        jobId: payload.jobId,
+        [identifierType]: identifier,
         database: payload.databaseName,
         schema: payload.schemaName,
         table: payload.tableName,
@@ -140,7 +134,7 @@ export const processSyncJob: ReturnType<
       );
 
       logger.info('Cache processing complete', {
-        jobId: payload.jobId,
+        [identifierType]: identifier,
         cacheHit: cacheResult.cacheHit,
         existingCount: cacheResult.existingValues.length,
         newCount: cacheResult.newValues.length,
@@ -151,7 +145,7 @@ export const processSyncJob: ReturnType<
       if (cacheResult.newValues.length === 0) {
         // All values already exist
         const result: SyncJobResult = {
-          jobId: payload.jobId,
+          datasetId: payload.datasetId,
           success: true,
           processedCount: distinctValues.length,
           existingCount: cacheResult.existingValues.length,
@@ -159,14 +153,7 @@ export const processSyncJob: ReturnType<
           duration: Date.now() - startTime,
         };
 
-        await markSyncJobCompleted(payload.jobId, {
-          processedCount: distinctValues.length,
-          existingCount: cacheResult.existingValues.length,
-          newCount: 0,
-          duration: result.duration || 0,
-        });
-
-        logger.info('All values already exist (cache hit)', { jobId: payload.jobId });
+        logger.info('All values already exist (cache hit)', { [identifierType]: identifier });
         return result;
       }
 
@@ -181,7 +168,7 @@ export const processSyncJob: ReturnType<
 
       // Step 7: Generate embeddings for new values in batches to manage memory
       logger.info('Generating embeddings for new values', {
-        jobId: payload.jobId,
+        [identifierType]: identifier,
         newCount: cacheResult.newValues.length,
       });
 
@@ -194,7 +181,7 @@ export const processSyncJob: ReturnType<
         const batchTexts = batch.map((v) => v.value);
 
         logger.info('Processing embedding batch', {
-          jobId: payload.jobId,
+          [identifierType]: identifier,
           batchStart: i,
           batchSize: batch.length,
           totalValues: newSearchableValues.length,
@@ -206,7 +193,7 @@ export const processSyncJob: ReturnType<
         // Log embedding dimensions for debugging
         if (batchEmbeddings.length > 0 && batchEmbeddings[0]) {
           logger.info('Embedding dimensions check', {
-            jobId: payload.jobId,
+            [identifierType]: identifier,
             firstEmbeddingLength: batchEmbeddings[0].length,
             expectedDimensions: 512,
             allEmbeddingLengths: batchEmbeddings.slice(0, 5).map((e) => e?.length), // Log first 5 for sample
@@ -225,7 +212,7 @@ export const processSyncJob: ReturnType<
 
       // Step 8: Upsert to Turbopuffer in batches to manage memory
       logger.info('Upserting values to Turbopuffer', {
-        jobId: payload.jobId,
+        [identifierType]: identifier,
         count: allValuesWithEmbeddings.length,
       });
 
@@ -237,7 +224,7 @@ export const processSyncJob: ReturnType<
         const batch = allValuesWithEmbeddings.slice(i, i + UPSERT_BATCH_SIZE);
 
         logger.info('Processing upsert batch', {
-          jobId: payload.jobId,
+          [identifierType]: identifier,
           batchStart: i,
           batchSize: batch.length,
           totalValues: allValuesWithEmbeddings.length,
@@ -252,7 +239,7 @@ export const processSyncJob: ReturnType<
         if (batchResult.errors && batchResult.errors.length > 0) {
           // Log and throw error for any upsert failures
           logger.error('Upsert batch failed', {
-            jobId: payload.jobId,
+            [identifierType]: identifier,
             batchStart: i,
             batchSize: batch.length,
             errorsInBatch: batchResult.errors.length,
@@ -266,13 +253,13 @@ export const processSyncJob: ReturnType<
       }
 
       logger.info('All upserts completed successfully', {
-        jobId: payload.jobId,
+        [identifierType]: identifier,
         totalUpserted: totalUpserted,
       });
 
       // Step 9: Update parquet cache with all values (existing + new)
       logger.info('Updating parquet cache', {
-        jobId: payload.jobId,
+        [identifierType]: identifier,
         totalValues: distinctValues.length,
       });
 
@@ -288,11 +275,11 @@ export const processSyncJob: ReturnType<
 
       if (!cacheUpdated) {
         logger.warn('Failed to update parquet cache, but sync completed', {
-          jobId: payload.jobId,
+          [identifierType]: identifier,
         });
       }
 
-      // Step 9: Update sync job status
+      // Step 9: Calculate final metrics
       const metadata = {
         processedCount: distinctValues.length,
         existingCount: cacheResult.existingValues.length,
@@ -300,24 +287,18 @@ export const processSyncJob: ReturnType<
         duration: Date.now() - startTime,
       };
 
-      await markSyncJobCompleted(payload.jobId, metadata);
-
-      // TODO: Update column sync metadata when we have column ID
-      // await updateColumnSyncMetadata(columnId, {
-      //   status: 'success',
-      //   count: searchableValues.length,
-      //   lastSynced: new Date().toISOString(),
-      // });
+      // Future: Could track sync status in datasets table if needed
 
       logger.info('Sync job completed successfully', {
-        jobId: payload.jobId,
+        [identifierType]: identifier,
+        datasetName: payload.datasetName,
         processedCount: metadata.processedCount,
         newCount: metadata.newCount,
         duration: metadata.duration,
       });
 
       return {
-        jobId: payload.jobId,
+        datasetId: payload.datasetId,
         success: true,
         processedCount: metadata.processedCount,
         existingCount: metadata.existingCount,
@@ -328,27 +309,18 @@ export const processSyncJob: ReturnType<
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
       logger.error('Sync job failed', {
-        jobId: payload.jobId,
+        [identifierType]: identifier,
+        datasetName: payload.datasetName,
         error: errorMessage,
         stack: error instanceof Error ? error.stack : undefined,
       });
 
-      // Mark job as failed
-      await markSyncJobFailed(payload.jobId, errorMessage);
+      // Log the failure (no longer updating job status)
 
-      // TODO: Update column sync metadata with error when we have column ID
-      // await updateColumnSyncMetadata(columnId, {
-      //   status: 'failed',
-      //   error: errorMessage,
-      // }).catch((updateError) => {
-      //   logger.error('Failed to update column metadata', {
-      //     jobId: payload.jobId,
-      //     error: updateError instanceof Error ? updateError.message : 'Unknown error',
-      //   });
-      // });
+      // Future: Could track sync failures in datasets table if needed
 
       return {
-        jobId: payload.jobId,
+        datasetId: payload.datasetId,
         success: false,
         error: errorMessage,
       };
@@ -357,10 +329,10 @@ export const processSyncJob: ReturnType<
       if (adapter) {
         try {
           await adapter.close();
-          logger.info('Database connection closed', { jobId: payload.jobId });
+          logger.info('Database connection closed', { [identifierType]: identifier });
         } catch (disconnectError) {
           logger.error('Failed to disconnect database adapter', {
-            jobId: payload.jobId,
+            [identifierType]: identifier,
             error: disconnectError instanceof Error ? disconnectError.message : 'Unknown error',
           });
         }
