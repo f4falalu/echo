@@ -11,6 +11,7 @@ import {
   useCollectionSelectMenu,
   useDashboardVersionHistorySelectMenu,
   useDeleteDashboardSelectMenu,
+  useEditDashboardWithAI,
   useFavoriteDashboardSelectMenu,
   useFilterDashboardSelectMenu,
   useOpenFullScreenDashboard,
@@ -45,6 +46,7 @@ export const DashboardThreeDotMenu = React.memo(
       { id: dashboardId },
       { select: useCallback((x: GetDashboardResponse) => x.permission, []) }
     );
+    const editDashboardWithAI = useEditDashboardWithAI({ dashboardId });
     const isEffectiveOwner = getIsEffectiveOwner(permission);
     const isFilter = canFilter(permission);
     const isEditor = canEdit(permission);
@@ -52,13 +54,14 @@ export const DashboardThreeDotMenu = React.memo(
     const items: IDropdownItems = useMemo(
       () =>
         [
-          chatId && openFullScreenDashboard,
-          // isFilter && !isViewingOldVersion && filterDashboardMenu,
-          isEditor && !isViewingOldVersion && addContentToDashboardMenu,
+          ...(chatId ? [openFullScreenDashboard, { type: 'divider' }] : []),
+          editDashboardWithAI,
           { type: 'divider' },
           isEffectiveOwner && !isViewingOldVersion && shareMenu,
           collectionSelectMenu,
           favoriteDashboard,
+          { type: 'divider' },
+          isEditor && !isViewingOldVersion && addContentToDashboardMenu,
           versionHistoryItems,
           { type: 'divider' },
           isEditor && !isViewingOldVersion && renameDashboardMenu,

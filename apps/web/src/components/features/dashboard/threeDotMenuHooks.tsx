@@ -8,6 +8,7 @@ import {
   useRemoveDashboardFromCollection,
 } from '@/api/buster_rest/dashboards';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
+import { useStartChatFromAsset } from '@/context/BusterAssets/useStartChatFromAsset';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { DASHBOARD_TITLE_INPUT_ID } from '@/controllers/DashboardController/DashboardViewDashboardController/DashboardEditTitle';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
@@ -16,7 +17,16 @@ import { ensureElementExists } from '../../../lib/element';
 import { getIsEffectiveOwner } from '../../../lib/share';
 import type { IDropdownItem, IDropdownItems } from '../../ui/dropdown';
 import { createDropdownItem, DropdownContent } from '../../ui/dropdown';
-import { ArrowUpRight, Filter, History, Plus, ShareRight, Star, Trash } from '../../ui/icons';
+import {
+  ArrowUpRight,
+  Filter,
+  History,
+  PenSparkle,
+  Plus,
+  ShareRight,
+  Star,
+  Trash,
+} from '../../ui/icons';
 import Pencil from '../../ui/icons/NucleoIconOutlined/pencil';
 import { useSaveToCollectionsDropdownContent } from '../dropdowns/SaveToCollectionsDropdown';
 import { useFavoriteStar } from '../favorites/useFavoriteStar';
@@ -177,7 +187,7 @@ export const useRenameDashboardSelectMenu = ({
         onClick: async () => {
           await navigate({
             unsafeRelative: 'path',
-            to: '../content' as '/app/dashboards/$dashboardId',
+            to: '.' as '/app/dashboards/$dashboardId',
             params: (prev) => ({ ...prev, dashboardId }),
             search: dashboardVersionNumber
               ? { dashboard_version_number: dashboardVersionNumber }
@@ -187,8 +197,10 @@ export const useRenameDashboardSelectMenu = ({
             () => document.getElementById(DASHBOARD_TITLE_INPUT_ID(dashboardId)) as HTMLInputElement
           );
           if (input) {
-            input.focus();
-            input.select();
+            setTimeout(() => {
+              input.focus();
+              input.select();
+            }, 50);
           }
         },
       }),
@@ -200,9 +212,9 @@ export const useAddContentToDashboardSelectMenu = () => {
   return useMemo(
     () =>
       createDropdownItem({
-        label: 'Add content',
+        label: 'Add existing charts',
         value: 'add-content',
-        icon: <Plus />,
+        icon: <ASSET_ICONS.metircsAdd />,
         onClick: onOpenDashboardContentModal,
       }),
     []
@@ -267,5 +279,24 @@ export const useShareMenuSelectMenu = ({ dashboardId }: { dashboardId: string })
           : undefined,
     }),
     [dashboardId, dashboard, isOwner]
+  );
+};
+
+export const useEditDashboardWithAI = ({ dashboardId }: { dashboardId: string }) => {
+  const { onCreateFileClick, loading } = useStartChatFromAsset({
+    assetId: dashboardId,
+    assetType: 'dashboard',
+  });
+
+  return useMemo(
+    () =>
+      createDropdownItem({
+        label: 'Edit with AI',
+        value: 'edit-with-ai',
+        icon: <PenSparkle />,
+        onClick: onCreateFileClick,
+        loading,
+      }),
+    [dashboardId, onCreateFileClick, loading]
   );
 };
