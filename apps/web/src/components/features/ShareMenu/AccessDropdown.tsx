@@ -1,7 +1,7 @@
 import type { ShareAssetType, ShareRole, WorkspaceShareRole } from '@buster/server-shared/share';
 import last from 'lodash/last';
 import React, { useMemo } from 'react';
-import type { IDropdownItem } from '@/components/ui/dropdown';
+import type { DropdownDivider, IDropdownItem } from '@/components/ui/dropdown';
 import { Dropdown } from '@/components/ui/dropdown';
 import { ChevronDown } from '@/components/ui/icons/NucleoIconFilled';
 import { Paragraph, Text } from '@/components/ui/typography';
@@ -39,11 +39,12 @@ export const AccessDropdown: React.FC<AccessDropdownProps> = React.memo(
     const items = useMemo(() => {
       const isWorkspace = props.type === 'workspace';
 
-      const baseItems: IDropdownItem<DropdownValue>[] = [
+      const baseItems: (IDropdownItem<DropdownValue> | DropdownDivider)[] = [
         ...(isWorkspace ? workspaceItems : itemsRecord[assetType] || []),
       ];
 
       if (showRemove) {
+        baseItems.push({ type: 'divider' });
         baseItems.push({
           label: 'Remove',
           value: 'remove',
@@ -52,16 +53,14 @@ export const AccessDropdown: React.FC<AccessDropdownProps> = React.memo(
 
       return baseItems.map((item) => ({
         ...item,
-        selected: item.value === shareLevel,
+        selected: (item as IDropdownItem<DropdownValue>).value === shareLevel,
       }));
     }, [showRemove, shareLevel, assetType, props.type]);
 
     const selectedLabel = useMemo(() => {
       const defaultLabel = props.type === 'workspace' ? WORKSPACE_NOT_SHARED_ITEM : OWNER_ITEM;
       const selectedItem = items.find((item) => item.selected) || defaultLabel;
-
-      const { value } = selectedItem;
-
+      const { value } = selectedItem as IDropdownItem<DropdownValue>;
       // Using a type-safe switch to handle all ShareRole values
       switch (value) {
         case 'full_access':
@@ -108,7 +107,7 @@ export const AccessDropdown: React.FC<AccessDropdownProps> = React.memo(
         footerContent={<FooterContent />}
         footerClassName="p-0!"
         onSelect={onSelectMenuItem}
-        sideOffset={16}
+        sideOffset={14}
         selectType="single"
         align="end"
         side="bottom"

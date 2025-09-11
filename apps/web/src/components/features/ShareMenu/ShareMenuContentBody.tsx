@@ -173,6 +173,7 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
                 assetType={assetType}
                 shareLevel={permission.role}
                 disabled={!canEditPermissions || permission.role === 'owner'}
+                showRemove={true}
               />
             ))}
           </div>
