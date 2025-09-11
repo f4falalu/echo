@@ -306,8 +306,9 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
       });
 
       expect(response.status).toBe(500);
-      const text = await response.text();
-      expect(text).toContain('Error fetching suggested prompts');
+      const body = (await response.json()) as { error: string; message: string };
+      expect(body.error).toBe('Internal Server Error');
+      expect(body.message).toBe('Database connection failed');
     });
 
     it('should fallback to old prompts when AI generation fails', async () => {
