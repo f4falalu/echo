@@ -42,17 +42,19 @@ const app = new Hono().get(
           today.getFullYear() === updatedDate.getFullYear() &&
           today.getMonth() === updatedDate.getMonth() &&
           today.getDate() === updatedDate.getDate();
-          
+
         if (isToday) {
           return c.json(currentSuggestedPrompts);
         }
       }
 
       const timeoutMs = 10000; // 10 seconds timeout
-  
+
       const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => {
-          reject(new Error('Request timeout after 10 seconds. Returning current suggested prompts.'));
+          reject(
+            new Error('Request timeout after 10 seconds. Returning current suggested prompts.')
+          );
         }, timeoutMs);
       });
 
