@@ -23,7 +23,7 @@ export type {
 } from './schemas/message-schemas';
 
 // Export schema-types to use across the codebase
-export type { UserSuggestedPromptsField } from './schema-types';
+export type { UserSuggestedPromptsType } from './schema-types';
 
 // Export default user suggested prompts
 export { DEFAULT_USER_SUGGESTED_PROMPTS } from './schema-types/user';

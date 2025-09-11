@@ -1,22 +1,25 @@
+import { getUserInformation } from '@buster/database';
+import { GetUserByIdRequestSchema, type GetUserByIdResponse } from '@buster/server-shared/user';
+import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
-import suggestedPromptsRoutes from './suggested-prompts';
+import { HTTPException } from 'hono/http-exception';
+import { standardErrorHandler } from '../../../../utils/response';
 
 const app = new Hono()
-  .get('/', (c) => {
+  .get('/', zValidator('param', GetUserByIdRequestSchema), async (c) => {
     const userId = c.req.param('id');
+    const authenticatedUser = c.get('busterUser');
 
-    // Stub data for individual user
-    const stubUser = {
-      id: userId,
-      name: 'Example User',
-      email: `user${userId}@example.com`,
-      role: 'user',
-      createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: '2024-01-01T00:00:00Z',
-    };
+    if (authenticatedUser.id !== userId) {
+      throw new HTTPException(403, {
+        message: 'You are not authorized to access this user',
+      });
+    }
 
-    return c.json(stubUser);
+    const userInfo: GetUserByIdResponse = await getUserInformation(userId);
+
+    return c.json(userInfo);
   })
-  .route('/suggested-prompts', suggestedPromptsRoutes);
+  .onError(standardErrorHandler);
 
 export default app;

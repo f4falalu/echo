@@ -1,8 +1,19 @@
 /**
  * Type-safe helper functions for DuckDB operations
+ * Note: DuckDB types are aliased since the module is lazy-loaded
  */
 
-import type { DuckDBConnection } from '@duckdb/node-api';
+// Type definitions for lazy-loaded DuckDB module
+// These match the actual DuckDB API but avoid direct import
+interface DuckDBConnection {
+  run(sql: string): Promise<DuckDBResult>;
+  closeSync(): void;
+}
+
+interface DuckDBResult {
+  getRowObjectsJson(): Promise<unknown[]>;
+}
+
 import type { DuckDBContext } from './deduplicate';
 
 /**
