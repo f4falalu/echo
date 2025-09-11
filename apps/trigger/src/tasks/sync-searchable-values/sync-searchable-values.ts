@@ -52,7 +52,8 @@ export const syncSearchableValues = schedules.task({
       }
 
       // Step 2: Group datasets by data source for efficient processing
-      const datasetsByDataSource = new Map<string, typeof datasets>();
+      type DatasetWithYml = Awaited<ReturnType<typeof getDatasetsWithYml>>[number];
+      const datasetsByDataSource = new Map<string, DatasetWithYml[]>();
       for (const dataset of datasets) {
         const existing = datasetsByDataSource.get(dataset.dataSourceId) || [];
         existing.push(dataset);
