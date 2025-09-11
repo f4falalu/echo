@@ -174,5 +174,12 @@ export const MOCK_CHAT = (chatIndex = 0): BusterChat => {
     created_by_name: `User ${chatIndex}`,
     created_by_avatar: `https://avatar.example.com/user${chatIndex}.jpg`,
     publicly_accessible: false,
+    public_expiry_date: null,
+    public_enabled_by: null,
+    public_password: null,
+    permission: 'owner',
+    workspace_sharing: 'full_access',
+    workspace_member_count: 0,
+    individual_permissions: [],
   };
 };

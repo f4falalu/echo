@@ -6,8 +6,8 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import last from 'lodash/last';
-import { useMemo } from 'react';
 import { create } from 'mutative';
+import { useMemo } from 'react';
 import type { BusterChatMessage } from '@/api/asset_interfaces/chat';
 import type { IBusterChat } from '@/api/asset_interfaces/chat/iChatInterfaces';
 import { chatQueryKeys } from '@/api/query_keys/chat';
@@ -366,12 +366,12 @@ export const useShareChat = () => {
         });
       });
     },
-    onSuccess: (data) => {
-      const upgradedChat = updateChatToIChat(data).iChat;
-      queryClient.setQueryData(
-        chatQueryKeys.chatsGetChat(data.id).queryKey,
-        upgradedChat
-      );
+    onSuccess: (_, variables) => {
+      const partialMatchedKey = chatQueryKeys.chatsGetChat(variables.id).queryKey;
+      queryClient.invalidateQueries({
+        queryKey: partialMatchedKey,
+        refetchType: 'all',
+      });
     },
   });
 };
@@ -391,12 +391,12 @@ export const useUnshareChat = () => {
         });
       });
     },
-    onSuccess: (data) => {
-      const upgradedChat = updateChatToIChat(data).iChat;
-      queryClient.setQueryData(
-        chatQueryKeys.chatsGetChat(upgradedChat.id).queryKey,
-        upgradedChat
-      );
+    onSuccess: (_, variables) => {
+      const partialMatchedKey = chatQueryKeys.chatsGetChat(variables.id).queryKey;
+      queryClient.invalidateQueries({
+        queryKey: partialMatchedKey,
+        refetchType: 'all',
+      });
     },
   });
 };
@@ -428,11 +428,12 @@ export const useUpdateChatShare = () => {
           if (variables.params.public_expiry_date !== undefined) {
             draft.public_expiry_date = variables.params.public_expiry_date;
           }
-          if (variables.params.workspace_sharing !== undefined) {
-            draft.workspace_sharing = variables.params.workspace_sharing;
-          }
         });
       });
+    },
+    onSuccess: (data) => {
+      const upgradedChat = updateChatToIChat(data).iChat;
+      queryClient.setQueryData(chatQueryKeys.chatsGetChat(data.id).queryKey, upgradedChat);
     },
   });
 };

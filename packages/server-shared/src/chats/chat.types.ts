@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { AssetTypeSchema } from '../assets/asset-types.types';
-import { AssetPermissionRoleSchema, ShareIndividualSchema } from '../share';
+import type { AssetPermissionRoleSchema } from '../share';
+import { ShareConfigSchema } from '../share';
 import { ChatMessageSchema } from './chat-message.types';
 
 // Asset Permission Role enum (matching database enum)
@@ -22,13 +23,7 @@ export const ChatWithMessagesSchema = z.object({
   created_by_id: z.string(),
   created_by_name: z.string(),
   created_by_avatar: z.string().nullable(),
-  // Sharing fields
-  individual_permissions: z.array(ShareIndividualSchema).optional(),
-  publicly_accessible: z.boolean(),
-  public_expiry_date: z.string().datetime().optional(),
-  public_enabled_by: z.string().optional(),
-  public_password: z.string().optional(),
-  permission: AssetPermissionRoleSchema.optional(),
+  ...ShareConfigSchema.shape,
 });
 
 export const ChatCreateRequestSchema = z

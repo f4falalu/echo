@@ -184,12 +184,14 @@ export function buildChatWithMessages(
     created_by_name: userName,
     created_by_avatar: user?.avatarUrl || null,
     // Sharing fields - TODO: implement proper sharing logic
-    individual_permissions: undefined,
+    individual_permissions: [],
     publicly_accessible: chat.publiclyAccessible || false,
-    public_expiry_date: chat.publicExpiryDate || undefined,
-    public_enabled_by: chat.publiclyEnabledBy || undefined,
-    public_password: undefined, // Don't expose password
+    public_expiry_date: chat.publicExpiryDate || null,
+    public_enabled_by: chat.publiclyEnabledBy || null,
+    public_password: null, // Don't expose password
     permission: 'owner', // TODO: Implement proper permission checking
+    workspace_sharing: 'full_access',
+    workspace_member_count: 0,
   };
 }
 
