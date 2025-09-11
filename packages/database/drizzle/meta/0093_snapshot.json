@@ -1,5 +1,5 @@
 {
-  "id": "5c4fc750-4a28-4b63-b965-1009700bf2fc",
+  "id": "7a65bca0-ad13-48f5-8f7e-6ebe98483825",
   "prevId": "a4ecb59c-6169-47eb-b65a-f9f17a48b6ee",
   "version": "7",
   "dialect": "postgresql",
@@ -6711,7 +6711,7 @@
           "type": "jsonb",
           "primaryKey": false,
           "notNull": true,
-          "default": "'{\n        \"suggestedPrompts\": {\n          \"report\": [],\n          \"dashboard\": [],\n          \"visualization\": [],\n          \"help\": []\n        },\n        \"updatedAt\": null\n      }'::jsonb"
+          "default": "'{\"suggestedPrompts\":{\"report\":[\"provide a trend analysis of quarterly profits\",\"evaluate product performance across regions\"],\"dashboard\":[\"create a sales performance dashboard\",\"design a revenue forecast dashboard\"],\"visualization\":[\"create a metric for monthly sales\",\"show top vendors by purchase volume\"],\"help\":[\"what types of analyses can you perform?\",\"what questions can I as buster?\",\"what data models are available for queries?\",\"can you explain your forecasting capabilities?\"]},\"updatedAt\":\"2025-09-11T05:07:11.229Z\"}'::jsonb"
         }
       },
       "indexes": {},
