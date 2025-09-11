@@ -4,9 +4,8 @@ export const htmlCacheHeaders = [
   { httpEquiv: 'Pragma', content: 'cache' },
 ];
 
-// Only use aggressive no-cache for specific routes that need it
+// Use less aggressive caching to work better with Cloudflare
 export const preventBrowserCacheHeaders = [
-  { httpEquiv: 'Cache-Control', content: 'no-cache, no-store, must-revalidate' },
+  { httpEquiv: 'Cache-Control', content: 'public, max-age=0, must-revalidate' },
   { httpEquiv: 'Pragma', content: 'no-cache' },
-  { httpEquiv: 'Expires', content: '0' },
 ];
