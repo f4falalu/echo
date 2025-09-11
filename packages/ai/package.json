@@ -6,16 +6,18 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "bun": "./src/index.ts",
       "default": "./dist/index.js"
     },
     "./*": {
       "types": "./dist/*.d.ts",
+      "bun": "./src/*.ts",
       "default": "./dist/*.js"
     }
   },
   "scripts": {
     "prebuild": "[ \"$SKIP_ENV_CHECK\" = \"true\" ] || tsx scripts/validate-env.ts",
-    "build": "tsc",
+    "build": "tsc && (cd src && find . -name '*.txt' -exec sh -c 'mkdir -p ../dist/$(dirname {}) && cp {} ../dist/{}' \\;) || true",
     "build:dry-run": "tsc",
     "typecheck": "tsc --noEmit",
     "dev": "tsc --watch",
@@ -38,7 +40,7 @@
     "braintrust:push:tools:staged": "npx braintrust push evals/agents/analyst-agent/tool-order/staged-scorers.ts"
   },
   "dependencies": {
-    "@ai-sdk/gateway": "^1.0.18",
+    "@ai-sdk/gateway": "^1.0.20",
     "@ai-sdk/provider": "^2.0.0",
     "@buster/access-controls": "workspace:*",
     "@buster/data-source": "workspace:*",

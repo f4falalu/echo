@@ -19,7 +19,8 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
-import type { OrganizationColorPalettes } from './schema-types';
+import type { OrganizationColorPalettes, UserSuggestedPromptsField } from './schema-types';
+import { DEFAULT_USER_SUGGESTED_PROMPTS } from './schema-types/user';
 
 export const assetPermissionRoleEnum = pgEnum('asset_permission_role_enum', [
   'owner',
@@ -859,6 +860,10 @@ export const users = pgTable(
       .notNull(),
     attributes: jsonb().default({}).notNull(),
     avatarUrl: text('avatar_url'),
+    suggestedPrompts: jsonb('suggested_prompts')
+      .$type<UserSuggestedPromptsField>()
+      .default(DEFAULT_USER_SUGGESTED_PROMPTS)
+      .notNull(),
   },
   (table) => [unique('users_email_key').on(table.email)]
 );
