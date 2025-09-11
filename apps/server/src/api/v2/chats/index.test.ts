@@ -76,6 +76,13 @@ describe('POST /chats', () => {
     created_by_name: 'Test User',
     created_by_avatar: null,
     publicly_accessible: false,
+    public_expiry_date: null,
+    public_enabled_by: null,
+    public_password: null,
+    permission: 'owner',
+    workspace_sharing: 'full_access',
+    workspace_member_count: 0,
+    individual_permissions: [],
   };
 
   beforeEach(() => {

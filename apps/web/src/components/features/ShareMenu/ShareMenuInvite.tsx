@@ -1,8 +1,10 @@
 import type { ShareAssetType, ShareConfig, ShareRole } from '@buster/server-shared/share';
 import React, { useMemo } from 'react';
+import { useShareChat } from '@/api/buster_rest/chats';
 import { useShareCollection } from '@/api/buster_rest/collections';
 import { useShareDashboard } from '@/api/buster_rest/dashboards';
 import { useShareMetric } from '@/api/buster_rest/metrics';
+import { useShareReport } from '@/api/buster_rest/reports';
 import { Button } from '@/components/ui/buttons';
 import { InputSearchDropdown } from '@/components/ui/inputs/InputSearchDropdown';
 import { useBusterNotifications } from '@/context/BusterNotifications';
@@ -29,6 +31,8 @@ export const ShareMenuInvite: React.FC<ShareMenuInviteProps> = React.memo(
     const { mutateAsync: onShareDashboard, isPending: isInvitingDashboard } = useShareDashboard();
     const { mutateAsync: onShareCollection, isPending: isInvitingCollection } =
       useShareCollection();
+    const { mutateAsync: onShareChat, isPending: isInvitingChat } = useShareChat();
+    const { mutateAsync: onShareReport, isPending: isInvitingReport } = useShareReport();
 
     const [inputValue, setInputValue] = React.useState<string>('');
 
@@ -44,7 +48,8 @@ export const ShareMenuInvite: React.FC<ShareMenuInviteProps> = React.memo(
     });
 
     const disableSubmit = !inputHasText(inputValue) || !isValidEmail(inputValue);
-    const isInviting = isInvitingMetric || isInvitingDashboard || isInvitingCollection;
+    const isInviting =
+      isInvitingMetric || isInvitingDashboard || isInvitingCollection || isInvitingChat;
 
     const options: SelectItem<string>[] = useMemo(() => {
       return (
@@ -103,6 +108,12 @@ export const ShareMenuInvite: React.FC<ShareMenuInviteProps> = React.memo(
         await onShareDashboard(payload);
       } else if (assetType === 'collection') {
         await onShareCollection(payload);
+      } else if (assetType === 'chat') {
+        await onShareChat(payload);
+      } else if (assetType === 'report') {
+        await onShareReport(payload);
+      } else {
+        const _exhaustiveCheck: never = assetType;
       }
 
       setInputValue('');

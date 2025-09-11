@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useUpdateChatShare } from '@/api/buster_rest/chats';
 import { useUpdateCollectionShare } from '@/api/buster_rest/collections';
 import { useUpdateDashboardShare } from '@/api/buster_rest/dashboards';
 import { useUpdateMetricShare } from '@/api/buster_rest/metrics';
@@ -35,10 +36,16 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
     const { mutateAsync: onShareCollection, isPending: isPublishingCollection } =
       useUpdateCollectionShare();
     const { mutateAsync: onShareReport, isPending: isPublishingReport } = useUpdateReportShare();
+    const { mutateAsync: onShareChat, isPending: isPublishingChat } = useUpdateChatShare();
     const [isPasswordProtected, setIsPasswordProtected] = useState<boolean>(!!password);
     const [_password, _setPassword] = React.useState<string>(password || '');
 
-    const isPublishing = isPublishingMetric || isPublishingDashboard || isPublishingCollection;
+    const isPublishing =
+      isPublishingMetric ||
+      isPublishingDashboard ||
+      isPublishingCollection ||
+      isPublishingChat ||
+      isPublishingReport;
 
     const linkExpiry = useMemo(() => {
       return publicExpirationDate ? new Date(publicExpirationDate) : null;
@@ -115,7 +122,7 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
       } else if (assetType === 'report') {
         await onShareReport(payload);
       } else if (assetType === 'chat') {
-        console.warn('Chat sharing is not implemented');
+        await onShareChat(payload);
       } else {
         const _exhaustiveCheck: never = assetType;
       }
@@ -143,7 +150,7 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
       } else if (assetType === 'report') {
         await onShareReport(payload);
       } else if (assetType === 'chat') {
-        console.warn('Chat sharing is not implemented');
+        await onShareChat(payload);
       } else {
         const _exhaustiveCheck: never = assetType;
       }
@@ -170,7 +177,7 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
       } else if (assetType === 'report') {
         await onShareReport(payload);
       } else if (assetType === 'chat') {
-        console.warn('Chat sharing is not implemented');
+        await onShareChat(payload);
       } else {
         const _exhaustiveCheck: never = assetType;
       }

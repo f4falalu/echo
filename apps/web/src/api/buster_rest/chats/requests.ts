@@ -8,11 +8,17 @@ import type {
   GetChatsListResponse,
   GetLogsListRequest,
   GetLogsListResponse,
+  ShareChatResponse,
   UpdateChatMessageFeedbackRequest,
   UpdateChatMessageFeedbackResponse,
   UpdateChatRequest,
   UpdateChatResponse,
 } from '@buster/server-shared/chats';
+import type {
+  ShareDeleteRequest,
+  SharePostRequest,
+  ShareUpdateRequest,
+} from '@buster/server-shared/share';
 import { mainApi, mainApiV2 } from '../instances';
 
 const CHATS_BASE = '/chats';
@@ -65,4 +71,24 @@ export const duplicateChat = async ({
   message_id,
 }: DuplicateChatRequest): Promise<DuplicateChatResponse> => {
   return mainApi.post(`${CHATS_BASE}/duplicate`, { id, message_id }).then((res) => res.data);
+};
+
+export const shareChat = async ({ id, params }: { id: string; params: SharePostRequest }) => {
+  return mainApi.post<string>(`${CHATS_BASE}/${id}/sharing`, params).then((res) => res.data);
+};
+
+export const unshareChat = async ({ id, data }: { id: string; data: ShareDeleteRequest }) => {
+  return mainApi.delete<boolean>(`${CHATS_BASE}/${id}/sharing`, { data }).then((res) => res.data);
+};
+
+export const updateChatShare = async ({
+  id,
+  params,
+}: {
+  id: string;
+  params: ShareUpdateRequest;
+}) => {
+  return mainApi
+    .put<ShareChatResponse>(`${CHATS_BASE}/${id}/sharing`, params)
+    .then((res) => res.data);
 };
