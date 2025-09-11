@@ -1,4 +1,5 @@
 import { redirect } from '@tanstack/react-router';
+import { preventBrowserCacheHeaders } from '@/middleware/shared-headers';
 
 export const beforeLoad = ({
   params,
@@ -17,3 +18,7 @@ export const beforeLoad = ({
     statusCode: 301,
   });
 };
+
+export const head = () => ({
+  meta: [...preventBrowserCacheHeaders],
+});

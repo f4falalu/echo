@@ -6,12 +6,16 @@ import { prefetchGetMyUserInfo } from '@/api/buster_rest/users/queryRequests';
 import { getAppLayout } from '@/api/server-functions/getAppLayout';
 import { AppProviders } from '@/context/Providers';
 import { getSupabaseSession, getSupabaseUser } from '@/integrations/supabase/getSupabaseUserClient';
+import { preventBrowserCacheHeaders } from '@/middleware/shared-headers';
 import type { LayoutSize } from '../components/ui/layouts/AppLayout';
 
 const PRIMARY_APP_LAYOUT_ID = 'primary-sidebar';
 const DEFAULT_LAYOUT: LayoutSize = ['230px', 'auto'];
 
 export const Route = createFileRoute('/app')({
+  head: () => ({
+    meta: [...preventBrowserCacheHeaders],
+  }),
   context: ({ context }) => ({ ...context, getAppLayout }),
   beforeLoad: async () => {
     console.log('beforeLoad app route');
