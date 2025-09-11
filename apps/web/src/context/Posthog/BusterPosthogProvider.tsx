@@ -41,7 +41,7 @@ const options: Partial<PostHogConfig> = {
 
   loaded: () => {
     console.log(
-      `🚀 Welcome to Buster v${version}`,
+      `%c🚀 Welcome to Buster v${version}`,
       'background: linear-gradient(to right, #a21caf, #8b1cb1, #6b21a8); color: white; font-size: 16px; font-weight: bold; padding: 10px; border-radius: 5px;'
     );
     console.log(
