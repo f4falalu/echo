@@ -49,6 +49,9 @@ export const AnalystAgentOptionsSchema = z.object({
       })
     )
     .optional(),
+  userPersonalizationMessageContent: z
+    .string()
+    .describe('Custom user personalization in message content'),
 });
 
 export const AnalystStreamOptionsSchema = z.object({
@@ -61,7 +64,8 @@ export type AnalystAgentOptions = z.infer<typeof AnalystAgentOptionsSchema>;
 export type AnalystStreamOptions = z.infer<typeof AnalystStreamOptionsSchema>;
 
 export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
-  const { datasets, analystInstructions, organizationDocs } = analystAgentOptions;
+  const { datasets, analystInstructions, organizationDocs, userPersonalizationMessageContent } =
+    analystAgentOptions;
 
   const systemMessage = {
     role: 'system',
@@ -131,6 +135,15 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
         } as ModelMessage)
       : null;
 
+    // Create user personalization system message
+    const userPersonalizationSystemMessage = userPersonalizationMessageContent
+      ? ({
+          role: 'system',
+          content: userPersonalizationMessageContent,
+          providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
+        } as ModelMessage)
+      : null;
+
     return wrapTraced(
       () =>
         streamText({
@@ -154,6 +167,7 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
             datasetsSystemMessage,
             ...(docsSystemMessage ? [docsSystemMessage] : []),
             ...(analystInstructionsMessage ? [analystInstructionsMessage] : []),
+            ...(userPersonalizationSystemMessage ? [userPersonalizationSystemMessage] : []),
             ...messages,
           ],
           stopWhen: STOP_CONDITIONS,
