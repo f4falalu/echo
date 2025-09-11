@@ -2,7 +2,7 @@ import { generateSuggestedMessages } from '@buster/ai';
 import {
   DEFAULT_USER_SUGGESTED_PROMPTS,
   type User,
-  type UserSuggestedPromptsField,
+  type UserSuggestedPromptsType,
   getPermissionedDatasets,
   getUserRecentMessages,
   getUserSuggestedPrompts,
@@ -28,7 +28,7 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
 
   // Use actual DEFAULT_USER_SUGGESTED_PROMPTS instead of mock
 
-  const mockTodayPrompts: UserSuggestedPromptsField = {
+  const mockTodayPrompts: UserSuggestedPromptsType = {
     suggestedPrompts: {
       report: ['Generate Q4 sales report'],
       dashboard: ['Create revenue dashboard'],
@@ -38,7 +38,7 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
     updatedAt: new Date().toISOString(), // Today's date
   };
 
-  const mockOldPrompts: UserSuggestedPromptsField = {
+  const mockOldPrompts: UserSuggestedPromptsType = {
     suggestedPrompts: {
       report: ['Old report prompt'],
       dashboard: ['Old dashboard prompt'],
@@ -55,7 +55,7 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
     help: ['New AI generated help'],
   };
 
-  const mockUpdatedPrompts: UserSuggestedPromptsField = {
+  const mockUpdatedPrompts: UserSuggestedPromptsType = {
     suggestedPrompts: mockGeneratedPrompts,
     updatedAt: new Date().toISOString(),
   };

@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
 import { users } from '../../schema';
-import type { UserSuggestedPromptsField } from '../../schema-types';
+import type { UserSuggestedPromptsType } from '../../schema-types';
 
 // Input validation schemas
 const UpdateSuggestedPromptsInputSchema = z.object({
@@ -27,11 +27,11 @@ type GetSuggestedPromptsInput = z.infer<typeof GetSuggestedPromptsInputSchema>;
  */
 export async function updateUserSuggestedPrompts(
   params: UpdateSuggestedPromptsInput
-): Promise<UserSuggestedPromptsField> {
+): Promise<UserSuggestedPromptsType> {
   try {
     const { userId, suggestedPrompts } = UpdateSuggestedPromptsInputSchema.parse(params);
 
-    const updatedPrompts: UserSuggestedPromptsField = {
+    const updatedPrompts: UserSuggestedPromptsType = {
       suggestedPrompts: suggestedPrompts,
       updatedAt: new Date().toISOString(),
     };
@@ -65,7 +65,7 @@ export async function updateUserSuggestedPrompts(
  */
 export async function getUserSuggestedPrompts(
   params: GetSuggestedPromptsInput
-): Promise<UserSuggestedPromptsField> {
+): Promise<UserSuggestedPromptsType> {
   try {
     const { userId } = GetSuggestedPromptsInputSchema.parse(params);
 

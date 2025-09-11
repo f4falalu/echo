@@ -1,42 +1,38 @@
 import { generateSuggestedMessages } from '@buster/ai';
 import {
   DEFAULT_USER_SUGGESTED_PROMPTS,
-  type UserSuggestedPromptsField,
+  type UserSuggestedPromptsType,
   getPermissionedDatasets,
   getUserRecentMessages,
   getUserSuggestedPrompts,
   updateUserSuggestedPrompts,
 } from '@buster/database';
+import { GetSuggestedPromptsRequestSchema, type GetSuggestedPromptsResponse } from '@buster/server-shared/user';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-import { z } from 'zod';
-
-const GetSuggestedPromptsRequestParams = z.object({
-  id: z.string().uuid(),
-});
+import { standardErrorHandler } from '../../../../../utils/response';
 
 const app = new Hono().get(
   '/',
-  zValidator('param', GetSuggestedPromptsRequestParams),
+  zValidator('param', GetSuggestedPromptsRequestSchema),
   async (c) => {
-    try {
-      const userId = c.req.param('id');
-      const authenticatedUser = c.get('busterUser');
+    const userId = c.req.param('id');
+    const authenticatedUser = c.get('busterUser');
 
-      // Authorization check: Users can only access their own suggested prompts
-      if (authenticatedUser.id !== userId) {
-        throw new HTTPException(403, {
-          message: 'Forbidden: You can only access your own suggested prompts',
-        });
-      }
+    // Authorization check: Users can only access their own suggested prompts
+    if (authenticatedUser.id !== userId) {
+      throw new HTTPException(403, {
+        message: 'Forbidden: You can only access your own suggested prompts',
+      });
+    }
 
-      const currentSuggestedPrompts = await getUserSuggestedPrompts({ userId });
+    const currentSuggestedPrompts: GetSuggestedPromptsResponse = await getUserSuggestedPrompts({ userId });
 
-      if (currentSuggestedPrompts) {
-        // Check if the updatedAt date is from today
-        const today = new Date();
-        const updatedDate = new Date(currentSuggestedPrompts.updatedAt);
+    if (currentSuggestedPrompts) {
+      // Check if the updatedAt date is from today
+      const today = new Date();
+      const updatedDate = new Date(currentSuggestedPrompts.updatedAt);
 
         const isToday =
           today.getFullYear() === updatedDate.getFullYear() &&
@@ -58,33 +54,25 @@ const app = new Hono().get(
         }, timeoutMs);
       });
 
-      try {
-        const newPrompts = await Promise.race([buildNewSuggestedPrompts(userId), timeoutPromise]);
-        return c.json(newPrompts);
-      } catch {
-        if (currentSuggestedPrompts) {
-          return c.json(currentSuggestedPrompts);
-        }
-        return c.json(DEFAULT_USER_SUGGESTED_PROMPTS);
+    try {
+      const newPrompts: GetSuggestedPromptsResponse = await Promise.race([buildNewSuggestedPrompts(userId), timeoutPromise]);
+      return c.json(newPrompts);
+    } catch {
+      if (currentSuggestedPrompts) {
+        return c.json(currentSuggestedPrompts);
       }
-    } catch (error) {
-      if (error instanceof HTTPException) {
-        throw error;
-      }
-
-      console.error('[GetSuggestedPrompts] Error:', error);
-      throw new HTTPException(500, {
-        message: 'Error fetching suggested prompts',
-      });
+      const defaultPrompts: GetSuggestedPromptsResponse = DEFAULT_USER_SUGGESTED_PROMPTS;
+      return c.json(defaultPrompts);
     }
   }
-);
+)
+.onError(standardErrorHandler);
 
 /**
  * Generate new suggested prompts for a user and update the database with the new prompts
  * Returns the updated prompts
  */
-async function buildNewSuggestedPrompts(userId: string): Promise<UserSuggestedPromptsField> {
+async function buildNewSuggestedPrompts(userId: string): Promise<UserSuggestedPromptsType> {
   try {
     const [databaseContext, chatHistoryText] = await Promise.all([
       getDatabaseContext(userId),
