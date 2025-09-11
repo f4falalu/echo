@@ -1,28 +1,28 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { z } from "zod";
-import { AppPageLayout } from "@/components/ui/layouts/AppPageLayout";
-import { HomePageController, HomePageHeader } from "@/controllers/HomePage";
+import { createFileRoute } from '@tanstack/react-router';
+import { z } from 'zod';
+import { AppPageLayout } from '@/components/ui/layouts/AppPageLayout';
+import { HomePageController, HomePageHeader } from '@/controllers/HomePage';
 
 const searchParamsSchema = z.object({
   q: z.string().optional(),
   submit: z
     .preprocess((val) => {
-      if (typeof val === "string") {
-        return val === "true";
+      if (typeof val === 'string') {
+        return val === 'true';
       }
       return val;
     }, z.boolean())
     .optional(),
 });
 
-export const Route = createFileRoute("/app/_app/home")({
+export const Route = createFileRoute('/app/_app/home')({
   head: () => {
     return {
       meta: [
-        { title: "Home" },
-        { name: "description", content: "Buster home dashboard" },
-        { name: "og:title", content: "Home" },
-        { name: "og:description", content: "Buster home dashboard" },
+        { title: 'Home' },
+        { name: 'description', content: 'Buster home dashboard' },
+        { name: 'og:title', content: 'Home' },
+        { name: 'og:description', content: 'Buster home dashboard' },
       ],
     };
   },
