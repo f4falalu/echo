@@ -79,7 +79,7 @@ jobs:
           cp -r packages /tmp/prod-deps/
           cp apps/server/package.json /tmp/prod-deps/apps/server/
           
-          # Install production dependencies only
+          # Install production dependencies only, skip optional dependencies
           cd /tmp/prod-deps
           pnpm install --frozen-lockfile --prod --no-optional
           
