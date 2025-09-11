@@ -1,10 +1,20 @@
 import { and, eq, isNull } from 'drizzle-orm';
+import { z } from 'zod';
 import { db } from '../../connection';
 import { users, usersToOrganizations } from '../../schema';
 import type { User } from './user';
 
 // Use the full User type from the schema internally
 type FullUser = typeof users.$inferSelect;
+
+export const UserInfoByIdResponseSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().nullable(),
+  email: z.string().email(),
+  role: z.string(),
+  status: z.string(),
+});
+export type UserInfoByIdResponse = z.infer<typeof UserInfoByIdResponseSchema>;
 
 /**
  * Converts a full user to the public User type
@@ -141,4 +151,32 @@ export async function addUserToOrganization(
     console.error('Error adding user to organization:', error);
     throw error;
   }
+}
+
+/**
+ * Get comprehensive user information including datasets and permissions
+ * This function replaces the complex Rust implementation with TypeScript
+ */
+export async function getUserInformation(userId: string): Promise<UserInfoByIdResponse> {
+  // Get user basic info and organization relationship
+  const userInfo = await db
+    .select({
+      id: users.id,
+      email: users.email,
+      name: users.name,
+      role: usersToOrganizations.role,
+      status: usersToOrganizations.status,
+      organizationId: usersToOrganizations.organizationId,
+    })
+    .from(users)
+    .innerJoin(usersToOrganizations, eq(users.id, usersToOrganizations.userId))
+    .where(and(eq(users.id, userId), isNull(usersToOrganizations.deletedAt)))
+    .limit(1);
+
+  if (userInfo.length === 0 || !userInfo[0]) {
+    throw new Error(`User not found: ${userId}`);
+  }
+
+  const user: UserInfoByIdResponse = userInfo[0];
+  return user;
 }

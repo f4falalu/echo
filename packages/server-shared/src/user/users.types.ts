@@ -1,3 +1,4 @@
+import type { UserInfoByIdResponse } from '@buster/database';
 import { z } from 'zod';
 import type { UserFavorite } from './favorites.types';
 import type { UserOrganizationRole } from './roles.types';
@@ -19,3 +20,10 @@ export const UserSchema = z.object({
 });
 
 export type User = z.infer<typeof UserSchema>;
+
+export const GetUserByIdRequestSchema = z.object({
+  id: z.string().uuid(),
+});
+
+export type GetUserByIdRequest = z.infer<typeof GetUserByIdRequestSchema>;
+export type GetUserByIdResponse = UserInfoByIdResponse;
