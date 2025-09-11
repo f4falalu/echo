@@ -1,9 +1,11 @@
 import { Command } from 'cmdk';
 import type React from 'react';
 import { useState } from 'react';
-import { type DisplayTransformFunc, Mention, MentionsInput } from 'react-mentions';
+import { Mention, MentionsInput } from 'react-mentions';
 import { cn } from '@/lib/utils';
 import type { BusterInputProps } from './BusterInput.types';
+import { BusterInputEmpty } from './BusterInputEmpty';
+import { BusterInputSeparator } from './BusterInputSeparator';
 import { DEFAULT_MENTION_MARKUP } from './parse-input';
 
 const users = [
@@ -28,11 +30,11 @@ export const BusterInput = ({ defaultValue, value: valueProp, onChange }: Buster
           control: { fontSize: 16, minHeight: 46 },
           highlighter: { padding: 8 },
           input: { padding: 8 },
-          suggestions: { backgroundColor: '#f8fafc' },
         }}
         classNames={{
           highlighter: 'bg-red-500/10',
           suggestions: 'bg-blue-500/20 border',
+          item: 'text-red-500',
         }}
       >
         {/* Always render a valid Mention node */}
@@ -42,7 +44,9 @@ export const BusterInput = ({ defaultValue, value: valueProp, onChange }: Buster
           data={users}
           displayTransform={(_, display) => `@${display}`}
           appendSpaceOnAdd
-          style={{ backgroundColor: '#e0e7ff', borderRadius: 4, padding: '0 0px' }}
+          renderSuggestion={(d) => {
+            return d.display;
+          }}
         />
       </MentionsInput>
 
@@ -60,12 +64,13 @@ export const BusterInput = ({ defaultValue, value: valueProp, onChange }: Buster
           onValueChange={setValue}
           asChild
           autoFocus
+          readOnly
           placeholder="Type @ to mention…"
         >
           <textarea />
         </Command.Input>
         <Command.List>
-          <CommandEmpty>No results found.</CommandEmpty>
+          <BusterInputEmpty>No results found.</BusterInputEmpty>
 
           <CommandGroup heading="Letters">
             <CommandItem
@@ -76,7 +81,7 @@ export const BusterInput = ({ defaultValue, value: valueProp, onChange }: Buster
               a
             </CommandItem>
             <CommandItem>b</CommandItem>
-            <CommandSeparator />
+            <BusterInputSeparator />
             <CommandItem>c</CommandItem>
           </CommandGroup>
 
@@ -118,30 +123,5 @@ const CommandItem = ({
     >
       {children}
     </Command.Item>
-  );
-};
-
-const CommandSeparator = ({
-  children,
-  ...props
-}: React.ComponentPropsWithoutRef<typeof Command.Separator>) => {
-  return (
-    <Command.Separator className={cn('bg-border -mx-1 h-px', props.className)} {...props}>
-      {children}
-    </Command.Separator>
-  );
-};
-
-const CommandEmpty = ({
-  children,
-  ...props
-}: React.ComponentPropsWithoutRef<typeof Command.Empty>) => {
-  return (
-    <Command.Empty
-      className={cn('text-gray-light py-6 text-center text-base', props.className)}
-      {...props}
-    >
-      {children}
-    </Command.Empty>
   );
 };
