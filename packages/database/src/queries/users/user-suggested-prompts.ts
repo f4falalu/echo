@@ -40,7 +40,6 @@ export async function updateUserSuggestedPrompts(
       .update(users)
       .set({
         suggestedPrompts: updatedPrompts,
-        updatedAt: new Date().toISOString(),
       })
       .where(eq(users.id, userId))
       .returning({ suggestedPrompts: users.suggestedPrompts });
