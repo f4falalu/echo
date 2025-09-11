@@ -13,9 +13,12 @@ const PRIMARY_APP_LAYOUT_ID = 'primary-sidebar';
 const DEFAULT_LAYOUT: LayoutSize = ['230px', 'auto'];
 
 export const Route = createFileRoute('/app')({
-  head: () => ({
-    meta: [...preventBrowserCacheHeaders],
-  }),
+  head: () => {
+    console.log('head app route');
+    return {
+      meta: [...preventBrowserCacheHeaders],
+    };
+  },
   context: ({ context }) => ({ ...context, getAppLayout }),
   beforeLoad: async () => {
     console.log('beforeLoad app route');

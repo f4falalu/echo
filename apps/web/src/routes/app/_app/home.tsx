@@ -16,14 +16,17 @@ const searchParamsSchema = z.object({
 });
 
 export const Route = createFileRoute('/app/_app/home')({
-  head: () => ({
-    meta: [
-      { title: 'Home' },
-      { name: 'description', content: 'Buster home dashboard' },
-      { name: 'og:title', content: 'Home' },
-      { name: 'og:description', content: 'Buster home dashboard' },
-    ],
-  }),
+  head: () => {
+    console.log('head home route');
+    return {
+      meta: [
+        { title: 'Home' },
+        { name: 'description', content: 'Buster home dashboard' },
+        { name: 'og:title', content: 'Home' },
+        { name: 'og:description', content: 'Buster home dashboard' },
+      ],
+    };
+  },
   validateSearch: searchParamsSchema,
   component: RouteComponent,
 });

@@ -1,4 +1,4 @@
-import { createRootRouteWithContext, HeadContent, Link, Scripts } from '@tanstack/react-router';
+import { createRootRouteWithContext, HeadContent, Scripts } from '@tanstack/react-router';
 import { RootProviders } from '@/context/Providers';
 import shareImage from '../assets/png/default_preview.png';
 import favicon from '../assets/png/favicon.ico';
