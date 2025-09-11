@@ -1,5 +1,4 @@
-import { openai } from '@ai-sdk/openai';
-import { DEFAULT_USER_SUGGESTED_PROMPTS, type UserSuggestedPromptsField } from '@buster/database';
+import { DEFAULT_USER_SUGGESTED_PROMPTS } from '@buster/database';
 import { generateObject } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';

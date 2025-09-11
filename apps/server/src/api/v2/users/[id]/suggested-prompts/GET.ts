@@ -22,7 +22,6 @@ const app = new Hono().get(
   async (c) => {
     try {
       const userId = c.req.param('id');
-
       const authenticatedUser = c.get('busterUser');
 
       // Authorization check: Users can only access their own suggested prompts
@@ -34,38 +33,36 @@ const app = new Hono().get(
 
       const currentSuggestedPrompts = await getUserSuggestedPrompts({ userId });
 
-      // If no prompts exist, try to generate new ones or return defaults
-      if (!currentSuggestedPrompts) {
-        try {
-          const newPrompts = await buildNewSuggestedPrompts(userId);
-          return c.json(newPrompts);
-        } catch {
-          return c.json(DEFAULT_USER_SUGGESTED_PROMPTS);
+      if (currentSuggestedPrompts) {
+        // Check if the updatedAt date is from today
+        const today = new Date();
+        const updatedDate = new Date(currentSuggestedPrompts.updatedAt);
+
+        const isToday =
+          today.getFullYear() === updatedDate.getFullYear() &&
+          today.getMonth() === updatedDate.getMonth() &&
+          today.getDate() === updatedDate.getDate();
+          
+        if (isToday) {
+          return c.json(currentSuggestedPrompts);
         }
       }
 
-      // Check if the updatedAt date is from today
-      const today = new Date();
-      const updatedDate = new Date(currentSuggestedPrompts.updatedAt);
-
-      const isToday =
-        today.getFullYear() === updatedDate.getFullYear() &&
-        today.getMonth() === updatedDate.getMonth() &&
-        today.getDate() === updatedDate.getDate();
-
-      // If prompts are from today, return them
-      if (isToday) {
-        return c.json(currentSuggestedPrompts);
-      }
+      const timeoutMs = 10000; // 10 seconds timeout
+  
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => {
+          reject(new Error('Request timeout after 10 seconds. Returning current suggested prompts.'));
+        }, timeoutMs);
+      });
 
       try {
-        const newPrompts = await buildNewSuggestedPrompts(userId);
+        const newPrompts = await Promise.race([buildNewSuggestedPrompts(userId), timeoutPromise]);
         return c.json(newPrompts);
       } catch {
         if (currentSuggestedPrompts) {
           return c.json(currentSuggestedPrompts);
         }
-
         return c.json(DEFAULT_USER_SUGGESTED_PROMPTS);
       }
     } catch (error) {
