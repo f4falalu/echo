@@ -135,6 +135,8 @@ describe('ChatWithMessagesSchema', () => {
       public_enabled_by: 'admin-456',
       public_password: 'secret123',
       permission: 'owner',
+      workspace_sharing: 'full_access',
+      workspace_member_count: 0,
     };
 
     const result = ChatWithMessagesSchema.safeParse(validChat);
@@ -163,6 +165,13 @@ describe('ChatWithMessagesSchema', () => {
       created_by_name: 'Jane Doe',
       created_by_avatar: null, // nullable
       publicly_accessible: true,
+      workspace_sharing: 'full_access',
+      workspace_member_count: 0,
+      individual_permissions: [],
+      public_expiry_date: null,
+      public_enabled_by: null,
+      public_password: null,
+      permission: 'owner',
       // Optional fields omitted
     };
 
@@ -172,9 +181,6 @@ describe('ChatWithMessagesSchema', () => {
     if (result.success) {
       expect(result.data.id).toBe('chat-456');
       expect(result.data.created_by_avatar).toBeNull();
-      expect(result.data.individual_permissions).toBeUndefined();
-      expect(result.data.public_expiry_date).toBeUndefined();
-      expect(result.data.permission).toBeUndefined();
     }
   });
 
@@ -198,6 +204,12 @@ describe('ChatWithMessagesSchema', () => {
         },
       ],
       publicly_accessible: false,
+      public_expiry_date: null,
+      public_enabled_by: null,
+      public_password: null,
+      permission: 'owner',
+      workspace_sharing: 'full_access',
+      workspace_member_count: 0,
     };
 
     const result = ChatWithMessagesSchema.safeParse(chatWithInvalidPermissions);
@@ -220,6 +232,12 @@ describe('ChatWithMessagesSchema', () => {
       created_by_avatar: null,
       publicly_accessible: true,
       public_expiry_date: '2024-12-31T23:59:59.999Z', // Valid ISO datetime
+      public_enabled_by: null,
+      public_password: null,
+      permission: 'owner',
+      workspace_sharing: 'full_access',
+      workspace_member_count: 0,
+      individual_permissions: [],
     };
 
     const result = ChatWithMessagesSchema.safeParse(chatWithValidDate);
