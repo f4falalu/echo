@@ -50,8 +50,12 @@ export const MetricPlugin = createPlatePlugin<
     closeAddMetricModal: () => {
       setOption('openMetricModal', false);
     },
-    updateMetric: (metricId: string, options?: SetNodesOptions<TMetricElement[]>) => {
-      tf.setNodes<TMetricElement>({ metricId }, options);
+    updateMetric: (
+      metricId: string,
+      versionNumber: number | undefined,
+      options?: SetNodesOptions<TMetricElement[]>
+    ) => {
+      tf.setNodes<TMetricElement>({ metricId, versionNumber }, options);
     },
   };
 });

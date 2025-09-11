@@ -6,25 +6,35 @@ import { prefetchGetMyUserInfo } from '@/api/buster_rest/users/queryRequests';
 import { getAppLayout } from '@/api/server-functions/getAppLayout';
 import { AppProviders } from '@/context/Providers';
 import { getSupabaseSession, getSupabaseUser } from '@/integrations/supabase/getSupabaseUserClient';
+import { preventBrowserCacheHeaders } from '@/middleware/shared-headers';
 import type { LayoutSize } from '../components/ui/layouts/AppLayout';
 
 const PRIMARY_APP_LAYOUT_ID = 'primary-sidebar';
 const DEFAULT_LAYOUT: LayoutSize = ['230px', 'auto'];
 
 export const Route = createFileRoute('/app')({
-  context: ({ context }) => ({ ...context, getAppLayout }),
-  ssr: true,
-  beforeLoad: async () => {
-    const { isExpired, accessToken = '' } = await getSupabaseSession();
-
-    if (isExpired || !accessToken) {
-      console.error('Access token is expired or not found');
-      throw redirect({ to: '/auth/login', replace: true });
-    }
-
+  head: () => {
     return {
-      accessToken,
+      meta: [...preventBrowserCacheHeaders],
     };
+  },
+  context: ({ context }) => ({ ...context, getAppLayout }),
+  beforeLoad: async () => {
+    try {
+      const { isExpired, accessToken = '' } = await getSupabaseSession();
+
+      if (isExpired || !accessToken) {
+        console.error('Access token is expired or not found');
+        throw redirect({ to: '/auth/login', replace: true, statusCode: 307 });
+      }
+
+      return {
+        accessToken,
+      };
+    } catch (error) {
+      console.error('Error in app route beforeLoad:', error);
+      throw redirect({ to: '/auth/login', replace: true, statusCode: 307 });
+    }
   },
   loader: async ({ context }) => {
     const { queryClient, accessToken } = context;
@@ -39,7 +49,8 @@ export const Route = createFileRoute('/app')({
       ]);
 
       if (!user) {
-        throw redirect({ to: '/auth/login', replace: true });
+        console.error('User not found - redirecting to login');
+        throw redirect({ to: '/auth/login', replace: true, statusCode: 307 });
       }
 
       return {
@@ -51,7 +62,7 @@ export const Route = createFileRoute('/app')({
       };
     } catch (error) {
       console.error('Error in app route loader:', error);
-      throw redirect({ to: '/auth/login', replace: true });
+      throw redirect({ to: '/auth/login', replace: true, statusCode: 307 });
     }
   },
   component: () => {

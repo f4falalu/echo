@@ -14,7 +14,11 @@ export const getSupabaseSession = async () => {
     : await supabase.auth.getSession(); //10 - 15ms locally, maybe consider getting it from the cookie instead. console the supabase object it had it there.
 
   if ((!sessionData?.session || sessionError) && !isServer) {
-    throw new Error('No session data found');
+    return {
+      accessToken: '',
+      isExpired: true,
+      expiresAt: 0,
+    };
   }
 
   const isExpired = isTokenExpired(sessionData.session?.expires_at);

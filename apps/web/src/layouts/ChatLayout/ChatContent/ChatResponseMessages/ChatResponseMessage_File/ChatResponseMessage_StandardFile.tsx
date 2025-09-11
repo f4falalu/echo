@@ -17,6 +17,9 @@ export const ChatResponseMessage_StandardFile: React.FC<{
   const selectedIcon = useMemo(() => {
     if (file_type === 'metric') return <ASSET_ICONS.metrics />;
     if (file_type === 'dashboard') return <ASSET_ICONS.dashboards />;
+    if (file_type === 'report') return <ASSET_ICONS.reports />;
+    if (file_type === 'reasoning') return null;
+    const _exhaustiveCheck: never = file_type;
     return null;
   }, [file_type]);
 

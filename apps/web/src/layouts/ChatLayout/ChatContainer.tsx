@@ -11,9 +11,11 @@ export const ChatContainer = React.memo(({ chatId }: { chatId: string | undefine
       headerSizeVariant="default"
       header={<ChatHeader />}
       headerBorderVariant="ghost"
+      headerClassName="bg-panel-background"
+      mainClassName="bg-panel-background"
       scrollable
       id={CHAT_CONTAINER_ID}
-      className="chat-container-content flex h-full w-full min-w-[295px] flex-col"
+      className="flex h-full w-full min-w-[295px] flex-col"
     >
       <ChatContent chatId={chatId} />
     </AppPageLayout>

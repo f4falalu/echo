@@ -11,9 +11,7 @@ import { AddMetricModal } from '@/components/features/dashboard/AddMetricModal';
 import { Button } from '@/components/ui/buttons';
 import { PopoverAnchor, PopoverBase, PopoverContent } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
-import { AppTooltip } from '@/components/ui/tooltip';
 import { NodeTypeIcons } from '../../config/icons';
-import { NodeTypeLabels } from '../../config/labels';
 import { MetricPlugin, type TMetricElement } from '../../plugins/metric-kit';
 import { CaptionButton } from '../CaptionNode';
 
@@ -52,11 +50,12 @@ export function MetricToolbar({
   }, []);
 
   const handleAddMetrics = React.useCallback(
-    async (metrics: { id: string; name: string }[]) => {
+    async (metrics: { id: string; name: string; versionNumber: number | undefined }[]) => {
       const id = metrics?.[0]?.id;
+      const versionNumber = metrics?.[0]?.versionNumber;
       const at = editor.api.findPath(element);
       if (!id || !at) return onCloseEdit();
-      plugin.api.metric.updateMetric(id, { at });
+      plugin.api.metric.updateMetric(id, versionNumber, { at });
       onCloseEdit();
     },
     [editor, element, onCloseEdit, plugin.api.metric]
@@ -66,7 +65,12 @@ export function MetricToolbar({
     <PopoverBase open={isOpen} modal={false}>
       <PopoverAnchor>{children}</PopoverAnchor>
 
-      <PopoverContent className="w-auto p-2" onOpenAutoFocus={(e) => e.preventDefault()}>
+      <PopoverContent
+        className="w-auto p-2"
+        side="bottom"
+        sideOffset={10}
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <div className="box-content flex items-center space-x-2">
           {/* <Button onClick={onOpenEdit} variant="ghost">
             {NodeTypeLabels.editMetric?.label}
@@ -82,7 +86,7 @@ export function MetricToolbar({
         </div>
       </PopoverContent>
 
-      <AddMetricModal
+      {/* <AddMetricModal
         open={openEditModal}
         loading={false}
         initialSelectedMetrics={preselectedMetrics}
@@ -90,7 +94,7 @@ export function MetricToolbar({
         onAddMetrics={handleAddMetrics}
         selectionMode="single"
         saveButtonText="Update metric"
-      />
+      /> */}
     </PopoverBase>
   );
 }

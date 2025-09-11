@@ -34,7 +34,7 @@ interface UseMarkdownComponentsProps {
 
 export const useMarkdownComponents = ({
   animation = 'blurIn',
-  animationDuration = 300,
+  animationDuration = 700,
   animationTimingFunction = 'ease-in-out',
   isStreamFinished = true,
   stripFormatting = true,

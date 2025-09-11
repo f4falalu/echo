@@ -1,6 +1,5 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import React, { useMemo } from 'react';
-import { useStartChatFromAsset } from '@/api/buster_rest/chats';
 import { useRemoveMetricsFromDashboard } from '@/api/buster_rest/dashboards';
 import { useGetMetric } from '@/api/buster_rest/metrics';
 import { ASSET_ICONS } from '@/components/features/icons/assetIcons';
@@ -18,6 +17,7 @@ import {
   type IDropdownItems,
 } from '@/components/ui/dropdown';
 import { Code, PenSparkle, ShareRight, SquareChartPen, Trash } from '@/components/ui/icons';
+import { useStartChatFromAsset } from '@/context/BusterAssets/useStartChatFromAsset';
 import { useGetChatId } from '@/context/Chats/useGetChatId';
 import { useMetricEditToggle } from '@/layouts/AssetContainer/MetricAssetContainer';
 import { getIsEffectiveOwner } from '@/lib/share';
@@ -149,27 +149,22 @@ const useShareMenuSelectMenu = ({ metricId }: { metricId: string }): IDropdownIt
 };
 
 const useEditWithAI = ({ metricId }: { metricId: string }): IDropdownItem => {
-  const { mutateAsync: startChatFromAsset, isPending } = useStartChatFromAsset();
-  const navigate = useNavigate();
+  const { onCreateFileClick, loading } = useStartChatFromAsset({
+    assetId: metricId,
+    assetType: 'metric',
+  });
 
   return useMemo(
     () => ({
       label: 'Edit with AI',
       value: 'edit-with-ai',
       icon: <PenSparkle />,
-      loading: isPending,
+      loading: loading,
       onClick: async () => {
-        const result = await startChatFromAsset({ asset_id: metricId, asset_type: 'metric' });
-        navigate({
-          to: '/app/chats/$chatId/metrics/$metricId',
-          params: {
-            metricId,
-            chatId: result.id,
-          },
-        });
+        await onCreateFileClick();
       },
     }),
-    [metricId, startChatFromAsset, isPending]
+    [metricId, onCreateFileClick, loading]
   );
 };
 

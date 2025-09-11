@@ -13,29 +13,37 @@ export const OverflowButton: React.FC<{
   onHoverItem?: BusterChartLegendProps['onHoverItem'];
 }> = React.memo(({ legendItems, onFocusClick, onClickItem, onHoverItem }) => {
   return (
-    <Popover
-      align="center"
-      side="left"
-      className="flex max-h-[420px] max-w-[265px]! min-w-[240px] flex-col overflow-hidden px-0 py-0.5"
-      content={
-        <OverflowPopoverContent
-          legendItems={legendItems}
-          onClickItem={onClickItem}
-          onFocusClick={onFocusClick}
-          onHoverItem={onHoverItem}
-        />
-      }
+    <span
+      onClick={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+      }}
     >
-      <div
-        className={cn(
-          'flex h-[24px] cursor-pointer items-center space-x-1.5 rounded-sm px-2 py-1',
-          'hover:bg-item-hover'
-        )}
+      <Popover
+        align="center"
+        side="left"
+        className="flex max-h-[420px] max-w-[265px]! min-w-[240px] flex-col overflow-hidden px-0 py-0.5"
+        // onOpenChange={setOpen}
+        content={
+          <OverflowPopoverContent
+            legendItems={legendItems}
+            onClickItem={onClickItem}
+            onFocusClick={onFocusClick}
+            onHoverItem={onHoverItem}
+          />
+        }
       >
-        <LegendItemDot type={'bar'} color={undefined} inactive={true} />
-        <span className="text-sm text-nowrap select-none">Next {legendItems.length}</span>
-      </div>
-    </Popover>
+        <div
+          className={cn(
+            'flex h-[24px] cursor-pointer items-center space-x-1.5 rounded-sm px-2 py-1',
+            'hover:bg-item-hover'
+          )}
+        >
+          <LegendItemDot type={'bar'} color={undefined} inactive={true} />
+          <span className="text-sm text-nowrap select-none">Next {legendItems.length}</span>
+        </div>
+      </Popover>
+    </span>
   );
 });
 OverflowButton.displayName = 'OverflowButton';

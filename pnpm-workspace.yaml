@@ -16,7 +16,7 @@ catalog:
   '@trigger.dev/build': ^4.0.2
   '@trigger.dev/sdk': ^4.0.2
   '@electric-sql/client': ^1.0.9
-  ai: ^5.0.30
+  ai: ^5.0.39
   axios: ^1.11.0
   braintrust: ^0.2.4
   dotenv: ^17.2.2

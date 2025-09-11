@@ -85,6 +85,13 @@ export const prefetchGetReport = async (
   return existingData || queryClient.getQueryData(queryKey);
 };
 
+export const usePrefetchGetReportClient = () => {
+  const queryClient = useQueryClient();
+  return (reportId: string, versionNumber?: number) => {
+    return prefetchGetReport(reportId, versionNumber, queryClient);
+  };
+};
+
 /**
  * Hook to get an individual report by ID
  */

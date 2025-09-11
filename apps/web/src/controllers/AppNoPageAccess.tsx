@@ -14,8 +14,7 @@ export const AppNoPageAccess: React.FC<{
   const isAnonymousUser = useIsAnonymousSupabaseUser();
 
   const { buttonText, link } = useMemo(() => {
-    const isEmbedPage =
-      typeof window !== 'undefined' && window.location.pathname.startsWith('/embed');
+    const isEmbedPage = window?.location.pathname.startsWith('/embed');
 
     const shouldShowLogin = isAnonymousUser || isEmbedPage;
 

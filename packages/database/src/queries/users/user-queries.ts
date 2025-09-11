@@ -9,7 +9,7 @@ type FullUser = typeof users.$inferSelect;
 /**
  * Converts a full user to the public User type
  */
-function toPublicUser(user: FullUser): User {
+function toPublicUser(user: Pick<FullUser, 'id' | 'name' | 'email' | 'avatarUrl'>): User {
   return {
     id: user.id,
     name: user.name,

@@ -28,7 +28,7 @@ export const MetricElementStatic = (
 
   return (
     <SlateElement {...props} className="mt-2.5 mb-4.5">
-      <figure className="group relative m-0 inline-block" style={{ width }}>
+      <figure className="relative m-0 inline-block" style={{ width }}>
         <div className="relative max-w-full min-w-[92px]" style={{ textAlign: align }}>
           {content}
         </div>

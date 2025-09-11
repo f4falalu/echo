@@ -20,7 +20,15 @@ export const animateTokenizedText = (
     if (typeof item === 'string') {
       return <TokenizedText key={`text-${index}`} text={item} {...animationsProps} />;
     } else if (React.isValidElement(item)) {
-      const noAnimateElementTypes: React.ElementType[] = ['br', 'ul', 'ol', 'td', 'th'];
+      const noAnimateElementTypes: React.ElementType[] = [
+        'br',
+        'ul',
+        'ol',
+        'td',
+        'th',
+        'pre',
+        'code',
+      ];
       const inlineElementTypes: React.ElementType[] = ['strong', 'em', 'del', 'code', 'a', 'span'];
 
       let typeName = item.type;

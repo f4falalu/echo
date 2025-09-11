@@ -223,11 +223,9 @@ const CollapseContent = ({
           className="group relative overflow-hidden"
           initial={{
             height: isCollapsed ? collapsedHeight : 'auto',
-            filter: 'blur(0px)',
           }}
           animate={{
             height: isCollapsed ? collapsedHeight : 'auto',
-            filter: 'blur(0px)',
           }}
           transition={{
             duration: isInitialMount ? 0 : 0.25,

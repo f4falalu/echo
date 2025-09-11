@@ -7,9 +7,8 @@ export const securityMiddleware = createMiddleware({ type: 'function' }).server(
     // Check if this is an embed route by examining the request URL
     const request = getWebRequest();
     const url = new URL(request.url);
-    const isEmbed = url.pathname.startsWith('/embed/');
+    const isEmbed = url.pathname.startsWith('/embed');
 
-    // Set security headers BEFORE calling next() to ensure they're set only once
     setHeaders(createSecurityHeaders(isEmbed));
 
     const result = await next();
