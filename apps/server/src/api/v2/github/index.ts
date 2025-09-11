@@ -34,6 +34,7 @@ const app = new Hono()
     return c.json(response);
   })
 
+  // OAuth callback - no auth needed since GitHub redirects here
   .get('/auth/callback', zValidator('query', AuthCallbackSchema), async (c) => {
     const query = c.req.valid('query');
     const result = await authCallbackHandler({

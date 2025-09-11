@@ -13,10 +13,12 @@ const app = new Hono<{
   Variables: {
     busterUser: User;
   };
-}>();
+}>()
+  // Apply authentication middleware to all routes
+  .use('*', requireAuth);
 
 // Get organization datasets endpoint
-app.get('/', requireAuth, async (c) => {
+app.get('/', async (c) => {
   const user = c.get('busterUser');
   const dataSourceId = c.req.query('dataSourceId');
 

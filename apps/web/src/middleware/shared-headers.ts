@@ -1,5 +1,5 @@
 export const preventBrowserCacheHeaders = [
-  { 'http-equiv': 'Cache-Control', content: 'no-cache, no-store, must-revalidate' },
-  { 'http-equiv': 'Pragma', content: 'no-cache' },
-  { 'http-equiv': 'Expires', content: '0' },
+  { httpEquiv: 'Cache-Control', content: 'no-cache, no-store, must-revalidate' },
+  { httpEquiv: 'Pragma', content: 'no-cache' },
+  { httpEquiv: 'Expires', content: '0' },
 ];
