@@ -10,6 +10,7 @@
     "build:production": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build --mode production -- --typecheck",
     "build:local": "pnpm prebuild && cross-env NODE_OPTIONS=--max-old-space-size=12288 vite build -- --typecheck --local",
     "build-storybook": "storybook build",
+    "log:staging": "WRANGLER_LOG=debug npx wrangler tail --format=pretty --env=staging",
     "build:visualize": "npx vite-bundle-visualizer",
     "deploy:dev": "pnpm run build && npx wrangler deploy .output/server/index.mjs --env dev --assets .output/public",
     "deploy:production": "pnpm run build:production && npx wrangler deploy .output/server/index.mjs --env production --assets .output/public",
