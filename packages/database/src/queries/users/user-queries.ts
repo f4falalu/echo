@@ -13,6 +13,7 @@ export const UserInfoByIdResponseSchema = z.object({
   email: z.string().email(),
   role: z.string(),
   status: z.string(),
+  organizationId: z.string().uuid(),
 });
 export type UserInfoByIdResponse = z.infer<typeof UserInfoByIdResponseSchema>;
 
@@ -177,6 +178,6 @@ export async function getUserInformation(userId: string): Promise<UserInfoByIdRe
     throw new Error(`User not found: ${userId}`);
   }
 
-  const user: UserInfoByIdResponse = userInfo[0];
+  const user = UserInfoByIdResponseSchema.parse(userInfo[0]);
   return user;
 }
