@@ -10,6 +10,9 @@ import { getCreateTodosSystemMessage } from './get-create-todos-system-message';
 export const createTodosParamsSchema = z.object({
   messages: z.array(z.custom<ModelMessage>()).describe('The conversation history'),
   messageId: z.string().describe('The message ID for database updates'),
+  shouldInjectUserPersonalizationTodo: z
+    .boolean()
+    .describe('Whether to inject the user personalization todo'),
 });
 
 export const createTodosResultSchema = z.object({
@@ -49,6 +52,7 @@ export type CreateTodosContext = z.infer<typeof createTodosContextSchema>;
 export type CreateTodosState = z.infer<typeof createTodosStateSchema>;
 export type CreateTodosInput = z.infer<typeof llmOutputSchema>;
 
+import { UserPersonalizationConfigSchema } from '@buster/database';
 import { createTodosStepDelta } from './create-todos-step-delta';
 import { createTodosStepFinish } from './create-todos-step-finish';
 import { createTodosStepStart } from './create-todos-step-start';
@@ -58,7 +62,8 @@ import { createTodosStepStart } from './create-todos-step-start';
  */
 async function generateTodosWithLLM(
   messages: ModelMessage[],
-  context: CreateTodosContext
+  context: CreateTodosContext,
+  injectPersonalizationTodo: boolean
 ): Promise<string> {
   try {
     // Prepare messages for the LLM
@@ -80,7 +85,7 @@ async function generateTodosWithLLM(
     // Create streaming handlers
     const onStreamStart = createTodosStepStart(state, context);
     const onTextDelta = createTodosStepDelta(state, context);
-    const onStreamFinish = createTodosStepFinish(state, context);
+    const onStreamFinish = createTodosStepFinish(state, context, injectPersonalizationTodo);
 
     const tracedTodosGeneration = wrapTraced(
       async () => {
@@ -140,7 +145,11 @@ export async function runCreateTodosStep(params: CreateTodosParams): Promise<Cre
       messageId: params.messageId,
     };
 
-    const todos = await generateTodosWithLLM(params.messages, context);
+    const todos = await generateTodosWithLLM(
+      params.messages,
+      context,
+      params.shouldInjectUserPersonalizationTodo
+    );
 
     // Generate a unique ID for this tool call
     const toolCallId = `create_todos_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;

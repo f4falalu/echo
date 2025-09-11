@@ -10,8 +10,14 @@ export const UserSuggestedPromptsSchema = z.object({
   updatedAt: z.string(),
 });
 
-// User Suggested Prompts Types
+export const UserPersonalizationConfigSchema = z.object({
+  currentRole: z.string().optional(),
+  customInstructions: z.string().optional(),
+  additionalInformation: z.string().optional(),
+});
+
 export type UserSuggestedPromptsType = z.infer<typeof UserSuggestedPromptsSchema>;
+export type UserPersonalizationConfigType = z.infer<typeof UserPersonalizationConfigSchema>;
 
 export const DEFAULT_USER_SUGGESTED_PROMPTS: UserSuggestedPromptsType = {
   suggestedPrompts: {
