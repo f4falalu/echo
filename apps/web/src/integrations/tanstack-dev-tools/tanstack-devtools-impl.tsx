@@ -3,10 +3,20 @@ import React, { lazy, Suspense } from 'react';
 import { useMount } from '@/hooks/useMount';
 import { isServer } from '@/lib/window';
 
+const isProduction = import.meta.env.PROD;
+
 // Only create lazy components if we're in the browser
 const LazyTanstackDevtools = !import.meta.env.SSR
   ? lazy(() =>
-      import('@tanstack/react-devtools').then((mod) => ({
+      import('@tanstack/react-devtools/production').then((mod) => ({
+        default: mod.TanStackDevtools,
+      }))
+    )
+  : () => null;
+
+const LazyTanstackDevtoolsInProd = !import.meta.env.SSR
+  ? lazy(() =>
+      import('@tanstack/react-devtools/production').then((mod) => ({
         default: mod.TanStackDevtools,
       }))
     )
@@ -20,10 +30,20 @@ const LazyReactQueryDevtoolsPanel = !import.meta.env.SSR
     )
   : () => null;
 
+const LazyReactQueryDevtoolsPanelInProd = !import.meta.env.SSR
+  ? lazy(() =>
+      import('@tanstack/react-query-devtools/production').then((mod) => ({
+        default: mod.ReactQueryDevtoolsPanel,
+      }))
+    )
+  : () => null;
+
 const LazyTanStackRouterDevtoolsPanel = !import.meta.env.SSR
   ? lazy(() =>
       import('@tanstack/react-router-devtools').then((mod) => ({
-        default: mod.TanStackRouterDevtoolsPanel,
+        default: isProduction
+          ? mod.TanStackRouterDevtoolsPanelInProd
+          : mod.TanStackRouterDevtoolsPanel,
       }))
     )
   : () => null;
@@ -43,6 +63,11 @@ const TanstackDevtoolsImpl: React.FC = React.memo(() => {
   });
   const isServerOrSSR = isServer && import.meta.env.SSR;
 
+  const TanstackDevtools = isProduction ? LazyTanstackDevtoolsInProd : LazyTanstackDevtools;
+  const ReactQueryDevtoolsPanel = isProduction
+    ? LazyReactQueryDevtoolsPanelInProd
+    : LazyReactQueryDevtoolsPanel;
+
   if (isServerOrSSR) {
     return null;
   }
@@ -50,7 +75,7 @@ const TanstackDevtoolsImpl: React.FC = React.memo(() => {
   return (
     <ClientOnly>
       <Suspense fallback={null}>
-        <LazyTanstackDevtools
+        <TanstackDevtools
           config={{
             position: 'bottom-left',
             hideUntilHover: true,
@@ -61,7 +86,7 @@ const TanstackDevtoolsImpl: React.FC = React.memo(() => {
               name: 'Tanstack Query',
               render: (
                 <Suspense fallback={null}>
-                  <LazyReactQueryDevtoolsPanel />
+                  <ReactQueryDevtoolsPanel />
                 </Suspense>
               ),
             },
