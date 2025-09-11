@@ -39,6 +39,7 @@ import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useIsMac } from '@/hooks/usePlatform';
 import { useEditorContext } from '@/layouts/AssetContainer/ReportAssetContainer';
 import { canEdit, getIsEffectiveOwner } from '@/lib/share';
+import { useShareMenuSelectMenu } from './threeDotMenuHooks';
 
 export const ReportThreeDotMenu = React.memo(
   ({
@@ -135,35 +136,6 @@ const useEditWithAI = ({ reportId }: { reportId: string }): IDropdownItem => {
         loading,
       }),
     [reportId, onCreateFileClick, loading]
-  );
-};
-
-const useShareMenuSelectMenu = ({ reportId }: { reportId: string }) => {
-  const { data: shareAssetConfig } = useGetReport(
-    { id: reportId },
-    { select: getShareAssetConfig }
-  );
-  const isEffectiveOwner = getIsEffectiveOwner(shareAssetConfig?.permission);
-
-  return useMemo(
-    () => ({
-      label: 'Share',
-      value: 'share-report',
-      icon: <ShareRight />,
-      disabled: !isEffectiveOwner,
-      items:
-        isEffectiveOwner && shareAssetConfig
-          ? [
-              <ShareMenuContent
-                key={reportId}
-                shareAssetConfig={shareAssetConfig}
-                assetId={reportId}
-                assetType={'report'}
-              />,
-            ]
-          : undefined,
-    }),
-    [reportId, shareAssetConfig, isEffectiveOwner]
   );
 };
 
