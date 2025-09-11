@@ -1,5 +1,6 @@
 import { createRootRouteWithContext, HeadContent, Scripts } from '@tanstack/react-router';
 import { RootProviders } from '@/context/Providers';
+import { preventBrowserCacheHeaders } from '@/middleware/shared-headers';
 import shareImage from '../assets/png/default_preview.png';
 import favicon from '../assets/png/favicon.ico';
 import { TanstackDevtools } from '../integrations/tanstack-dev-tools/tanstack-devtools';
@@ -30,6 +31,7 @@ export const Route = createRootRouteWithContext<AppRouterContext>()({
       { name: 'og:type', content: 'website' },
       { name: 'og:locale', content: 'en_US' },
       { name: 'og:site_name', content: 'Buster' },
+      ...preventBrowserCacheHeaders,
     ],
     links: [
       { rel: 'stylesheet', href: appCss },
