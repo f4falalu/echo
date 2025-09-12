@@ -35,9 +35,13 @@ export function createDoneToolStart(context: DoneToolContext, doneToolState: Don
       const allFilesForChatUpdate = extractAllFilesForChatUpdate(options.messages);
 
       console.info('[done-tool-start] Files extracted', {
-        extractedCount: extractedFiles.length,
-        files: extractedFiles.map((f) => ({ id: f.id, type: f.fileType, name: f.fileName })),
-        allFilesCount: allFilesForChatUpdate.length,
+        filesForResponseMessages: extractedFiles.length,
+        responseFiles: extractedFiles.map((f) => ({
+          id: f.id,
+          type: f.fileType,
+          name: f.fileName,
+        })),
+        allFilesCreated: allFilesForChatUpdate.length,
         allFiles: allFilesForChatUpdate.map((f) => ({
           id: f.id,
           type: f.fileType,
@@ -64,10 +68,10 @@ export function createDoneToolStart(context: DoneToolContext, doneToolState: Don
         }
       }
 
-      // Update the chat with the most recent file (using ALL files, including reports)
-      if (context.chatId && allFilesForChatUpdate.length > 0) {
+      // Update the chat with the most recent file (using same files shown in response messages)
+      if (context.chatId && extractedFiles.length > 0) {
         // Sort files by version number (descending) to get the most recent
-        const sortedFiles = allFilesForChatUpdate.sort((a, b) => {
+        const sortedFiles = extractedFiles.sort((a, b) => {
           const versionA = a.versionNumber || 1;
           const versionB = b.versionNumber || 1;
           return versionB - versionA;
