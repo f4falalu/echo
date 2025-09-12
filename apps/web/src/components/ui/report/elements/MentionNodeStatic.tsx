@@ -16,7 +16,7 @@ export function MentionElementStatic(
     <SlateElement
       {...props}
       className={cn(
-        'bg-muted inline-block rounded-md px-1.5 py-0.5 align-baseline text-sm font-medium',
+        'bg-muted inline-block rounded px-1.5 py-0.5 align-baseline text-sm font-medium',
         element.children[0][KEYS.bold] === true && 'font-semibold',
         element.children[0][KEYS.italic] === true && 'italic',
         element.children[0][KEYS.underline] === true && 'underline'

@@ -43,6 +43,7 @@ describe('runAnalystAgentStep', () => {
         dataSourceId: 'test-ds-id',
         dataSourceSyntax: 'postgres',
         datasets: [],
+        userPersonalizationMessageContent: '',
       },
       streamOptions: {
         messages: [{ role: 'user', content: 'Test prompt' }],
@@ -79,6 +80,7 @@ describe('runAnalystAgentStep', () => {
           dataSourceId: 'test-ds-id',
           dataSourceSyntax: 'postgres',
           datasets: [],
+          userPersonalizationMessageContent: '',
         },
         streamOptions: {
           messages: [{ role: 'user', content: 'Test prompt' }],
@@ -110,6 +112,7 @@ describe('runAnalystAgentStep', () => {
           dataSourceId: 'test-ds-id',
           dataSourceSyntax: 'postgres',
           datasets: [],
+          userPersonalizationMessageContent: '',
         },
         streamOptions: {
           messages: [{ role: 'user', content: 'Test prompt' }],
@@ -139,6 +142,7 @@ describe('runAnalystAgentStep', () => {
           dataSourceId: 'test-ds-id',
           dataSourceSyntax: 'postgres',
           datasets: [],
+          userPersonalizationMessageContent: '',
         },
         streamOptions: {
           messages: [{ role: 'user', content: 'Test prompt' }],

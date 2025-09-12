@@ -17,6 +17,7 @@ import type {
   ChatMessageReasoningMessage,
   ChatMessageResponseMessage,
   ChatWithMessages,
+  MessageAnalysisMode,
 } from '@buster/server-shared/chats';
 import { ChatError, ChatErrorCode } from '@buster/server-shared/chats';
 import { PostProcessingMessageSchema } from '@buster/server-shared/message';
@@ -183,12 +184,14 @@ export function buildChatWithMessages(
     created_by_name: userName,
     created_by_avatar: user?.avatarUrl || null,
     // Sharing fields - TODO: implement proper sharing logic
-    individual_permissions: undefined,
+    individual_permissions: [],
     publicly_accessible: chat.publiclyAccessible || false,
-    public_expiry_date: chat.publicExpiryDate || undefined,
-    public_enabled_by: chat.publiclyEnabledBy || undefined,
-    public_password: undefined, // Don't expose password
+    public_expiry_date: chat.publicExpiryDate || null,
+    public_enabled_by: chat.publiclyEnabledBy || null,
+    public_password: null, // Don't expose password
     permission: 'owner', // TODO: Implement proper permission checking
+    workspace_sharing: 'full_access',
+    workspace_member_count: 0,
   };
 }
 
@@ -199,6 +202,7 @@ export async function handleExistingChat(
   chatId: string,
   messageId: string,
   prompt: string | undefined,
+  messageAnalysisMode: MessageAnalysisMode | undefined,
   user: User,
   redoFromMessageId?: string
 ): Promise<{
@@ -255,6 +259,7 @@ export async function handleExistingChat(
       ? createMessage({
           chatId,
           content: prompt,
+          messageAnalysisMode: messageAnalysisMode,
           userId: user.id,
           messageId,
         })
@@ -287,12 +292,14 @@ export async function handleNewChat({
   title,
   messageId,
   prompt,
+  messageAnalysisMode,
   user,
   organizationId,
 }: {
   title: string;
   messageId: string;
   prompt: string | undefined;
+  messageAnalysisMode: MessageAnalysisMode | undefined;
   user: User;
   organizationId: string;
 }): Promise<{
@@ -327,6 +334,7 @@ export async function handleNewChat({
           chatId: newChat.id,
           createdBy: user.id,
           requestMessage: prompt,
+          messageAnalysisMode: messageAnalysisMode,
           title: prompt,
           isCompleted: false,
           responseMessages: [],
@@ -487,6 +495,7 @@ export async function handleAssetChatWithPrompt(
   assetId: string,
   chatAssetType: ChatAssetType,
   prompt: string,
+  messageAnalysisMode: MessageAnalysisMode | undefined,
   user: User,
   chat: ChatWithMessages
 ): Promise<ChatWithMessages> {
@@ -609,6 +618,7 @@ export async function handleAssetChatWithPrompt(
       messageId: userMessageId,
       chatId,
       content: prompt,
+      messageAnalysisMode: messageAnalysisMode,
       userId: user.id,
     });
 
@@ -662,6 +672,7 @@ export async function handleAssetChatWithPrompt(
       chatId,
       content: prompt,
       userId: user.id,
+      messageAnalysisMode,
     });
 
     const chatMessage: ChatMessage = {

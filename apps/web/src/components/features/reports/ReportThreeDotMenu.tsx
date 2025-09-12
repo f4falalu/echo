@@ -1,6 +1,5 @@
 import type { GetReportResponse } from '@buster/server-shared/reports';
 import type { VerificationStatus } from '@buster/server-shared/share';
-import { useNavigate } from '@tanstack/react-router';
 import React, { useCallback, useMemo } from 'react';
 import {
   useAddReportToCollection,
@@ -25,6 +24,7 @@ import {
 import { Dots, History, PenSparkle, ShareRight, Star } from '@/components/ui/icons';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import {
+  ArrowUpRight,
   Download4,
   DuplicatePlus,
   Redo,
@@ -39,17 +39,19 @@ import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useIsMac } from '@/hooks/usePlatform';
 import { useEditorContext } from '@/layouts/AssetContainer/ReportAssetContainer';
 import { canEdit, getIsEffectiveOwner } from '@/lib/share';
+import { useShareMenuSelectMenu } from './threeDotMenuHooks';
 
 export const ReportThreeDotMenu = React.memo(
   ({
     reportId,
-    reportVersionNumber,
     isViewingOldVersion,
   }: {
     reportId: string;
     reportVersionNumber: number | undefined;
     isViewingOldVersion: boolean;
   }) => {
+    const chatId = useGetChatId();
+    const openReport = useOpenReport({ reportId });
     const editWithAI = useEditWithAI({ reportId });
     const shareMenu = useShareMenuSelectMenu({ reportId });
     const saveToLibrary = useSaveToLibrary({ reportId });
@@ -72,6 +74,7 @@ export const ReportThreeDotMenu = React.memo(
 
     const items: IDropdownItems = useMemo(() => {
       return [
+        ...(chatId ? [openReport, { type: 'divider' }] : []),
         editWithAI,
         { type: 'divider' },
         isEffectiveOwner && !isViewingOldVersion && shareMenu,
@@ -86,19 +89,22 @@ export const ReportThreeDotMenu = React.memo(
         isEditor && refreshReportItem,
         duplicateReport,
         downloadPdfItem,
-      ];
+      ].filter(Boolean) as IDropdownItems;
     }, [
-      reportId,
-      reportVersionNumber,
+      chatId,
+      openReport,
       editWithAI,
+      isEffectiveOwner,
+      isViewingOldVersion,
       shareMenu,
-      favoriteItem,
-      versionHistory,
-      // verificationItem,
-      refreshReportItem,
-      // duplicateReportItem,
-      downloadPdfItem,
       saveToLibrary,
+      favoriteItem,
+      undoRedo,
+      versionHistory,
+      isEditor,
+      refreshReportItem,
+      duplicateReport,
+      downloadPdfItem,
     ]);
 
     return (
@@ -130,35 +136,6 @@ const useEditWithAI = ({ reportId }: { reportId: string }): IDropdownItem => {
         loading,
       }),
     [reportId, onCreateFileClick, loading]
-  );
-};
-
-const useShareMenuSelectMenu = ({ reportId }: { reportId: string }) => {
-  const { data: shareAssetConfig } = useGetReport(
-    { id: reportId },
-    { select: getShareAssetConfig }
-  );
-  const isEffectiveOwner = getIsEffectiveOwner(shareAssetConfig?.permission);
-
-  return useMemo(
-    () => ({
-      label: 'Share',
-      value: 'share-report',
-      icon: <ShareRight />,
-      disabled: !isEffectiveOwner,
-      items:
-        isEffectiveOwner && shareAssetConfig
-          ? [
-              <ShareMenuContent
-                key={reportId}
-                shareAssetConfig={shareAssetConfig}
-                assetId={reportId}
-                assetType={'report'}
-              />,
-            ]
-          : undefined,
-    }),
-    [reportId, shareAssetConfig, isEffectiveOwner]
   );
 };
 
@@ -434,6 +411,25 @@ const useDuplicateReportSelectMenu = ({ reportId }: { reportId: string }): IDrop
         console.log('Duplicate report');
       },
     }),
+    [reportId]
+  );
+};
+
+const useOpenReport = ({ reportId }: { reportId: string }): IDropdownItem => {
+  return useMemo(
+    () =>
+      createDropdownItem({
+        label: 'Open report',
+        value: 'open-report',
+        icon: <ArrowUpRight />,
+        linkIcon: 'none',
+        link: {
+          to: '/app/reports/$reportId',
+          params: {
+            reportId,
+          },
+        },
+      }),
     [reportId]
   );
 };

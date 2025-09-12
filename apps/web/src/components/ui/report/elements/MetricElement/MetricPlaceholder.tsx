@@ -112,7 +112,7 @@ const MemoizedAddMetricModal = React.memo(
         return;
       }
 
-      plugin.api.metric.updateMetric(selectedMetricId, { at });
+      plugin.api.metric.updateMetric(selectedMetricId, undefined, { at });
 
       // Close the modal after successful selection
       onCloseAddMetricModal();

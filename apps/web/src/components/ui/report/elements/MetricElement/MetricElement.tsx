@@ -53,7 +53,7 @@ export const MetricElement = withHOC(
 
     return (
       <PlateElement
-        className="rounded-md mt-2.5 mb-4.5"
+        className="rounded mt-2.5 mb-4.5"
         attributes={{
           ...attributes,
           'data-plate-open-context-menu': true,
@@ -99,7 +99,7 @@ const MetricResizeContainer: React.FC<PropsWithChildren> = ({ children }) => {
       ref={ref}
       contentEditable={false}
       className={cn(
-        'group relative m-0 w-full cursor-default transition-all',
+        'relative m-0 w-full cursor-default transition-all',
         isSelected && 'bg-item-hover/10 rounded'
       )}
     >

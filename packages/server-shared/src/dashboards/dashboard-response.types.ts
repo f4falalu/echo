@@ -1,19 +1,25 @@
-import type { Metric } from '../metrics';
-import type { ShareConfig, ShareRole } from '../share';
-import type { Dashboard } from './dashboard.types';
+import { z } from 'zod';
+import { MetricSchema } from '../metrics';
+import { ShareConfigSchema, ShareRoleSchema } from '../share';
+import { DashboardSchema } from './dashboard.types';
 
-export type GetDashboardResponse = {
-  access: ShareRole;
-  metrics: Record<string, Metric>;
-  dashboard: Dashboard;
-  permission: ShareRole;
-  public_password: string | null;
-  collections: {
-    id: string;
-    name: string;
-  }[];
-  versions: {
-    version_number: number;
-    updated_at: string;
-  }[];
-} & ShareConfig;
+export const GetDashboardResponseSchema = z.object({
+  access: ShareRoleSchema,
+  metrics: z.record(z.string(), MetricSchema),
+  dashboard: DashboardSchema,
+  collections: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+    })
+  ),
+  versions: z.array(
+    z.object({
+      version_number: z.number(),
+      updated_at: z.string(),
+    })
+  ),
+  ...ShareConfigSchema.shape,
+});
+
+export type GetDashboardResponse = z.infer<typeof GetDashboardResponseSchema>;

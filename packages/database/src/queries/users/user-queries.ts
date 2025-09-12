@@ -1,15 +1,47 @@
 import { and, eq, isNull } from 'drizzle-orm';
+import { z } from 'zod';
 import { db } from '../../connection';
 import { users, usersToOrganizations } from '../../schema';
+import { UserPersonalizationConfigSchema } from '../../schema-types';
 import type { User } from './user';
 
 // Use the full User type from the schema internally
 type FullUser = typeof users.$inferSelect;
 
+export const UserInfoByIdResponseSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().nullable(),
+  email: z.string().email(),
+  role: z.string(),
+  status: z.string(),
+  organizationId: z.string().uuid(),
+  personalizationEnabled: z.boolean(),
+  personalizationConfig: UserPersonalizationConfigSchema,
+});
+
+export const UpdateUserInputSchema = z.object({
+  userId: z.string().uuid(),
+  name: z.string().optional(),
+  personalizationEnabled: z.boolean().optional(),
+  personalizationConfig: UserPersonalizationConfigSchema.optional(),
+});
+
+export const UpdateUserResponseSchema = z.object({
+  userId: z.string().uuid(),
+  name: z.string().optional(),
+  personalizationEnabled: z.boolean().optional(),
+  personalizationConfig: UserPersonalizationConfigSchema.optional(),
+  updatedAt: z.string().optional(),
+});
+
+export type UpdateUserInput = z.infer<typeof UpdateUserInputSchema>;
+export type UpdateUserResponse = z.infer<typeof UpdateUserResponseSchema>;
+export type UserInfoByIdResponse = z.infer<typeof UserInfoByIdResponseSchema>;
+
 /**
  * Converts a full user to the public User type
  */
-function toPublicUser(user: FullUser): User {
+function toPublicUser(user: Pick<FullUser, 'id' | 'name' | 'email' | 'avatarUrl'>): User {
   return {
     id: user.id,
     name: user.name,
@@ -141,4 +173,81 @@ export async function addUserToOrganization(
     console.error('Error adding user to organization:', error);
     throw error;
   }
+}
+
+/**
+ * Updates user information
+ * @param input The user update parameters
+ * @returns The updated user information
+ */
+export async function updateUser(input: UpdateUserInput): Promise<UpdateUserResponse> {
+  const validated = UpdateUserInputSchema.parse(input);
+
+  const updateData: Pick<
+    UpdateUserResponse,
+    'name' | 'personalizationEnabled' | 'personalizationConfig' | 'updatedAt'
+  > = {};
+
+  if (validated.name !== undefined) {
+    updateData.name = validated.name;
+  }
+
+  if (validated.personalizationEnabled !== undefined) {
+    updateData.personalizationEnabled = validated.personalizationEnabled;
+  }
+
+  if (validated.personalizationConfig !== undefined) {
+    updateData.personalizationConfig = validated.personalizationConfig;
+  }
+
+  updateData.updatedAt = new Date().toISOString();
+
+  const result = await db
+    .update(users)
+    .set(updateData)
+    .where(eq(users.id, validated.userId))
+    .returning();
+
+  if (result.length === 0 || !result[0]) {
+    throw new Error(`User not found: ${validated.userId}`);
+  }
+  const updatedUser = result[0];
+
+  return {
+    userId: updatedUser.id,
+    name: updatedUser.name || undefined,
+    personalizationEnabled: updatedUser.personalizationEnabled,
+    personalizationConfig: updatedUser.personalizationConfig,
+    updatedAt: updatedUser.updatedAt,
+  };
+}
+
+/**
+ * Get comprehensive user information including datasets and permissions
+ * This function replaces the complex Rust implementation with TypeScript
+ */
+export async function getUserInformation(userId: string): Promise<UserInfoByIdResponse> {
+  // Get user basic info and organization relationship
+  const userInfo = await db
+    .select({
+      id: users.id,
+      email: users.email,
+      name: users.name,
+      personalizationEnabled: users.personalizationEnabled,
+      personalizationConfig: users.personalizationConfig,
+      role: usersToOrganizations.role,
+      status: usersToOrganizations.status,
+      organizationId: usersToOrganizations.organizationId,
+    })
+    .from(users)
+    .innerJoin(usersToOrganizations, eq(users.id, usersToOrganizations.userId))
+    .where(and(eq(users.id, userId), isNull(usersToOrganizations.deletedAt)))
+    .limit(1);
+
+  if (userInfo.length === 0 || !userInfo[0]) {
+    throw new Error(`User not found: ${userId}`);
+  }
+
+  const user = UserInfoByIdResponseSchema.parse(userInfo[0]);
+  return user;
 }

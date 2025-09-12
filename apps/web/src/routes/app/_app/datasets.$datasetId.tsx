@@ -1,6 +1,7 @@
 import { createFileRoute, matchByPath, Outlet, redirect } from '@tanstack/react-router';
 import { prefetchGetDatasetMetadata } from '@/api/buster_rest/datasets/queryRequests';
 import { DatasetsIndividualLayout } from '@/controllers/DatasetsControllers/DatasetsIndividualLayout/DatasetsLayout';
+import { preventBrowserCacheHeaders } from '@/middleware/shared-headers';
 
 export const Route = createFileRoute('/app/_app/datasets/$datasetId')({
   beforeLoad: async ({ params, location }) => {
@@ -13,6 +14,7 @@ export const Route = createFileRoute('/app/_app/datasets/$datasetId')({
         to: '/app/datasets/$datasetId/overview',
         params,
         replace: true,
+        statusCode: 307,
       });
     }
   },
@@ -30,6 +32,7 @@ export const Route = createFileRoute('/app/_app/datasets/$datasetId')({
       { name: 'description', content: 'Explore and analyze your dataset' },
       { name: 'og:title', content: 'Dataset' },
       { name: 'og:description', content: 'Explore and analyze your dataset' },
+      ...preventBrowserCacheHeaders,
     ],
   }),
   component: RouteComponent,

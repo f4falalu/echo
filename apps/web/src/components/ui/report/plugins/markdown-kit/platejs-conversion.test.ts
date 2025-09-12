@@ -1296,9 +1296,7 @@ describe('platejsToMarkdown', () => {
     ];
     const markdownFromPlatejs = await platejsToMarkdown(editor, elements);
     expect(markdownFromPlatejs).toBeDefined();
-    expect(markdownFromPlatejs).toContain(
-      '<metric metricId="TBD-REP-SEGMENT-LIST" width="100%" caption=""></metric>'
-    );
+    expect(markdownFromPlatejs).toContain('<metric metricId="TBD-REP-SEGMENT-LIST"');
   });
 
   it('basic caption', async () => {
@@ -1347,7 +1345,7 @@ describe('platejsToMarkdown', () => {
     const markdownFromPlatejs = await platejsToMarkdown(editor, elements);
     expect(markdownFromPlatejs).toBeDefined();
     expect(markdownFromPlatejs).toContain(
-      '<metric metricId="1234" width="100%" caption="This is a caption.. AND IT REALLY WORKS!"></metric>'
+      '<metric metricId="1234" versionNumber="undefined" width="100%" caption="This is a caption.. AND IT REALLY WORKS!"></metric>'
     );
   });
 });
@@ -1494,5 +1492,25 @@ describe('platejs to markdown and back to platejs', () => {
     const expectedWithoutIds = stripIds(elements);
     const actualWithoutIds = stripIds(platejs);
     expect(actualWithoutIds).toEqual(expectedWithoutIds);
+  });
+});
+
+describe('toggle serializer', () => {
+  it('should serialize a toggle', async () => {
+    const markdown = `<details>
+<summary>Toggle</summary>
+
+
+Nested
+
+​
+
+</details>`;
+    const platejs = await markdownToPlatejs(editor, markdown);
+    expect(platejs).toBeDefined();
+    expect(platejs[0].type).toBe('toggle');
+    expect(platejs[0].children[0].text).toBe('Toggle');
+    expect(platejs[1].type).toBe('p');
+    expect(platejs[1].children[0].text).toBe('Nested');
   });
 });

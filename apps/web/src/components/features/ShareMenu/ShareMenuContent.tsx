@@ -25,27 +25,46 @@ export const ShareMenuContent: React.FC<{
 
   const onCopyLink = useMemoizedFn(() => {
     let url = '';
-    if (assetType === 'metric' && assetId) {
+    if (!assetId) {
+      return;
+    }
+    if (assetType === 'metric') {
       url = buildLocation({
         to: '/app/metrics/$metricId/chart',
         params: {
           metricId: assetId,
         },
       }).href;
-    } else if (assetType === 'dashboard' && assetId) {
+    } else if (assetType === 'dashboard') {
       url = buildLocation({
         to: '/app/dashboards/$dashboardId',
         params: {
           dashboardId: assetId,
         },
       }).href;
-    } else if (assetType === 'collection' && assetId) {
+    } else if (assetType === 'collection') {
       url = buildLocation({
         to: '/app/collections/$collectionId',
         params: {
           collectionId: assetId,
         },
       }).href;
+    } else if (assetType === 'report') {
+      url = buildLocation({
+        to: '/app/reports/$reportId',
+        params: {
+          reportId: assetId,
+        },
+      }).href;
+    } else if (assetType === 'chat') {
+      url = buildLocation({
+        to: '/app/chats/$chatId',
+        params: {
+          chatId: assetId,
+        },
+      }).href;
+    } else {
+      const _exhaustiveCheck: never = assetType;
     }
     const urlWithDomain = window.location.origin + url;
     navigator.clipboard.writeText(urlWithDomain);

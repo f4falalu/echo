@@ -6,7 +6,7 @@ import {
 } from '@platejs/caption/react';
 import type { VariantProps } from 'class-variance-authority';
 import { cva } from 'class-variance-authority';
-import type { Editor, TElement } from 'platejs';
+import type { TElement } from 'platejs';
 import type * as React from 'react';
 import { Button } from '@/components/ui/buttons';
 import { cn } from '@/lib/utils';

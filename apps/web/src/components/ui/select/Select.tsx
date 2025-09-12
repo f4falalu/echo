@@ -464,7 +464,7 @@ function SelectComponent<T = string>({
             className={cn(
               'focus-visible:outline-none disabled:cursor-not-allowed transition-all duration-300 disabled:opacity-50',
               disabled && 'bg-disabled text-gray-light',
-              'field-sizing-content',
+              'w-full',
               type === 'input' ? 'cursor-text' : 'cursor-pointer',
               inputClassName
             )}

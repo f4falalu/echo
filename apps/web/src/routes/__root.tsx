@@ -1,5 +1,7 @@
-import { createRootRouteWithContext, HeadContent, Link, Scripts } from '@tanstack/react-router';
+import { createRootRouteWithContext, HeadContent, Scripts } from '@tanstack/react-router';
+import { ErrorBoundary } from 'react-error-boundary';
 import { RootProviders } from '@/context/Providers';
+import { preventBrowserCacheHeaders } from '@/middleware/shared-headers';
 import shareImage from '../assets/png/default_preview.png';
 import favicon from '../assets/png/favicon.ico';
 import { TanstackDevtools } from '../integrations/tanstack-dev-tools/tanstack-devtools';
@@ -12,15 +14,25 @@ export const Route = createRootRouteWithContext<AppRouterContext>()({
     meta: [
       { charSet: 'utf-8' },
       { title: 'Buster' },
-      { name: 'viewport', content: 'width=1024, initial-scale=1, user-scalable=no' },
-      { name: 'description', content: 'Buster.so is the open source, AI-native data platform.' },
+      {
+        name: 'viewport',
+        content: 'width=1024, initial-scale=1, user-scalable=no',
+      },
+      {
+        name: 'description',
+        content: 'Buster.so is the open source, AI-native data platform.',
+      },
       { name: 'og:image', content: shareImage },
       { name: 'og:title', content: 'Buster' },
-      { name: 'og:description', content: 'Buster.so is the open source, AI-native data platform.' },
+      {
+        name: 'og:description',
+        content: 'Buster.so is the open source, AI-native data platform.',
+      },
       { name: 'og:url', content: 'https://buster.so' },
       { name: 'og:type', content: 'website' },
       { name: 'og:locale', content: 'en_US' },
       { name: 'og:site_name', content: 'Buster' },
+      ...preventBrowserCacheHeaders,
     ],
     links: [
       { rel: 'stylesheet', href: appCss },
@@ -33,7 +45,6 @@ export const Route = createRootRouteWithContext<AppRouterContext>()({
     const isEmbed = matches.some((match) => match.pathname.startsWith('/embed/'));
     return createSecurityHeaders(isEmbed);
   },
-  staleTime: 30 * 60 * 1000,
   shellComponent: RootDocument,
 });
 
@@ -45,6 +56,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <RootProviders>{children}</RootProviders>
+
         <TanstackDevtools />
         <Scripts />
       </body>

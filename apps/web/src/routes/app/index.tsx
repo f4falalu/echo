@@ -1,9 +1,12 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
+import { preventBrowserCacheHeaders } from '@/middleware/shared-headers';
 
 export const Route = createFileRoute('/app/')({
+  head: () => ({
+    meta: [...preventBrowserCacheHeaders],
+  }),
   beforeLoad: async () => {
-    console.log('before load redirecting to app home');
-    throw redirect({ to: '/app/home', replace: true });
+    throw redirect({ to: '/app/home', replace: true, statusCode: 307 });
   },
   component: () => null,
 });

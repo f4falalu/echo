@@ -1,8 +1,8 @@
 import React from 'react';
+import { ChatHeaderOptions } from '@/components/features/chat/ChatHeaderOptions';
+import { ChatHeaderTitle } from '@/components/features/chat/ChatHeaderTitle';
 import { useGetActiveChatTitle, useIsStreamingMessage } from '@/context/Chats';
 import { useGetChatId } from '@/context/Chats/useGetChatId';
-import { ChatHeaderOptions } from './ChatHeaderOptions';
-import { ChatHeaderTitle } from './ChatHeaderTitle';
 
 export const ChatHeader: React.FC = React.memo(() => {
   const chatId = useGetChatId();

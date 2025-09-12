@@ -3,13 +3,9 @@ import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { streamSSE } from 'hono/streaming';
 import { createApiKeyAuthMiddleware } from '../../../../middleware/api-key-auth';
-import { corsMiddleware } from '../../../../middleware/cors';
 import { publicChatHandler } from './handler';
 
 const app = new Hono();
-
-// Apply CORS middleware to all routes
-app.use('*', corsMiddleware);
 
 /**
  * POST /api/v2/public/chats

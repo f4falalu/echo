@@ -38,7 +38,7 @@ export const useStopChat = () => {
   });
 };
 
-export const useStartChatFromAsset = () => {
+export const useStartChatFromAssetBase = () => {
   const queryClient = useQueryClient();
 
   const mutationFn = async (params: Parameters<typeof startChatFromAsset>[0]) => {

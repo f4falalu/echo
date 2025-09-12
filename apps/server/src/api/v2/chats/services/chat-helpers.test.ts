@@ -74,6 +74,13 @@ describe('chat-helpers', () => {
     created_by_name: 'Test User',
     created_by_avatar: null,
     publicly_accessible: false,
+    public_expiry_date: null,
+    public_enabled_by: null,
+    public_password: null,
+    permission: 'owner',
+    workspace_sharing: 'full_access',
+    workspace_member_count: 0,
+    individual_permissions: [],
   });
 
   const mockMetricAssetMessage: Message = {
@@ -343,6 +350,7 @@ describe('chat-helpers', () => {
         'asset-123',
         'metric',
         'Tell me about this metric',
+        'auto',
         mockUser,
         createMockChat()
       );
@@ -361,6 +369,7 @@ describe('chat-helpers', () => {
         chatId: 'chat-123',
         content: 'Tell me about this metric',
         userId: 'user-123',
+        messageAnalysisMode: 'auto',
       });
 
       // Verify both messages were added to chat in correct order
@@ -409,6 +418,7 @@ describe('chat-helpers', () => {
         'dashboard-123',
         'dashboard',
         'Explain this dashboard',
+        'auto',
         mockUser,
         createMockChat()
       );
@@ -441,6 +451,7 @@ describe('chat-helpers', () => {
         'asset-123',
         'metric',
         'Tell me about this metric',
+        'auto',
         mockUser,
         createMockChat()
       );
@@ -475,6 +486,7 @@ describe('chat-helpers', () => {
         'asset-123',
         'metric',
         'Tell me about this metric',
+        'auto',
         mockUser,
         createMockChat()
       );
@@ -515,6 +527,7 @@ describe('chat-helpers', () => {
         'asset-123',
         'metric',
         'Tell me about this metric',
+        'auto',
         mockUser,
         chatWithExistingMessages
       );

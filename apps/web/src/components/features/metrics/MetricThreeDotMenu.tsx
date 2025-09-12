@@ -20,6 +20,8 @@ import { useStatusDropdownContent } from '@/components/features/metrics/StatusBa
 import {
   useDownloadMetricDataCSV,
   useDownloadPNGSelectMenu,
+  useEditMetricWithAI,
+  useOpenChartItem,
 } from '@/components/features/metrics/threeDotMenuHooks';
 import { getShareAssetConfig } from '@/components/features/ShareMenu/helpers';
 import { ShareMenuContent } from '@/components/features/ShareMenu/ShareMenuContent';
@@ -31,15 +33,7 @@ import {
   type IDropdownItem,
   type IDropdownItems,
 } from '@/components/ui/dropdown';
-import {
-  ArrowUpRight,
-  Dots,
-  ShareRight,
-  SquareChartPen,
-  SquareCode,
-  Table,
-  Trash,
-} from '@/components/ui/icons';
+import { Dots, ShareRight, SquareChartPen, SquareCode, Table, Trash } from '@/components/ui/icons';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useIsChatMode } from '@/context/Chats/useMode';
 import { useMetricEditToggle } from '@/layouts/AssetContainer/MetricAssetContainer';
@@ -63,7 +57,7 @@ export const MetricThreeDotMenuDropdown = React.memo(
   ({ metricId, isViewingOldVersion, versionNumber, children }: MetricThreeDotMenuDropdownProps) => {
     const isChatMode = useIsChatMode();
     const { data: permission } = useGetMetric({ id: metricId }, { select: (x) => x.permission });
-    const openFullScreenMetric = useOpenFullScreenMetric({ metricId, versionNumber });
+    const openFullScreenMetric = useOpenChartItem({ metricId, metricVersionNumber: versionNumber });
     const dashboardSelectMenu = useDashboardSelectMenu({ metricId });
     const versionHistoryItems = useMetricVersionHistorySelectMenu({ metricId });
     const collectionSelectMenu = useCollectionSelectMenu({ metricId });
@@ -85,6 +79,7 @@ export const MetricThreeDotMenuDropdown = React.memo(
       metricId,
       metricVersionNumber: versionNumber,
     });
+    const editWithAI = useEditMetricWithAI({ metricId });
     const shareMenu = useShareMenuSelectMenu({ metricId });
     const drilldownItem = useMetricDrilldownItem({ metricId });
 
@@ -95,25 +90,26 @@ export const MetricThreeDotMenuDropdown = React.memo(
     const items: IDropdownItems = useMemo(
       () =>
         [
-          isChatMode && openFullScreenMetric,
-          // drilldownItem,
-          isOwnerEffective && !isViewingOldVersion && shareMenu,
-          isEditor && !isViewingOldVersion && statusSelectMenu,
+          ...(isChatMode ? [openFullScreenMetric, { type: 'divider' }] : []),
+          editWithAI,
           { type: 'divider' },
-          !isViewingOldVersion && dashboardSelectMenu,
+          isOwnerEffective && !isViewingOldVersion && shareMenu,
           !isViewingOldVersion && collectionSelectMenu,
           !isViewingOldVersion && favoriteMetric,
           { type: 'divider' },
           isEditor && !isViewingOldVersion && editChartMenu,
           !isViewingOldVersion && resultsViewMenu,
           !isViewingOldVersion && sqlEditorMenu,
+          { type: 'divider' },
+          !isViewingOldVersion && dashboardSelectMenu,
           isEditor && versionHistoryItems,
+          isEditor && !isViewingOldVersion && statusSelectMenu,
           { type: 'divider' },
           downloadCSVMenu,
           downloadPNGMenu,
-          { type: 'divider' },
-          isEditor && !isViewingOldVersion && renameMetricMenu,
-          isOwner && !isViewingOldVersion && deleteMetricMenu,
+          ...(isOwner && !isViewingOldVersion
+            ? [{ type: 'divider' }, renameMetricMenu, deleteMetricMenu]
+            : []),
         ].filter(Boolean) as IDropdownItems,
       [
         isChatMode,
@@ -389,33 +385,5 @@ export const useShareMenuSelectMenu = ({ metricId }: { metricId: string }) => {
           : undefined,
     }),
     [metricId, shareAssetConfig, isEffectiveOwner]
-  );
-};
-
-const useOpenFullScreenMetric = ({
-  metricId,
-  versionNumber,
-}: {
-  metricId: string;
-  versionNumber: number | undefined;
-}) => {
-  return useMemo(
-    () =>
-      createDropdownItem({
-        label: 'Open chart',
-        value: 'open-in-full-screen',
-        icon: <ArrowUpRight />,
-        linkIcon: 'none',
-        link: {
-          to: '/app/metrics/$metricId',
-          params: {
-            metricId,
-          },
-          search: {
-            metric_version_number: versionNumber,
-          },
-        },
-      }),
-    [metricId, versionNumber]
   );
 };

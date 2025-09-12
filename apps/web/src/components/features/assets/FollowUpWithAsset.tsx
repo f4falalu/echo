@@ -1,7 +1,7 @@
 import type { ShareAssetType } from '@buster/server-shared/share';
 import { useNavigate } from '@tanstack/react-router';
 import React from 'react';
-import { useStartChatFromAsset } from '@/api/buster_rest/chats';
+import { useStartChatFromAssetBase } from '@/api/buster_rest/chats';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { assetParamsToRoute } from '../../../lib/assets/assetParamsToRoute';
 import { InputCard } from '../../ui/card/InputCard';
@@ -31,7 +31,7 @@ export const FollowUpWithAssetContent: React.FC<{
     buttonText = 'Apply custom filter',
   }) => {
     const navigate = useNavigate();
-    const { mutateAsync: startChatFromAsset, isPending } = useStartChatFromAsset();
+    const { mutateAsync: startChatFromAsset, isPending } = useStartChatFromAssetBase();
 
     const transformPrompt = useMemoizedFn((userPrompt: string): string => {
       if (assetType === 'dashboard') {

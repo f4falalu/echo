@@ -19,7 +19,12 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
-import type { OrganizationColorPalettes } from './schema-types';
+import type {
+  OrganizationColorPalettes,
+  UserPersonalizationConfigType,
+  UserSuggestedPromptsType,
+} from './schema-types';
+import { DEFAULT_USER_SUGGESTED_PROMPTS } from './schema-types/user';
 
 export const assetPermissionRoleEnum = pgEnum('asset_permission_role_enum', [
   'owner',
@@ -130,6 +135,12 @@ export const workspaceSharingEnum = pgEnum('workspace_sharing_enum', [
 ]);
 
 export const docsTypeEnum = pgEnum('docs_type_enum', ['analyst', 'normal']);
+
+export const messageAnalysisModeEnum = pgEnum('message_analysis_mode_enum', [
+  'auto',
+  'standard',
+  'investigation',
+]);
 
 export const apiKeys = pgTable(
   'api_keys',
@@ -859,6 +870,15 @@ export const users = pgTable(
       .notNull(),
     attributes: jsonb().default({}).notNull(),
     avatarUrl: text('avatar_url'),
+    suggestedPrompts: jsonb('suggested_prompts')
+      .$type<UserSuggestedPromptsType>()
+      .default(DEFAULT_USER_SUGGESTED_PROMPTS)
+      .notNull(),
+    personalizationEnabled: boolean('personalization_enabled').default(false).notNull(),
+    personalizationConfig: jsonb('personalization_config')
+      .$type<UserPersonalizationConfigType>()
+      .default({})
+      .notNull(),
   },
   (table) => [unique('users_email_key').on(table.email)]
 );
@@ -869,6 +889,7 @@ export const messages = pgTable(
     id: uuid().defaultRandom().primaryKey().notNull(),
     requestMessage: text('request_message'),
     responseMessages: jsonb('response_messages').default([]).notNull(),
+    messageAnalysisMode: messageAnalysisModeEnum('message_analysis_mode').default('auto').notNull(),
     reasoning: jsonb().default([]).notNull(),
     title: text().notNull(),
     rawLlmMessages: jsonb('raw_llm_messages').default([]).notNull(),

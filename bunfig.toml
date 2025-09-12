@@ -1,0 +1,13 @@
+# Bun configuration file
+
+[test]
+preload = ["./packages/ai/src/types.d.ts"]
+
+# Configure loaders for different file types
+[loader]
+# Load .txt files as text content
+".txt" = "text"
+
+# Development path mappings - uncomment to use source files directly
+# [install.scopes]
+# "@buster/ai" = { "path" = "./packages/ai/src" }

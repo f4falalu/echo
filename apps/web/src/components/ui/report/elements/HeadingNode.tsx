@@ -7,7 +7,7 @@ const headingVariants = cva('relative mb-1', {
     variant: {
       h1: 'mt-8 mb-1.5 text-2xl font-semibold ',
       h2: 'mt-6 mb-1.5 text-xl font-semibold ',
-      h3: 'mt-5 mb-1 text-lg font-semibold ',
+      h3: 'mt-5 mb-1.5 text-lg font-semibold ',
       h4: 'mt-4 mb-1 text-base font-semibold ',
       h5: 'mt-4 mb-1 text-sm font-semibold ',
       h6: 'mt-4 mb-1 text-xs font-semibold ',

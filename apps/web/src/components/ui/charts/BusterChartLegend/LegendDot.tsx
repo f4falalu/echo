@@ -9,8 +9,8 @@ const itemVariants = cva(
   {
     variants: {
       size: {
-        sm: 'w-2 h-3',
-        default: 'w-4.5 h-3',
+        sm: 'w-2 h-4',
+        default: 'w-4.5 h-4',
       },
     },
   }
@@ -23,9 +23,9 @@ const dotVariants = cva('bg-border transition-colors duration-100', {
       default: '',
     },
     type: {
-      bar: 'w-4.5 h-3 rounded-sm',
+      bar: 'w-4.5 h-4 rounded-sm',
       line: 'w-4.5 h-1 rounded-sm',
-      scatter: 'w-3 h-3 rounded-full',
+      scatter: 'w-3 h-4 rounded-full',
     },
   },
 
@@ -98,12 +98,11 @@ export const LegendItemDot: React.FC<
         >
           <div
             data-testid="focus-target"
-            className="focus-item group-hover:bg-item-hover flex h-full w-full items-center justify-center rounded-sm"
+            className="focus-item group-hover:bg-item-active flex h-full w-full items-center justify-center rounded-sm"
           >
             <div
               className={cn(
-                'flex h-full w-full items-center justify-center overflow-hidden',
-                size === 'sm' ? 'text2xs' : 'text2xs'
+                'flex h-full w-full items-center justify-center overflow-hidden text-[11px]'
               )}
             >
               <Target />

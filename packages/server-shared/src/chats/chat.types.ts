@@ -1,10 +1,14 @@
 import { z } from 'zod';
 import { AssetTypeSchema } from '../assets/asset-types.types';
-import { AssetPermissionRoleSchema, ShareIndividualSchema } from '../share';
+import type { AssetPermissionRoleSchema } from '../share';
+import { ShareConfigSchema } from '../share';
 import { ChatMessageSchema } from './chat-message.types';
 
 // Asset Permission Role enum (matching database enum)
 export const ChatAssetTypeSchema = AssetTypeSchema.exclude(['chat', 'collection']);
+
+// Message Analysis Mode enum (matching database enum)
+export const MessageAnalysisModeSchema = z.enum(['auto', 'standard', 'investigation']);
 
 // Main ChatWithMessages schema
 export const ChatWithMessagesSchema = z.object({
@@ -19,13 +23,7 @@ export const ChatWithMessagesSchema = z.object({
   created_by_id: z.string(),
   created_by_name: z.string(),
   created_by_avatar: z.string().nullable(),
-  // Sharing fields
-  individual_permissions: z.array(ShareIndividualSchema).optional(),
-  publicly_accessible: z.boolean(),
-  public_expiry_date: z.string().datetime().optional(),
-  public_enabled_by: z.string().optional(),
-  public_password: z.string().optional(),
-  permission: AssetPermissionRoleSchema.optional(),
+  ...ShareConfigSchema.shape,
 });
 
 export const ChatCreateRequestSchema = z
@@ -33,6 +31,7 @@ export const ChatCreateRequestSchema = z
     prompt: z.string().optional(),
     chat_id: z.string().optional(),
     message_id: z.string().optional(),
+    message_analysis_mode: MessageAnalysisModeSchema.optional(),
     asset_id: z.string().optional(),
     asset_type: ChatAssetTypeSchema.optional(),
     // Legacy fields for backward compatibility
@@ -47,6 +46,7 @@ export const ChatCreateRequestSchema = z
 // Handler request schema (internal - without legacy fields)
 export const ChatCreateHandlerRequestSchema = z.object({
   prompt: z.string().optional(),
+  message_analysis_mode: MessageAnalysisModeSchema.optional(),
   chat_id: z.string().optional(),
   message_id: z.string().optional(),
   asset_id: z.string().optional(),
@@ -65,3 +65,4 @@ export type ChatCreateRequest = z.infer<typeof ChatCreateRequestSchema>;
 export type ChatCreateHandlerRequest = z.infer<typeof ChatCreateHandlerRequestSchema>;
 export type CancelChatParams = z.infer<typeof CancelChatParamsSchema>;
 export type ChatAssetType = z.infer<typeof ChatAssetTypeSchema>;
+export type MessageAnalysisMode = z.infer<typeof MessageAnalysisModeSchema>;

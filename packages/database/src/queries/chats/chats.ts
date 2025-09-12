@@ -3,6 +3,7 @@ import type { InferSelectModel } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
 import { chats, messages, userFavorites, users } from '../../schema';
+import { messageAnalysisModeEnum } from '../../schema';
 
 // Type inference from schema
 export type Chat = InferSelectModel<typeof chats>;
@@ -33,6 +34,7 @@ export const CreateMessageInputSchema = z.object({
   content: z.string(),
   userId: z.string().uuid(),
   messageId: z.string().uuid().optional(),
+  messageAnalysisMode: z.enum(messageAnalysisModeEnum.enumValues).optional(),
 });
 
 export type CreateChatInput = z.infer<typeof CreateChatInputSchema>;
@@ -134,6 +136,7 @@ export async function createMessage(input: CreateMessageInput): Promise<Message>
           chatId: validated.chatId,
           createdBy: validated.userId,
           requestMessage: validated.content,
+          messageAnalysisMode: validated.messageAnalysisMode,
           title: validated.content.substring(0, 255), // Ensure title fits in database
           isCompleted: false,
           // Add the user message as the first raw LLM entry

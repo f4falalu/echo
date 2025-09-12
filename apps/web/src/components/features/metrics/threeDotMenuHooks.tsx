@@ -10,6 +10,7 @@ import {
   type IDropdownItems,
 } from '@/components/ui/dropdown';
 import {
+  ArrowUpRight,
   Code,
   Download4,
   Edit,
@@ -21,6 +22,7 @@ import {
   Table,
 } from '@/components/ui/icons';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
+import { useStartChatFromAsset } from '@/context/BusterAssets/useStartChatFromAsset';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { ensureElementExists } from '@/lib/element';
 import { downloadElementToImage, exportJSONToCSV } from '@/lib/exportUtils';
@@ -237,7 +239,7 @@ export const useOpenChartItem = ({
   return createDropdownItem({
     value: 'open-chart',
     label: 'Open chart',
-    icon: <ASSET_ICONS.metrics />,
+    icon: <ArrowUpRight />,
     link: {
       to: '/app/metrics/$metricId/chart',
       params: {
@@ -247,8 +249,7 @@ export const useOpenChartItem = ({
         metric_version_number: metricVersionNumber,
       },
     },
-
-    linkIcon: 'arrow-external',
+    linkIcon: 'none',
   });
 };
 
@@ -305,4 +306,89 @@ export const useNavigatetoMetricItem = ({
       },
     ]);
   }, [metricId, metricVersionNumber]);
+};
+
+export const useNavigateToDashboardMetricItem = ({
+  metricId,
+  metricVersionNumber,
+  dashboardId,
+  dashboardVersionNumber,
+}: {
+  metricId: string;
+  metricVersionNumber: number | undefined;
+  dashboardId: string;
+  dashboardVersionNumber: number | undefined;
+}): IDropdownItem[] => {
+  const navigate = useNavigate();
+  return useMemo(() => {
+    return createDropdownItems([
+      {
+        value: 'edit-chart',
+        label: 'Edit chart',
+        icon: <SquareChartPen />,
+        link: {
+          to: '/app/dashboards/$dashboardId/metrics/$metricId/chart',
+          params: {
+            dashboardId,
+            metricId,
+          },
+          search: {
+            dashboard_version_number: dashboardVersionNumber,
+            metric_version_number: metricVersionNumber,
+          },
+        },
+      },
+      {
+        value: 'results-chart',
+        label: 'Results chart',
+        icon: <Table />,
+        link: {
+          to: '/app/dashboards/$dashboardId/metrics/$metricId/results',
+          params: {
+            dashboardId,
+            metricId,
+          },
+          search: {
+            dashboard_version_number: dashboardVersionNumber,
+            metric_version_number: metricVersionNumber,
+          },
+        },
+      },
+      {
+        value: 'sql-chart',
+        label: 'SQL chart',
+        icon: <Code />,
+        link: {
+          to: '/app/dashboards/$dashboardId/metrics/$metricId/sql',
+          params: {
+            metricId,
+            dashboardId,
+          },
+          search: {
+            dashboard_version_number: dashboardVersionNumber,
+            metric_version_number: metricVersionNumber,
+          },
+        },
+      },
+    ]);
+  }, [metricId, metricVersionNumber, dashboardId, dashboardVersionNumber]);
+};
+
+export const useEditMetricWithAI = ({ metricId }: { metricId: string }): IDropdownItem => {
+  const { onCreateFileClick, loading } = useStartChatFromAsset({
+    assetId: metricId,
+    assetType: 'metric',
+  });
+
+  return useMemo(
+    () =>
+      createDropdownItem({
+        label: 'Edit with AI',
+        value: 'edit-with-ai',
+        icon: <PenSparkle />,
+        onClick: onCreateFileClick,
+        loading,
+      }),
+    [metricId, onCreateFileClick, loading]
+  );
 };

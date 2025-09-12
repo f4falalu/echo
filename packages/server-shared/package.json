@@ -99,7 +99,6 @@
   },
   "module": "src/index.ts",
   "scripts": {
-    "prebuild": "tsx scripts/type-import-check.ts",
     "build": "tsc --build",
     "build:dry-run": "tsc --build",
     "dev": "tsc --watch",

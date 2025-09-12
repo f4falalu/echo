@@ -22,6 +22,12 @@ export type {
   ReasoingMessage_ThoughtFileType,
 } from './schemas/message-schemas';
 
+// Export schema-types to use across the codebase
+export type { UserSuggestedPromptsType, UserPersonalizationConfigType } from './schema-types';
+
+// Export default user suggested prompts
+export { DEFAULT_USER_SUGGESTED_PROMPTS } from './schema-types/user';
+
 // Export the schemas themselves (these are just objects, no side effects)
 export {
   StatusSchema,

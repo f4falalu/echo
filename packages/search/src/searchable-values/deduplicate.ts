@@ -1,9 +1,9 @@
 /**
  * DuckDB-based deduplication for searchable values
  * Uses functional composition and Zod validation
+ * DuckDB is lazy-loaded to avoid requiring it when not needed
  */
 
-import { type DuckDBConnection, DuckDBInstance } from '@duckdb/node-api';
 import { z } from 'zod';
 import {
   type DeduplicationResult,
@@ -56,6 +56,45 @@ export const formatSqlInClause = (values: string[]): string => {
 // DUCKDB CONNECTION MANAGEMENT
 // ============================================================================
 
+// Type definitions for lazy-loaded DuckDB module
+// These match the actual DuckDB API but avoid direct import
+interface DuckDBConnection {
+  run(sql: string): Promise<DuckDBResult>;
+  closeSync(): void;
+}
+
+interface DuckDBResult {
+  getRowObjectsJson(): Promise<unknown[]>;
+}
+
+interface DuckDBInstance {
+  connect(): Promise<DuckDBConnection>;
+}
+
+type DuckDBInstanceClass = {
+  create(dbPath: string, config?: Record<string, string>): Promise<DuckDBInstance>;
+};
+
+let DuckDBModule: typeof import('@duckdb/node-api') | null = null;
+
+/**
+ * Lazy load DuckDB module only when needed
+ * Throws an error if DuckDB is not installed (optional dependency)
+ */
+async function loadDuckDB(): Promise<typeof import('@duckdb/node-api')> {
+  if (!DuckDBModule) {
+    try {
+      DuckDBModule = await import('@duckdb/node-api');
+    } catch (_error) {
+      throw new Error(
+        'DuckDB is required for deduplication functionality but is not installed. ' +
+          'Please install @duckdb/node-api to use deduplication features.'
+      );
+    }
+  }
+  return DuckDBModule;
+}
+
 export interface DuckDBContext {
   conn: DuckDBConnection;
   dbPath?: string; // Store path for cleanup only if using disk
@@ -67,6 +106,11 @@ export interface DuckDBContext {
  */
 export const createConnection = async (useDisk = true): Promise<DuckDBContext> => {
   try {
+    // Lazy load DuckDB when first connection is created
+    const { DuckDBInstance: DuckDBInstanceClass } = (await loadDuckDB()) as {
+      DuckDBInstance: DuckDBInstanceClass;
+    };
+
     // Use disk storage for large datasets to avoid memory issues
     // The database file will be automatically cleaned up
     const dbPath = useDisk ? `/tmp/duckdb-dedupe-${Date.now()}.db` : ':memory:';
@@ -79,7 +123,7 @@ export const createConnection = async (useDisk = true): Promise<DuckDBContext> =
 
     // Create instance and get connection
     // Instance will be garbage collected after connection is created
-    const instance = await DuckDBInstance.create(dbPath, config);
+    const instance = await DuckDBInstanceClass.create(dbPath, config);
     const conn = await instance.connect();
 
     // Configure DuckDB for optimal performance with large datasets

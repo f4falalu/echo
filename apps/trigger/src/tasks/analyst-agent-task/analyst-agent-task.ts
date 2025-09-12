@@ -11,6 +11,7 @@ import {
   getOrganizationAnalystDoc,
   getOrganizationDataSource,
   getOrganizationDocs,
+  getUserPersonalization,
 } from '@buster/database';
 
 // Access control imports
@@ -306,6 +307,11 @@ export const analystAgentTask: ReturnType<
         }
       });
 
+      // Fetch user personalization config
+      const userPersonalizationConfigPromise = messageContextPromise.then((context) =>
+        getUserPersonalization(context.userId)
+      );
+
       // Fetch Braintrust metadata in parallel
       const braintrustMetadataPromise = getBraintrustMetadata({ messageId: payload.message_id });
 
@@ -328,6 +334,7 @@ export const analystAgentTask: ReturnType<
         braintrustMetadata,
         analystInstructions,
         organizationDocs,
+        userPersonalizationConfig,
       ] = await Promise.all([
         messageContextPromise,
         conversationHistoryPromise,
@@ -336,6 +343,7 @@ export const analystAgentTask: ReturnType<
         braintrustMetadataPromise,
         analystInstructionsPromise,
         organizationDocsPromise,
+        userPersonalizationConfigPromise,
       ]);
 
       const dataLoadEnd = Date.now();
@@ -378,6 +386,7 @@ export const analystAgentTask: ReturnType<
       const workflowInput: AnalystWorkflowInput = {
         messages: modelMessages,
         messageId: payload.message_id,
+        messageAnalysisMode: messageContext.messageAnalysisMode,
         chatId: messageContext.chatId,
         userId: messageContext.userId,
         organizationId: messageContext.organizationId,
@@ -386,6 +395,7 @@ export const analystAgentTask: ReturnType<
         datasets,
         analystInstructions: analystInstructions || undefined,
         organizationDocs,
+        userPersonalizationConfig,
       };
 
       logger.log('Workflow input prepared', {

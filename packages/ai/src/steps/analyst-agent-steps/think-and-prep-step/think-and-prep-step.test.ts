@@ -46,6 +46,7 @@ describe('runThinkAndPrepAgentStep', () => {
         dataSourceId: 'test-data-source-id',
         dataSourceSyntax: 'test-data-source-syntax',
         datasets: [],
+        userPersonalizationMessageContent: '',
       },
       streamOptions: {
         messages: [{ role: 'user', content: 'Test prompt' }],
@@ -85,6 +86,7 @@ describe('runThinkAndPrepAgentStep', () => {
           dataSourceId: 'test-data-source-id',
           dataSourceSyntax: 'test-data-source-syntax',
           datasets: [],
+          userPersonalizationMessageContent: '',
         },
         streamOptions: {
           messages: [{ role: 'user', content: 'Test prompt' }],
@@ -121,6 +123,7 @@ describe('runThinkAndPrepAgentStep', () => {
           dataSourceId: 'test-data-source-id',
           dataSourceSyntax: 'test-data-source-syntax',
           datasets: [],
+          userPersonalizationMessageContent: '',
         },
         streamOptions: {
           messages: [{ role: 'user', content: 'Test prompt' }],
@@ -173,6 +176,7 @@ describe('runThinkAndPrepAgentStep', () => {
         dataSourceId: 'test-data-source-id',
         dataSourceSyntax: 'test-data-source-syntax',
         datasets: [],
+        userPersonalizationMessageContent: '',
       },
       streamOptions: {
         messages: [{ role: 'user', content: 'Test prompt' }],
@@ -224,6 +228,7 @@ describe('runThinkAndPrepAgentStep', () => {
         dataSourceId: 'test-data-source-id',
         dataSourceSyntax: 'test-data-source-syntax',
         datasets: [],
+        userPersonalizationMessageContent: '',
       },
       streamOptions: {
         messages: [{ role: 'user', content: 'Test prompt' }],
@@ -257,6 +262,7 @@ describe('runThinkAndPrepAgentStep', () => {
           dataSourceId: 'test-data-source-id',
           dataSourceSyntax: 'test-data-source-syntax',
           datasets: [],
+          userPersonalizationMessageContent: '',
         },
         streamOptions: {
           messages: [{ role: 'user', content: 'Test prompt' }],

@@ -31,7 +31,7 @@ export function SlashInputElement(props: PlateElementProps<TSlashInputElement>) 
     <PlateElement
       {...props}
       as="div"
-      className="!absolute top-0 left-0 py-0 bg-item-select flex pr-1 pl-0 rounded -translate-y-0.5 -translate-x-0.5"
+      className="!absolute top-0 left-0 py-0 bg-item-select flex pr-1 pl-0 rounded translate-y-0 -translate-x-0.5"
       data-slate-value={element.value}
     >
       <InlineCombobox

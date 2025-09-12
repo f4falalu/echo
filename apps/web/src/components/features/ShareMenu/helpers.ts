@@ -2,10 +2,17 @@ import type { GetDashboardResponse } from '@buster/server-shared/dashboards';
 import type { GetMetricResponse } from '@buster/server-shared/metrics';
 import type { GetReportResponse } from '@buster/server-shared/reports';
 import type { ShareConfig } from '@buster/server-shared/share';
+import type { IBusterChat } from '@/api/asset_interfaces/chat';
 import type { BusterCollection } from '@/api/asset_interfaces/collection';
 
 export const getShareAssetConfig = (
-  message: GetMetricResponse | GetDashboardResponse | BusterCollection | GetReportResponse | null
+  message:
+    | GetMetricResponse
+    | GetDashboardResponse
+    | BusterCollection
+    | GetReportResponse
+    | IBusterChat
+    | null
 ): ShareConfig | null => {
   if (!message) return null;
 

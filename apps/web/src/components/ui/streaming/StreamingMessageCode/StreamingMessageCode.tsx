@@ -1,12 +1,12 @@
 import pluralize from 'pluralize';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Text } from '@/components/ui/typography';
 //THIS USED TO BE DYNAMIC...
 import { SyntaxHighlighter } from '@/components/ui/typography/SyntaxHighlight/SyntaxHighlighter';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { Button } from '../../buttons';
 import { FileCard } from '../../card/FileCard';
-import { Copy2 } from '../../icons';
+import { Check, Copy2 } from '../../icons';
 
 type LineSegment = {
   type: 'text' | 'hidden';
@@ -25,10 +25,19 @@ export const StreamingMessageCode: React.FC<{
   animation?: 'blur-in' | 'fade-in';
 }> = React.memo(({ isStreamFinished, fileName, buttons, collapsible = false, text }) => {
   const { openSuccessMessage } = useBusterNotifications();
+  const [hasCopied, setHasCopied] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(text);
     openSuccessMessage('Copied to clipboard');
+    setHasCopied(true);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => {
+      setHasCopied(false);
+    }, 2500);
   };
 
   const buttonComponent = useMemo(() => {
@@ -39,14 +48,18 @@ export const StreamingMessageCode: React.FC<{
     if (!buttons) {
       return (
         <div className="flex justify-end">
-          <Button prefix={<Copy2 />} variant="ghost" onClick={copyToClipboard}>
+          <Button
+            prefix={hasCopied ? <Check /> : <Copy2 />}
+            variant="ghost"
+            onClick={copyToClipboard}
+          >
             Copy
           </Button>
         </div>
       );
     }
     return buttons;
-  }, [buttons]);
+  }, [buttons, hasCopied]);
 
   return (
     <FileCard collapsible={collapsible} fileName={fileName} headerButtons={buttonComponent}>
