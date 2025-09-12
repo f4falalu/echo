@@ -42,19 +42,21 @@ export async function updateShortcutHandler(
     }
 
     // For personal shortcuts, only creator can update
-    // For workspace shortcuts, check admin permission (TODO)
     if (!existingShortcut.sharedWithWorkspace && existingShortcut.createdBy !== user.id) {
       throw new HTTPException(403, {
         message: 'You can only update your own shortcuts',
       });
     }
 
+    // For workspace shortcuts, check admin permission
     if (existingShortcut.sharedWithWorkspace) {
-      // TODO: Check if user is admin/has permission to update workspace shortcuts
-      // For now, we'll allow the creator to update their workspace shortcuts
-      if (existingShortcut.createdBy !== user.id) {
+      // Only workspace_admin, data_admin, or the creator can update workspace shortcuts
+      const isAdmin = userOrg.role === 'workspace_admin' || userOrg.role === 'data_admin';
+      const isCreator = existingShortcut.createdBy === user.id;
+      
+      if (!isAdmin && !isCreator) {
         throw new HTTPException(403, {
-          message: 'Only administrators can update workspace shortcuts',
+          message: 'Only workspace admins, data admins, or the shortcut creator can update workspace shortcuts',
         });
       }
     }

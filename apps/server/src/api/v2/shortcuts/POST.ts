@@ -21,9 +21,12 @@ export async function createShortcutHandler(
 
     // Check if user has permission to create workspace shortcuts
     if (data.sharedWithWorkspace) {
-      // TODO: Check if user is admin/has permission to create workspace shortcuts
-      // For now, we'll allow any authenticated user to create workspace shortcuts
-      // This should be updated based on your permission system
+      // Only workspace_admin or data_admin can create workspace shortcuts
+      if (userOrg.role !== 'workspace_admin' && userOrg.role !== 'data_admin') {
+        throw new HTTPException(403, {
+          message: 'Only workspace admins and data admins can create workspace shortcuts',
+        });
+      }
     }
 
     // Check for duplicate name
