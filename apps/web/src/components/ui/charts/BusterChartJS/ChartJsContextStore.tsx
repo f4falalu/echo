@@ -4,6 +4,7 @@ import { setupChartJS } from './ChartJSTheme';
 
 export const chartJsContextStore = new Store({
   hasSetupChartJS: false,
+  shouldSetupChartJS: true,
 });
 
 export const useChartJsContext = () => {
@@ -11,14 +12,20 @@ export const useChartJsContext = () => {
 };
 
 export const useSetupChartJS = () => {
-  const { hasSetupChartJS } = useChartJsContext();
-  const shouldSetupChartJS = useRef(!hasSetupChartJS);
+  const { hasSetupChartJS, shouldSetupChartJS } = useChartJsContext();
 
-  if (shouldSetupChartJS.current) {
+  if (shouldSetupChartJS) {
+    console.log('shouldSetupChartJS', shouldSetupChartJS);
     setupChartJS().then(() => {
-      chartJsContextStore.setState({ hasSetupChartJS: true });
+      chartJsContextStore.setState(() => ({
+        hasSetupChartJS: true,
+        shouldSetupChartJS: false,
+      }));
     });
-    shouldSetupChartJS.current = false;
+    chartJsContextStore.setState((prev) => ({
+      ...prev,
+      shouldSetupChartJS: false,
+    }));
   }
 
   return hasSetupChartJS;
