@@ -4,6 +4,13 @@ import type { AssetPermissionRoleSchema } from '../share';
 import { ShareConfigSchema } from '../share';
 import { ChatMessageSchema } from './chat-message.types';
 
+// Message metadata schema (mirrored from database package)
+export const MessageMetadataSchema = z.object({
+  shortcutIds: z.array(z.string().uuid()).nullable().optional(),
+});
+
+export type MessageMetadata = z.infer<typeof MessageMetadataSchema>;
+
 // Asset Permission Role enum (matching database enum)
 export const ChatAssetTypeSchema = AssetTypeSchema.exclude(['chat', 'collection']);
 
@@ -34,6 +41,7 @@ export const ChatCreateRequestSchema = z
     message_analysis_mode: MessageAnalysisModeSchema.optional(),
     asset_id: z.string().optional(),
     asset_type: ChatAssetTypeSchema.optional(),
+    metadata: MessageMetadataSchema.optional(),
     // Legacy fields for backward compatibility
     metric_id: z.string().optional(),
     dashboard_id: z.string().optional(),
@@ -51,6 +59,7 @@ export const ChatCreateHandlerRequestSchema = z.object({
   message_id: z.string().optional(),
   asset_id: z.string().optional(),
   asset_type: ChatAssetTypeSchema.optional(),
+  metadata: MessageMetadataSchema.optional(),
 });
 
 // Cancel chat params schema

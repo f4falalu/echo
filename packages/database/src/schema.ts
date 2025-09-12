@@ -22,9 +22,11 @@ import {
 import type {
   OrganizationColorPalettes,
   UserPersonalizationConfigType,
+  UserShortcutTrackingType,
   UserSuggestedPromptsType,
 } from './schema-types';
 import { DEFAULT_USER_SUGGESTED_PROMPTS } from './schema-types/user';
+import type { MessageMetadata } from './schemas/message-schemas';
 
 export const assetPermissionRoleEnum = pgEnum('asset_permission_role_enum', [
   'owner',
@@ -879,6 +881,7 @@ export const users = pgTable(
       .$type<UserPersonalizationConfigType>()
       .default({})
       .notNull(),
+    lastUsedShortcuts: jsonb('last_used_shortcuts').$type<string[]>().default([]).notNull(),
   },
   (table) => [unique('users_email_key').on(table.email)]
 );
@@ -907,6 +910,7 @@ export const messages = pgTable(
     isCompleted: boolean('is_completed').default(false).notNull(),
     postProcessingMessage: jsonb('post_processing_message'),
     triggerRunId: text('trigger_run_id'),
+    metadata: jsonb().$type<MessageMetadata>().default({}).notNull(),
   },
   (table) => [
     index('messages_chat_id_idx').using('btree', table.chatId.asc().nullsLast().op('uuid_ops')),
@@ -2311,6 +2315,57 @@ export const messagesToSlackMessages = pgTable(
       'btree',
       table.slackMessageId.asc().nullsLast().op('uuid_ops')
     ),
+  ]
+);
+
+export const shortcuts = pgTable(
+  'shortcuts',
+  {
+    id: uuid().defaultRandom().primaryKey().notNull(),
+    name: varchar({ length: 255 }).notNull(),
+    instructions: text().notNull(),
+    createdBy: uuid('created_by').notNull(),
+    updatedBy: uuid('updated_by'),
+    organizationId: uuid('organization_id').notNull(),
+    shareWithWorkspace: boolean('share_with_workspace').default(false).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
+  },
+  (table) => [
+    // Foreign keys
+    foreignKey({
+      columns: [table.createdBy],
+      foreignColumns: [users.id],
+      name: 'shortcuts_created_by_fkey',
+    }).onUpdate('cascade'),
+    foreignKey({
+      columns: [table.updatedBy],
+      foreignColumns: [users.id],
+      name: 'shortcuts_updated_by_fkey',
+    }).onUpdate('cascade'),
+    foreignKey({
+      columns: [table.organizationId],
+      foreignColumns: [organizations.id],
+      name: 'shortcuts_organization_id_fkey',
+    }).onDelete('cascade'),
+    // Unique constraints
+    unique('shortcuts_personal_unique').on(table.name, table.organizationId, table.createdBy),
+    // Indexes
+    index('shortcuts_org_user_idx').using(
+      'btree',
+      table.organizationId.asc().nullsLast().op('uuid_ops'),
+      table.createdBy.asc().nullsLast().op('uuid_ops')
+    ),
+    index('shortcuts_name_idx').using('btree', table.name.asc().nullsLast()),
+    // Conditional unique constraint for workspace shortcuts
+    uniqueIndex('shortcuts_workspace_unique')
+      .on(table.name, table.organizationId)
+      .where(sql`${table.shareWithWorkspace} = true`),
   ]
 );
 

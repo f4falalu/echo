@@ -139,3 +139,10 @@ export type ChatMessageResponseMessage_File = z.infer<typeof ResponseMessage_Fil
 export type ReasoningFileType = z.infer<typeof ReasoningFileTypeSchema>;
 export type ResponseMessageFileType = z.infer<typeof ResponseMessageFileTypeSchema>;
 export type ReasoingMessage_ThoughtFileType = z.infer<typeof ReasoingMessage_ThoughtFileTypeSchema>;
+
+// Message metadata schema
+export const MessageMetadataSchema = z.object({
+  shortcutIds: z.array(z.string().uuid()).nullable().optional(),
+});
+
+export type MessageMetadata = z.infer<typeof MessageMetadataSchema>;

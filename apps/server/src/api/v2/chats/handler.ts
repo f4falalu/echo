@@ -1,4 +1,4 @@
-import { getUserOrganizationId } from '@buster/database';
+import { getUserOrganizationId, updateUserLastUsedShortcuts } from '@buster/database';
 import type { User } from '@buster/database';
 import {
   type ChatCreateHandlerRequest,
@@ -56,33 +56,60 @@ export async function createChatHandler(
       throw new ChatError(ChatErrorCode.INVALID_REQUEST, 'prompt or asset_id is required', 400);
     }
 
+    // Set message_analysis_mode if not provided (from staging)
     if (request.prompt && !request.message_analysis_mode) {
       request.message_analysis_mode = 'auto';
     }
 
+    // Update request with message_analysis_mode
+    const processedRequest = { ...request };
     // Initialize chat (new or existing)
     // When we have both asset and prompt, we'll skip creating the initial message
     // since handleAssetChatWithPrompt will create both the import and prompt messages
-    const shouldCreateInitialMessage = !(request.asset_id && request.asset_type && request.prompt);
+    const shouldCreateInitialMessage = !(
+      processedRequest.asset_id &&
+      processedRequest.asset_type &&
+      processedRequest.prompt
+    );
     const modifiedRequest = shouldCreateInitialMessage
-      ? request
-      : { ...request, prompt: undefined, message_analysis_mode: undefined };
+      ? processedRequest
+      : { ...processedRequest, prompt: undefined, message_analysis_mode: undefined };
 
     const { chatId, messageId, chat } = await initializeChat(modifiedRequest, user, organizationId);
+
+    // Update user's last used shortcuts if any were provided in metadata
+    if (
+      processedRequest.metadata?.shortcutIds &&
+      processedRequest.metadata.shortcutIds.length > 0
+    ) {
+      try {
+        await updateUserLastUsedShortcuts({
+          userId: user.id,
+          shortcutIds: processedRequest.metadata.shortcutIds,
+        });
+      } catch (error) {
+        // Log the error but don't fail the chat creation
+        console.warn('Failed to update user last used shortcuts:', {
+          userId: user.id,
+          shortcutIds: processedRequest.metadata.shortcutIds,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
 
     // Handle asset-based chat if needed
     let finalChat: ChatWithMessages = chat;
     let actualMessageId = messageId; // Track the actual message ID to use for triggering
     let shouldTriggerAnalyst = true; // Flag to control whether to trigger analyst task
 
-    if (request.asset_id && request.asset_type) {
-      if (!request.prompt) {
+    if (processedRequest.asset_id && processedRequest.asset_type) {
+      if (!processedRequest.prompt) {
         // Original flow: just import the asset without a prompt
         finalChat = await handleAssetChat(
           chatId,
           messageId,
-          request.asset_id,
-          request.asset_type,
+          processedRequest.asset_id,
+          processedRequest.asset_type,
           user,
           chat
         );
@@ -93,10 +120,10 @@ export async function createChatHandler(
         finalChat = await handleAssetChatWithPrompt(
           chatId,
           messageId,
-          request.asset_id,
-          request.asset_type,
-          request.prompt,
-          request.message_analysis_mode,
+          processedRequest.asset_id,
+          processedRequest.asset_type,
+          processedRequest.prompt,
+          processedRequest.message_analysis_mode,
           user,
           chat
         );
@@ -109,7 +136,7 @@ export async function createChatHandler(
     }
 
     // Trigger background analysis only if we have a prompt or it's not an asset-only request
-    if (shouldTriggerAnalyst && (request.prompt || !request.asset_id)) {
+    if (shouldTriggerAnalyst && (processedRequest.prompt || !processedRequest.asset_id)) {
       try {
         // Just queue the background job - should be <100ms
         const taskHandle = await tasks.trigger(
@@ -151,8 +178,8 @@ export async function createChatHandler(
         target: '500ms',
         user,
         chatId,
-        hasPrompt: !!request.prompt,
-        hasAsset: !!request.asset_id,
+        hasPrompt: !!processedRequest.prompt,
+        hasAsset: !!processedRequest.asset_id,
         suggestion: 'Check database performance and trigger service',
       });
     }

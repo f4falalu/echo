@@ -5,3 +5,4 @@ export * from './get-user-organizations';
 export * from './user-queries';
 export * from './user-suggested-prompts';
 export * from './get-user-personalization';
+export * from './update-user-shortcuts';
