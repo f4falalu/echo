@@ -1,5 +1,5 @@
 import type { User } from '@buster/database';
-import { getUserShortcuts, getUserOrganizationId } from '@buster/database';
+import { getUserOrganizationId, getUserShortcuts } from '@buster/database';
 import type { ListShortcutsResponse } from '@buster/server-shared/shortcuts';
 import { HTTPException } from 'hono/http-exception';
 
@@ -7,13 +7,13 @@ export async function listShortcutsHandler(user: User): Promise<ListShortcutsRes
   try {
     // Get user's organization ID
     const userOrg = await getUserOrganizationId(user.id);
-    
+
     if (!userOrg) {
       throw new HTTPException(400, {
         message: 'User must belong to an organization',
       });
     }
-    
+
     const { organizationId } = userOrg;
 
     // Get all accessible shortcuts (personal + workspace) sorted alphabetically

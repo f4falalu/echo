@@ -1,5 +1,10 @@
 import type { User } from '@buster/database';
-import { checkDuplicateName, getShortcutById, updateShortcut, getUserOrganizationId } from '@buster/database';
+import {
+  checkDuplicateName,
+  getShortcutById,
+  getUserOrganizationId,
+  updateShortcut,
+} from '@buster/database';
 import type { Shortcut, UpdateShortcutRequest } from '@buster/server-shared/shortcuts';
 import { HTTPException } from 'hono/http-exception';
 
@@ -11,13 +16,13 @@ export async function updateShortcutHandler(
   try {
     // Get user's organization ID
     const userOrg = await getUserOrganizationId(user.id);
-    
+
     if (!userOrg) {
       throw new HTTPException(400, {
         message: 'User must belong to an organization',
       });
     }
-    
+
     const { organizationId } = userOrg;
 
     // Get the existing shortcut

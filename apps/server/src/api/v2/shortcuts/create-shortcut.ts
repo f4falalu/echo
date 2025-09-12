@@ -10,13 +10,13 @@ export async function createShortcutHandler(
   try {
     // Get user's organization ID
     const userOrg = await getUserOrganizationId(user.id);
-    
+
     if (!userOrg) {
       throw new HTTPException(400, {
         message: 'User must belong to an organization',
       });
     }
-    
+
     const { organizationId } = userOrg;
 
     // Check if user has permission to create workspace shortcuts

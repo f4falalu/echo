@@ -7,13 +7,13 @@ export async function getShortcutHandler(user: User, shortcutId: string): Promis
   try {
     // Get user's organization ID
     const userOrg = await getUserOrganizationId(user.id);
-    
+
     if (!userOrg) {
       throw new HTTPException(400, {
         message: 'User must belong to an organization',
       });
     }
-    
+
     const { organizationId } = userOrg;
 
     const shortcut = await getShortcutById({ id: shortcutId });

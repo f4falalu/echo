@@ -56,4 +56,3 @@ export async function enhanceMessageWithShortcut(
     ? `${shortcut.instructions} ${additionalContext}`
     : shortcut.instructions;
 }
-
