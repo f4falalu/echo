@@ -1,5 +1,5 @@
 {
-  "id": "0613296e-fdd2-4a35-9d79-2275d0c7a78e",
+  "id": "155b0fb6-d5e9-46bc-aadd-f71a6f9e48f7",
   "prevId": "f71f7e1c-314d-413d-8da9-a525bd4a3519",
   "version": "7",
   "dialect": "postgresql",
@@ -5043,8 +5043,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "shared_with_workspace": {
-          "name": "shared_with_workspace",
+        "share_with_workspace": {
+          "name": "share_with_workspace",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -5127,7 +5127,7 @@
             }
           ],
           "isUnique": true,
-          "where": "\"shortcuts\".\"shared_with_workspace\" = true",
+          "where": "\"shortcuts\".\"share_with_workspace\" = true",
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -6914,7 +6914,7 @@
           "type": "jsonb",
           "primaryKey": false,
           "notNull": true,
-          "default": "'{\"suggestedPrompts\":{\"report\":[\"provide a trend analysis of quarterly profits\",\"evaluate product performance across regions\"],\"dashboard\":[\"create a sales performance dashboard\",\"design a revenue forecast dashboard\"],\"visualization\":[\"create a metric for monthly sales\",\"show top vendors by purchase volume\"],\"help\":[\"what types of analyses can you perform?\",\"what questions can I as buster?\",\"what data models are available for queries?\",\"can you explain your forecasting capabilities?\"]},\"updatedAt\":\"2025-09-12T16:57:43.191Z\"}'::jsonb"
+          "default": "'{\"suggestedPrompts\":{\"report\":[\"provide a trend analysis of quarterly profits\",\"evaluate product performance across regions\"],\"dashboard\":[\"create a sales performance dashboard\",\"design a revenue forecast dashboard\"],\"visualization\":[\"create a metric for monthly sales\",\"show top vendors by purchase volume\"],\"help\":[\"what types of analyses can you perform?\",\"what questions can I as buster?\",\"what data models are available for queries?\",\"can you explain your forecasting capabilities?\"]},\"updatedAt\":\"2025-09-12T17:22:58.487Z\"}'::jsonb"
         },
         "personalization_enabled": {
           "name": "personalization_enabled",

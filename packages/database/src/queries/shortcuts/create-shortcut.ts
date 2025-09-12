@@ -8,7 +8,7 @@ export const CreateShortcutInputSchema = z.object({
   instructions: z.string().min(1),
   createdBy: z.string().uuid(),
   organizationId: z.string().uuid(),
-  sharedWithWorkspace: z.boolean(),
+  shareWithWorkspace: z.boolean(),
 });
 
 export type CreateShortcutInput = z.infer<typeof CreateShortcutInputSchema>;
@@ -24,8 +24,8 @@ export async function createShortcut(input: CreateShortcutInput) {
       and(
         eq(shortcuts.name, validated.name),
         eq(shortcuts.organizationId, validated.organizationId),
-        validated.sharedWithWorkspace
-          ? eq(shortcuts.sharedWithWorkspace, true)
+        validated.shareWithWorkspace
+          ? eq(shortcuts.shareWithWorkspace, true)
           : eq(shortcuts.createdBy, validated.createdBy),
         isNotNull(shortcuts.deletedAt)
       )
@@ -38,7 +38,7 @@ export async function createShortcut(input: CreateShortcutInput) {
       .update(shortcuts)
       .set({
         instructions: validated.instructions,
-        sharedWithWorkspace: validated.sharedWithWorkspace,
+        shareWithWorkspace: validated.shareWithWorkspace,
         updatedBy: validated.createdBy,
         updatedAt: new Date().toISOString(),
         deletedAt: null,
@@ -58,7 +58,7 @@ export async function createShortcut(input: CreateShortcutInput) {
       createdBy: validated.createdBy,
       updatedBy: validated.createdBy,
       organizationId: validated.organizationId,
-      sharedWithWorkspace: validated.sharedWithWorkspace,
+      shareWithWorkspace: validated.shareWithWorkspace,
     })
     .returning();
 

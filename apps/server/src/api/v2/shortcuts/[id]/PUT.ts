@@ -42,14 +42,14 @@ export async function updateShortcutHandler(
     }
 
     // For personal shortcuts, only creator can update
-    if (!existingShortcut.sharedWithWorkspace && existingShortcut.createdBy !== user.id) {
+    if (!existingShortcut.shareWithWorkspace && existingShortcut.createdBy !== user.id) {
       throw new HTTPException(403, {
         message: 'You can only update your own shortcuts',
       });
     }
 
     // For workspace shortcuts, check admin permission
-    if (existingShortcut.sharedWithWorkspace) {
+    if (existingShortcut.shareWithWorkspace) {
       // Only workspace_admin, data_admin, or the creator can update workspace shortcuts
       const isAdmin = userOrg.role === 'workspace_admin' || userOrg.role === 'data_admin';
       const isCreator = existingShortcut.createdBy === user.id;
@@ -62,18 +62,36 @@ export async function updateShortcutHandler(
       }
     }
 
+    // Check permission to change sharing status
+    if (data.shareWithWorkspace !== undefined && data.shareWithWorkspace !== existingShortcut.shareWithWorkspace) {
+      // Only admins can change sharing status
+      const isAdmin = userOrg.role === 'workspace_admin' || userOrg.role === 'data_admin';
+      
+      if (!isAdmin) {
+        throw new HTTPException(403, {
+          message: 'Only workspace admins and data admins can change shortcut sharing settings',
+        });
+      }
+    }
+
+    // Determine the scope for duplicate checking
+    const willBeWorkspaceShortcut = 
+      data.shareWithWorkspace !== undefined 
+        ? data.shareWithWorkspace 
+        : existingShortcut.shareWithWorkspace;
+
     // If name is being changed, check for duplicates
     if (data.name && data.name !== existingShortcut.name) {
       const isDuplicate = await checkDuplicateName({
         name: data.name,
         userId: user.id,
         organizationId,
-        isWorkspace: existingShortcut.sharedWithWorkspace,
+        isWorkspace: willBeWorkspaceShortcut,
         excludeId: shortcutId,
       });
 
       if (isDuplicate) {
-        const scope = existingShortcut.sharedWithWorkspace
+        const scope = willBeWorkspaceShortcut
           ? 'workspace'
           : 'your personal shortcuts';
         throw new HTTPException(409, {
@@ -87,6 +105,7 @@ export async function updateShortcutHandler(
       id: shortcutId,
       name: data.name,
       instructions: data.instructions,
+      shareWithWorkspace: data.shareWithWorkspace,
       updatedBy: user.id,
     });
 

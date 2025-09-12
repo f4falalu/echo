@@ -29,7 +29,7 @@ export async function checkDuplicateName(input: CheckDuplicateNameInput): Promis
 
   if (validated.isWorkspace) {
     // Check for existing workspace shortcut
-    conditions.push(eq(shortcuts.sharedWithWorkspace, true));
+    conditions.push(eq(shortcuts.shareWithWorkspace, true));
   } else {
     // Check for existing personal shortcut
     conditions.push(eq(shortcuts.createdBy, validated.userId));

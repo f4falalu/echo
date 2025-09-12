@@ -40,7 +40,7 @@ export async function findShortcutByName(input: FindShortcutByNameInput) {
       and(
         eq(shortcuts.name, validated.name),
         eq(shortcuts.organizationId, validated.organizationId),
-        eq(shortcuts.sharedWithWorkspace, true),
+        eq(shortcuts.shareWithWorkspace, true),
         isNull(shortcuts.deletedAt)
       )
     )

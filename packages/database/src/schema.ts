@@ -2327,7 +2327,7 @@ export const shortcuts = pgTable(
     createdBy: uuid('created_by').notNull(),
     updatedBy: uuid('updated_by'),
     organizationId: uuid('organization_id').notNull(),
-    sharedWithWorkspace: boolean('shared_with_workspace').default(false).notNull(),
+    shareWithWorkspace: boolean('share_with_workspace').default(false).notNull(),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
       .defaultNow()
       .notNull(),
@@ -2365,7 +2365,7 @@ export const shortcuts = pgTable(
     // Conditional unique constraint for workspace shortcuts
     uniqueIndex('shortcuts_workspace_unique')
       .on(table.name, table.organizationId)
-      .where(sql`${table.sharedWithWorkspace} = true`),
+      .where(sql`${table.shareWithWorkspace} = true`),
   ]
 );
 

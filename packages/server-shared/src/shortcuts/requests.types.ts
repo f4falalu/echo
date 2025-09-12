@@ -19,7 +19,7 @@ export const createShortcutRequestSchema = z.object({
     .string()
     .min(1, 'Instructions are required')
     .max(10000, 'Instructions must be 10,000 characters or less'),
-  sharedWithWorkspace: z.boolean(),
+  shareWithWorkspace: z.boolean(),
 });
 
 export const updateShortcutRequestSchema = z.object({
@@ -29,6 +29,7 @@ export const updateShortcutRequestSchema = z.object({
     .min(1, 'Instructions are required')
     .max(10000, 'Instructions must be 10,000 characters or less')
     .optional(),
+  shareWithWorkspace: z.boolean().optional(),
 });
 
 // Export types inferred from schemas

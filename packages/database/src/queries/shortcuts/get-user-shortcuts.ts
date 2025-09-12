@@ -19,7 +19,7 @@ export async function getUserShortcuts(input: GetUserShortcutsInput) {
     .where(
       and(
         eq(shortcuts.organizationId, validated.organizationId),
-        or(eq(shortcuts.createdBy, validated.userId), eq(shortcuts.sharedWithWorkspace, true)),
+        or(eq(shortcuts.createdBy, validated.userId), eq(shortcuts.shareWithWorkspace, true)),
         isNull(shortcuts.deletedAt)
       )
     )

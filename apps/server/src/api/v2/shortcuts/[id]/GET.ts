@@ -27,7 +27,7 @@ export async function getShortcutHandler(user: User, shortcutId: string): Promis
     // Check permissions: user must be creator or shortcut must be workspace-shared
     if (
       shortcut.organizationId !== organizationId ||
-      (!shortcut.sharedWithWorkspace && shortcut.createdBy !== user.id)
+      (!shortcut.shareWithWorkspace && shortcut.createdBy !== user.id)
     ) {
       throw new HTTPException(403, {
         message: 'You do not have permission to view this shortcut',

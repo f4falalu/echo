@@ -7,6 +7,7 @@ export const UpdateShortcutInputSchema = z.object({
   id: z.string().uuid(),
   name: z.string().min(1).max(255).optional(),
   instructions: z.string().min(1).optional(),
+  shareWithWorkspace: z.boolean().optional(),
   updatedBy: z.string().uuid(),
 });
 
@@ -26,6 +27,10 @@ export async function updateShortcut(input: UpdateShortcutInput) {
 
   if (validated.instructions !== undefined) {
     updateData.instructions = validated.instructions;
+  }
+
+  if (validated.shareWithWorkspace !== undefined) {
+    updateData.shareWithWorkspace = validated.shareWithWorkspace;
   }
 
   const [updated] = await db

@@ -7,7 +7,7 @@ export const shortcutSchema = z.object({
   createdBy: z.string().uuid(),
   updatedBy: z.string().uuid().nullable(),
   organizationId: z.string().uuid(),
-  sharedWithWorkspace: z.boolean(),
+  shareWithWorkspace: z.boolean(),
   createdAt: z.string(), // ISO string
   updatedAt: z.string(), // ISO string
   deletedAt: z.string().nullable(), // ISO string or null

@@ -20,7 +20,7 @@ export async function createShortcutHandler(
     const { organizationId } = userOrg;
 
     // Check if user has permission to create workspace shortcuts
-    if (data.sharedWithWorkspace) {
+    if (data.shareWithWorkspace) {
       // Only workspace_admin or data_admin can create workspace shortcuts
       if (userOrg.role !== 'workspace_admin' && userOrg.role !== 'data_admin') {
         throw new HTTPException(403, {
@@ -34,11 +34,11 @@ export async function createShortcutHandler(
       name: data.name,
       userId: user.id,
       organizationId,
-      isWorkspace: data.sharedWithWorkspace,
+      isWorkspace: data.shareWithWorkspace,
     });
 
     if (isDuplicate) {
-      const scope = data.sharedWithWorkspace ? 'workspace' : 'your personal shortcuts';
+      const scope = data.shareWithWorkspace ? 'workspace' : 'your personal shortcuts';
       throw new HTTPException(409, {
         message: `A shortcut named '${data.name}' already exists in ${scope}`,
       });
@@ -50,7 +50,7 @@ export async function createShortcutHandler(
       instructions: data.instructions,
       createdBy: user.id,
       organizationId,
-      sharedWithWorkspace: data.sharedWithWorkspace,
+      shareWithWorkspace: data.shareWithWorkspace,
     });
 
     if (!shortcut) {

@@ -36,13 +36,13 @@ export async function deleteShortcutHandler(
 
     // For personal shortcuts, only creator can delete
     // For workspace shortcuts, check admin permission (TODO)
-    if (!existingShortcut.sharedWithWorkspace && existingShortcut.createdBy !== user.id) {
+    if (!existingShortcut.shareWithWorkspace && existingShortcut.createdBy !== user.id) {
       throw new HTTPException(403, {
         message: 'You can only delete your own shortcuts',
       });
     }
 
-    if (existingShortcut.sharedWithWorkspace) {
+    if (existingShortcut.shareWithWorkspace) {
       // TODO: Check if user is admin/has permission to delete workspace shortcuts
       // For now, we'll allow the creator to delete their workspace shortcuts
       if (existingShortcut.createdBy !== user.id) {
