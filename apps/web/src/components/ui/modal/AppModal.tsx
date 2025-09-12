@@ -1,8 +1,5 @@
-'use client';
-
 import type React from 'react';
 import { useMemo, useState } from 'react';
-import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
 import { Button, type ButtonProps } from '../buttons/Button';
 import {
@@ -11,7 +8,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
 } from './ModalBase';
 
 export interface ModalProps<T = unknown> {
@@ -56,27 +53,27 @@ export const AppModal = <T,>({
   className,
   style,
   showClose = true,
-  children
+  children,
 }: ModalProps<T>) => {
   const [isLoadingPrimaryButton, setIsLoadingPrimaryButton] = useState(false);
   const [isLoadingSecondaryButton, setIsLoadingSecondaryButton] = useState(false);
 
-  const onOpenChange = useMemoizedFn((open: boolean) => {
+  const onOpenChange = (open: boolean) => {
     if (!open) {
       onClose();
     }
-  });
+  };
 
   const memoizedStyle = useMemo(
     () => ({
       minWidth: width ?? 600,
       maxWidth: width ?? 600,
-      ...style
+      ...style,
     }),
     [width, style]
   );
 
-  const onPrimaryButtonClickPreflight = useMemoizedFn(async () => {
+  const onPrimaryButtonClickPreflight = async () => {
     setIsLoadingPrimaryButton(true);
     try {
       const result = await footer.primaryButton.onClick();
@@ -84,9 +81,9 @@ export const AppModal = <T,>({
     } finally {
       setIsLoadingPrimaryButton(false);
     }
-  });
+  };
 
-  const onSecondaryButtonClickPreflight = useMemoizedFn(async () => {
+  const onSecondaryButtonClickPreflight = async () => {
     if (!footer.secondaryButton) return;
     setIsLoadingSecondaryButton(true);
     try {
@@ -95,7 +92,7 @@ export const AppModal = <T,>({
     } finally {
       setIsLoadingSecondaryButton(false);
     }
-  });
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -107,13 +104,17 @@ export const AppModal = <T,>({
           if (preventCloseOnClickOutside) {
             e.preventDefault();
           }
-        }}>
+        }}
+      >
         <div className="flex flex-col gap-4 overflow-hidden p-6">
           {header && (
-            <DialogHeader className="">
-              {header.title && <DialogTitle>{header.title}</DialogTitle>}
-              {header.description && <DialogDescription>{header.description}</DialogDescription>}
-            </DialogHeader>
+            <>
+              <DialogHeader className="">
+                {header.title && <DialogTitle>{header.title}</DialogTitle>}
+                {header.description && <DialogDescription>{header.description}</DialogDescription>}
+              </DialogHeader>
+              <DialogDescription hidden>{header.description || header.title}</DialogDescription>
+            </>
           )}
 
           {children}
@@ -121,7 +122,8 @@ export const AppModal = <T,>({
 
         {footer && (
           <DialogFooter
-            className={cn('flex items-center', footer.left ? 'justify-between' : 'justify-end')}>
+            className={cn('flex items-center', footer.left ? 'justify-between' : 'justify-end')}
+          >
             {footer.left && footer.left}
             <div className={cn('flex items-center space-x-2')}>
               {footer.secondaryButton && (
@@ -129,7 +131,8 @@ export const AppModal = <T,>({
                   onClick={onSecondaryButtonClickPreflight}
                   variant={footer.secondaryButton.variant ?? 'ghost'}
                   loading={footer.secondaryButton.loading ?? isLoadingSecondaryButton}
-                  disabled={footer.secondaryButton.disabled}>
+                  disabled={footer.secondaryButton.disabled}
+                >
                   {footer.secondaryButton.text}
                 </Button>
               )}
@@ -137,7 +140,8 @@ export const AppModal = <T,>({
                 onClick={onPrimaryButtonClickPreflight}
                 variant={footer.primaryButton.variant ?? 'black'}
                 loading={footer.primaryButton.loading ?? isLoadingPrimaryButton}
-                disabled={footer.primaryButton.disabled}>
+                disabled={footer.primaryButton.disabled}
+              >
                 {footer.primaryButton.text}
               </Button>
             </div>

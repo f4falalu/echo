@@ -1,5 +1,5 @@
-'use client';
-
+import { useDraggable } from '@platejs/dnd';
+import { ResizableProvider, useResizableValue } from '@platejs/resizable';
 import {
   PlateElement,
   type PlateElementProps,
@@ -8,20 +8,18 @@ import {
   useFocused,
   useReadOnly,
   useSelected,
-  withHOC
+  withHOC,
 } from 'platejs/react';
-import { ResizableProvider, useResizableValue } from '@platejs/resizable';
-import { MetricEmbedPlaceholder } from './MetricPlaceholder';
-import { MetricToolbar } from './MetricToolbar';
+import React, { type PropsWithChildren, useMemo, useRef } from 'react';
+import { useSize } from '@/hooks/useSize';
+import { cn } from '@/lib/classMerge';
+import { GlobalVariablePlugin } from '../../plugins/global-variable-kit';
+import type { TMetricElement } from '../../plugins/metric-kit';
 import { Caption, CaptionTextarea } from '../CaptionNode';
 import { mediaResizeHandleVariants, Resizable, ResizeHandle } from '../ResizeHandle';
-import { type TMetricElement } from '../../plugins/metric-kit';
-import React, { useMemo, useRef, type PropsWithChildren } from 'react';
-import { useSize } from '@/hooks/useSize';
 import { MetricContent } from './MetricContent';
-import { cn } from '@/lib/classMerge';
-import { useDraggable } from '@platejs/dnd';
-import { GlobalVariablePlugin } from '../../plugins/global-variable-kit';
+import { MetricEmbedPlaceholder } from './MetricPlaceholder';
+import { MetricToolbar } from './MetricToolbar';
 
 type MetricElementProps = PlateElementProps<TMetricElement>;
 
@@ -35,7 +33,7 @@ export const MetricElement = withHOC(
     const isSelected = useSelected();
     const isFocused = useFocused();
     const showFocused = isSelected && isFocused;
-    const className = cn(showFocused && 'ring-ring bg-brand/10 ring-1 ring-offset-4');
+    const className = cn(showFocused && 'ring-ring bg-brand/5 ring-1 ring-offset-4');
 
     const content = metricId ? (
       <MetricToolbar selectedMetricId={metricId}>
@@ -55,16 +53,16 @@ export const MetricElement = withHOC(
 
     return (
       <PlateElement
-        className="rounded-md"
+        className="rounded mt-2.5 mb-4.5"
         attributes={{
           ...attributes,
           'data-plate-open-context-menu': true,
           // Mark metric element for export so we can target it for rasterization
-          'data-export-metric': true
+          'data-export-metric': true,
         }}
-        {...props}>
-        <div contentEditable={false}>{content}</div>
-
+        {...props}
+      >
+        <span contentEditable={false}>{content}</span>
         {children}
       </PlateElement>
     );
@@ -72,16 +70,15 @@ export const MetricElement = withHOC(
 );
 
 const MetricResizeContainer: React.FC<PropsWithChildren> = ({ children }) => {
-  const width = useResizableValue('width') || 700;
+  const width = (useResizableValue('width') as number) || 700;
   const ref = useRef<HTMLDivElement>(null);
   const element = useElement();
   const editor = useEditorRef();
   const editorWidth = useSize(ref)?.width ?? 700;
   const isSelected = useSelected();
-
-  const { isDragging, handleRef } = useDraggable({
-    element: element
-  });
+  // const { isDragging, handleRef } = useDraggable({
+  //   element: element,
+  // });
   const align = 'center'; // Default align for metrics
 
   const selectNode = () => {
@@ -102,28 +99,31 @@ const MetricResizeContainer: React.FC<PropsWithChildren> = ({ children }) => {
       ref={ref}
       contentEditable={false}
       className={cn(
-        'group relative m-0 my-1.5 w-full cursor-default transition-all',
+        'relative m-0 w-full cursor-default transition-all',
         isSelected && 'bg-item-hover/10 rounded'
-      )}>
+      )}
+    >
       <Resizable
         align={align}
         options={{
           align,
-          minWidth: 350
-        }}>
+          minWidth: 350,
+        }}
+      >
         <ResizeHandle
           className={mediaResizeHandleVariants({ direction: 'left' })}
           options={{ direction: 'left' }}
         />
 
         <div
-          ref={handleRef}
+          // ref={handleRef}
           className={cn(
             'min-h-64',
-            !height && 'min-h-[390px] bg-red-500 opacity-50',
-            isDragging && 'cursor-grabbing opacity-50'
+            !height && 'min-h-[390px]'
+            //   isDragging && 'cursor-grabbing opacity-50'
           )}
-          style={{ height }}>
+          style={{ height }}
+        >
           {children}
         </div>
 

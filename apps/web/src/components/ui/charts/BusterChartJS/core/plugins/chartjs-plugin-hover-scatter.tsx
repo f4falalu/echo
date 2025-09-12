@@ -7,7 +7,6 @@ export interface ChartHoverScatterPluginOptions {
 }
 
 declare module 'chart.js' {
-  // biome-ignore lint/correctness/noUnusedVariables: <explanation>
   interface PluginOptionsByType<TType extends ChartType> {
     hoverScatter?: ChartHoverScatterPluginOptions | false;
   }
@@ -24,13 +23,13 @@ export const ChartHoverScatterPlugin: Plugin<ChartType, ChartHoverScatterPluginO
   afterInit: (chart) => {
     const chartType = chart.config.type as ChartType;
     chart.$pluginHoverScatterManager = {
-      enabled: chartType === 'scatter' || chartType === 'bubble'
+      enabled: chartType === 'scatter' || chartType === 'bubble',
     };
   },
   defaults: {
     color: 'rgba(0,0,0,0.6)',
     lineWidth: 0.65,
-    lineDash: [3, 3]
+    lineDash: [3, 3],
   },
 
   beforeDraw: (chart, _args, options) => {
@@ -62,5 +61,5 @@ export const ChartHoverScatterPlugin: Plugin<ChartType, ChartHoverScatterPluginO
 
     ctx.stroke();
     ctx.restore();
-  }
+  },
 };

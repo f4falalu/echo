@@ -1,8 +1,14 @@
 import type { PermissionedDataset } from '@buster/access-controls';
+import {
+  UserPersonalizationConfigSchema,
+  type UserPersonalizationConfigType,
+  messageAnalysisModeEnum,
+} from '@buster/database';
 import { type ModelMessage, hasToolCall, stepCountIs, streamText } from 'ai';
 import { wrapTraced } from 'braintrust';
 import z from 'zod';
 import { Sonnet4 } from '../../llm';
+import { DEFAULT_ANTHROPIC_OPTIONS } from '../../llm/providers/gateway';
 import { createExecuteSqlTool, createSequentialThinkingTool } from '../../tools';
 import {
   MESSAGE_USER_CLARIFYING_QUESTION_TOOL_NAME,
@@ -25,14 +31,6 @@ import {
 } from './get-think-and-prep-agent-system-prompt';
 
 export const THINK_AND_PREP_AGENT_NAME = 'thinkAndPrepAgent';
-
-const DEFAULT_CACHE_OPTIONS = {
-  anthropic: { cacheControl: { type: 'ephemeral', ttl: '1h' } },
-  openai: {
-    parallelToolCalls: false,
-    reasoningEffort: 'minimal',
-  },
-};
 
 const STOP_CONDITIONS = [
   stepCountIs(25),
@@ -60,6 +58,25 @@ export const ThinkAndPrepAgentOptionsSchema = z.object({
     .describe('The analysis mode to determine which prompt to use.')
     .optional(),
   workflowStartTime: z.number().describe('The start time of the workflow'),
+  analystInstructions: z
+    .string()
+    .optional()
+    .describe('Custom analyst instructions from the organization.'),
+  organizationDocs: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        content: z.string(),
+        type: z.string(),
+        updatedAt: z.string(),
+      })
+    )
+    .optional()
+    .describe('Organization data catalog documentation.'),
+  userPersonalizationMessageContent: z
+    .string()
+    .describe('Custom user personalization in message content'),
 });
 
 export const ThinkAndPrepStreamOptionsSchema = z.object({
@@ -72,7 +89,14 @@ export type ThinkAndPrepAgentOptions = z.infer<typeof ThinkAndPrepAgentOptionsSc
 export type ThinkAndPrepStreamOptions = z.infer<typeof ThinkAndPrepStreamOptionsSchema>;
 
 export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAgentOptions) {
-  const { messageId, datasets, workflowStartTime } = thinkAndPrepAgentSchema;
+  const {
+    messageId,
+    datasets,
+    workflowStartTime,
+    analystInstructions,
+    organizationDocs,
+    userPersonalizationMessageContent,
+  } = thinkAndPrepAgentSchema;
 
   const systemMessage = {
     role: 'system',
@@ -80,22 +104,37 @@ export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAge
       thinkAndPrepAgentSchema.sql_dialect_guidance,
       (thinkAndPrepAgentSchema.analysisMode || 'standard') as AnalysisMode
     ),
-    providerOptions: DEFAULT_CACHE_OPTIONS,
+    providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
   } as ModelMessage;
 
   // Create second system message with datasets information
   const datasetsContent = datasets
     .filter((d) => d.ymlContent)
+    .sort((a, b) => a.name.localeCompare(b.name)) // Sort by name for consistency
     .map((d) => d.ymlContent)
     .join('\n\n');
 
   const datasetsSystemMessage = {
     role: 'system',
     content: datasetsContent
-      ? `<database_context>\n${datasetsContent}\n</database_context>`
-      : '<database_context>\nNo datasets available\n</database_context>',
-    providerOptions: DEFAULT_CACHE_OPTIONS,
+      ? `<datasets>\n${datasetsContent}\n</datasets>`
+      : '<datasets>\nNo datasets available\n</datasets>',
+    providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
   } as ModelMessage;
+
+  // Create third system message with data catalog docs
+  const docsContent = organizationDocs
+    ?.sort((a, b) => a.name.localeCompare(b.name)) // Sort by name for consistency
+    .map((doc) => `# ${doc.name}\n\n${doc.content}`)
+    .join('\n\n---\n\n');
+
+  const docsSystemMessage = docsContent
+    ? ({
+        role: 'system',
+        content: `<data_catalog_docs>\n${docsContent}\n</data_catalog_docs>`,
+        providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
+      } as ModelMessage)
+    : null;
 
   async function stream({ messages }: ThinkAndPrepStreamOptions) {
     const sequentialThinking = createSequentialThinkingTool({ messageId });
@@ -137,10 +176,33 @@ export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAge
       ],
     };
 
+    // Create analyst instructions system message with proper escaping
+    const analystInstructionsMessage = analystInstructions
+      ? ({
+          role: 'system',
+          content: `<organization_instructions>\n${analystInstructions}\n</organization_instructions>`,
+          providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
+        } as ModelMessage)
+      : null;
+
+    // Create user personalization system message
+    const userPersonalizationSystemMessage = userPersonalizationMessageContent
+      ? ({
+          role: 'system',
+          content: userPersonalizationMessageContent,
+          providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
+        } as ModelMessage)
+      : null;
+
     return wrapTraced(
       () =>
         streamText({
           model: Sonnet4,
+          headers: {
+            'anthropic-beta': 'fine-grained-tool-streaming-2025-05-14,context-1m-2025-08-07',
+            anthropic_beta: 'fine-grained-tool-streaming-2025-05-14,context-1m-2025-08-07',
+          },
+          providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
           tools: {
             [SEQUENTIAL_THINKING_TOOL_NAME]: sequentialThinking,
             [EXECUTE_SQL_TOOL_NAME]: executeSqlTool,
@@ -148,7 +210,14 @@ export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAge
             [SUBMIT_THOUGHTS_TOOL_NAME]: submitThoughts,
             [MESSAGE_USER_CLARIFYING_QUESTION_TOOL_NAME]: messageUserClarifyingQuestion,
           },
-          messages: [systemMessage, datasetsSystemMessage, ...messages],
+          messages: [
+            systemMessage,
+            datasetsSystemMessage,
+            ...(docsSystemMessage ? [docsSystemMessage] : []),
+            ...(analystInstructionsMessage ? [analystInstructionsMessage] : []),
+            ...(userPersonalizationSystemMessage ? [userPersonalizationSystemMessage] : []),
+            ...messages,
+          ],
           stopWhen: STOP_CONDITIONS,
           toolChoice: 'required',
           maxOutputTokens: 25000,

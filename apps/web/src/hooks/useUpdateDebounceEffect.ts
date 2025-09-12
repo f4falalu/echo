@@ -1,5 +1,3 @@
-'use client';
-
 import { type DependencyList, type EffectCallback, useEffect, useRef } from 'react';
 
 interface UpdateDebounceEffectOptions {

@@ -11,7 +11,7 @@ export const BusterSortableItemContent = React.memo(
       isDragging?: boolean;
       children?: React.ReactNode;
     }
-  >(({ style, children, itemId, isDragging, isDragOverlay }, setNodeRef) => {
+  >(({ style, children, isDragging, isDragOverlay }, setNodeRef) => {
     return (
       <div
         ref={setNodeRef}
@@ -23,7 +23,8 @@ export const BusterSortableItemContent = React.memo(
           isDragging && 'dragging z-10 transition-none',
           isDragging ? (isDragOverlay ? 'opacity-90' : 'opacity-40') : 'opacity-100',
           'translate-x-[var(--translate-x,0)] translate-y-[var(--translate-y,0)] scale-[var(--scale,1)]'
-        )}>
+        )}
+      >
         {children}
       </div>
     );

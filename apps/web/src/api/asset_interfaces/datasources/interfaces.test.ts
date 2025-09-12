@@ -7,7 +7,7 @@ import {
   MySQLCredentialsSchema,
   PostgresCredentialsSchema,
   type SnowflakeCredentials,
-  SnowflakeCredentialsSchema
+  SnowflakeCredentialsSchema,
 } from './interfaces';
 
 // Helper function to test validation
@@ -33,7 +33,7 @@ describe('DataSourceSchema', () => {
     username: 'postgres',
     password: 'password',
     default_database: 'postgres',
-    default_schema: 'public'
+    default_schema: 'public',
   };
 
   const validDataSource = {
@@ -41,14 +41,14 @@ describe('DataSourceSchema', () => {
     created_by: {
       email: 'test@example.com',
       id: '123',
-      name: 'Test User'
+      name: 'Test User',
     },
     credentials: validPostgresCredentials,
     data_sets: [{ id: '1', name: 'Test Dataset' }],
     id: '123',
     name: 'Test Data Source',
     type: DataSourceTypes.postgres,
-    updated_at: validISODate
+    updated_at: validISODate,
   };
 
   it('should validate a valid DataSource with Postgres credentials', () => {
@@ -64,9 +64,9 @@ describe('DataSourceSchema', () => {
         type: 'mysql',
         host: 'localhost',
         port: 3306,
-        username: 'root'
+        username: 'root',
       },
-      type: DataSourceTypes.mysql
+      type: DataSourceTypes.mysql,
     };
     const result = testValidation(DataSourceSchema, mysqlDataSource);
     expect(result.success).toBe(false);
@@ -80,9 +80,9 @@ describe('DataSourceSchema', () => {
         type: 'bigquery',
         service_role_key: 'key-123',
         default_project_id: 'project-id',
-        default_dataset_id: 'dataset-id'
+        default_dataset_id: 'dataset-id',
       },
-      type: DataSourceTypes.bigquery
+      type: DataSourceTypes.bigquery,
     };
     const result = testValidation(DataSourceSchema, bigQueryDataSource);
     expect(result.success).toBe(true);
@@ -100,9 +100,9 @@ describe('DataSourceSchema', () => {
         password: 'snowpass',
         role: null,
         default_database: 'snowdb',
-        default_schema: 'public'
+        default_schema: 'public',
       },
-      type: DataSourceTypes.snowflake
+      type: DataSourceTypes.snowflake,
     };
     const result = testValidation(DataSourceSchema, snowflakeDataSource);
     expect(result.success).toBe(true);
@@ -111,7 +111,7 @@ describe('DataSourceSchema', () => {
   it('should fail validation with invalid ISO date format', () => {
     const invalidDateDataSource = {
       ...validDataSource,
-      created_at: '2024-07-18' // Not in ISO format
+      created_at: '2024-07-18', // Not in ISO format
     };
     const result = testValidation(DataSourceSchema, invalidDateDataSource);
     expect(result.success).toBe(true);
@@ -122,8 +122,8 @@ describe('DataSourceSchema', () => {
       ...validDataSource,
       credentials: {
         ...validPostgresCredentials,
-        port: 0 // Invalid port number
-      }
+        port: 0, // Invalid port number
+      },
     };
     const result = testValidation(DataSourceSchema, invalidPortDataSource);
     expect(result.success).toBe(false);
@@ -139,7 +139,7 @@ describe('DataSourceSchema', () => {
   it('should fail validation with missing required fields', () => {
     const missingFieldsDataSource = {
       ...validDataSource,
-      name: undefined // Required field
+      name: undefined, // Required field
     };
     const result = testValidation(DataSourceSchema, missingFieldsDataSource);
     expect(result.success).toBe(false);
@@ -148,7 +148,7 @@ describe('DataSourceSchema', () => {
   it('should fail validation with invalid data_sets array', () => {
     const invalidDataSetsDataSource = {
       ...validDataSource,
-      data_sets: [{ id: '1' }] // Missing name field
+      data_sets: [{ id: '1' }], // Missing name field
     };
     const result = testValidation(DataSourceSchema, invalidDataSetsDataSource);
     expect(result.success).toBe(false);
@@ -159,8 +159,8 @@ describe('DataSourceSchema', () => {
       ...validDataSource,
       credentials: {
         ...validPostgresCredentials,
-        type: 'invalid-type' // Invalid type
-      }
+        type: 'invalid-type', // Invalid type
+      },
     };
     const result = testValidation(DataSourceSchema, invalidCredentialTypeDataSource);
     expect(result.success).toBe(false);
@@ -170,7 +170,7 @@ describe('DataSourceSchema', () => {
     const mismatchedTypeDataSource = {
       ...validDataSource,
       credentials: validPostgresCredentials,
-      type: DataSourceTypes.mysql // Mismatched with Postgres credentials
+      type: DataSourceTypes.mysql, // Mismatched with Postgres credentials
     };
 
     // In a real-world scenario, you might want to add a custom validation for this
@@ -194,7 +194,7 @@ describe('CredentialSchemas', () => {
       username: 'postgres',
       password: 'password',
       default_database: 'postgres',
-      default_schema: 'public'
+      default_schema: 'public',
     };
     const result = testValidation(PostgresCredentialsSchema, validCredentials);
     expect(result.success).toBe(true);
@@ -206,7 +206,7 @@ describe('CredentialSchemas', () => {
       type: 'mysql' as const,
       host: 'localhost',
       port: 3306,
-      username: 'root'
+      username: 'root',
     };
     const result = testValidation(MySQLCredentialsSchema, validCredentials);
     expect(result.success).toBe(false);
@@ -218,7 +218,7 @@ describe('CredentialSchemas', () => {
       type: 'bigquery' as const,
       service_role_key: 'key-123',
       default_project_id: 'project-id',
-      default_dataset_id: 'dataset-id'
+      default_dataset_id: 'dataset-id',
     };
     const result = testValidation(BigQueryCredentialsSchema, validCredentials);
     expect(result.success).toBe(true);
@@ -234,7 +234,7 @@ describe('CredentialSchemas', () => {
       password: 'snowpass',
       role: null,
       default_database: 'snowdb',
-      default_schema: 'public'
+      default_schema: 'public',
     };
     const result = testValidation(SnowflakeCredentialsSchema, validCredentials);
     expect(result.success).toBe(true);
@@ -251,7 +251,7 @@ describe('SnowflakeCredentialsSchema', () => {
     role: 'd',
     default_database: 'd',
     default_schema: 'd',
-    name: 'd'
+    name: 'd',
   } satisfies SnowflakeCredentials;
 
   it('should validate valid credentials', () => {
@@ -262,7 +262,7 @@ describe('SnowflakeCredentialsSchema', () => {
   it('should fail validation when name is missing', () => {
     const testCredentialsMissingName = {
       ...testCredentials,
-      name: undefined
+      name: undefined,
     };
     const result = testValidation(SnowflakeCredentialsSchema, testCredentialsMissingName);
     expect(result.success).toBe(false);

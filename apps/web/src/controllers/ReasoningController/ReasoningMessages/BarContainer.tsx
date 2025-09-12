@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import React from 'react';
+import type React from 'react';
 import type { BusterChatMessageReasoning_status } from '@/api/asset_interfaces';
 import { StatusIndicator } from '@/components/ui/indicators';
 import { Text } from '@/components/ui/typography';
@@ -48,7 +48,7 @@ VerticalBarContainer.displayName = 'BarContainer';
 
 const VerticalBar: React.FC<{ show?: boolean; isStreamFinished: boolean }> = ({
   show,
-  isStreamFinished
+  isStreamFinished,
 }) => {
   return (
     <div
@@ -56,7 +56,8 @@ const VerticalBar: React.FC<{ show?: boolean; isStreamFinished: boolean }> = ({
         'flex w-full flex-1 justify-center overflow-hidden',
         'opacity-0 transition-opacity duration-300',
         show && 'opacity-100!'
-      )}>
+      )}
+    >
       <AnimatePresence initial={!isStreamFinished}>
         <motion.div
           className={cn('bg-text-tertiary w-[0.5px]', 'mt-1 overflow-hidden')}
@@ -64,7 +65,7 @@ const VerticalBar: React.FC<{ show?: boolean; isStreamFinished: boolean }> = ({
           animate={{ height: 'auto' }}
           transition={{
             duration: 0.3,
-            ease: 'easeInOut'
+            ease: 'easeInOut',
           }}
         />
       </AnimatePresence>
@@ -88,7 +89,8 @@ const TitleContainer: React.FC<{
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ delay: 0 }}
-          key={title + secondaryTitle}>
+          key={title + secondaryTitle}
+        >
           <Text size="sm" className={cn('whitespace-nowrap')} variant={'default'}>
             {title}
           </Text>
@@ -96,7 +98,8 @@ const TitleContainer: React.FC<{
             <Text
               size="sm"
               className={cn('hidden whitespace-nowrap @[170px]:flex!')}
-              variant={'tertiary'}>
+              variant={'tertiary'}
+            >
               {secondaryTitle}
             </Text>
           )}

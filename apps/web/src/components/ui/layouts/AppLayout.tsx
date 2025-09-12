@@ -1,8 +1,8 @@
 import type React from 'react';
 import { cn } from '@/lib/utils';
 import { AppSplitter } from './AppSplitter/AppSplitter';
-
-const DEFAULT_LAYOUT = ['230px', 'auto'];
+import type { LayoutSize } from './AppSplitter/AppSplitter.types';
+import { createAutoSaveId } from './AppSplitter/create-auto-save-id';
 
 /**
  * @param floating - Applies floating styles with padding and border (default: true)
@@ -17,9 +17,10 @@ export const AppLayout: React.FC<
     floating?: boolean;
     className?: string;
     sidebar?: React.ReactNode;
-    defaultLayout?: [string, string];
+    defaultLayout: LayoutSize;
+    initialLayout: LayoutSize | null;
     leftHidden?: boolean;
-    autoSaveId?: string;
+    autoSaveId: string;
   }>
 > = ({
   children,
@@ -27,7 +28,8 @@ export const AppLayout: React.FC<
   floating = true,
   className = '',
   sidebar,
-  autoSaveId = 'app-layout'
+  initialLayout,
+  autoSaveId = 'app-layout',
 }) => {
   const PageContent = (
     <PageLayout hasSidebar={!!sidebar} floating={floating} className={className}>
@@ -41,7 +43,7 @@ export const AppLayout: React.FC<
 
   return (
     <AppSplitter
-      defaultLayout={defaultLayout ?? DEFAULT_LAYOUT}
+      defaultLayout={defaultLayout}
       className="max-h-screen min-h-screen overflow-hidden"
       autoSaveId={autoSaveId}
       preserveSide="left"
@@ -51,6 +53,9 @@ export const AppLayout: React.FC<
       hideSplitter={true}
       leftChildren={sidebar}
       rightChildren={PageContent}
+      initialLayout={initialLayout}
+      leftPanelElement="aside"
+      rightPanelElement="main"
     />
   );
 };
@@ -65,14 +70,17 @@ const PageLayout: React.FC<
   return (
     <div
       className={cn(
-        'h-screen w-full overflow-hidden',
-        'py-2',
+        'h-screen w-full overflow-hidden relative py-2',
         floating && hasSidebar ? 'pr-2' : 'pr-2 pl-2',
         className
-      )}>
+      )}
+    >
       <div className={cn('bg-background h-full overflow-hidden', floating && 'rounded border')}>
         {children}
       </div>
     </div>
   );
 };
+
+export type { LayoutSize };
+export { createAutoSaveId };

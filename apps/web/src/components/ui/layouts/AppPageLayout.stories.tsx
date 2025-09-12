@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import { AppPageLayout } from './AppPageLayout';
 
@@ -6,7 +6,7 @@ const meta: Meta<typeof AppPageLayout> = {
   title: 'UI/Layouts/AppPageLayout',
   component: AppPageLayout,
   parameters: {
-    layout: 'fullscreen'
+    layout: 'fullscreen',
   },
   tags: ['autodocs'],
   decorators: [
@@ -14,8 +14,8 @@ const meta: Meta<typeof AppPageLayout> = {
       <div className="bg-background-secondary" style={{ height: '500px', width: '100%' }}>
         <Story />
       </div>
-    )
-  ]
+    ),
+  ],
 };
 
 export default meta;
@@ -23,31 +23,31 @@ type Story = StoryObj<typeof AppPageLayout>;
 
 export const Default: Story = {
   args: {
-    children: <div className="">Page Content</div>
-  }
+    children: <div className="">Page Content</div>,
+  },
 };
 
 export const WithHeader: Story = {
   args: {
     header: <div className="bg-gray-100">Header Content</div>,
-    children: <div className="">Page Content</div>
-  }
+    children: <div className="">Page Content</div>,
+  },
 };
 
 export const NonScrollable: Story = {
   args: {
     scrollable: false,
     header: <div className="bg-gray-100">Header Content</div>,
-    children: <div className="h-full w-full border border-red-500 bg-red-100">Fixed Content</div>
-  }
+    children: <div className="h-full w-full border border-red-500 bg-red-100">Fixed Content</div>,
+  },
 };
 
 export const WithCustomClassName: Story = {
   args: {
     className: 'bg-gray-50',
     header: <div className="">Header Content</div>,
-    children: <div className="">Content with custom background</div>
-  }
+    children: <div className="">Content with custom background</div>,
+  },
 };
 
 export const LongContent: Story = {
@@ -64,8 +64,8 @@ export const LongContent: Story = {
           </p>
         ))}
       </div>
-    )
-  }
+    ),
+  },
 };
 
 export const LongContentGhostHeader: Story = {
@@ -84,6 +84,6 @@ export const LongContentGhostHeader: Story = {
           </p>
         ))}
       </div>
-    )
-  }
+    ),
+  },
 };

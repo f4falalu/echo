@@ -1,7 +1,7 @@
-import Link from 'next/link';
+import { Link, type RegisteredRouter } from '@tanstack/react-router';
 import React, { useMemo } from 'react';
-import { createBusterRoute } from '@/routes/busterRoutes';
-import { Dropdown, type DropdownItem } from '../dropdown/Dropdown';
+import type { ILinkProps } from '@/types/routes';
+import { Dropdown, type IDropdownItem } from '../dropdown';
 import {
   Breadcrumb as BreadcrumbBase,
   BreadcrumbEllipsis,
@@ -9,19 +9,25 @@ import {
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator
+  BreadcrumbSeparator,
 } from './BreadcrumbBase';
 
-type CreateBusterRouteParams = Parameters<typeof createBusterRoute>[0];
-
-export interface BreadcrumbItemType {
+export interface BreadcrumbItemType<
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = Record<string, unknown>,
+  TFrom extends string = string,
+> {
   label: string | null; //if null, it will be an ellipsis
-  route?: CreateBusterRouteParams;
-  dropdown?: { label: string; route: CreateBusterRouteParams }[];
+  link?: ILinkProps<TRouter, TOptions, TFrom>;
+  dropdown?: { label: string; link: ILinkProps }[];
 }
 
-interface BreadcrumbProps {
-  items: BreadcrumbItemType[];
+interface BreadcrumbProps<
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = Record<string, unknown>,
+  TFrom extends string = string,
+> {
+  items: BreadcrumbItemType<TRouter, TOptions, TFrom>[];
   className?: string;
   activeIndex?: number; //default will be the last item
 }
@@ -32,7 +38,7 @@ export const Breadcrumb = React.memo(
     const lastItemIndex = items.length - 1;
 
     return (
-      <BreadcrumbBase className={className}>
+      <BreadcrumbBase className={className} ref={ref}>
         <BreadcrumbList>
           {items.map((item, index) => (
             <BreadcrumbItemSelector
@@ -63,8 +69,8 @@ const BreadcrumbItemSelector: React.FC<{
 
     return (
       <BreadcrumbLink asChild>
-        {item.route ? (
-          <Link href={createBusterRoute(item.route)} className="truncate">
+        {item.link ? (
+          <Link {...item.link} className="truncate">
             {item.label}
           </Link>
         ) : (
@@ -72,7 +78,7 @@ const BreadcrumbItemSelector: React.FC<{
         )}
       </BreadcrumbLink>
     );
-  }, [isActive, item.label, item.route, item.dropdown]);
+  }, [isActive, item.label, item.link, item.dropdown]);
 
   return (
     <>
@@ -83,18 +89,17 @@ const BreadcrumbItemSelector: React.FC<{
 };
 
 const BreadcrumbDropdown: React.FC<{
-  items: { label: string; route: CreateBusterRouteParams }[];
+  items: { label: string; link: ILinkProps }[];
 }> = ({ items }) => {
-  const dropdownItems: DropdownItem[] = useMemo(() => {
+  const dropdownItems: IDropdownItem[] = useMemo(() => {
     return items.map((item) => {
-      const route = createBusterRoute(item.route);
       return {
         label: (
-          <Link href={route} className="truncate">
+          <Link {...item.link} className="truncate">
             {item.label}
           </Link>
         ),
-        value: route
+        value: JSON.stringify(item.link),
       };
     });
   }, [items]);

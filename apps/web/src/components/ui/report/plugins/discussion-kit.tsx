@@ -1,10 +1,6 @@
-'use client';
-
-import type { TComment } from '../elements/Comment';
-
 import { createPlatePlugin } from 'platejs/react';
-
 import { BlockDiscussion } from '../elements/BlockDiscussion';
+import type { TComment } from '../elements/Comment';
 
 export interface TDiscussion {
   id: string;
@@ -25,16 +21,16 @@ const discussionsData: TDiscussion[] = [
           {
             children: [
               {
-                text: 'Comments are a great way to provide feedback and discuss changes.'
-              }
+                text: 'Comments are a great way to provide feedback and discuss changes.',
+              },
             ],
-            type: 'p'
-          }
+            type: 'p',
+          },
         ],
         createdAt: new Date(Date.now() - 600_000),
         discussionId: 'discussion1',
         isEdited: false,
-        userId: 'charlie'
+        userId: 'charlie',
       },
       {
         id: 'comment2',
@@ -42,22 +38,22 @@ const discussionsData: TDiscussion[] = [
           {
             children: [
               {
-                text: 'Agreed! The link to the docs makes it easy to learn more.'
-              }
+                text: 'Agreed! The link to the docs makes it easy to learn more.',
+              },
             ],
-            type: 'p'
-          }
+            type: 'p',
+          },
         ],
         createdAt: new Date(Date.now() - 500_000),
         discussionId: 'discussion1',
         isEdited: false,
-        userId: 'bob'
-      }
+        userId: 'bob',
+      },
     ],
     createdAt: new Date(),
     documentContent: 'comments',
     isResolved: false,
-    userId: 'charlie'
+    userId: 'charlie',
   },
   {
     id: 'discussion2',
@@ -68,16 +64,16 @@ const discussionsData: TDiscussion[] = [
           {
             children: [
               {
-                text: 'Nice demonstration of overlapping annotations with both comments and suggestions!'
-              }
+                text: 'Nice demonstration of overlapping annotations with both comments and suggestions!',
+              },
             ],
-            type: 'p'
-          }
+            type: 'p',
+          },
         ],
         createdAt: new Date(Date.now() - 300_000),
         discussionId: 'discussion2',
         isEdited: false,
-        userId: 'bob'
+        userId: 'bob',
       },
       {
         id: 'comment2',
@@ -85,23 +81,23 @@ const discussionsData: TDiscussion[] = [
           {
             children: [
               {
-                text: 'This helps users understand how powerful the editor can be.'
-              }
+                text: 'This helps users understand how powerful the editor can be.',
+              },
             ],
-            type: 'p'
-          }
+            type: 'p',
+          },
         ],
         createdAt: new Date(Date.now() - 200_000),
         discussionId: 'discussion2',
         isEdited: false,
-        userId: 'charlie'
-      }
+        userId: 'charlie',
+      },
     ],
     createdAt: new Date(),
     documentContent: 'overlapping',
     isResolved: false,
-    userId: 'bob'
-  }
+    userId: 'bob',
+  },
 ];
 
 const avatarUrl = (seed: string) => `https://api.dicebear.com/9.x/glass/svg?seed=${seed}`;
@@ -110,18 +106,18 @@ const usersData: Record<string, { id: string; avatarUrl: string; name: string; h
   alice: {
     id: 'alice',
     avatarUrl: avatarUrl('alice6'),
-    name: 'Alice'
+    name: 'Alice',
   },
   bob: {
     id: 'bob',
     avatarUrl: avatarUrl('bob4'),
-    name: 'Bob'
+    name: 'Bob',
   },
   charlie: {
     id: 'charlie',
     avatarUrl: avatarUrl('charlie2'),
-    name: 'Charlie'
-  }
+    name: 'Charlie',
+  },
 };
 
 // This plugin is purely UI. It's only used to store the discussions and users data
@@ -130,15 +126,15 @@ export const discussionPlugin = createPlatePlugin({
   options: {
     currentUserId: 'alice',
     discussions: discussionsData,
-    users: usersData
-  }
+    users: usersData,
+  },
 })
   .configure({
-    render: { aboveNodes: BlockDiscussion }
+    render: { aboveNodes: BlockDiscussion },
   })
   .extendSelectors(({ getOption }) => ({
     currentUser: () => getOption('users')[getOption('currentUserId')],
-    user: (id: string) => getOption('users')[id]
+    user: (id: string) => getOption('users')[id],
   }));
 
 export const DiscussionKit = [discussionPlugin];

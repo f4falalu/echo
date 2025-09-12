@@ -1,27 +1,20 @@
-'use client';
-
-import Link from 'next/link';
+import type { AssetType } from '@buster/server-shared/assets';
+import type { ResponseMessageFileType } from '@buster/server-shared/chats';
+import { Link, type LinkProps } from '@tanstack/react-router';
 import React, { useMemo } from 'react';
 import { BusterLogo } from '@/assets/svg/BusterLogo';
 import { Button } from '@/components/ui/buttons';
 import { Title } from '@/components/ui/typography';
-import { useSupabaseContext } from '@/context/Supabase';
-import {
-  BusterRoutes,
-  createBusterRoute,
-  createPathnameToBusterRoute,
-  extractPathParamsFromRoute,
-  getEmbedAssetToRegularAsset
-} from '@/routes';
+import { useIsAnonymousSupabaseUser } from '@/context/Supabase';
 
 export const AppNoPageAccess: React.FC<{
   assetId: string;
-}> = React.memo(({ assetId }) => {
-  const isAnonymousUser = useSupabaseContext((x) => x.isAnonymousUser);
+  type: AssetType | ResponseMessageFileType;
+}> = React.memo(({ type }) => {
+  const isAnonymousUser = useIsAnonymousSupabaseUser();
 
-  const { buttonText, linkUrl } = useMemo(() => {
-    const isEmbedPage =
-      typeof window !== 'undefined' && window.location.pathname.startsWith('/embed');
+  const { buttonText, link } = useMemo(() => {
+    const isEmbedPage = window?.location.pathname.startsWith('/embed');
 
     const shouldShowLogin = isAnonymousUser || isEmbedPage;
 
@@ -29,23 +22,22 @@ export const AppNoPageAccess: React.FC<{
       const currentUrl =
         typeof window !== 'undefined' ? `${window.location.pathname}${window.location.search}` : '';
 
-      const linkUrl = getEmbedAssetToRegularAsset(currentUrl);
-
       return {
         buttonText: 'Login to view asset',
-        linkUrl:
-          linkUrl ||
-          createBusterRoute({
-            route: BusterRoutes.AUTH_LOGIN
-          })
+        link: {
+          to: '/auth/login',
+          search: {
+            next: currentUrl,
+          },
+        } as const satisfies LinkProps,
       };
     }
 
     return {
       buttonText: 'Go home',
-      linkUrl: createBusterRoute({
-        route: BusterRoutes.APP_HOME
-      })
+      link: {
+        to: '/app/home',
+      } as const satisfies LinkProps,
     };
   }, [isAnonymousUser]);
 
@@ -53,14 +45,14 @@ export const AppNoPageAccess: React.FC<{
     <div className="flex h-[85vh] w-full flex-col items-center justify-center space-y-6">
       <BusterLogo className="h-16 w-16" />
 
-      <div className="max-w-[440px] text-center">
+      <div className="max-w-[550px] text-center">
         <Title as="h2" className="text-center">
-          {"It looks like you don't have access to this file..."}
+          {`It looks like you don't have access to this ${type}...`}
         </Title>
       </div>
 
       <div className="flex space-x-2">
-        <Link href={linkUrl}>
+        <Link {...link} preload="viewport" preloadDelay={650}>
           <Button>{buttonText}</Button>
         </Link>
       </div>

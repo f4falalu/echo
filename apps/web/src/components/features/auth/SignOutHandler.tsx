@@ -1,30 +1,30 @@
-'use client';
-
+import { useNavigate } from '@tanstack/react-router';
 import { useCallback } from 'react';
-import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { clearAllBrowserStorage } from '@/lib/browser/storage';
-import { signOut } from '@/lib/supabase/signOut';
-import { BusterRoutes } from '@/routes/busterRoutes';
+import { signOut } from '@/integrations/supabase/signOut';
+import { clearAllBrowserStorage } from '@/lib/storage';
 
 export const useSignOut = () => {
-  const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const { openErrorMessage } = useBusterNotifications();
+  const navigate = useNavigate();
   const handleSignOut = useCallback(async () => {
     try {
       // Then perform server-side sign out
       await signOut();
 
-      // First clear all client-side storage
-      clearAllBrowserStorage();
-
-      await onChangePage({
-        route: BusterRoutes.AUTH_LOGIN
-      });
+      try {
+        // First clear all client-side storage
+        clearAllBrowserStorage();
+      } catch (error) {
+        console.error('Error clearing browser storage', error);
+      }
     } catch (error) {
+      console.error('Error signing out', error);
       openErrorMessage('Error signing out');
+    } finally {
+      navigate({ to: '/auth/login' });
     }
-  }, [onChangePage, openErrorMessage]);
+  }, [navigate, openErrorMessage]);
 
   return handleSignOut;
 };

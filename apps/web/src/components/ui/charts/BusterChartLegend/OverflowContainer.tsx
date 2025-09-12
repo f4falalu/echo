@@ -1,10 +1,10 @@
-import { cn } from '@/lib/classMerge';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React from 'react';
 import { Popover } from '@/components/ui/popover/Popover';
+import { cn } from '@/lib/classMerge';
+import type { BusterChartLegendItem, BusterChartLegendProps } from './interfaces';
 import { LegendItemDot } from './LegendDot';
 import { LegendItem } from './LegendItem';
-import type { BusterChartLegendItem, BusterChartLegendProps } from './interfaces';
 
 export const OverflowButton: React.FC<{
   legendItems: BusterChartLegendItem[];
@@ -13,27 +13,37 @@ export const OverflowButton: React.FC<{
   onHoverItem?: BusterChartLegendProps['onHoverItem'];
 }> = React.memo(({ legendItems, onFocusClick, onClickItem, onHoverItem }) => {
   return (
-    <Popover
-      align="center"
-      side="left"
-      className="flex max-h-[420px] max-w-[265px]! min-w-[240px] flex-col overflow-hidden px-0 py-0.5"
-      content={
-        <OverflowPopoverContent
-          legendItems={legendItems}
-          onClickItem={onClickItem}
-          onFocusClick={onFocusClick}
-          onHoverItem={onHoverItem}
-        />
-      }>
-      <div
-        className={cn(
-          'flex h-[24px] cursor-pointer items-center space-x-1.5 rounded-sm px-2 py-1',
-          'hover:bg-item-hover'
-        )}>
-        <LegendItemDot type={'bar'} color={undefined} inactive={true} />
-        <span className="text-sm text-nowrap select-none">Next {legendItems.length}</span>
-      </div>
-    </Popover>
+    <span
+      onClick={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+      }}
+    >
+      <Popover
+        align="center"
+        side="left"
+        className="flex max-h-[420px] max-w-[265px]! min-w-[240px] flex-col overflow-hidden px-0 py-0.5"
+        // onOpenChange={setOpen}
+        content={
+          <OverflowPopoverContent
+            legendItems={legendItems}
+            onClickItem={onClickItem}
+            onFocusClick={onFocusClick}
+            onHoverItem={onHoverItem}
+          />
+        }
+      >
+        <div
+          className={cn(
+            'flex h-[24px] cursor-pointer items-center space-x-1.5 rounded-sm px-2 py-1',
+            'hover:bg-item-hover'
+          )}
+        >
+          <LegendItemDot type={'bar'} color={undefined} inactive={true} />
+          <span className="text-sm text-nowrap select-none">Next {legendItems.length}</span>
+        </div>
+      </Popover>
+    </span>
   );
 });
 OverflowButton.displayName = 'OverflowButton';
@@ -43,7 +53,7 @@ const OverflowPopoverContent = React.memo(
     legendItems,
     onClickItem,
     onFocusClick,
-    onHoverItem
+    onHoverItem,
   }: {
     legendItems: BusterChartLegendItem[];
     onClickItem: BusterChartLegendProps['onClickItem'];
@@ -57,7 +67,7 @@ const OverflowPopoverContent = React.memo(
       count: legendItems.length,
       getScrollElement: () => parentRef.current,
       estimateSize: () => (hasHeadline ? 38 : 24), // Estimated height of each row
-      overscan: 10
+      overscan: 10,
     });
 
     return (
@@ -66,14 +76,16 @@ const OverflowPopoverContent = React.memo(
         style={{
           maxHeight: '100%',
           width: '100%',
-          overflow: 'auto'
-        }}>
+          overflow: 'auto',
+        }}
+      >
         <div
           style={{
             height: `${rowVirtualizer.getTotalSize()}px`,
             width: '100%',
-            position: 'relative'
-          }}>
+            position: 'relative',
+          }}
+        >
           {rowVirtualizer.getVirtualItems().map((virtualRow) => {
             const item = legendItems[virtualRow.index];
             if (!item) return null;
@@ -86,9 +98,10 @@ const OverflowPopoverContent = React.memo(
                   left: 0,
                   width: '100%',
                   height: `${virtualRow.size}px`,
-                  transform: `translateY(${virtualRow.start}px)`
+                  transform: `translateY(${virtualRow.start}px)`,
                 }}
-                className="p-0.5">
+                className="p-0.5"
+              >
                 <LegendItem
                   item={item}
                   onClickItem={onClickItem}

@@ -1,72 +1,81 @@
-'use client';
-
-import * as React from 'react';
-
+import { BlockSelectionPlugin } from '@platejs/selection/react';
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
-
-import { KEYS } from 'platejs';
-import { useEditorRef } from 'platejs/react';
+import { KEYS, PathApi } from 'platejs';
+import { useEditorRef, useElement } from 'platejs/react';
+import * as React from 'react';
+import { Button } from '../../buttons';
+import { Dropdown, type DropdownDivider, type IDropdownItems } from '../../dropdown';
 import { NodeTypeIcons } from '../config/icons';
-import { createLabel, NodeTypeLabels } from '../config/labels';
+import { NodeTypeLabels } from '../config/labels';
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
-
-import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
-
-export function MoreToolbarButton(props: DropdownMenuProps) {
+export function MoreToolbarButton() {
   const editor = useEditorRef();
   const [open, setOpen] = React.useState(false);
 
+  const items: IDropdownItems = [
+    {
+      value: 'duplicate',
+      label: NodeTypeLabels.duplicate.label,
+      icon: <NodeTypeIcons.duplicate />,
+      onClick: () => {
+        const block = editor.api.block();
+        if (!block) return;
+        editor.tf.duplicateNodes({
+          nodes: [block],
+        });
+        const path = PathApi.next(block[1]);
+        setTimeout(() => {
+          editor.tf.select(path);
+          editor.tf.focus();
+        }, 0);
+      },
+    },
+    {
+      value: 'delete',
+      label: NodeTypeLabels.delete.label,
+      icon: <NodeTypeIcons.trash />,
+      onClick: () => {
+        const block = editor.api.block();
+        if (!block) return;
+        editor.tf.removeNodes({
+          at: block[1],
+        });
+      },
+    },
+    { type: 'divider' as const } satisfies DropdownDivider,
+    {
+      value: 'keyboard',
+      label: NodeTypeLabels.keyboardInput.label,
+      icon: <NodeTypeIcons.keyboard />,
+      onClick: () => {
+        editor.tf.toggleMark(KEYS.kbd);
+        editor.tf.collapse({ edge: 'end' });
+        editor.tf.focus();
+      },
+    },
+    {
+      value: 'superscript',
+      label: NodeTypeLabels.superscript.label,
+      icon: <NodeTypeIcons.superscript />,
+      onClick: () => {
+        editor.tf.toggleMark(KEYS.sup);
+        editor.tf.focus();
+      },
+    },
+    {
+      value: 'subscript',
+      label: NodeTypeLabels.subscript.label,
+      icon: <NodeTypeIcons.subscript />,
+      onClick: () => {
+        editor.tf.toggleMark(KEYS.sub);
+        editor.tf.focus();
+      },
+    },
+  ];
+
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
-      <DropdownMenuTrigger asChild>
-        <ToolbarButton pressed={open} tooltip={createLabel('more')}>
-          <NodeTypeIcons.moreHorizontal />
-        </ToolbarButton>
-      </DropdownMenuTrigger>
-
-      <DropdownMenuContent
-        className="ignore-click-outside/toolbar flex max-h-[500px] min-w-[180px] flex-col overflow-y-auto"
-        align="start">
-        <DropdownMenuGroup>
-          <DropdownMenuItem
-            onSelect={() => {
-              editor.tf.toggleMark(KEYS.kbd);
-              editor.tf.collapse({ edge: 'end' });
-              editor.tf.focus();
-            }}>
-            <NodeTypeIcons.keyboard />
-            {NodeTypeLabels.keyboardInput.label}
-          </DropdownMenuItem>
-
-          <DropdownMenuItem
-            onSelect={() => {
-              editor.tf.toggleMark(KEYS.sup, {
-                remove: KEYS.sub
-              });
-              editor.tf.focus();
-            }}>
-            <NodeTypeIcons.superscript />
-            {NodeTypeLabels.superscript.label}
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onSelect={() => {
-              editor.tf.toggleMark(KEYS.sub, {
-                remove: KEYS.sup
-              });
-              editor.tf.focus();
-            }}>
-            <NodeTypeIcons.subscript />
-            {NodeTypeLabels.subscript.label}
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Dropdown items={items} open={open} onOpenChange={setOpen} modal={false} selectType="none">
+      <Button variant={'ghost'} prefix={<NodeTypeIcons.moreHorizontal />} />
+    </Dropdown>
   );
 }

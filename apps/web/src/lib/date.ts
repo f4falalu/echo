@@ -1,3 +1,9 @@
+import {
+  type ColumnLabelFormat,
+  DEFAULT_DATE_FORMAT_MONTH_OF_YEAR,
+  DEFAULT_DATE_FORMAT_QUARTER,
+  DEFAULT_DAY_OF_WEEK_FORMAT,
+} from '@buster/server-shared/metrics';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
@@ -5,16 +11,10 @@ import quarterOfYear from 'dayjs/plugin/quarterOfYear';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
-import lodashIsNaN from 'lodash/isNaN';
 import isDate from 'lodash/isDate';
+import lodashIsNaN from 'lodash/isNaN';
 import isNumber from 'lodash/isNumber';
 import isString from 'lodash/isString';
-import {
-  DEFAULT_DATE_FORMAT_MONTH_OF_YEAR,
-  DEFAULT_DATE_FORMAT_QUARTER,
-  DEFAULT_DAY_OF_WEEK_FORMAT,
-  type ColumnLabelFormat
-} from '@buster/server-shared/metrics';
 import { SupportedLanguages } from '@/config/languages';
 import { getBrowserLanguage } from './language';
 import { isNumeric } from './numbers';
@@ -37,7 +37,7 @@ const KEY_DATE_FORMATS = [
   'timestamp',
   'time_stamp',
   'created_at',
-  '_month'
+  '_month',
 ];
 const KEY_DATE_INCLUDE_FORMATS = ['_month', '_year'];
 const VALID_DATE_FORMATS = [
@@ -65,7 +65,7 @@ const VALID_DATE_FORMATS = [
   'MM DD YYYY',
   'M D YYYY',
   'MMM D, YYYY',
-  'MMMM D, YYYY'
+  'MMMM D, YYYY',
 ];
 
 export const numberDateFallback = (
@@ -115,7 +115,7 @@ export const formatDate = ({
   isUTC = false,
   dateKey,
   ignoreValidation = true,
-  convertNumberTo = null
+  convertNumberTo = null,
 }: {
   date: string | number | Date;
   format: string;
@@ -131,7 +131,7 @@ export const formatDate = ({
       ? true
       : !!(myDate as dayjs.Dayjs)?.toDate ||
         isDateValid({
-          date: myDate as string
+          date: myDate as string,
         });
 
     if (convertNumberTo) {
@@ -175,7 +175,7 @@ export const formatDate = ({
 export const isDateSame = ({
   date,
   compareDate,
-  interval = 'day'
+  interval = 'day',
 }: {
   date: string | number | dayjs.Dayjs | Date;
   compareDate: string | number | dayjs.Dayjs | Date;
@@ -187,7 +187,7 @@ export const isDateSame = ({
 export const isDateBefore = ({
   date,
   compareDate,
-  interval = 'day'
+  interval = 'day',
 }: {
   date: string | number | dayjs.Dayjs | Date;
   compareDate: string | number | dayjs.Dayjs | Date;
@@ -199,7 +199,7 @@ export const isDateBefore = ({
 export const isDateAfter = ({
   date,
   compareDate,
-  interval = 'day'
+  interval = 'day',
 }: {
   date: string | number | dayjs.Dayjs | Date;
   compareDate: string | number | dayjs.Dayjs | Date;
@@ -234,7 +234,7 @@ const isKeyLikelyDate = (dateKey?: string) => {
 export const isDateValid = ({
   date,
   dateKey,
-  useNumbersAsDateKey = true
+  useNumbersAsDateKey = true,
 }: {
   date: string | number | Date | undefined;
   dateKey?: string;
@@ -280,7 +280,7 @@ export const keysWithDate = (
       const value = data?.[0]?.[key];
       return isDateValid({
         date: String(value),
-        dateKey: key
+        dateKey: key,
       });
     });
   }
@@ -293,7 +293,7 @@ export const keysWithDate = (
         (absoluteFormats && KEY_DATE_FORMATS.some((keyDate) => keyDate === key.toLowerCase())) ||
         isDateValid({
           date: String(value),
-          dateKey: key
+          dateKey: key,
         }) ||
         (includeFormats &&
           KEY_DATE_INCLUDE_FORMATS.some((format) => key.toLowerCase().endsWith(format)))
@@ -319,39 +319,40 @@ export enum DEFAULT_TIME_ENCODE_FORMATS {
   NO_FORMAT = 'no_format',
   MILLISECONDS = 'millisecond',
   WEEK = 'week',
-  MINUTES = 'minute'
+  MINUTES = 'minute',
 }
 
-let loadedLocales: string[] = [];
-export const setNewDateLocale = async (locale: SupportedLanguages) => {
-  if (!locale) return;
-  let _locale: string = locale;
+//const loadedLocales: string[] = [];
 
-  const loadAndSet = async (locale: string) => {
-    try {
-      await import(`dayjs/locale/${_locale}.js`);
-      loadedLocales = [...loadedLocales, _locale as SupportedLanguages];
-    } catch (error) {
-      //
-    }
-  };
+// export const setNewDateLocale = async (locale: SupportedLanguages) => {
+//   if (!locale) return;
+//   let _locale: string = locale;
 
-  try {
-    if (!loadedLocales.includes(_locale as SupportedLanguages)) {
-      if (_locale === SupportedLanguages.EN) _locale = getBrowserLanguage(true).toLocaleLowerCase();
-      loadAndSet(_locale);
-    }
-  } catch {
-    try {
-      _locale = locale;
-      loadAndSet(_locale);
-    } catch (error) {
-      console.error(`Error loading locale ${_locale}:`, error);
-    }
-  }
+//   const loadAndSet = async (_dlocale: string) => {
+//     try {
+//       await import(`dayjs/locale/${_locale}.js`);
+//       loadedLocales = [...loadedLocales, _locale as SupportedLanguages];
+//     } catch (error) {
+//       //
+//     }
+//   };
 
-  dayjs.locale(_locale);
-};
+//   try {
+//     if (!loadedLocales.includes(_locale as SupportedLanguages)) {
+//       if (_locale === SupportedLanguages.EN) _locale = getBrowserLanguage(true).toLocaleLowerCase();
+//       loadAndSet(_locale);
+//     }
+//   } catch {
+//     try {
+//       _locale = locale;
+//       loadAndSet(_locale);
+//     } catch (error) {
+//       console.error(`Error loading locale ${_locale}:`, error);
+//     }
+//   }
+
+//   dayjs.locale(_locale);
+// };
 
 export const getBestDateFormat = (minDate: dayjs.Dayjs, maxDate: dayjs.Dayjs) => {
   const diffInDays = maxDate.diff(minDate, 'days');

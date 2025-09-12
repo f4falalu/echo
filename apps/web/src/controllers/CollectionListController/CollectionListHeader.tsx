@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useMemo } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import type { BusterCollectionListItem } from '@/api/asset_interfaces/collection';
@@ -11,8 +9,7 @@ import { Plus } from '@/components/ui/icons';
 import type { SegmentedItem } from '@/components/ui/segmented';
 import { AppSegmented } from '@/components/ui/segmented';
 import { AppTooltip } from '@/components/ui/tooltip';
-import { useMemoizedFn } from '@/hooks';
-import { BusterRoutes } from '@/routes';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 
 type CollectionListFilters = Omit<
   Parameters<typeof collectionsGetList>[0],
@@ -31,10 +28,8 @@ export const CollectionListHeader: React.FC<{
   ({
     collectionId,
     setOpenNewCollectionModal,
-    isCollectionListFetched,
-    collectionsList,
     collectionListFilters,
-    setCollectionListFilters
+    setCollectionListFilters,
   }) => {
     const { data: collection } = useGetCollection(collectionId);
     const collectionTitle = collection?.name || 'Collections';
@@ -46,11 +41,13 @@ export const CollectionListHeader: React.FC<{
           label: collectionTitle,
           route: collectionId
             ? {
-                route: BusterRoutes.APP_COLLECTIONS_ID,
-                collectionId: collectionId
+                to: '/app/collections/$collectionId',
+                params: {
+                  collectionId: collectionId,
+                },
               }
-            : { route: BusterRoutes.APP_COLLECTIONS }
-        }
+            : { to: '/app/collections' },
+        },
       ],
       [collectionId, collectionTitle]
     );
@@ -91,16 +88,16 @@ CollectionListHeader.displayName = 'CollectionListHeader';
 const filters: SegmentedItem<string>[] = [
   {
     label: 'All',
-    value: JSON.stringify({})
+    value: JSON.stringify({}),
   },
   {
     label: 'My collections',
-    value: JSON.stringify({ owned_by_me: true })
+    value: JSON.stringify({ owned_by_me: true }),
   },
   {
     label: 'Shared with me',
-    value: JSON.stringify({ shared_with_me: true })
-  }
+    value: JSON.stringify({ shared_with_me: true }),
+  },
 ];
 
 const CollectionFilters: React.FC<{

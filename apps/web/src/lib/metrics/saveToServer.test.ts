@@ -1,9 +1,9 @@
+import type { ChartType } from '@buster/server-shared/metrics';
 import { describe, expect, it } from 'vitest';
 import type { BusterMetric } from '@/api/asset_interfaces/metric';
-import type { ChartType } from '@buster/server-shared/metrics';
 import {
   getChangedTopLevelMessageValues,
-  getChangesFromDefaultChartConfig
+  getChangesFromDefaultChartConfig,
 } from './saveToServerHelpers';
 
 // Mock minimal metric objects for testing
@@ -36,7 +36,7 @@ const createMockMetric = (overrides?: Partial<BusterMetric>): BusterMetric =>
     dashboards: [],
     collections: [],
     versions: [],
-    ...overrides
+    ...overrides,
   }) as BusterMetric;
 
 describe('getChangedTopLevelMessageValues', () => {
@@ -90,7 +90,7 @@ describe('getChangedTopLevelMessageValues', () => {
     const newMetric = createMockMetric({
       name: 'Updated Name',
       status: 'verified',
-      sql: 'SELECT count(*) FROM orders'
+      sql: 'SELECT count(*) FROM orders',
     });
 
     const result = getChangedTopLevelMessageValues(newMetric, oldMetric);
@@ -98,7 +98,7 @@ describe('getChangedTopLevelMessageValues', () => {
     expect(result).toEqual({
       name: 'Updated Name',
       status: 'verified',
-      sql: 'SELECT count(*) FROM orders'
+      sql: 'SELECT count(*) FROM orders',
     });
   });
 
@@ -107,13 +107,13 @@ describe('getChangedTopLevelMessageValues', () => {
     const newMetric = createMockMetric({
       name: 'Updated Name',
       description: 'Updated description', // Not in tracked properties
-      dataset_name: 'New Dataset' // Not in tracked properties
+      dataset_name: 'New Dataset', // Not in tracked properties
     });
 
     const result = getChangedTopLevelMessageValues(newMetric, oldMetric);
 
     expect(result).toEqual({
-      name: 'Updated Name'
+      name: 'Updated Name',
     });
 
     // Verify properties not being tracked aren't included
@@ -168,7 +168,7 @@ describe('getChangesFromDefaultChartConfig', () => {
       selectedChartType: 'bar',
       showLegend: true,
       xAxisShowAxisLabel: false,
-      colors: ['#FF0000', '#00FF00', '#0000FF'] // Custom colors
+      colors: ['#FF0000', '#00FF00', '#0000FF'], // Custom colors
     };
 
     const result = getChangesFromDefaultChartConfig(metric);
@@ -177,7 +177,7 @@ describe('getChangesFromDefaultChartConfig', () => {
       selectedChartType: 'bar',
       showLegend: true,
       xAxisShowAxisLabel: false,
-      colors: ['#FF0000', '#00FF00', '#0000FF']
+      colors: ['#FF0000', '#00FF00', '#0000FF'],
     });
   });
 
@@ -191,12 +191,12 @@ describe('getChangesFromDefaultChartConfig', () => {
         style: 'currency',
         currency: 'EUR',
         compactNumbers: true,
-        makeLabelHumanReadable: true
+        makeLabelHumanReadable: true,
       },
       date: {
         columnType: 'date',
-        isUTC: true
-      }
+        isUTC: true,
+      },
     };
 
     metric.chart_config = chartConfig;
@@ -209,13 +209,13 @@ describe('getChangesFromDefaultChartConfig', () => {
         revenue: {
           style: 'currency',
           currency: 'EUR',
-          compactNumbers: true
+          compactNumbers: true,
         },
         date: {
           columnType: 'date',
-          isUTC: true
-        }
-      }
+          isUTC: true,
+        },
+      },
     });
   });
 });

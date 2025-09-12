@@ -10,8 +10,14 @@ const getCanvasContext = () => {
   return ctx;
 };
 
+export const cleanCanvasContext = () => {
+  if (ctx) {
+    ctx = null;
+  }
+};
+
 interface FontOptions {
-  fontSize?: string | number;
+  fontSize?: number;
   fontFamily?: string;
   fontWeight?: string;
   fontStyle?: string;
@@ -27,7 +33,7 @@ export const measureTextWidth = memoize(
       if (!ctx) {
         return {
           width: 0,
-          height: 0
+          height: 0,
         };
       }
       // @see https://developer.mozilla.org/zh-CN/docs/Web/CSS/font
@@ -40,12 +46,12 @@ export const measureTextWidth = memoize(
 
       return {
         width: metrics.width,
-        height: metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent
+        height: metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent,
       };
     }
     return {
       width: 0,
-      height: 0
+      height: 0,
     };
   },
   (text: string | number, font = {}) => [text, ...Object.values(font)].join('')

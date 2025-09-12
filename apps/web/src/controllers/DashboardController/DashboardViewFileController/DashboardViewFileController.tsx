@@ -1,11 +1,9 @@
-'use client';
-
 import React from 'react';
 import { useGetDashboard, useUpdateDashboard } from '@/api/buster_rest/dashboards';
 import { EditFileContainer } from '@/components/features/files/EditFileContainer';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useIsDashboardReadOnly } from '@/context/Dashboards/useIsDashboardReadOnly';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 
 export const DashboardViewFileController: React.FC<{
   dashboardId: string;
@@ -19,15 +17,15 @@ export const DashboardViewFileController: React.FC<{
   const {
     mutateAsync: onUpdateDashboard,
     isPending: isUpdatingDashboard,
-    error: updateDashboardError
+    error: updateDashboardError,
   } = useUpdateDashboard({
     saveToServer: true,
     updateVersion: false,
-    updateOnSave: true
+    updateOnSave: true,
   });
 
   const { isReadOnly } = useIsDashboardReadOnly({
-    dashboardId
+    dashboardId,
   });
 
   const { file, file_name } = dashboard || {};
@@ -36,7 +34,7 @@ export const DashboardViewFileController: React.FC<{
   const onSaveFile = useMemoizedFn(async (file: string) => {
     await onUpdateDashboard({
       file,
-      id: dashboardId
+      id: dashboardId,
     });
     openSuccessMessage(`${file_name} saved`);
   });

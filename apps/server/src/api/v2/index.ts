@@ -1,12 +1,17 @@
 import { Hono } from 'hono';
 
 import healthcheckRoutes from '../healthcheck';
+import authRoutes from './auth';
 import chatsRoutes from './chats';
+import datasetsRoutes from './datasets';
+import deployRoutes from './deploy';
 import dictionariesRoutes from './dictionaries';
+import docsRoutes from './docs';
 import electricShapeRoutes from './electric-shape';
 import githubRoutes from './github';
 import metricFilesRoutes from './metric_files';
 import organizationRoutes from './organization';
+import publicRoutes from './public';
 import reportsRoutes from './reports';
 import s3IntegrationsRoutes from './s3-integrations';
 import securityRoutes from './security';
@@ -17,7 +22,11 @@ import titleRoutes from './title';
 import userRoutes from './users';
 
 const app = new Hono()
+  .route('/auth', authRoutes)
   .route('/users', userRoutes)
+  .route('/datasets', datasetsRoutes)
+  .route('/deploy', deployRoutes)
+  .route('/docs', docsRoutes)
   .route('/electric-shape', electricShapeRoutes)
   .route('/healthcheck', healthcheckRoutes)
   .route('/chats', chatsRoutes)
@@ -31,6 +40,7 @@ const app = new Hono()
   .route('/dictionaries', dictionariesRoutes)
   .route('/title', titleRoutes)
   .route('/reports', reportsRoutes)
-  .route('/s3-integrations', s3IntegrationsRoutes);
+  .route('/s3-integrations', s3IntegrationsRoutes)
+  .route('/public', publicRoutes);
 
 export default app;

@@ -1,4 +1,4 @@
-import { useState, useLayoutEffect } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import type { TokensResult } from 'shiki';
 import { getCodeTokens } from './shiki-instance';
 

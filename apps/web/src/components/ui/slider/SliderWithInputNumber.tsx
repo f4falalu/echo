@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo } from 'react';
-import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { InputNumber } from '../inputs';
 import { Slider } from './Slider';
 
@@ -14,19 +13,19 @@ export const SliderWithInputNumber: React.FC<SliderWithInputNumberProps> = ({
   min,
   max,
   value,
-  onChange
+  onChange,
 }) => {
   const [internalValue, setInternalValue] = React.useState(value);
 
-  const onChangeSlider = useMemoizedFn((value: number[]) => {
+  const onChangeSlider = (value: number[]) => {
     setInternalValue(value[0]);
     onChange(value[0]);
-  });
+  };
 
-  const onChangeInputNumber = useMemoizedFn((value: number) => {
+  const onChangeInputNumber = (value: number) => {
     setInternalValue(value);
     onChange(value);
-  });
+  };
 
   const styleOfInputNumber = useMemo(() => {
     return { width: `${internalValue.toString().length * 17}px` };

@@ -10,16 +10,16 @@
  * @packageDocumentation
  */
 
-import { formatLabel } from '@/lib/columnFormatter';
-import { DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
 import type {
   ChartConfigProps,
   ChartType,
   ColumnLabelFormat,
-  GoalLine
+  GoalLine,
 } from '@buster/server-shared/metrics';
+import { DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
 import type { AnnotationOptions, AnnotationPluginOptions } from 'chartjs-plugin-annotation';
 import { useMemo } from 'react';
+import { formatLabel } from '@/lib/columnFormatter';
 import { yAxisSimilar } from '../../../commonHelpers';
 import { defaultLabelOptionConfig } from '../useChartSpecificOptions/labelOptionConfig';
 
@@ -57,7 +57,7 @@ export const useGoalLines = ({
   y2AxisKeys,
   lineGroupType,
   barGroupType,
-  barLayout
+  barLayout,
 }: UseGoalLinesParams): AnnotationPluginOptions['annotations'] => {
   /**
    * Determines if the current chart configuration can support goal lines.
@@ -91,7 +91,7 @@ export const useGoalLines = ({
     return {
       ...DEFAULT_COLUMN_LABEL_FORMAT,
       columnType: 'number',
-      style: 'number'
+      style: 'number',
     };
   }, [columnLabelFormats, yAxisKeys, y2AxisKeys]);
 
@@ -138,8 +138,8 @@ export const useGoalLines = ({
             // @ts-expect-error - anchor is not a valid prop for label
             anchor: 'end',
             align: 'top',
-            ...defaultLabelOptionConfig
-          }
+            ...defaultLabelOptionConfig,
+          },
         };
         acc[id] = item;
       }

@@ -1,26 +1,25 @@
-import { Button } from '@/components/ui/buttons';
-import { AppTooltip } from '@/components/ui/tooltip';
-import { ColorPicker } from '@/components/ui/color-picker';
-import { cn } from '@/lib/utils';
-import { useMemoizedFn } from '@/hooks';
-import React, { useEffect, useRef, useState } from 'react';
 import {
+  closestCenter,
   DndContext,
-  DragEndEvent,
+  type DragEndEvent,
   KeyboardSensor,
   PointerSensor,
-  closestCenter,
   useSensor,
-  useSensors
+  useSensors,
 } from '@dnd-kit/core';
 import { restrictToHorizontalAxis } from '@dnd-kit/modifiers';
 import {
-  SortableContext,
   arrayMove,
   horizontalListSortingStrategy,
-  useSortable
+  SortableContext,
+  useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import React, { useEffect, useRef, useState } from 'react';
+import { Button } from '@/components/ui/buttons';
+import { ColorPicker } from '@/components/ui/color-picker';
+import { AppTooltip } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
 
 interface ColorPickButtonProps {
   colors: string[];
@@ -33,28 +32,24 @@ export const ColorPickButton: React.FC<ColorPickButtonProps> = React.memo(
     const colorItems = colors.map((color, index) => ({
       id: `${color}-${index}`, // Use color value + index for stability
       color,
-      index
+      index,
     }));
 
     const sensors = useSensors(
       useSensor(PointerSensor, {
         activationConstraint: {
-          distance: 8 // Minimum distance to start dragging
-        }
+          distance: 8, // Minimum distance to start dragging
+        },
       }),
       useSensor(KeyboardSensor)
     );
 
-    const onColorChange = useMemoizedFn((color: string, index: number) => {
-      const newColors = colors.reduce((acc, c, i) => {
-        if (i === index) return [...acc, color];
-        return [...acc, c];
-      }, [] as string[]);
-
+    const onColorChange = (color: string, index: number) => {
+      const newColors = colors.map((c, i) => (i === index ? color : c));
       onColorsChange(newColors);
-    });
+    };
 
-    const handleDragEnd = useMemoizedFn((event: DragEndEvent) => {
+    const handleDragEnd = (event: DragEndEvent) => {
       const { active, over } = event;
 
       if (over && active.id !== over.id) {
@@ -66,17 +61,19 @@ export const ColorPickButton: React.FC<ColorPickButtonProps> = React.memo(
           onColorsChange(newColors);
         }
       }
-    });
+    };
 
     return (
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragEnd={handleDragEnd}
-        modifiers={[restrictToHorizontalAxis]}>
+        modifiers={[restrictToHorizontalAxis]}
+      >
         <SortableContext
           items={colorItems.map((item) => item.id)}
-          strategy={horizontalListSortingStrategy}>
+          strategy={horizontalListSortingStrategy}
+        >
           <div className="flex h-7 w-full">
             {colorItems.map((item, currentIndex) => (
               <SortableColorWithPicker
@@ -106,17 +103,17 @@ const SortableColorWithPicker: React.FC<{
   isLast: boolean;
   index: number;
   onColorChange: (color: string, index: number) => void;
-}> = React.memo(({ id, color, isFirst, isLast, index, onColorChange }) => {
+}> = ({ id, color, isFirst, isLast, index, onColorChange }) => {
   const [isPickerOpen, setIsPickerOpen] = useState(false);
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id,
-    disabled: isPickerOpen // Disable dragging when picker is open
+    disabled: isPickerOpen, // Disable dragging when picker is open
   });
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition
+    transition,
   };
 
   // Only apply drag attributes/listeners when picker is closed
@@ -127,7 +124,8 @@ const SortableColorWithPicker: React.FC<{
       ref={setNodeRef}
       style={style}
       className={cn('flex-1', isDragging && 'z-50')}
-      {...dragProps}>
+      {...dragProps}
+    >
       <ColorWithPicker
         color={color}
         isFirst={isFirst}
@@ -140,7 +138,7 @@ const SortableColorWithPicker: React.FC<{
       />
     </div>
   );
-});
+};
 SortableColorWithPicker.displayName = 'SortableColorWithPicker';
 
 const ColorWithPicker: React.FC<{
@@ -161,7 +159,7 @@ const ColorWithPicker: React.FC<{
     isDragging,
     isPickerOpen,
     onPickerOpenChange,
-    onColorChange
+    onColorChange,
   }) => {
     const originalColor = useRef(colorProp);
     const [color, setColor] = useState(colorProp);
@@ -190,7 +188,8 @@ const ColorWithPicker: React.FC<{
               Save
             </Button>
           </div>
-        }>
+        }
+      >
         <div
           className={cn(
             'h-full w-full overflow-hidden transition-transform duration-150',
@@ -200,7 +199,8 @@ const ColorWithPicker: React.FC<{
             !isDragging && isFirst && 'rounded-l',
             !isDragging && isLast && 'rounded-r'
           )}
-          style={{ backgroundColor: color }}>
+          style={{ backgroundColor: color }}
+        >
           <AppTooltip title={isDragging ? '' : color} delayDuration={400} skipDelayDuration={500}>
             <div className="h-full w-full" style={{ backgroundColor: color }} />
           </AppTooltip>

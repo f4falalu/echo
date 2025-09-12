@@ -1,7 +1,7 @@
 import type {
+  BusterChatMessage,
   BusterChatMessageReasoning,
   BusterChatMessageResponse,
-  BusterChatMessage
 } from '@/api/asset_interfaces/chat';
 import type { BusterChatMessageShape } from './shapes';
 
@@ -36,18 +36,18 @@ export const updateMessageShapeToIChatMessage = (
     id: message.id,
     ...(message.response_messages !== undefined && {
       response_message_ids: responseMessageIds.map((msg) => msg.id),
-      response_messages: responseMessagesRecord
+      response_messages: responseMessagesRecord,
     }),
     ...(message.reasoning !== undefined && {
       reasoning_message_ids: reasoningMessageIds,
-      reasoning_messages: reasoningMessagesRecord
+      reasoning_messages: reasoningMessagesRecord,
     }),
     ...(message.created_at !== undefined && { created_at: message.created_at }),
     ...(message.final_reasoning_message !== undefined && {
-      final_reasoning_message: message.final_reasoning_message
+      final_reasoning_message: message.final_reasoning_message,
     }),
     ...(message.feedback !== undefined && { feedback: message.feedback }),
-    ...(message.is_completed !== undefined && { is_completed: message.is_completed })
+    ...(message.is_completed !== undefined && { is_completed: message.is_completed }),
   };
 
   return convertedMessage;

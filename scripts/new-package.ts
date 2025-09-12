@@ -387,8 +387,12 @@ async function createPackageFiles(config: PackageConfig) {
     dependencies: {
       "@buster/typescript-config": "workspace:*",
       "@buster/vitest-config": "workspace:*",
-      "@buster/env-utils": "workspace:*"
+      "@buster/env-utils": "workspace:*",
+      "zod": "catalog:"
     },
+    "devDependencies": {
+      "tsx": "catalog:"
+    }
   };
 
   await writeFile(

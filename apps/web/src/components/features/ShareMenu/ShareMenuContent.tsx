@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
 import type { ShareAssetType, ShareConfig } from '@buster/server-shared/share';
+import { useRouter } from '@tanstack/react-router';
+import React, { useState } from 'react';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { getIsEffectiveOwner } from '@/lib/share';
-import { BusterRoutes, createBusterRoute } from '@/routes';
 import { ShareMenuContentBody } from './ShareMenuContentBody';
 import { ShareMenuContentEmbedFooter } from './ShareMenuContentEmbed';
 import { ShareMenuTopBar, ShareMenuTopBarOptions } from './ShareMenuTopBar';
@@ -21,26 +21,50 @@ export const ShareMenuContent: React.FC<{
   const permission = shareAssetConfig?.permission;
   const publicly_accessible = shareAssetConfig?.publicly_accessible;
   const canEditPermissions = getIsEffectiveOwner(permission);
+  const { buildLocation } = useRouter();
 
   const onCopyLink = useMemoizedFn(() => {
     let url = '';
-    if (assetType === 'metric' && assetId) {
-      url = createBusterRoute({ route: BusterRoutes.APP_METRIC_ID_CHART, metricId: assetId });
-    } else if (assetType === 'dashboard' && assetId) {
-      url = createBusterRoute({
-        route: BusterRoutes.APP_DASHBOARD_ID,
-        dashboardId: assetId
-      });
-    } else if (assetType === 'collection' && assetId) {
-      url = createBusterRoute({
-        route: BusterRoutes.APP_COLLECTIONS_ID,
-        collectionId: assetId
-      });
-    } else if (assetType === 'report' && assetId) {
-      url = createBusterRoute({
-        route: BusterRoutes.APP_REPORTS_ID,
-        reportId: assetId
-      });
+    if (!assetId) {
+      return;
+    }
+    if (assetType === 'metric') {
+      url = buildLocation({
+        to: '/app/metrics/$metricId/chart',
+        params: {
+          metricId: assetId,
+        },
+      }).href;
+    } else if (assetType === 'dashboard') {
+      url = buildLocation({
+        to: '/app/dashboards/$dashboardId',
+        params: {
+          dashboardId: assetId,
+        },
+      }).href;
+    } else if (assetType === 'collection') {
+      url = buildLocation({
+        to: '/app/collections/$collectionId',
+        params: {
+          collectionId: assetId,
+        },
+      }).href;
+    } else if (assetType === 'report') {
+      url = buildLocation({
+        to: '/app/reports/$reportId',
+        params: {
+          reportId: assetId,
+        },
+      }).href;
+    } else if (assetType === 'chat') {
+      url = buildLocation({
+        to: '/app/chats/$chatId',
+        params: {
+          chatId: assetId,
+        },
+      }).href;
+    } else {
+      const _exhaustiveCheck: never = assetType;
     }
     const urlWithDomain = window.location.origin + url;
     navigator.clipboard.writeText(urlWithDomain);

@@ -1,14 +1,11 @@
-'use client';
-
-import { createLabel } from '../config/labels';
+import { useEditorRef } from 'platejs/react';
 
 import * as React from 'react';
 
-import { MessagePen } from '@/components/ui/icons';
-import { useEditorRef } from 'platejs/react';
-import { commentPlugin } from '../plugins/comment-kit';
-
+import MessagePen from '@/components/ui/icons/NucleoIconOutlined/message-pen';
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
+import { createLabel } from '../config/labels';
+import { commentPlugin } from '../plugins/comment-kit';
 
 export function CommentToolbarButton() {
   const editor = useEditorRef();
@@ -19,7 +16,8 @@ export function CommentToolbarButton() {
         editor.getTransforms(commentPlugin).comment.setDraft();
       }}
       data-plate-prevent-overlay
-      tooltip={createLabel('comment')}>
+      tooltip={createLabel('comment')}
+    >
       <MessagePen />
     </ToolbarButton>
   );

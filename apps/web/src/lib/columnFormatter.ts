@@ -3,7 +3,7 @@ import {
   DEFAULT_COLUMN_LABEL_FORMAT,
   DEFAULT_DATE_FORMAT_DAY_OF_WEEK,
   DEFAULT_DATE_FORMAT_MONTH_OF_YEAR,
-  DEFAULT_DATE_FORMAT_QUARTER
+  DEFAULT_DATE_FORMAT_QUARTER,
 } from '@buster/server-shared/metrics';
 import { formatDate } from './date';
 import { formatNumber, roundNumber } from './numbers';
@@ -34,7 +34,7 @@ export const formatLabel = (
     useRelativeTime = DEFAULT_COLUMN_LABEL_FORMAT.useRelativeTime,
     isUTC = DEFAULT_COLUMN_LABEL_FORMAT.isUTC,
     makeLabelHumanReadable = DEFAULT_COLUMN_LABEL_FORMAT.makeLabelHumanReadable,
-    compactNumbers = DEFAULT_COLUMN_LABEL_FORMAT.compactNumbers
+    compactNumbers = DEFAULT_COLUMN_LABEL_FORMAT.compactNumbers,
   } = props;
 
   const textIsNotNullOrUndefined = textProp !== null && textProp !== undefined;
@@ -73,7 +73,7 @@ export const formatLabel = (
       dateFormat,
       convertNumberTo,
       isUTC,
-      useRelativeTime
+      useRelativeTime,
     });
   } else if (makeLabelHumanReadable && useKeyFormatter) {
     formattedText = displayName || makeHumanReadble(formattedText as string);
@@ -90,7 +90,7 @@ export const formatLabel = (
         currency,
         compact: compactNumbers,
         minimumFractionDigits: Math.min(minimumFractionDigits, maximumFractionDigits),
-        maximumFractionDigits: Math.max(minimumFractionDigits, maximumFractionDigits)
+        maximumFractionDigits: Math.max(minimumFractionDigits, maximumFractionDigits),
       });
     } else {
       formattedText = formatNumber(roundedNumber, {
@@ -98,7 +98,7 @@ export const formatLabel = (
         minimumFractionDigits: Math.min(minimumFractionDigits, maximumFractionDigits),
         maximumFractionDigits: Math.max(minimumFractionDigits, maximumFractionDigits),
         useGrouping: numberSeparatorStyle !== null,
-        compact: compactNumbers
+        compact: compactNumbers,
       });
     }
   }
@@ -131,7 +131,7 @@ const formatLabelDate = (
     dateFormat: dateFormatProp = DEFAULT_DATE_FORMAT,
     useRelativeTime = false,
     isUTC = false,
-    convertNumberTo
+    convertNumberTo,
   } = props;
 
   const dateFormat = dateFormatProp === 'auto' ? autoFormats(convertNumberTo) : dateFormatProp;
@@ -141,7 +141,7 @@ const formatLabelDate = (
     date: text,
     format: dateFormat,
     isUTC,
-    convertNumberTo
+    convertNumberTo,
   });
 };
 

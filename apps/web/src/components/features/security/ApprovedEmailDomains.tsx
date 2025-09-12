@@ -1,21 +1,19 @@
-'use client';
-
-import React, { useMemo, useState } from 'react';
-import { SettingsCards } from '../settings/SettingsCard';
-import { Input } from '@/components/ui/inputs';
-import { Button } from '@/components/ui/buttons';
-import { Text } from '@/components/ui/typography';
-import { Plus, Dots, Trash } from '@/components/ui/icons';
-import { useBusterNotifications } from '@/context/BusterNotifications';
-import { Dropdown } from '@/components/ui/dropdown';
-import {
-  useGetApprovedDomains,
-  useAddApprovedDomain,
-  useRemoveApprovedDomain
-} from '@/api/buster_rest/security/queryRequests';
 import pluralize from 'pluralize';
-import { useMemoizedFn } from '@/hooks';
+import React, { useMemo, useState } from 'react';
+import {
+  useAddApprovedDomain,
+  useGetApprovedDomains,
+  useRemoveApprovedDomain,
+} from '@/api/buster_rest/security/queryRequests';
+import { Button } from '@/components/ui/buttons';
+import { Dropdown } from '@/components/ui/dropdown';
+import { Dots, Plus, Trash } from '@/components/ui/icons';
+import { Input } from '@/components/ui/inputs';
+import { Text } from '@/components/ui/typography';
+import { useBusterNotifications } from '@/context/BusterNotifications';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { formatDate } from '@/lib/date';
+import { SettingsCards } from '../settings/SettingsCard';
 
 interface ApprovedDomain {
   domain: string;
@@ -65,7 +63,7 @@ export const ApprovedEmailDomains = React.memo(() => {
             domainData={domainData}
             onRemove={handleRemoveDomain}
           />
-        ))
+        )),
       ].filter(Boolean),
     [countText, isEnabledAddDomain, approvedDomains, handleRemoveDomain]
   );
@@ -133,7 +131,8 @@ const AddDomainInput = React.memo(
           onClick={() => {
             setIsEnabledAddDomain(false);
             setNewDomain('');
-          }}>
+          }}
+        >
           Cancel
         </Button>
       </div>
@@ -153,8 +152,8 @@ const DomainListItem = React.memo<{
         label: 'Remove domain',
         value: 'remove',
         icon: <Trash />,
-        onClick: () => onRemove(domainData.domain)
-      }
+        onClick: () => onRemove(domainData.domain),
+      },
     ],
     [domainData.domain, onRemove]
   );

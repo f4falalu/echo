@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
-import { useGetDatasets } from '@/api/buster_rest/datasets';
 import { useListDatasources } from '@/api/buster_rest/data_source';
-import { useUserConfigContextSelector } from '@/context/Users';
+import { useGetDatasets } from '@/api/buster_rest/datasets';
+import { useGetUserRole, useIsUserAdmin } from '@/api/buster_rest/users/useGetUserInfo';
 
 export const useNewChatWarning = () => {
   const { data: datasets, isFetched: isDatasetsFetched } = useGetDatasets();
   const { data: datasources, isFetched: isDatasourcesFetched } = useListDatasources();
-  const isAdmin = useUserConfigContextSelector((x) => x.isAdmin);
-  const userRole = useUserConfigContextSelector((x) => x.userRole);
+  const isAdmin = useIsUserAdmin();
+  const userRole = useGetUserRole();
 
   const showWarning = useMemo(() => {
     if (!isDatasetsFetched || !isDatasourcesFetched) return false;
@@ -22,6 +22,6 @@ export const useNewChatWarning = () => {
     hasDatasources: datasources?.length > 0,
     isFetched: isDatasetsFetched && isDatasourcesFetched,
     isAdmin,
-    userRole
+    userRole,
   };
 };

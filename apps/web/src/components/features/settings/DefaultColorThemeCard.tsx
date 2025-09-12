@@ -1,13 +1,11 @@
-'use client';
-
 import React from 'react';
-import { SettingsCards } from './SettingsCard';
 import { Text } from '@/components/ui/typography';
-import { ThemeColorDots } from '../colors/ThemeList/ThemeColorDots';
+import { useGetPalettes } from '@/context/Themes/usePalettes';
+import { ChevronDown } from '../../ui/icons';
 import { Popover } from '../../ui/popover';
 import { DefaultThemeSelector } from '../colors/DefaultThemeSelector';
-import { ChevronDown } from '../../ui/icons';
-import { useGetPalettes } from '@/context-hooks/usePalettes';
+import { ThemeColorDots } from '../colors/ThemeList/ThemeColorDots';
+import { SettingsCards } from './SettingsCard';
 
 export const DefaultColorThemeCard = React.memo(() => {
   return (
@@ -23,9 +21,9 @@ export const DefaultColorThemeCard = React.memo(() => {
                 </Text>
               </div>
               <PickButton />
-            </div>
-          ]
-        }
+            </div>,
+          ],
+        },
       ]}
     />
   );
@@ -46,7 +44,8 @@ const PickButton = React.memo(() => {
         <div className="max-w-[320px] overflow-y-auto p-2.5">
           <DefaultThemeSelector themeListClassName="max-h-[320px] h-full overflow-y-auto" />
         </div>
-      }>
+      }
+    >
       <div className="hover:bg-item-hover flex h-7 min-h-7 cursor-pointer items-center space-x-1.5 overflow-hidden rounded border px-2 py-1 pl-2.5">
         <div>
           {hasDefaultPalette ? (

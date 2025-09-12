@@ -1,13 +1,8 @@
-'use client';
-
-import * as React from 'react';
-
-import type { TImageElement } from 'platejs';
-import type { PlateElementProps } from 'platejs/react';
-
 import { useDraggable } from '@platejs/dnd';
 import { Image, ImagePlugin, useMediaState } from '@platejs/media/react';
 import { ResizableProvider, useResizableValue } from '@platejs/resizable';
+import type { TImageElement } from 'platejs';
+import type { PlateElementProps } from 'platejs/react';
 import { PlateElement, withHOC } from 'platejs/react';
 
 import { cn } from '@/lib/utils';
@@ -20,22 +15,23 @@ export const ImageElement = withHOC(
   ResizableProvider,
   function ImageElement(props: PlateElementProps<TImageElement>) {
     const { align = 'center', focused, readOnly, selected } = useMediaState();
-    const width = useResizableValue('width');
+    const width = useResizableValue('width') as string;
 
     const { isDragging, handleRef } = useDraggable({
-      element: props.element
+      element: props.element,
     });
 
     return (
       <MediaToolbar plugin={ImagePlugin}>
-        <PlateElement {...props} className="py-2.5">
+        <PlateElement {...props} className="mt-2.5 mb-4.5">
           <figure className="group relative m-0" contentEditable={false}>
             <Resizable
               align={align}
               options={{
                 align,
-                readOnly
-              }}>
+                readOnly,
+              }}
+            >
               <ResizeHandle
                 className={mediaResizeHandleVariants({ direction: 'left' })}
                 options={{ direction: 'left' }}
@@ -52,7 +48,7 @@ export const ImageElement = withHOC(
               />
               <ResizeHandle
                 className={mediaResizeHandleVariants({
-                  direction: 'right'
+                  direction: 'right',
                 })}
                 options={{ direction: 'right' }}
               />

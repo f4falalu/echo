@@ -64,9 +64,13 @@ export async function createChatHandler(
       enhancedPrompt = await enhanceMessageWithShortcut(request.prompt, user.id, organizationId);
     }
 
-    // Update request with enhanced prompt
-    const processedRequest = { ...request, prompt: enhancedPrompt };
+    // Set message_analysis_mode if not provided (from staging)
+    if (request.prompt && !request.message_analysis_mode) {
+      request.message_analysis_mode = 'auto';
+    }
 
+    // Update request with enhanced prompt and message_analysis_mode
+    const processedRequest = { ...request, prompt: enhancedPrompt };
     // Initialize chat (new or existing)
     // When we have both asset and prompt, we'll skip creating the initial message
     // since handleAssetChatWithPrompt will create both the import and prompt messages
@@ -77,7 +81,7 @@ export async function createChatHandler(
     );
     const modifiedRequest = shouldCreateInitialMessage
       ? processedRequest
-      : { ...processedRequest, prompt: undefined };
+      : { ...processedRequest, prompt: undefined, message_analysis_mode: undefined };
 
     const { chatId, messageId, chat } = await initializeChat(modifiedRequest, user, organizationId);
 
@@ -107,6 +111,7 @@ export async function createChatHandler(
           processedRequest.asset_id,
           processedRequest.asset_type,
           processedRequest.prompt,
+          processedRequest.message_analysis_mode,
           user,
           chat
         );

@@ -1,14 +1,18 @@
-'use client';
+/** biome-ignore-all lint/a11y/useHeadingContent: not applicable */
 
-import * as React from 'react';
-import type { PlateEditor } from 'platejs/react';
 import { KEYS } from 'platejs';
-import { AIChatPlugin } from '@platejs/ai/react';
+import type { PlateEditor } from 'platejs/react';
+import type * as React from 'react';
 import { Minus } from '@/components/ui/icons';
+import {
+  ACTION_THREE_COLUMNS,
+  ACTION_TWO_COLUMNS,
+  insertBlock,
+  insertInlineElement,
+} from '../elements/transforms';
 import { NodeTypeIcons } from './icons';
-import { NodeTypeLabels, MenuGroupLabels } from './labels';
-import { insertBlock, insertInlineElement } from '../elements/transforms';
 import { CUSTOM_KEYS } from './keys';
+import { MenuGroupLabels, NodeTypeLabels } from './labels';
 
 // Shared types for menu items
 export interface MenuItem {
@@ -51,76 +55,76 @@ export const menuGroups: MenuGroup[] = [
         icon: <NodeTypeIcons.paragraph />,
         keywords: NodeTypeLabels.paragraph.keywords,
         label: NodeTypeLabels.paragraph.label,
-        value: KEYS.p
+        value: KEYS.p,
       },
       {
         icon: <NodeTypeIcons.h1 />,
         keywords: NodeTypeLabels.h1.keywords,
         label: NodeTypeLabels.h1.label,
-        value: 'h1'
+        value: 'h1',
       },
       {
         icon: <NodeTypeIcons.h2 />,
         keywords: NodeTypeLabels.h2.keywords,
         label: NodeTypeLabels.h2.label,
-        value: 'h2'
+        value: 'h2',
       },
       {
         icon: <NodeTypeIcons.h3 />,
         keywords: NodeTypeLabels.h3.keywords,
         label: NodeTypeLabels.h3.label,
-        value: 'h3'
+        value: 'h3',
       },
-      {
-        icon: <NodeTypeIcons.table />,
-        keywords: NodeTypeLabels.table.keywords,
-        label: NodeTypeLabels.table.label,
-        value: KEYS.table
-      },
+      // {
+      //   icon: <NodeTypeIcons.table />,
+      //   keywords: NodeTypeLabels.table.keywords,
+      //   label: NodeTypeLabels.table.label,
+      //   value: KEYS.table,
+      // },
       {
         icon: <NodeTypeIcons.code />,
         keywords: NodeTypeLabels.codeBlock.keywords,
         label: NodeTypeLabels.codeBlock.label,
-        value: KEYS.codeBlock
+        value: KEYS.codeBlock,
       },
       {
         icon: <NodeTypeIcons.quote />,
         keywords: NodeTypeLabels.blockquote.keywords,
         label: NodeTypeLabels.blockquote.label,
-        value: KEYS.blockquote
+        value: KEYS.blockquote,
       },
       {
         icon: <Minus />,
         label: NodeTypeLabels.divider.label,
-        value: KEYS.hr
+        value: KEYS.hr,
       },
       {
         description: 'Insert a highlighted block.',
         icon: <NodeTypeIcons.callout />,
         keywords: NodeTypeLabels.callout.keywords,
         label: NodeTypeLabels.callout.label,
-        value: KEYS.callout
-      }
+        value: KEYS.callout,
+      },
     ].map((item) => ({
       ...item,
       onSelect: (editor, value) => {
         insertBlock(editor, value);
-      }
-    }))
+      },
+    })),
   },
   {
-    group: 'Metrics and charts',
+    group: 'Charts',
     items: [
       {
-        icon: <NodeTypeIcons.metric />,
+        icon: <NodeTypeIcons.metricAdd />,
         keywords: NodeTypeLabels.metric.keywords,
         label: NodeTypeLabels.metric.label,
         value: CUSTOM_KEYS.metric,
-        onSelect: (editor, value) => {
+        onSelect: (editor) => {
           insertBlock(editor, CUSTOM_KEYS.metric);
-        }
-      }
-    ]
+        },
+      },
+    ],
   },
   {
     group: MenuGroupLabels.lists,
@@ -129,32 +133,32 @@ export const menuGroups: MenuGroup[] = [
         icon: <NodeTypeIcons.bulletedList />,
         keywords: NodeTypeLabels.bulletedList.keywords,
         label: NodeTypeLabels.bulletedList.label,
-        value: KEYS.ul
+        value: KEYS.ul,
       },
       {
         icon: <NodeTypeIcons.numberedList />,
         keywords: NodeTypeLabels.numberedList.keywords,
         label: NodeTypeLabels.numberedList.label,
-        value: KEYS.ol
+        value: KEYS.ol,
       },
       {
         icon: <NodeTypeIcons.todoList />,
         keywords: NodeTypeLabels.todoList.keywords,
         label: NodeTypeLabels.todoList.label,
-        value: KEYS.listTodo
+        value: KEYS.listTodo,
       },
       {
         icon: <NodeTypeIcons.toggle />,
         keywords: NodeTypeLabels.toggleList.keywords,
         label: NodeTypeLabels.toggleList.label,
-        value: KEYS.toggle
-      }
+        value: KEYS.toggle,
+      },
     ].map((item) => ({
       ...item,
       onSelect: (editor, value) => {
         insertBlock(editor, value);
-      }
-    }))
+      },
+    })),
   },
   // {
   //   group: MenuGroupLabels.media,
@@ -185,14 +189,20 @@ export const menuGroups: MenuGroup[] = [
         icon: <NodeTypeIcons.tableOfContents />,
         keywords: NodeTypeLabels.tableOfContents.keywords,
         label: NodeTypeLabels.tableOfContents.label,
-        value: KEYS.toc
+        value: KEYS.toc,
+      },
+      {
+        icon: <NodeTypeIcons.columnsTwo />,
+        keywords: NodeTypeLabels.columnsTwo.keywords,
+        label: NodeTypeLabels.columnsTwo.label,
+        value: ACTION_TWO_COLUMNS,
       },
       {
         icon: <NodeTypeIcons.columnsThree />,
         keywords: NodeTypeLabels.columnsThree.keywords,
         label: NodeTypeLabels.columnsThree.label,
-        value: 'action_three_columns'
-      }
+        value: ACTION_THREE_COLUMNS,
+      },
       // {
       //   focusEditor: false,
       //   icon: <NodeTypeIcons.equation />,
@@ -204,8 +214,8 @@ export const menuGroups: MenuGroup[] = [
       ...item,
       onSelect: (editor, value) => {
         insertBlock(editor, value);
-      }
-    }))
+      },
+    })),
   },
   {
     group: MenuGroupLabels.inline,
@@ -221,8 +231,8 @@ export const menuGroups: MenuGroup[] = [
         icon: <NodeTypeIcons.calendar />,
         keywords: NodeTypeLabels.date.keywords,
         label: NodeTypeLabels.date.label,
-        value: KEYS.date
-      }
+        value: KEYS.date,
+      },
       // {
       //   focusEditor: false,
       //   icon: <NodeTypeIcons.equation />,
@@ -234,9 +244,9 @@ export const menuGroups: MenuGroup[] = [
       ...item,
       onSelect: (editor, value) => {
         insertInlineElement(editor, value);
-      }
-    }))
-  }
+      },
+    })),
+  },
 ];
 
 // Helper function to get groups for slash command and insert button

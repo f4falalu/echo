@@ -1,16 +1,12 @@
-'use client';
-
 import pluralize from 'pluralize';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Text } from '@/components/ui/typography';
-import { FileCard } from '../../card/FileCard';
-import { Button } from '../../buttons';
-import { Copy2 } from '../../icons';
-import { useMemoizedFn } from '@/hooks';
-import { useBusterNotifications } from '@/context/BusterNotifications';
-import dynamic from 'next/dynamic';
 //THIS USED TO BE DYNAMIC...
 import { SyntaxHighlighter } from '@/components/ui/typography/SyntaxHighlight/SyntaxHighlighter';
+import { useBusterNotifications } from '@/context/BusterNotifications';
+import { Button } from '../../buttons';
+import { FileCard } from '../../card/FileCard';
+import { Check, Copy2 } from '../../icons';
 
 type LineSegment = {
   type: 'text' | 'hidden';
@@ -27,115 +23,60 @@ export const StreamingMessageCode: React.FC<{
   text: string;
   modified?: [number, number][];
   animation?: 'blur-in' | 'fade-in';
-}> = React.memo(
-  ({
-    isStreamFinished,
-    fileName,
-    buttons,
-    collapsible = false,
-    text,
-    modified,
-    animation = 'blur-in'
-  }) => {
-    const [lineSegments, setLineSegments] = useState<LineSegment[]>([]);
-    const { openSuccessMessage } = useBusterNotifications();
+}> = React.memo(({ isStreamFinished, fileName, buttons, collapsible = false, text }) => {
+  const { openSuccessMessage } = useBusterNotifications();
+  const [hasCopied, setHasCopied] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    const copyToClipboard = useMemoizedFn(() => {
-      navigator.clipboard.writeText(text);
-      openSuccessMessage('Copied to clipboard');
-    });
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(text);
+    openSuccessMessage('Copied to clipboard');
+    setHasCopied(true);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => {
+      setHasCopied(false);
+    }, 2500);
+  };
 
-    const buttonComponent = useMemo(() => {
-      if (buttons === null) {
-        return null;
-      }
+  const buttonComponent = useMemo(() => {
+    if (buttons === null) {
+      return null;
+    }
 
-      if (!buttons) {
-        return (
-          <div className="flex justify-end">
-            <Button prefix={<Copy2 />} variant="ghost" onClick={copyToClipboard}>
-              Copy
-            </Button>
-          </div>
-        );
-      }
-      return buttons;
-    }, [buttons]);
-
-    // useEffect(() => {
-    //   const processText = () => {
-    //     // Split the text into lines, keeping empty lines
-    //     const lines = (text || '').split('\n');
-    //     const segments: LineSegment[] = [];
-    //     let currentLine = 1;
-
-    //     if (!modified || modified.length === 0) {
-    //       for (const line of lines) {
-    //         segments.push({
-    //           type: 'text',
-    //           content: line,
-    //           lineNumber: currentLine++
-    //         });
-    //       }
-    //     } else {
-    //       // Sort modified ranges to ensure proper processing
-    //       const sortedModified = [...modified].sort((a, b) => a[0] - b[0]);
-
-    //       let lastEnd = 0;
-    //       for (const [start, end] of sortedModified) {
-    //         // Add visible lines before the hidden section
-    //         for (let i = lastEnd; i < start - 1; i++) {
-    //           segments.push({
-    //             type: 'text',
-    //             content: lines[i],
-    //             lineNumber: currentLine++
-    //           });
-    //         }
-
-    //         // Add hidden section
-    //         const hiddenLineCount = end - start + 1;
-    //         segments.push({
-    //           type: 'hidden',
-    //           content: '',
-    //           lineNumber: currentLine,
-    //           numberOfLines: hiddenLineCount
-    //         });
-    //         currentLine += hiddenLineCount;
-    //         lastEnd = end;
-    //       }
-
-    //       // Add remaining visible lines after the last hidden section
-    //       for (let i = lastEnd; i < lines.length; i++) {
-    //         segments.push({
-    //           type: 'text',
-    //           content: lines[i],
-    //           lineNumber: currentLine++
-    //         });
-    //       }
-    //     }
-
-    //     setLineSegments(segments);
-    //   };
-
-    //   processText();
-    // }, [text, modified]);
-
-    return (
-      <FileCard collapsible={collapsible} fileName={fileName} headerButtons={buttonComponent}>
-        <div className="w-full pr-0">
-          <SyntaxHighlighter
-            language={'yaml'}
-            showLineNumbers
-            startingLineNumber={1}
-            animation={!isStreamFinished ? 'blurIn' : 'none'}
-            className={'p-2.5 text-[10px]'}>
-            {text}
-          </SyntaxHighlighter>
+    if (!buttons) {
+      return (
+        <div className="flex justify-end">
+          <Button
+            prefix={hasCopied ? <Check /> : <Copy2 />}
+            variant="ghost"
+            onClick={copyToClipboard}
+          >
+            Copy
+          </Button>
         </div>
-      </FileCard>
-    );
-  }
-);
+      );
+    }
+    return buttons;
+  }, [buttons, hasCopied]);
+
+  return (
+    <FileCard collapsible={collapsible} fileName={fileName} headerButtons={buttonComponent}>
+      <div className="w-full pr-0">
+        <SyntaxHighlighter
+          language={'yaml'}
+          showLineNumbers
+          startingLineNumber={1}
+          animation={!isStreamFinished ? 'blurIn' : 'none'}
+          className={'p-2.5 text-[10px]'}
+        >
+          {text}
+        </SyntaxHighlighter>
+      </div>
+    </FileCard>
+  );
+});
 
 StreamingMessageCode.displayName = 'StreamingMessageCode';
 

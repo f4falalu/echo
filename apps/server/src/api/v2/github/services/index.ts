@@ -1,15 +1,9 @@
 /**
  * GitHub Services
  *
- * This module exports all GitHub-related service functions
+ * This module exports GitHub-related service functions
  * for handling GitHub App installations and tokens
  */
-
-// GitHub App configuration and creation
-export {
-  createGitHubApp,
-  getGitHubAppCredentials,
-} from './github-app';
 
 // Installation webhook handling
 export { handleInstallationCallback } from './handle-installation-callback';

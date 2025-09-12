@@ -1,19 +1,21 @@
-import React, { useMemo } from 'react';
-import { InputSearchDropdown } from '@/components/ui/inputs/InputSearchDropdown';
 import type { ShareAssetType, ShareConfig, ShareRole } from '@buster/server-shared/share';
-import { AccessDropdown } from './AccessDropdown';
-import { Button } from '@/components/ui/buttons';
-import { inputHasText } from '@/lib/text';
-import { isValidEmail } from '@/lib/email';
-import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useDebounce, useMemoizedFn } from '@/hooks';
-import { useShareMetric } from '@/api/buster_rest/metrics';
-import { useShareDashboard } from '@/api/buster_rest/dashboards';
+import React, { useMemo } from 'react';
+import { useShareChat } from '@/api/buster_rest/chats';
 import { useShareCollection } from '@/api/buster_rest/collections';
+import { useShareDashboard } from '@/api/buster_rest/dashboards';
+import { useShareMetric } from '@/api/buster_rest/metrics';
 import { useShareReport } from '@/api/buster_rest/reports';
+import { Button } from '@/components/ui/buttons';
+import { InputSearchDropdown } from '@/components/ui/inputs/InputSearchDropdown';
+import { useBusterNotifications } from '@/context/BusterNotifications';
+import { useDebounce } from '@/hooks/useDebounce';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { isValidEmail } from '@/lib/email';
+import { inputHasText } from '@/lib/text';
 import { useGetUserToOrganization } from '../../../api/buster_rest/users';
-import type { SelectItem } from '../../ui/select';
 import { AvatarUserButton } from '../../ui/avatar/AvatarUserButton';
+import type { SelectItem } from '../../ui/select';
+import { AccessDropdown } from './AccessDropdown';
 
 interface ShareMenuInviteProps {
   assetType: ShareAssetType;
@@ -29,6 +31,7 @@ export const ShareMenuInvite: React.FC<ShareMenuInviteProps> = React.memo(
     const { mutateAsync: onShareDashboard, isPending: isInvitingDashboard } = useShareDashboard();
     const { mutateAsync: onShareCollection, isPending: isInvitingCollection } =
       useShareCollection();
+    const { mutateAsync: onShareChat, isPending: isInvitingChat } = useShareChat();
     const { mutateAsync: onShareReport, isPending: isInvitingReport } = useShareReport();
 
     const [inputValue, setInputValue] = React.useState<string>('');
@@ -41,12 +44,12 @@ export const ShareMenuInvite: React.FC<ShareMenuInviteProps> = React.memo(
       user_name: debouncedInputValue,
       email: debouncedInputValue,
       page: 1,
-      page_size: 5
+      page_size: 5,
     });
 
     const disableSubmit = !inputHasText(inputValue) || !isValidEmail(inputValue);
     const isInviting =
-      isInvitingMetric || isInvitingDashboard || isInvitingCollection || isInvitingReport;
+      isInvitingMetric || isInvitingDashboard || isInvitingCollection || isInvitingChat;
 
     const options: SelectItem<string>[] = useMemo(() => {
       return (
@@ -60,7 +63,7 @@ export const ShareMenuInvite: React.FC<ShareMenuInviteProps> = React.memo(
               className="cursor-pointer p-0"
             />
           ),
-          value: user.email
+          value: user.email,
         })) || []
       );
     }, [usersData]);
@@ -69,7 +72,7 @@ export const ShareMenuInvite: React.FC<ShareMenuInviteProps> = React.memo(
       if (level) setDefaultPermissionLevel(level);
     });
 
-    const onSubmitNewEmail = useMemoizedFn(async () => {
+    const onSubmitNewEmail = async () => {
       const emailIsValid = isValidEmail(inputValue);
       if (!emailIsValid) {
         openErrorMessage('Invalid email address');
@@ -94,9 +97,9 @@ export const ShareMenuInvite: React.FC<ShareMenuInviteProps> = React.memo(
             email: inputValue,
             role: defaultPermissionLevel,
             name: user?.name || '',
-            avatar_url: user?.avatarUrl || null
-          }
-        ]
+            avatar_url: user?.avatarUrl || null,
+          },
+        ],
       };
 
       if (assetType === 'metric') {
@@ -105,14 +108,18 @@ export const ShareMenuInvite: React.FC<ShareMenuInviteProps> = React.memo(
         await onShareDashboard(payload);
       } else if (assetType === 'collection') {
         await onShareCollection(payload);
+      } else if (assetType === 'chat') {
+        await onShareChat(payload);
       } else if (assetType === 'report') {
         await onShareReport(payload);
+      } else {
+        const _exhaustiveCheck: never = assetType;
       }
 
       setInputValue('');
-    });
+    };
 
-    const onPressEnter = useMemoizedFn((value: string) => {
+    const onPressEnter = useMemoizedFn(() => {
       onSubmitNewEmail();
     });
 
@@ -156,7 +163,8 @@ export const ShareMenuInvite: React.FC<ShareMenuInviteProps> = React.memo(
           loading={isInviting}
           size={'tall'}
           onClick={onSubmitNewEmail}
-          disabled={disableSubmit}>
+          disabled={disableSubmit}
+        >
           Invite
         </Button>
       </div>

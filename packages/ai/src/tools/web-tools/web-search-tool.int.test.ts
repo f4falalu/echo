@@ -24,12 +24,32 @@ describe('webSearch tool integration', () => {
         { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
       );
 
-      expect(result.success).toBe(true);
-      expect(result.results).toBeDefined();
-      expect(Array.isArray(result.results)).toBe(true);
+      // Handle potential AsyncIterable return type
+      const finalResult =
+        Symbol.asyncIterator in result
+          ? await (
+              result as AsyncIterable<{
+                success: boolean;
+                results: {
+                  title: string;
+                  url: string;
+                  description: string;
+                  content?: string | undefined;
+                }[];
+                error?: string | undefined;
+              }>
+            )
+              [Symbol.asyncIterator]()
+              .next()
+              .then((r) => r.value)
+          : result;
 
-      if (result.results.length > 0) {
-        const firstResult = result.results[0]!;
+      expect(finalResult.success).toBe(true);
+      expect(finalResult.results).toBeDefined();
+      expect(Array.isArray(finalResult.results)).toBe(true);
+
+      if (finalResult.results.length > 0) {
+        const firstResult = finalResult.results[0]!;
         expect(firstResult).toHaveProperty('title');
         expect(firstResult).toHaveProperty('url');
         expect(firstResult).toHaveProperty('description');
@@ -51,9 +71,29 @@ describe('webSearch tool integration', () => {
         { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
       );
 
-      expect(result.success).toBe(true);
-      expect(result.results).toBeDefined();
-      expect(Array.isArray(result.results)).toBe(true);
+      // Handle potential AsyncIterable return type
+      const finalResult =
+        Symbol.asyncIterator in result
+          ? await (
+              result as AsyncIterable<{
+                success: boolean;
+                results: {
+                  title: string;
+                  url: string;
+                  description: string;
+                  content?: string | undefined;
+                }[];
+                error?: string | undefined;
+              }>
+            )
+              [Symbol.asyncIterator]()
+              .next()
+              .then((r) => r.value)
+          : result;
+
+      expect(finalResult.success).toBe(true);
+      expect(finalResult.results).toBeDefined();
+      expect(Array.isArray(finalResult.results)).toBe(true);
     },
     30000
   );

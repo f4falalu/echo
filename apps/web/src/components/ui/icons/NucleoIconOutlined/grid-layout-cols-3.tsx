@@ -1,6 +1,6 @@
 import type { iconProps } from './iconProps';
 
-function gridLayoutCols3(props: iconProps) {
+function gridLayoutCols3(_props: iconProps) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
       <title>18px_grid-layout-cols-3</title>
@@ -17,7 +17,8 @@ function gridLayoutCols3(props: iconProps) {
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
-          strokeWidth="1.5"></rect>
+          strokeWidth="1.5"
+        ></rect>
         <rect
           x="8.25"
           y="7.75"
@@ -30,7 +31,8 @@ function gridLayoutCols3(props: iconProps) {
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
-          strokeWidth="1.5"></rect>
+          strokeWidth="1.5"
+        ></rect>
         <rect
           x="-2.75"
           y="7.75"
@@ -43,7 +45,8 @@ function gridLayoutCols3(props: iconProps) {
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
-          strokeWidth="1.5"></rect>
+          strokeWidth="1.5"
+        ></rect>
       </g>
     </svg>
   );

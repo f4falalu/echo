@@ -3,7 +3,7 @@ import { DEFAULT_CHART_COLORS, DISABLED_CHART_COLORS } from './config';
 
 export const ChartIcon_Table: React.FC<{ colors?: string[]; disabled?: boolean }> = ({
   colors: colorsProp = DEFAULT_CHART_COLORS,
-  disabled
+  disabled,
 }) => {
   const colors = disabled ? DISABLED_CHART_COLORS : colorsProp;
   const firstColor = colors[0] || '#575859';
@@ -14,7 +14,8 @@ export const ChartIcon_Table: React.FC<{ colors?: string[]; disabled?: boolean }
       height="1em"
       viewBox="0 0 23 22"
       fill="none"
-      xmlns="http://www.w3.org/2000/svg">
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>Table Icon</title>
       <g clipPath="url(#clip0_257_1030)">
         <path

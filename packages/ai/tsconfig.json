@@ -12,7 +12,7 @@
     { "path": "../data-source" },
     { "path": "../database" },
     { "path": "../server-shared" },
-    { "path": "../stored-values" },
+    { "path": "../search" },
     { "path": "../test-utils" },
     { "path": "../vitest-config" }
   ]

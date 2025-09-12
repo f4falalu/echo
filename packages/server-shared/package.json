@@ -12,6 +12,10 @@
       "types": "./dist/assets/index.d.ts",
       "default": "./dist/assets/index.js"
     },
+    "./api": {
+      "types": "./dist/api/index.d.ts",
+      "default": "./dist/api/index.js"
+    },
     "./chats": {
       "types": "./dist/chats/index.d.ts",
       "default": "./dist/chats/index.js"
@@ -27,6 +31,10 @@
     "./dashboards": {
       "types": "./dist/dashboards/index.d.ts",
       "default": "./dist/dashboards/index.js"
+    },
+    "./docs": {
+      "types": "./dist/docs/index.d.ts",
+      "default": "./dist/docs/index.js"
     },
     "./github": {
       "types": "./dist/github/index.d.ts",
@@ -83,11 +91,18 @@
     "./shortcuts": {
       "types": "./dist/shortcuts/index.d.ts",
       "default": "./dist/shortcuts/index.js"
+    },
+    "./collections": {
+      "types": "./dist/collections/index.d.ts",
+      "default": "./dist/collections/index.js"
+    },
+    "./healthcheck": {
+      "types": "./dist/healthcheck/index.d.ts",
+      "default": "./dist/healthcheck/index.js"
     }
   },
   "module": "src/index.ts",
   "scripts": {
-    "prebuild": "tsx scripts/type-import-check.ts",
     "build": "tsc --build",
     "build:dry-run": "tsc --build",
     "dev": "tsc --watch",

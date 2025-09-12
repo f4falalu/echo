@@ -32,19 +32,10 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
+      - name: Setup Node Environment
+        uses: ./.github/actions/setup-node-env
         with:
-          version: 9.15.0
-      
-      - name: Setup Node.js
-        uses: useblacksmith/setup-node@v5
-        with:
-          node-version: 22
-          cache: 'pnpm'
-      
-      - name: Install bun
-        run: npm install -g bun@1.2.15
+          install-filter: "@buster-app/server..."
       
       - name: Mount Turbo cache sticky disk
         uses: useblacksmith/stickydisk@v1
@@ -57,11 +48,6 @@ jobs:
         with:
           key: ${{ github.repository }}-buildkit-cache-${{ github.ref_name }}
           path: /tmp/.buildkit-cache
-      
-      - name: Install dependencies
-        run: |
-          echo "📦 Installing dependencies with pnpm..."
-          pnpm install --frozen-lockfile
       
       - name: Build with Turbo
         run: |
@@ -80,7 +66,7 @@ jobs:
         run: |
           echo "📦 Creating server bundle with bun..."
           cd apps/server
-          bun build src/index.ts --outdir ./dist --target bun --external pino-pretty
+          bun build src/index.ts --outdir ./dist --target bun --external pino-pretty --external @duckdb/node-bindings --external @duckdb/node-bindings-linux-arm64 --external @duckdb/node-bindings-darwin-arm64 --external @duckdb/node-bindings-darwin-x64 --external @duckdb/node-bindings-win32-x64
           ls -la dist/
           cd ../..
       
@@ -93,7 +79,7 @@ jobs:
           cp -r packages /tmp/prod-deps/
           cp apps/server/package.json /tmp/prod-deps/apps/server/
           
-          # Install production dependencies only
+          # Install production dependencies only, skip optional dependencies
           cd /tmp/prod-deps
           pnpm install --frozen-lockfile --prod --no-optional
           

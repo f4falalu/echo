@@ -10,16 +10,16 @@ const paragraphVariants = cva('', {
       sm: 'text-sm',
       xs: 'text-xs',
       md: 'text-md',
-      lg: 'text-lg'
+      lg: 'text-lg',
     },
     lineHeight: {
       none: 'leading-[1]!',
       sm: 'leading-1.5!',
       base: 'leading-1.5!',
       md: 'leading-[1.4]!',
-      lg: 'leading-[1.5]!'
-    }
-  }
+      lg: 'leading-[1.5]!',
+    },
+  },
 });
 
 type ParagraphProps = {
@@ -39,7 +39,7 @@ export const Paragraph: React.FC<ParagraphProps> = ({
   className,
   style,
   lineHeight = 'base',
-  onCopy
+  onCopy,
 }) => {
   return (
     <p
@@ -50,7 +50,8 @@ export const Paragraph: React.FC<ParagraphProps> = ({
       )}
       style={style}
       onCopy={onCopy}
-      onClick={onClick}>
+      onClick={onClick}
+    >
       {children}
     </p>
   );

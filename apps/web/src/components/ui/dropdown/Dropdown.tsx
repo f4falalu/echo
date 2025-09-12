@@ -1,10 +1,9 @@
-'use client';
-
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
-import Link from 'next/link';
+import { Link, type RegisteredRouter } from '@tanstack/react-router';
 import React, { useEffect, useMemo } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { useDebounceSearch, useMemoizedFn } from '@/hooks';
+import { useDebounceSearch } from '@/hooks/useDebounceSearch';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { cn } from '@/lib/classMerge';
 import { CircleSpinnerLoader } from '../loaders/CircleSpinnerLoader';
 import {
@@ -20,38 +19,19 @@ import {
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from './DropdownBase';
 import { DropdownMenuHeaderSearch } from './DropdownMenuHeaderSearch';
+import type { DropdownDivider, IDropdownItem, IDropdownItems } from './dropdown-items.types';
 
-export interface DropdownItem<T = string> {
-  label: React.ReactNode | string;
-  truncate?: boolean;
-  searchLabel?: string; // Used for filtering
-  secondaryLabel?: string;
-  value: T;
-  shortcut?: string;
-  onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
-  closeOnSelect?: boolean; //default is true
-  icon?: React.ReactNode;
-  disabled?: boolean;
-  loading?: boolean;
-  selected?: boolean;
-  items?: DropdownItems<T>;
-  link?: string;
-  linkTarget?: '_blank' | '_self';
-  linkIcon?: 'arrow-right' | 'arrow-external' | 'caret-right';
-}
-
-export interface DropdownDivider {
-  type: 'divider';
-}
-
-export type DropdownItems<T = string> = (DropdownItem<T> | DropdownDivider | React.ReactNode)[];
-
-export interface DropdownProps<T = string> extends DropdownMenuProps {
-  items: DropdownItems<T>;
-  selectType?: 'single' | 'multiple' | 'none';
+export interface DropdownProps<
+  T = string,
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = unknown,
+  TFrom extends string = string,
+> extends DropdownMenuProps {
+  items: IDropdownItems<T, TRouter, TOptions, TFrom>;
+  selectType?: 'single' | 'multiple' | 'none' | 'single-selectable-link';
   menuHeader?: string | React.ReactNode; //if string it will render a search box
   onSelect?: (value: T) => void;
   align?: 'start' | 'center' | 'end';
@@ -70,9 +50,9 @@ export interface DropdownProps<T = string> extends DropdownMenuProps {
 
 export type DropdownContentProps<T = string> = Omit<DropdownProps<T>, 'align' | 'side'>;
 
-const dropdownItemKey = <T,>(item: DropdownItems<T>[number], index: number): string => {
+const dropdownItemKey = <T,>(item: IDropdownItems<T>[number], index: number): string => {
   if ((item as DropdownDivider).type === 'divider') return `divider-${index}`;
-  if ((item as DropdownItem<T>).value) return String((item as DropdownItem<T>).value);
+  if ((item as IDropdownItem<T>).value) return String((item as IDropdownItem<T>).value);
   return `item-${index}`;
 };
 
@@ -97,18 +77,25 @@ export const DropdownBase = <T,>({
   footerClassName = '',
   showIndex = false,
   disabled = false,
-  showEmptyState = true
+  showEmptyState = true,
 }: DropdownProps<T>) => {
   return (
-    <DropdownMenu open={open} defaultOpen={open} onOpenChange={onOpenChange} dir={dir}>
+    <DropdownMenu
+      open={open}
+      defaultOpen={open}
+      onOpenChange={onOpenChange}
+      dir={dir}
+      modal={modal}
+    >
       <DropdownMenuTrigger asChild disabled={disabled}>
         <span className="dropdown-trigger">{children}</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className={cn('max-w-60 min-w-60', className)}
+        className={cn('max-w-62 min-w-62', className)}
         align={align}
         side={side}
-        sideOffset={sideOffset}>
+        sideOffset={sideOffset}
+      >
         <DropdownContent
           items={items}
           selectType={selectType}
@@ -140,31 +127,33 @@ export const DropdownContent = <T,>({
   menuHeaderClassName,
   footerClassName,
   showEmptyState,
-  onSelect
+  onSelect,
 }: DropdownContentProps<T>) => {
   const { filteredItems, searchText, handleSearchChange } = useDebounceSearch({
     items,
     searchPredicate: (item, searchText) => {
-      if ((item as DropdownItem).value) {
-        const _item = item as DropdownItem;
+      if ((item as IDropdownItem<T>).value) {
+        const _item = item as IDropdownItem<T>;
         const searchContent =
           _item.searchLabel || (typeof _item.label === 'string' ? _item.label : '');
         return searchContent?.toLowerCase().includes(searchText.toLowerCase());
       }
       return true;
     },
-    debounceTime: 50
+    debounceTime: 50,
   });
 
   const hasShownItem = useMemo(() => {
-    return filteredItems.length > 0 && filteredItems.some((item) => (item as DropdownItem).value);
+    return (
+      filteredItems.length > 0 && filteredItems.some((item) => (item as IDropdownItem<T>).value)
+    );
   }, [filteredItems]);
 
   const { selectedItems, unselectedItems } = useMemo(() => {
     if (selectType === 'multiple') {
       const [selectedItems, unselectedItems] = filteredItems.reduce(
         (acc, item) => {
-          if ((item as DropdownItem).selected) {
+          if ((item as IDropdownItem<T>).selected) {
             acc[0].push(item);
           } else {
             acc[1].push(item);
@@ -177,7 +166,7 @@ export const DropdownContent = <T,>({
     }
     return {
       selectedItems: [],
-      unselectedItems: []
+      unselectedItems: [],
     };
   }, [selectType, filteredItems]);
 
@@ -187,11 +176,11 @@ export const DropdownContent = <T,>({
   const dropdownItems = selectType === 'multiple' ? unselectedItems : filteredItems;
 
   const onSelectItem = useMemoizedFn((index: number) => {
-    const correctIndex = dropdownItems.filter((item) => (item as DropdownItem).value);
-    const item = correctIndex[index] as DropdownItem<T>;
+    const correctIndex = dropdownItems.filter((item) => (item as IDropdownItem<T>).value);
+    const item = correctIndex[index] as IDropdownItem<T>;
 
     if (item) {
-      const disabled = (item as DropdownItem).disabled;
+      const disabled = (item as IDropdownItem<T>).disabled;
       if (!disabled && onSelect) {
         onSelect(item.value);
         // Close the dropdown if closeOnSelect is true
@@ -228,12 +217,13 @@ export const DropdownContent = <T,>({
         onWheel={(e) => {
           //this is need to prevent bug when it is inside a dialog or modal
           e.stopPropagation();
-        }}>
+        }}
+      >
         {hasShownItem ? (
           <>
             {selectedItems.map((item, index) => {
               // Only increment index for selectable items
-              if ((item as DropdownItem).value && !(item as DropdownItem).items) {
+              if ((item as IDropdownItem<T>).value && !(item as IDropdownItem<T>).items) {
                 hotkeyIndex++;
               }
 
@@ -242,10 +232,10 @@ export const DropdownContent = <T,>({
                   key={dropdownItemKey(item, index)}
                   item={item}
                   index={hotkeyIndex}
-                  selectType={selectType}
+                  selectType={(item as IDropdownItem<T>).selectType || selectType}
                   onSelect={onSelect}
                   onSelectItem={onSelectItem}
-                  closeOnSelect={(item as DropdownItem).closeOnSelect !== false}
+                  closeOnSelect={(item as IDropdownItem<T>).closeOnSelect !== false}
                   showIndex={showIndex}
                 />
               );
@@ -255,7 +245,7 @@ export const DropdownContent = <T,>({
 
             {dropdownItems.map((item, index) => {
               // Only increment index for selectable items
-              if ((item as DropdownItem).value && !(item as DropdownItem).items) {
+              if ((item as IDropdownItem<T>).value && !(item as IDropdownItem<T>).items) {
                 hotkeyIndex++;
               }
 
@@ -264,10 +254,10 @@ export const DropdownContent = <T,>({
                   key={dropdownItemKey(item, index)}
                   item={item}
                   index={hotkeyIndex}
-                  selectType={selectType}
+                  selectType={(item as IDropdownItem<T>).selectType || selectType}
                   onSelect={onSelect}
                   onSelectItem={onSelectItem}
-                  closeOnSelect={(item as DropdownItem).closeOnSelect !== false}
+                  closeOnSelect={(item as IDropdownItem<T>).closeOnSelect !== false}
                   showIndex={showIndex}
                 />
               );
@@ -291,49 +281,62 @@ export const DropdownContent = <T,>({
   );
 };
 
-const DropdownItemSelector = React.memo(
-  <T,>({
-    item,
-    index,
-    onSelect,
-    onSelectItem,
-    closeOnSelect,
-    selectType,
-    showIndex
-  }: {
-    item: DropdownItems<T>[number];
-    index: number;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- I had a devil of a time trying to type this... This is a hack to get the type to work
-    onSelect?: (value: any) => void; // Using any here to resolve the type mismatch
-    onSelectItem: (index: number) => void;
-    closeOnSelect: boolean;
-    showIndex: boolean;
-    selectType: DropdownProps<T>['selectType'];
-  }) => {
-    if ((item as DropdownDivider).type === 'divider') {
-      return <DropdownMenuSeparator />;
-    }
-
-    if (typeof item === 'object' && React.isValidElement(item)) {
-      return item;
-    }
-
-    return (
-      <DropdownItem
-        {...(item as DropdownItem<T>)}
-        closeOnSelect={closeOnSelect}
-        onSelect={onSelect}
-        onSelectItem={onSelectItem}
-        selectType={selectType}
-        index={index}
-        showIndex={showIndex}
-      />
-    );
+const DropdownItemSelector = <
+  T,
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = unknown,
+  TFrom extends string = string,
+>({
+  item,
+  index,
+  onSelect,
+  onSelectItem,
+  closeOnSelect,
+  selectType,
+  showIndex,
+}: {
+  item: IDropdownItems<T, TRouter, TOptions, TFrom>[number];
+  index: number;
+  // biome-ignore lint/suspicious/noExplicitAny: I had a devil of a time trying to type this... This is a hack to get the type to work
+  onSelect?: (value: any) => void; // Using any here to resolve the type mismatch
+  onSelectItem: (index: number) => void;
+  closeOnSelect: boolean;
+  showIndex: boolean;
+  selectType: DropdownProps<T>['selectType'];
+}) => {
+  if ((item as DropdownDivider).type === 'divider') {
+    return <DropdownMenuSeparator />;
   }
-);
+
+  if (typeof item === 'object' && React.isValidElement(item)) {
+    return item;
+  }
+
+  // Type guard to ensure item is a DropdownItem
+  if (!item || typeof item !== 'object' || !('value' in item)) {
+    return null;
+  }
+
+  return (
+    <DropdownItem<T, TRouter, TOptions, TFrom>
+      closeOnSelect={closeOnSelect}
+      onSelect={onSelect}
+      onSelectItem={onSelectItem}
+      selectType={selectType}
+      index={index}
+      showIndex={showIndex}
+      {...item}
+    />
+  );
+};
 DropdownItemSelector.displayName = 'DropdownItemSelector';
 
-const DropdownItem = <T,>({
+const DropdownItem = <
+  T,
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = unknown,
+  TFrom extends string = string,
+>({
   label,
   value,
   showIndex,
@@ -352,28 +355,29 @@ const DropdownItem = <T,>({
   secondaryLabel,
   truncate,
   link,
-  linkIcon
-}: DropdownItem<T> & {
+  linkIcon,
+}: IDropdownItem<T, TRouter, TOptions, TFrom> & {
   onSelect?: (value: T) => void;
   onSelectItem: (index: number) => void;
   closeOnSelect: boolean;
   index: number;
   showIndex: boolean;
-  selectType: DropdownProps<T>['selectType'];
 }) => {
-  const onClickItem = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
+  const onClickItem = useMemoizedFn((e: React.MouseEvent<HTMLDivElement> | KeyboardEvent) => {
+    if (disabled) return;
     if (onClick) onClick(e);
     if (onSelect) onSelect(value as T);
   });
   const enabledHotKeys = showIndex && !disabled && !!onSelectItem;
 
   // Add hotkey support when showIndex is true
-  useHotkeys(showIndex ? `${index}` : '', (e) => onSelectItem(index), {
-    enabled: enabledHotKeys
+  useHotkeys(`${index}`, onClickItem, {
+    enabled: enabledHotKeys,
   });
 
   const isSubItem = items && items.length > 0;
-  const isSelectable = !!selectType && selectType !== 'none';
+  const isSelectable =
+    !!selectType && selectType !== 'none' && selectType !== 'single-selectable-link';
 
   // Helper function to render the content consistently with proper type safety
   const renderContent = () => {
@@ -387,8 +391,8 @@ const DropdownItem = <T,>({
         {loading && <CircleSpinnerLoader size={9} />}
         {shortcut && <DropdownMenuShortcut>{shortcut}</DropdownMenuShortcut>}
         {link && (
-          <DropdownMenuLink
-            className="-mr-1 ml-auto opacity-0 group-hover:opacity-50 hover:opacity-100"
+          <DropdownMenuLink<TRouter, TOptions, TFrom>
+            className="ml-auto opacity-0 group-hover:opacity-50 hover:opacity-100"
             link={isSelectable ? link : null}
             linkIcon={linkIcon}
           />
@@ -398,13 +402,18 @@ const DropdownItem = <T,>({
 
     // Wrap with Link if needed
     if (!isSelectable && link) {
-      const isExternal = link.startsWith('http');
+      const className = 'flex w-full items-center gap-x-2';
+      if (typeof link === 'string') {
+        const isExternal = link.startsWith('http');
+        return (
+          <a href={link} target={isExternal ? '_blank' : '_self'} className={className}>
+            {content}
+          </a>
+        );
+      }
 
       return (
-        <Link
-          className="flex w-full items-center gap-x-2"
-          href={link}
-          target={isExternal ? '_blank' : '_self'}>
+        <Link className={className} {...link}>
           {content}
         </Link>
       );
@@ -421,21 +430,23 @@ const DropdownItem = <T,>({
         onSelect={onSelect}
         onSelectItem={onSelectItem}
         showIndex={showIndex}
-        selectType={selectType}>
+        selectType={selectType}
+      >
         {renderContent()}
       </DropdownSubMenuWrapper>
     );
   }
 
   //I do not think this selected check is stable... look into refactoring
-  if (selectType === 'single') {
+  if (selectType === 'single' || selectType === 'single-selectable-link') {
     return (
       <DropdownMenuCheckboxItemSingle
         checked={selected}
         disabled={disabled}
         onClick={onClickItem}
         index={showIndex ? index : undefined}
-        closeOnSelect={closeOnSelect}>
+        closeOnSelect={closeOnSelect}
+      >
         {renderContent()}
       </DropdownMenuCheckboxItemSingle>
     );
@@ -448,7 +459,8 @@ const DropdownItem = <T,>({
         disabled={disabled}
         onClick={onClickItem}
         closeOnSelect={closeOnSelect}
-        dataTestId={`dropdown-checkbox-${value}`}>
+        dataTestId={`dropdown-checkbox-${value}`}
+      >
         {renderContent()}
       </DropdownMenuCheckboxItemMultiple>
     );
@@ -459,14 +471,15 @@ const DropdownItem = <T,>({
       truncate={truncate}
       disabled={disabled}
       onClick={onClickItem}
-      closeOnSelect={closeOnSelect}>
+      closeOnSelect={closeOnSelect}
+    >
       {renderContent()}
     </DropdownMenuItem>
   );
 };
 
 interface DropdownSubMenuWrapperProps<T> {
-  items: DropdownItems<T> | undefined;
+  items: IDropdownItems<T> | undefined;
   children: React.ReactNode;
   closeOnSelect: boolean;
   showIndex: boolean;
@@ -482,7 +495,7 @@ const DropdownSubMenuWrapper = <T,>({
   onSelect,
   onSelectItem,
   selectType,
-  showIndex
+  showIndex,
 }: DropdownSubMenuWrapperProps<T>) => {
   const subContentRef = React.useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = React.useState(false);
@@ -490,7 +503,7 @@ const DropdownSubMenuWrapper = <T,>({
   const scrollToSelectedItem = React.useCallback(() => {
     if (!subContentRef.current) return;
 
-    const selectedIndex = items?.findIndex((item) => (item as DropdownItem).selected);
+    const selectedIndex = items?.findIndex((item) => (item as IDropdownItem<T>).selected);
     if (selectedIndex === undefined || selectedIndex === -1) return;
 
     const menuItems = subContentRef.current.querySelectorAll('[role="menuitem"]');
@@ -515,7 +528,8 @@ const DropdownSubMenuWrapper = <T,>({
         <DropdownMenuSubContent
           ref={subContentRef}
           sideOffset={8}
-          className="max-h-[375px] overflow-y-auto">
+          className="max-h-[375px] overflow-y-auto"
+        >
           {items?.map((item, index) => (
             <DropdownItemSelector
               key={dropdownItemKey(item, index)}
@@ -524,7 +538,7 @@ const DropdownSubMenuWrapper = <T,>({
               onSelect={onSelect}
               onSelectItem={onSelectItem}
               closeOnSelect={closeOnSelect}
-              selectType={selectType}
+              selectType={(item as IDropdownItem<T>).selectType || selectType}
               showIndex={showIndex}
             />
           ))}
@@ -539,7 +553,7 @@ const DropdownMenuHeaderSelector = <T,>({
   onChange,
   onSelectItem,
   text,
-  showIndex
+  showIndex,
 }: {
   menuHeader: NonNullable<DropdownProps<T>['menuHeader']>;
   onSelectItem: (index: number) => void;

@@ -31,3 +31,6 @@ export type DuplicateChatResponse = z.infer<typeof DuplicateChatResponseSchema>;
 // Response for deleting chats (void)
 export const DeleteChatsResponseSchema = z.void();
 export type DeleteChatsResponse = z.infer<typeof DeleteChatsResponseSchema>;
+
+export const ShareChatResponseSchema = ChatWithMessagesSchema;
+export type ShareChatResponse = z.infer<typeof ShareChatResponseSchema>;

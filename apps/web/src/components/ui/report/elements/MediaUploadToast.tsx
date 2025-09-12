@@ -1,9 +1,6 @@
-'use client';
-
-import * as React from 'react';
-
 import { PlaceholderPlugin, UploadErrorCode } from '@platejs/media/react';
 import { usePluginOption } from 'platejs/react';
+import * as React from 'react';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 
 export function MediaUploadToast() {

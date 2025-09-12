@@ -1,12 +1,13 @@
-import React, { type PropsWithChildren } from 'react';
+import type React from 'react';
+import type { PropsWithChildren } from 'react';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import type { IColorPalette } from '../ThemeList';
-import { useMemoizedFn } from '@/hooks';
-import { NewThemePopup } from './NewThemePopup';
 import { useAddTheme } from './AddThemeProviderWrapper';
+import { NewThemePopup } from './NewThemePopup';
 
 export const EditCustomThemeMenu: React.FC<PropsWithChildren<{ theme: IColorPalette }>> = ({
   theme,
-  children
+  children,
 }) => {
   const { deleteCustomTheme, modifyCustomTheme } = useAddTheme();
 

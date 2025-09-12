@@ -12,7 +12,8 @@ export const PostgresIcon: React.FC<{
       width={props.size || 24}
       height={props.size || 24}
       viewBox="0 0 432.071 445.383"
-      xmlns="http://www.w3.org/2000/svg">
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>Postgres Icon</title>
       <g id="orginal" fillRule="nonzero" clipRule="nonzero" stroke="#000000" strokeMiterlimit="4" />
       <g
@@ -24,7 +25,8 @@ export const PostgresIcon: React.FC<{
         strokeWidth="12.4651"
         strokeLinecap="round"
         strokeLinejoin="round"
-        strokeMiterlimit="4">
+        strokeMiterlimit="4"
+      >
         <path
           fill="#000000"
           stroke="#000000"

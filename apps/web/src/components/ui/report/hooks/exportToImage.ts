@@ -1,7 +1,7 @@
 import type { PlateEditor } from 'platejs/react';
 import { NodeTypeLabels } from '../config/labels';
-import { getCanvas } from './getCanvas';
 import { downloadFile } from './downloadFile';
+import { getCanvas } from './getCanvas';
 
 type Notifier = (message: string) => void;
 
@@ -16,7 +16,7 @@ export const exportToImage = async ({
   editor,
   filename = 'plate.png',
   openInfoMessage,
-  openErrorMessage
+  openErrorMessage,
 }: ExportToImageOptions) => {
   try {
     const canvas = await getCanvas(editor);

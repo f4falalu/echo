@@ -1,23 +1,24 @@
-import React, { useMemo } from 'react';
 import type {
   ShareAssetType,
   ShareConfig,
   ShareRole,
-  WorkspaceShareRole
+  WorkspaceShareRole,
 } from '@buster/server-shared/share';
+import pluralize from 'pluralize';
+import React from 'react';
+import { useUnshareChat, useUpdateChatShare } from '@/api/buster_rest/chats';
 import { useUnshareCollection, useUpdateCollectionShare } from '@/api/buster_rest/collections';
 import { useUnshareDashboard, useUpdateDashboardShare } from '@/api/buster_rest/dashboards';
 import { useUnshareMetric, useUpdateMetricShare } from '@/api/buster_rest/metrics';
 import { useUnshareReport, useUpdateReportShare } from '@/api/buster_rest/reports';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { cn } from '@/lib/classMerge';
 import { ShareMenuContentEmbed } from './ShareMenuContentEmbed';
 import { ShareMenuContentPublish } from './ShareMenuContentPublish';
-import type { ShareMenuTopBarOptions } from './ShareMenuTopBar';
 import { ShareMenuInvite } from './ShareMenuInvite';
+import type { ShareMenuTopBarOptions } from './ShareMenuTopBar';
 import { ShareRowItem } from './ShareRowItem';
 import { WorkspaceAvatar } from './WorkspaceAvatar';
-import pluralize from 'pluralize';
 
 export const ShareMenuContentBody: React.FC<{
   selectedOptions: ShareMenuTopBarOptions;
@@ -35,7 +36,7 @@ export const ShareMenuContentBody: React.FC<{
     assetId,
     canEditPermissions,
     assetType,
-    className = ''
+    className = '',
   }) => {
     const Component = ContentRecord[selectedOptions];
     const individual_permissions = shareAssetConfig.individual_permissions;
@@ -68,16 +69,18 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
     individual_permissions,
     assetId,
     className,
-    shareAssetConfig
+    shareAssetConfig,
   }) => {
     const { mutateAsync: onUpdateMetricShare } = useUpdateMetricShare();
     const { mutateAsync: onUpdateDashboardShare } = useUpdateDashboardShare();
     const { mutateAsync: onUpdateCollectionShare } = useUpdateCollectionShare();
     const { mutateAsync: onUpdateReportShare } = useUpdateReportShare();
+    const { mutateAsync: onUpdateChatShare } = useUpdateChatShare();
     const { mutateAsync: onUnshareMetric } = useUnshareMetric();
     const { mutateAsync: onUnshareDashboard } = useUnshareDashboard();
     const { mutateAsync: onUnshareCollection } = useUnshareCollection();
     const { mutateAsync: onUnshareReport } = useUnshareReport();
+    const { mutateAsync: onUnshareChat } = useUnshareChat();
 
     const hasIndividualPermissions = !!individual_permissions?.length;
     const workspaceMemberCount = shareAssetConfig.workspace_member_count || 0;
@@ -85,13 +88,17 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
     const updateByAssetType = useMemoizedFn(
       async (payload: Parameters<typeof onUpdateMetricShare>[0], assetType: ShareAssetType) => {
         if (assetType === 'metric') {
-          await onUpdateMetricShare(payload);
+          return await onUpdateMetricShare(payload);
         } else if (assetType === 'dashboard') {
-          await onUpdateDashboardShare(payload);
+          return await onUpdateDashboardShare(payload);
         } else if (assetType === 'collection') {
-          await onUpdateCollectionShare(payload);
+          return await onUpdateCollectionShare(payload);
         } else if (assetType === 'report') {
-          await onUpdateReportShare(payload);
+          return await onUpdateReportShare(payload);
+        } else if (assetType === 'chat') {
+          return await onUpdateChatShare(payload);
+        } else {
+          const _exhaustiveCheck: never = assetType;
         }
       }
     );
@@ -104,16 +111,16 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
             users: [
               {
                 email,
-                role
-              }
-            ]
-          }
+                role,
+              },
+            ],
+          },
         };
         return updateByAssetType(payload, assetType);
       } else {
         const payload: Parameters<typeof onUnshareMetric>[0] = {
           id: assetId,
-          data: [email]
+          data: [email],
         };
         if (assetType === 'metric') {
           await onUnshareMetric(payload);
@@ -123,6 +130,10 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
           await onUnshareCollection(payload);
         } else if (assetType === 'report') {
           await onUnshareReport(payload);
+        } else if (assetType === 'chat') {
+          await onUnshareChat(payload);
+        } else {
+          const _exhaustiveCheck: never = assetType;
         }
       }
     });
@@ -131,8 +142,8 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
       const payload: Parameters<typeof onUpdateMetricShare>[0] = {
         id: assetId,
         params: {
-          workspace_sharing: role || 'none'
-        }
+          workspace_sharing: role || 'none',
+        },
       };
 
       return updateByAssetType(payload, assetType);
@@ -162,6 +173,7 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
                 assetType={assetType}
                 shareLevel={permission.role}
                 disabled={!canEditPermissions || permission.role === 'owner'}
+                showRemove={true}
               />
             ))}
           </div>
@@ -201,5 +213,5 @@ export interface ShareMenuContentBodyProps {
 const ContentRecord: Record<ShareMenuTopBarOptions, React.FC<ShareMenuContentBodyProps>> = {
   Share: ShareMenuContentShare,
   Embed: ShareMenuContentEmbed,
-  Publish: ShareMenuContentPublish
+  Publish: ShareMenuContentPublish,
 };

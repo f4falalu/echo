@@ -1,8 +1,5 @@
-'use client';
-
-import * as React from 'react';
-
 import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog';
+import type * as React from 'react';
 
 import { buttonVariants } from '@/components/ui/buttons';
 import { cn } from '@/lib/utils';
@@ -132,5 +129,5 @@ export {
   AlertDialogOverlay,
   AlertDialogPortal,
   AlertDialogTitle,
-  AlertDialogTrigger
+  AlertDialogTrigger,
 };

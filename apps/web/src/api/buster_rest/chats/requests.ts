@@ -1,20 +1,25 @@
 import type {
+  DeleteChatsRequest,
+  DuplicateChatRequest,
+  DuplicateChatResponse,
+  GetChatRequest,
+  GetChatResponse,
   GetChatsListRequest,
   GetChatsListResponse,
   GetLogsListRequest,
   GetLogsListResponse,
-  GetChatRequest,
-  GetChatResponse,
-  DeleteChatsRequest,
-  UpdateChatRequest,
-  UpdateChatResponse,
+  ShareChatResponse,
   UpdateChatMessageFeedbackRequest,
   UpdateChatMessageFeedbackResponse,
-  DuplicateChatRequest,
-  DuplicateChatResponse
+  UpdateChatRequest,
+  UpdateChatResponse,
 } from '@buster/server-shared/chats';
-import { serverFetch } from '../../createServerInstance';
-import { mainApi } from '../instances';
+import type {
+  ShareDeleteRequest,
+  SharePostRequest,
+  ShareUpdateRequest,
+} from '@buster/server-shared/share';
+import { mainApi, mainApiV2 } from '../instances';
 
 const CHATS_BASE = '/chats';
 
@@ -23,7 +28,7 @@ export const getListChats = async (params?: GetChatsListRequest): Promise<GetCha
   const { page_token = 0, page_size = 3500 } = params || {};
   return mainApi
     .get<GetChatsListResponse>(`${CHATS_BASE}`, {
-      params: { page_token, page_size }
+      params: { page_token, page_size },
     })
     .then((res) => res.data);
 };
@@ -32,29 +37,14 @@ export const getListLogs = async (params?: GetLogsListRequest): Promise<GetLogsL
   const { page_token = 0, page_size = 3500 } = params || {};
   return mainApi
     .get<GetLogsListResponse>('/logs', {
-      params: { page_token, page_size }
+      params: { page_token, page_size },
     })
     .then((res) => res.data);
-};
-
-// Server-side fetch version
-export const getListChats_server = async (
-  params?: GetChatsListRequest
-): Promise<GetChatsListResponse> => {
-  const { page_token = 0, page_size = 1000 } = params || {};
-  return await serverFetch<GetChatsListResponse>(`${CHATS_BASE}`, {
-    params: { page_token, page_size }
-  });
 };
 
 // Client-side fetch version
 export const getChat = async ({ id }: GetChatRequest): Promise<GetChatResponse> => {
   return mainApi.get<GetChatResponse>(`${CHATS_BASE}/${id}`).then((res) => res.data);
-};
-
-// Server-side fetch version
-export const getChat_server = async ({ id }: GetChatRequest): Promise<GetChatResponse> => {
-  return await serverFetch<GetChatResponse>(`${CHATS_BASE}/${id}`);
 };
 
 export const deleteChat = async (data: DeleteChatsRequest): Promise<void> => {
@@ -78,7 +68,27 @@ export const updateChatMessageFeedback = async ({
 
 export const duplicateChat = async ({
   id,
-  message_id
+  message_id,
 }: DuplicateChatRequest): Promise<DuplicateChatResponse> => {
   return mainApi.post(`${CHATS_BASE}/duplicate`, { id, message_id }).then((res) => res.data);
+};
+
+export const shareChat = async ({ id, params }: { id: string; params: SharePostRequest }) => {
+  return mainApi.post<string>(`${CHATS_BASE}/${id}/sharing`, params).then((res) => res.data);
+};
+
+export const unshareChat = async ({ id, data }: { id: string; data: ShareDeleteRequest }) => {
+  return mainApi.delete<boolean>(`${CHATS_BASE}/${id}/sharing`, { data }).then((res) => res.data);
+};
+
+export const updateChatShare = async ({
+  id,
+  params,
+}: {
+  id: string;
+  params: ShareUpdateRequest;
+}) => {
+  return mainApi
+    .put<ShareChatResponse>(`${CHATS_BASE}/${id}/sharing`, params)
+    .then((res) => res.data);
 };

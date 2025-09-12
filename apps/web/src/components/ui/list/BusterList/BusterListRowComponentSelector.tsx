@@ -22,18 +22,11 @@ interface BusterListRowComponentSelectorProps<T = unknown> {
 const BusterListRowComponentSelectorInner = React.forwardRef(
   <T,>(
     {
-      style,
       row,
-      rows,
-      columns,
       isLastChild,
-      onSelectChange,
-      onSelectSectionChange,
       selectedRowKeys,
-      onContextMenuClick,
-      hideLastRowBorder,
-      rowClassName,
-      useRowClickSelectChange = false
+      useRowClickSelectChange = false,
+      ...rest
     }: BusterListRowComponentSelectorProps<T>,
     ref: React.ForwardedRef<HTMLDivElement>
   ) => {
@@ -41,34 +34,19 @@ const BusterListRowComponentSelectorInner = React.forwardRef(
 
     if (row.rowSection) {
       return (
-        <BusterListSectionComponent
-          style={style}
-          rowSection={row.rowSection}
-          ref={ref}
-          id={row.id}
-          key={row.id}
-          rows={rows}
-          selectedRowKeys={selectedRowKeys}
-          rowClassName={rowClassName}
-          onSelectSectionChange={onSelectSectionChange}
-        />
+        <BusterListSectionComponent rowSection={row.rowSection} ref={ref} key={row.id} {...rest} />
       );
     }
 
     return (
       <BusterListRowComponent
-        style={style}
         row={row}
-        columns={columns}
         key={row.id}
-        rowClassName={rowClassName}
-        onSelectChange={onSelectChange}
         checked={!!selectedRowKeys?.includes(row.id)}
         ref={ref}
-        onContextMenuClick={onContextMenuClick}
-        hideLastRowBorder={hideLastRowBorder}
         useRowClickSelectChange={useRowClickSelectChange}
         isLastChild={isLastChild}
+        {...rest}
       />
     );
   }

@@ -1,53 +1,53 @@
-'use client';
-
-import React, { useMemo } from 'react';
-import type { ShareAssetType } from '@buster/server-shared/share';
-import { FileIndeterminateLoader } from '@/components/features/FileIndeterminateLoader';
+import type { AssetType } from '@buster/server-shared/assets';
+import type { ResponseMessageFileType } from '@buster/server-shared/chats';
+import { useParams, useSearch } from '@tanstack/react-router';
+import type React from 'react';
+import { FileIndeterminateLoader } from '@/components/features/loaders/FileIndeterminateLoader';
 import { AppNoPageAccess } from '@/controllers/AppNoPageAccess';
 import { AppPasswordAccess } from '@/controllers/AppPasswordAccess';
-import { useGetAsset } from './useGetAsset';
-import { useChatIndividualContextSelector } from '../ChatLayout/ChatContext';
-import { useDocumentTitle } from '@/hooks';
+import { getAssetIdAndVersionNumber } from './getAssetIdAndVersionNumberServer';
+import { useGetAssetPasswordConfig } from './useGetAssetPasswordConfig';
+import { useShowLoader } from './useShowLoader';
 
 export type AppAssetCheckLayoutProps = {
-  assetId: string;
-  type: 'metric' | 'dashboard' | 'collection' | 'report';
-  versionNumber?: number;
+  assetType: AssetType | ResponseMessageFileType;
 };
 
 export const AppAssetCheckLayout: React.FC<
   {
     children: React.ReactNode;
   } & AppAssetCheckLayoutProps
-> = ({ children, type, assetId, versionNumber }) => {
-  const { hasAccess, passwordRequired, isPublic, isFetched, showLoader } = useGetAsset({
+> = ({ children, assetType }) => {
+  const params = useParams({ strict: false });
+  const search = useSearch({ strict: false });
+
+  const { assetId, versionNumber } = getAssetIdAndVersionNumber(assetType, params, search);
+
+  const { hasAccess, isPublic, passwordRequired } = useGetAssetPasswordConfig(
     assetId,
-    type,
+    assetType,
     versionNumber
-  });
+  );
 
-  const Component = useMemo(() => {
-    if (!isFetched) return null;
+  const showLoader = useShowLoader(assetId, assetType, versionNumber);
 
-    if (!hasAccess && !isPublic) {
-      return <AppNoPageAccess assetId={assetId} />;
-    }
-
-    if (isPublic && passwordRequired) {
-      return (
-        <AppPasswordAccess assetId={assetId} type={type as ShareAssetType}>
-          {children}
-        </AppPasswordAccess>
-      );
-    }
-
-    return <>{children}</>;
-  }, [isFetched, hasAccess, isPublic, passwordRequired, assetId, type, children]);
+  let content: React.ReactNode;
+  if (!hasAccess && !isPublic) {
+    content = <AppNoPageAccess assetId={assetId} type={assetType} />;
+  } else if (isPublic && passwordRequired) {
+    content = (
+      <AppPasswordAccess assetId={assetId} type={assetType}>
+        {children}
+      </AppPasswordAccess>
+    );
+  } else {
+    content = children;
+  }
 
   return (
     <>
       {showLoader && <FileIndeterminateLoader />}
-      {Component}
+      {content}
     </>
   );
 };

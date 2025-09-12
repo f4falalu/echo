@@ -1,10 +1,10 @@
+import type { DashboardConfig } from '@buster/server-shared/dashboards';
 import { describe, expect, it } from 'vitest';
-import type { DashboardConfig } from '@/api/asset_interfaces/dashboard';
 import type { BusterMetric } from '@/api/asset_interfaces/metric';
 import {
   MAX_NUMBER_OF_ITEMS,
   MIN_ROW_HEIGHT,
-  NUMBER_OF_COLUMNS
+  NUMBER_OF_COLUMNS,
 } from '@/components/ui/grid/helpers';
 import { createMockMetric } from '@/mocks/metric';
 import { normalizeNewMetricsIntoGrid } from './normalizeMetric';
@@ -16,7 +16,7 @@ describe('normalizeNewMetricsIntoGrid', () => {
     id: `row-${itemIds[0]}`,
     columnSizes: Array(itemIds.length).fill(NUMBER_OF_COLUMNS / itemIds.length),
     rowHeight: MIN_ROW_HEIGHT,
-    items: itemIds.map((id) => ({ id }))
+    items: itemIds.map((id) => ({ id })),
   });
 
   it('should create a new grid when no existing grid is provided', () => {
@@ -24,7 +24,7 @@ describe('normalizeNewMetricsIntoGrid', () => {
       '1': mockMetric('1'),
       '2': mockMetric('2'),
       '3': mockMetric('3'),
-      '4': mockMetric('4')
+      '4': mockMetric('4'),
     };
 
     const result = normalizeNewMetricsIntoGrid(metrics);
@@ -35,7 +35,7 @@ describe('normalizeNewMetricsIntoGrid', () => {
       NUMBER_OF_COLUMNS / 4,
       NUMBER_OF_COLUMNS / 4,
       NUMBER_OF_COLUMNS / 4,
-      NUMBER_OF_COLUMNS / 4
+      NUMBER_OF_COLUMNS / 4,
     ]);
   });
 
@@ -46,7 +46,7 @@ describe('normalizeNewMetricsIntoGrid', () => {
       '1': mockMetric('1'),
       '2': mockMetric('2'),
       '3': mockMetric('3'),
-      '4': mockMetric('4')
+      '4': mockMetric('4'),
     };
 
     const result = normalizeNewMetricsIntoGrid(metrics, existingGrid);
@@ -57,7 +57,7 @@ describe('normalizeNewMetricsIntoGrid', () => {
       NUMBER_OF_COLUMNS / 4,
       NUMBER_OF_COLUMNS / 4,
       NUMBER_OF_COLUMNS / 4,
-      NUMBER_OF_COLUMNS / 4
+      NUMBER_OF_COLUMNS / 4,
     ]);
   });
 
@@ -72,7 +72,7 @@ describe('normalizeNewMetricsIntoGrid', () => {
       '5': mockMetric('5'),
       '6': mockMetric('6'),
       '7': mockMetric('7'),
-      '8': mockMetric('8')
+      '8': mockMetric('8'),
     };
 
     const result = normalizeNewMetricsIntoGrid(metrics, existingGrid);
@@ -87,7 +87,7 @@ describe('normalizeNewMetricsIntoGrid', () => {
 
     const metrics = {
       '1': mockMetric('1'),
-      '2': mockMetric('2')
+      '2': mockMetric('2'),
     };
 
     const result = normalizeNewMetricsIntoGrid(metrics, existingGrid);
@@ -103,7 +103,7 @@ describe('normalizeNewMetricsIntoGrid', () => {
     const metrics = {
       '2': mockMetric('2'),
       '3': mockMetric('3'),
-      '4': mockMetric('4')
+      '4': mockMetric('4'),
     };
 
     const result = normalizeNewMetricsIntoGrid(metrics, existingGrid);
@@ -116,12 +116,12 @@ describe('normalizeNewMetricsIntoGrid', () => {
   it('should remove empty rows after removing metrics', () => {
     const existingGrid: DashboardConfig['rows'] = [
       createMockRow(['1', '2']),
-      createMockRow(['3', '4'])
+      createMockRow(['3', '4']),
     ];
 
     const metrics = {
       '1': mockMetric('1'),
-      '2': mockMetric('2')
+      '2': mockMetric('2'),
     };
 
     const result = normalizeNewMetricsIntoGrid(metrics, existingGrid);
@@ -142,15 +142,15 @@ describe('normalizeNewMetricsIntoGrid', () => {
     const existingGrid: DashboardConfig['rows'] = [
       {
         ...createMockRow(['1', '2']),
-        rowHeight: customRowHeight
-      }
+        rowHeight: customRowHeight,
+      },
     ];
 
     const metrics = {
       '1': mockMetric('1'),
       '2': mockMetric('2'),
       '3': mockMetric('3'),
-      '4': mockMetric('4')
+      '4': mockMetric('4'),
     };
 
     const result = normalizeNewMetricsIntoGrid(metrics, existingGrid);
@@ -159,7 +159,8 @@ describe('normalizeNewMetricsIntoGrid', () => {
 
   it('should handle metrics exceeding MAX_NUMBER_OF_ITEMS by creating new rows', () => {
     const metrics = Array.from({ length: MAX_NUMBER_OF_ITEMS + 3 }, (_, i) => ({
-      [i.toString()]: mockMetric(i.toString())
+      [i.toString()]: mockMetric(i.toString()),
+      // biome-ignore lint/performance/noAccumulatingSpread: this is a test and it's not performance critical
     })).reduce((acc, curr) => ({ ...acc, ...curr }), {});
 
     const result = normalizeNewMetricsIntoGrid(metrics);
@@ -172,7 +173,7 @@ describe('normalizeNewMetricsIntoGrid', () => {
       abc123: mockMetric('abc123'),
       xyz789: mockMetric('xyz789'),
       def456: mockMetric('def456'),
-      uvw321: mockMetric('uvw321')
+      uvw321: mockMetric('uvw321'),
     };
 
     const result = normalizeNewMetricsIntoGrid(metrics);
@@ -182,7 +183,7 @@ describe('normalizeNewMetricsIntoGrid', () => {
       'abc123',
       'xyz789',
       'def456',
-      'uvw321'
+      'uvw321',
     ]);
   });
 
@@ -190,27 +191,27 @@ describe('normalizeNewMetricsIntoGrid', () => {
     const existingGrid: DashboardConfig['rows'] = [
       {
         ...createMockRow(['1', '2', '3']),
-        columnSizes: [NUMBER_OF_COLUMNS / 2, NUMBER_OF_COLUMNS / 4, NUMBER_OF_COLUMNS / 4]
-      }
+        columnSizes: [NUMBER_OF_COLUMNS / 2, NUMBER_OF_COLUMNS / 4, NUMBER_OF_COLUMNS / 4],
+      },
     ];
 
     const metrics = {
       '2': mockMetric('2'),
       '1': mockMetric('1'),
-      '3': mockMetric('3')
+      '3': mockMetric('3'),
     };
 
     const result = normalizeNewMetricsIntoGrid(metrics, existingGrid);
     expect(result[0].columnSizes).toEqual([
       NUMBER_OF_COLUMNS / 2,
       NUMBER_OF_COLUMNS / 4,
-      NUMBER_OF_COLUMNS / 4
+      NUMBER_OF_COLUMNS / 4,
     ]);
   });
 
   it('should handle single metric with maximum width', () => {
     const metrics = {
-      '1': mockMetric('1')
+      '1': mockMetric('1'),
     };
 
     const result = normalizeNewMetricsIntoGrid(metrics);
@@ -226,7 +227,7 @@ describe('normalizeNewMetricsIntoGrid', () => {
       '2': mockMetric('2'),
       '3': mockMetric('3'),
       '4': mockMetric('4'),
-      '5': mockMetric('5')
+      '5': mockMetric('5'),
     };
 
     const result = normalizeNewMetricsIntoGrid(metrics, existingGrid);
@@ -238,7 +239,7 @@ describe('normalizeNewMetricsIntoGrid', () => {
       NUMBER_OF_COLUMNS / 4,
       NUMBER_OF_COLUMNS / 4,
       NUMBER_OF_COLUMNS / 4,
-      NUMBER_OF_COLUMNS / 4
+      NUMBER_OF_COLUMNS / 4,
     ]);
   });
 });

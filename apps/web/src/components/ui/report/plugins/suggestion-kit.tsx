@@ -1,14 +1,12 @@
-'use client';
-
 import { type BaseSuggestionConfig, BaseSuggestionPlugin } from '@platejs/suggestion';
 import {
   type ExtendConfig,
-  type Path,
   isSlateEditor,
   isSlateElement,
-  isSlateString
+  isSlateString,
+  type Path,
 } from 'platejs';
-import { toTPlatePlugin, type RenderNodeWrapper } from 'platejs/react';
+import { type RenderNodeWrapper, toTPlatePlugin } from 'platejs/react';
 
 import { BlockSuggestion } from '../elements/BlockSuggestion';
 import { SuggestionLeaf, SuggestionLineBreak } from '../elements/SuggestionNode';
@@ -31,8 +29,8 @@ export const suggestionPlugin = toTPlatePlugin<SuggestionConfig>(
       activeId: null,
       currentUserId: editor.getOption(discussionPlugin, 'currentUserId'),
       hoverId: null,
-      uniquePathMap: new Map()
-    }
+      uniquePathMap: new Map(),
+    },
   })
 ).configure({
   handlers: {
@@ -54,7 +52,7 @@ export const suggestionPlugin = toTPlatePlugin<SuggestionConfig>(
         !isSlateEditor(leaf.parentElement)
       ) {
         if (leaf.classList.contains(`slate-${type}`)) {
-          const suggestionEntry = api.suggestion!.node({ isText: true });
+          const suggestionEntry = api.suggestion?.node({ isText: true });
 
           if (!suggestionEntry) {
             unsetActiveSuggestion();
@@ -62,7 +60,7 @@ export const suggestionPlugin = toTPlatePlugin<SuggestionConfig>(
             break;
           }
 
-          const id = api.suggestion!.nodeId(suggestionEntry[0]);
+          const id = api.suggestion?.nodeId(suggestionEntry[0]);
 
           setOption('activeId', id ?? null);
           isSet = true;
@@ -74,20 +72,20 @@ export const suggestionPlugin = toTPlatePlugin<SuggestionConfig>(
       }
 
       if (!isSet) unsetActiveSuggestion();
-    }
+    },
   },
   render: {
     // @ts-expect-error - TODO: fix this
     belowNodes: SuggestionLineBreak,
     node: SuggestionLeaf,
     belowRootNodes: ({ api, element }) => {
-      if (!api.suggestion!.isBlockSuggestion(element)) {
+      if (!api.suggestion?.isBlockSuggestion(element)) {
         return null;
       }
 
       return <BlockSuggestion element={element} />;
-    }
-  }
+    },
+  },
 });
 
 export const SuggestionKit = [suggestionPlugin];

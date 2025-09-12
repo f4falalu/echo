@@ -69,8 +69,8 @@ function handlePieThreshold(datasets: DatasetOption[], minPercent: number): Data
       {
         ...dataset,
         data: newData,
-        tooltipData: newTooltipData
-      }
+        tooltipData: newTooltipData,
+      },
     ];
   }
 
@@ -125,8 +125,8 @@ function handlePieThreshold(datasets: DatasetOption[], minPercent: number): Data
       data: [otherValue],
       dataKey: 'other',
       axisType: 'y',
-      tooltipData: [otherTooltip]
-    }
+      tooltipData: [otherTooltip],
+    },
   ];
 }
 
@@ -174,7 +174,7 @@ function sortPie(
     tooltipData: dataset.tooltipData
       ? indices.map((i) => dataset.tooltipData?.[i] || [])
       : dataset.tooltipData,
-    sizeData: dataset.sizeData ? indices.map((i) => dataset.sizeData?.[i] ?? null) : []
+    sizeData: dataset.sizeData ? indices.map((i) => dataset.sizeData?.[i] ?? null) : [],
   }));
 
   // Sort ticks if they exist
@@ -195,7 +195,6 @@ function applyPercentageStack(datasets: DatasetOption[]): DatasetOption[] {
   for (const ds of clone) {
     ds.data.forEach((v, i) => {
       if (v !== null) {
-        // @ts-ignore
         sums[i] += v || 0;
       }
     });
@@ -239,14 +238,13 @@ function sortBar(
   const sums = new Array<number>(dataLen).fill(0);
   for (const ds of items) {
     ds.data.forEach((v, i) => {
-      // @ts-ignore
       sums[i] += v === null ? 0 : v || 0;
     });
   }
 
   // Create sorting indices
   const indices = Array.from({ length: dataLen }, (_, idx) => idx);
-  // @ts-ignore
+
   indices.sort((a, b) => (sortKey === 'asc' ? sums[a] - sums[b] : sums[b] - sums[a]));
 
   // Sort datasets
@@ -257,7 +255,7 @@ function sortBar(
     // Sort tooltipData if it exists
     tooltipData: ds.tooltipData ? indices.map((i) => ds.tooltipData?.[i] || []) : ds.tooltipData,
     // Sort sizeData if it exists
-    sizeData: ds.sizeData ? indices.map((i) => ds.sizeData?.[i] ?? null) : []
+    sizeData: ds.sizeData ? indices.map((i) => ds.sizeData?.[i] ?? null) : [],
   }));
 
   // Sort ticks (x-axis labels)
@@ -285,7 +283,7 @@ export function modifyDatasets({
   barSortBy,
   barGroupType,
   lineGroupType,
-  selectedChartType
+  selectedChartType,
 }: ModifyDatasetsParams): DatasetOptionsWithTicks {
   if (!datasets.datasets.length) return datasets;
 

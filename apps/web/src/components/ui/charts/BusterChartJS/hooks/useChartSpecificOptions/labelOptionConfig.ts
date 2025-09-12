@@ -1,5 +1,3 @@
-'use client';
-
 import { isServer } from '@/lib/window';
 import type { ChartProps } from '../../core';
 
@@ -16,13 +14,13 @@ export const defaultLabelOptionConfig = {
     top: 3,
     bottom: 3,
     left: 6,
-    right: 6
+    right: 6,
   },
   color: isServer
     ? '#575859'
     : getComputedStyle(document.documentElement).getPropertyValue('--color-text-secondary'),
   font: {
     size: 10,
-    weight: 'normal' as const
-  }
+    weight: 'normal' as const,
+  },
 } satisfies ChartProps<'line'>['data']['datasets'][number]['datalabels'];

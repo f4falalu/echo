@@ -1,24 +1,25 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
-import { action } from 'storybook/actions';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
+import { action } from 'storybook/actions';
+import { useDebounceFn } from '@/hooks/useDebounce';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { InputSearchDropdown, type InputSearchDropdownProps } from './InputSearchDropdown';
-import { useDebounceFn, useMemoizedFn } from '../../../hooks';
 
 const meta: Meta<typeof InputSearchDropdown> = {
   title: 'UI/inputs/InputSearchDropdown',
   component: InputSearchDropdown,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
   tags: ['autodocs'],
   argTypes: {
     onSelect: {
-      action: 'selected'
+      action: 'selected',
     },
     onSearch: {
-      action: 'searched'
-    }
-  }
+      action: 'searched',
+    },
+  },
 };
 
 export default meta;
@@ -32,7 +33,7 @@ const sampleOptions = [
   { label: 'Elderberry', value: 'elderberry' },
   { label: 'Fig', value: 'fig' },
   { label: 'Grape', value: 'grape' },
-  { label: 'Honeydew', value: 'honeydew' }
+  { label: 'Honeydew', value: 'honeydew' },
 ];
 
 // Interactive story with state management
@@ -87,16 +88,16 @@ export const Default: Story = {
   render: (args) => <InputSearchDropdownWithState {...args} />,
   args: {
     placeholder: 'Search fruits...',
-    value: ''
-  }
+    value: '',
+  },
 };
 
 export const WithInitialValue: Story = {
   render: (args) => <InputSearchDropdownWithState {...args} />,
   args: {
     placeholder: 'Search fruits...',
-    value: 'Apple'
-  }
+    value: 'Apple',
+  },
 };
 
 export const CustomEmptyState: Story = {
@@ -104,8 +105,8 @@ export const CustomEmptyState: Story = {
   args: {
     placeholder: 'Search fruits...',
     value: '',
-    emptyMessage: 'No fruits found matching your search'
-  }
+    emptyMessage: 'No fruits found matching your search',
+  },
 };
 
 export const CustomStyling: Story = {
@@ -113,8 +114,8 @@ export const CustomStyling: Story = {
   args: {
     placeholder: 'Search fruits...',
     value: '',
-    className: 'border-2 border-blue-500 rounded-lg'
-  }
+    className: 'border-2 border-blue-500 rounded-lg',
+  },
 };
 
 // Story with complex options (React nodes)
@@ -127,7 +128,7 @@ const complexOptions = [
         <span className="text-sm text-gray-500">(Red fruit)</span>
       </div>
     ),
-    value: 'apple'
+    value: 'apple',
   },
   {
     label: (
@@ -137,7 +138,7 @@ const complexOptions = [
         <span className="text-sm text-gray-500">(Yellow fruit)</span>
       </div>
     ),
-    value: 'banana'
+    value: 'banana',
   },
   {
     label: (
@@ -147,8 +148,8 @@ const complexOptions = [
         <span className="text-sm text-gray-500">(Small red fruit)</span>
       </div>
     ),
-    value: 'cherry'
-  }
+    value: 'cherry',
+  },
 ];
 
 const ComplexInputSearchDropdown = (args: any) => {
@@ -187,6 +188,6 @@ export const ComplexOptions: Story = {
   render: (args) => <ComplexInputSearchDropdown {...args} />,
   args: {
     placeholder: 'Search fruits with icons...',
-    value: ''
-  }
+    value: '',
+  },
 };

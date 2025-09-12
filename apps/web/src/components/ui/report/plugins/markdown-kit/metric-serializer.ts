@@ -25,7 +25,7 @@ export const metricSerializer: MetricMdNode = {
 
     return {
       type: 'html',
-      value: `<metric metricId="${metricId}" width="${hasWidth ? width : '100%'}" caption="${captionText}"></metric>`
+      value: `<metric metricId="${metricId}" versionNumber="${node.versionNumber}" width="${hasWidth ? width : '100%'}" caption="${captionText}"></metric>`,
     };
   },
   deserialize: (node): MetricElement => {
@@ -42,7 +42,7 @@ export const metricSerializer: MetricMdNode = {
       metricId: typedAttributes.metricId,
       caption: typedAttributes.caption ? [{ text: typedAttributes.caption }] : undefined,
       width: typedAttributes.width,
-      children: [{ text: '' }]
+      children: [{ text: '' }],
     };
-  }
+  },
 };

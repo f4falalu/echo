@@ -1,11 +1,8 @@
-'use client';
-
+import type { VerificationStatus } from '@buster/server-shared/share';
 import React, { useMemo } from 'react';
 import type { SegmentedItem } from '@/components/ui/segmented';
 import { AppSegmented } from '@/components/ui/segmented';
 import { Text } from '@/components/ui/typography';
-import { useMemoizedFn } from '@/hooks';
-import type { VerificationStatus } from '@buster/server-shared/share';
 
 export const MetricListHeader: React.FC<{
   filters: VerificationStatus[];
@@ -27,16 +24,16 @@ MetricListHeader.displayName = 'MetricListHeader';
 const options: SegmentedItem<VerificationStatus | 'all'>[] = [
   {
     label: 'All',
-    value: 'all'
+    value: 'all',
   },
   {
     label: 'Requested',
-    value: 'requested'
+    value: 'requested',
   },
   {
     label: 'Verified',
-    value: 'verified'
-  }
+    value: 'verified',
+  },
 ];
 
 const MetricsFilters: React.FC<{
@@ -51,13 +48,13 @@ const MetricsFilters: React.FC<{
     );
   }, [filters]);
 
-  const onChange = useMemoizedFn((v: SegmentedItem<VerificationStatus | 'all'>) => {
+  const onChange = (v: SegmentedItem<VerificationStatus | 'all'>) => {
     if (v.value === 'all') {
       onSetFilters([]);
     } else {
       onSetFilters([v.value as VerificationStatus]);
     }
-  });
+  };
 
   return (
     <AppSegmented

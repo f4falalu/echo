@@ -2,6 +2,7 @@ import { streamObject } from 'ai';
 import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
+import { DEFAULT_ANTHROPIC_OPTIONS } from '../../../llm/providers/gateway';
 import { Sonnet4 } from '../../../llm/sonnet-4';
 import { getCreateTodosSystemMessage } from './get-create-todos-system-message';
 
@@ -9,6 +10,9 @@ import { getCreateTodosSystemMessage } from './get-create-todos-system-message';
 export const createTodosParamsSchema = z.object({
   messages: z.array(z.custom<ModelMessage>()).describe('The conversation history'),
   messageId: z.string().describe('The message ID for database updates'),
+  shouldInjectUserPersonalizationTodo: z
+    .boolean()
+    .describe('Whether to inject the user personalization todo'),
 });
 
 export const createTodosResultSchema = z.object({
@@ -48,6 +52,7 @@ export type CreateTodosContext = z.infer<typeof createTodosContextSchema>;
 export type CreateTodosState = z.infer<typeof createTodosStateSchema>;
 export type CreateTodosInput = z.infer<typeof llmOutputSchema>;
 
+import { UserPersonalizationConfigSchema } from '@buster/database';
 import { createTodosStepDelta } from './create-todos-step-delta';
 import { createTodosStepFinish } from './create-todos-step-finish';
 import { createTodosStepStart } from './create-todos-step-start';
@@ -57,7 +62,8 @@ import { createTodosStepStart } from './create-todos-step-start';
  */
 async function generateTodosWithLLM(
   messages: ModelMessage[],
-  context: CreateTodosContext
+  context: CreateTodosContext,
+  injectPersonalizationTodo: boolean
 ): Promise<string> {
   try {
     // Prepare messages for the LLM
@@ -79,7 +85,7 @@ async function generateTodosWithLLM(
     // Create streaming handlers
     const onStreamStart = createTodosStepStart(state, context);
     const onTextDelta = createTodosStepDelta(state, context);
-    const onStreamFinish = createTodosStepFinish(state, context);
+    const onStreamFinish = createTodosStepFinish(state, context, injectPersonalizationTodo);
 
     const tracedTodosGeneration = wrapTraced(
       async () => {
@@ -87,10 +93,15 @@ async function generateTodosWithLLM(
         await onStreamStart();
 
         const { object, textStream } = streamObject({
+          headers: {
+            'anthropic-beta': 'fine-grained-tool-streaming-2025-05-14,context-1m-2025-08-07',
+            anthropic_beta: 'fine-grained-tool-streaming-2025-05-14,context-1m-2025-08-07',
+          },
           model: Sonnet4,
           schema: llmOutputSchema,
           messages: todosMessages,
           temperature: 0,
+          providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
         });
 
         // Process text deltas for optimistic updates
@@ -134,7 +145,11 @@ export async function runCreateTodosStep(params: CreateTodosParams): Promise<Cre
       messageId: params.messageId,
     };
 
-    const todos = await generateTodosWithLLM(params.messages, context);
+    const todos = await generateTodosWithLLM(
+      params.messages,
+      context,
+      params.shouldInjectUserPersonalizationTodo
+    );
 
     // Generate a unique ID for this tool call
     const toolCallId = `create_todos_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;

@@ -1,13 +1,16 @@
+import { messageAnalysisModeEnum } from '@buster/database';
 import { generateObject } from 'ai';
 import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { GPT5Mini } from '../../../llm/gpt-5-mini';
+import { DEFAULT_OPENAI_OPTIONS } from '../../../llm/providers/gateway';
 import { formatAnalysisTypeRouterPrompt } from './format-analysis-type-router-prompt';
 
 // Zod schemas first - following Zod-first approach
 export const analysisTypeRouterParamsSchema = z.object({
   messages: z.array(z.custom<ModelMessage>()).describe('The conversation history'),
+  messageAnalysisMode: z.enum(messageAnalysisModeEnum.enumValues).optional(),
 });
 
 export const analysisTypeRouterResultSchema = z.object({
@@ -61,13 +64,7 @@ async function generateAnalysisTypeWithLLM(messages: ModelMessage[]): Promise<{
           schema: llmOutputSchema,
           messages: llmMessages,
           temperature: 1,
-          providerOptions: {
-            openai: {
-              parallelToolCalls: false,
-              reasoningEffort: 'minimal',
-              verbosity: 'low',
-            },
-          },
+          providerOptions: DEFAULT_OPENAI_OPTIONS,
         });
 
         return object;
@@ -103,6 +100,18 @@ export async function runAnalysisTypeRouterStep(
   params: AnalysisTypeRouterParams
 ): Promise<AnalysisTypeRouterResult> {
   try {
+    if (params.messageAnalysisMode && params.messageAnalysisMode !== 'auto') {
+      console.info(
+        '[Analysis Type Router] SKIPPING DECISION due to provided message analysis mode:',
+        params.messageAnalysisMode
+      );
+
+      return {
+        analysisType: params.messageAnalysisMode,
+        reasoning: 'Using the message analysis mode provided',
+      };
+    }
+
     const result = await generateAnalysisTypeWithLLM(params.messages);
 
     console.info('[Analysis Type Router] Decision:', {

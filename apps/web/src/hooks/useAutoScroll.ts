@@ -44,6 +44,8 @@ interface UseAutoScrollReturn {
   enableAutoScroll: () => void;
   /** Disable auto–scroll */
   disableAutoScroll: () => void;
+  /** Whether the auto-scroll observer is mounted */
+  isMountedAutoScrollObserver: boolean;
 }
 
 /**
@@ -67,7 +69,7 @@ const isAtBottom = (element: HTMLElement, threshold = 30): boolean => {
  * is re–enabled.
  */
 export const useAutoScroll = (
-  containerRef: React.RefObject<HTMLElement>,
+  containerRef: React.RefObject<HTMLElement | null>,
   options: UseAutoScrollOptions = {}
 ): UseAutoScrollReturn => {
   const {
@@ -77,9 +79,9 @@ export const useAutoScroll = (
     observeSubTree = true,
     observeCharacterData = false,
     observeAttributes = false,
-    animationCooldown = 500
+    animationCooldown = 500,
   } = options;
-
+  const [isMountedAutoScrollObserver, setMountedAutoScrollObserver] = useState(enabled);
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(enabled);
   const observerRef = useRef<MutationObserver | null>(null);
   const rAFIdRef = useRef<number | null>(null);
@@ -165,7 +167,7 @@ export const useAutoScroll = (
 
     if (isAutoScrollEnabled) {
       // Create a new observer
-      observerRef.current = new MutationObserver((mutations) => {
+      observerRef.current = new MutationObserver((_mutations) => {
         if (isAutoScrollEnabled) {
           startScrollAnimation();
         }
@@ -176,7 +178,7 @@ export const useAutoScroll = (
         childList: true,
         subtree: observeSubTree,
         characterData: observeCharacterData,
-        attributes: observeAttributes
+        attributes: observeAttributes,
       };
 
       // Start observing
@@ -209,7 +211,7 @@ export const useAutoScroll = (
     observeSubTree,
     observeCharacterData,
     observeAttributes,
-    animationCooldown
+    animationCooldown,
   ]);
 
   // Listen for user–initiated events. Only disable auto–scroll if the container isn't near the bottom.
@@ -294,6 +296,7 @@ export const useAutoScroll = (
 
   const enableAutoScroll = useCallback(() => {
     setIsAutoScrollEnabled(true);
+    setMountedAutoScrollObserver(true);
   }, []);
 
   const disableAutoScroll = useCallback(() => {
@@ -302,10 +305,11 @@ export const useAutoScroll = (
 
   return {
     isAutoScrollEnabled,
+    isMountedAutoScrollObserver,
     scrollToBottom,
     scrollToTop,
     scrollToNode,
     enableAutoScroll,
-    disableAutoScroll
+    disableAutoScroll,
   };
 };

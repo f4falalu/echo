@@ -9,7 +9,7 @@ export const textColorVariants = cva('', {
       danger: 'text-text-danger',
       primary: 'text-text-primary',
       inherit: 'text-inherit',
-      link: 'text-text-default hover:text-text-primary'
-    }
-  }
+      link: 'text-text-default hover:text-text-primary',
+    },
+  },
 });

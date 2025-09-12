@@ -1,20 +1,18 @@
-'use client';
-
 import React, { useState } from 'react';
 import {
   useDeleteChat,
   useRemoveChatFromCollections,
-  useSaveChatToCollections
+  useSaveChatToCollections,
 } from '@/api/buster_rest/chats';
-import { ASSET_ICONS } from '@/components/features/config/assetIcons';
 import { SaveToCollectionsDropdown } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
 import { useThreeDotFavoritesOptions } from '@/components/features/dropdowns/useThreeDotFavoritesOptions';
+import { ASSET_ICONS } from '@/components/features/icons/assetIcons';
 import { Button } from '@/components/ui/buttons';
 import { Dropdown } from '@/components/ui/dropdown';
 import { Dots, Trash } from '@/components/ui/icons';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 
 export const ReportSelectedOptionPopup: React.FC<{
   selectedRowKeys: string[];
@@ -41,7 +39,7 @@ export const ReportSelectedOptionPopup: React.FC<{
           key="three-dot"
           selectedRowKeys={selectedRowKeys}
           onSelectChange={onSelectChange}
-        />
+        />,
       ]}
       show={hasSelected}
     />
@@ -51,7 +49,7 @@ export const ReportSelectedOptionPopup: React.FC<{
 const CollectionsButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
-}> = ({ selectedRowKeys, onSelectChange }) => {
+}> = ({ selectedRowKeys }) => {
   const { openInfoMessage } = useBusterNotifications();
   const { mutateAsync: saveChatToCollection } = useSaveChatToCollections();
   const { mutateAsync: removeChatFromCollection } = useRemoveChatFromCollections();
@@ -64,7 +62,7 @@ const CollectionsButton: React.FC<{
     setSelectedCollections(collectionIds);
     await saveChatToCollection({
       chatIds: selectedRowKeys,
-      collectionIds
+      collectionIds,
     });
     openInfoMessage('Chats saved to collections');
   });
@@ -73,7 +71,7 @@ const CollectionsButton: React.FC<{
     setSelectedCollections((prev) => prev.filter((id) => id !== collectionId));
     await removeChatFromCollection({
       chatIds: selectedRowKeys,
-      collectionIds: [collectionId]
+      collectionIds: [collectionId],
     });
     openInfoMessage('Chats removed from collections');
   });
@@ -82,7 +80,8 @@ const CollectionsButton: React.FC<{
     <SaveToCollectionsDropdown
       onSaveToCollection={onSaveToCollection}
       onRemoveFromCollection={onRemoveFromCollection}
-      selectedCollections={selectedCollections}>
+      selectedCollections={selectedCollections}
+    >
       <Button prefix={<ASSET_ICONS.collections />}>Collections</Button>
     </SaveToCollectionsDropdown>
   );
@@ -115,7 +114,7 @@ const ThreeDotButton: React.FC<{
   const dropdownOptions = useThreeDotFavoritesOptions({
     itemIds: selectedRowKeys,
     assetType: 'chat',
-    onFinish: () => onSelectChange([])
+    onFinish: () => onSelectChange([]),
   });
 
   return (

@@ -1,8 +1,6 @@
-import * as React from 'react';
-
 import type { SlateElementProps, TFileElement } from 'platejs';
-
 import { SlateElement } from 'platejs';
+import * as React from 'react';
 import { NodeTypeIcons } from '../config/icons';
 
 export function FileElementStatic(props: SlateElementProps<TFileElement>) {
@@ -16,8 +14,8 @@ export function FileElementStatic(props: SlateElementProps<TFileElement>) {
         download={name}
         href={url}
         rel="noopener noreferrer"
-        role="button"
-        target="_blank">
+        target="_blank"
+      >
         <div className="flex items-center gap-1 p-1">
           <div className="size-5">
             <NodeTypeIcons.upload />

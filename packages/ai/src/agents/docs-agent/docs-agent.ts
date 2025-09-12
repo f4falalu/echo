@@ -2,6 +2,7 @@ import type { Sandbox } from '@buster/sandbox';
 import { type ModelMessage, hasToolCall, stepCountIs, streamText } from 'ai';
 import { wrapTraced } from 'braintrust';
 import z from 'zod';
+import { DEFAULT_ANTHROPIC_OPTIONS } from '../../llm/providers/gateway';
 import { Sonnet4 } from '../../llm/sonnet-4';
 import {
   createBashTool,
@@ -22,10 +23,6 @@ import { type AgentContext, repairToolCall } from '../../utils/tool-call-repair'
 import { getDocsAgentSystemPrompt } from './get-docs-agent-system-prompt';
 
 export const DOCS_AGENT_NAME = 'docsAgent';
-
-const DEFAULT_CACHE_OPTIONS = {
-  anthropic: { cacheControl: { type: 'ephemeral', ttl: '1h' } },
-};
 
 const STOP_CONDITIONS = [stepCountIs(50), hasToolCall('idleTool')];
 
@@ -60,7 +57,7 @@ export function createDocsAgent(docsAgentOptions: DocsAgentOptions) {
   const systemMessage = {
     role: 'system',
     content: getDocsAgentSystemPrompt(docsAgentOptions.folder_structure),
-    providerOptions: DEFAULT_CACHE_OPTIONS,
+    providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
   } as ModelMessage;
 
   const idleTool = createIdleTool();
@@ -145,6 +142,7 @@ export function createDocsAgent(docsAgentOptions: DocsAgentOptions) {
       () =>
         streamText({
           model: Sonnet4,
+          providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
           tools: {
             sequentialThinking: createSequentialThinkingTool({
               messageId: docsAgentOptions.messageId,

@@ -1,39 +1,47 @@
-'use client';
-
-import * as React from 'react';
-
-import type { TLinkElement } from 'platejs';
-
-import { type UseVirtualFloatingOptions, flip, offset } from '@platejs/floating';
-import { getLinkAttributes } from '@platejs/link';
+import { flip, offset, type UseVirtualFloatingOptions } from '@platejs/floating';
+import { getLinkAttributes, safeDecodeUrl } from '@platejs/link';
 import {
-  type LinkFloatingToolbarState,
   FloatingLinkUrlInput,
+  type LinkFloatingToolbarState,
   useFloatingLinkEdit,
   useFloatingLinkEditState,
   useFloatingLinkInsert,
-  useFloatingLinkInsertState
+  useFloatingLinkInsertState,
 } from '@platejs/link/react';
+import ReturnKeyIcon from '@/components/ui/icons/NucleoIconOutlined/return-key';
+
+// Types
+type FloatingLinkEditState = ReturnType<typeof useFloatingLinkEditState>;
+type FloatingLinkInsertTextInputProps = ReturnType<typeof useFloatingLinkInsert>['textInputProps'];
+type FloatingLinkEditButtonProps = ReturnType<typeof useFloatingLinkEdit>['editButtonProps'];
+type FloatingLinkUnlinkButtonProps = ReturnType<typeof useFloatingLinkEdit>['unlinkButtonProps'];
+type PopoverProps = React.HTMLAttributes<HTMLDivElement>;
+
+import { validateUrl } from '@platejs/link';
 import { cva } from 'class-variance-authority';
+import type { TLinkElement } from 'platejs';
 import { KEYS } from 'platejs';
-import { NodeTypeIcons } from '../config/icons';
 import {
   useEditorRef,
   useEditorSelection,
   useFormInputProps,
-  usePluginOption
+  usePluginOption,
 } from 'platejs/react';
-
+import * as React from 'react';
 import { Button } from '@/components/ui/buttons';
 import { Separator } from '@/components/ui/separator';
+import { useBusterNotifications } from '@/context/BusterNotifications';
+import { cn } from '@/lib/utils';
+import { AppTooltip } from '../../tooltip';
+import { NodeTypeIcons } from '../config/icons';
 import { NodeTypeLabels } from '../config/labels';
 
 const popoverVariants = cva(
-  'z-50 w-auto rounded border bg-popover p-1 text-popover-foreground shadow-md outline-hidden'
+  'scrollbar-hide bg-popover absolute z-50 overflow-x-auto rounded border p-2 whitespace-nowrap opacity-100 shadow print:hidden'
 );
 
 const linkInputVariants = cva(
-  'flex h-[28px] w-full rounded border-none bg-transparent px-1.5 py-1 text-base placeholder:text-muted-foreground focus-visible:ring-transparent focus-visible:outline-none md:text-sm'
+  'flex h-7 w-full rounded border-none bg-transparent px-1.5 py-1 text-base placeholder:text-muted-foreground focus-visible:ring-transparent focus-visible:outline-none md:text-sm'
 );
 
 export function LinkFloatingToolbar({ state }: { state?: LinkFloatingToolbarState }) {
@@ -46,10 +54,10 @@ export function LinkFloatingToolbar({ state }: { state?: LinkFloatingToolbarStat
         offset(8),
         flip({
           fallbackPlacements: ['bottom-end', 'top-start', 'top-end'],
-          padding: 12
-        })
+          padding: 12,
+        }),
       ],
-      placement: activeSuggestionId || activeCommentId ? 'top-start' : 'bottom-start'
+      placement: activeSuggestionId || activeCommentId ? 'top-start' : 'bottom-start',
     };
   }, [activeCommentId, activeSuggestionId]);
 
@@ -57,62 +65,111 @@ export function LinkFloatingToolbar({ state }: { state?: LinkFloatingToolbarStat
     ...state,
     floatingOptions: {
       ...floatingOptions,
-      ...state?.floatingOptions
-    }
+      ...state?.floatingOptions,
+    },
   });
   const {
     hidden,
     props: insertProps,
     ref: insertRef,
-    textInputProps
+    textInputProps,
   } = useFloatingLinkInsert(insertState);
 
   const editState = useFloatingLinkEditState({
     ...state,
     floatingOptions: {
       ...floatingOptions,
-      ...state?.floatingOptions
-    }
+      ...state?.floatingOptions,
+    },
   });
   const {
     editButtonProps,
     props: editProps,
     ref: editRef,
-    unlinkButtonProps
+    unlinkButtonProps,
   } = useFloatingLinkEdit(editState);
 
   if (hidden) return null;
 
-  const input = <LinkEditPopoverContent textInputProps={textInputProps} />;
+  return (
+    <>
+      <LinkInsertPopover ref={insertRef} props={insertProps} textInputProps={textInputProps} />
+      <LinkEditPopover
+        ref={editRef}
+        props={editProps}
+        editState={editState}
+        editButtonProps={editButtonProps}
+        unlinkButtonProps={unlinkButtonProps}
+        textInputProps={textInputProps}
+      />
+    </>
+  );
+}
 
-  const editContent = editState.isEditing ? (
-    input
+const LinkInsertPopover = React.forwardRef<
+  HTMLDivElement,
+  {
+    props: PopoverProps;
+    textInputProps: FloatingLinkInsertTextInputProps;
+  }
+>(({ props, textInputProps }, ref) => {
+  return (
+    <div ref={ref} className={popoverVariants()} {...props}>
+      <LinkEditPopoverContent textInputProps={textInputProps} />
+    </div>
+  );
+});
+LinkInsertPopover.displayName = 'LinkInsertPopover';
+
+const LinkEditPopover = React.forwardRef<
+  HTMLDivElement,
+  {
+    props: PopoverProps;
+    editState: FloatingLinkEditState;
+    editButtonProps: FloatingLinkEditButtonProps;
+    unlinkButtonProps: FloatingLinkUnlinkButtonProps;
+    textInputProps: FloatingLinkInsertTextInputProps;
+  }
+>(({ props, editState, editButtonProps, unlinkButtonProps, textInputProps }, ref) => {
+  const content = editState.isEditing ? (
+    <LinkEditPopoverContent textInputProps={textInputProps} />
   ) : (
-    <div className="box-content flex items-center space-x-0">
+    <LinkEditButtons editButtonProps={editButtonProps} unlinkButtonProps={unlinkButtonProps} />
+  );
+
+  return (
+    <div ref={ref} className={popoverVariants()} {...props}>
+      {content}
+    </div>
+  );
+});
+LinkEditPopover.displayName = 'LinkEditPopover';
+
+function LinkEditButtons({
+  editButtonProps,
+  unlinkButtonProps,
+}: {
+  editButtonProps: FloatingLinkEditButtonProps;
+  unlinkButtonProps: FloatingLinkUnlinkButtonProps;
+}) {
+  return (
+    <div className="box-content flex items-center">
       <Button variant={'ghost'} size={'default'} {...editButtonProps}>
         {NodeTypeLabels.editLink.label}
       </Button>
 
-      <LinkOpenButton />
+      <Separator orientation="vertical" className="mx-2 h-4" />
 
-      <Button
-        variant={'ghost'}
-        size={'default'}
-        prefix={<NodeTypeIcons.unlink />}
-        {...unlinkButtonProps}></Button>
+      <div className="flex items-center space-x-1">
+        <LinkOpenButton />
+        <Button
+          variant={'ghost'}
+          size={'default'}
+          prefix={<NodeTypeIcons.unlink />}
+          {...unlinkButtonProps}
+        />
+      </div>
     </div>
-  );
-
-  return (
-    <>
-      <div ref={insertRef} className={popoverVariants()} {...insertProps}>
-        {input}
-      </div>
-
-      <div ref={editRef} className={popoverVariants()} {...editProps}>
-        {editContent}
-      </div>
-    </>
   );
 }
 
@@ -123,7 +180,7 @@ function LinkOpenButton() {
   const attributes = React.useMemo(
     () => {
       const entry = editor.api.node<TLinkElement>({
-        match: { type: editor.getType(KEYS.link) }
+        match: { type: editor.getType(KEYS.link) },
       });
       if (!entry) {
         return {};
@@ -136,55 +193,110 @@ function LinkOpenButton() {
   );
 
   return (
+    // biome-ignore lint/a11y/useKeyWithMouseEvents: we will deal with it later
     <a
       {...attributes}
       onMouseOver={(e) => {
         e.stopPropagation();
       }}
-      aria-label="Open link in a new tab"
-      target="_blank">
+      target="_blank"
+    >
       <Button variant={'ghost'} size={'default'} prefix={<NodeTypeIcons.externalLink />}></Button>
     </a>
   );
 }
 
-const LinkEditPopoverContent = ({
-  textInputProps
+function LinkEditPopoverContent({
+  textInputProps,
 }: {
-  textInputProps: ReturnType<typeof useFloatingLinkInsert>['textInputProps'];
-}) => {
+  textInputProps: FloatingLinkInsertTextInputProps;
+}) {
   const inputProps = useFormInputProps({
-    preventDefaultOnEnterKeydown: true
+    preventDefaultOnEnterKeydown: true,
   });
-
-  const inputClassName = linkInputVariants();
 
   return (
     <div className="flex w-[330px] flex-col" {...inputProps}>
-      <div className="flex items-center">
-        <div className="text-muted-foreground flex items-center pr-1 pl-2">
-          <NodeTypeIcons.linkIcon />
-        </div>
+      <LinkUrlInputField />
+      <Separator className="my-1" />
+      <LinkTextInputField textInputProps={textInputProps} />
+    </div>
+  );
+}
 
+function LinkUrlInputField() {
+  const inputClassName = linkInputVariants();
+  const editor = useEditorRef();
+  const { openInfoNotification } = useBusterNotifications();
+  const [isFocused, setIsFocused] = React.useState(false);
+
+  return (
+    <div className="group flex items-center">
+      <div className="text-icon-color flex items-center pr-1 pl-2">
+        <NodeTypeIcons.linkIcon />
+      </div>
+      <div className="flex w-full items-center">
         <FloatingLinkUrlInput
           className={inputClassName}
           placeholder="Paste link"
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          onKeyDown={(e) => {
+            const isEnterKey = e.key === 'Enter';
+            if (isEnterKey) {
+              const value = e.currentTarget.value;
+              const isValid = validateUrl(editor, value);
+              if (!isValid) {
+                openInfoNotification({
+                  title: 'Please enter a valid URL',
+                  message:
+                    'Valid URL formats include: https://www.example.com, http://www.example.com, www.example.com',
+                });
+              }
+            }
+          }}
           data-plate-focus
         />
+        <ReturnKeyIconTooltip show={isFocused} />
       </div>
-      <Separator className="my-1" />
-      <div className="flex items-center">
-        <div className="text-muted-foreground flex items-center pr-1 pl-2">
-          <NodeTypeIcons.textLink />
-        </div>
+    </div>
+  );
+}
 
+function LinkTextInputField({
+  textInputProps,
+}: {
+  textInputProps: FloatingLinkInsertTextInputProps;
+}) {
+  const inputClassName = linkInputVariants();
+  const [isFocused, setIsFocused] = React.useState(false);
+
+  return (
+    <div className="group flex items-center">
+      <div className="text-muted-foreground flex items-center pr-1 pl-2">
+        <NodeTypeIcons.textLink />
+      </div>
+      <div className="flex w-full items-center">
         <input
           className={inputClassName}
           placeholder="Text to display"
           data-plate-focus
           {...textInputProps}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
         />
+        <ReturnKeyIconTooltip show={isFocused} />
       </div>
     </div>
+  );
+}
+
+const ReturnKeyIconTooltip = ({ show }: { show: boolean }) => {
+  return (
+    <AppTooltip title="Press Enter to insert link">
+      <div className={cn('text-icon-color group-hover:flex hidden items-center', show && 'flex!')}>
+        <ReturnKeyIcon />
+      </div>
+    </AppTooltip>
   );
 };

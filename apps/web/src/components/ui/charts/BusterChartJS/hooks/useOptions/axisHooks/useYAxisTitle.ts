@@ -1,7 +1,7 @@
-import { AXIS_TITLE_SEPARATOR } from '@/lib/axisFormatter';
-import { formatLabel } from '@/lib/columnFormatter';
 import type { ChartEncodes } from '@buster/server-shared/metrics';
 import { useMemo } from 'react';
+import { AXIS_TITLE_SEPARATOR } from '@/lib/axisFormatter';
+import { formatLabel } from '@/lib/columnFormatter';
 import type { BusterChartProps } from '../../../../BusterChart.types';
 import { truncateWithEllipsis } from '../../../../commonHelpers/titleHelpers';
 
@@ -20,7 +20,7 @@ export const useYAxisTitle = ({
   isSupportedChartForAxisTitles,
   yAxisAxisTitle,
   yAxisShowAxisTitle,
-  selectedAxis
+  selectedAxis,
 }: UseYAxisTitleProps) => {
   const yAxisColumnLabelFormats = useMemo(() => {
     return yAxis.map((y) => columnLabelFormats[y]);

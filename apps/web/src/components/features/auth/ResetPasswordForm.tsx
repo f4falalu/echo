@@ -1,28 +1,23 @@
-'use client';
-
-import type { User } from '@supabase/supabase-js';
-import { useRouter } from 'next/navigation';
-import type React from 'react';
-import { useState } from 'react';
 import type { UserResponse } from '@buster/server-shared/user';
+import type { User } from '@supabase/supabase-js';
+import { useRouter } from '@tanstack/react-router';
+import type React from 'react';
+import { useCallback, useState } from 'react';
 import { Button } from '@/components/ui/buttons';
 import { SuccessCard } from '@/components/ui/card/SuccessCard';
 import { Input } from '@/components/ui/inputs';
 import { Title } from '@/components/ui/typography';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useMemoizedFn } from '@/hooks';
-import { createBusterRoute } from '@/routes';
-import { BusterRoutes } from '@/routes/busterRoutes';
+import { resetPassword } from '@/integrations/supabase/resetPassword';
 import { PolicyCheck } from './PolicyCheck';
 
 export const ResetPasswordForm: React.FC<{
-  supabaseUser: User;
+  supabaseUser: Pick<User, 'email'>;
   busterUser: UserResponse;
-  resetPassword: (d: { password: string }) => Promise<{ error: string } | undefined>;
-}> = ({ supabaseUser, busterUser, resetPassword }) => {
+}> = ({ supabaseUser, busterUser }) => {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
-  const router = useRouter();
   const email = busterUser?.user?.email || supabaseUser?.email;
   const [password, setPassword] = useState('');
   const [password2, setPassword2] = useState('');
@@ -32,26 +27,26 @@ export const ResetPasswordForm: React.FC<{
 
   const disabled = !goodPassword || loading || !password || !password2 || password !== password2;
 
-  const startCountdown = useMemoizedFn(() => {
+  const startCountdown = useCallback(() => {
     setCountdown(5);
     const interval = setInterval(() => {
       setCountdown((prev) => {
         if (prev === 0) {
           clearInterval(interval);
-          router.replace(createBusterRoute({ route: BusterRoutes.APP_HOME }));
+          router.navigate({ to: '/' });
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
     return () => clearInterval(interval);
-  });
+  }, []);
 
-  const handleResetPassword = useMemoizedFn(async () => {
+  const handleResetPassword = useCallback(async () => {
     setLoading(true);
     setResetSuccess(false);
     try {
-      const res = await resetPassword({ password });
+      const res = await resetPassword({ data: { password } });
       setLoading(false);
       if (res?.error) {
         throw res;
@@ -62,7 +57,7 @@ export const ResetPasswordForm: React.FC<{
     } catch (error) {
       openErrorMessage(error as string);
     }
-  });
+  }, [resetPassword, password, openErrorMessage, openSuccessMessage]);
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-4">
@@ -119,7 +114,8 @@ export const ResetPasswordForm: React.FC<{
               variant="black"
               disabled={disabled}
               loading={loading}
-              onClick={handleResetPassword}>
+              onClick={handleResetPassword}
+            >
               Reset Password
             </Button>
           </div>

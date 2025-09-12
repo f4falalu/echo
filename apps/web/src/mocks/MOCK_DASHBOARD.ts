@@ -1,4 +1,4 @@
-import { type BusterDashboard, type BusterDashboardResponse } from '@/api/asset_interfaces';
+import type { BusterDashboard, BusterDashboardResponse } from '@/api/asset_interfaces';
 import { createMockMetric } from './metric';
 
 interface DashboardMockResponse {
@@ -9,7 +9,7 @@ interface DashboardMockResponse {
 const createMockDashboardRow = (startIndex: number, metrics: string[], columnSizes: number[]) => ({
   id: `row-${startIndex}`,
   columnSizes,
-  items: metrics.map((metricId) => ({ id: metricId }))
+  items: metrics.map((metricId) => ({ id: metricId })),
 });
 
 export const generateMockDashboard = (
@@ -60,9 +60,11 @@ export const generateMockDashboard = (
     } else {
       // Add a row with 1 column
       rows.push(
-        createMockDashboardRow(rows.length + 1, metricIds.slice(currentIndex, currentIndex + 1), [
-          12
-        ])
+        createMockDashboardRow(
+          rows.length + 1,
+          metricIds.slice(currentIndex, currentIndex + 1),
+          [12]
+        )
       );
       currentIndex += 1;
     }
@@ -98,8 +100,8 @@ refresh_interval: 300`,
     deleted_at: null,
     status: 'notRequested',
     config: {
-      rows
-    }
+      rows,
+    },
   };
 
   const response: BusterDashboardResponse = {
@@ -115,7 +117,7 @@ refresh_interval: 300`,
     collections: [],
     versions: [],
     workspace_sharing: 'none',
-    workspace_member_count: 20
+    workspace_member_count: 20,
   };
 
   return { dashboard, response };

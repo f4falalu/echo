@@ -1,12 +1,12 @@
+import type { ChatListItem } from '@buster/server-shared/chats';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { mainApi } from '../instances';
-import type { ChatListItem } from '@buster/server-shared/chats';
 
 // Mock the mainApi
 vi.mock('../instances', () => ({
   mainApi: {
-    get: vi.fn()
-  }
+    get: vi.fn(),
+  },
 }));
 
 describe('Chat API Requests', () => {
@@ -33,8 +33,8 @@ describe('Chat API Requests', () => {
           latest_file_type: 'dashboard',
           latest_version_number: 1,
           latest_file_name: 'Test File',
-          is_shared: false
-        }
+          is_shared: false,
+        },
       ];
 
       // Setup mock response
@@ -48,7 +48,7 @@ describe('Chat API Requests', () => {
 
       // Verify the API was called with correct parameters
       expect(mainApi.get).toHaveBeenCalledWith('/chats', {
-        params: { page_token: 0, page_size: 3500 }
+        params: { page_token: 0, page_size: 3500 },
       });
 
       // Verify the result matches the mock data

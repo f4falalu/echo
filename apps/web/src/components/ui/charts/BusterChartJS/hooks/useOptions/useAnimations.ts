@@ -9,7 +9,7 @@ export const useAnimations = ({
   animate,
   numberOfDataPoints,
   selectedChartType,
-  barGroupType
+  barGroupType,
 }: {
   animate: boolean;
   numberOfDataPoints: number;
@@ -26,7 +26,7 @@ export const useAnimations = ({
     return isAnimationEnabled
       ? {
           duration: ANIMATION_DURATION,
-          ...animationRecord[selectedChartType]?.({ barGroupType })
+          ...animationRecord[selectedChartType]?.({ barGroupType }),
         }
       : false;
   }, [isAnimationEnabled, selectedChartType, barGroupType]);
@@ -35,7 +35,7 @@ export const useAnimations = ({
 const animationRecord: Record<
   ChartType,
   ({
-    barGroupType
+    barGroupType,
   }: {
     barGroupType: BusterChartProps['barGroupType'];
   }) => AnimationOptions<ChartTypeJS>['animation']
@@ -46,5 +46,5 @@ const animationRecord: Record<
   pie: () => ({}),
   metric: () => ({}),
   table: () => ({}),
-  combo: () => ({})
+  combo: () => ({}),
 };

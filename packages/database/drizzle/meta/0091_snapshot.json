@@ -1,5 +1,5 @@
 {
-  "id": "c894d3b9-09f8-43ec-86d5-681be9bf1f65",
+  "id": "ca69431e-0a76-4006-ac7d-9f7ddb3706d3",
   "prevId": "eefeb910-f25f-41fd-a61d-8a2b035b7f13",
   "version": "7",
   "dialect": "postgresql",
@@ -2316,11 +2316,13 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "datasets_database_name_data_source_id_key": {
-          "name": "datasets_database_name_data_source_id_key",
+        "datasets_name_schema_database_identifier_data_source_id_key": {
+          "name": "datasets_name_schema_database_identifier_data_source_id_key",
           "nullsNotDistinct": false,
           "columns": [
-            "database_name",
+            "name",
+            "schema",
+            "database_identifier",
             "data_source_id"
           ]
         }
@@ -4889,194 +4891,6 @@
             "data_source_id",
             "database_id",
             "name"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.shortcuts": {
-      "name": "shortcuts",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "instructions": {
-          "name": "instructions",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_by": {
-          "name": "created_by",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updated_by": {
-          "name": "updated_by",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "organization_id": {
-          "name": "organization_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "shared_with_workspace": {
-          "name": "shared_with_workspace",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "shortcuts_org_user_idx": {
-          "name": "shortcuts_org_user_idx",
-          "columns": [
-            {
-              "expression": "organization_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "uuid_ops"
-            },
-            {
-              "expression": "created_by",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "uuid_ops"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "shortcuts_name_idx": {
-          "name": "shortcuts_name_idx",
-          "columns": [
-            {
-              "expression": "name",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "shortcuts_workspace_unique": {
-          "name": "shortcuts_workspace_unique",
-          "columns": [
-            {
-              "expression": "name",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "organization_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "where": "\"shortcuts\".\"shared_with_workspace\" = true",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "shortcuts_created_by_fkey": {
-          "name": "shortcuts_created_by_fkey",
-          "tableFrom": "shortcuts",
-          "tableTo": "users",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "cascade"
-        },
-        "shortcuts_updated_by_fkey": {
-          "name": "shortcuts_updated_by_fkey",
-          "tableFrom": "shortcuts",
-          "tableTo": "users",
-          "columnsFrom": [
-            "updated_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "cascade"
-        },
-        "shortcuts_organization_id_fkey": {
-          "name": "shortcuts_organization_id_fkey",
-          "tableFrom": "shortcuts",
-          "tableTo": "organizations",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "shortcuts_personal_unique": {
-          "name": "shortcuts_personal_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "name",
-            "organization_id",
-            "created_by"
           ]
         }
       },

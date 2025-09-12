@@ -1,9 +1,9 @@
-import type { ElectricShapeOptions } from '../instances';
 import type {
   BusterChatMessage,
   BusterChatMessageReasoning,
-  BusterChatMessageResponse
+  BusterChatMessageResponse,
 } from '@/api/asset_interfaces/chat';
+import type { ElectricShapeOptions } from '../instances';
 
 export type BusterChatMessageShape = {
   id: string;
@@ -22,12 +22,12 @@ const MESSAGE_DEFAULT_COLUMNS: (keyof BusterChatMessageShape)[] = [
   'created_at',
   'final_reasoning_message',
   'feedback',
-  'is_completed'
+  'is_completed',
 ];
 
 export const messageShape = ({
   chatId,
-  messageId
+  messageId,
 }: {
   chatId: string;
   messageId: string;
@@ -37,14 +37,14 @@ export const messageShape = ({
       table: 'messages',
       where: `chat_id='${chatId}' AND id='${messageId}'`,
       columns: MESSAGE_DEFAULT_COLUMNS,
-      replica: 'default'
-    }
+      replica: 'default',
+    },
   };
 };
 
 export const messagesShape = ({
   chatId,
-  columns = MESSAGE_DEFAULT_COLUMNS
+  columns = MESSAGE_DEFAULT_COLUMNS,
 }: {
   chatId: string;
   columns?: (keyof BusterChatMessageShape)[];
@@ -53,7 +53,7 @@ export const messagesShape = ({
     params: {
       table: 'messages',
       where: `chat_id='${chatId}'`,
-      columns: columns || MESSAGE_DEFAULT_COLUMNS
-    }
+      columns: columns || MESSAGE_DEFAULT_COLUMNS,
+    },
   };
 };

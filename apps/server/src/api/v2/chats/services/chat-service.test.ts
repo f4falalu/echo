@@ -47,6 +47,7 @@ const mockMessage: Message = {
   createdBy: 'user-123',
   requestMessage: 'Test message',
   responseMessages: {},
+  messageAnalysisMode: 'auto',
   reasoning: {},
   title: 'Test message',
   rawLlmMessages: {},

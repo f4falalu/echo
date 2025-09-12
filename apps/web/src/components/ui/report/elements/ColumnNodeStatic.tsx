@@ -1,8 +1,6 @@
-import * as React from 'react';
-
 import type { SlateElementProps, TColumnElement } from 'platejs';
-
 import { SlateElement } from 'platejs';
+import * as React from 'react';
 
 export function ColumnElementStatic(props: SlateElementProps<TColumnElement>) {
   const { width } = props.element;
@@ -11,7 +9,8 @@ export function ColumnElementStatic(props: SlateElementProps<TColumnElement>) {
     <div className="group/column relative" style={{ width: width ?? '100%' }}>
       <SlateElement
         className="h-full px-2 pt-2 group-first/column:pl-0 group-last/column:pr-0"
-        {...props}>
+        {...props}
+      >
         <div className="relative h-full border border-transparent p-1.5">{props.children}</div>
       </SlateElement>
     </div>

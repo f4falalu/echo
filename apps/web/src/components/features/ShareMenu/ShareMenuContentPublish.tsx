@@ -1,6 +1,5 @@
-'use client';
-
 import React, { useEffect, useMemo, useState } from 'react';
+import { useUpdateChatShare } from '@/api/buster_rest/chats';
 import { useUpdateCollectionShare } from '@/api/buster_rest/collections';
 import { useUpdateDashboardShare } from '@/api/buster_rest/dashboards';
 import { useUpdateMetricShare } from '@/api/buster_rest/metrics';
@@ -13,10 +12,10 @@ import { PulseLoader } from '@/components/ui/loaders';
 import { Switch } from '@/components/ui/switch';
 import { Text } from '@/components/ui/typography';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useMemoizedFn } from '@/hooks';
+import { useBuildLocation } from '@/context/Routes/useRouteBuilder';
 import { cn } from '@/lib/classMerge';
 import { createDayjsDate } from '@/lib/date';
-import { BusterRoutes, createBusterRoute } from '@/routes';
+import { createFullURL } from '@/lib/routes';
 import type { ShareMenuContentBodyProps } from './ShareMenuContentBody';
 
 export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = React.memo(
@@ -27,8 +26,9 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
     publicly_accessible,
     onCopyLink,
     publicExpirationDate,
-    className
+    className,
   }) => {
+    const buildLocation = useBuildLocation();
     const { openInfoMessage } = useBusterNotifications();
     const { mutateAsync: onShareMetric, isPending: isPublishingMetric } = useUpdateMetricShare();
     const { mutateAsync: onShareDashboard, isPending: isPublishingDashboard } =
@@ -36,39 +36,82 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
     const { mutateAsync: onShareCollection, isPending: isPublishingCollection } =
       useUpdateCollectionShare();
     const { mutateAsync: onShareReport, isPending: isPublishingReport } = useUpdateReportShare();
+    const { mutateAsync: onShareChat, isPending: isPublishingChat } = useUpdateChatShare();
     const [isPasswordProtected, setIsPasswordProtected] = useState<boolean>(!!password);
     const [_password, _setPassword] = React.useState<string>(password || '');
 
     const isPublishing =
-      isPublishingMetric || isPublishingDashboard || isPublishingCollection || isPublishingReport;
+      isPublishingMetric ||
+      isPublishingDashboard ||
+      isPublishingCollection ||
+      isPublishingChat ||
+      isPublishingReport;
 
     const linkExpiry = useMemo(() => {
       return publicExpirationDate ? new Date(publicExpirationDate) : null;
     }, [publicExpirationDate]);
 
-    const url = useMemo(() => {
-      let url = '';
+    const linkUrl: string = useMemo(() => {
       if (assetType === 'metric') {
-        url = createBusterRoute({ route: BusterRoutes.APP_METRIC_ID_CHART, metricId: assetId });
+        return createFullURL(
+          buildLocation({
+            to: '/app/metrics/$metricId/chart',
+            params: {
+              metricId: assetId,
+            },
+          })
+        );
       } else if (assetType === 'dashboard') {
-        url = createBusterRoute({ route: BusterRoutes.APP_DASHBOARD_ID, dashboardId: assetId });
+        return createFullURL(
+          buildLocation({
+            to: '/app/dashboards/$dashboardId',
+            params: {
+              dashboardId: assetId,
+            },
+          })
+        );
       } else if (assetType === 'collection') {
-        url = createBusterRoute({ route: BusterRoutes.APP_COLLECTIONS });
+        return createFullURL(
+          buildLocation({
+            to: '/app/collections/$collectionId',
+            params: {
+              collectionId: assetId,
+            },
+          })
+        );
       } else if (assetType === 'report') {
-        url = createBusterRoute({ route: BusterRoutes.APP_REPORTS_ID, reportId: assetId });
+        return createFullURL(
+          buildLocation({
+            to: '/app/reports/$reportId',
+            params: {
+              reportId: assetId,
+            },
+          })
+        );
+      } else if (assetType === 'chat') {
+        return createFullURL(
+          buildLocation({
+            to: '/app/chats/$chatId',
+            params: {
+              chatId: assetId,
+            },
+          })
+        );
       }
-      return window.location.origin + url;
+
+      const _exhaustiveCheck: never = assetType;
+      return '';
     }, [assetId, assetType]);
 
-    const onTogglePublish = useMemoizedFn(async (v?: boolean) => {
+    const onTogglePublish = async (v?: boolean) => {
       const linkExp = linkExpiry ? linkExpiry.toISOString() : null;
       const payload: Parameters<typeof onShareMetric>[0] = {
         id: assetId,
         params: {
           publicly_accessible: v === undefined ? true : !!v,
           public_password: _password || undefined,
-          public_expiry_date: linkExp || undefined
-        }
+          public_expiry_date: linkExp || undefined,
+        },
       };
       if (assetType === 'metric') {
         await onShareMetric(payload);
@@ -78,20 +121,24 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
         await onShareCollection(payload);
       } else if (assetType === 'report') {
         await onShareReport(payload);
+      } else if (assetType === 'chat') {
+        await onShareChat(payload);
+      } else {
+        const _exhaustiveCheck: never = assetType;
       }
-    });
+    };
 
-    const onSetPasswordProtected = useMemoizedFn(async (v: boolean) => {
+    const onSetPasswordProtected = async (v: boolean) => {
       onSetPassword(null);
       setIsPasswordProtected(v);
-    });
+    };
 
-    const onSetPassword = useMemoizedFn(async (password: string | null) => {
+    const onSetPassword = async (password: string | null) => {
       const payload: Parameters<typeof onShareMetric>[0] = {
         id: assetId,
         params: {
-          public_password: password
-        }
+          public_password: password,
+        },
       };
 
       if (assetType === 'metric') {
@@ -102,19 +149,23 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
         await onShareCollection(payload);
       } else if (assetType === 'report') {
         await onShareReport(payload);
+      } else if (assetType === 'chat') {
+        await onShareChat(payload);
+      } else {
+        const _exhaustiveCheck: never = assetType;
       }
       _setPassword(password || '');
       if (password) openInfoMessage('Password updated');
-    });
+    };
 
-    const onSetExpirationDate = useMemoizedFn(async (date: Date | null) => {
+    const onSetExpirationDate = async (date: Date | null) => {
       const linkExp = date ? date.toISOString() : null;
 
       const payload: Parameters<typeof onShareMetric>[0] = {
         id: assetId,
         params: {
-          public_expiry_date: linkExp
-        }
+          public_expiry_date: linkExp,
+        },
       };
 
       if (assetType === 'metric') {
@@ -125,8 +176,12 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
         await onShareCollection(payload);
       } else if (assetType === 'report') {
         await onShareReport(payload);
+      } else if (assetType === 'chat') {
+        await onShareChat(payload);
+      } else {
+        const _exhaustiveCheck: never = assetType;
       }
-    });
+    };
 
     useEffect(() => {
       _setPassword(password || '');
@@ -141,7 +196,7 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
               <IsPublishedInfo isPublished={publicly_accessible} />
 
               <div className="flex w-full space-x-0.5">
-                <Input size="small" readOnly value={url} />
+                <Input size="small" readOnly value={linkUrl} />
                 <Button variant="default" className="flex" prefix={<Link />} onClick={onCopyLink} />
               </div>
 
@@ -162,7 +217,8 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
                 loading={isPublishing}
                 onClick={() => {
                   onTogglePublish(true);
-                }}>
+                }}
+              >
                 Create public link
               </Button>
             </div>
@@ -173,9 +229,10 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
           <div className={cn('flex justify-end space-x-2 border-t', className)}>
             <Button
               block
-              onClick={async (v) => {
+              onClick={async () => {
                 onTogglePublish(false);
-              }}>
+              }}
+            >
               Unpublish
             </Button>
             <Button block onClick={onCopyLink}>
@@ -215,9 +272,9 @@ const LinkExpiration: React.FC<{
     return createDayjsDate(new Date()).add(2, 'year');
   }, []);
 
-  const onSelect = useMemoizedFn((date: Date | undefined) => {
+  const onSelect = (date: Date | undefined) => {
     onChangeLinkExpiry(date || null);
-  });
+  };
 
   return (
     <div className="flex items-center justify-between space-x-2">
@@ -244,75 +301,73 @@ const SetAPassword: React.FC<{
   onSetPassword: (password: string | null) => void;
   isPasswordProtected: boolean;
   onSetPasswordProtected: (isPasswordProtected: boolean) => void;
-}> = React.memo(
-  ({ password: passwordProp, onSetPassword, isPasswordProtected, onSetPasswordProtected }) => {
-    const [visibilityToggle, setVisibilityToggle] = useState<boolean>(false);
-    const [password, setPassword] = useState<string>(passwordProp);
+}> = ({ password: passwordProp, onSetPassword, isPasswordProtected, onSetPasswordProtected }) => {
+  const [visibilityToggle, setVisibilityToggle] = useState<boolean>(false);
+  const [password, setPassword] = useState<string>(passwordProp);
 
-    const isPasswordDifferent = password !== passwordProp;
+  const isPasswordDifferent = password !== passwordProp;
 
-    const onChangeChecked = useMemoizedFn((checked: boolean) => {
-      onSetPasswordProtected(checked);
-    });
+  const onChangeChecked = (checked: boolean) => {
+    onSetPasswordProtected(checked);
+  };
 
-    const onChangePassword = useMemoizedFn((e: React.ChangeEvent<HTMLInputElement>) => {
-      setPassword(e.target.value);
-    });
+  const onChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+  };
 
-    const onClickVisibilityToggle = useMemoizedFn(() => {
-      setVisibilityToggle(!visibilityToggle);
-    });
+  const onClickVisibilityToggle = () => {
+    setVisibilityToggle(!visibilityToggle);
+  };
 
-    const onClickSave = useMemoizedFn(() => {
-      onSetPassword(password);
-    });
+  const onClickSave = () => {
+    onSetPassword(password);
+  };
 
-    useEffect(() => {
-      if (isPasswordProtected) {
-        setPassword(password);
-      } else {
-        setPassword('');
-      }
-    }, [isPasswordProtected, password]);
+  useEffect(() => {
+    if (isPasswordProtected) {
+      setPassword(password);
+    } else {
+      setPassword('');
+    }
+  }, [isPasswordProtected, password]);
 
-    return (
-      <div className="flex w-full flex-col space-y-3">
-        <div className="flex w-full justify-between">
-          <Text>Set a password</Text>
-          <Switch checked={isPasswordProtected} onCheckedChange={onChangeChecked} />
-        </div>
-
-        {isPasswordProtected && (
-          <div className="flex w-full items-center space-x-2">
-            <div className="flex w-full">
-              <div className="relative flex w-full space-x-0.5">
-                <Input
-                  value={password}
-                  onChange={onChangePassword}
-                  placeholder="Password"
-                  type={visibilityToggle ? 'text' : 'password'}
-                  autoComplete="off"
-                  autoCorrect="off"
-                />
-
-                <Button
-                  variant="ghost"
-                  size="small"
-                  className="absolute top-1/2 right-[7px] -translate-y-1/2"
-                  prefix={!visibilityToggle ? <Eye /> : <EyeSlash />}
-                  onClick={onClickVisibilityToggle}
-                />
-              </div>
-            </div>
-
-            <Button disabled={!isPasswordDifferent} onClick={onClickSave}>
-              Save
-            </Button>
-          </div>
-        )}
+  return (
+    <div className="flex w-full flex-col space-y-3">
+      <div className="flex w-full justify-between">
+        <Text>Set a password</Text>
+        <Switch checked={isPasswordProtected} onCheckedChange={onChangeChecked} />
       </div>
-    );
-  }
-);
+
+      {isPasswordProtected && (
+        <div className="flex w-full items-center space-x-2">
+          <div className="flex w-full">
+            <div className="relative flex w-full space-x-0.5">
+              <Input
+                value={password}
+                onChange={onChangePassword}
+                placeholder="Password"
+                type={visibilityToggle ? 'text' : 'password'}
+                autoComplete="off"
+                autoCorrect="off"
+              />
+
+              <Button
+                variant="ghost"
+                size="small"
+                className="absolute top-1/2 right-[7px] -translate-y-1/2"
+                prefix={!visibilityToggle ? <Eye /> : <EyeSlash />}
+                onClick={onClickVisibilityToggle}
+              />
+            </div>
+          </div>
+
+          <Button disabled={!isPasswordDifferent} onClick={onClickSave}>
+            Save
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+};
 
 SetAPassword.displayName = 'SetAPassword';

@@ -1,5 +1,3 @@
-'use client';
-
 import { useCallback, useEffect, useRef } from 'react';
 import { useMemoizedFn } from './useMemoizedFn';
 
@@ -9,7 +7,7 @@ interface ThrottleOptions {
   trailing?: boolean;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Required for generic function types
+// biome-ignore lint/suspicious/noExplicitAny: Required for generic function types
 export function useThrottleFn<T extends (...args: any[]) => any>(
   fn: T,
   options: ThrottleOptions = {}
@@ -64,6 +62,6 @@ export function useThrottleFn<T extends (...args: any[]) => any>(
 
   return {
     run,
-    cancel
+    cancel,
   };
 }

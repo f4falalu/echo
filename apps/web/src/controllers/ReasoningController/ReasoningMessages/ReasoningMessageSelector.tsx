@@ -1,34 +1,32 @@
-import { AnimatePresence, motion, type MotionProps } from 'framer-motion';
-import React from 'react';
-import { useMemo } from 'react';
+import { AnimatePresence, type MotionProps, motion } from 'framer-motion';
+import isEmpty from 'lodash/isEmpty';
+import React, { useCallback, useMemo } from 'react';
 import type {
   BusterChatMessage,
   BusterChatMessageReasoning,
   BusterChatMessageReasoning_files,
-  BusterChatMessageReasoning_text
+  BusterChatMessageReasoning_text,
 } from '@/api/asset_interfaces/chat';
 import { useGetChatMessage } from '@/api/buster_rest/chats';
 import { BarContainer } from './BarContainer';
 import { ReasoningMessage_Files } from './ReasoningMessage_Files';
 import { ReasoningMessage_PillsContainer } from './ReasoningMessage_PillContainers';
 import { ReasoningMessage_Text } from './ReasoningMessage_Text';
-import isEmpty from 'lodash/isEmpty';
-import { useCallback } from 'react';
 
 const itemAnimationConfig: MotionProps = {
   initial: { opacity: 0 },
   animate: {
     opacity: 1,
     transition: {
-      opacity: { duration: 0.16 }
-    }
+      opacity: { duration: 0.16 },
+    },
   },
   exit: {
     opacity: 0,
     transition: {
-      opacity: { duration: 0.12 }
-    }
-  }
+      opacity: { duration: 0.12 },
+    },
+  },
 };
 
 export interface ReasoningMessageProps {
@@ -45,7 +43,7 @@ const ReasoningMessageRecord: Record<
 > = {
   pills: ReasoningMessage_PillsContainer,
   text: ReasoningMessage_Text,
-  files: ReasoningMessage_Files
+  files: ReasoningMessage_Files,
 };
 
 export interface ReasoningMessageSelectorProps {
@@ -70,11 +68,11 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
           )?.message,
           hasFiles: !isEmpty(
             (x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_files)?.files
-          )
+          ),
         }),
         [reasoningMessageId]
       ),
-      notifyOnChangeProps: ['data']
+      notifyOnChangeProps: ['data'],
     });
     const { title, secondary_title, type, status, hasMessage, hasFiles } = messageStuff || {};
 
@@ -95,7 +93,8 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
         status={status}
         isStreamFinished={isStreamFinished}
         title={title ?? ''}
-        secondaryTitle={secondary_title ?? ''}>
+        secondaryTitle={secondary_title ?? ''}
+      >
         <AnimatePresence mode="wait" initial={!isStreamFinished}>
           <motion.div key={animationKey} {...itemAnimationConfig} className="h-auto">
             <div className="min-h-[1px]">

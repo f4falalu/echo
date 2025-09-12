@@ -1,18 +1,15 @@
-'use client';
-
 import * as React from 'react';
 import { Button } from '@/components/ui/buttons';
 import { Calendar, type CalendarProps } from '@/components/ui/calendar';
-import { Calendar as CalendarIcon } from '@/components/ui/icons';
+import CalendarIcon from '@/components/ui/icons/NucleoIconOutlined/calendar';
 import {
   PopoverRoot as Popover,
   PopoverContent,
-  PopoverTrigger
+  PopoverTrigger,
 } from '@/components/ui/popover/PopoverBase';
-import { useMemoizedFn } from '@/hooks';
-import { formatDate } from '@/lib';
+import { formatDate } from '@/lib/date';
 import { cn } from '@/lib/utils';
-import { Xmark } from '../icons/NucleoIconFilled';
+import { Xmark } from '../icons';
 
 export type DatePickerProps = Omit<CalendarProps, 'selected'> & {
   dateFormat?: string;
@@ -30,9 +27,9 @@ function DatePickerComponent({
   clearable = true,
   ...props
 }: DatePickerProps) {
-  const onClickCancel = useMemoizedFn(() => {
+  const onClickCancel = () => {
     onSelect(undefined);
-  });
+  };
 
   return (
     <Popover>
@@ -46,7 +43,8 @@ function DatePickerComponent({
               <button
                 type="button"
                 onClick={onClickCancel}
-                className="hover:bg-gray-light/20 hover:text-default! -mr-1 flex cursor-pointer items-center justify-center rounded-sm p-1 text-xs opacity-30 transition-opacity duration-200 group-hover:opacity-100">
+                className="hover:bg-gray-light/20 hover:text-default! -mr-1 flex cursor-pointer items-center justify-center rounded-sm p-1 text-xs opacity-30 transition-opacity duration-200 group-hover:opacity-100"
+              >
                 <Xmark />
               </button>
             )
@@ -54,11 +52,12 @@ function DatePickerComponent({
           className={cn(
             'group justify-start text-left font-normal',
             !selected && 'text-gray-light'
-          )}>
+          )}
+        >
           {selected ? (
             formatDate({
               date: selected as Date,
-              format: dateFormat
+              format: dateFormat,
             })
           ) : (
             <span>{placeholder}</span>

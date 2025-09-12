@@ -1,14 +1,12 @@
-'use client';
-
 import { SortableContext, useSortable } from '@dnd-kit/sortable';
+import isEqual from 'lodash/isEqual';
 import React, { useEffect, useMemo, useState } from 'react';
-import { useMouse } from '@/hooks/useMouse';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { useMouse } from '@/hooks/useMouse';
 import { cn } from '@/lib/classMerge';
+import { BusterResizeColumnsSplitPanes } from './_BusterResizeColumnsSplitPanes';
 import { BusterSortableItemDragContainer } from './_BusterSortableItemDragContainer';
 import type { ResizeableGridDragItem } from './interfaces';
-import { BusterResizeColumnsSplitPanes } from './_BusterResizeColumnsSplitPanes';
-import isEqual from 'lodash/isEqual';
 
 type ContainerProps = {
   rowId: string;
@@ -25,11 +23,11 @@ export const BusterResizeColumns: React.FC<ContainerProps> = ({
   index: rowIndex,
   columnSizes,
   readOnly = true,
-  items = []
+  items = [],
 }) => {
   const { setNodeRef, active, over } = useSortable({
     id: rowId,
-    disabled: readOnly
+    disabled: readOnly,
   });
   const mouse = useMouse({ moveThrottleMs: 50, disabled: readOnly || !over });
   const [stagedLayoutColumns, setStagedLayoutColumns] = useState<number[]>(() => columnSizes || []);
@@ -102,13 +100,15 @@ export const BusterResizeColumns: React.FC<ContainerProps> = ({
       <div
         ref={setNodeRef}
         className="buster-resize-columns relative h-full w-full"
-        data-testid={`buster-resize-columns-${rowIndex}`}>
+        data-testid={`buster-resize-columns-${rowIndex}`}
+      >
         <BusterResizeColumnsSplitPanes
           columnSpans={stagedLayoutColumns || []}
           allowResize={!readOnly && canResize}
           // onDragStart={onDragStart}
           // onDragEnd={onDragEnd}
-          onChange={onChangeLayout}>
+          onChange={onChangeLayout}
+        >
           {items.map((item, index) => (
             <div
               key={item.id}
@@ -117,7 +117,8 @@ export const BusterResizeColumns: React.FC<ContainerProps> = ({
                 index !== items.length - 1 ? 'pr-1.5' : 'pr-0',
                 index !== 0 ? 'pl-1.5' : 'pl-0'
               )}
-              data-testid={`pane-${index}`}>
+              data-testid={`pane-${index}`}
+            >
               <DropzonePlaceholder
                 right={false}
                 index={index}
@@ -145,7 +146,7 @@ export const BusterResizeColumns: React.FC<ContainerProps> = ({
 
 export enum Position {
   Before = -1,
-  After = 1
+  After = 1,
 }
 
 const DropzonePlaceholder: React.FC<{
@@ -165,7 +166,7 @@ const DropzonePlaceholder: React.FC<{
     return {
       [right ? 'right' : 'left']: offset,
       [right ? 'left' : 'right']: undefined,
-      opacity: baseOpacity
+      opacity: baseOpacity,
     };
   }, [active, isDropzoneActives, right, index, numberOfColumns]);
 

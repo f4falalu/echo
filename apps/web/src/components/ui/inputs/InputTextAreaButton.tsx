@@ -1,9 +1,8 @@
 import { cva } from 'class-variance-authority';
-import React, { forwardRef, useMemo } from 'react';
-import { useMemoizedFn } from '@/hooks';
+import React, { forwardRef } from 'react';
 import { cn } from '@/lib/classMerge';
 import { Button } from '../buttons/Button';
-import { ShapeSquare } from '../icons/NucleoIconFilled';
+import ShapeSquare from '../icons/NucleoIconFilled/shape-square';
 import { ArrowUp } from '../icons/NucleoIconOutlined';
 import { InputTextArea, type InputTextAreaProps } from './InputTextArea';
 
@@ -13,9 +12,9 @@ const inputTextAreaButtonVariants = cva(
     variants: {
       variant: {
         default:
-          'hover:border-foreground shadow bg-background has-[textarea:focus]:border-foreground has-[textarea:disabled]:border-border'
-      }
-    }
+          'hover:border-foreground shadow bg-background has-[textarea:focus]:border-foreground has-[textarea:disabled]:border-border',
+      },
+    },
   }
 );
 
@@ -27,6 +26,7 @@ export interface InputTextAreaButtonProps extends Omit<InputTextAreaProps, 'vari
   onStop?: () => void;
   variant?: 'default';
   disabledSubmit?: boolean;
+  inputClassName?: string;
 }
 
 export const InputTextAreaButton = forwardRef<HTMLTextAreaElement, InputTextAreaButtonProps>(
@@ -34,30 +34,33 @@ export const InputTextAreaButton = forwardRef<HTMLTextAreaElement, InputTextArea
     {
       className,
       disabled,
-      autoResize,
+      minRows,
+      maxRows,
       sendIcon = <ArrowUp />,
       loadingIcon = <ShapeSquare />,
       loading = false,
       onSubmit,
       onStop,
       variant = 'default',
+      inputClassName = '',
       disabledSubmit,
+      style,
       ...props
     },
     textRef
   ) => {
-    const onSubmitPreflight = useMemoizedFn(() => {
+    const onSubmitPreflight = () => {
       if (disabled) return;
       const text = (textRef as React.RefObject<HTMLTextAreaElement | null>).current?.value || '';
       onSubmit(text);
-    });
+    };
 
-    const onClickBox = useMemoizedFn(() => {
+    const onClickBox = () => {
       if (disabled) return;
       if (typeof textRef === 'object' && textRef?.current) {
         textRef.current.focus();
       }
-    });
+    };
 
     return (
       <div
@@ -67,16 +70,20 @@ export const InputTextAreaButton = forwardRef<HTMLTextAreaElement, InputTextArea
           !disabled && 'transition-all duration-500 hover:shadow-md focus:shadow-lg',
           loading && 'border-border!',
           className
-        )}>
+        )}
+      >
         <InputTextArea
           ref={textRef}
           disabled={disabled || loading}
           variant="ghost"
           className={cn(
             'leading-1.3 w-full px-5! pt-4! pr-10 align-middle',
-            loading && 'cursor-not-allowed! opacity-70'
+            loading && 'cursor-not-allowed! opacity-70',
+            inputClassName
           )}
-          autoResize={autoResize}
+          style={style}
+          minRows={minRows}
+          maxRows={maxRows}
           rounding="xl"
           onPressMetaEnter={onSubmitPreflight}
           onPressEnter={onSubmitPreflight}
@@ -110,13 +117,16 @@ const SubmitButton: React.FC<{
 }> = React.memo(({ disabled, sendIcon, loading, loadingIcon, onSubmitPreflight, onStop }) => {
   const prefix = (
     <div
-      className={cn('relative h-4 w-4 transition-all duration-300 ease-out will-change-transform')}>
+      className={cn('relative h-4 w-4 transition-all duration-300 ease-out will-change-transform')}
+    >
       <div
-        className={`absolute inset-0 transition-all duration-300 ease-out ${loading ? 'scale-80 opacity-0' : 'scale-100 opacity-100'}`}>
+        className={`absolute inset-0 transition-all duration-300 ease-out ${loading ? 'scale-80 opacity-0' : 'scale-100 opacity-100'}`}
+      >
         {sendIcon}
       </div>
       <div
-        className={`absolute inset-0 flex items-center justify-center text-sm transition-all duration-300 ease-out ${loading ? 'scale-100 opacity-100' : 'scale-85 opacity-0'}`}>
+        className={`absolute inset-0 flex items-center justify-center text-sm transition-all duration-300 ease-out ${loading ? 'scale-100 opacity-100' : 'scale-85 opacity-0'}`}
+      >
         {loadingIcon}
       </div>
     </div>

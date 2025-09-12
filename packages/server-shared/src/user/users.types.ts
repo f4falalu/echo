@@ -1,3 +1,5 @@
+import type { UpdateUserResponse, UserInfoByIdResponse } from '@buster/database';
+import { UserPersonalizationConfigSchema } from '@buster/database';
 import { z } from 'zod';
 import type { UserFavorite } from './favorites.types';
 import type { UserOrganizationRole } from './roles.types';
@@ -18,4 +20,18 @@ export const UserSchema = z.object({
   updated_at: z.string(),
 });
 
+export const UserPatchRequestSchema = z.object({
+  name: z.string().optional(),
+  personalizationEnabled: z.boolean().optional(),
+  personalizationConfig: UserPersonalizationConfigSchema.optional(),
+});
+
+export const GetUserByIdRequestSchema = z.object({
+  id: z.string().uuid(),
+});
+
+export type UserPatchRequest = z.infer<typeof UserPatchRequestSchema>;
+export type UserPatchResponse = UpdateUserResponse;
 export type User = z.infer<typeof UserSchema>;
+export type GetUserByIdRequest = z.infer<typeof GetUserByIdRequestSchema>;
+export type GetUserByIdResponse = UserInfoByIdResponse;

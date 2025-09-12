@@ -19,7 +19,12 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
-import type { OrganizationColorPalettes } from './schema-types';
+import type {
+  OrganizationColorPalettes,
+  UserPersonalizationConfigType,
+  UserSuggestedPromptsType,
+} from './schema-types';
+import { DEFAULT_USER_SUGGESTED_PROMPTS } from './schema-types/user';
 
 export const assetPermissionRoleEnum = pgEnum('asset_permission_role_enum', [
   'owner',
@@ -127,6 +132,14 @@ export const workspaceSharingEnum = pgEnum('workspace_sharing_enum', [
   'can_view',
   'can_edit',
   'full_access',
+]);
+
+export const docsTypeEnum = pgEnum('docs_type_enum', ['analyst', 'normal']);
+
+export const messageAnalysisModeEnum = pgEnum('message_analysis_mode_enum', [
+  'auto',
+  'standard',
+  'investigation',
 ]);
 
 export const apiKeys = pgTable(
@@ -833,7 +846,12 @@ export const datasets = pgTable(
       foreignColumns: [users.id],
       name: 'datasets_updated_by_fkey',
     }).onUpdate('cascade'),
-    unique('datasets_database_name_data_source_id_key').on(table.databaseName, table.dataSourceId),
+    unique('datasets_name_schema_database_identifier_data_source_id_key').on(
+      table.name,
+      table.schema,
+      table.databaseIdentifier,
+      table.dataSourceId
+    ),
   ]
 );
 
@@ -852,6 +870,15 @@ export const users = pgTable(
       .notNull(),
     attributes: jsonb().default({}).notNull(),
     avatarUrl: text('avatar_url'),
+    suggestedPrompts: jsonb('suggested_prompts')
+      .$type<UserSuggestedPromptsType>()
+      .default(DEFAULT_USER_SUGGESTED_PROMPTS)
+      .notNull(),
+    personalizationEnabled: boolean('personalization_enabled').default(false).notNull(),
+    personalizationConfig: jsonb('personalization_config')
+      .$type<UserPersonalizationConfigType>()
+      .default({})
+      .notNull(),
   },
   (table) => [unique('users_email_key').on(table.email)]
 );
@@ -862,6 +889,7 @@ export const messages = pgTable(
     id: uuid().defaultRandom().primaryKey().notNull(),
     requestMessage: text('request_message'),
     responseMessages: jsonb('response_messages').default([]).notNull(),
+    messageAnalysisMode: messageAnalysisModeEnum('message_analysis_mode').default('auto').notNull(),
     reasoning: jsonb().default([]).notNull(),
     title: text().notNull(),
     rawLlmMessages: jsonb('raw_llm_messages').default([]).notNull(),
@@ -2334,5 +2362,31 @@ export const shortcuts = pgTable(
     uniqueIndex('shortcuts_workspace_unique')
       .on(table.name, table.organizationId)
       .where(sql`${table.sharedWithWorkspace} = true`),
+  ]
+);
+
+export const docs = pgTable(
+  'docs',
+  {
+    id: uuid().defaultRandom().primaryKey().notNull(),
+    name: varchar('name', { length: 255 }).notNull(),
+    content: text().notNull(),
+    type: docsTypeEnum().default('normal').notNull(),
+    organizationId: uuid('organization_id').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.organizationId],
+      foreignColumns: [organizations.id],
+      name: 'docs_organization_id_fkey',
+    }).onDelete('cascade'),
+    unique('docs_name_organization_id_key').on(table.name, table.organizationId),
   ]
 );

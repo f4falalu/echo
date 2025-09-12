@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ColorPicker } from './ColorPicker';
 
 const meta: Meta<typeof ColorPicker> = {
@@ -7,30 +7,30 @@ const meta: Meta<typeof ColorPicker> = {
   tags: ['autodocs'],
   args: {
     value: '#000000',
-    size: 'default'
+    size: 'default',
   },
   argTypes: {
     value: {
       control: 'color',
-      description: 'The color value in hex format'
+      description: 'The color value in hex format',
     },
     onChange: {
-      description: 'Callback function when color changes'
+      description: 'Callback function when color changes',
     },
     onChangeComplete: {
-      description: 'Callback function when color selection is complete'
+      description: 'Callback function when color selection is complete',
     },
     size: {
       control: 'select',
       options: ['small', 'default', 'tall'],
-      description: 'The size of the color picker button'
+      description: 'The size of the color picker button',
     },
 
     className: {
       control: 'text',
-      description: 'Additional CSS classes to apply'
-    }
-  }
+      description: 'Additional CSS classes to apply',
+    },
+  },
 };
 
 export default meta;
@@ -38,20 +38,20 @@ type Story = StoryObj<typeof ColorPicker>;
 
 export const Default: Story = {
   args: {
-    value: '#FF0000'
-  }
+    value: '#FF0000',
+  },
 };
 
 export const Small: Story = {
   args: {
     value: '#00FF00',
-    size: 'small'
-  }
+    size: 'small',
+  },
 };
 
 export const Tall: Story = {
   args: {
     value: '#0000FF',
-    size: 'tall'
-  }
+    size: 'tall',
+  },
 };

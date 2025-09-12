@@ -1,8 +1,8 @@
-import {
+import type {
+  ChartConfigProps,
   ChartEncodes,
   ChartType,
   ColumnMetaData,
-  ChartConfigProps
 } from '@buster/server-shared/metrics';
 
 export interface SelectChartTypeProps {
@@ -14,4 +14,5 @@ export interface SelectChartTypeProps {
   columnMetadata: ColumnMetaData[];
   columnSettings: ChartConfigProps['columnSettings'];
   selectedAxis: ChartEncodes;
+  metricId: string;
 }

@@ -1,6 +1,8 @@
+export * from './api-keys';
 export * from './messages';
 export * from './users';
 export * from './dataSources';
+export * from './datasets';
 export * from './assets';
 export * from './asset-permissions';
 export * from './dataset-permissions';
@@ -11,6 +13,7 @@ export * from './dashboards';
 export * from './metrics';
 export * from './collections';
 export * from './reports';
+export * from './docs';
 export * from './s3-integrations';
 export * from './vault';
 export * from './cascading-permissions';

@@ -1,17 +1,17 @@
-import type {
-  BusterCollection,
-  BusterDashboardResponse,
-  BusterMetric
-} from '@/api/asset_interfaces';
+import type { GetDashboardResponse } from '@buster/server-shared/dashboards';
+import type { GetMetricResponse } from '@buster/server-shared/metrics';
+import type { GetReportResponse } from '@buster/server-shared/reports';
 import type { ShareConfig } from '@buster/server-shared/share';
-import type { ReportIndividualResponse } from '@buster/server-shared/reports';
+import type { IBusterChat } from '@/api/asset_interfaces/chat';
+import type { BusterCollection } from '@/api/asset_interfaces/collection';
 
 export const getShareAssetConfig = (
   message:
-    | BusterMetric
-    | BusterDashboardResponse
+    | GetMetricResponse
+    | GetDashboardResponse
     | BusterCollection
-    | ReportIndividualResponse
+    | GetReportResponse
+    | IBusterChat
     | null
 ): ShareConfig | null => {
   if (!message) return null;
@@ -24,7 +24,7 @@ export const getShareAssetConfig = (
     publicly_accessible,
     public_password,
     workspace_sharing,
-    workspace_member_count
+    workspace_member_count,
   } = message;
 
   return {
@@ -35,6 +35,6 @@ export const getShareAssetConfig = (
     publicly_accessible,
     public_password,
     workspace_sharing,
-    workspace_member_count
+    workspace_member_count,
   };
 };

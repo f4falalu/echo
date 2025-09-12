@@ -1,19 +1,17 @@
-'use client';
-
-import { determineFontColorContrast } from '@/lib/colors';
-import { formatLabel } from '@/lib/columnFormatter';
-import { ArrayOperations } from '@/lib/math';
-import { countTotalDigits } from '@/lib/numbers';
-import { isServer } from '@/lib/window';
 import {
   type ChartConfigProps,
   type ColumnLabelFormat,
-  DEFAULT_COLUMN_LABEL_FORMAT
+  DEFAULT_COLUMN_LABEL_FORMAT,
 } from '@buster/server-shared/metrics';
 import type { ChartType as ChartJSChartType, PluginChartOptions } from 'chart.js';
 import type { AnnotationPluginOptions } from 'chartjs-plugin-annotation';
 import type { Context } from 'chartjs-plugin-datalabels';
 import type { DeepPartial } from 'utility-types';
+import { determineFontColorContrast } from '@/lib/colors';
+import { formatLabel } from '@/lib/columnFormatter';
+import { ArrayOperations } from '@/lib/math';
+import { countTotalDigits } from '@/lib/numbers';
+import { isServer } from '@/lib/window';
 import type { BusterChartProps } from '../../../BusterChart.types';
 import { getPieInnerLabelTitle } from '../../../commonHelpers';
 import type { ChartProps } from '../../core';
@@ -24,10 +22,10 @@ import { defaultLabelOptionConfig } from './labelOptionConfig';
 type PieOptions = ChartProps<'pie'>['options'] | ChartProps<'doughnut'>['options'];
 
 export const pieOptionsHandler = ({
-  pieDonutWidth = 0
+  pieDonutWidth = 0,
 }: ChartSpecificOptionsProps): ChartProps<ChartJSChartType>['options'] => {
   const result: PieOptions = {
-    cutout: pieDonutWidth ? `${pieDonutWidth + 35}%` : 0
+    cutout: pieDonutWidth ? `${pieDonutWidth + 35}%` : 0,
   };
 
   return result as ChartProps<ChartJSChartType>['options'];
@@ -49,7 +47,7 @@ export const piePluginsHandler = ({
   pieLabelPosition,
   pieDisplayLabelAs,
   selectedAxis,
-  pieDonutWidth
+  pieDonutWidth,
 }: ChartSpecificOptionsProps): DeepPartial<PluginChartOptions<ChartJSChartType>>['plugins'] => {
   let returnValue: DeepPartial<PluginChartOptions<ChartJSChartType>>['plugins'] = {};
 
@@ -71,16 +69,16 @@ export const piePluginsHandler = ({
                 pieInnerLabelAggregate,
                 selectedAxis,
                 columnLabelFormats
-              )
+              ),
             ];
           },
           font: [
             { size: 22 }, // title font
-            { size: 28 } // value font
+            { size: 28 }, // value font
           ],
-          color: [titleColor, valueColor]
-        }
-      }
+          color: [titleColor, valueColor],
+        },
+      },
     };
     returnValue = { annotation };
   }
@@ -97,7 +95,7 @@ export const piePluginsHandler = ({
             usePercent,
             formatter: (value: number) => {
               return labelFormatter(value, selectedAxis, columnLabelFormats, usePercent);
-            }
+            },
           }
         : false,
     datalabels: {
@@ -122,8 +120,8 @@ export const piePluginsHandler = ({
           columnLabelFormats,
           usePercent
         );
-      }
-    }
+      },
+    },
   };
 
   return returnValue;
@@ -155,7 +153,7 @@ const getInnerLabelValue = (
 
     const formattedLabel = formatLabel(result, {
       ...yColumnLabel,
-      compactNumbers: yColumnLabel?.compactNumbers || countTotalDigits(result) >= 9
+      compactNumbers: yColumnLabel?.compactNumbers || countTotalDigits(result) >= 9,
     });
     return formattedLabel;
   } catch (_error) {
@@ -166,7 +164,7 @@ const getInnerLabelValue = (
 const percentStyle: ColumnLabelFormat = {
   ...DEFAULT_COLUMN_LABEL_FORMAT,
   columnType: 'number',
-  style: 'percent'
+  style: 'percent',
 };
 
 const labelFormatter = (

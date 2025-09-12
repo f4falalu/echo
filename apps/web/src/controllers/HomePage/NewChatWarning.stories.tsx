@@ -1,13 +1,13 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
-import { NewChatWarning } from './NewChatWarning';
 import type { OrganizationRole } from '@buster/server-shared/organization';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { NewChatWarning } from './NewChatWarning';
 
 const OrganizationRoleSchema: Record<OrganizationRole, OrganizationRole> = {
   data_admin: 'data_admin',
   workspace_admin: 'workspace_admin',
   querier: 'querier',
   restricted_querier: 'restricted_querier',
-  viewer: 'viewer'
+  viewer: 'viewer',
 };
 
 const meta: Meta<typeof NewChatWarning> = {
@@ -18,29 +18,29 @@ const meta: Meta<typeof NewChatWarning> = {
     docs: {
       description: {
         component:
-          'A setup checklist component that guides users through connecting data sources and creating datasets before they can start chatting.'
-      }
-    }
+          'A setup checklist component that guides users through connecting data sources and creating datasets before they can start chatting.',
+      },
+    },
   },
   argTypes: {
     hasDatasets: {
       control: 'boolean',
-      description: 'Whether the user has created any datasets'
+      description: 'Whether the user has created any datasets',
     },
     hasDatasources: {
       control: 'boolean',
-      description: 'Whether the user has connected any data sources'
+      description: 'Whether the user has connected any data sources',
     },
     isAdmin: {
       control: 'boolean',
-      description: 'Whether the user has admin privileges'
+      description: 'Whether the user has admin privileges',
     },
     userRole: {
       control: 'select',
       options: Object.values(OrganizationRoleSchema),
-      description: "The user's role in the organization"
-    }
-  }
+      description: "The user's role in the organization",
+    },
+  },
 };
 
 export default meta;
@@ -52,8 +52,8 @@ export const NewUser: Story = {
     hasDatasets: false,
     hasDatasources: false,
     isAdmin: true,
-    userRole: OrganizationRoleSchema.data_admin
-  }
+    userRole: OrganizationRoleSchema.data_admin,
+  },
 };
 
 // Complete setup - admin user has both datasets and datasources
@@ -62,8 +62,8 @@ export const CompleteSetup: Story = {
     hasDatasets: true,
     hasDatasources: true,
     isAdmin: true,
-    userRole: OrganizationRoleSchema.data_admin
-  }
+    userRole: OrganizationRoleSchema.data_admin,
+  },
 };
 
 // Workspace admin with complete setup
@@ -72,8 +72,8 @@ export const WorkspaceAdminCompleteSetup: Story = {
     hasDatasets: true,
     hasDatasources: true,
     isAdmin: true,
-    userRole: OrganizationRoleSchema.workspace_admin
-  }
+    userRole: OrganizationRoleSchema.workspace_admin,
+  },
 };
 
 // Non-admin users - show contact admin card
@@ -82,8 +82,8 @@ export const ViewerRole: Story = {
     hasDatasets: false,
     hasDatasources: false,
     isAdmin: false,
-    userRole: OrganizationRoleSchema.viewer
-  }
+    userRole: OrganizationRoleSchema.viewer,
+  },
 };
 
 export const QuerierRole: Story = {
@@ -91,8 +91,8 @@ export const QuerierRole: Story = {
     hasDatasets: false,
     hasDatasources: false,
     isAdmin: false,
-    userRole: OrganizationRoleSchema.querier
-  }
+    userRole: OrganizationRoleSchema.querier,
+  },
 };
 
 export const RestrictedQuerierRole: Story = {
@@ -100,6 +100,6 @@ export const RestrictedQuerierRole: Story = {
     hasDatasets: false,
     hasDatasources: false,
     isAdmin: false,
-    userRole: OrganizationRoleSchema.restricted_querier
-  }
+    userRole: OrganizationRoleSchema.restricted_querier,
+  },
 };

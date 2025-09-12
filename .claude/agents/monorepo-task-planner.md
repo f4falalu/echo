@@ -28,7 +28,6 @@ You are an expert monorepo architect and technical planning specialist. Your pri
   - Each table gets its own subdirectory with focused, reusable query functions
 - `access-controls`: Security, permissions, roles, and dataset access management
 - `data-source`: Adapters for customer databases/warehouses with memory and query protections
-- `stored-values`: Search functionality for AI agents to access customer-stored values
 - `server-shared`: CRITICAL - Shared types and Zod schemas between web and server
   - ALL API contracts must be defined here using Zod schemas exported as types
   - This is only when sharing types between the web and server.  Packages should have their own types that ultimately map to these at different times.

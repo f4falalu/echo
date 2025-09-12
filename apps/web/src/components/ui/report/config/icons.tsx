@@ -1,16 +1,42 @@
-import { ASSET_ICONS } from '@/components/features/config/assetIcons';
+import { ASSET_ICONS } from '@/components/features/icons/assetIcons';
 import {
-  // Text formatting
-  TextBold,
-  TextItalic,
-  TextStrikethrough,
-  TextUnderline,
-  TextColor2,
+  Apple,
+  ArrowDown,
+  ArrowDownFromLine,
+  ArrowLeft,
+  ArrowRight,
+  ArrowUp,
+  ArrowUpFromLine,
+  BallRugby,
+  Book2,
+  BracketsCurly,
   BucketPaint2,
-  TextHighlight2,
-  Code2,
+  BulletList,
+  Calendar,
+  Check,
+  ChevronRight,
+  Clock,
   Code,
-
+  Code2,
+  Compass,
+  Copy,
+  Copy2,
+  Dots,
+  Download,
+  // Tools
+  Equation,
+  Eraser,
+  ExternalLink,
+  // Emoji
+  FaceGrin,
+  FileCloud,
+  Film,
+  FilmPlay,
+  Flag,
+  Grid2X2,
+  Grid3X3,
+  GridLayoutCols3,
+  GripDotsVertical,
   // Headings
   Heading1,
   Heading2,
@@ -18,111 +44,77 @@ import {
   Heading4,
   Heading5,
   Heading6,
-
-  // Lists
-  UnorderedList,
-  OrderedList,
-  SquareCode,
-
-  // Structure
-  Pilcrow,
-  Quote,
-  ChevronRight,
-  GridLayoutCols3,
-
-  // Table
-  Table,
-  Grid3X3,
-  ArrowUp,
-  ArrowDown,
-  ArrowLeft,
-  ArrowRight,
-  Merge,
-  Ungroup,
-  Trash2,
-  Xmark,
-  Merge3,
-  Eraser,
-  Grid2X2,
-  SquareLayoutGrid4,
-  SquareLayoutGrid,
-
   // Media
   Image as ImageIcon,
-  Film,
-  FileCloud,
-  VolumeUp,
-  FilmPlay,
   ImageSparkle,
-  Loader,
-
-  // Actions
-  WandSparkle,
-  ArrowDownFromLine,
-  ArrowUpFromLine,
-  ArrowUpToLine,
-  Link2,
-  Plus,
-  Minus,
-  Undo,
-  Redo,
-  GripDotsVertical,
-  ExternalLink,
-  Link,
-  TextA,
-  Link5Slash,
-  Dots,
-  Download,
-  Keyboard,
-  Subscript,
-  Superscript,
-  Check,
-  Copy2,
-  BracketsCurly,
-  Upload,
-
-  // Tools
-  Equation,
-  Calendar,
-  ShapeSquare,
-  Book2,
-  Sparkle2,
-  SearchContent,
-  BulletList,
-  ListTodo,
-  SelectDropdown,
-  TextColumns,
-  IndentIncrease,
   IndentDecrease,
-  TextTool2,
-
-  // Emoji
-  FaceGrin,
-  Apple,
-  Flag,
-  Magnifier,
+  IndentIncrease,
+  Keyboard,
   Leaf,
   Lightbulb,
-  Music,
-  Star,
-  Clock,
-  Compass,
-  BallRugby,
-
-  // Alignment
-  TextAlignLeft,
-  TextAlignCenter,
-  TextAlignRight,
-  TextAlignJustify,
-
+  Link,
+  Link2,
+  Link5Slash,
+  ListTodo,
+  Loader,
+  Magnifier,
   // Math
   MathFunction,
-  RectArrowDownLeft
+  Merge,
+  Merge3,
+  Minus,
+  Music,
+  OrderedList,
+  // Actions
+  PenSparkle,
+  // Structure
+  Plus,
+  Quote,
+  Redo,
+  SearchContent,
+  SelectDropdown,
+  ShapeSquare,
+  Sparkle2,
+  SquareCode,
+  SquareLayoutGrid,
+  SquareLayoutGrid4,
+  Star,
+  Subscript,
+  Superscript,
+  // Table
+  Table,
+  TextA,
+  TextAlignCenter,
+  TextAlignJustify,
+  // Alignment
+  TextAlignLeft,
+  TextAlignRight,
+  // Text formatting
+  TextBold,
+  TextColor2,
+  TextColumns,
+  TextHighlight2,
+  TextItalic,
+  TextStrikethrough,
+  TextTool2,
+  TextUnderline,
+  Trash,
+  Undo,
+  Ungroup,
+  // Lists
+  UnorderedList,
+  Upload,
+  VolumeUp,
+  Xmark,
 } from '@/components/ui/icons';
+import DuplicatePlus from '@/components/ui/icons/NucleoIconOutlined/duplicate-plus';
+import ReplaceObjs from '@/components/ui/icons/NucleoIconOutlined/replace-objs';
+import TypeScape from '@/components/ui/icons/NucleoIconOutlined/type-scale';
 
 export const NodeTypeIcons = {
   // Metrics
   metric: ASSET_ICONS.metrics,
+  metricAdd: ASSET_ICONS.metircsAdd,
 
   // Text formatting
   bold: TextBold,
@@ -149,9 +141,10 @@ export const NodeTypeIcons = {
   checkList: SquareCode,
 
   // Structure
-  paragraph: Pilcrow,
+  paragraph: TypeScape,
   quote: Quote,
   toggle: ChevronRight,
+  columnsTwo: GridLayoutCols3,
   columnsThree: GridLayoutCols3,
 
   // Table
@@ -163,7 +156,7 @@ export const NodeTypeIcons = {
   tableArrowRight: ArrowRight,
   tableMerge: Merge,
   tableUngroup: Ungroup,
-  tableDelete: Trash2,
+  tableDelete: Trash,
   tableRemove: Xmark,
   tableMergeCells: Merge3,
   tableEraser: Eraser,
@@ -183,7 +176,7 @@ export const NodeTypeIcons = {
   loader: Loader,
 
   // Actions
-  ai: WandSparkle,
+  ai: PenSparkle,
   export: ArrowDownFromLine,
   import: ArrowUpFromLine,
   link: Link2,
@@ -200,14 +193,15 @@ export const NodeTypeIcons = {
   keyboard: Keyboard,
   subscript: Subscript,
   superscript: Superscript,
-  trash: Trash2,
+  trash: Trash,
   check: Check,
-  copy: Copy2,
+  copy: Copy,
+  duplicate: DuplicatePlus,
   formatCode: BracketsCurly,
   indent: IndentIncrease,
   outdent: IndentDecrease,
   download: Download,
-  turnInto: Pilcrow,
+  turnInto: ReplaceObjs,
 
   // Tools
   equation: Equation,
@@ -251,5 +245,5 @@ export const NodeTypeIcons = {
   // Navigation
   arrowLeft: ArrowLeft,
   arrowRight: ArrowRight,
-  close: Xmark
+  close: Xmark,
 } as const;

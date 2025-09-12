@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { PaintRoller } from '../icons/NucleoIconOutlined';
 import { ButtonDropdown } from './ButtonDropdown';
 
@@ -6,7 +6,7 @@ const meta: Meta<typeof ButtonDropdown> = {
   title: 'UI/Buttons/Button Dropdown',
   component: ButtonDropdown,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
   args: {
     dropdownProps: {
@@ -14,48 +14,48 @@ const meta: Meta<typeof ButtonDropdown> = {
       items: [
         {
           value: '1',
-          label: 'Item 1'
+          label: 'Item 1',
         },
         {
           value: '2',
           label: 'Item 2',
-          disabled: true
+          disabled: true,
         },
         {
           value: '3',
           label: 'Item 3',
-          icon: <PaintRoller />
-        }
-      ]
-    }
+          icon: <PaintRoller />,
+        },
+      ],
+    },
   },
   argTypes: {
     variant: {
       control: 'select',
-      options: ['default', 'black', 'primary', 'ghost', 'link']
+      options: ['default', 'black', 'primary', 'ghost', 'link'],
     },
     size: {
       control: 'select',
-      options: ['default', 'tall', 'small']
+      options: ['default', 'tall', 'small'],
     },
     disabled: {
       control: 'boolean',
-      defaultValue: false
+      defaultValue: false,
     },
     loading: {
       control: 'boolean',
-      defaultValue: false
+      defaultValue: false,
     },
     rounding: {
       control: 'select',
       defaultValue: 'default',
-      options: ['default', 'full', 'large', 'small', 'none']
+      options: ['default', 'full', 'large', 'small', 'none'],
     },
     dropdownProps: {
-      control: 'object'
-    }
+      control: 'object',
+    },
   },
-  tags: ['autodocs']
+  tags: ['autodocs'],
 };
 
 export default meta;
@@ -64,62 +64,62 @@ type Story = StoryObj<typeof ButtonDropdown>;
 export const Default: Story = {
   args: {
     buttonText: 'Button Text',
-    variant: 'default'
-  }
+    variant: 'default',
+  },
 };
 
 export const Primary: Story = {
   args: {
     buttonText: 'Primary Button',
-    variant: 'primary'
-  }
+    variant: 'primary',
+  },
 };
 
 export const Black: Story = {
   args: {
     buttonText: 'Black Button',
-    variant: 'black'
-  }
+    variant: 'black',
+  },
 };
 
 export const Ghost: Story = {
   args: {
     buttonText: 'Ghost Button',
-    variant: 'ghost'
-  }
+    variant: 'ghost',
+  },
 };
 
 export const Link: Story = {
   args: {
     buttonText: 'Link Button',
-    variant: 'link'
-  }
+    variant: 'link',
+  },
 };
 
 export const Tall: Story = {
   args: {
     buttonText: 'Tall Button',
-    size: 'tall'
-  }
+    size: 'tall',
+  },
 };
 
 export const Small: Story = {
   args: {
     buttonText: 'Small Button',
-    size: 'small'
-  }
+    size: 'small',
+  },
 };
 
 export const Disabled: Story = {
   args: {
     buttonText: 'Disabled Button',
-    disabled: true
-  }
+    disabled: true,
+  },
 };
 
 export const WithIcon: Story = {
   args: {
     buttonText: 'With Icon',
-    icon: <PaintRoller />
-  }
+    icon: <PaintRoller />,
+  },
 };

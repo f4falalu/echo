@@ -1,32 +1,36 @@
 {
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.formatOnSave": true,
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
+  "files.watcherExclude": {
+    "**/routeTree.gen.ts": true
   },
-  "[css]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  "search.exclude": {
+    "**/routeTree.gen.ts": true
+  },
+  "files.readonlyInclude": {
+    "**/routeTree.gen.ts": true
+  },
+  "editor.formatOnSave": true,
+  "[javascript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
   },
   "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "biomejs.biome"
   },
   "[jsonc]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "biomejs.biome"
   },
-
-  // TypeScript import preferences - prioritize path mapping
-  "typescript.preferences.importModuleSpecifier": "shortest",
-  "typescript.preferences.importModuleSpecifierEnding": "minimal",
-  "typescript.suggest.autoImports": true,
-  "typescript.suggest.includeAutomaticOptionalChainCompletions": true,
-  "typescript.preferences.includePackageJsonAutoImports": "auto",
-
-  // Prioritize absolute paths (path mapping) over relative imports
-  "typescript.suggest.includeCompletionsForImportStatements": true,
-  "typescript.suggest.includeCompletionsWithSnippetText": true,
-
-  // When multiple import options are available, prefer the shortest path
-  // This will prefer @/ over relative paths when both are available
-  "typescript.suggest.completeFunctionCalls": true,
-  "javascript.preferences.importModuleSpecifier": "project-relative"
+  "[css]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "editor.codeActionsOnSave": {
+    "source.organizeImports.biome": "always"
+  }
 }

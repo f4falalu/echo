@@ -1,558 +1,568 @@
 export const NodeTypeLabels = {
   metric: {
-    label: 'Metric',
+    label: 'Add existing metric',
     keyboard: undefined,
-    keywords: ['metric', 'chart', 'charts', 'graph', 'report']
+    keywords: ['metric', 'chart', 'charts', 'graph', 'report', 'existing', 'add existing metric'],
   },
   // Block types
   paragraph: {
     label: 'Text',
     keyboard: undefined,
-    keywords: ['paragraph']
+    keywords: ['paragraph'],
   },
   h1: {
     label: 'Heading 1',
     keyboard: undefined,
-    keywords: ['title', 'h1']
+    keywords: ['title', 'h1'],
   },
   h2: {
     label: 'Heading 2',
     keyboard: undefined,
-    keywords: ['subtitle', 'h2']
+    keywords: ['subtitle', 'h2'],
   },
   h3: {
     label: 'Heading 3',
     keyboard: undefined,
-    keywords: ['subtitle', 'h3']
+    keywords: ['subtitle', 'h3'],
   },
   h4: {
     label: 'Heading 4',
     keyboard: undefined,
-    keywords: ['subtitle', 'h4']
+    keywords: ['subtitle', 'h4'],
   },
   h5: {
     label: 'Heading 5',
     keyboard: undefined,
-    keywords: ['subtitle', 'h5']
+    keywords: ['subtitle', 'h5'],
   },
   h6: {
     label: 'Heading 6',
     keyboard: undefined,
-    keywords: ['subtitle', 'h6']
+    keywords: ['subtitle', 'h6'],
   },
   bulletedList: {
     label: 'Bulleted list',
     keyboard: undefined,
-    keywords: ['unordered', 'ul', '-']
+    keywords: ['unordered', 'ul', '-'],
   },
   numberedList: {
     label: 'Numbered list',
     keyboard: undefined,
-    keywords: ['ordered', 'ol', '1']
+    keywords: ['ordered', 'ol', '1'],
   },
   todoList: {
     label: 'To-do list',
     keyboard: undefined,
-    keywords: ['checklist', 'task', 'checkbox', '[]']
+    keywords: ['checklist', 'task', 'checkbox', '[]'],
   },
   toggleList: {
     label: 'Toggle list',
     keyboard: undefined,
-    keywords: ['collapsible', 'expandable']
+    keywords: ['collapsible', 'expandable'],
   },
   codeBlock: {
     label: 'Code',
     keyboard: undefined,
-    keywords: ['```']
+    keywords: ['```'],
   },
   blockquote: {
     label: 'Quote',
     keyboard: undefined,
-    keywords: ['citation', 'blockquote', '>']
+    keywords: ['citation', 'blockquote', '>'],
+  },
+  columnsTwo: {
+    label: '2 columns',
+    keyboard: undefined,
+    keywords: ['two', '2', 'columns', '2 columns'],
   },
   columnsThree: {
     label: '3 columns',
     keyboard: undefined,
-    keywords: ['three', '3', 'columns']
+    keywords: ['three', '3', 'columns', '3 columns'],
   },
 
   // Text formatting
   bold: {
     label: 'Bold',
     keyboard: '⌘+B',
-    keywords: []
+    keywords: [],
   },
   italic: {
     label: 'Italic',
     keyboard: '⌘+I',
-    keywords: []
+    keywords: [],
   },
   underline: {
     label: 'Underline',
     keyboard: '⌘+U',
-    keywords: []
+    keywords: [],
   },
   strikethrough: {
     label: 'Strikethrough',
     keyboard: '⌘+⇧+M',
-    keywords: []
+    keywords: [],
   },
   code: {
     label: 'Code',
     keyboard: '⌘+E',
-    keywords: []
+    keywords: [],
   },
   highlight: {
     label: 'Highlight',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   textColor: {
     label: 'Text color',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   backgroundColor: {
     label: 'Background color',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
 
   // Actions
   undo: {
     label: 'Undo',
     keyboard: '⌘+Z',
-    keywords: []
+    keywords: [],
   },
   redo: {
     label: 'Redo',
     keyboard: '⌘+⇧+Z',
-    keywords: []
+    keywords: [],
   },
   delete: {
     label: 'Delete',
     keyboard: '⌘+⌫',
-    keywords: []
+    keywords: [],
   },
   duplicate: {
     label: 'Duplicate',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   askAI: {
     label: 'Ask AI',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   link: {
     label: 'Link',
     keyboard: '⌘+K',
-    keywords: []
+    keywords: [],
   },
   formatCode: {
     label: 'Format code',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   copy: {
     label: 'Copy',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   plainText: {
     label: 'Plain text',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   searchLanguage: {
     label: 'Search language...',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   noLanguageFound: {
     label: 'No language found.',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
 
   // Structure
   turnInto: {
     label: 'Turn into',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   align: {
     label: 'Align',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   indentation: {
-    label: 'Indentation',
+    label: 'Indent',
     keyboard: undefined,
-    keywords: ['indent', 'outdent']
+    keywords: ['indent', 'outdent'],
   },
   insert: {
     label: 'Insert',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   indent: {
     label: 'Indent',
     keyboard: '⇥',
-    keywords: []
+    keywords: [],
   },
   outdent: {
     label: 'Outdent',
     keyboard: '⇧+⇥',
-    keywords: []
+    keywords: [],
   },
 
   // Tools
   table: {
     label: 'Table',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   emoji: {
     label: 'Emoji',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   equation: {
     label: 'Equation',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   addTexEquation: {
     label: 'Add a Tex equation',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   newEquation: {
     label: 'New equation',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   done: {
     label: 'Done',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   comment: {
     label: 'Comment',
     keyboard: '⌘+⇧+C',
-    keywords: []
+    keywords: [],
   },
 
   // Lists
   todo: {
     label: 'Todo',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   toggle: {
     label: 'Toggle',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
 
   // Media
   audio: {
     label: 'Audio',
     keyboard: undefined,
-    keywords: ['sound', 'mp3', 'wav', 'music']
+    keywords: ['sound', 'mp3', 'wav', 'music'],
   },
   video: {
     label: 'Video',
     keyboard: undefined,
-    keywords: ['mp4', 'movie', 'film']
+    keywords: ['mp4', 'movie', 'film'],
   },
   image: {
     label: 'Image',
     keyboard: undefined,
-    keywords: ['photo', 'picture', 'jpg', 'png', 'gif']
+    keywords: ['photo', 'picture', 'jpg', 'png', 'gif'],
   },
   file: {
     label: 'File',
     keyboard: undefined,
-    keywords: ['document', 'pdf', 'attachment']
+    keywords: ['document', 'pdf', 'attachment'],
   },
   insertAudio: {
     label: 'Insert Audio',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   insertVideo: {
     label: 'Insert Video',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   insertImage: {
     label: 'Insert Image',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   insertFile: {
     label: 'Insert File',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   uploadFromComputer: {
     label: 'Upload from computer',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   insertViaUrl: {
     label: 'Insert via URL',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   editLink: {
     label: 'Edit link',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   editMetric: {
     label: 'Edit metric',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
-  caption: {
-    label: 'Caption',
+  addCaption: {
+    label: 'Add caption',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
+  },
+  removeCaption: {
+    label: 'Remove caption',
+    keyboard: undefined,
+    keywords: [],
   },
   pasteEmbedLink: {
     label: 'Paste the embed link...',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   addAudioFile: {
     label: 'Add an audio file',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   addFile: {
     label: 'Add a file',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   addImage: {
     label: 'Add an image',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   addVideo: {
     label: 'Add a video',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   addMediaEmbed: {
     label: 'Add a media embed',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
 
   // Import/Export
   export: {
     label: 'Export',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   import: {
     label: 'Import',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   importFromHtml: {
     label: 'Import from HTML',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   importFromMarkdown: {
     label: 'Import from Markdown',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   exportAsHtml: {
     label: 'Export as HTML',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   exportAsPdf: {
     label: 'Export as PDF',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   exportAsImage: {
     label: 'Export as Image',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   exportAsMarkdown: {
     label: 'Export as Markdown',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   pdfExportedSuccessfully: {
     label: 'PDF exported successfully',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   failedToExportPdf: {
     label: 'Failed to export PDF',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   imageExportedSuccessfully: {
     label: 'Image exported successfully',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   failedToExportImage: {
     label: 'Failed to export image',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   htmlExportedSuccessfully: {
     label: 'HTML exported successfully',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   failedToExportHtml: {
     label: 'Failed to export HTML',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   markdownExportedSuccessfully: {
     label: 'Markdown exported successfully',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   failedToExportMarkdown: {
     label: 'Failed to export Markdown',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
 
   // Layout
   lineHeight: {
     label: 'Line height',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   fontSize: {
     label: 'Font size',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
 
   // Modes
   mode: {
     label: 'Editing mode',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   suggestion: {
     label: 'Suggestion edits',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   suggestionOff: {
     label: 'Turn off suggesting',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
 
   // More menu items
   keyboardInput: {
     label: 'Keyboard input',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   superscript: {
     label: 'Superscript',
     keyboard: '⌘+,',
-    keywords: []
+    keywords: [],
   },
   subscript: {
     label: 'Subscript',
     keyboard: '⌘+.',
-    keywords: []
+    keywords: [],
   },
 
   // AI
   ai: {
     label: 'AI commands',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   aiChat: {
     label: 'AI',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   callout: {
     label: 'Callout',
     keyboard: undefined,
-    keywords: ['note']
+    keywords: ['note'],
   },
 
   // More
   more: {
     label: 'More',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
 
   // Alignment options
   alignLeft: {
     label: 'Align left',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   alignCenter: {
     label: 'Align center',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   alignRight: {
     label: 'Align right',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   alignJustify: {
     label: 'Justify',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
 
   // Additional insert items
   divider: {
     label: 'Divider',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   embed: {
     label: 'Embed',
     keyboard: undefined,
-    keywords: []
+    keywords: [],
   },
   tableOfContents: {
     label: 'Table of contents',
     keyboard: undefined,
-    keywords: ['toc']
+    keywords: ['toc'],
   },
   date: {
     label: 'Date',
     keyboard: undefined,
-    keywords: ['time']
+    keywords: ['time'],
   },
   inlineEquation: {
     label: 'Inline Equation',
     keyboard: undefined,
-    keywords: []
-  }
+    keywords: [],
+  },
 } as const;
 
 // Group labels for menus
@@ -561,7 +571,7 @@ export const MenuGroupLabels = {
   lists: 'Lists',
   media: 'Media',
   advancedBlocks: 'Advanced blocks',
-  inline: 'Inline'
+  inline: 'Inline',
 } as const;
 
 export const createLabel = (type: keyof typeof NodeTypeLabels, includeKeyboard = true) => {
@@ -583,6 +593,6 @@ export const createMenuItem = (
     icon,
     label: config.label,
     keywords: config.keywords,
-    value
+    value,
   };
 };

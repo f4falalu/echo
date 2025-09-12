@@ -14,7 +14,11 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
+    const result = await runCreateTodosStep({
+      messages,
+      messageId: testMessageId,
+      shouldInjectUserPersonalizationTodo: false,
+    });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -34,7 +38,11 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
+    const result = await runCreateTodosStep({
+      messages,
+      messageId: testMessageId,
+      shouldInjectUserPersonalizationTodo: false,
+    });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -56,7 +64,11 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
+    const result = await runCreateTodosStep({
+      messages,
+      messageId: testMessageId,
+      shouldInjectUserPersonalizationTodo: false,
+    });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -75,7 +87,11 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
+    const result = await runCreateTodosStep({
+      messages,
+      messageId: testMessageId,
+      shouldInjectUserPersonalizationTodo: false,
+    });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -98,7 +114,11 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
+    const result = await runCreateTodosStep({
+      messages,
+      messageId: testMessageId,
+      shouldInjectUserPersonalizationTodo: false,
+    });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -117,7 +137,11 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
+    const result = await runCreateTodosStep({
+      messages,
+      messageId: testMessageId,
+      shouldInjectUserPersonalizationTodo: false,
+    });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -135,7 +159,11 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
+    const result = await runCreateTodosStep({
+      messages,
+      messageId: testMessageId,
+      shouldInjectUserPersonalizationTodo: false,
+    });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -155,7 +183,11 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
+    const result = await runCreateTodosStep({
+      messages,
+      messageId: testMessageId,
+      shouldInjectUserPersonalizationTodo: false,
+    });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -175,7 +207,11 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
+    const result = await runCreateTodosStep({
+      messages,
+      messageId: testMessageId,
+      shouldInjectUserPersonalizationTodo: false,
+    });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -194,7 +230,11 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
+    const result = await runCreateTodosStep({
+      messages,
+      messageId: testMessageId,
+      shouldInjectUserPersonalizationTodo: false,
+    });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -222,7 +262,11 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
+    const result = await runCreateTodosStep({
+      messages,
+      messageId: testMessageId,
+      shouldInjectUserPersonalizationTodo: false,
+    });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -248,7 +292,11 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
+    const result = await runCreateTodosStep({
+      messages,
+      messageId: testMessageId,
+      shouldInjectUserPersonalizationTodo: false,
+    });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -268,7 +316,11 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
+    const result = await runCreateTodosStep({
+      messages,
+      messageId: testMessageId,
+      shouldInjectUserPersonalizationTodo: false,
+    });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -287,7 +339,11 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
+    const result = await runCreateTodosStep({
+      messages,
+      messageId: testMessageId,
+      shouldInjectUserPersonalizationTodo: false,
+    });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -306,7 +362,11 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
+    const result = await runCreateTodosStep({
+      messages,
+      messageId: testMessageId,
+      shouldInjectUserPersonalizationTodo: false,
+    });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -325,7 +385,11 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
+    const result = await runCreateTodosStep({
+      messages,
+      messageId: testMessageId,
+      shouldInjectUserPersonalizationTodo: false,
+    });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -358,7 +422,11 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
+    const result = await runCreateTodosStep({
+      messages,
+      messageId: testMessageId,
+      shouldInjectUserPersonalizationTodo: false,
+    });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -377,7 +445,11 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
+    const result = await runCreateTodosStep({
+      messages,
+      messageId: testMessageId,
+      shouldInjectUserPersonalizationTodo: false,
+    });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -397,7 +469,11 @@ describe('create-todos-step integration', () => {
     ];
 
     // Even if internally aborted, should return valid structure
-    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
+    const result = await runCreateTodosStep({
+      messages,
+      messageId: testMessageId,
+      shouldInjectUserPersonalizationTodo: false,
+    });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -417,6 +493,7 @@ describe('create-todos-step integration', () => {
           },
         ],
         messageId: `${testMessageId}-${i}`,
+        shouldInjectUserPersonalizationTodo: false,
       })
     );
 

@@ -9,7 +9,7 @@ WORKDIR /app
 
 # Install pnpm and bun
 RUN corepack enable && corepack prepare pnpm@latest --activate
-RUN npm install -g bun@1.2.15
+RUN npm install -g bun@1.2.21
 
 # Copy only package files for dependency resolution
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
@@ -28,7 +28,7 @@ WORKDIR /app
 
 # Install pnpm and bun
 RUN corepack enable && corepack prepare pnpm@latest --activate
-RUN npm install -g bun@1.2.15
+RUN npm install -g bun@1.2.21
 
 # Set build environment
 ENV DOCKER_BUILD=true
@@ -57,7 +57,7 @@ RUN bun build src/index.ts --outdir ./dist --target bun --external pino-pretty &
 # ================================================================
 # Stage 3: Production Runtime
 # Minimal image with only what's needed to run
-FROM oven/bun:1.2.15-alpine AS runtime
+FROM oven/bun:1.2.21-alpine AS runtime
 WORKDIR /app
 
 # Set production environment

@@ -1,11 +1,11 @@
-import { AnimatePresence, motion, type MotionProps } from 'framer-motion';
-import Link from 'next/link';
+import { Link } from '@tanstack/react-router';
+import { AnimatePresence, type MotionProps, motion } from 'framer-motion';
 import React from 'react';
 import type { BusterChatMessageReasoning_pill, FileType } from '@/api/asset_interfaces/chat';
 import { Popover } from '@/components/ui/popover/Popover';
-import { useMemoizedFn } from '@/hooks';
-import { assetParamsToRoute } from '@/lib/assets';
+import { assetParamsToRoute } from '@/lib/assets/assetParamsToRoute';
 import { cn } from '@/lib/classMerge';
+import type { ILinkProps } from '@/types/routes';
 
 const duration = 0.25;
 const maxStaggerDuration = 0.12; // 800ms max total duration
@@ -14,8 +14,8 @@ const containerVariants: MotionProps['variants'] = {
   hidden: {
     opacity: 0,
     transition: {
-      opacity: { duration: duration * 0.5, ease: 'easeOut' }
-    }
+      opacity: { duration: duration * 0.5, ease: 'easeOut' },
+    },
   },
   visible: {
     opacity: 1,
@@ -24,22 +24,22 @@ const containerVariants: MotionProps['variants'] = {
       staggerChildren: maxStaggerDuration / 20, // Adjust stagger based on max duration
       delayChildren: 0,
       staggerDirection: 1,
-      when: 'beforeChildren'
-    }
-  }
+      when: 'beforeChildren',
+    },
+  },
 };
 
 const pillVariants: MotionProps['variants'] = {
   hidden: {
-    opacity: 0
+    opacity: 0,
   },
   visible: {
     opacity: 1,
     transition: {
       duration: duration * 0.85,
-      ease: 'easeOut'
-    }
-  }
+      ease: 'easeOut',
+    },
+  },
 };
 
 export const ReasoningMessagePills: React.FC<{
@@ -49,15 +49,15 @@ export const ReasoningMessagePills: React.FC<{
 }> = React.memo(({ pills = [], isStreamFinished, chatId }) => {
   const useAnimation = !isStreamFinished;
 
-  const makeHref = useMemoizedFn((pill: Pick<BusterChatMessageReasoning_pill, 'id' | 'type'>) => {
+  const makeHref = (pill: Pick<BusterChatMessageReasoning_pill, 'id' | 'type'>) => {
     const link = assetParamsToRoute({
-      chatId,
+      assetType: pill.type as FileType,
       assetId: pill.id,
-      type: pill.type as FileType
+      chatId,
     });
     if (link) return link;
-    return '';
-  });
+    return;
+  };
 
   return (
     <AnimatePresence initial={!isStreamFinished}>
@@ -65,11 +65,12 @@ export const ReasoningMessagePills: React.FC<{
         variants={containerVariants}
         initial="hidden"
         animate={pills.length > 0 ? 'visible' : 'hidden'}
-        className={'flex w-full flex-wrap gap-1.5 overflow-hidden'}>
+        className={'flex w-full flex-wrap gap-1.5 overflow-hidden'}
+      >
         {pills.map((pill) => (
-          <Link href={makeHref(pill)} key={pill.id} prefetch={true}>
+          <LinkWrapper linkProps={makeHref(pill)} key={pill.id}>
             <Pill useAnimation={useAnimation} {...pill} />
-          </Link>
+          </LinkWrapper>
         ))}
       </motion.div>
     </AnimatePresence>
@@ -95,7 +96,8 @@ const Pill: React.FC<{
           'text-text-secondary bg-item-active border-border hover:bg-item-hover-active flex h-[18px] min-h-[18px] items-center justify-center rounded-sm border px-1 text-xs whitespace-nowrap transition-all',
           !!onClick && 'cursor-pointer',
           className
-        )}>
+        )}
+      >
         {text}
       </motion.div>
     </AnimatePresence>
@@ -108,7 +110,6 @@ const OverflowPill = React.memo(
   ({
     hiddenPills,
     useAnimation,
-    onClickPill
   }: {
     hiddenPills: BusterChatMessageReasoning_pill[];
     useAnimation: boolean;
@@ -135,3 +136,11 @@ const OverflowPill = React.memo(
 );
 
 OverflowPill.displayName = 'OverflowPill';
+
+const LinkWrapper: React.FC<{
+  linkProps: ILinkProps | undefined;
+  children: React.ReactNode;
+}> = ({ linkProps, children }) => {
+  if (!linkProps) return <>{children}</>;
+  return <Link {...linkProps}>{children}</Link>;
+};

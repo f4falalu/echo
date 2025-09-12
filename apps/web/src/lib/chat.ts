@@ -8,6 +8,6 @@ export const updateChatToIChat = (
   const iChatMessages = messages;
   return {
     iChat,
-    iChatMessages
+    iChatMessages,
   };
 };

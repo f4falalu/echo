@@ -8,7 +8,10 @@ import {
   getBraintrustMetadata,
   getChatConversationHistory,
   getMessageContext,
+  getOrganizationAnalystDoc,
   getOrganizationDataSource,
+  getOrganizationDocs,
+  getUserPersonalization,
 } from '@buster/database';
 
 // Access control imports
@@ -242,7 +245,7 @@ export const analystAgentTask: ReturnType<
   >
 > = schemaTask({
   id: 'analyst-agent-task',
-  machine: 'small-2x',
+  machine: 'medium-1x',
   schema: AnalystAgentTaskInputSchema,
   queue: analystQueue,
   maxDuration: 1200, // 20 minutes for complex analysis
@@ -304,18 +307,44 @@ export const analystAgentTask: ReturnType<
         }
       });
 
+      // Fetch user personalization config
+      const userPersonalizationConfigPromise = messageContextPromise.then((context) =>
+        getUserPersonalization(context.userId)
+      );
+
       // Fetch Braintrust metadata in parallel
       const braintrustMetadataPromise = getBraintrustMetadata({ messageId: payload.message_id });
 
+      // Fetch analyst instructions in parallel
+      const analystInstructionsPromise = messageContextPromise.then((context) =>
+        getOrganizationAnalystDoc({ organizationId: context.organizationId })
+      );
+
+      // Fetch all organization docs (data catalog docs) in parallel
+      const organizationDocsPromise = messageContextPromise.then((context) =>
+        getOrganizationDocs({ organizationId: context.organizationId })
+      );
+
       // Wait for all operations to complete
-      const [messageContext, conversationHistory, dataSource, datasets, braintrustMetadata] =
-        await Promise.all([
-          messageContextPromise,
-          conversationHistoryPromise,
-          dataSourcePromise,
-          datasetsPromise,
-          braintrustMetadataPromise,
-        ]);
+      const [
+        messageContext,
+        conversationHistory,
+        dataSource,
+        datasets,
+        braintrustMetadata,
+        analystInstructions,
+        organizationDocs,
+        userPersonalizationConfig,
+      ] = await Promise.all([
+        messageContextPromise,
+        conversationHistoryPromise,
+        dataSourcePromise,
+        datasetsPromise,
+        braintrustMetadataPromise,
+        analystInstructionsPromise,
+        organizationDocsPromise,
+        userPersonalizationConfigPromise,
+      ]);
 
       const dataLoadEnd = Date.now();
       const dataLoadTime = dataLoadEnd - dataLoadStart;
@@ -332,8 +361,10 @@ export const analystAgentTask: ReturnType<
           id: d.id,
           name: d.name,
         })),
+        organizationDocsCount: organizationDocs.length,
         dataLoadTimeMs: dataLoadTime,
         braintrustMetadata, // Log the metadata to verify it's working
+        hasAnalystInstructions: !!analystInstructions,
       });
 
       // Log performance after data loading
@@ -355,12 +386,16 @@ export const analystAgentTask: ReturnType<
       const workflowInput: AnalystWorkflowInput = {
         messages: modelMessages,
         messageId: payload.message_id,
+        messageAnalysisMode: messageContext.messageAnalysisMode,
         chatId: messageContext.chatId,
         userId: messageContext.userId,
         organizationId: messageContext.organizationId,
         dataSourceId: dataSource.dataSourceId,
         dataSourceSyntax: dataSource.dataSourceSyntax,
         datasets,
+        analystInstructions: analystInstructions || undefined,
+        organizationDocs,
+        userPersonalizationConfig,
       };
 
       logger.log('Workflow input prepared', {

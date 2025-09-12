@@ -1,37 +1,39 @@
 import {
-  QueryClient,
+  type QueryClient,
   type UseQueryOptions,
   useMutation,
   useQuery,
-  useQueryClient
+  useQueryClient,
 } from '@tanstack/react-query';
 import last from 'lodash/last';
+import { create } from 'mutative';
 import { useMemo } from 'react';
+import type { BusterChatMessage } from '@/api/asset_interfaces/chat';
 import type { IBusterChat } from '@/api/asset_interfaces/chat/iChatInterfaces';
 import { chatQueryKeys } from '@/api/query_keys/chat';
 import { collectionQueryKeys } from '@/api/query_keys/collection';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { updateChatToIChat } from '@/lib/chat';
+import type { RustApiError } from '../../errors';
 import {
   useAddAssetToCollection,
-  useRemoveAssetFromCollection
+  useRemoveAssetFromCollection,
 } from '../collections/queryRequests';
-import type { RustApiError } from '../errors';
 import { prefetchGetMetricDataClient } from '../metrics/queryRequests';
 import { useGetUserFavorites } from '../users/favorites';
 import {
   deleteChat,
   duplicateChat,
   getChat,
-  getChat_server,
   getListChats,
-  getListChats_server,
   getListLogs,
+  shareChat,
+  unshareChat,
   updateChat,
-  updateChatMessageFeedback
+  updateChatMessageFeedback,
+  updateChatShare,
 } from './requests';
-import type { BusterChatMessage } from '@/api/asset_interfaces/chat';
 
 export const useGetListChats = (
   filters?: Omit<Parameters<typeof getListChats>[0], 'page_token' | 'page_size'>
@@ -41,23 +43,21 @@ export const useGetListChats = (
     [filters]
   );
 
-  const queryFn = useMemoizedFn(() => getListChats(filtersCompiled));
+  const queryFn = () => getListChats(filtersCompiled);
 
   return useQuery({
     ...chatQueryKeys.chatsGetList(filtersCompiled),
-    queryFn
+    queryFn,
   });
 };
 
 export const prefetchGetChatsList = async (
-  queryClientProp?: QueryClient,
+  queryClient: QueryClient,
   params?: Parameters<typeof getListChats>[0]
 ) => {
-  const queryClient = queryClientProp || new QueryClient();
-
   await queryClient.prefetchQuery({
     ...chatQueryKeys.chatsGetList(params),
-    queryFn: () => getListChats_server(params)
+    queryFn: () => getListChats(params),
   });
 
   return queryClient;
@@ -71,11 +71,51 @@ export const useGetListLogs = (
     [filters]
   );
 
-  const queryFn = useMemoizedFn(() => getListLogs(filtersCompiled));
+  const queryFn = () => getListLogs(filtersCompiled);
 
   return useQuery({
     ...chatQueryKeys.logsGetList(filtersCompiled),
-    queryFn
+    queryFn,
+  });
+};
+
+export const prefetchGetLogsList = async (
+  queryClient: QueryClient,
+  params?: Parameters<typeof getListLogs>[0]
+) => {
+  await queryClient.prefetchQuery({
+    ...chatQueryKeys.logsGetList(params),
+    queryFn: () => getListLogs(params),
+  });
+};
+
+const getChatQueryFn = (params: Parameters<typeof getChat>[0], queryClient: QueryClient) => {
+  return getChat(params).then((chat) => {
+    const { iChat, iChatMessages } = updateChatToIChat(chat);
+    const lastMessageId = last(iChat.message_ids);
+
+    if (!lastMessageId) return iChat;
+
+    const lastMessage = iChatMessages[lastMessageId];
+    if (lastMessage) {
+      for (const responseMessage of Object.values(lastMessage.response_messages)) {
+        if (responseMessage.type === 'file' && responseMessage.file_type === 'metric') {
+          prefetchGetMetricDataClient(
+            { id: responseMessage.id, version_number: responseMessage.version_number },
+            queryClient
+          );
+        }
+      }
+    }
+
+    for (const messageId of iChat.message_ids) {
+      queryClient.setQueryData(
+        chatQueryKeys.chatsMessages(messageId).queryKey,
+        iChatMessages[messageId]
+      );
+    }
+
+    return iChat;
   });
 };
 
@@ -84,76 +124,31 @@ export const useGetChat = <TData = IBusterChat>(
   options?: Omit<UseQueryOptions<IBusterChat, RustApiError, TData>, 'queryKey' | 'queryFn'>
 ) => {
   const queryClient = useQueryClient();
-  const queryFn = useMemoizedFn(() => {
-    return getChat(params).then((chat) => {
-      const { iChat, iChatMessages } = updateChatToIChat(chat);
-      const lastMessageId = last(iChat.message_ids);
-
-      if (!lastMessageId) return iChat;
-
-      const lastMessage = iChatMessages[lastMessageId];
-      if (lastMessage) {
-        for (const responseMessage of Object.values(lastMessage.response_messages)) {
-          if (responseMessage.type === 'file' && responseMessage.file_type === 'metric') {
-            prefetchGetMetricDataClient(
-              { id: responseMessage.id, version_number: responseMessage.version_number },
-              queryClient
-            );
-          }
-        }
-      }
-
-      for (const messageId of iChat.message_ids) {
-        queryClient.setQueryData(
-          chatQueryKeys.chatsMessages(messageId).queryKey,
-          iChatMessages[messageId]
-        );
-      }
-
-      return iChat;
-    });
-  });
 
   return useQuery({
     ...chatQueryKeys.chatsGetChat(params.id),
     enabled: !!params.id,
-    queryFn,
+    queryFn: () => getChatQueryFn(params, queryClient),
     select: options?.select,
     refetchOnWindowFocus: true,
-    ...options
+    ...options,
   });
-};
-
-export const prefetchGetChatServer = async (
-  params: Parameters<typeof getChat>[0],
-  queryClientProp?: QueryClient
-) => {
-  const queryClient = queryClientProp || new QueryClient();
-
-  await queryClient.prefetchQuery({
-    ...chatQueryKeys.chatsGetChat(params.id),
-    queryFn: async () => {
-      return await getChat_server(params).then((chat) => {
-        return updateChatToIChat(chat).iChat;
-      });
-    }
-  });
-
-  return queryClient;
 };
 
 export const prefetchGetChat = async (
   params: Parameters<typeof getChat>[0],
-  queryClientProp?: QueryClient
+  queryClient: QueryClient
 ) => {
-  const queryClient = queryClientProp || new QueryClient();
+  const query = chatQueryKeys.chatsGetChat(params.id);
+  const existingData = queryClient.getQueryData(query.queryKey);
 
-  await queryClient.prefetchQuery({
-    ...chatQueryKeys.chatsGetChat(params.id),
-    queryFn: () => getChat(params)
-  });
-
-  return queryClient;
+  if (!existingData) {
+    await queryClient.prefetchQuery({
+      ...query,
+      queryFn: () => getChatQueryFn(params, queryClient),
+    });
+  }
+  return existingData || queryClient.getQueryData(query.queryKey);
 };
 
 export const useUpdateChat = (params?: { updateToServer?: boolean }) => {
@@ -174,11 +169,11 @@ export const useUpdateChat = (params?: { updateToServer?: boolean }) => {
           if (!old) return old;
           return {
             ...old,
-            ...data
+            ...data,
           };
         });
       }
-    }
+    },
   });
 };
 
@@ -192,13 +187,10 @@ export const useUpdateChatMessageFeedback = () => {
         if (!old) return old;
         return {
           ...old,
-          feedback
+          feedback,
         };
       });
     },
-    onSuccess: (data) => {
-      //
-    }
   });
 };
 
@@ -209,7 +201,7 @@ export const useDeleteChat = () => {
   const mutationFn = useMemoizedFn(
     async ({
       useConfirmModal = true,
-      data
+      data,
     }: {
       data: Parameters<typeof deleteChat>[0];
       useConfirmModal?: boolean;
@@ -221,7 +213,7 @@ export const useDeleteChat = () => {
         return await openConfirmModal({
           title: 'Delete Chat',
           content: 'Are you sure you want to delete this chat?',
-          onOk: method
+          onOk: method,
         });
       }
       return method();
@@ -234,9 +226,9 @@ export const useDeleteChat = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: chatQueryKeys.chatsGetList().queryKey,
-        refetchType: 'all'
+        refetchType: 'all',
       });
-    }
+    },
   });
 };
 
@@ -272,13 +264,13 @@ export const useGetChatMessage = <TData = BusterChatMessage>(
     ...chatQueryKeys.chatsMessages(messageId),
     enabled: false, //this will come from the chat
     select: options?.select,
-    ...options
+    ...options,
   });
 };
 
 export const useDuplicateChat = () => {
   return useMutation({
-    mutationFn: duplicateChat
+    mutationFn: duplicateChat,
   });
 };
 
@@ -293,7 +285,7 @@ export const useSaveChatToCollections = () => {
         collectionIds.map((collectionId) =>
           addAssetToCollection({
             id: collectionId,
-            assets: chatIds.map((chatId) => ({ id: chatId, type: 'chat' }))
+            assets: chatIds.map((chatId) => ({ id: chatId, type: 'chat' })),
           })
         )
       );
@@ -311,9 +303,9 @@ export const useSaveChatToCollections = () => {
         queryKey: collectionIds.map(
           (id) => collectionQueryKeys.collectionsGetCollection(id).queryKey
         ),
-        refetchType: 'all'
+        refetchType: 'all',
       });
-    }
+    },
   });
 };
 
@@ -328,7 +320,7 @@ export const useRemoveChatFromCollections = () => {
         collectionIds.map((collectionId) =>
           removeAssetFromCollection({
             id: collectionId,
-            assets: chatIds.map((chatId) => ({ id: chatId, type: 'chat' }))
+            assets: chatIds.map((chatId) => ({ id: chatId, type: 'chat' })),
           })
         )
       );
@@ -347,8 +339,101 @@ export const useRemoveChatFromCollections = () => {
         queryKey: collectionIds.map(
           (id) => collectionQueryKeys.collectionsGetCollection(id).queryKey
         ),
-        refetchType: 'all'
+        refetchType: 'all',
       });
-    }
+    },
+  });
+};
+
+export const useShareChat = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: shareChat,
+    onMutate: ({ id, params }) => {
+      const queryKey = chatQueryKeys.chatsGetChat(id).queryKey;
+
+      queryClient.setQueryData(queryKey, (previousData: IBusterChat | undefined) => {
+        if (!previousData) return previousData;
+        return create(previousData, (draft: IBusterChat) => {
+          draft.individual_permissions = [
+            ...params.map((p) => ({
+              ...p,
+              name: p.name,
+              avatar_url: p.avatar_url || null,
+            })),
+            ...(draft.individual_permissions || []),
+          ].sort((a, b) => a.email.localeCompare(b.email));
+        });
+      });
+    },
+    onSuccess: (_, variables) => {
+      const partialMatchedKey = chatQueryKeys.chatsGetChat(variables.id).queryKey;
+      queryClient.invalidateQueries({
+        queryKey: partialMatchedKey,
+        refetchType: 'all',
+      });
+    },
+  });
+};
+
+export const useUnshareChat = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: unshareChat,
+    onMutate: (variables) => {
+      const queryKey = chatQueryKeys.chatsGetChat(variables.id).queryKey;
+      queryClient.setQueryData(queryKey, (previousData: IBusterChat | undefined) => {
+        if (!previousData) return previousData;
+        return create(previousData, (draft: IBusterChat) => {
+          draft.individual_permissions = (
+            draft.individual_permissions?.filter((t) => !variables.data.includes(t.email)) || []
+          ).sort((a, b) => a.email.localeCompare(b.email));
+        });
+      });
+    },
+    onSuccess: (_, variables) => {
+      const partialMatchedKey = chatQueryKeys.chatsGetChat(variables.id).queryKey;
+      queryClient.invalidateQueries({
+        queryKey: partialMatchedKey,
+        refetchType: 'all',
+      });
+    },
+  });
+};
+
+export const useUpdateChatShare = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateChatShare,
+    onMutate: (variables) => {
+      const queryKey = chatQueryKeys.chatsGetChat(variables.id).queryKey;
+      queryClient.setQueryData(queryKey, (previousData: IBusterChat | undefined) => {
+        if (!previousData) return previousData;
+        return create(previousData, (draft: IBusterChat) => {
+          draft.individual_permissions = (
+            draft.individual_permissions?.map((t) => {
+              const found = variables.params.users?.find((v) => v.email === t.email);
+              if (found) return { ...t, ...found };
+              return t;
+            }) || []
+          ).sort((a, b) => a.email.localeCompare(b.email));
+
+          if (variables.params.publicly_accessible !== undefined) {
+            draft.publicly_accessible = variables.params.publicly_accessible;
+          }
+          if (variables.params.public_password !== undefined) {
+            draft.public_password = variables.params.public_password;
+          }
+          if (variables.params.public_expiry_date !== undefined) {
+            draft.public_expiry_date = variables.params.public_expiry_date;
+          }
+        });
+      });
+    },
+    onSuccess: (data) => {
+      const upgradedChat = updateChatToIChat(data).iChat;
+      queryClient.setQueryData(chatQueryKeys.chatsGetChat(data.id).queryKey, upgradedChat);
+    },
   });
 };

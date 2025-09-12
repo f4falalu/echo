@@ -1,10 +1,6 @@
-'use client';
-
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/classMerge';
 import styles from './BusterLoadingStyles.module.css';
-
-import { useEffect, useRef, useState } from 'react';
 
 interface BusterLoadingLogoProps {
   className?: string;
@@ -23,7 +19,7 @@ export const BusterLoadingLogo = React.memo(function LogoLoadingAnimation({
   backgroundColor = '#E0E0E0',
   foregroundColor = 'black',
   isLoading = true,
-  style
+  style,
 }: BusterLoadingLogoProps) {
   const pathRef = useRef<SVGPathElement>(null);
   const [pathLength, setPathLength] = useState(2500); // fallback value
@@ -41,8 +37,9 @@ export const BusterLoadingLogo = React.memo(function LogoLoadingAnimation({
       width="486"
       height="486"
       viewBox="0 0 375 486"
-      className={cn('relative h-full w-full', className)}>
-      {/* Hidden reference path to measure length */}
+      className={cn('relative h-full w-full', className)}
+    >
+      <title>Buster Loading Logo</title>
       <path
         ref={pathRef}
         d={completePath}
@@ -78,7 +75,7 @@ export const BusterLoadingLogo = React.memo(function LogoLoadingAnimation({
             ? ({
                 '--path-length': pathLength,
                 strokeDasharray: pathLength,
-                strokeDashoffset: pathLength
+                strokeDashoffset: pathLength,
               } as React.CSSProperties & { '--path-length': number })
             : undefined
         }

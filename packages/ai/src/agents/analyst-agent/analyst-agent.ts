@@ -3,6 +3,7 @@ import { type ModelMessage, hasToolCall, stepCountIs, streamText } from 'ai';
 import { wrapTraced } from 'braintrust';
 import z from 'zod';
 import { Sonnet4 } from '../../llm';
+import { DEFAULT_ANTHROPIC_OPTIONS } from '../../llm/providers/gateway';
 import {
   createCreateDashboardsTool,
   createCreateMetricsTool,
@@ -25,14 +26,6 @@ import { getAnalystAgentSystemPrompt } from './get-analyst-agent-system-prompt';
 
 export const ANALYST_AGENT_NAME = 'analystAgent';
 
-const DEFAULT_CACHE_OPTIONS = {
-  anthropic: { cacheControl: { type: 'ephemeral', ttl: '1h' } },
-  openai: {
-    parallelToolCalls: false,
-    reasoningEffort: 'minimal',
-  },
-};
-
 const STOP_CONDITIONS = [stepCountIs(25), hasToolCall(DONE_TOOL_NAME)];
 
 export const AnalystAgentOptionsSchema = z.object({
@@ -44,6 +37,21 @@ export const AnalystAgentOptionsSchema = z.object({
   messageId: z.string(),
   datasets: z.array(z.custom<PermissionedDataset>()),
   workflowStartTime: z.number(),
+  analystInstructions: z.string().optional(),
+  organizationDocs: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        content: z.string(),
+        type: z.string(),
+        updatedAt: z.string(),
+      })
+    )
+    .optional(),
+  userPersonalizationMessageContent: z
+    .string()
+    .describe('Custom user personalization in message content'),
 });
 
 export const AnalystStreamOptionsSchema = z.object({
@@ -56,27 +64,43 @@ export type AnalystAgentOptions = z.infer<typeof AnalystAgentOptionsSchema>;
 export type AnalystStreamOptions = z.infer<typeof AnalystStreamOptionsSchema>;
 
 export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
-  const { datasets } = analystAgentOptions;
+  const { datasets, analystInstructions, organizationDocs, userPersonalizationMessageContent } =
+    analystAgentOptions;
 
   const systemMessage = {
     role: 'system',
     content: getAnalystAgentSystemPrompt(analystAgentOptions.dataSourceSyntax),
-    providerOptions: DEFAULT_CACHE_OPTIONS,
+    providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
   } as ModelMessage;
 
   // Create second system message with datasets information
   const datasetsContent = datasets
     .filter((d) => d.ymlContent)
+    .sort((a, b) => a.name.localeCompare(b.name)) // Sort by name for consistency
     .map((d) => d.ymlContent)
     .join('\n\n');
 
   const datasetsSystemMessage = {
     role: 'system',
     content: datasetsContent
-      ? `<database_context>\n${datasetsContent}\n</database_context>`
-      : '<database_context>\nNo datasets available\n</database_context>',
-    providerOptions: DEFAULT_CACHE_OPTIONS,
+      ? `<datasets>\n${datasetsContent}\n</datasets>`
+      : '<datasets>\nNo datasets available\n</datasets>',
+    providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
   } as ModelMessage;
+
+  // Create third system message with data catalog docs
+  const docsContent = organizationDocs
+    ?.sort((a, b) => a.name.localeCompare(b.name)) // Sort by name for consistency
+    .map((doc) => `# ${doc.name}\n\n${doc.content}`)
+    .join('\n\n---\n\n');
+
+  const docsSystemMessage = docsContent
+    ? ({
+        role: 'system',
+        content: `<data_catalog_docs>\n${docsContent}\n</data_catalog_docs>`,
+        providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
+      } as ModelMessage)
+    : null;
 
   async function stream({ messages }: AnalystStreamOptions) {
     const createMetrics = createCreateMetricsTool(analystAgentOptions);
@@ -102,10 +126,33 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
       availableTools,
     };
 
+    // Create analyst instructions system message with proper escaping
+    const analystInstructionsMessage = analystInstructions
+      ? ({
+          role: 'system',
+          content: `<organization_instructions>\n${analystInstructions}\n</organization_instructions>`,
+          providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
+        } as ModelMessage)
+      : null;
+
+    // Create user personalization system message
+    const userPersonalizationSystemMessage = userPersonalizationMessageContent
+      ? ({
+          role: 'system',
+          content: userPersonalizationMessageContent,
+          providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
+        } as ModelMessage)
+      : null;
+
     return wrapTraced(
       () =>
         streamText({
           model: Sonnet4,
+          providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
+          headers: {
+            'anthropic-beta': 'fine-grained-tool-streaming-2025-05-14,context-1m-2025-08-07',
+            anthropic_beta: 'fine-grained-tool-streaming-2025-05-14,context-1m-2025-08-07',
+          },
           tools: {
             [CREATE_METRICS_TOOL_NAME]: createMetrics,
             [MODIFY_METRICS_TOOL_NAME]: modifyMetrics,
@@ -115,7 +162,14 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
             [MODIFY_REPORTS_TOOL_NAME]: modifyReports,
             [DONE_TOOL_NAME]: doneTool,
           },
-          messages: [systemMessage, datasetsSystemMessage, ...messages],
+          messages: [
+            systemMessage,
+            datasetsSystemMessage,
+            ...(docsSystemMessage ? [docsSystemMessage] : []),
+            ...(analystInstructionsMessage ? [analystInstructionsMessage] : []),
+            ...(userPersonalizationSystemMessage ? [userPersonalizationSystemMessage] : []),
+            ...messages,
+          ],
           stopWhen: STOP_CONDITIONS,
           toolChoice: 'required',
           maxOutputTokens: 25000,

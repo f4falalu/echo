@@ -1,15 +1,13 @@
-'use client';
-
-import { type Value } from 'platejs';
-import { useEditorRef, usePlateEditor, type TPlateEditor } from 'platejs/react';
+import type { ReportElementWithId } from '@buster/server-shared/reports';
+import type { Value } from 'platejs';
+import { type TPlateEditor, useEditorRef, usePlateEditor } from 'platejs/react';
 import { useEffect, useMemo, useRef } from 'react';
+import { useThrottleFn } from '@/hooks/useThrottleFn';
 import { EditorKit } from './editor-kit';
 import { FIXED_TOOLBAR_KIT_KEY } from './plugins/fixed-toolbar-kit';
 import { GlobalVariablePlugin } from './plugins/global-variable-kit';
-import { StreamContentPlugin } from './plugins/stream-content-plugin';
-import { useThrottleFn } from '@/hooks';
 import { markdownToPlatejs } from './plugins/markdown-kit/platejs-conversions';
-import type { ReportElementWithId } from '@buster/server-shared/reports';
+import { StreamContentPlugin } from './plugins/stream-content-plugin';
 
 export const useReportEditor = ({
   value,
@@ -17,7 +15,8 @@ export const useReportEditor = ({
   mode = 'default',
   readOnly,
   useFixedToolbarKit = false,
-  initialElements
+  initialElements,
+  containerRef,
 }: {
   value: string | undefined; //markdown
   initialElements?: Value | ReportElementWithId[];
@@ -25,6 +24,7 @@ export const useReportEditor = ({
   useFixedToolbarKit?: boolean;
   isStreaming: boolean;
   mode?: 'export' | 'default';
+  containerRef?: React.RefObject<HTMLDivElement | null>;
 }) => {
   const plugins = useMemo(() => {
     const filteredKeys: string[] = [];
@@ -33,17 +33,17 @@ export const useReportEditor = ({
     }
 
     return [
-      ...EditorKit,
+      ...EditorKit({ containerRef }),
       GlobalVariablePlugin.configure({
-        options: { mode }
-      })
+        options: { mode },
+      }),
     ].filter((p) => !filteredKeys.includes(p.key));
   }, []);
 
   const editor = usePlateEditor({
     plugins,
     value: initialElements,
-    readOnly: readOnly //this is for the initial value
+    readOnly: readOnly, //this is for the initial value
   });
 
   useEditorServerUpdates({ editor, value, isStreaming });
@@ -51,7 +51,7 @@ export const useReportEditor = ({
   return editor;
 };
 
-export type ReportEditor = TPlateEditor<Value, (typeof EditorKit)[number]>;
+export type ReportEditor = TPlateEditor<Value, ReturnType<typeof EditorKit>[number]>;
 
 export const useEditor = () => useEditorRef<ReportEditor>();
 
@@ -68,7 +68,7 @@ const numberOfUpdatesPerSecond = 1000 / 24;
 const useEditorServerUpdates = ({
   editor,
   value = '',
-  isStreaming
+  isStreaming,
 }: {
   editor: ReportEditor;
   value: string | undefined;
@@ -79,6 +79,7 @@ const useEditorServerUpdates = ({
   const { run: throttleStreamUpdate } = useThrottleFn(
     (v: string) => {
       const streamContentPlugin = editor.getPlugin(StreamContentPlugin);
+
       streamContentPlugin.api.streamContent.start();
       markdownToPlatejs(editor, v).then((elements) => {
         streamContentPlugin.api.streamContent.streamFull(elements);

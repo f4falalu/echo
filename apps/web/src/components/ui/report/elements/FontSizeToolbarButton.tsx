@@ -1,26 +1,21 @@
-'use client';
-
-import * as React from 'react';
-
-import type { TElement } from 'platejs';
-
 import { toUnitLess } from '@platejs/basic-styles';
 import { FontSizePlugin } from '@platejs/basic-styles/react';
-import { Minus, Plus } from '@/components/ui/icons';
+import type { TElement } from 'platejs';
 import { KEYS } from 'platejs';
 import { useEditorPlugin, useEditorSelector } from 'platejs/react';
+import * as React from 'react';
+import { Minus, Plus } from '@/components/ui/icons';
 
 import { PopoverBase, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
+import { cn } from '@/lib/utils';
 
 const DEFAULT_FONT_SIZE = '16';
 
 const FONT_SIZE_MAP = {
   h1: '36',
   h2: '24',
-  h3: '20'
+  h3: '20',
 } as const;
 
 const FONT_SIZES = [
@@ -37,7 +32,7 @@ const FONT_SIZES = [
   '48',
   '60',
   '72',
-  '96'
+  '96',
 ] as const;
 
 export function FontSizeToolbarButton() {
@@ -85,7 +80,7 @@ export function FontSizeToolbarButton() {
   const displayValue = isFocused ? inputValue : cursorFontSize;
 
   return (
-    <div className="bg-muted/60 flex h-7 items-center gap-1 rounded-md p-0">
+    <div className="bg-muted/60 flex h-7 items-center gap-1 rounded p-0">
       <ToolbarButton onClick={() => handleFontSizeChange(-1)}>
         <Minus />
       </ToolbarButton>
@@ -128,7 +123,8 @@ export function FontSizeToolbarButton() {
                 setIsFocused(false);
               }}
               data-highlighted={size === displayValue}
-              type="button">
+              type="button"
+            >
               {size}
             </button>
           ))}

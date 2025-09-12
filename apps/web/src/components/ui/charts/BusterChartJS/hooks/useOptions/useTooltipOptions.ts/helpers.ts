@@ -1,6 +1,6 @@
-import { formatLabel } from '@/lib/columnFormatter';
 import { type ColumnLabelFormat, DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
 import type { Chart } from 'chart.js';
+import { formatLabel } from '@/lib/columnFormatter';
 import type { BusterChartProps } from '../../../../BusterChart.types';
 
 export const getPercentage = (
@@ -57,7 +57,7 @@ export const percentageFormatter = (
   if (!isPercentage) {
     columnLabelFormat = {
       style: 'percent',
-      columnType: 'number'
+      columnType: 'number',
     };
   }
   return formatLabel(percentage, columnLabelFormat, false);

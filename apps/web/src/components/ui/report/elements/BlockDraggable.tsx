@@ -1,30 +1,27 @@
-'use client';
-
-import * as React from 'react';
+/** biome-ignore-all lint/style/noNonNullAssertion: too lazy right now will revisit later */
 
 import { DndPlugin, useDraggable, useDropLine } from '@platejs/dnd';
 import { expandListItemsWithChildren } from '@platejs/list';
 import { BlockSelectionPlugin } from '@platejs/selection/react';
-import { type Path, type TElement, getPluginByType, isType, KEYS } from 'platejs';
-import { Plus } from '@/components/ui/icons';
-import { NodeTypeIcons } from '../config/icons';
+import { getPluginByType, isType, KEYS, type Path, type TElement } from 'platejs';
 import {
+  MemoizedChildren,
   type PlateEditor,
   type PlateElementProps,
   type RenderNodeWrapper,
-  MemoizedChildren,
   useEditorRef,
   useElement,
-  usePath,
-  usePluginOption
+  usePluginOption,
+  useSelected,
 } from 'platejs/react';
-import { useSelected } from 'platejs/react';
-
+import * as React from 'react';
 import { Button } from '@/components/ui/buttons';
+import { Plus } from '@/components/ui/icons';
 import { Tooltip } from '@/components/ui/tooltip';
-import { cn } from '@/lib/utils';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
-import { insertBlock } from './transforms';
+import { cn } from '@/lib/utils';
+import { NodeTypeIcons } from '../config/icons';
+import { insertSlashBelow } from '../helpers/slash';
 
 const UNDRAGGABLE_KEYS = [KEYS.column, KEYS.tr, KEYS.td];
 
@@ -41,8 +38,8 @@ export const BlockDraggable: RenderNodeWrapper = (props) => {
       const block = editor.api.some({
         at: path,
         match: {
-          type: editor.getType(KEYS.column)
-        }
+          type: editor.getType(KEYS.column),
+        },
       });
 
       if (block) {
@@ -53,8 +50,8 @@ export const BlockDraggable: RenderNodeWrapper = (props) => {
       const block = editor.api.some({
         at: path,
         match: {
-          type: editor.getType(KEYS.table)
-        }
+          type: editor.getType(KEYS.table),
+        },
       });
 
       if (block) {
@@ -75,6 +72,8 @@ export const BlockDraggable: RenderNodeWrapper = (props) => {
 function Draggable(props: PlateElementProps) {
   const { children, editor, element, path } = props;
   const blockSelectionApi = editor.getApi(BlockSelectionPlugin).blockSelection;
+  const [previewTop, setPreviewTop] = React.useState(0);
+  const [dragButtonTop, setDragButtonTop] = React.useState(0);
 
   const { isAboutToDrag, isDragging, nodeRef, previewRef, handleRef } = useDraggable({
     element,
@@ -85,14 +84,19 @@ function Draggable(props: PlateElementProps) {
         blockSelectionApi.add(id);
       }
       resetPreview();
-    }
+    },
   });
 
   const isInColumn = path.length === 3;
   const isInTable = path.length === 4;
   const showAddNewBlockButton = !isInColumn && !isInTable;
 
-  const [previewTop, setPreviewTop] = React.useState(0);
+  const dragOffset = React.useMemo(() => {
+    if (element.type === 'h1') return dragButtonTop + 4;
+    if (element.type === 'h2') return dragButtonTop + 2;
+    if (element.type === 'h3') return dragButtonTop + 1;
+    return dragButtonTop;
+  }, [dragButtonTop, element.type]);
 
   const resetPreview = () => {
     if (previewRef.current) {
@@ -113,32 +117,31 @@ function Draggable(props: PlateElementProps) {
     if (isAboutToDrag) {
       previewRef.current?.classList.remove('opacity-0');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAboutToDrag]);
-
-  const [dragButtonTop, setDragButtonTop] = React.useState(0);
 
   return (
     <div
       className={cn(
         'relative',
         isDragging && 'opacity-50',
-        getPluginByType(editor, element.type)?.node.isContainer ? 'group/container' : 'group'
+        getPluginByType(editor, element.type)?.node.isContainer ? 'group/container' : 'group/block'
       )}
       onMouseEnter={() => {
         if (isDragging) return;
         setDragButtonTop(calcDragButtonTop(editor, element));
-      }}>
+      }}
+    >
       {!isInTable && (
         <Gutter>
           <div className={cn('slate-blockToolbarWrapper flex', isInColumn && 'h-4')}>
             <div
               className={cn(
-                'slate-blockToolbar pointer-events-auto relative mr-1 flex w-13 items-center justify-center space-x-0.5',
+                'slate-blockToolbar pointer-events-auto mr-1 flex w-13 items-center justify-center space-x-0.5',
                 isInColumn && 'mr-1.5 w-8!',
                 'mr-1 flex items-center'
-              )}>
-              <div className="absolute top-0 left-0" style={{ top: `${dragButtonTop + 6}px` }}>
+              )}
+            >
+              <div className="absolute top-0 left-0" style={{ top: `${dragOffset}px` }}>
                 {showAddNewBlockButton && (
                   <AddNewBlockButton isDragging={isDragging} element={element} editor={editor} />
                 )}
@@ -180,7 +183,8 @@ function Draggable(props: PlateElementProps) {
         )}
         onContextMenu={(event) =>
           editor.getApi(BlockSelectionPlugin).blockSelection.addOnContextMenu({ element, event })
-        }>
+        }
+      >
         <MemoizedChildren>{children}</MemoizedChildren>
         <DropLine />
       </div>
@@ -202,12 +206,13 @@ function Gutter({ children, className, ...props }: React.ComponentProps<'div'>) 
         'absolute top-0 z-50 flex -translate-x-full cursor-text hover:opacity-100 sm:opacity-0',
         getPluginByType(editor, element.type)?.node.isContainer
           ? 'group-hover/container:opacity-100'
-          : 'group-hover:opacity-100',
+          : 'group-hover/block:opacity-100',
         isSelectionAreaVisible && 'hidden',
         !selected && 'opacity-0',
         className
       )}
-      contentEditable={false}>
+      contentEditable={false}
+    >
       {children}
     </div>
   );
@@ -218,7 +223,7 @@ const DragHandle = function DragHandle({
   previewRef,
   isColumn,
   resetPreview,
-  setPreviewTop
+  setPreviewTop,
 }: {
   isDragging: boolean;
   isColumn: boolean;
@@ -241,12 +246,14 @@ const DragHandle = function DragHandle({
           if (e.button !== 0 || e.shiftKey) return; // Only left mouse button
 
           const elements = createDragPreviewElements(editor, {
-            currentBlock: element
+            currentBlock: element,
           });
           previewRef.current?.append(...elements);
           previewRef.current?.classList.remove('hidden');
           previewRef.current?.classList.add('opacity-0');
           editor.setOption(DndPlugin, 'multiplePreviewRef', previewRef);
+
+          //  startDragAutoScroll();
         }}
         onMouseEnter={() => {
           if (isDragging) return;
@@ -271,7 +278,7 @@ const DragHandle = function DragHandle({
           if (ids.length > 1 && ids.includes(element.id as string)) {
             const previewTop = calculatePreviewTop(editor, {
               blocks: processedBlocks.map((block) => block[0]),
-              element
+              element,
             });
             setPreviewTop(previewTop);
           } else {
@@ -281,7 +288,7 @@ const DragHandle = function DragHandle({
         onMouseUp={() => {
           resetPreview();
         }}
-        role="button">
+      >
         <div className="text-muted-foreground flex items-center justify-center">
           <NodeTypeIcons.gripVertical />
         </div>
@@ -422,6 +429,7 @@ const createDragPreviewElements = (
     elements.push(wrapper);
   };
 
+  // biome-ignore lint/suspicious/useIterableCallbackReturn: TODO look into this
   sortedNodes.forEach((node, index) => resolveElement(node, index));
 
   editor.setOption(DndPlugin, 'draggingId', ids);
@@ -433,7 +441,7 @@ const calculatePreviewTop = (
   editor: PlateEditor,
   {
     blocks,
-    element
+    element,
   }: {
     blocks: TElement[];
     element: TElement;
@@ -472,10 +480,8 @@ const calculatePreviewTop = (
 
 const calcDragButtonTop = (editor: PlateEditor, element: TElement): number => {
   const child = editor.api.toDOMNode(element)!;
-
   const currentMarginTopString = window.getComputedStyle(child).marginTop;
   const currentMarginTop = Number(currentMarginTopString.replace('px', ''));
-
   return currentMarginTop;
 };
 
@@ -484,7 +490,7 @@ const AddNewBlockButton = function AddNewBlockButton({
   className,
   isDragging,
   element,
-  editor
+  editor,
 }: {
   style?: React.CSSProperties;
   className?: string;
@@ -492,8 +498,8 @@ const AddNewBlockButton = function AddNewBlockButton({
   element: TElement;
   editor: PlateEditor;
 }) {
-  const handleClick = useMemoizedFn((event: React.MouseEvent) => {
-    // Find the current path of this element dynamically at click time
+  const handleClick = useMemoizedFn((_event: React.MouseEvent) => {
+    // // Find the current path of this element dynamically at click time
     const currentPath = editor.api.findPath(element);
 
     if (!currentPath) {
@@ -501,14 +507,11 @@ const AddNewBlockButton = function AddNewBlockButton({
       return;
     }
 
-    // Focus the editor first
+    // // Focus the editor first
     editor.tf.focus();
-
-    // Select the current block to ensure proper context - use dynamically found path
     editor.tf.select(currentPath);
 
-    // Use the insertBlock function which handles positioning automatically
-    insertBlock(editor, KEYS.p);
+    insertSlashBelow(editor, 'Type to filter...', currentPath);
   });
 
   return (

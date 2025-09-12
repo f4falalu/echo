@@ -1,27 +1,22 @@
-'use client';
-
-import * as React from 'react';
-
 import { ListStyleType, someList, toggleList } from '@platejs/list';
 import { useIndentTodoToolBarButton, useIndentTodoToolBarButtonState } from '@platejs/list/react';
-import { NodeTypeIcons } from '../config/icons';
-import { createLabel } from '../config/labels';
 import { useEditorRef, useEditorSelector } from 'platejs/react';
-
+import * as React from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-
 import {
   ToolbarButton,
   ToolbarSplitButton,
   ToolbarSplitButtonPrimary,
-  ToolbarSplitButtonSecondary
+  ToolbarSplitButtonSecondary,
 } from '@/components/ui/toolbar/Toolbar';
+import { NodeTypeIcons } from '../config/icons';
+import { createLabel } from '../config/labels';
 
 export function BulletedListToolbarButton() {
   const editor = useEditorRef();
@@ -38,10 +33,11 @@ export function BulletedListToolbarButton() {
         className="data-[state=on]:bg-accent data-[state=on]:text-accent-foreground"
         onClick={() => {
           toggleList(editor, {
-            listStyleType: ListStyleType.Disc
+            listStyleType: ListStyleType.Disc,
           });
         }}
-        data-state={pressed ? 'on' : 'off'}>
+        data-state={pressed ? 'on' : 'off'}
+      >
         <div className="size-4">
           <NodeTypeIcons.bulletedList />
         </div>
@@ -57,9 +53,10 @@ export function BulletedListToolbarButton() {
             <DropdownMenuItem
               onClick={() =>
                 toggleList(editor, {
-                  listStyleType: ListStyleType.Disc
+                  listStyleType: ListStyleType.Disc,
                 })
-              }>
+              }
+            >
               <div className="flex items-center gap-2">
                 <div className="size-2 rounded-full border border-current bg-current" />
                 Default
@@ -68,9 +65,10 @@ export function BulletedListToolbarButton() {
             <DropdownMenuItem
               onClick={() =>
                 toggleList(editor, {
-                  listStyleType: ListStyleType.Circle
+                  listStyleType: ListStyleType.Circle,
                 })
-              }>
+              }
+            >
               <div className="flex items-center gap-2">
                 <div className="size-2 rounded-full border border-current" />
                 Circle
@@ -79,9 +77,10 @@ export function BulletedListToolbarButton() {
             <DropdownMenuItem
               onClick={() =>
                 toggleList(editor, {
-                  listStyleType: ListStyleType.Square
+                  listStyleType: ListStyleType.Square,
                 })
-              }>
+              }
+            >
               <div className="flex items-center gap-2">
                 <div className="size-2 border border-current bg-current" />
                 Square
@@ -105,7 +104,7 @@ export function NumberedListToolbarButton() {
         ListStyleType.LowerAlpha,
         ListStyleType.UpperAlpha,
         ListStyleType.LowerRoman,
-        ListStyleType.UpperRoman
+        ListStyleType.UpperRoman,
       ]),
     []
   );
@@ -116,10 +115,11 @@ export function NumberedListToolbarButton() {
         className="data-[state=on]:bg-accent data-[state=on]:text-accent-foreground"
         onClick={() =>
           toggleList(editor, {
-            listStyleType: ListStyleType.Decimal
+            listStyleType: ListStyleType.Decimal,
           })
         }
-        data-state={pressed ? 'on' : 'off'}>
+        data-state={pressed ? 'on' : 'off'}
+      >
         <div className="size-4">
           <NodeTypeIcons.numberedList />
         </div>
@@ -135,41 +135,46 @@ export function NumberedListToolbarButton() {
             <DropdownMenuItem
               onSelect={() =>
                 toggleList(editor, {
-                  listStyleType: ListStyleType.Decimal
+                  listStyleType: ListStyleType.Decimal,
                 })
-              }>
+              }
+            >
               Decimal (1, 2, 3)
             </DropdownMenuItem>
             <DropdownMenuItem
               onSelect={() =>
                 toggleList(editor, {
-                  listStyleType: ListStyleType.LowerAlpha
+                  listStyleType: ListStyleType.LowerAlpha,
                 })
-              }>
+              }
+            >
               Lower Alpha (a, b, c)
             </DropdownMenuItem>
             <DropdownMenuItem
               onSelect={() =>
                 toggleList(editor, {
-                  listStyleType: ListStyleType.UpperAlpha
+                  listStyleType: ListStyleType.UpperAlpha,
                 })
-              }>
+              }
+            >
               Upper Alpha (A, B, C)
             </DropdownMenuItem>
             <DropdownMenuItem
               onSelect={() =>
                 toggleList(editor, {
-                  listStyleType: ListStyleType.LowerRoman
+                  listStyleType: ListStyleType.LowerRoman,
                 })
-              }>
+              }
+            >
               Lower Roman (i, ii, iii)
             </DropdownMenuItem>
             <DropdownMenuItem
               onSelect={() =>
                 toggleList(editor, {
-                  listStyleType: ListStyleType.UpperRoman
+                  listStyleType: ListStyleType.UpperRoman,
                 })
-              }>
+              }
+            >
               Upper Roman (I, II, III)
             </DropdownMenuItem>
           </DropdownMenuGroup>

@@ -1,15 +1,12 @@
-'use client';
-
-import { useTheme } from 'next-themes';
 import type React from 'react';
 import { Toaster as ToasterSonner } from 'sonner';
-import { CircleCheck, CircleWarning, CircleXmark } from '@/components/ui/icons/NucleoIconFilled';
+import CircleCheck from '../icons/NucleoIconOutlined/circle-check';
+import CircleWarning from '../icons/NucleoIconOutlined/circle-warning';
+import CircleXmark from '../icons/NucleoIconOutlined/circle-xmark';
 
 type ToasterProps = React.ComponentProps<typeof ToasterSonner>;
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = 'system' } = useTheme();
-
   return (
     <ToasterSonner
       position="bottom-right"
@@ -19,10 +16,10 @@ const Toaster = ({ ...props }: ToasterProps) => {
       icons={{
         success: <CircleCheck />,
         error: <CircleXmark />,
-        warning: <CircleWarning />
+        warning: <CircleWarning />,
       }}
       swipeDirections={['right']}
-      theme={theme as ToasterProps['theme']}
+      theme={'light'}
       className="toaster group"
       toastOptions={{
         classNames: {
@@ -31,8 +28,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
           description: 'group-[.toast]:text-gray-light',
           actionButton: 'group-[.toast]:bg-primary group-[.toast]:text-primary-foreground',
           cancelButton: 'group-[.toast]:bg-border group-[.toast]:text-foreground',
-          icon: 'mx-0! !flex !justify-center'
-        }
+          icon: 'mx-0! !flex !justify-center',
+        },
       }}
       {...props}
     />

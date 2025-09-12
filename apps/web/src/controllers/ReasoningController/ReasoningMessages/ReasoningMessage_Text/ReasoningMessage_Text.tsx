@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import type {
   BusterChatMessage,
-  BusterChatMessageReasoning_text
+  BusterChatMessageReasoning_text,
 } from '@/api/asset_interfaces/chat';
 import { useGetChatMessage } from '@/api/buster_rest/chats';
 import AppMarkdownStreaming from '@/components/ui/streaming/AppMarkdownStreaming/AppMarkdownStreaming';
@@ -15,7 +15,7 @@ export const ReasoningMessage_Text: React.FC<ReasoningMessageProps> = React.memo
           (x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_text)?.message,
         [reasoningMessageId]
       ),
-      notifyOnChangeProps: ['data']
+      notifyOnChangeProps: ['data'],
     });
 
     if (!message) return null;

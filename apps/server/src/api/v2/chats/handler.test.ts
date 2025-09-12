@@ -84,6 +84,13 @@ describe('createChatHandler', () => {
     created_by_name: 'Test User',
     created_by_avatar: null,
     publicly_accessible: false,
+    public_expiry_date: null,
+    public_enabled_by: null,
+    public_password: null,
+    permission: 'owner',
+    workspace_sharing: 'full_access',
+    workspace_member_count: 0,
+    individual_permissions: [],
   };
 
   beforeEach(() => {
@@ -105,7 +112,7 @@ describe('createChatHandler', () => {
     const result = await createChatHandler({ prompt: 'Hello' }, mockUser);
 
     expect(initializeChat).toHaveBeenCalledWith(
-      { prompt: 'Hello' },
+      { prompt: 'Hello', message_analysis_mode: 'auto' },
       mockUser,
       '550e8400-e29b-41d4-a716-446655440000'
     );
@@ -257,7 +264,12 @@ describe('createChatHandler', () => {
 
     // Verify initializeChat was called without prompt (to avoid duplicate message)
     expect(initializeChat).toHaveBeenCalledWith(
-      { prompt: undefined, asset_id: 'asset-123', asset_type: 'metric' },
+      {
+        prompt: undefined,
+        message_analysis_mode: undefined,
+        asset_id: 'asset-123',
+        asset_type: 'metric',
+      },
       mockUser,
       '550e8400-e29b-41d4-a716-446655440000'
     );
@@ -269,6 +281,7 @@ describe('createChatHandler', () => {
       'asset-123',
       'metric',
       'Hello',
+      'auto',
       mockUser,
       emptyChat
     );

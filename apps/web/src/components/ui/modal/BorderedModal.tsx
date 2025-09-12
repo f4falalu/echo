@@ -1,9 +1,7 @@
-'use client';
-
 import React, { type ReactNode, useMemo, useState } from 'react';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
-import { cn } from '@/lib/classMerge';
-import { Button, type ButtonProps } from '../buttons/Button';
+import { cn } from '@/lib/utils';
+import { Button, type ButtonProps } from '../buttons';
 import { AppTooltip } from '../tooltip';
 import {
   Dialog,
@@ -11,7 +9,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
 } from './ModalBase';
 
 export interface BorderedModalProps {
@@ -55,7 +53,7 @@ export const BorderedModal = React.memo(
     header,
     open,
     onClose,
-    className = ''
+    className = '',
   }: BorderedModalProps) => {
     const [isLoadingPrimaryButton, setIsLoadingPrimaryButton] = useState(false);
 
@@ -74,7 +72,7 @@ export const BorderedModal = React.memo(
     const memoizedStyle = useMemo(() => {
       return {
         width: width,
-        maxWidth: width
+        maxWidth: width,
       };
     }, [width]);
 
@@ -85,10 +83,12 @@ export const BorderedModal = React.memo(
         <DialogContent
           className={cn(className)}
           style={memoizedStyle}
-          showClose={headerIsTitleObject}>
+          showClose={headerIsTitleObject}
+        >
           {header && (
             <DialogHeader
-              className={cn('border-b', headerIsTitleObject ? 'px-6 pt-6 pb-4' : 'space-y-0!')}>
+              className={cn('border-b', headerIsTitleObject ? 'px-6 pt-6 pb-4' : 'space-y-0!')}
+            >
               {headerIsTitleObject ? (
                 <>
                   <DialogTitle>{header.title}</DialogTitle>
@@ -104,7 +104,8 @@ export const BorderedModal = React.memo(
 
           {footer && (
             <DialogFooter
-              className={cn('flex items-center', footer.left ? 'justify-between' : 'justify-end')}>
+              className={cn('flex items-center', footer.left ? 'justify-between' : 'justify-end')}
+            >
               {footer.left && footer.left}
               <div className={cn('flex items-center space-x-2')}>
                 {footer.secondaryButton && (
@@ -112,7 +113,8 @@ export const BorderedModal = React.memo(
                     onClick={footer.secondaryButton.onClick}
                     variant={footer.secondaryButton.variant ?? 'ghost'}
                     loading={footer.secondaryButton.loading}
-                    disabled={footer.secondaryButton.disabled}>
+                    disabled={footer.secondaryButton.disabled}
+                  >
                     {footer.secondaryButton.text}
                   </Button>
                 )}
@@ -120,12 +122,14 @@ export const BorderedModal = React.memo(
                   <AppTooltip
                     title={footer.primaryButton.tooltip}
                     sideOffset={8}
-                    delayDuration={400}>
+                    delayDuration={400}
+                  >
                     <Button
                       onClick={onPrimaryButtonClickPreflight}
                       variant={footer.primaryButton.variant ?? 'black'}
                       loading={footer.primaryButton.loading ?? isLoadingPrimaryButton}
-                      disabled={footer.primaryButton.disabled}>
+                      disabled={footer.primaryButton.disabled}
+                    >
                       {footer.primaryButton.text}
                     </Button>
                   </AppTooltip>

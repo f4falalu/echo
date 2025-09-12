@@ -144,17 +144,22 @@ export async function getMetricDataHandler(
 
   // Execute query using the shared utility
   try {
+    // Request one extra row to detect if there are more records
     const result = await executeMetricQuery(metric.dataSourceId, sql, credentials, {
-      maxRows: queryLimit,
+      maxRows: queryLimit + 1,
       timeout: 60000, // 60 seconds
       retryDelays: [1000, 3000, 6000], // 1s, 3s, 6s
     });
 
+    // Trim to requested limit and check if there are more records
+    const hasMore = result.data.length > queryLimit;
+    const trimmedData = result.data.slice(0, queryLimit);
+
     const response: MetricDataResponse = {
-      data: result.data,
+      data: trimmedData,
       data_metadata: result.dataMetadata,
       metricId,
-      has_more_records: result.hasMoreRecords,
+      has_more_records: hasMore || result.hasMoreRecords,
     };
 
     // Cache the data if report_file_id is provided (pass-through write)
@@ -163,7 +168,7 @@ export async function getMetricDataHandler(
         metricId,
         reportFileId,
         organizationId,
-        rowCount: result.data.length,
+        rowCount: trimmedData.length,
       });
 
       // Fire and forget - don't wait for cache write

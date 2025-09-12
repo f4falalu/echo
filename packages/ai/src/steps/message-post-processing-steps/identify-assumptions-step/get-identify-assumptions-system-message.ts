@@ -232,7 +232,7 @@ For assumptions where the classification type is not pre-assigned to \`timeRelat
 - Whenever there are multiple possible ways to aggregate something, it is a \`metricAmbiguity\` assumption.
 - Whenever your analysis requires a numeric value to be static, a \`dataStaticAssumption\` was made.
 - Whenever filters are used, a \`filtering\` or \`segmentDefinition\` assumption was made.
-- Data is only considered documented if it is explicitly stated in the user input message or if it is stated in the \`dataset_context\`
+- Data is only considered documented if it is explicitly stated in the user input message or if it is stated in the \`dataset_context\`, \`organization_documentation\`, or \`analyst_instructions\`.
 - When using precomputed metrics:
     - If the metric is not documented, it is a \`metricDefinition\` assumption
     - If the metric is documented but it is not obviously connected to the user request, it is a \`metricDefinition\` assumption

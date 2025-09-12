@@ -5,6 +5,12 @@ import { z } from 'zod';
 import { loadRootEnv } from '@buster/env-utils';
 loadRootEnv();
 
+// Initialize Braintrust logger
+import { initBraintrustLogger } from '@buster/ai';
+
+// Initialize Braintrust logger
+initBraintrustLogger();
+
 // Import custom middleware
 import { corsMiddleware } from './middleware/cors';
 import { loggerMiddleware } from './middleware/logger';
@@ -67,5 +73,6 @@ export default {
   port,
   hostname: '0.0.0.0', // Bind to all interfaces for Docker
   fetch: app.fetch,
+  idleTimeout: 120, // 120 seconds idle timeout (resets on each SSE message)
 };
 export type AppType = typeof routes;

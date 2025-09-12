@@ -1,0 +1,87 @@
+import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
+import { prefetchListDatasources } from '@/api/buster_rest/data_source';
+import { prefetchGetDatasets } from '@/api/buster_rest/datasets';
+import { prefetchGetUserFavorites } from '@/api/buster_rest/users/favorites/queryRequests';
+import { prefetchGetMyUserInfo } from '@/api/buster_rest/users/queryRequests';
+import { getAppLayout } from '@/api/server-functions/getAppLayout';
+import { AppProviders } from '@/context/Providers';
+import { getSupabaseSession, getSupabaseUser } from '@/integrations/supabase/getSupabaseUserClient';
+import { preventBrowserCacheHeaders } from '@/middleware/shared-headers';
+import type { LayoutSize } from '../components/ui/layouts/AppLayout';
+
+const PRIMARY_APP_LAYOUT_ID = 'primary-sidebar';
+const DEFAULT_LAYOUT: LayoutSize = ['230px', 'auto'];
+
+export const Route = createFileRoute('/app')({
+  head: () => {
+    console.log('app head');
+    return {
+      meta: [...preventBrowserCacheHeaders],
+    };
+  },
+  context: ({ context }) => ({ ...context, getAppLayout }),
+  beforeLoad: async () => {
+    try {
+      console.log('app beforeLoad - getSupabaseSession');
+      const { isExpired, accessToken = '' } = await getSupabaseSession();
+      console.log('app beforeLoad - getSupabaseSession - isExpired', isExpired);
+      console.log('app beforeLoad - getSupabaseSession - accessToken', accessToken);
+
+      if (isExpired || !accessToken) {
+        console.error('Access token is expired or not found');
+        throw redirect({ to: '/auth/login', replace: true, statusCode: 307 });
+      }
+
+      return {
+        accessToken,
+      };
+    } catch (error) {
+      console.error('Error in app route beforeLoad:', error);
+      throw redirect({ to: '/auth/login', replace: true, statusCode: 307 });
+    }
+  },
+  loader: async ({ context }) => {
+    const { queryClient, accessToken } = context;
+    try {
+      console.log('app loader - getAppLayout');
+      const [initialLayout, user] = await Promise.all([
+        getAppLayout({ id: PRIMARY_APP_LAYOUT_ID }),
+        getSupabaseUser(),
+        prefetchGetMyUserInfo(queryClient),
+        prefetchGetUserFavorites(queryClient),
+        prefetchListDatasources(queryClient),
+        prefetchGetDatasets(queryClient),
+      ]);
+      console.log('app loader - getAppLayout - initialLayout', initialLayout);
+      console.log('app loader - getAppLayout - user', user);
+
+      if (!user) {
+        console.error('User not found - redirecting to login');
+        throw redirect({ to: '/auth/login', replace: true, statusCode: 307 });
+      }
+
+      return {
+        initialLayout,
+        layoutId: PRIMARY_APP_LAYOUT_ID,
+        defaultLayout: DEFAULT_LAYOUT,
+        accessToken,
+        user,
+      };
+    } catch (error) {
+      console.error('Error in app route loader:', error);
+      throw redirect({ to: '/auth/login', replace: true, statusCode: 307 });
+    }
+  },
+  component: () => {
+    console.log('app component');
+    const { user, accessToken } = Route.useLoaderData();
+    console.log('app component - user', user);
+    console.log('app component - accessToken', accessToken);
+
+    return (
+      <AppProviders user={user} accessToken={accessToken}>
+        <Outlet />
+      </AppProviders>
+    );
+  },
+});
