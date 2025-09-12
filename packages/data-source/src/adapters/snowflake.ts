@@ -200,7 +200,8 @@ export class SnowflakeAdapter extends BaseAdapter {
       // Set query timeout if specified (default: 120 seconds for Snowflake queue handling)
       const timeoutMs = timeout || TIMEOUT_CONFIG.query.default;
 
-      const limit = maxRows && maxRows > 0 ? maxRows : 5000;
+      // Only apply limit if explicitly requested, otherwise fetch all rows
+      const limit = maxRows && maxRows > 0 ? maxRows : undefined;
 
       const queryPromise = new Promise<{
         rows: Record<string, unknown>[];
@@ -225,8 +226,10 @@ export class SnowflakeAdapter extends BaseAdapter {
             const rows: Record<string, unknown>[] = [];
             let hasMoreRows = false;
 
-            // Request one extra row to check if there are more rows
-            const stream = stmt.streamRows?.({ start: 0, end: limit });
+            // Stream rows with or without limit
+            const stream = limit
+              ? stmt.streamRows?.({ start: 0, end: limit })
+              : stmt.streamRows?.();
             if (!stream) {
               reject(new Error('Snowflake streaming not supported'));
               return;
@@ -236,8 +239,8 @@ export class SnowflakeAdapter extends BaseAdapter {
 
             stream
               .on('data', (row: Record<string, unknown>) => {
-                // Only keep up to limit rows
-                if (rowCount < limit) {
+                // If limit is set, only keep up to limit rows
+                if (!limit || rowCount < limit) {
                   // Transform column names to lowercase to match expected behavior
                   const transformedRow: Record<string, unknown> = {};
                   for (const [key, value] of Object.entries(row)) {
@@ -252,7 +255,7 @@ export class SnowflakeAdapter extends BaseAdapter {
               })
               .on('end', () => {
                 // If we got more rows than requested, there are more available
-                hasMoreRows = rowCount > limit;
+                hasMoreRows = limit ? rowCount > limit : false;
                 resolve({
                   rows,
                   statement: stmt,
