@@ -1,11 +1,10 @@
-import { execSync, spawn } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { createWriteStream, existsSync } from 'node:fs';
 import { chmod, mkdir, rename, unlink } from 'node:fs/promises';
 import { arch, platform, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pipeline } from 'node:stream/promises';
-import { promisify } from 'node:util';
 import chalk from 'chalk';
 import { checkForUpdate, formatVersion } from '../../utils/version/index';
 import { isInstalledViaHomebrew } from './homebrew-detection';
@@ -232,7 +231,8 @@ export async function updateHandler(options: UpdateOptions): Promise<UpdateResul
   // Check if installed via Homebrew
   const isHomebrew = isInstalledViaHomebrew();
 
-  if (isHomebrew && !validated.force) {
+  // If just checking for updates, always proceed regardless of installation method
+  if (isHomebrew && !validated.check && !validated.force) {
     return {
       success: false,
       message: `Buster was installed via Homebrew. Please use:\n\n  ${chalk.cyan('brew upgrade buster')}\n\nto update to the latest version.`,
@@ -322,13 +322,13 @@ export async function updateHandler(options: UpdateOptions): Promise<UpdateResul
     // Format can be either "checksum" or "checksum  filename"
     const checksumMatch = checksumContent.match(/^([a-f0-9]{64})/i);
 
-    if (!checksumMatch) {
+    if (!checksumMatch || !checksumMatch[1]) {
       throw new Error(
         `Invalid checksum format in file. Expected SHA256 hash, got: ${checksumContent.substring(0, 100)}`
       );
     }
 
-    const expectedChecksum = checksumMatch[1]!.toLowerCase();
+    const expectedChecksum = checksumMatch[1].toLowerCase();
 
     // Verify checksum
     console.info(chalk.blue('Verifying download...'));

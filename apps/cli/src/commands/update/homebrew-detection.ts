@@ -1,4 +1,4 @@
-import { execSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { existsSync, readlinkSync } from 'node:fs';
 import { platform } from 'node:os';
 import chalk from 'chalk';
@@ -47,11 +47,11 @@ export function isInstalledViaHomebrew(): boolean {
 
     // Alternative check: see if buster formula is installed
     try {
-      const result = execSync('brew list buster 2>/dev/null', {
+      const result = spawnSync('brew', ['list', 'buster'], {
         encoding: 'utf-8',
         stdio: ['ignore', 'pipe', 'ignore'],
       });
-      return result.length > 0;
+      return result.status === 0 && (result.stdout?.length ?? 0) > 0;
     } catch {
       // brew command failed or buster not installed via brew
       return false;

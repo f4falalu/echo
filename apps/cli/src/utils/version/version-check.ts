@@ -10,12 +10,19 @@ const USER_AGENT = 'buster-cli';
  */
 export async function fetchLatestRelease(): Promise<GitHubRelease | null> {
   try {
+    // Add timeout to prevent hanging
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
     const response = await fetch(GITHUB_API_URL, {
       headers: {
         'User-Agent': USER_AGENT,
         Accept: 'application/vnd.github.v3+json',
       },
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       // Silently fail - don't disrupt user experience

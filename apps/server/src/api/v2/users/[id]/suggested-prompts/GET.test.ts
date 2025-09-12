@@ -152,22 +152,20 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
     });
 
     it('should return cached prompts even if updated time is just a few minutes ago today', async () => {
-      // Create a date that is definitely today by using local date methods
-      const now = new Date();
-      const todayAt2HoursAgo = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-        now.getHours() - 2,
-        now.getMinutes(),
-        now.getSeconds()
-      );
+      // Create a date that is definitely today - just 5 minutes ago
+      // This ensures we're testing the "same day" logic properly
+      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
 
       const recentPrompts = {
         ...mockTodayPrompts,
-        updatedAt: todayAt2HoursAgo.toISOString(),
+        updatedAt: fiveMinutesAgo.toISOString(),
       };
       (getUserSuggestedPrompts as Mock).mockResolvedValue(recentPrompts);
+      
+      // Also need to mock what would happen if it DID generate 
+      // (though it shouldn't in this test)
+      (generateSuggestedMessages as Mock).mockResolvedValue(mockGeneratedPrompts);
+      (updateUserSuggestedPrompts as Mock).mockResolvedValue(mockUpdatedPrompts);
 
       const testApp = createTestApp();
 
@@ -179,6 +177,7 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
       const body = await response.json();
       expect(body).toEqual(recentPrompts);
       expect(generateSuggestedMessages).not.toHaveBeenCalled();
+      expect(updateUserSuggestedPrompts).not.toHaveBeenCalled();
     });
   });
 
