@@ -1,4 +1,4 @@
-import { getUserOrganizationId } from '@buster/database';
+import { getUserOrganizationId, updateUserLastUsedShortcuts } from '@buster/database';
 import type { User } from '@buster/database';
 import {
   type ChatCreateHandlerRequest,
@@ -9,7 +9,6 @@ import {
 import { tasks } from '@trigger.dev/sdk';
 import { handleAssetChat, handleAssetChatWithPrompt } from './services/chat-helpers';
 import { initializeChat } from './services/chat-service';
-import { enhanceMessageWithShortcut } from './services/shortcut-service';
 
 /**
  * Handler function for creating a new chat.
@@ -57,20 +56,13 @@ export async function createChatHandler(
       throw new ChatError(ChatErrorCode.INVALID_REQUEST, 'prompt or asset_id is required', 400);
     }
 
-    // Process shortcuts if present
-    let enhancedPrompt = request.prompt;
-    if (request.prompt) {
-      // Check for shortcut pattern in message (e.g., /weekly-report)
-      enhancedPrompt = await enhanceMessageWithShortcut(request.prompt, user.id, organizationId);
-    }
-
     // Set message_analysis_mode if not provided (from staging)
     if (request.prompt && !request.message_analysis_mode) {
       request.message_analysis_mode = 'auto';
     }
 
-    // Update request with enhanced prompt and message_analysis_mode
-    const processedRequest = { ...request, prompt: enhancedPrompt };
+    // Update request with message_analysis_mode
+    const processedRequest = { ...request };
     // Initialize chat (new or existing)
     // When we have both asset and prompt, we'll skip creating the initial message
     // since handleAssetChatWithPrompt will create both the import and prompt messages
@@ -84,6 +76,17 @@ export async function createChatHandler(
       : { ...processedRequest, prompt: undefined, message_analysis_mode: undefined };
 
     const { chatId, messageId, chat } = await initializeChat(modifiedRequest, user, organizationId);
+
+    // Update user's last used shortcuts if any were provided in metadata
+    if (
+      processedRequest.metadata?.shortcutIds &&
+      processedRequest.metadata.shortcutIds.length > 0
+    ) {
+      await updateUserLastUsedShortcuts({
+        userId: user.id,
+        shortcutIds: processedRequest.metadata.shortcutIds,
+      });
+    }
 
     // Handle asset-based chat if needed
     let finalChat: ChatWithMessages = chat;

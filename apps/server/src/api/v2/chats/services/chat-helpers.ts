@@ -18,6 +18,7 @@ import type {
   ChatMessageResponseMessage,
   ChatWithMessages,
   MessageAnalysisMode,
+  MessageMetadata,
 } from '@buster/server-shared/chats';
 import { ChatError, ChatErrorCode } from '@buster/server-shared/chats';
 import { PostProcessingMessageSchema } from '@buster/server-shared/message';
@@ -204,7 +205,8 @@ export async function handleExistingChat(
   prompt: string | undefined,
   messageAnalysisMode: MessageAnalysisMode | undefined,
   user: User,
-  redoFromMessageId?: string
+  redoFromMessageId?: string,
+  metadata?: MessageMetadata
 ): Promise<{
   chatId: string;
   messageId: string;
@@ -262,6 +264,7 @@ export async function handleExistingChat(
           messageAnalysisMode: messageAnalysisMode,
           userId: user.id,
           messageId,
+          metadata,
         })
       : Promise.resolve(null),
     getMessagesForChat(chatId),
@@ -295,6 +298,7 @@ export async function handleNewChat({
   messageAnalysisMode,
   user,
   organizationId,
+  metadata,
 }: {
   title: string;
   messageId: string;
@@ -302,6 +306,7 @@ export async function handleNewChat({
   messageAnalysisMode: MessageAnalysisMode | undefined;
   user: User;
   organizationId: string;
+  metadata?: MessageMetadata;
 }): Promise<{
   chatId: string;
   messageId: string;
@@ -346,6 +351,7 @@ export async function handleNewChat({
               content: prompt,
             } as ModelMessage,
           ],
+          metadata: metadata || {},
         })
         .returning();
 

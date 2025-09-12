@@ -35,6 +35,7 @@ export const CreateMessageInputSchema = z.object({
   userId: z.string().uuid(),
   messageId: z.string().uuid().optional(),
   messageAnalysisMode: z.enum(messageAnalysisModeEnum.enumValues).optional(),
+  metadata: z.record(z.any()).optional(),
 });
 
 export type CreateChatInput = z.infer<typeof CreateChatInputSchema>;
@@ -146,6 +147,7 @@ export async function createMessage(input: CreateMessageInput): Promise<Message>
               content: validated.content,
             },
           ],
+          metadata: validated.metadata || {},
         })
         .returning();
 

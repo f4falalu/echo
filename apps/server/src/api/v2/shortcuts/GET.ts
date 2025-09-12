@@ -1,5 +1,6 @@
 import type { User } from '@buster/database';
-import { getUserOrganizationId, getUserShortcuts } from '@buster/database';
+import { db, getUserOrganizationId, getUserShortcuts, users } from '@buster/database';
+import { eq } from '@buster/database';
 import type { ListShortcutsResponse } from '@buster/server-shared/shortcuts';
 import { HTTPException } from 'hono/http-exception';
 
@@ -16,14 +17,47 @@ export async function listShortcutsHandler(user: User): Promise<ListShortcutsRes
 
     const { organizationId } = userOrg;
 
-    // Get all accessible shortcuts (personal + workspace) sorted alphabetically
+    // Get user's lastUsedShortcuts array
+    const [userRecord] = await db
+      .select({ lastUsedShortcuts: users.lastUsedShortcuts })
+      .from(users)
+      .where(eq(users.id, user.id))
+      .limit(1);
+
+    const lastUsedShortcutIds = userRecord?.lastUsedShortcuts || [];
+
+    // Get all accessible shortcuts (personal + workspace)
     const shortcuts = await getUserShortcuts({
       userId: user.id,
       organizationId,
     });
 
+    // Sort shortcuts by last used order
+    const sortedShortcuts = shortcuts.sort((a, b) => {
+      const aIndex = lastUsedShortcutIds.indexOf(a.id);
+      const bIndex = lastUsedShortcutIds.indexOf(b.id);
+
+      // If both are in lastUsed, sort by their position
+      if (aIndex !== -1 && bIndex !== -1) {
+        return aIndex - bIndex;
+      }
+
+      // If only a is in lastUsed, it comes first
+      if (aIndex !== -1) {
+        return -1;
+      }
+
+      // If only b is in lastUsed, it comes first
+      if (bIndex !== -1) {
+        return 1;
+      }
+
+      // Neither is in lastUsed, sort alphabetically
+      return a.name.localeCompare(b.name);
+    });
+
     return {
-      shortcuts,
+      shortcuts: sortedShortcuts,
     };
   } catch (error) {
     console.error('Error in listShortcutsHandler:', {

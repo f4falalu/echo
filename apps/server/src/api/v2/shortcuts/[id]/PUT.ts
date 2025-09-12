@@ -53,10 +53,11 @@ export async function updateShortcutHandler(
       // Only workspace_admin, data_admin, or the creator can update workspace shortcuts
       const isAdmin = userOrg.role === 'workspace_admin' || userOrg.role === 'data_admin';
       const isCreator = existingShortcut.createdBy === user.id;
-      
+
       if (!isAdmin && !isCreator) {
         throw new HTTPException(403, {
-          message: 'Only workspace admins, data admins, or the shortcut creator can update workspace shortcuts',
+          message:
+            'Only workspace admins, data admins, or the shortcut creator can update workspace shortcuts',
         });
       }
     }

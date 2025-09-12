@@ -22,9 +22,11 @@ import {
 import type {
   OrganizationColorPalettes,
   UserPersonalizationConfigType,
+  UserShortcutTrackingType,
   UserSuggestedPromptsType,
 } from './schema-types';
 import { DEFAULT_USER_SUGGESTED_PROMPTS } from './schema-types/user';
+import type { MessageMetadata } from './schemas/message-schemas';
 
 export const assetPermissionRoleEnum = pgEnum('asset_permission_role_enum', [
   'owner',
@@ -879,6 +881,7 @@ export const users = pgTable(
       .$type<UserPersonalizationConfigType>()
       .default({})
       .notNull(),
+    lastUsedShortcuts: jsonb('last_used_shortcuts').$type<string[]>().default([]).notNull(),
   },
   (table) => [unique('users_email_key').on(table.email)]
 );
@@ -907,6 +910,7 @@ export const messages = pgTable(
     isCompleted: boolean('is_completed').default(false).notNull(),
     postProcessingMessage: jsonb('post_processing_message'),
     triggerRunId: text('trigger_run_id'),
+    metadata: jsonb().$type<MessageMetadata>().default({}).notNull(),
   },
   (table) => [
     index('messages_chat_id_idx').using('btree', table.chatId.asc().nullsLast().op('uuid_ops')),
