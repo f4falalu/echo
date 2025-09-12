@@ -1,5 +1,4 @@
 import { Box, Text } from 'ink';
-import React from 'react';
 import { SimpleBigText } from './simple-big-text.js';
 
 interface BannerProps {
