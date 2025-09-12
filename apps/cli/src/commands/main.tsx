@@ -3,11 +3,11 @@ import { Box, render, Text, useApp, useInput } from 'ink';
 import Spinner from 'ink-spinner';
 import TextInput from 'ink-text-input';
 import { useEffect, useState } from 'react';
-import { BusterBanner } from '../components/banner.js';
-import { type Credentials, getCredentials, saveCredentials } from '../utils/credentials.js';
-import { DeployCommand } from './deploy/deploy.js';
-import { DeployOptionsSchema } from './deploy/schemas.js';
-import { InitCommand } from './init.js';
+import { BusterBanner } from '../components/banner';
+import { type Credentials, getCredentials, saveCredentials } from '../utils/credentials';
+import { DeployCommand } from './deploy/deploy';
+import { DeployOptionsSchema } from './deploy/schemas';
+import { InitCommand } from './init';
 
 const DEFAULT_HOST = 'https://api2.buster.so';
 const _LOCAL_HOST = 'http://localhost:3001';

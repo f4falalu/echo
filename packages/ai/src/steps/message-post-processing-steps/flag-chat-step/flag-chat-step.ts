@@ -277,14 +277,14 @@ No conversation history available for analysis.`,
     const result: FlagChatStepResult =
       llmResult.type === 'flagChat'
         ? {
-          type: 'flagChat',
-          summaryMessage: llmResult.summary_message || '',
-          summaryTitle: llmResult.summary_title || '',
-        }
+            type: 'flagChat',
+            summaryMessage: llmResult.summary_message || '',
+            summaryTitle: llmResult.summary_title || '',
+          }
         : {
-          type: 'noIssuesFound',
-          message: llmResult.message || '',
-        };
+            type: 'noIssuesFound',
+            message: llmResult.message || '',
+          };
 
     return result;
   } catch (llmError) {
