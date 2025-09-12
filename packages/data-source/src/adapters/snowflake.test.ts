@@ -206,7 +206,8 @@ describe('SnowflakeAdapter', () => {
         complete: expect.any(Function),
       });
 
-      expect(mockStatement.streamRows).toHaveBeenCalledWith({ start: 0, end: 5000 });
+      // When no maxRows is specified, streamRows should be called without parameters
+      expect(mockStatement.streamRows).toHaveBeenCalledWith();
 
       expect(result).toEqual({
         rows: mockRows,
@@ -255,7 +256,8 @@ describe('SnowflakeAdapter', () => {
       const result = await adapter.query('SELECT * FROM users WHERE id = ?', [1]);
 
       expect(result.rows).toEqual(mockRows);
-      expect(mockStatement.streamRows).toHaveBeenCalledWith({ start: 0, end: 5000 });
+      // When no maxRows is specified, streamRows should be called without parameters
+      expect(mockStatement.streamRows).toHaveBeenCalledWith();
     });
 
     it('should handle maxRows limit', async () => {

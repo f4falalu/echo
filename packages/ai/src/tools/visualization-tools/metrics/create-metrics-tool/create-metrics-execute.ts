@@ -219,7 +219,7 @@ async function validateSql(
     // Execute query using the new utility
     try {
       const result = await executeMetricQuery(dataSourceId, sqlQuery, credentials, {
-        maxRows: 1000, // Validation limit
+        maxRows: 50, // Reduced validation limit - just enough to validate schema
         timeout: 120000, // 2 minutes
         retryDelays: [1000, 3000, 6000], // 1s, 3s, 6s
       });
@@ -231,7 +231,7 @@ async function validateSql(
       if (result.data.length === 0) {
         message = 'Query executed successfully but returned no records';
       } else if (result.hasMoreRecords) {
-        message = `Query validated successfully. Results were limited to 1000 rows for memory protection (query may return more rows when executed)${displayResults.length < result.data.length ? ` - showing first 25 of ${result.data.length} fetched` : ''}`;
+        message = `Query validated successfully. Results were limited to 50 rows for validation (query may return more rows when executed)${displayResults.length < result.data.length ? ` - showing first 25 of ${result.data.length} fetched` : ''}`;
       } else {
         message = `Query validated successfully and returned ${result.data.length} records${result.data.length > 25 ? ' (showing sample of first 25)' : ''}`;
       }
