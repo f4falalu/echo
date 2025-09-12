@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 
-import { THEME_RESET_COLORS, THEME_RESET_STYLE } from '@/styles/report-editor-theme';
+import { REPORT_THEME_STYLE_RESET, THEME_RESET_COLORS } from '@/styles/report-editor-theme';
 
 interface ThemeWrapperProps extends React.ComponentProps<'div'> {
   defaultTheme?: string;
@@ -40,14 +40,17 @@ const CSS_VARIABLES_THEME = Object.entries(THEME_RESET_COLORS.light).reduce(
   {} as Record<string, string>
 );
 
-const EDITOR_THEME = { ...CSS_VARIABLES_THEME, ...THEME_RESET_STYLE };
+const EDITOR_THEME = { ...CSS_VARIABLES_THEME, ...REPORT_THEME_STYLE_RESET };
 
 export function ThemeWrapper({ children, className, id }: ThemeWrapperProps) {
   return (
     <div
       id={id}
       style={EDITOR_THEME}
-      className={cn('themes-wrapper w-full bg-transparent antialiased', className)}
+      className={cn(
+        'themes-wrapper w-full bg-transparent antialiased [&_strong]:font-semibold',
+        className
+      )}
     >
       {children}
     </div>

@@ -23,7 +23,7 @@ import { useComposedRef, useEditorRef } from 'platejs/react';
 import * as React from 'react';
 import { measureTextWidth } from '@/lib/canvas';
 import { cn } from '@/lib/utils';
-import { THEME_RESET_STYLE } from '@/styles/report-editor-theme';
+import { REPORT_THEME_STYLE_RESET } from '@/styles/report-editor-theme';
 
 type FilterFn = (
   item: { value: string; group?: string; keywords?: string[]; label?: string },
@@ -256,7 +256,7 @@ const InlineComboboxContent: typeof ComboboxPopover = ({ className, style, ...pr
           'bg-popover z-500 max-h-[300px] min-w-[210px] p-1 overflow-y-auto rounded border shadow',
           className
         )}
-        style={{ ...THEME_RESET_STYLE, ...style }}
+        style={{ ...REPORT_THEME_STYLE_RESET, ...style }}
         {...props}
       />
     </Portal>

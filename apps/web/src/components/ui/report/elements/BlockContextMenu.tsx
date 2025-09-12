@@ -7,7 +7,6 @@ import {
 import { KEYS } from 'platejs';
 import { useEditorPlugin, usePlateState } from 'platejs/react';
 import * as React from 'react';
-
 import {
   ContextMenu,
   ContextMenuContent,
@@ -21,7 +20,7 @@ import {
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
 import { useIsTouchDevice } from '@/hooks/useIsTouchDevice';
-import { THEME_RESET_STYLE } from '@/styles/report-editor-theme';
+import { REPORT_THEME_STYLE_RESET } from '@/styles/report-editor-theme';
 import { NodeTypeIcons } from '../config/icons';
 import { NodeTypeLabels } from '../config/labels';
 
@@ -116,7 +115,7 @@ function BlockContextMenuComponent({ children }: { children: React.ReactNode }) 
       </ContextMenuTrigger>
       <ContextMenuContent
         className="w-64"
-        style={THEME_RESET_STYLE}
+        style={REPORT_THEME_STYLE_RESET}
         onCloseAutoFocus={(e) => {
           e.preventDefault();
           editor.getApi(BlockSelectionPlugin).blockSelection.focus();
