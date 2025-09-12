@@ -1,5 +1,4 @@
 import { Store, useStore } from '@tanstack/react-store';
-import { useRef } from 'react';
 import { setupChartJS } from './ChartJSTheme';
 
 export const chartJsContextStore = new Store({
@@ -15,7 +14,6 @@ export const useSetupChartJS = () => {
   const { hasSetupChartJS, shouldSetupChartJS } = useChartJsContext();
 
   if (shouldSetupChartJS) {
-    console.log('shouldSetupChartJS', shouldSetupChartJS);
     setupChartJS().then(() => {
       chartJsContextStore.setState(() => ({
         hasSetupChartJS: true,

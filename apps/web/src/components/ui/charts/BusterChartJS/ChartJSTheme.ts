@@ -212,12 +212,10 @@ ChartJS.overrides.line = {
 };
 
 export const setupChartJS = async () => {
-  console.log('setupChartJS');
   // Import client-side only plugins
-  await import('./core/plugins/chartjs-plugin-dayjs');
-  await import('./core/plugins/chartjs-scale-tick-duplicate');
-  await import('./core/plugins/chartjs-plugin-trendlines');
-
-  console.log('imported plugins');
-  console.log('ChartJSTheme', ChartJS);
+  await Promise.all([
+    import('./core/plugins/chartjs-plugin-dayjs'),
+    import('./core/plugins/chartjs-scale-tick-duplicate'),
+    import('./core/plugins/chartjs-plugin-trendlines'),
+  ]);
 };
