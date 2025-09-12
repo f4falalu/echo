@@ -6,6 +6,7 @@ import { Mention, type MentionProps, MentionsInput, type MentionsInputProps } fr
 import { useMount } from '@/hooks/useMount';
 import { cn } from '@/lib/classMerge';
 import type { BusterInputProps } from './BusterInput.types';
+import styles from './BusterMentions.module.css';
 import { DEFAULT_MENTION_MARKUP } from './parse-input';
 
 export type BusterMentionsInputProps = Pick<
@@ -52,7 +53,8 @@ export const BusterMentionsInput = ({
             //   '&singleLine': {},
           }
         }
-        className={cn(className)}
+        className={cn('mentions')}
+        classNames={styles}
         autoFocus
       >
         {mentionsComponents}
@@ -84,14 +86,11 @@ const useFormattedMentions = (mentions: BusterInputProps['mentions']) => {
             trigger={mention.trigger}
             markup={DEFAULT_MENTION_MARKUP}
             data={formattedItems}
-            displayTransform={
-              mention.displayTransform ??
-              (() => {
-                return <div></div>;
-              })
-            }
+            displayTransform={mention.displayTransform ?? ((_value, label) => `${label}`)}
             appendSpaceOnAdd={mention.appendSpaceOnAdd ?? true}
-            renderSuggestion={(d) => d.display}
+            renderSuggestion={(suggestion, _search, highlightedDisplay, _index, focused) => {
+              return highlightedDisplay;
+            }}
           />
         );
       }) ?? <Mention trigger="" markup={DEFAULT_MENTION_MARKUP} data={[]} appendSpaceOnAdd />,
