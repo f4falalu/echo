@@ -1,3 +1,4 @@
+import type { PermissionedDataset } from '@buster/access-controls';
 import { generateObject } from 'ai';
 import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
@@ -10,7 +11,21 @@ import { MessageHistorySchema } from '../../../utils/memory/types';
 export const flagChatStepParamsSchema = z.object({
   conversationHistory: MessageHistorySchema.optional(),
   userName: z.string().describe('User name for context'),
-  datasets: z.string().describe('Dataset context for analysis'),
+  datasets: z.array(z.custom<PermissionedDataset>()).describe('Available datasets'),
+  dataSourceSyntax: z.string().describe('SQL dialect for the data source'),
+  organizationDocs: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        content: z.string(),
+        type: z.string(),
+        updatedAt: z.string(),
+      })
+    )
+    .optional()
+    .describe('Organization documentation'),
+  analystInstructions: z.string().optional().describe('Organization analyst instructions'),
 });
 
 export const flagChatStepResultSchema = z.discriminatedUnion('type', [
@@ -139,22 +154,69 @@ ${datasets}
 };
 
 /**
+ * Convert datasets to a concatenated string for prompts
+ */
+function concatenateDatasets(datasets: PermissionedDataset[]): string {
+  const validDatasets = datasets.filter(
+    (dataset) => dataset.ymlContent !== null && dataset.ymlContent !== undefined
+  );
+
+  if (validDatasets.length === 0) {
+    return 'No dataset context available.';
+  }
+
+  return validDatasets.map((dataset) => dataset.ymlContent).join('\n---\n');
+}
+
+/**
  * Generates a flag chat analysis using the LLM with structured output
  */
 async function generateFlagChatWithLLM(
   conversationHistory: ModelMessage[] | undefined,
   userName: string,
-  datasets: string
+  datasets: PermissionedDataset[],
+  organizationDocs?: Array<{
+    id: string;
+    name: string;
+    content: string;
+    type: string;
+    updatedAt: string;
+  }>,
+  analystInstructions?: string
 ): Promise<FlagChatStepResult> {
   try {
     // Prepare messages for the LLM
     const messages: ModelMessage[] = [];
 
     // Add dataset context as system message
+    const datasetsYaml = concatenateDatasets(datasets);
     messages.push({
       role: 'system',
-      content: createDatasetSystemMessage(datasets || 'No dataset context available.'),
+      content: createDatasetSystemMessage(datasetsYaml),
     });
+
+    // Add organization docs if available
+    if (organizationDocs && organizationDocs.length > 0) {
+      const docsContent = organizationDocs
+        .map((doc) => `### ${doc.name}\n${doc.content}`)
+        .join('\n\n---\n\n');
+      messages.push({
+        role: 'system',
+        content: `<organization_documentation>
+${docsContent}
+</organization_documentation>`,
+      });
+    }
+
+    // Add analyst instructions if available
+    if (analystInstructions) {
+      messages.push({
+        role: 'system',
+        content: `<analyst_instructions>
+${analystInstructions}
+</analyst_instructions>`,
+      });
+    }
 
     // Add main system prompt
     messages.push({
@@ -244,7 +306,9 @@ export async function runFlagChatStep(params: FlagChatStepParams): Promise<FlagC
     const result = await generateFlagChatWithLLM(
       params.conversationHistory,
       params.userName,
-      params.datasets
+      params.datasets,
+      params.organizationDocs,
+      params.analystInstructions
     );
 
     return result;

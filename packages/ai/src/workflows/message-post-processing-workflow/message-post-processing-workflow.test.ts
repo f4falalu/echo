@@ -1,6 +1,20 @@
+import type { PermissionedDataset } from '@buster/access-controls';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { runMessagePostProcessingWorkflow } from './message-post-processing-workflow';
 import type { PostProcessingWorkflowInput } from './message-post-processing-workflow';
+
+// Helper to create mock datasets
+const mockDatasets: PermissionedDataset[] = [
+  {
+    id: 'dataset_1',
+    name: 'test_dataset',
+    description: 'Test dataset for unit tests',
+    ymlContent: 'name: test\ntables:\n  - name: test_table',
+    type: 'dataset',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+] as any;
 
 // Mock the steps
 vi.mock('../../steps/message-post-processing-steps/flag-chat-step/flag-chat-step', () => ({
@@ -43,7 +57,8 @@ describe('runMessagePostProcessingWorkflow', () => {
       // Setup
       const input: PostProcessingWorkflowInput = {
         userName: 'Test User',
-        datasets: 'test datasets',
+        datasets: mockDatasets,
+        dataSourceSyntax: 'postgresql',
         isFollowUp: false,
         isSlackFollowUp: undefined, // Critical test case
       };
@@ -96,7 +111,8 @@ describe('runMessagePostProcessingWorkflow', () => {
       // Setup
       const input: PostProcessingWorkflowInput = {
         userName: 'Test User',
-        datasets: 'test datasets',
+        datasets: mockDatasets,
+        dataSourceSyntax: 'postgresql',
         isFollowUp: false,
         isSlackFollowUp: false, // Explicit false
       };
@@ -136,7 +152,8 @@ describe('runMessagePostProcessingWorkflow', () => {
       // Setup
       const input: PostProcessingWorkflowInput = {
         userName: 'Test User',
-        datasets: 'test datasets',
+        datasets: mockDatasets,
+        dataSourceSyntax: 'postgresql',
         isFollowUp: true,
         isSlackFollowUp: true,
       };
@@ -177,7 +194,8 @@ describe('runMessagePostProcessingWorkflow', () => {
       // Setup
       const input: PostProcessingWorkflowInput = {
         userName: 'Test User',
-        datasets: 'test datasets',
+        datasets: mockDatasets,
+        dataSourceSyntax: 'postgresql',
         isFollowUp: false,
         isSlackFollowUp: false,
       };
@@ -205,7 +223,8 @@ describe('runMessagePostProcessingWorkflow', () => {
       // Setup
       const input: PostProcessingWorkflowInput = {
         userName: 'Test User',
-        datasets: 'test datasets',
+        datasets: mockDatasets,
+        dataSourceSyntax: 'postgresql',
         isFollowUp: false,
         isSlackFollowUp: false,
       };
@@ -244,7 +263,8 @@ describe('runMessagePostProcessingWorkflow', () => {
       // Setup
       const input: PostProcessingWorkflowInput = {
         userName: 'Test User',
-        datasets: 'test datasets',
+        datasets: mockDatasets,
+        dataSourceSyntax: 'postgresql',
         isFollowUp: false,
         isSlackFollowUp: false,
       };
@@ -280,7 +300,8 @@ describe('runMessagePostProcessingWorkflow', () => {
     it('should return correct structure for flagChat with assumptions', async () => {
       const input: PostProcessingWorkflowInput = {
         userName: 'Test User',
-        datasets: 'test datasets',
+        datasets: mockDatasets,
+        dataSourceSyntax: 'postgresql',
       };
 
       vi.mocked(runFlagChatStep).mockResolvedValue({
@@ -333,7 +354,8 @@ describe('runMessagePostProcessingWorkflow', () => {
     it('should return correct structure for noIssuesFound with no assumptions', async () => {
       const input: PostProcessingWorkflowInput = {
         userName: 'Test User',
-        datasets: 'test datasets',
+        datasets: mockDatasets,
+        dataSourceSyntax: 'postgresql',
       };
 
       vi.mocked(runFlagChatStep).mockResolvedValue({
@@ -368,7 +390,8 @@ describe('runMessagePostProcessingWorkflow', () => {
     it('should handle all undefined optional fields', async () => {
       const input: PostProcessingWorkflowInput = {
         userName: 'Test User',
-        datasets: '',
+        datasets: [],
+        dataSourceSyntax: 'postgresql',
         conversationHistory: undefined,
         isFollowUp: undefined,
         isSlackFollowUp: undefined,
@@ -391,10 +414,11 @@ describe('runMessagePostProcessingWorkflow', () => {
       expect(result.formattedMessage).toBeUndefined();
     });
 
-    it('should handle empty datasets string', async () => {
+    it('should handle empty datasets array', async () => {
       const input: PostProcessingWorkflowInput = {
         userName: 'Test User',
-        datasets: '',
+        datasets: [],
+        dataSourceSyntax: 'postgresql',
       };
 
       vi.mocked(runFlagChatStep).mockResolvedValue({
@@ -412,7 +436,10 @@ describe('runMessagePostProcessingWorkflow', () => {
       expect(runFlagChatStep).toHaveBeenCalledWith({
         conversationHistory: undefined,
         userName: 'Test User',
-        datasets: '',
+        datasets: [],
+        dataSourceSyntax: 'postgresql',
+        organizationDocs: undefined,
+        analystInstructions: undefined,
       });
     });
   });

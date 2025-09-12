@@ -1,16 +1,60 @@
 #!/usr/bin/env bun
+import chalk from 'chalk';
 import { program } from 'commander';
 import { render } from 'ink';
-import { Auth } from './commands/auth.js';
-import { DeployCommand } from './commands/deploy/deploy.js';
-import { DeployOptionsSchema } from './commands/deploy/schemas.js';
-import { InitCommand } from './commands/init.js';
+import { Auth } from './commands/auth';
+import { DeployCommand } from './commands/deploy/deploy';
+import { DeployOptionsSchema } from './commands/deploy/schemas';
+import { InitCommand } from './commands/init';
+import { UpdateCommand } from './commands/update/index';
+import { getCurrentVersion } from './commands/update/update-handler';
+import { checkForUpdate, formatVersion } from './utils/version/index';
+
+// Get current version
+const currentVersion = getCurrentVersion();
 
 // CLI metadata
 program
   .name('buster')
   .description('Buster CLI - AI-powered data analytics platform')
-  .version('0.3.1');
+  .version(currentVersion);
+
+// Check for updates in the background (non-blocking)
+if (!process.env.CI && !process.env.BUSTER_NO_UPDATE_CHECK) {
+  checkForUpdate(currentVersion)
+    .then((result) => {
+      if (result?.updateAvailable) {
+        // Show update notification after a small delay to not interfere with command output
+        setTimeout(() => {
+          console.info('');
+          console.info(chalk.yellow('╭────────────────────────────────────────────╮'));
+          console.info(
+            chalk.yellow('│') +
+              '  ' +
+              chalk.bold('Update available!') +
+              ' ' +
+              chalk.dim(
+                `${formatVersion(currentVersion)} → ${formatVersion(result.latestVersion)}`
+              ) +
+              '  ' +
+              chalk.yellow('│')
+          );
+          console.info(
+            chalk.yellow('│') +
+              '  Run ' +
+              chalk.cyan('buster update') +
+              ' to update             ' +
+              chalk.yellow('│')
+          );
+          console.info(chalk.yellow('╰────────────────────────────────────────────╯'));
+          console.info('');
+        }, 100);
+      }
+    })
+    .catch(() => {
+      // Silently ignore errors in update check
+    });
+}
 
 // Auth command - authentication management
 program
@@ -105,6 +149,17 @@ program
   .option('--path <path>', 'Project location (defaults to current directory)')
   .action(async (options) => {
     render(<InitCommand {...options} />);
+  });
+
+// Update command - update the CLI to the latest version
+program
+  .command('update')
+  .description('Update Buster CLI to the latest version')
+  .option('--check', 'Check for updates without installing')
+  .option('--force', 'Force update even if on latest version')
+  .option('-y, --yes', 'Skip confirmation prompt')
+  .action(async (options) => {
+    render(<UpdateCommand {...options} />);
   });
 
 // Parse command line arguments

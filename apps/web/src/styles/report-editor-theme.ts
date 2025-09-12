@@ -29,8 +29,8 @@ const REPORT_EDITOR_THEME = {
   '--font-weight-normal': '400',
   '--font-weight-medium': '500',
   '--font-weight-semibold': '600',
-  '--font-weight-bold': '700',
-  '--font-weight-extrabold': '800',
+  '--font-weight-bold': '600',
+  '--font-weight-extrabold': '600',
   '--tracking-tighter': '-0.05em',
   '--tracking-tight': '-0.025em',
   '--tracking-widest': '0.1em',
@@ -94,7 +94,7 @@ export const THEME_RESET_COLORS = {
   name: 'Default',
 } as const;
 
-export const THEME_RESET_STYLE = {
+export const REPORT_THEME_STYLE_RESET = {
   ...REPORT_EDITOR_THEME,
   fontFamily: 'var(--font-sans), "Inter", sans-serif',
   fontSynthesisWeight: 'normal' as 'none',
