@@ -117,12 +117,52 @@ describe('Snowflake Memory Protection Tests', () => {
     async () => {
       await adapter.initialize(credentials);
 
-      // Query a small table without maxRows
+      // Query a small table without maxRows - should get ALL rows
       const result = await adapter.query('SELECT * FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.REGION');
 
-      // REGION table has exactly 5 rows
+      // REGION table has exactly 5 rows - we should get them all
       expect(result.rows.length).toBe(5);
       expect(result.hasMoreRows).toBe(false);
+      expect(result.rowCount).toBe(5);
+    },
+    TEST_TIMEOUT
+  );
+
+  testWithCredentials(
+    'should fetch unlimited rows for larger datasets when no maxRows specified',
+    async () => {
+      await adapter.initialize(credentials);
+
+      // Query NATION table without maxRows - should get ALL 25 rows
+      const result = await adapter.query('SELECT * FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.NATION');
+
+      // NATION table has exactly 25 rows - we should get them all
+      expect(result.rows.length).toBe(25);
+      expect(result.hasMoreRows).toBe(false);
+      expect(result.rowCount).toBe(25);
+
+      // Verify we got all the data by checking specific nations exist
+      const nationKeys = result.rows.map((r) => r.n_nationkey);
+      expect(nationKeys).toContain(0); // ALGERIA
+      expect(nationKeys).toContain(24); // UNITED STATES
+    },
+    TEST_TIMEOUT
+  );
+
+  testWithCredentials(
+    'should handle maxRows parameter correctly for detecting more rows',
+    async () => {
+      await adapter.initialize(credentials);
+
+      // Query with maxRows=5 (NATION has 25 rows total)
+      const result = await adapter.query(
+        'SELECT * FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.NATION ORDER BY N_NATIONKEY',
+        undefined,
+        5
+      );
+
+      expect(result.rows.length).toBe(5);
+      expect(result.hasMoreRows).toBe(true); // Should detect there are more rows
       expect(result.rowCount).toBe(5);
     },
     TEST_TIMEOUT
