@@ -326,8 +326,19 @@ describe('Post-Processing Workflow Integration Tests', () => {
       userName: 'Test Post-Processing Workflow',
       isFollowUp: false,
       isSlackFollowUp: false,
-      datasets:
-        'name: product\ndescription: Product catalog information\ntables:\n  - name: product\n    description: Product information including bikes and accessories\n    columns:\n      - name: name\n        description: Product name\n      - name: finishedgoodsflag\n        description: Indicates if finished and ready for sale\n  - name: sales_order_header\n    description: Sales order header information\n    columns:\n      - name: onlineorderflag\n        description: Boolean indicating if order was placed online\n  - name: credit_card\n    description: Credit card information\n    columns:\n      - name: cardtype\n        description: Type of credit card',
+      datasets: [
+        {
+          id: 'dataset_1',
+          name: 'product',
+          description: 'Product catalog information',
+          ymlContent:
+            'name: product\ndescription: Product catalog information\ntables:\n  - name: product\n    description: Product information including bikes and accessories\n    columns:\n      - name: name\n        description: Product name\n      - name: finishedgoodsflag\n        description: Indicates if finished and ready for sale\n  - name: sales_order_header\n    description: Sales order header information\n    columns:\n      - name: onlineorderflag\n        description: Boolean indicating if order was placed online\n  - name: credit_card\n    description: Credit card information\n    columns:\n      - name: cardtype\n        description: Type of credit card',
+          type: 'dataset',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      ] as any,
+      dataSourceSyntax: 'postgresql',
     };
 
     // Execute the workflow

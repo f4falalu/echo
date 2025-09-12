@@ -1,3 +1,5 @@
+import type { PermissionedDataset } from '@buster/access-controls';
+import { UserPersonalizationConfigSchema } from '@buster/database';
 import type { CoreMessage } from 'ai';
 import { z } from 'zod';
 import { runFlagChatStep } from '../../steps/message-post-processing-steps/flag-chat-step/flag-chat-step';
@@ -10,9 +12,24 @@ import { MessageHistorySchema } from '../../utils/memory/types';
 export const postProcessingWorkflowInputSchema = z.object({
   conversationHistory: MessageHistorySchema.optional(),
   userName: z.string().describe('User name for context'),
-  datasets: z.string().describe('Dataset context for analysis'),
+  datasets: z.array(z.custom<PermissionedDataset>()).describe('Available datasets'),
+  dataSourceSyntax: z.string().describe('SQL dialect for the data source'),
   isFollowUp: z.boolean().optional().describe('Whether this is a follow-up message'),
   isSlackFollowUp: z.boolean().optional().describe('Whether this is a Slack follow-up'),
+  userPersonalizationConfig: UserPersonalizationConfigSchema.optional(),
+  analystInstructions: z.string().optional().describe('Organization analyst instructions'),
+  organizationDocs: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        content: z.string(),
+        type: z.string(),
+        updatedAt: z.string(),
+      })
+    )
+    .optional()
+    .describe('Organization documentation'),
 });
 
 // Output schema for the workflow
@@ -61,11 +78,17 @@ export async function runMessagePostProcessingWorkflow(
       conversationHistory: validatedInput.conversationHistory,
       userName: validatedInput.userName,
       datasets: validatedInput.datasets,
+      dataSourceSyntax: validatedInput.dataSourceSyntax,
+      organizationDocs: validatedInput.organizationDocs,
+      analystInstructions: validatedInput.analystInstructions,
     }),
     runIdentifyAssumptionsStep({
       conversationHistory: validatedInput.conversationHistory,
       userName: validatedInput.userName,
       datasets: validatedInput.datasets,
+      dataSourceSyntax: validatedInput.dataSourceSyntax,
+      organizationDocs: validatedInput.organizationDocs,
+      userPersonalizationConfig: validatedInput.userPersonalizationConfig,
     }),
   ]);
 

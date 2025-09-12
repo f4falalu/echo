@@ -1,4 +1,3 @@
-import type { CoreMessage } from 'ai';
 import { z } from 'zod';
 
 // Input schema - simple UUID validation
@@ -38,22 +37,6 @@ export const TaskOutputSchema = z.object({
 });
 
 // Database output schemas
-export const MessageContextSchema = z.object({
-  id: z.string(),
-  chatId: z.string(),
-  createdBy: z.string(),
-  createdAt: z.date(),
-  rawLlmMessages: z.custom<CoreMessage[]>(),
-  userName: z.string(),
-  organizationId: z.string(),
-});
-
-export const ConversationMessageSchema = z.object({
-  id: z.string(),
-  rawLlmMessages: z.custom<CoreMessage[]>(),
-  createdAt: z.date(),
-});
-
 export const PostProcessingResultSchema = z.object({
   postProcessingMessage: z.record(z.unknown()),
   createdAt: z.date(),
@@ -62,8 +45,6 @@ export const PostProcessingResultSchema = z.object({
 // Infer TypeScript types from schemas
 export type TaskInput = z.infer<typeof TaskInputSchema>;
 export type TaskOutput = z.infer<typeof TaskOutputSchema>;
-export type MessageContext = z.infer<typeof MessageContextSchema>;
-export type ConversationMessage = z.infer<typeof ConversationMessageSchema>;
 export type PostProcessingResult = z.infer<typeof PostProcessingResultSchema>;
 
 // Error types

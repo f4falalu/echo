@@ -28,7 +28,27 @@ describe('flag-chat-step', () => {
     it('should validate input schema correctly', () => {
       const validInput = {
         userName: 'John Doe',
-        datasets: 'product, sales',
+        datasets: [
+          {
+            id: 'dataset_1',
+            name: 'product',
+            description: 'Product data',
+            ymlContent: 'name: product',
+            type: 'dataset',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            id: 'dataset_2',
+            name: 'sales',
+            description: 'Sales data',
+            ymlContent: 'name: sales',
+            type: 'dataset',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+        ] as any,
+        dataSourceSyntax: 'postgresql',
         conversationHistory: [
           { role: 'user' as const, content: 'Hello' },
           { role: 'assistant' as const, content: 'Hi there!' },
@@ -39,7 +59,7 @@ describe('flag-chat-step', () => {
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.userName).toBe('John Doe');
-        expect(result.data.datasets).toBe('product, sales');
+        expect(result.data.datasets).toHaveLength(2);
         expect(result.data.conversationHistory).toHaveLength(2);
       }
     });
@@ -47,7 +67,8 @@ describe('flag-chat-step', () => {
     it('should handle optional conversationHistory in input schema', () => {
       const inputWithoutHistory = {
         userName: 'John Doe',
-        datasets: 'product, sales',
+        datasets: [] as any,
+        dataSourceSyntax: 'postgresql',
       };
 
       const result = flagChatStepParamsSchema.safeParse(inputWithoutHistory);
@@ -98,7 +119,8 @@ describe('flag-chat-step', () => {
 
       const params = {
         userName: 'Kevin',
-        datasets: 'sales, products',
+        datasets: [],
+        dataSourceSyntax: 'postgresql',
         conversationHistory: mockConversation,
       };
 
@@ -130,7 +152,8 @@ describe('flag-chat-step', () => {
 
       const params = {
         userName: 'Alice',
-        datasets: 'revenue, charts',
+        datasets: [],
+        dataSourceSyntax: 'postgresql',
         conversationHistory: mockConversation,
       };
 
@@ -151,7 +174,8 @@ describe('flag-chat-step', () => {
 
       const params = {
         userName: 'Bob',
-        datasets: 'test data',
+        datasets: [],
+        dataSourceSyntax: 'postgresql',
         conversationHistory: mockConversation,
       };
 
@@ -175,7 +199,8 @@ describe('flag-chat-step', () => {
 
       const params = {
         userName: 'Charlie',
-        datasets: 'empty test',
+        datasets: [],
+        dataSourceSyntax: 'postgresql',
         conversationHistory: undefined,
       };
 

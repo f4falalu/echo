@@ -330,14 +330,19 @@ describe('flag-chat-step integration', () => {
     const mockInput = {
       conversationHistory: mockConversationHistory,
       userName: 'John',
-      messageId: 'msg_12345',
-      userId: 'user_67890',
-      chatId: 'chat_abcde',
-      isFollowUp: false,
-      isSlackFollowUp: false,
-      previousMessages: [],
-      datasets:
-        'name: product\ndescription: Product catalog information\ntables:\n  - name: product\n    description: Product information including bikes and accessories\n  - name: sales_order_header\n    description: Sales order header information\n  - name: credit_card\n    description: Credit card information',
+      datasets: [
+        {
+          id: 'dataset_1',
+          name: 'product',
+          description: 'Product catalog information',
+          ymlContent:
+            'name: product\ndescription: Product catalog information\ntables:\n  - name: product\n    description: Product information including bikes and accessories\n  - name: sales_order_header\n    description: Sales order header information\n  - name: credit_card\n    description: Credit card information',
+          type: 'dataset',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      ] as any,
+      dataSourceSyntax: 'postgresql',
     };
 
     // Call the step execution function directly
