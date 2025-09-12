@@ -14,7 +14,6 @@ const DEFAULT_LAYOUT: LayoutSize = ['230px', 'auto'];
 
 export const Route = createFileRoute('/app')({
   head: () => {
-    console.log('app head');
     return {
       meta: [...preventBrowserCacheHeaders],
     };
@@ -22,10 +21,7 @@ export const Route = createFileRoute('/app')({
   context: ({ context }) => ({ ...context, getAppLayout }),
   beforeLoad: async () => {
     try {
-      console.log('app beforeLoad - getSupabaseSession');
       const { isExpired, accessToken = '' } = await getSupabaseSession();
-      console.log('app beforeLoad - getSupabaseSession - isExpired', isExpired);
-      console.log('app beforeLoad - getSupabaseSession - accessToken', accessToken);
 
       if (isExpired || !accessToken) {
         console.error('Access token is expired or not found');
@@ -43,7 +39,6 @@ export const Route = createFileRoute('/app')({
   loader: async ({ context }) => {
     const { queryClient, accessToken } = context;
     try {
-      console.log('app loader - getAppLayout');
       const [initialLayout, user] = await Promise.all([
         getAppLayout({ id: PRIMARY_APP_LAYOUT_ID }),
         getSupabaseUser(),
@@ -52,8 +47,6 @@ export const Route = createFileRoute('/app')({
         prefetchListDatasources(queryClient),
         prefetchGetDatasets(queryClient),
       ]);
-      console.log('app loader - getAppLayout - initialLayout', initialLayout);
-      console.log('app loader - getAppLayout - user', user);
 
       if (!user) {
         console.error('User not found - redirecting to login');
@@ -73,10 +66,7 @@ export const Route = createFileRoute('/app')({
     }
   },
   component: () => {
-    console.log('app component');
     const { user, accessToken } = Route.useLoaderData();
-    console.log('app component - user', user);
-    console.log('app component - accessToken', accessToken);
 
     return (
       <AppProviders user={user} accessToken={accessToken}>
