@@ -1,5 +1,9 @@
 import type { PermissionedDataset } from '@buster/access-controls';
-import { messageAnalysisModeEnum } from '@buster/database';
+import {
+  UserPersonalizationConfigSchema,
+  type UserPersonalizationConfigType,
+  messageAnalysisModeEnum,
+} from '@buster/database';
 import { type ModelMessage, hasToolCall, stepCountIs, streamText } from 'ai';
 import { wrapTraced } from 'braintrust';
 import z from 'zod';
@@ -70,6 +74,9 @@ export const ThinkAndPrepAgentOptionsSchema = z.object({
     )
     .optional()
     .describe('Organization data catalog documentation.'),
+  userPersonalizationMessageContent: z
+    .string()
+    .describe('Custom user personalization in message content'),
 });
 
 export const ThinkAndPrepStreamOptionsSchema = z.object({
@@ -82,8 +89,14 @@ export type ThinkAndPrepAgentOptions = z.infer<typeof ThinkAndPrepAgentOptionsSc
 export type ThinkAndPrepStreamOptions = z.infer<typeof ThinkAndPrepStreamOptionsSchema>;
 
 export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAgentOptions) {
-  const { messageId, datasets, workflowStartTime, analystInstructions, organizationDocs } =
-    thinkAndPrepAgentSchema;
+  const {
+    messageId,
+    datasets,
+    workflowStartTime,
+    analystInstructions,
+    organizationDocs,
+    userPersonalizationMessageContent,
+  } = thinkAndPrepAgentSchema;
 
   const systemMessage = {
     role: 'system',
@@ -172,6 +185,15 @@ export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAge
         } as ModelMessage)
       : null;
 
+    // Create user personalization system message
+    const userPersonalizationSystemMessage = userPersonalizationMessageContent
+      ? ({
+          role: 'system',
+          content: userPersonalizationMessageContent,
+          providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
+        } as ModelMessage)
+      : null;
+
     return wrapTraced(
       () =>
         streamText({
@@ -193,6 +215,7 @@ export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAge
             datasetsSystemMessage,
             ...(docsSystemMessage ? [docsSystemMessage] : []),
             ...(analystInstructionsMessage ? [analystInstructionsMessage] : []),
+            ...(userPersonalizationSystemMessage ? [userPersonalizationSystemMessage] : []),
             ...messages,
           ],
           stopWhen: STOP_CONDITIONS,

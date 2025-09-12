@@ -152,9 +152,20 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
     });
 
     it('should return cached prompts even if updated time is just a few minutes ago today', async () => {
+      // Create a date that is definitely today by using local date methods
+      const now = new Date();
+      const todayAt2HoursAgo = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        now.getHours() - 2,
+        now.getMinutes(),
+        now.getSeconds()
+      );
+
       const recentPrompts = {
         ...mockTodayPrompts,
-        updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
+        updatedAt: todayAt2HoursAgo.toISOString(),
       };
       (getUserSuggestedPrompts as Mock).mockResolvedValue(recentPrompts);
 

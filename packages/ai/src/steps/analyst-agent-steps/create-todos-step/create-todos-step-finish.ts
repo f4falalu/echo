@@ -9,11 +9,22 @@ import {
  * Factory function that creates a finish handler for TODO creation
  * Called when streaming completes to finalize the reasoning message
  */
-export function createTodosStepFinish(todosState: CreateTodosState, context: CreateTodosContext) {
+export function createTodosStepFinish(
+  todosState: CreateTodosState,
+  context: CreateTodosContext,
+  injectPersonalizationTodo: boolean
+) {
   return async function todosStepFinish(result: CreateTodosInput): Promise<void> {
+    const personalizationStaticToDo = `\n[ ] Determine if any of the user's personalized instructions are relevant to this question`;
+
     // Update state with final values
     todosState.todos = result.todos;
     todosState.is_complete = true;
+
+    // Inject the personalization todo if needed
+    if (injectPersonalizationTodo) {
+      todosState.todos += personalizationStaticToDo;
+    }
 
     // Create final reasoning message with completed status
     const todosReasoningEntry = createTodosReasoningMessage(todosState);

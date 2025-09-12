@@ -1,7 +1,11 @@
 // input for the workflow
 
 import type { PermissionedDataset } from '@buster/access-controls';
-import { messageAnalysisModeEnum } from '@buster/database';
+import {
+  UserPersonalizationConfigSchema,
+  type UserPersonalizationConfigType,
+  messageAnalysisModeEnum,
+} from '@buster/database';
 import type { ModelMessage } from 'ai';
 import { z } from 'zod';
 import {
@@ -52,6 +56,7 @@ const AnalystWorkflowInputSchema = z.object({
       })
     )
     .optional(),
+  userPersonalizationConfig: UserPersonalizationConfigSchema.optional(),
 });
 
 export type AnalystWorkflowInput = z.infer<typeof AnalystWorkflowInputSchema>;
@@ -62,7 +67,10 @@ export async function runAnalystWorkflow(
   const workflowStartTime = Date.now();
   const workflowId = `workflow_${input.chatId}_${input.messageId}`;
 
-  const { messages, analystInstructions, organizationDocs } = input;
+  const { messages, analystInstructions, organizationDocs, userPersonalizationConfig } = input;
+
+  const userPersonalizationMessageContent =
+    generatePersonalizationMessageContent(userPersonalizationConfig);
 
   const { todos, values, analysisType } = await runAnalystPrepSteps(input);
 
@@ -86,6 +94,7 @@ export async function runAnalystWorkflow(
       analysisMode: analysisType,
       analystInstructions,
       organizationDocs,
+      userPersonalizationMessageContent,
     },
     streamOptions: {
       messages,
@@ -123,6 +132,7 @@ export async function runAnalystWorkflow(
         workflowStartTime,
         analystInstructions,
         organizationDocs,
+        userPersonalizationMessageContent,
       },
       streamOptions: {
         messages,
@@ -232,6 +242,7 @@ const AnalystPrepStepSchema = z.object({
   chatId: z.string().uuid(),
   messageId: z.string().uuid(),
   messageAnalysisMode: z.enum(messageAnalysisModeEnum.enumValues).optional(),
+  userPersonalizationConfig: UserPersonalizationConfigSchema.optional(),
 });
 
 type AnalystPrepStepInput = z.infer<typeof AnalystPrepStepSchema>;
@@ -242,15 +253,18 @@ async function runAnalystPrepSteps({
   chatId,
   messageId,
   messageAnalysisMode,
+  userPersonalizationConfig,
 }: AnalystPrepStepInput): Promise<{
   todos: CreateTodosResult;
   values: ExtractValuesSearchResult;
   analysisType: AnalysisTypeRouterResult['analysisType'];
 }> {
+  const shouldInjectUserPersonalizationTodo = Boolean(userPersonalizationConfig);
   const [todos, values, , analysisType] = await Promise.all([
     runCreateTodosStep({
       messages,
       messageId,
+      shouldInjectUserPersonalizationTodo,
     }),
     runExtractValuesAndSearchStep({
       messages,
@@ -268,4 +282,32 @@ async function runAnalystPrepSteps({
   ]);
 
   return { todos, values, analysisType: analysisType.analysisType };
+}
+
+function generatePersonalizationMessageContent(
+  userPersonalizationConfig: UserPersonalizationConfigType | undefined
+): string {
+  const userPersonalizationMessageContent: string[] = [];
+
+  if (userPersonalizationConfig) {
+    if (userPersonalizationConfig.currentRole) {
+      userPersonalizationMessageContent.push('<user_current_role>');
+      userPersonalizationMessageContent.push(`${userPersonalizationConfig.currentRole}`);
+      userPersonalizationMessageContent.push('</user_current_role>');
+    }
+
+    if (userPersonalizationConfig.customInstructions) {
+      userPersonalizationMessageContent.push('<custom_instructions>');
+      userPersonalizationMessageContent.push(`${userPersonalizationConfig.customInstructions}`);
+      userPersonalizationMessageContent.push('</custom_instructions>');
+    }
+
+    if (userPersonalizationConfig.additionalInformation) {
+      userPersonalizationMessageContent.push('<additional_information>');
+      userPersonalizationMessageContent.push(`${userPersonalizationConfig.additionalInformation}`);
+      userPersonalizationMessageContent.push('</additional_information>');
+    }
+  }
+
+  return userPersonalizationMessageContent.join('\n');
 }
