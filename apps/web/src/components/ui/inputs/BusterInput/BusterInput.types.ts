@@ -66,7 +66,7 @@ export type BusterMentionItems<T = string, V = string, M = unknown> = {
   style?: React.CSSProperties;
   appendSpaceOnAdd?: boolean; //defaults to true
   trigger: T;
-  popoverContent?: (v: BusterMentionItem<V>) => React.ReactNode;
+  popoverContent?: (v: BusterMentionItem<V, M>) => React.ReactNode;
 };
 
 export type BusterMentions<V = string, T extends string = string, M = unknown> = BusterMentionItems<
@@ -85,6 +85,7 @@ export type BusterInputProps<
   value?: string;
   onChange?: (value: string) => void;
   submitting?: boolean;
+  disabled?: boolean;
   onSubmit: (value: string) => void;
   onStop: () => void;
   onItemClick?: (params: Omit<BusterOnSelectParams, 'onClick'>) => void;

@@ -12,13 +12,13 @@ export const BusterInput = ({
   mentions,
   defaultValue,
   value: valueProp,
-
   emptyComponent,
   items,
   closeOnSelect = true,
   addValueToInput = true,
   submitting,
   onSubmit,
+  disabled: disabledGlobal = false,
   onStop,
   sendIcon,
   secondaryActions,
@@ -35,7 +35,7 @@ export const BusterInput = ({
   const onChangeInputValue = useCallback((value: string) => {
     setValue(value);
     setHasClickedSelect(false);
-    //  onChange?.(value);
+    onChange?.(value);
   }, []);
 
   const onSelectItem = useMemoizedFn(({ onClick, ...params }: BusterOnSelectParams) => {
@@ -56,6 +56,22 @@ export const BusterInput = ({
     onClick?.();
     if (closeOnSelect) setHasClickedSelect(true);
     onItemClick?.(params);
+  });
+
+  const onSubmitPreflight = useMemoizedFn((value: string) => {
+    if (submitting) {
+      console.warn('Input is submitting');
+      return;
+    }
+    if (disabledGlobal) {
+      console.warn('Input is disabledGlobal');
+      return;
+    }
+    onSubmit(value);
+  });
+
+  const onStopPreflight = useMemoizedFn(() => {
+    onStop();
   });
 
   return (
