@@ -1,4 +1,4 @@
-import { and, eq, isNull } from 'drizzle-orm';
+import { and, eq, isNull, or } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
 import { shortcuts } from '../../schema';
@@ -14,37 +14,29 @@ export type FindShortcutByNameInput = z.infer<typeof FindShortcutByNameInputSche
 export async function findShortcutByName(input: FindShortcutByNameInput) {
   const validated = FindShortcutByNameInputSchema.parse(input);
 
-  // First try to find personal shortcut
-  const [personalShortcut] = await db
-    .select()
-    .from(shortcuts)
-    .where(
-      and(
-        eq(shortcuts.name, validated.name),
-        eq(shortcuts.createdBy, validated.userId),
-        eq(shortcuts.organizationId, validated.organizationId),
-        isNull(shortcuts.deletedAt)
-      )
-    )
-    .limit(1);
-
-  if (personalShortcut) {
-    return personalShortcut;
-  }
-
-  // Then try to find workspace shortcut
-  const [workspaceShortcut] = await db
+  // Single optimized query that checks both personal and workspace shortcuts
+  // Personal shortcuts take precedence over workspace shortcuts
+  const results = await db
     .select()
     .from(shortcuts)
     .where(
       and(
         eq(shortcuts.name, validated.name),
         eq(shortcuts.organizationId, validated.organizationId),
-        eq(shortcuts.shareWithWorkspace, true),
-        isNull(shortcuts.deletedAt)
+        isNull(shortcuts.deletedAt),
+        or(
+          // Personal shortcut for the user
+          eq(shortcuts.createdBy, validated.userId),
+          // OR workspace shortcut
+          eq(shortcuts.shareWithWorkspace, true)
+        )
       )
+    )
+    .orderBy(
+      // Order by shareWithWorkspace ASC so personal (false) comes before workspace (true)
+      shortcuts.shareWithWorkspace
     )
     .limit(1);
 
-  return workspaceShortcut || null;
+  return results[0] || null;
 }

@@ -20,6 +20,7 @@ vi.mock('./services/chat-helpers', () => ({
 
 vi.mock('@buster/database', () => ({
   getUserOrganizationId: vi.fn(),
+  updateUserLastUsedShortcuts: vi.fn(),
   createChat: vi.fn(),
   getChatWithDetails: vi.fn(),
   createMessage: vi.fn(),
@@ -39,7 +40,11 @@ vi.mock('@buster/database', () => ({
   messages: {},
 }));
 
-import { getUserOrganizationId, updateMessage } from '@buster/database';
+import {
+  getUserOrganizationId,
+  updateMessage,
+  updateUserLastUsedShortcuts,
+} from '@buster/database';
 import { tasks } from '@trigger.dev/sdk/v3';
 import { createChatHandler } from './handler';
 import { handleAssetChat, handleAssetChatWithPrompt } from './services/chat-helpers';
@@ -431,5 +436,75 @@ describe('createChatHandler', () => {
     });
 
     consoleSpy.mockRestore();
+  });
+
+  describe('shortcut tracking', () => {
+    it('should update lastUsedShortcuts when metadata contains shortcutIds', async () => {
+      const requestWithShortcuts = {
+        prompt: 'Hello',
+        metadata: {
+          shortcutIds: ['shortcut-1', 'shortcut-2'],
+        },
+      };
+
+      await createChatHandler(requestWithShortcuts, mockUser);
+
+      expect(updateUserLastUsedShortcuts).toHaveBeenCalledWith({
+        userId: mockUser.id,
+        shortcutIds: ['shortcut-1', 'shortcut-2'],
+      });
+    });
+
+    it('should not update lastUsedShortcuts when metadata has empty shortcutIds', async () => {
+      const requestWithEmptyShortcuts = {
+        prompt: 'Hello',
+        metadata: {
+          shortcutIds: [],
+        },
+      };
+
+      await createChatHandler(requestWithEmptyShortcuts, mockUser);
+
+      expect(updateUserLastUsedShortcuts).not.toHaveBeenCalled();
+    });
+
+    it('should not update lastUsedShortcuts when metadata has no shortcutIds', async () => {
+      const requestWithoutShortcuts = {
+        prompt: 'Hello',
+        metadata: {},
+      };
+
+      await createChatHandler(requestWithoutShortcuts, mockUser);
+
+      expect(updateUserLastUsedShortcuts).not.toHaveBeenCalled();
+    });
+
+    it('should not update lastUsedShortcuts when no metadata provided', async () => {
+      const requestWithoutMetadata = {
+        prompt: 'Hello',
+      };
+
+      await createChatHandler(requestWithoutMetadata, mockUser);
+
+      expect(updateUserLastUsedShortcuts).not.toHaveBeenCalled();
+    });
+
+    it('should handle updateUserLastUsedShortcuts failure gracefully', async () => {
+      vi.mocked(updateUserLastUsedShortcuts).mockRejectedValue(new Error('Database update failed'));
+
+      const requestWithShortcuts = {
+        prompt: 'Hello',
+        metadata: {
+          shortcutIds: ['shortcut-1'],
+        },
+      };
+
+      // Should not throw, just continue processing
+      const result = await createChatHandler(requestWithShortcuts, mockUser);
+
+      expect(updateUserLastUsedShortcuts).toHaveBeenCalled();
+      expect(result).toEqual(mockChat); // Should still return the chat
+      expect(tasks.trigger).toHaveBeenCalled(); // Should still trigger the task
+    });
   });
 });

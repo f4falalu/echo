@@ -82,10 +82,19 @@ export async function createChatHandler(
       processedRequest.metadata?.shortcutIds &&
       processedRequest.metadata.shortcutIds.length > 0
     ) {
-      await updateUserLastUsedShortcuts({
-        userId: user.id,
-        shortcutIds: processedRequest.metadata.shortcutIds,
-      });
+      try {
+        await updateUserLastUsedShortcuts({
+          userId: user.id,
+          shortcutIds: processedRequest.metadata.shortcutIds,
+        });
+      } catch (error) {
+        // Log the error but don't fail the chat creation
+        console.warn('Failed to update user last used shortcuts:', {
+          userId: user.id,
+          shortcutIds: processedRequest.metadata.shortcutIds,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
     }
 
     // Handle asset-based chat if needed

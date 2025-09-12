@@ -1,78 +1,86 @@
 import type { User } from '@buster/database';
-import { checkDuplicateName, createShortcut, getUserOrganizationId } from '@buster/database';
+import { createShortcut, getUserOrganizationId } from '@buster/database';
 import type { CreateShortcutRequest, Shortcut } from '@buster/server-shared/shortcuts';
-import { HTTPException } from 'hono/http-exception';
+import {
+  DuplicateShortcutError,
+  InvalidShortcutNameError,
+  OrganizationRequiredError,
+  ShortcutPermissionError,
+  TransactionError,
+} from './services/shortcut-errors';
+import { canCreateWorkspaceShortcut } from './services/shortcut-permissions';
+import { validateInstructions, validateShortcutName } from './services/shortcut-validators';
 
 export async function createShortcutHandler(
   user: User,
   data: CreateShortcutRequest
 ): Promise<Shortcut> {
   try {
+    // Validate shortcut name format
+    validateShortcutName(data.name);
+
+    // Validate instructions
+    const sanitizedInstructions = validateInstructions(data.instructions);
+
     // Get user's organization ID
     const userOrg = await getUserOrganizationId(user.id);
 
     if (!userOrg) {
-      throw new HTTPException(400, {
-        message: 'User must belong to an organization',
-      });
+      throw new OrganizationRequiredError();
     }
 
-    const { organizationId } = userOrg;
+    const { organizationId, role } = userOrg;
 
     // Check if user has permission to create workspace shortcuts
-    if (data.shareWithWorkspace) {
-      // Only workspace_admin or data_admin can create workspace shortcuts
-      if (userOrg.role !== 'workspace_admin' && userOrg.role !== 'data_admin') {
-        throw new HTTPException(403, {
-          message: 'Only workspace admins and data admins can create workspace shortcuts',
-        });
+    if (data.shareWithWorkspace && !canCreateWorkspaceShortcut({ organizationId, role })) {
+      throw new ShortcutPermissionError(
+        'create',
+        'Only workspace admins and data admins can create workspace shortcuts'
+      );
+    }
+
+    // Create the shortcut (transaction-based with duplicate checking)
+    try {
+      const shortcut = await createShortcut({
+        name: data.name,
+        instructions: sanitizedInstructions,
+        createdBy: user.id,
+        organizationId,
+        shareWithWorkspace: data.shareWithWorkspace ?? false,
+      });
+
+      if (!shortcut) {
+        throw new Error('Failed to create shortcut');
       }
+
+      return shortcut;
+    } catch (error) {
+      // Handle duplicate name error from transaction
+      if (error instanceof Error && error.message.includes('already exists')) {
+        const scope = data.shareWithWorkspace ? 'workspace' : 'personal';
+        throw new DuplicateShortcutError(data.name, scope);
+      }
+      throw error;
     }
-
-    // Check for duplicate name
-    const isDuplicate = await checkDuplicateName({
-      name: data.name,
-      userId: user.id,
-      organizationId,
-      isWorkspace: data.shareWithWorkspace ?? false,
-    });
-
-    if (isDuplicate) {
-      const scope = data.shareWithWorkspace ? 'workspace' : 'your personal shortcuts';
-      throw new HTTPException(409, {
-        message: `A shortcut named '${data.name}' already exists in ${scope}`,
-      });
-    }
-
-    // Create the shortcut
-    const shortcut = await createShortcut({
-      name: data.name,
-      instructions: data.instructions,
-      createdBy: user.id,
-      organizationId,
-      shareWithWorkspace: data.shareWithWorkspace ?? false,
-    });
-
-    if (!shortcut) {
-      throw new HTTPException(500, {
-        message: 'Failed to create shortcut',
-      });
-    }
-
-    return shortcut;
   } catch (error) {
     console.error('Error in createShortcutHandler:', {
       userId: user.id,
-      data,
+      data: { ...data, instructions: `${data.instructions.substring(0, 100)}...` }, // Truncate for logging
       error: error instanceof Error ? error.message : error,
     });
 
-    if (error instanceof HTTPException) {
+    // Re-throw our custom errors
+    if (
+      error instanceof InvalidShortcutNameError ||
+      error instanceof OrganizationRequiredError ||
+      error instanceof ShortcutPermissionError ||
+      error instanceof DuplicateShortcutError ||
+      error instanceof TransactionError
+    ) {
       throw error;
     }
 
-    throw new HTTPException(500, {
-      message: 'Failed to create shortcut',
-    });
+    // Generic error fallback
+    throw new TransactionError('create');
   }
 }

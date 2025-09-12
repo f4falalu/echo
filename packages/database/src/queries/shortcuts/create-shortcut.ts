@@ -16,51 +16,83 @@ export type CreateShortcutInput = z.infer<typeof CreateShortcutInputSchema>;
 export async function createShortcut(input: CreateShortcutInput) {
   const validated = CreateShortcutInputSchema.parse(input);
 
-  // Check if there's a soft-deleted shortcut with the same name
-  const [existingDeleted] = await db
-    .select()
-    .from(shortcuts)
-    .where(
-      and(
-        eq(shortcuts.name, validated.name),
-        eq(shortcuts.organizationId, validated.organizationId),
-        validated.shareWithWorkspace
-          ? eq(shortcuts.shareWithWorkspace, true)
-          : eq(shortcuts.createdBy, validated.createdBy),
-        isNotNull(shortcuts.deletedAt)
+  // Use transaction to ensure atomicity and prevent race conditions
+  return await db.transaction(async (tx) => {
+    // Check for existing active shortcut with same name
+    const [existingActive] = await tx
+      .select()
+      .from(shortcuts)
+      .where(
+        and(
+          eq(shortcuts.name, validated.name),
+          eq(shortcuts.organizationId, validated.organizationId),
+          validated.shareWithWorkspace
+            ? eq(shortcuts.shareWithWorkspace, true)
+            : eq(shortcuts.createdBy, validated.createdBy),
+          isNull(shortcuts.deletedAt)
+        )
       )
-    )
-    .limit(1);
+      .limit(1);
 
-  if (existingDeleted) {
-    // Upsert: restore the soft-deleted record with new data
-    const [restored] = await db
-      .update(shortcuts)
-      .set({
-        instructions: validated.instructions,
-        shareWithWorkspace: validated.shareWithWorkspace,
-        updatedBy: validated.createdBy,
-        updatedAt: new Date().toISOString(),
-        deletedAt: null,
-      })
-      .where(eq(shortcuts.id, existingDeleted.id))
-      .returning();
+    if (existingActive) {
+      // Shortcut already exists and is active
+      throw new Error(`Shortcut with name '${validated.name}' already exists`);
+    }
 
-    return restored;
-  }
+    // Check if there's a soft-deleted shortcut with the same name
+    const [existingDeleted] = await tx
+      .select()
+      .from(shortcuts)
+      .where(
+        and(
+          eq(shortcuts.name, validated.name),
+          eq(shortcuts.organizationId, validated.organizationId),
+          validated.shareWithWorkspace
+            ? eq(shortcuts.shareWithWorkspace, true)
+            : eq(shortcuts.createdBy, validated.createdBy),
+          isNotNull(shortcuts.deletedAt)
+        )
+      )
+      .limit(1);
 
-  // Create new shortcut
-  const [created] = await db
-    .insert(shortcuts)
-    .values({
-      name: validated.name,
-      instructions: validated.instructions,
-      createdBy: validated.createdBy,
-      updatedBy: validated.createdBy,
-      organizationId: validated.organizationId,
-      shareWithWorkspace: validated.shareWithWorkspace,
-    })
-    .returning();
+    if (existingDeleted) {
+      // Upsert: restore the soft-deleted record with new data
+      const [restored] = await tx
+        .update(shortcuts)
+        .set({
+          instructions: validated.instructions,
+          shareWithWorkspace: validated.shareWithWorkspace,
+          updatedBy: validated.createdBy,
+          updatedAt: new Date().toISOString(),
+          deletedAt: null,
+        })
+        .where(eq(shortcuts.id, existingDeleted.id))
+        .returning();
 
-  return created;
+      return restored;
+    }
+
+    // Create new shortcut
+    try {
+      const [created] = await tx
+        .insert(shortcuts)
+        .values({
+          name: validated.name,
+          instructions: validated.instructions,
+          createdBy: validated.createdBy,
+          updatedBy: validated.createdBy,
+          organizationId: validated.organizationId,
+          shareWithWorkspace: validated.shareWithWorkspace,
+        })
+        .returning();
+
+      return created;
+    } catch (error: any) {
+      // Handle unique constraint violation
+      if (error?.code === '23505' && error?.constraint?.includes('unique')) {
+        throw new Error(`Shortcut with name '${validated.name}' already exists`);
+      }
+      throw error;
+    }
+  });
 }

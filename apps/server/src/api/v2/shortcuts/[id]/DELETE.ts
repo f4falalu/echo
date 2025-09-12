@@ -1,6 +1,11 @@
 import type { User } from '@buster/database';
 import { deleteShortcut, getShortcutById, getUserOrganizationId } from '@buster/database';
-import { HTTPException } from 'hono/http-exception';
+import {
+  OrganizationRequiredError,
+  ShortcutNotFoundError,
+  ShortcutPermissionError,
+} from '../services/shortcut-errors';
+import { canDeleteShortcut } from '../services/shortcut-permissions';
 
 export async function deleteShortcutHandler(
   user: User,
@@ -11,52 +16,35 @@ export async function deleteShortcutHandler(
     const userOrg = await getUserOrganizationId(user.id);
 
     if (!userOrg) {
-      throw new HTTPException(400, {
-        message: 'User must belong to an organization',
-      });
+      throw new OrganizationRequiredError();
     }
 
-    const { organizationId } = userOrg;
+    const { organizationId, role } = userOrg;
 
     // Get the existing shortcut
     const existingShortcut = await getShortcutById({ id: shortcutId });
 
     if (!existingShortcut) {
-      throw new HTTPException(404, {
-        message: 'Shortcut not found',
-      });
+      throw new ShortcutNotFoundError(shortcutId);
     }
 
-    // Check permissions
-    if (existingShortcut.organizationId !== organizationId) {
-      throw new HTTPException(403, {
-        message: 'You do not have permission to delete this shortcut',
-      });
-    }
-
-    // For personal shortcuts, only creator can delete
-    // For workspace shortcuts, check admin permission (TODO)
-    if (!existingShortcut.shareWithWorkspace && existingShortcut.createdBy !== user.id) {
-      throw new HTTPException(403, {
-        message: 'You can only delete your own shortcuts',
-      });
-    }
-
-    if (existingShortcut.shareWithWorkspace) {
-      // TODO: Check if user is admin/has permission to delete workspace shortcuts
-      // For now, we'll allow the creator to delete their workspace shortcuts
-      if (existingShortcut.createdBy !== user.id) {
-        throw new HTTPException(403, {
-          message: 'Only administrators can delete workspace shortcuts',
-        });
-      }
+    // Use centralized permission check
+    if (!canDeleteShortcut(user, existingShortcut, { organizationId, role })) {
+      const details = existingShortcut.shareWithWorkspace
+        ? 'Only workspace admins, data admins, or the shortcut creator can delete workspace shortcuts'
+        : 'You can only delete your own shortcuts';
+      throw new ShortcutPermissionError('delete', details);
     }
 
     // Soft delete the shortcut
-    await deleteShortcut({
+    const result = await deleteShortcut({
       id: shortcutId,
       deletedBy: user.id,
     });
+
+    if (!result) {
+      throw new Error('Failed to delete shortcut');
+    }
 
     return { success: true };
   } catch (error) {
@@ -66,12 +54,16 @@ export async function deleteShortcutHandler(
       error: error instanceof Error ? error.message : error,
     });
 
-    if (error instanceof HTTPException) {
+    // Re-throw our custom errors
+    if (
+      error instanceof OrganizationRequiredError ||
+      error instanceof ShortcutNotFoundError ||
+      error instanceof ShortcutPermissionError
+    ) {
       throw error;
     }
 
-    throw new HTTPException(500, {
-      message: 'Failed to delete shortcut',
-    });
+    // Generic error fallback
+    throw new Error('Failed to delete shortcut');
   }
 }
