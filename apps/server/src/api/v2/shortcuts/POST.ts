@@ -34,7 +34,7 @@ export async function createShortcutHandler(
       name: data.name,
       userId: user.id,
       organizationId,
-      isWorkspace: data.shareWithWorkspace,
+      isWorkspace: data.shareWithWorkspace ?? false,
     });
 
     if (isDuplicate) {
@@ -50,7 +50,7 @@ export async function createShortcutHandler(
       instructions: data.instructions,
       createdBy: user.id,
       organizationId,
-      shareWithWorkspace: data.shareWithWorkspace,
+      shareWithWorkspace: data.shareWithWorkspace ?? false,
     });
 
     if (!shortcut) {

@@ -63,10 +63,13 @@ export async function updateShortcutHandler(
     }
 
     // Check permission to change sharing status
-    if (data.shareWithWorkspace !== undefined && data.shareWithWorkspace !== existingShortcut.shareWithWorkspace) {
+    if (
+      data.shareWithWorkspace !== undefined &&
+      data.shareWithWorkspace !== existingShortcut.shareWithWorkspace
+    ) {
       // Only admins can change sharing status
       const isAdmin = userOrg.role === 'workspace_admin' || userOrg.role === 'data_admin';
-      
+
       if (!isAdmin) {
         throw new HTTPException(403, {
           message: 'Only workspace admins and data admins can change shortcut sharing settings',
@@ -75,9 +78,9 @@ export async function updateShortcutHandler(
     }
 
     // Determine the scope for duplicate checking
-    const willBeWorkspaceShortcut = 
-      data.shareWithWorkspace !== undefined 
-        ? data.shareWithWorkspace 
+    const willBeWorkspaceShortcut =
+      data.shareWithWorkspace !== undefined
+        ? data.shareWithWorkspace
         : existingShortcut.shareWithWorkspace;
 
     // If name is being changed, check for duplicates
@@ -91,9 +94,7 @@ export async function updateShortcutHandler(
       });
 
       if (isDuplicate) {
-        const scope = willBeWorkspaceShortcut
-          ? 'workspace'
-          : 'your personal shortcuts';
+        const scope = willBeWorkspaceShortcut ? 'workspace' : 'your personal shortcuts';
         throw new HTTPException(409, {
           message: `A shortcut named '${data.name}' already exists in ${scope}`,
         });

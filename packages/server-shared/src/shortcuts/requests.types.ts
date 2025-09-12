@@ -19,7 +19,7 @@ export const createShortcutRequestSchema = z.object({
     .string()
     .min(1, 'Instructions are required')
     .max(10000, 'Instructions must be 10,000 characters or less'),
-  shareWithWorkspace: z.boolean(),
+  shareWithWorkspace: z.boolean().default(false),
 });
 
 export const updateShortcutRequestSchema = z.object({
