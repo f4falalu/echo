@@ -16,6 +16,7 @@ describe('Analyst Agent Integration Tests', () => {
         messageId: '123',
         workflowStartTime: Date.now(),
         datasets: [],
+        userPersonalizationMessageContent: '',
       });
 
       const streamResult = await analystAgent.stream({
