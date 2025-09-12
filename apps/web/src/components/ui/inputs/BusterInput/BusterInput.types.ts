@@ -101,3 +101,12 @@ export type BusterInputProps<
   ariaLabel?: string;
   emptyComponent?: React.ReactNode | string | false; //if false, no empty component will be shown
 } & Pick<React.ComponentProps<typeof Command>, 'filter' | 'shouldFilter'>;
+
+export type BusterInputContainerProps = {
+  children: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+} & Pick<
+  BusterInputProps,
+  'sendIcon' | 'secondaryActions' | 'submitting' | 'disabled' | 'onStop' | 'onSubmit' | 'variant'
+>;

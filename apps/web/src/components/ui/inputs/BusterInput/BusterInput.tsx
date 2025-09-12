@@ -2,6 +2,7 @@ import { Command } from 'cmdk';
 import { useCallback, useState } from 'react';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import type { BusterInputProps, BusterOnSelectParams } from './BusterInput.types';
+import { BusterInputContainer } from './BusterInputContainer';
 import { BusterInputEmpty } from './BusterInputEmpty';
 import { BusterInputList } from './BusterInputList';
 import { BusterItemsSelector } from './BusterItemSelector';
@@ -26,6 +27,9 @@ export const BusterInput = ({
   onChange,
   onItemClick,
   ariaLabel = 'Buster Input',
+  shouldFilter,
+  onMentionClick,
+  filter,
 }: BusterInputProps) => {
   const [hasClickedSelect, setHasClickedSelect] = useState(false);
   const [value, setValue] = useState(valueProp ?? defaultValue);
@@ -75,10 +79,17 @@ export const BusterInput = ({
   });
 
   return (
-    <div className="flex flex-col gap-2">
-      <Command label={ariaLabel}>
+    <Command label={ariaLabel} className="relative">
+      <BusterInputContainer
+        onSubmit={onSubmitPreflight}
+        onStop={onStopPreflight}
+        submitting={submitting}
+        disabled={disabledGlobal}
+        sendIcon={sendIcon}
+        secondaryActions={secondaryActions}
+        variant={variant}
+      >
         <BusterMentionsInput
-          className="w-full outline-1 outline-amber-600"
           autoFocus
           defaultValue={defaultValue}
           readOnly
@@ -86,17 +97,20 @@ export const BusterInput = ({
           mentions={mentions}
           value={value}
           onChangeInputValue={onChangeInputValue}
+          shouldFilter={shouldFilter}
+          filter={filter}
+          onMentionClick={onMentionClick}
         />
-        <BusterInputList show={showList}>
-          <BusterItemsSelector
-            items={items}
-            onSelect={onSelectItem}
-            addValueToInput={addValueToInput}
-            closeOnSelect={closeOnSelect}
-          />
-          {emptyComponent && <BusterInputEmpty>{emptyComponent}</BusterInputEmpty>}
-        </BusterInputList>
-      </Command>
-    </div>
+      </BusterInputContainer>
+      <BusterInputList show={showList}>
+        <BusterItemsSelector
+          items={items}
+          onSelect={onSelectItem}
+          addValueToInput={addValueToInput}
+          closeOnSelect={closeOnSelect}
+        />
+        {emptyComponent && <BusterInputEmpty>{emptyComponent}</BusterInputEmpty>}
+      </BusterInputList>
+    </Command>
   );
 };

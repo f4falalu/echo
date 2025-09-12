@@ -33,12 +33,43 @@ const items: BusterInputProps['items'] = [
   },
 ];
 
-const mentions = [];
+const mentions: BusterInputProps['mentions'] = [
+  {
+    trigger: '@',
+    items: [
+      {
+        value: '1',
+        label: 'BigNate',
+      },
+      {
+        value: '2',
+        label: 'ReactFan42',
+      },
+      {
+        value: '3',
+        label: 'NextJSDev',
+      },
+    ],
+  },
+  {
+    trigger: '#',
+    items: [
+      {
+        value: '1',
+        label: 'My number is 1',
+      },
+      {
+        value: '2',
+        label: 'My number is 2',
+      },
+    ],
+  },
+];
 
 export const Default: Story = {
   args: {
     value: 'Sample text value',
     items,
-    mentions: [],
+    mentions,
   },
 };
