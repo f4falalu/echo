@@ -206,7 +206,7 @@ export async function handleExistingChat(
   messageAnalysisMode: MessageAnalysisMode | undefined,
   user: User,
   redoFromMessageId?: string,
-  metadata?: MessageMetadata
+  metadata?: MessageMetadata | undefined
 ): Promise<{
   chatId: string;
   messageId: string;
@@ -306,7 +306,7 @@ export async function handleNewChat({
   messageAnalysisMode: MessageAnalysisMode | undefined;
   user: User;
   organizationId: string;
-  metadata?: MessageMetadata;
+  metadata?: MessageMetadata | undefined;
 }): Promise<{
   chatId: string;
   messageId: string;
