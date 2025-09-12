@@ -18,3 +18,4 @@ export * from './s3-integrations';
 export * from './vault';
 export * from './cascading-permissions';
 export * from './github-integrations';
+export * from './shortcuts';

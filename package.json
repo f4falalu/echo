@@ -20,7 +20,7 @@
     "db:migrate": "pnpm --filter @buster/database run db:migrate",
     "db:pull": "pnpm --filter @buster/database run db:pull",
     "db:push": "pnpm --filter @buster/database run db:push",
-    "db:seed": "pnpm --filter @buster/database run db:setup",
+    "db:seed": "pnpm --filter @buster/database run db:seed",
     "db:start-supabase": "pnpm --filter @buster/database run db:start-supabase",
     "db:stop": "pnpm --filter @buster/database run db:stop",
     "db:studio": "pnpm --filter @buster/database run db:studio",
