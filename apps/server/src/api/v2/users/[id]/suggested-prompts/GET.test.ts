@@ -161,8 +161,8 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
         updatedAt: fiveMinutesAgo.toISOString(),
       };
       (getUserSuggestedPrompts as Mock).mockResolvedValue(recentPrompts);
-      
-      // Also need to mock what would happen if it DID generate 
+
+      // Also need to mock what would happen if it DID generate
       // (though it shouldn't in this test)
       (generateSuggestedMessages as Mock).mockResolvedValue(mockGeneratedPrompts);
       (updateUserSuggestedPrompts as Mock).mockResolvedValue(mockUpdatedPrompts);

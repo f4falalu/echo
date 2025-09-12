@@ -17,8 +17,8 @@ export function UpdateCommand({ check, force, yes }: UpdateCommandProps) {
         setStatus(check ? 'checking' : 'updating');
 
         // Defer the execution to avoid React render cycle conflicts
-        await new Promise(resolve => setTimeout(resolve, 0));
-        
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
         const result = await updateHandler({ check, force, yes });
 
         setMessage(result.message);

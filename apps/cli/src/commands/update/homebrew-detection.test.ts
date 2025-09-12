@@ -1,4 +1,4 @@
-import { execSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { existsSync, readlinkSync } from 'node:fs';
 import { platform } from 'node:os';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -10,7 +10,7 @@ import {
 
 // Mock modules
 vi.mock('node:child_process', () => ({
-  execSync: vi.fn(),
+  spawnSync: vi.fn(),
 }));
 
 vi.mock('node:fs', () => ({
@@ -69,18 +69,30 @@ describe('homebrew-detection', () => {
       vi.mocked(platform).mockReturnValue('darwin');
       vi.mocked(existsSync).mockReturnValue(true);
       vi.mocked(readlinkSync).mockReturnValue('/usr/local/bin/buster');
-      vi.mocked(execSync).mockReturnValue('buster 0.3.1\n');
+      vi.mocked(spawnSync).mockReturnValue({
+        status: 0,
+        stdout: 'buster 0.3.1\n',
+        stderr: '',
+        pid: 1234,
+        output: ['', 'buster 0.3.1\n', ''],
+        signal: null,
+      });
 
       expect(isInstalledViaHomebrew()).toBe(true);
-      expect(execSync).toHaveBeenCalledWith('brew list buster 2>/dev/null', expect.any(Object));
+      expect(spawnSync).toHaveBeenCalledWith('brew', ['list', 'buster'], expect.any(Object));
     });
 
     it('should return false if brew command fails', () => {
       vi.mocked(platform).mockReturnValue('darwin');
       vi.mocked(existsSync).mockReturnValue(true);
       vi.mocked(readlinkSync).mockReturnValue('/usr/local/bin/buster');
-      vi.mocked(execSync).mockImplementation(() => {
-        throw new Error('Command failed');
+      vi.mocked(spawnSync).mockReturnValue({
+        status: 1,
+        stdout: '',
+        stderr: 'Error: No available formula',
+        pid: 1234,
+        output: ['', '', 'Error: No available formula'],
+        signal: null,
       });
 
       expect(isInstalledViaHomebrew()).toBe(false);
@@ -90,8 +102,13 @@ describe('homebrew-detection', () => {
       vi.mocked(platform).mockReturnValue('darwin');
       vi.mocked(existsSync).mockReturnValue(true);
       vi.mocked(readlinkSync).mockReturnValue('/custom/path/buster');
-      vi.mocked(execSync).mockImplementation(() => {
-        throw new Error('Command failed');
+      vi.mocked(spawnSync).mockReturnValue({
+        status: 1,
+        stdout: '',
+        stderr: 'Error: No available formula',
+        pid: 1234,
+        output: ['', '', 'Error: No available formula'],
+        signal: null,
       });
 
       expect(isInstalledViaHomebrew()).toBe(false);
@@ -103,8 +120,13 @@ describe('homebrew-detection', () => {
       vi.mocked(readlinkSync).mockImplementation(() => {
         throw new Error('Not a symlink');
       });
-      vi.mocked(execSync).mockImplementation(() => {
-        throw new Error('Command failed');
+      vi.mocked(spawnSync).mockReturnValue({
+        status: 1,
+        stdout: '',
+        stderr: 'Error: No available formula',
+        pid: 1234,
+        output: ['', '', 'Error: No available formula'],
+        signal: null,
       });
 
       Object.defineProperty(process, 'execPath', {
