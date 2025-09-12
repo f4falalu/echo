@@ -6,6 +6,13 @@ const meta: Meta<typeof BusterInput> = {
   title: 'UI/Inputs/BusterInput',
   component: BusterInput,
   tags: ['autodocs'],
+  decorators: [
+    (Story) => (
+      <div style={{ width: '300px', minHeight: '500px' }}>
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export default meta;
