@@ -1,6 +1,7 @@
 import { execSync } from 'node:child_process';
 import { existsSync, readlinkSync } from 'node:fs';
 import { platform } from 'node:os';
+import chalk from 'chalk';
 
 /**
  * Check if the CLI was installed via Homebrew
@@ -84,6 +85,3 @@ export function getDirectUpdateInstructions(): string {
 
 This will download and install the latest version.`;
 }
-
-// Import chalk for colored output
-import chalk from 'chalk';

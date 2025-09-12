@@ -1,6 +1,6 @@
 import { arch, platform } from 'node:os';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { getBinaryFileName, getBinaryInfo, getCurrentVersion } from './update-handler.js';
+import { getBinaryFileName, getBinaryInfo, getCurrentVersion } from './update-handler';
 
 // Mock os module
 vi.mock('node:os', () => ({

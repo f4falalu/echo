@@ -1,8 +1,8 @@
 import { Box, Text } from 'ink';
 import Spinner from 'ink-spinner';
 import { useEffect, useState } from 'react';
-import { getCurrentVersion, updateHandler } from './update-handler.js';
-import type { UpdateOptions } from './update-schemas.js';
+import { getCurrentVersion, updateHandler } from './update-handler';
+import type { UpdateOptions } from './update-schemas';
 
 interface UpdateCommandProps extends UpdateOptions {}
 

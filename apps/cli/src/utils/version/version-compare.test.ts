@@ -4,7 +4,7 @@ import {
   formatVersion,
   isUpdateAvailable,
   parseVersion,
-} from './version-compare.js';
+} from './version-compare';
 
 describe('version-compare', () => {
   describe('isUpdateAvailable', () => {

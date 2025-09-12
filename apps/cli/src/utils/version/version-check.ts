@@ -1,10 +1,6 @@
-import { getCachedVersion, isUpdateCheckDisabled, saveVersionCache } from './version-cache.js';
-import { createUpdateCheckResult } from './version-compare.js';
-import {
-  type GitHubRelease,
-  GitHubReleaseSchema,
-  type UpdateCheckResult,
-} from './version-schemas.js';
+import { getCachedVersion, isUpdateCheckDisabled, saveVersionCache } from './version-cache';
+import { createUpdateCheckResult } from './version-compare';
+import { type GitHubRelease, GitHubReleaseSchema, type UpdateCheckResult } from './version-schemas';
 
 const GITHUB_API_URL = 'https://api.github.com/repos/buster-so/buster/releases/latest';
 const USER_AGENT = 'buster-cli';

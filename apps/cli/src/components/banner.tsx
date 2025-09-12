@@ -1,5 +1,5 @@
 import { Box, Text } from 'ink';
-import { SimpleBigText } from './simple-big-text.js';
+import { SimpleBigText } from './simple-big-text';
 
 interface BannerProps {
   showSubtitle?: boolean;

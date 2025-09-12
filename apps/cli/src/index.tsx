@@ -2,13 +2,13 @@
 import chalk from 'chalk';
 import { program } from 'commander';
 import { render } from 'ink';
-import { Auth } from './commands/auth.js';
-import { DeployCommand } from './commands/deploy/deploy.js';
-import { DeployOptionsSchema } from './commands/deploy/schemas.js';
-import { InitCommand } from './commands/init.js';
-import { UpdateCommand } from './commands/update/index.js';
-import { getCurrentVersion } from './commands/update/update-handler.js';
-import { checkForUpdate, formatVersion } from './utils/version/index.js';
+import { Auth } from './commands/auth';
+import { DeployCommand } from './commands/deploy/deploy';
+import { DeployOptionsSchema } from './commands/deploy/schemas';
+import { InitCommand } from './commands/init';
+import { UpdateCommand } from './commands/update/index';
+import { getCurrentVersion } from './commands/update/update-handler';
+import { checkForUpdate, formatVersion } from './utils/version/index';
 
 // Get current version
 const currentVersion = getCurrentVersion();

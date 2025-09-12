@@ -9,8 +9,8 @@ import {
   isUpdateCheckDisabled,
   loadVersionCache,
   saveVersionCache,
-} from './version-cache.js';
-import type { VersionCache } from './version-schemas.js';
+} from './version-cache';
+import type { VersionCache } from './version-schemas';
 
 // Mock fs module
 vi.mock('node:fs/promises');

@@ -1,19 +1,20 @@
-import { execSync } from 'node:child_process';
+import { execSync, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { createWriteStream, existsSync } from 'node:fs';
 import { chmod, mkdir, rename, unlink } from 'node:fs/promises';
 import { arch, platform, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pipeline } from 'node:stream/promises';
+import { promisify } from 'node:util';
 import chalk from 'chalk';
-import { checkForUpdate, formatVersion } from '../../utils/version/index.js';
-import { isInstalledViaHomebrew } from './homebrew-detection.js';
+import { checkForUpdate, formatVersion } from '../../utils/version/index';
+import { isInstalledViaHomebrew } from './homebrew-detection';
 import {
   type BinaryInfo,
   type UpdateOptions,
   UpdateOptionsSchema,
   type UpdateResult,
-} from './update-schemas.js';
+} from './update-schemas';
 
 const GITHUB_RELEASES_URL = 'https://github.com/buster-so/buster/releases/download';
 
@@ -119,21 +120,72 @@ async function extractArchive(archivePath: string, destination: string): Promise
   const os = platform();
 
   if (os === 'win32') {
-    // Use PowerShell for Windows
-    execSync(
-      `powershell -Command "Expand-Archive -Path '${archivePath}' -DestinationPath '${destination}' -Force"`,
-      {
-        stdio: 'ignore',
-      }
-    );
+    // Use PowerShell for Windows with spawn to avoid shell injection
+    await new Promise<void>((resolve, reject) => {
+      const child = spawn(
+        'powershell',
+        [
+          '-Command',
+          'Expand-Archive',
+          '-Path',
+          archivePath,
+          '-DestinationPath',
+          destination,
+          '-Force',
+        ],
+        { stdio: 'ignore' }
+      );
+
+      child.on('close', (code) => {
+        if (code === 0) {
+          resolve();
+        } else {
+          reject(new Error(`PowerShell exited with code ${code}`));
+        }
+      });
+
+      child.on('error', (err) => {
+        reject(err);
+      });
+    });
     return join(destination, 'buster.exe');
   } else {
-    // Use tar for Unix-like systems
-    execSync(`tar -xzf "${archivePath}" -C "${destination}"`, {
-      stdio: 'ignore',
+    // Use tar for Unix-like systems with spawn to avoid shell injection
+    await new Promise<void>((resolve, reject) => {
+      const child = spawn('tar', ['-xzf', archivePath, '-C', destination], {
+        stdio: 'ignore',
+      });
+
+      child.on('close', (code) => {
+        if (code === 0) {
+          resolve();
+        } else {
+          reject(new Error(`tar exited with code ${code}`));
+        }
+      });
+
+      child.on('error', (err) => {
+        reject(err);
+      });
     });
     return join(destination, 'buster');
   }
+}
+
+/**
+ * Check if the CLI is running as a standalone binary
+ */
+function isBinaryExecution(): boolean {
+  // Check if running via node/npm/pnpm/yarn/bun
+  const execPath = process.execPath.toLowerCase();
+  const argv0 = process.argv[0]?.toLowerCase() || '';
+
+  // Common indicators of non-binary execution
+  const nonBinaryIndicators = ['node', 'npm', 'pnpm', 'yarn', 'bun', 'tsx', 'ts-node'];
+
+  return !nonBinaryIndicators.some(
+    (indicator) => execPath.includes(indicator) || argv0.includes(indicator)
+  );
 }
 
 /**
@@ -186,6 +238,16 @@ export async function updateHandler(options: UpdateOptions): Promise<UpdateResul
       message: `Buster was installed via Homebrew. Please use:\n\n  ${chalk.cyan('brew upgrade buster')}\n\nto update to the latest version.`,
       currentVersion,
       isHomebrew: true,
+    };
+  }
+
+  // Check if running as a binary (not via node/npm/etc)
+  if (!isBinaryExecution() && !validated.check && !validated.force) {
+    return {
+      success: false,
+      message: `Auto-update only works with standalone binary installations.\n\nYou appear to be running Buster via ${chalk.yellow(process.execPath.includes('node') ? 'Node.js' : 'a package manager')}.\n\nTo update, please reinstall Buster or use your package manager's update command.`,
+      currentVersion,
+      isHomebrew,
     };
   }
 
@@ -252,11 +314,21 @@ export async function updateHandler(options: UpdateOptions): Promise<UpdateResul
       downloadFile(binaryInfo.checksumUrl, checksumPath),
     ]);
 
-    // Read checksum
+    // Read and validate checksum
     const { readFile } = await import('node:fs/promises');
     const checksumContent = await readFile(checksumPath, 'utf-8');
-    const checksumParts = checksumContent.split(' ');
-    const expectedChecksum = checksumParts[0]?.trim() || '';
+
+    // SHA256 checksums are 64 hex characters
+    // Format can be either "checksum" or "checksum  filename"
+    const checksumMatch = checksumContent.match(/^([a-f0-9]{64})/i);
+
+    if (!checksumMatch) {
+      throw new Error(
+        `Invalid checksum format in file. Expected SHA256 hash, got: ${checksumContent.substring(0, 100)}`
+      );
+    }
+
+    const expectedChecksum = checksumMatch[1]!.toLowerCase();
 
     // Verify checksum
     console.info(chalk.blue('Verifying download...'));

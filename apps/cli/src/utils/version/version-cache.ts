@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
-import { type VersionCache, VersionCacheSchema } from './version-schemas.js';
+import { type VersionCache, VersionCacheSchema } from './version-schemas';
 
 const CACHE_DIR = join(homedir(), '.buster');
 const CACHE_FILE = join(CACHE_DIR, 'update-check.json');

@@ -6,7 +6,7 @@ import {
   getDirectUpdateInstructions,
   getHomebrewUpdateInstructions,
   isInstalledViaHomebrew,
-} from './homebrew-detection.js';
+} from './homebrew-detection';
 
 // Mock modules
 vi.mock('node:child_process', () => ({

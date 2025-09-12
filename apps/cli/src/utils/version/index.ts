@@ -7,19 +7,19 @@ export {
   isUpdateCheckDisabled,
   loadVersionCache,
   saveVersionCache,
-} from './version-cache.js';
+} from './version-cache';
 export {
   checkForUpdate,
   checkForUpdateInBackground,
   fetchLatestRelease,
   getLatestVersion,
-} from './version-check.js';
+} from './version-check';
 export {
   createUpdateCheckResult,
   formatVersion,
   isUpdateAvailable,
   parseVersion,
-} from './version-compare.js';
+} from './version-compare';
 
 // Export types
 export type {
@@ -28,4 +28,4 @@ export type {
   PlatformInfo,
   UpdateCheckResult,
   VersionCache,
-} from './version-schemas.js';
+} from './version-schemas';

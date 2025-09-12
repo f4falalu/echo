@@ -1,5 +1,5 @@
 import semver from 'semver';
-import type { UpdateCheckResult } from './version-schemas.js';
+import type { UpdateCheckResult } from './version-schemas';
 
 /**
  * Compare two semantic versions and determine if an update is available

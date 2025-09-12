@@ -4,12 +4,12 @@ export {
   getDirectUpdateInstructions,
   getHomebrewUpdateInstructions,
   isInstalledViaHomebrew,
-} from './homebrew-detection.js';
-export { UpdateCommand } from './update.js';
+} from './homebrew-detection';
+export { UpdateCommand } from './update';
 export {
   getBinaryFileName,
   getBinaryInfo,
   getCurrentVersion,
   updateHandler,
-} from './update-handler.js';
-export { type UpdateOptions, UpdateOptionsSchema, type UpdateResult } from './update-schemas.js';
+} from './update-handler';
+export { type UpdateOptions, UpdateOptionsSchema, type UpdateResult } from './update-schemas';
