@@ -1,7 +1,21 @@
+import { getPermissionedDatasets } from '@buster/access-controls';
 import postProcessingWorkflow, {
   type PostProcessingWorkflowOutput,
 } from '@buster/ai/workflows/message-post-processing-workflow/message-post-processing-workflow';
-import { eq, getBraintrustMetadata, getDb, messages, slackIntegrations } from '@buster/database';
+import {
+  eq,
+  getBraintrustMetadata,
+  getChatConversationHistory,
+  getDb,
+  getMessageContext,
+  getOrganizationAnalystDoc,
+  getOrganizationDataSource,
+  getOrganizationDocs,
+  getUserPersonalization,
+  messages,
+  slackIntegrations,
+  users,
+} from '@buster/database';
 import type {
   AssumptionClassification,
   AssumptionLabel,
@@ -13,9 +27,7 @@ import { currentSpan, initLogger, wrapTraced } from 'braintrust';
 import { z } from 'zod/v4';
 import {
   buildWorkflowInput,
-  fetchMessageWithContext,
   fetchPreviousPostProcessingMessages,
-  fetchUserDatasets,
   getExistingSlackMessageForChat,
   sendSlackNotification,
   sendSlackReplyNotification,
@@ -115,38 +127,138 @@ export const messagePostProcessingTask: ReturnType<
         messageId: payload.messageId,
       });
 
-      // Step 1: Fetch message context (this will throw if message not found)
-      const messageContext = await fetchMessageWithContext(payload.messageId);
-      logger.log('Fetched message context', {
-        chatId: messageContext.chatId,
-        userId: messageContext.createdBy,
-        organizationId: messageContext.organizationId,
+      // Step 1: Parallelize ALL database queries for maximum speed (matching analyst agent pattern)
+      const messageContextPromise = getMessageContext({ messageId: payload.messageId });
+      const conversationHistoryPromise = getChatConversationHistory({
+        messageId: payload.messageId,
       });
 
-      // Step 2: Fetch all required data concurrently
-      const [previousPostProcessingResults, datasets, braintrustMetadata, existingSlackMessage] =
-        await Promise.all([
-          fetchPreviousPostProcessingMessages(messageContext.chatId, messageContext.createdAt),
-          fetchUserDatasets(messageContext.createdBy),
-          getBraintrustMetadata({ messageId: payload.messageId }),
-          getExistingSlackMessageForChat(messageContext.chatId),
-        ]);
+      // Start loading data source as soon as we have the required IDs
+      const dataSourcePromise = messageContextPromise.then((context) =>
+        getOrganizationDataSource({ organizationId: context.organizationId })
+      );
+
+      // Fetch user's datasets as soon as we have the userId
+      const datasetsPromise = messageContextPromise.then(async (context) => {
+        try {
+          const datasets = await getPermissionedDatasets({
+            userId: context.userId,
+            page: 0,
+            pageSize: 1000,
+          });
+          return datasets.datasets;
+        } catch (error) {
+          logger.error('Failed to fetch datasets for user', {
+            userId: context.userId,
+            messageId: payload.messageId,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+          return [];
+        }
+      });
+
+      // Fetch user personalization config
+      const userPersonalizationConfigPromise = messageContextPromise.then((context) =>
+        getUserPersonalization(context.userId)
+      );
+
+      // Fetch Braintrust metadata in parallel
+      const braintrustMetadataPromise = getBraintrustMetadata({ messageId: payload.messageId });
+
+      // Fetch analyst instructions in parallel
+      const analystInstructionsPromise = messageContextPromise.then((context) =>
+        getOrganizationAnalystDoc({ organizationId: context.organizationId })
+      );
+
+      // Fetch all organization docs (data catalog docs) in parallel
+      const organizationDocsPromise = messageContextPromise.then((context) =>
+        getOrganizationDocs({ organizationId: context.organizationId })
+      );
+
+      // Fetch userName separately (not included in getMessageContext)
+      const userNamePromise = messageContextPromise.then(async (context) => {
+        const db = getDb();
+        const [user] = await db
+          .select({ name: users.name, email: users.email })
+          .from(users)
+          .where(eq(users.id, context.userId))
+          .limit(1);
+        return user?.name || user?.email || 'Unknown';
+      });
+
+      // Fetch previous post-processing results (needs messageContext for chatId and timestamp)
+      const previousPostProcessingPromise = messageContextPromise.then(async (context) => {
+        // Need to get createdAt from messages table
+        const db = getDb();
+        const [msg] = await db
+          .select({ createdAt: messages.createdAt })
+          .from(messages)
+          .where(eq(messages.id, payload.messageId))
+          .limit(1);
+
+        if (!msg) throw new MessageNotFoundError(payload.messageId);
+
+        return fetchPreviousPostProcessingMessages(context.chatId, new Date(msg.createdAt));
+      });
+
+      // Fetch existing Slack message info
+      const existingSlackMessagePromise = messageContextPromise.then((context) =>
+        getExistingSlackMessageForChat(context.chatId)
+      );
+
+      // Wait for all operations to complete
+      const [
+        messageContext,
+        conversationHistory,
+        dataSource,
+        datasets,
+        braintrustMetadata,
+        analystInstructions,
+        organizationDocs,
+        userPersonalizationConfig,
+        userName,
+        previousPostProcessingResults,
+        existingSlackMessage,
+      ] = await Promise.all([
+        messageContextPromise,
+        conversationHistoryPromise,
+        dataSourcePromise,
+        datasetsPromise,
+        braintrustMetadataPromise,
+        analystInstructionsPromise,
+        organizationDocsPromise,
+        userPersonalizationConfigPromise,
+        userNamePromise,
+        previousPostProcessingPromise,
+        existingSlackMessagePromise,
+      ]);
 
       logger.log('Fetched required data', {
         messageId: payload.messageId,
         previousPostProcessingCount: previousPostProcessingResults.length,
-        datasetsCount: datasets.datasets.length,
+        datasetsCount: datasets.length,
+        organizationId: messageContext.organizationId,
+        dataSourceId: dataSource.dataSourceId,
+        dataSourceSyntax: dataSource.dataSourceSyntax,
+        organizationDocsCount: organizationDocs.length,
         braintrustMetadata, // Log the metadata to verify it's working
         slackMessageExists: existingSlackMessage?.exists || false,
-        hasRawLlmMessages: !!messageContext.rawLlmMessages,
+        hasConversationHistory: conversationHistory.length > 0,
+        hasAnalystInstructions: !!analystInstructions,
+        hasUserPersonalization: !!userPersonalizationConfig,
       });
 
       // Step 3: Build workflow input
       const workflowInput = buildWorkflowInput(
-        messageContext,
+        conversationHistory,
         previousPostProcessingResults,
-        datasets.datasets,
-        existingSlackMessage?.exists || false
+        datasets,
+        dataSource.dataSourceSyntax,
+        userName,
+        existingSlackMessage?.exists || false,
+        userPersonalizationConfig || null,
+        analystInstructions,
+        organizationDocs
       );
 
       logger.log('Built workflow input', {
@@ -201,7 +313,7 @@ export const messagePostProcessingTask: ReturnType<
         messageId: payload.messageId,
       });
 
-      const dbData = extractDbFields(validatedOutput, messageContext.userName);
+      const dbData = extractDbFields(validatedOutput, userName);
 
       try {
         const db = getDb();
@@ -290,7 +402,7 @@ export const messagePostProcessingTask: ReturnType<
             } else {
               slackResult = await sendSlackReplyNotification({
                 organizationId: messageContext.organizationId,
-                userName: messageContext.userName,
+                userName: userName,
                 chatId: messageContext.chatId,
                 summaryTitle: dbData.summary_title,
                 summaryMessage: dbData.summary_message,
@@ -309,7 +421,7 @@ export const messagePostProcessingTask: ReturnType<
 
             slackResult = await sendSlackNotification({
               organizationId: messageContext.organizationId,
-              userName: messageContext.userName,
+              userName: userName,
               chatId: messageContext.chatId,
               summaryTitle: dbData.summary_title,
               summaryMessage: dbData.summary_message,
@@ -333,7 +445,7 @@ export const messagePostProcessingTask: ReturnType<
                 channelId: slackResult.channelId,
                 messageTs: slackResult.messageTs,
                 ...(slackResult.threadTs && { threadTs: slackResult.threadTs }),
-                userName: messageContext.userName,
+                userName: userName,
                 chatId: messageContext.chatId,
                 summaryTitle: dbData.summary_title,
                 summaryMessage: dbData.summary_message,

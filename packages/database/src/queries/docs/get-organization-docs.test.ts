@@ -165,7 +165,7 @@ describe('getOrganizationDocs', () => {
         type: 'and',
         conditions: expect.arrayContaining([
           expect.objectContaining({ type: 'eq' }), // organizationId condition
-          expect.objectContaining({ type: 'ne' }), // not analyst type condition
+          expect.objectContaining({ type: 'eq' }), // type = 'normal' condition
           expect.objectContaining({ type: 'isNull' }), // not deleted condition
         ]),
       })
@@ -179,8 +179,8 @@ describe('getOrganizationDocs', () => {
     await expect(getOrganizationDocs(validParams)).rejects.toThrow('Database query failed');
   });
 
-  it('should filter out analyst type docs', async () => {
-    // This test verifies the query construction but doesn't test the actual filtering
+  it('should filter for normal type docs only', async () => {
+    // This test verifies the query construction filters for type = 'normal'
     // since that happens at the database level
     await getOrganizationDocs(validParams);
 
@@ -188,7 +188,7 @@ describe('getOrganizationDocs', () => {
       expect.objectContaining({
         type: 'and',
         conditions: expect.arrayContaining([
-          expect.objectContaining({ type: 'ne' }), // Should have ne condition for analyst type
+          expect.objectContaining({ type: 'eq' }), // Should have eq condition for normal type
         ]),
       })
     );
