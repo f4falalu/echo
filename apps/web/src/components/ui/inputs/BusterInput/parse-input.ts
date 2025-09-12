@@ -3,10 +3,10 @@ import type { BusterMentionItems } from './BusterInput.types';
 export const DEFAULT_MENTION_MARKUP = '@[__display__](__id__)';
 const DEFAULT_MENTION_REGEX = /@\[([^\]]+)\]\(([^)]+)\)/g;
 
-type BusterMentionItemsRecord<V = string, T extends string = string> = Record<
-  T,
-  Pick<BusterMentionItems<V, T>, 'items' | 'trigger'>
->;
+type BusterMentionItemsRecord<V = string, T extends string = string> = Pick<
+  BusterMentionItems<V, T>,
+  'items' | 'trigger'
+>[];
 
 export const parseMarkupInput = <V = string, T extends string = string>({
   input,
