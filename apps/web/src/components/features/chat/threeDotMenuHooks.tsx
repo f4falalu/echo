@@ -74,9 +74,11 @@ export const useFavoriteChatSelectMenu = ({ chatId = '' }: { chatId: string | un
 
   return useMemo(() => {
     return createDropdownItem({
-      label: 'Add to favorites',
+      label: isFavorited ? 'Remove from favorites' : 'Add to favorites',
       value: 'add-to-favorites',
-      icon: <Star />,
+      icon: isFavorited ? <StarFilled /> : <Star />,
+      onClick: () => onFavoriteClick(),
+      closeOnSelect: false,
     });
   }, [isFavorited, onFavoriteClick]);
 };

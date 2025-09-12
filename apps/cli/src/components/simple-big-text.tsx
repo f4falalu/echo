@@ -1,5 +1,4 @@
 import { Text } from 'ink';
-import React from 'react';
 
 interface SimpleBigTextProps {
   text: string;
@@ -28,7 +27,7 @@ export function SimpleBigText({ text, color = 'white' }: SimpleBigTextProps) {
     const letter = letters[char];
     if (letter) {
       for (let i = 0; i < 6; i++) {
-        lines[i] += letter[i] + ' ';
+        lines[i] += `${letter[i]} `;
       }
     } else if (char === ' ') {
       for (let i = 0; i < 6; i++) {

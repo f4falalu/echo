@@ -156,7 +156,7 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2404
     outputs:
       cli_version: ${{ steps.get_version.outputs.version }}
-      cli_tag_name: ${{ steps.create_the_release.outputs.tag_name }}
+      cli_tag_name: ${{ steps.output_release_info.outputs.tag_name }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -236,10 +236,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Output release info
-        if: steps.check_release.outputs.exists != 'true'
+        id: output_release_info
         run: |
           echo "tag_name=v${{ steps.get_version.outputs.version }}" >> $GITHUB_OUTPUT
-          echo "✅ Release created: v${{ steps.get_version.outputs.version }}"
+          if [[ "${{ steps.check_release.outputs.exists }}" == "true" ]]; then
+            echo "ℹ️ Using existing release: v${{ steps.get_version.outputs.version }}"
+          else
+            echo "✅ Release created: v${{ steps.get_version.outputs.version }}"
+          fi
 
   update_homebrew_tap:
     name: Update Homebrew Tap
