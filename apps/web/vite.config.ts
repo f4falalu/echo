@@ -11,7 +11,7 @@ const config = defineConfig(({ command, mode }) => {
   const isTypecheck = process.argv.includes('--typecheck') || process.env.TYPECHECK === 'true';
   const useChecker = !process.env.VITEST && isBuild;
   const isLocalBuild = process.argv.includes('--local') || mode === 'development';
-  const target = isLocalBuild ? ('bun' as const) : ('cloudflare-module' as const);
+  const target = isLocalBuild ? ('bun' as const) : ('vercel' as const);
 
   return {
     server: { port: 3000 },

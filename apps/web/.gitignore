@@ -18,3 +18,4 @@ storybook-static
 .env.staging
 .env.dev
 .env.local
+.vercel
