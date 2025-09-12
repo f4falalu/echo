@@ -36,6 +36,7 @@
     "js-yaml": "catalog:",
     "micromatch": "^4.0.8",
     "react": "catalog:",
+    "semver": "^7.6.3",
     "zod": "catalog:"
   },
   "devDependencies": {
@@ -46,6 +47,7 @@
     "@types/js-yaml": "catalog:",
     "@types/micromatch": "^4.0.9",
     "@types/react": "catalog:",
+    "@types/semver": "^7.5.8",
     "ink-testing-library": "^4.0.0",
     "react-devtools-core": "^6.1.5",
     "tsx": "catalog:",
