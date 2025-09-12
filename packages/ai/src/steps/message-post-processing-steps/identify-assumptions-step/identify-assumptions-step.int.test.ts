@@ -282,14 +282,19 @@ describe('identify-assumptions-step integration', () => {
     const mockInput = {
       conversationHistory: mockConversationHistory,
       userName: 'John',
-      messageId: 'msg_12345',
-      userId: 'user_67890',
-      chatId: 'chat_abcde',
-      isFollowUp: false,
-      isSlackFollowUp: false,
-      previousMessages: [],
-      datasets:
-        'name: product\ndescription: Product catalog information\ntables:\n  - name: product\n    description: Product information including bikes and accessories\n    columns:\n      - name: name\n        description: Product name\n      - name: finishedgoodsflag\n        description: Indicates if finished and ready for sale\n  - name: sales_order_header\n    description: Sales order header information\n    columns:\n      - name: onlineorderflag\n        description: Boolean indicating if order was placed online\n  - name: credit_card\n    description: Credit card information\n    columns:\n      - name: cardtype\n        description: Type of credit card',
+      datasets: [
+        {
+          id: 'dataset_1',
+          name: 'product',
+          description: 'Product catalog information',
+          ymlContent:
+            'name: product\ndescription: Product catalog information\ntables:\n  - name: product\n    description: Product information including bikes and accessories\n    columns:\n      - name: name\n        description: Product name\n      - name: finishedgoodsflag\n        description: Indicates if finished and ready for sale\n  - name: sales_order_header\n    description: Sales order header information\n    columns:\n      - name: onlineorderflag\n        description: Boolean indicating if order was placed online\n  - name: credit_card\n    description: Credit card information\n    columns:\n      - name: cardtype\n        description: Type of credit card',
+          type: 'dataset',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      ] as any,
+      dataSourceSyntax: 'postgresql',
     };
 
     // Call the step execution function directly

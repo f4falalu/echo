@@ -29,7 +29,11 @@ export async function getOrganizationDocs(params: GetOrganizationDocsParams) {
     })
     .from(docs)
     .where(
-      and(eq(docs.organizationId, organizationId), ne(docs.type, 'analyst'), isNull(docs.deletedAt))
+      and(
+        eq(docs.organizationId, organizationId),
+        eq(docs.type, 'normal'), // Changed from ne(docs.type, 'analyst') to eq(docs.type, 'normal')
+        isNull(docs.deletedAt)
+      )
     )
     .orderBy(docs.name); // Order by name for consistent ordering
 
