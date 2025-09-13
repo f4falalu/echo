@@ -1,25 +1,26 @@
-import { SuggestionProps } from '@tiptap/suggestion';
+import type { SuggestionProps } from '@tiptap/suggestion';
 import React, { useEffect, useImperativeHandle, useState } from 'react';
 import { cn } from '@/lib/utils';
-import type { MentionInputTriggerItem } from '../MentionInput.types';
+import type { MentionInputTriggerItem, MentionTriggerItem } from '../MentionInput.types';
 export interface MentionListImperativeHandle {
   onKeyDown: (props: { event: KeyboardEvent }) => boolean;
 }
 
-export type MentionListProps<T = string> = SuggestionProps<MentionInputTriggerItem<T>>;
+export type MentionListProps<T = string> = SuggestionProps<
+  MentionInputTriggerItem<T>,
+  MentionTriggerItem<T>
+>;
 
 function MentionListInner<T = string>(
   props: MentionListProps<T>,
   ref: React.ForwardedRef<MentionListImperativeHandle>
 ) {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  console.log(props);
 
   const selectItem = (index: number) => {
-    const item = props.items[index];
-
+    const item = props.items[index] as MentionTriggerItem<T>;
     if (item) {
-      props.command({ id: item });
+      props.command(item);
     }
   };
 
@@ -63,7 +64,10 @@ function MentionListInner<T = string>(
       {props.items.length ? (
         props.items.map((item, index: number) => (
           <div
-            className={cn('w-full min-w-fit', index === selectedIndex ? 'bg-muted' : '', 'w-full')}
+            className={cn(
+              'w-full min-w-fit hover:bg-item-hover',
+              index === selectedIndex && 'bg-item-hover hover:bg-item-hover-active'
+            )}
             key={index}
             onClick={() => selectItem(index)}
           >

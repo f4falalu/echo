@@ -1,17 +1,29 @@
+import Fuse from 'fuse.js';
 import type { MentionInputTriggerItem, MentionTriggerItem } from './MentionInput.types';
 
-// Core filter logic for individual items
-const itemMatchesQuery = (item: MentionTriggerItem, query: string): boolean => {
-  const lowerCasedQuery = query.toLowerCase();
+// Fuse.js configuration for consistent fuzzy search settings
+const fuseConfig = {
+  threshold: 0.3, // Conservative fuzzy matching (0.0 = exact, 1.0 = very fuzzy)
+  includeScore: true,
+  minMatchCharLength: 1,
+  ignoreLocation: true, // Don't care about position of match in string
+  findAllMatches: true,
+};
 
-  // Check labelMatches first if provided
+// Core filter logic for individual items using Fuse.js
+const itemMatchesQuery = (item: MentionTriggerItem, query: string): boolean => {
+  // Preserve original behavior: if labelMatches exists, ONLY search in labelMatches
   if (item.labelMatches?.length) {
-    return item.labelMatches.some((match) => match.toLowerCase().includes(lowerCasedQuery));
+    const labelMatchesFuse = new Fuse(item.labelMatches, fuseConfig);
+    const results = labelMatchesFuse.search(query);
+    return results.length > 0;
   }
 
-  // Fall back to checking the label if it's a string
+  // Fall back to checking the label if it's a string and no labelMatches
   if (typeof item.label === 'string') {
-    return item.label.toLowerCase().includes(lowerCasedQuery);
+    const labelFuse = new Fuse([item.label], fuseConfig);
+    const results = labelFuse.search(query);
+    return results.length > 0;
   }
 
   // No match if label is not a string and no labelMatches provided

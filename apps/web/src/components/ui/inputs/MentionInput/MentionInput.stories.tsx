@@ -8,6 +8,15 @@ const meta = {
     layout: 'centered',
   },
   tags: ['autodocs'],
+  decorators: [
+    (Story) => {
+      return (
+        <div className="w-full p-3 m-3">
+          <Story />
+        </div>
+      );
+    },
+  ],
 } satisfies Meta<typeof MentionInput>;
 
 export default meta;

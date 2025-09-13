@@ -73,4 +73,16 @@ export const createMentionSuggestionExtension = ({
       },
     };
   },
+
+  command: ({ editor, props, range }) => {
+    console.log(props);
+    editor
+      .chain()
+      .focus()
+      .insertContentAt(range, [
+        { type: 'mention', attrs: props },
+        { type: 'text', text: ' ' }, // add a trailing space so the caret leaves the atom
+      ])
+      .run();
+  },
 });

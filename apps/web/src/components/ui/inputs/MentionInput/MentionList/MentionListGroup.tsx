@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import type { MentionInputTriggerGroup } from '../MentionInput.types';
 
 export interface MentionListGroupProps<T = string> {

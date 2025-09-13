@@ -14,7 +14,7 @@
       "!**/dist",
       "!**/build",
       "!**/coverage",
-      "!**/.next",
+      "!**/.next"
     ]
   },
   "linter": {
@@ -101,14 +101,6 @@
       "trailingCommas": "es5",
       "semicolons": "always",
       "arrowParentheses": "always"
-    }
-  },
-  "css": {
-    "formatter": {
-      "enabled": true,
-      "indentStyle": "space",
-      "indentWidth": 2,
-      "lineWidth": 100
     }
   }
 }

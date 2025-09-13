@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "./tailwindAnimations.css";
@@ -75,7 +75,8 @@
 
   /* Font families */
   --font-sans: "Roobert_Pro", sans-serif;
-  --font-mono: "Source Code Pro", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-mono:
+    "Source Code Pro", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
   /* Shadows */
   --shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.05);
@@ -280,10 +281,4 @@
   html {
     @apply h-full w-full;
   }
-
-
 }
-
-
-
-

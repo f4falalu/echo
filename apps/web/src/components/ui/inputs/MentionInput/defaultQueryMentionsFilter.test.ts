@@ -268,4 +268,156 @@ describe('defaultQueryMentionsFilter', () => {
       ]);
     });
   });
+
+  describe('Fuzzy matching with Fuse.js', () => {
+    it('should match items with typos and approximate spelling', () => {
+      const items: MentionInputTriggerItem[] = [
+        { value: 'apple', label: 'Apple', type: 'item' },
+        { value: 'banana', label: 'Banana', type: 'item' },
+        { value: 'cherry', label: 'Cherry', type: 'item' },
+        { value: 'blueberry', label: 'Blueberry', type: 'item' },
+        { value: 'strawberry', label: 'Strawberry', type: 'item' },
+      ];
+
+      // Test typos - "Appl" should match "Apple"
+      let result = defaultQueryMentionsFilter('Appl', items);
+      expect(result).toEqual([{ value: 'apple', label: 'Apple', type: 'item' }]);
+
+      // Test missing letters - "Banan" should match "Banana"
+      result = defaultQueryMentionsFilter('Banan', items);
+      expect(result).toEqual([{ value: 'banana', label: 'Banana', type: 'item' }]);
+
+      // Test transposed letters - "Chery" should match "Cherry"
+      result = defaultQueryMentionsFilter('Chery', items);
+      expect(result).toEqual([{ value: 'cherry', label: 'Cherry', type: 'item' }]);
+
+      // Test partial match with typo - "blubery" should match "Blueberry"
+      result = defaultQueryMentionsFilter('blubery', items);
+      expect(result).toEqual([{ value: 'blueberry', label: 'Blueberry', type: 'item' }]);
+    });
+
+    it('should apply fuzzy matching to labelMatches while preserving priority', () => {
+      const items: MentionInputTriggerItem[] = [
+        {
+          value: 'dataset1',
+          label: 'Production Dataset',
+          labelMatches: ['sales', 'revenue', 'transactions'],
+          type: 'item',
+        },
+        {
+          value: 'dataset2',
+          label: 'Customer Dataset',
+          labelMatches: ['users', 'customers', 'accounts'],
+          type: 'item',
+        },
+        {
+          value: 'dataset3',
+          label: 'Analytics Dataset',
+          // No labelMatches, should use label with fuzzy matching
+          type: 'item',
+        },
+      ];
+
+      // Fuzzy match in labelMatches - "sale" should match "sales"
+      let result = defaultQueryMentionsFilter('sale', items);
+      expect(result).toEqual([
+        {
+          value: 'dataset1',
+          label: 'Production Dataset',
+          labelMatches: ['sales', 'revenue', 'transactions'],
+          type: 'item',
+        },
+      ]);
+
+      // Fuzzy match with typo in labelMatches - "custmer" should match "customers"
+      result = defaultQueryMentionsFilter('custmer', items);
+      expect(result).toEqual([
+        {
+          value: 'dataset2',
+          label: 'Customer Dataset',
+          labelMatches: ['users', 'customers', 'accounts'],
+          type: 'item',
+        },
+      ]);
+
+      // Fuzzy match in label when no labelMatches - "Analytic" should match "Analytics Dataset"
+      result = defaultQueryMentionsFilter('Analytic', items);
+      expect(result).toEqual([
+        {
+          value: 'dataset3',
+          label: 'Analytics Dataset',
+          type: 'item',
+        },
+      ]);
+
+      // Should NOT match label when labelMatches exists - "Productn" should NOT match first item
+      result = defaultQueryMentionsFilter('Productn', items);
+      expect(result).toEqual([]);
+    });
+
+    it('should apply fuzzy matching within groups', () => {
+      const items: MentionInputTriggerItem[] = [
+        {
+          type: 'group',
+          label: 'Fruits',
+          items: [
+            { value: 'apple', label: 'Apple', type: 'item' },
+            { value: 'apricot', label: 'Apricot', type: 'item' },
+            { value: 'avocado', label: 'Avocado', type: 'item' },
+          ],
+        },
+        {
+          type: 'group',
+          label: 'Vegetables',
+          items: [
+            { value: 'artichoke', label: 'Artichoke', type: 'item' },
+            { value: 'asparagus', label: 'Asparagus', type: 'item' },
+            { value: 'arugula', label: 'Arugula', type: 'item' },
+          ],
+        },
+        {
+          type: 'group',
+          label: 'Grains',
+          items: [
+            { value: 'quinoa', label: 'Quinoa', type: 'item' },
+            { value: 'amaranth', label: 'Amaranth', type: 'item' },
+          ],
+        },
+      ];
+
+      // Fuzzy match should work within groups - "Appl" should match "Apple" in Fruits group
+      let result = defaultQueryMentionsFilter('Appl', items);
+      expect(result).toEqual([
+        {
+          type: 'group',
+          label: 'Fruits',
+          items: [{ value: 'apple', label: 'Apple', type: 'item' }],
+        },
+      ]);
+
+      // Fuzzy match with multiple group matches - "Ar" with typos should match items in both groups
+      result = defaultQueryMentionsFilter('Artich', items);
+      expect(result).toEqual([
+        {
+          type: 'group',
+          label: 'Vegetables',
+          items: [{ value: 'artichoke', label: 'Artichoke', type: 'item' }],
+        },
+      ]);
+
+      // Fuzzy match should handle typos in group items - "Quinao" should match "Quinoa"
+      result = defaultQueryMentionsFilter('Quinao', items);
+      expect(result).toEqual([
+        {
+          type: 'group',
+          label: 'Grains',
+          items: [{ value: 'quinoa', label: 'Quinoa', type: 'item' }],
+        },
+      ]);
+
+      // No fuzzy match should return empty (threshold test) - very different string
+      result = defaultQueryMentionsFilter('xyz123', items);
+      expect(result).toEqual([]);
+    });
+  });
 });

@@ -1,49 +1,22 @@
 import { ClientOnly } from '@tanstack/react-router';
 import Document from '@tiptap/extension-document';
-import Mention, { type MentionOptions } from '@tiptap/extension-mention';
 import Paragraph from '@tiptap/extension-paragraph';
 import Text from '@tiptap/extension-text';
-import {
-  EditorContent,
-  EditorContext,
-  posToDOMRect,
-  ReactRenderer,
-  useEditor,
-} from '@tiptap/react';
-import React, { useMemo } from 'react';
-import { createMentionSuggestionExtension } from './createMentionSuggestionOption';
-import {
-  MentionList,
-  type MentionListImperativeHandle,
-  type MentionListProps,
-} from './MentionList/MentionList';
-
-const atSuggestion = createMentionSuggestionExtension({
-  trigger: '@',
-  items: [
-    { value: 'Lea Thompson', label: 'Lea Thompson' },
-    { value: 'Cyndi Lauper', label: 'Cyndi Lauper' },
-    { value: 'Tom Cruise', label: 'Tom Cruise' },
-    { value: 'Madonna', label: 'Madonna' },
-  ],
-});
+import { EditorContent, EditorContext, useEditor } from '@tiptap/react';
+import { useMemo } from 'react';
+import { MentionExtension } from './MentionExtension';
 
 export const MentionInput = () => {
   const editor = useEditor({
-    extensions: [
-      Document,
-      Paragraph,
-      Text,
-      Mention.configure({
-        HTMLAttributes: {
-          class: 'text-gray-dark bg-item-select border rounded p-0.5',
-        },
-        suggestions: [atSuggestion],
-      }),
-    ],
+    extensions: [Document, Paragraph, Text, MentionExtension],
     content: '',
     autofocus: true,
     editable: true,
+    editorProps: {
+      attributes: {
+        class: 'p-1 swag',
+      },
+    },
   });
 
   const providerValue = useMemo(() => ({ editor }), [editor]);
@@ -51,7 +24,7 @@ export const MentionInput = () => {
   return (
     <ClientOnly>
       <EditorContext.Provider value={providerValue}>
-        <EditorContent className="rounded border min-w-120 focus:outline-none" editor={editor} />
+        <EditorContent className="rounded p-1 border outline-1 min-w-120" editor={editor} />
       </EditorContext.Provider>
     </ClientOnly>
   );
