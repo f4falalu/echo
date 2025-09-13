@@ -16,7 +16,7 @@ import {
   MentionList,
   type MentionListImperativeHandle,
   type MentionListProps,
-} from './MentionList';
+} from './MentionList/MentionList';
 
 const atSuggestion = createMentionSuggestionExtension({
   trigger: '@',

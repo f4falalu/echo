@@ -9,7 +9,7 @@ import {
   MentionList,
   type MentionListImperativeHandle,
   type MentionListProps,
-} from './MentionList';
+} from './MentionList/MentionList';
 
 export const createMentionSuggestionExtension = ({
   trigger,
