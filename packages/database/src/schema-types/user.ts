@@ -16,8 +16,13 @@ export const UserPersonalizationConfigSchema = z.object({
   additionalInformation: z.string().optional(),
 });
 
+export const UserShortcutTrackingSchema = z.object({
+  lastUsedShortcuts: z.array(z.string().uuid()).default([]),
+});
+
 export type UserSuggestedPromptsType = z.infer<typeof UserSuggestedPromptsSchema>;
 export type UserPersonalizationConfigType = z.infer<typeof UserPersonalizationConfigSchema>;
+export type UserShortcutTrackingType = z.infer<typeof UserShortcutTrackingSchema>;
 
 export const DEFAULT_USER_SUGGESTED_PROMPTS: UserSuggestedPromptsType = {
   suggestedPrompts: {

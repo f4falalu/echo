@@ -47,7 +47,8 @@ export async function initializeChat(
         request.prompt,
         request.message_analysis_mode,
         user,
-        redoFromMessageId
+        redoFromMessageId,
+        request.metadata
       );
     }
 
@@ -59,6 +60,7 @@ export async function initializeChat(
       messageAnalysisMode: request.message_analysis_mode,
       user,
       organizationId,
+      metadata: request.metadata,
     });
   } catch (error) {
     // Log detailed error context

@@ -59,6 +59,7 @@ const mockMessage: Message = {
   feedback: null,
   postProcessingMessage: null,
   triggerRunId: null,
+  metadata: {},
 };
 
 // Mock database functions
