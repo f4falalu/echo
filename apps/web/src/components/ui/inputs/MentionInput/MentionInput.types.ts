@@ -1,3 +1,5 @@
+import type { MentionOptions } from '@tiptap/extension-mention';
+
 export type MentionOnSelectParams = Pick<
   MentionTriggerItem,
   'value' | 'onSelect' | 'doNotAddPipeOnSelect' | 'loading' | 'disabled' | 'selected'
@@ -6,9 +8,10 @@ export type MentionOnSelectParams = Pick<
 export type MentionTriggerItem<T = string> = {
   value: T;
   label: string | React.ReactNode;
+  labelMatches?: string[]; //if this is provided, we will use it to filter the items
   secondaryContent?: string | React.ReactNode;
   icon?: React.ReactNode;
-  onSelect: (d: MentionOnSelectParams) => void;
+  onSelect?: (d: MentionOnSelectParams) => void;
   disabled?: boolean; //will inherit from if undefined
   loading?: boolean;
   type?: 'item';
@@ -42,3 +45,7 @@ export type MentionInputProps = {
   className?: string;
   style?: React.CSSProperties;
 };
+
+//The tip tap type for a suggestion
+
+export type MentionSuggestionExtension = MentionOptions<MentionInputTriggerItem>['suggestion'];

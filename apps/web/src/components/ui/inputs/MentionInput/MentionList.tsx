@@ -1,8 +1,6 @@
 import { SuggestionProps } from '@tiptap/suggestion';
 import React, { useEffect, useImperativeHandle, useState } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
 import { cn } from '@/lib/utils';
-import { Dropdown } from '../../dropdown';
 import type { MentionInputTriggerItem } from './MentionInput.types';
 export interface MentionListImperativeHandle {
   onKeyDown: (props: { event: KeyboardEvent }) => boolean;

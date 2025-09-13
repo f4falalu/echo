@@ -10,13 +10,23 @@ import {
   ReactRenderer,
   useEditor,
 } from '@tiptap/react';
-import type { SuggestionOptions } from '@tiptap/suggestion';
 import React, { useMemo } from 'react';
+import { createMentionSuggestionExtension } from './createMentionSuggestionOption';
 import {
   MentionList,
   type MentionListImperativeHandle,
   type MentionListProps,
 } from './MentionList';
+
+const atSuggestion = createMentionSuggestionExtension({
+  trigger: '@',
+  items: [
+    { value: 'Lea Thompson', label: 'Lea Thompson' },
+    { value: 'Cyndi Lauper', label: 'Cyndi Lauper' },
+    { value: 'Tom Cruise', label: 'Tom Cruise' },
+    { value: 'Madonna', label: 'Madonna' },
+  ],
+});
 
 export const MentionInput = () => {
   const editor = useEditor({
@@ -28,66 +38,7 @@ export const MentionInput = () => {
         HTMLAttributes: {
           class: 'text-gray-dark bg-item-select border rounded p-0.5',
         },
-        suggestions: [
-          {
-            char: '@',
-            items: ({ query }) => {
-              return ['Lea Thompson', 'Cyndi Lauper', 'Tom Cruise', 'Madonna'];
-            },
-            render: () => {
-              let component: ReactRenderer<MentionListImperativeHandle, MentionListProps<string>>;
-
-              return {
-                onStart: (props) => {
-                  component = new ReactRenderer(
-                    MentionList as React.ComponentType<MentionListProps<string>>,
-                    {
-                      props,
-                      editor: props.editor,
-                    }
-                  );
-
-                  if (!props.clientRect) {
-                    return;
-                  }
-
-                  const rect = posToDOMRect(
-                    editor.view,
-                    editor.state.selection.from,
-                    editor.state.selection.to
-                  );
-
-                  const element = component.element as HTMLElement;
-                  element.style.position = 'absolute';
-                  element.style.left = `${rect.left}px`;
-                  element.style.top = `${rect.top}px`;
-                  element.style.transform = `translateY(1.0lh)`;
-
-                  document.body.appendChild(component.element);
-                },
-
-                onUpdate(props) {
-                  component.updateProps(props);
-                  //  updatePosition(props.editor, component.element);
-                },
-
-                onKeyDown(props) {
-                  if (props.event.key === 'Escape') {
-                    component.destroy();
-                    return true;
-                  }
-
-                  return component.ref?.onKeyDown(props) ?? false;
-                },
-
-                onExit() {
-                  component.element.remove();
-                  component.destroy();
-                },
-              };
-            },
-          },
-        ],
+        suggestions: [atSuggestion],
       }),
     ],
     content: '',
