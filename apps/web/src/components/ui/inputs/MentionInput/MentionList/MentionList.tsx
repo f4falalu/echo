@@ -6,6 +6,7 @@ import type {
   MentionOnSelectParams,
   MentionTriggerItem,
 } from '../MentionInput.types';
+import { findFirstValueInItems } from './findFirstValueInItems';
 import { MentionListSelector } from './MentionListSelector';
 export interface MentionListImperativeHandle {
   onKeyDown: (props: { event: KeyboardEvent }) => boolean;
@@ -20,10 +21,15 @@ function MentionListInner<T = string>(
   { trigger, emptyState, items, command }: MentionListProps<T>,
   ref: React.ForwardedRef<MentionListImperativeHandle>
 ) {
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedItem, setSelectedItem] = useState<T | undefined>(undefined);
 
-  const selectItem = (index: number) => {
-    const item = items[index] as MentionInputTriggerItem<T>;
+  const selectItem = (value: T) => {
+    const item = items.find((item) => (item as MentionTriggerItem<T>).value === value);
+
+    if (!item) {
+      console.warn('invalid item', value);
+      return;
+    }
 
     const isInvalidItem =
       ('type' in item && item.type === 'separator') || ('type' in item && item.type === 'group');
@@ -46,18 +52,25 @@ function MentionListInner<T = string>(
   };
 
   const upHandler = () => {
-    setSelectedIndex((selectedIndex + items.length - 1) % items.length);
+    //  setSelectedIndex((selectedIndex + items.length - 1) % items.length);
   };
 
   const downHandler = () => {
-    setSelectedIndex((selectedIndex + 1) % items.length);
+    //  setSelectedIndex((selectedIndex + 1) % items.length);
   };
 
   const enterHandler = () => {
-    selectItem(selectedIndex);
+    if (selectedItem) {
+      selectItem(selectedItem);
+    }
   };
 
-  useEffect(() => setSelectedIndex(0), [items]);
+  useEffect(() => {
+    const firstValue = findFirstValueInItems(items);
+    if (firstValue !== undefined) {
+      setSelectedItem(firstValue);
+    }
+  });
 
   useImperativeHandle(ref, () => ({
     onKeyDown: ({ event }: { event: KeyboardEvent }) => {
@@ -87,9 +100,8 @@ function MentionListInner<T = string>(
           <MentionListSelector<T>
             key={index}
             {...item}
-            isSelected={index === selectedIndex}
-            index={index}
-            setSelectedIndex={setSelectedIndex}
+            selectedItem={selectedItem}
+            setSelectedItem={setSelectedItem}
           />
         ))
       ) : (

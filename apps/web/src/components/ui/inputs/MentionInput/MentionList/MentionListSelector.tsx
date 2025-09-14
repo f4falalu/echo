@@ -1,33 +1,33 @@
 import React from 'react';
-import type { MentionInputTriggerItem } from '../MentionInput.types';
+import type { MentionInputTriggerGroup, MentionInputTriggerItem } from '../MentionInput.types';
 import { MentionListGroup } from './MentionListGroup';
 import { MentionListItem } from './MentionListItem';
 import { MentionListSeperator } from './MentionListSeperator';
 
-type MentionInputTriggerItemExtended<T = string> = MentionInputTriggerItem<T> & {
-  isSelected: boolean;
-  index: number;
-  setSelectedIndex: (index: number) => void;
+type ExtendedOptions<T = string> = {
+  selectedItem: T | undefined;
+  setSelectedItem: (item: T | undefined) => void;
 };
+
+export type MentionInputTriggerItemExtended<T = string> = MentionInputTriggerItem<T> &
+  ExtendedOptions<T>;
+
+export type MentionListGroupExtended<T = string> = MentionInputTriggerGroup<T> & ExtendedOptions<T>;
 
 export function MentionListSelector<T = string>(props: MentionInputTriggerItemExtended<T>) {
   const { type } = props;
 
   if (type === 'group') {
-    return <MentionListGroup group={props} />;
+    return <MentionListGroup {...props} />;
   }
 
   if (type === 'separator') {
     return <MentionListSeperator {...props} />;
   }
 
-  if (type === 'item') {
-    props;
-    return <MentionListItem {...props} />;
-  }
-
-  if (type === undefined) {
-    return null;
+  if (type === 'item' || !type) {
+    const isSelected = props.selectedItem === props.value;
+    return <MentionListItem {...props} isSelected={isSelected} />;
   }
 
   const _exhaustiveCheck: never = type;
