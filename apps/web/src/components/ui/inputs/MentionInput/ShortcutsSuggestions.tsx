@@ -1,7 +1,11 @@
 import PenWriting from '@/components/ui/icons/NucleoIconOutlined/pen-writing';
 import Plus from '@/components/ui/icons/NucleoIconOutlined/plus';
+import { Button } from '../../buttons';
+import { Dropdown } from '../../dropdown';
+import { Dots } from '../../icons';
 import { createMentionSuggestionExtension } from './createMentionSuggestionOption';
 import type { MentionInputTriggerItem } from './MentionInput.types';
+import { SecondaryContentDropdown } from './SecondaryContentDropdown';
 
 const listOfSports: MentionInputTriggerItem[] = [
   {
@@ -28,7 +32,29 @@ const listOfSports: MentionInputTriggerItem[] = [
         value: 'Hockey',
         label: 'Hockey',
       },
-    ],
+    ].map((item) => ({
+      ...item,
+      secondaryContent: (
+        <SecondaryContentDropdown
+          items={[
+            {
+              label: 'Edit',
+              value: 'edit',
+              onClick: () => {
+                console.log('edit');
+              },
+            },
+            {
+              label: 'Delete',
+              value: 'delete',
+              onClick: () => {
+                console.log('delete');
+              },
+            },
+          ]}
+        />
+      ),
+    })),
   },
   { type: 'separator' },
   {
