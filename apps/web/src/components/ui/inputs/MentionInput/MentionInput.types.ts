@@ -20,17 +20,16 @@ type MentionTriggerItemBase<T = string> = {
   labelMatches?: string[]; //if this is provided, we will use it to filter the items
   secondaryContent?: string | React.ReactNode;
   icon?: React.ReactNode;
-  onSelect?: (d: MentionOnSelectParams) => void;
+  onSelect?: (d: MentionOnSelectParams) => void | Promise<void>;
   disabled?: boolean; //will inherit from if undefined
   loading?: boolean;
   type?: 'item';
   selected?: boolean;
-  doNotAddPipeOnSelect?: boolean | false;
+  doNotAddPipeOnSelect?: false;
 };
 
 type MentionTriggerItemNotPiped<T = string> = MentionTriggerItemBase<T> & {
   doNotAddPipeOnSelect: true;
-  onSelect: (d: MentionOnSelectParams) => void;
 };
 
 export type MentionTriggerItem<T = string> =
@@ -59,7 +58,7 @@ export type MentionInputTrigger<T = string> = {
   items: MentionInputTriggerItem<T>;
 };
 
-export type MentionInputProps = {
+export type MentionStylePillProps = {
   className?: string;
   style?: React.CSSProperties;
 };
@@ -75,20 +74,15 @@ declare module '@tiptap/core' {
   interface Storage {
     mention: {
       popoverByTrigger: Map<string, MentionPopoverContentCallback>;
-      pillStylingByTrigger: Map<string, { className?: string; style?: React.CSSProperties }>;
+      pillStylingByTrigger: Map<string, MentionStylePillProps>;
     };
   }
   interface Commands {
     mention: {
       setPopoverByTrigger: (trigger: string, popoverContent: MentionPopoverContentCallback) => void;
       getPopoverByTrigger: (trigger: string) => MentionPopoverContentCallback | undefined;
-      setPillStylingByTrigger: (
-        trigger: string,
-        pillStyling: { className?: string; style?: React.CSSProperties }
-      ) => void;
-      getPillStylingByTrigger: (
-        trigger: string
-      ) => { className?: string; style?: React.CSSProperties } | undefined;
+      setPillStylingByTrigger: (trigger: string, pillStyling: MentionStylePillProps) => void;
+      getPillStylingByTrigger: (trigger: string) => MentionStylePillProps | undefined;
     };
   }
 }

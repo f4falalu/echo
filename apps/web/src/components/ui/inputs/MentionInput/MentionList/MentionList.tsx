@@ -6,6 +6,7 @@ import type {
   MentionOnSelectParams,
   MentionTriggerItem,
 } from '../MentionInput.types';
+import { MentionListSelector } from './MentionListSelector';
 export interface MentionListImperativeHandle {
   onKeyDown: (props: { event: KeyboardEvent }) => boolean;
 }
@@ -13,40 +14,50 @@ export interface MentionListImperativeHandle {
 export type MentionListProps<T = string> = SuggestionProps<
   MentionInputTriggerItem<T>,
   MentionTriggerItem<T> & { trigger: string }
-> & { trigger: string };
+> & { trigger: string; emptyState?: React.ReactNode };
 
 function MentionListInner<T = string>(
-  { trigger, ...props }: MentionListProps<T>,
+  { trigger, emptyState, items, command }: MentionListProps<T>,
   ref: React.ForwardedRef<MentionListImperativeHandle>
 ) {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   const selectItem = (index: number) => {
-    const item = props.items[index] as MentionTriggerItem<T>;
+    const item = items[index] as MentionInputTriggerItem<T>;
+
+    const isInvalidItem =
+      ('type' in item && item.type === 'separator') || ('type' in item && item.type === 'group');
+
+    if (isInvalidItem) {
+      console.warn('invalid item', item);
+      return;
+    }
+
     if (item) {
-      props.command({ ...item, trigger });
       item.onSelect?.({
         value: item.value,
         disabled: item.disabled,
         loading: item.loading,
         selected: item.selected,
       } satisfies MentionOnSelectParams<T>);
+
+      command({ ...item, trigger });
     }
   };
 
   const upHandler = () => {
-    setSelectedIndex((selectedIndex + props.items.length - 1) % props.items.length);
+    setSelectedIndex((selectedIndex + items.length - 1) % items.length);
   };
 
   const downHandler = () => {
-    setSelectedIndex((selectedIndex + 1) % props.items.length);
+    setSelectedIndex((selectedIndex + 1) % items.length);
   };
 
   const enterHandler = () => {
     selectItem(selectedIndex);
   };
 
-  useEffect(() => setSelectedIndex(0), [props.items]);
+  useEffect(() => setSelectedIndex(0), [items]);
 
   useImperativeHandle(ref, () => ({
     onKeyDown: ({ event }: { event: KeyboardEvent }) => {
@@ -71,25 +82,12 @@ function MentionListInner<T = string>(
 
   return (
     <div className="flex flex-col p-1 bg-background rounded border w-full">
-      {props.items.length ? (
-        props.items.map((item, index: number) => (
-          <div
-            className={cn(
-              'w-full min-w-fit hover:bg-item-hover',
-              index === selectedIndex && 'bg-item-hover hover:bg-item-hover-active'
-            )}
-            key={index}
-            onClick={() => selectItem(index)}
-          >
-            {'label' in item
-              ? item.label
-              : 'type' in item && item.type === 'separator'
-                ? '---'
-                : ''}
-          </div>
+      {items.length ? (
+        items.map((item, index: number) => (
+          <MentionListSelector<T> key={index} {...item} isSelected={index === selectedIndex} />
         ))
       ) : (
-        <div className="item">No result</div>
+        <div className="text-gray-light">{emptyState || 'No results'}</div>
       )}
     </div>
   );
