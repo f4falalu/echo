@@ -11,7 +11,13 @@ import { userQueryKeys } from '@/api/query_keys/users';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import type { RustApiError } from '../../errors';
 import { useCreateOrganization } from '../organizations/queryRequests';
-import { getMyUserInfo, getSuggestedPrompts, getUser, inviteUser, updateOrganizationUser } from './requests';
+import {
+  getMyUserInfo,
+  getSuggestedPrompts,
+  getUser,
+  inviteUser,
+  updateOrganizationUser,
+} from './requests';
 
 export const useGetMyUserInfo = <TData = UserResponse>(
   props?: Omit<UseQueryOptions<UserResponse | null, RustApiError, TData>, 'queryKey' | 'queryFn'>
