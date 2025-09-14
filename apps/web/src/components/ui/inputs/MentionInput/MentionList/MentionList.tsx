@@ -1,6 +1,5 @@
 import type { SuggestionProps } from '@tiptap/suggestion';
 import React, { useEffect, useImperativeHandle, useState } from 'react';
-import { cn } from '@/lib/utils';
 import type {
   MentionInputTriggerItem,
   MentionOnSelectParams,

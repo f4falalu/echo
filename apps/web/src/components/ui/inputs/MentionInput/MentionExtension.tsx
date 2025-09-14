@@ -1,7 +1,11 @@
 import { Mention, type MentionNodeAttrs } from '@tiptap/extension-mention';
 import { ReactNodeViewRenderer } from '@tiptap/react';
 import type { SuggestionOptions } from '@tiptap/suggestion';
-import type { MentionInputTriggerItem, MentionPopoverContentCallback } from './MentionInput.types';
+import type {
+  MentionInputTriggerItem,
+  MentionPopoverContentCallback,
+  MentionStylePillProps,
+} from './MentionInput.types';
 import { MentionPill, type MentionPillAttributes } from './MentionPill';
 import { createShortcutsSuggestions } from './ShortcutsSuggestions';
 import { testSuggestions } from './TestSuggests';
@@ -12,7 +16,7 @@ export const MentionExtension = Mention.extend({
   },
   addStorage() {
     return {
-      pillStylingByTrigger: new Map<string, { className?: string; style?: React.CSSProperties }>(), // trigger -> styling //will be set in the beforeCreate on the suggestion extension
+      pillStylingByTrigger: new Map<string, MentionStylePillProps>(), // trigger -> styling //will be set in the beforeCreate on the suggestion extension
       popoverByTrigger: new Map<string, MentionPopoverContentCallback>(), // trigger -> popover content //will be set in the beforeCreate on the suggestion extension
     };
   },

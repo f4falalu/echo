@@ -3,6 +3,8 @@ import { defaultQueryMentionsFilter } from './defaultQueryMentionsFilter';
 import type {
   MentionInputTriggerItem,
   MentionPopoverContentCallback,
+  MentionSecondaryContent,
+  MentionStylePillProps,
   MentionSuggestionExtension,
 } from './MentionInput.types';
 import {
@@ -16,11 +18,13 @@ export const createMentionSuggestionExtension = ({
   items,
   popoverContent,
   pillStyling,
+  secondaryContent,
 }: {
   trigger: string;
   items: MentionInputTriggerItem[] | ((props: { query: string }) => MentionInputTriggerItem[]); //if no function is provided we will use a literal string match
   popoverContent?: MentionPopoverContentCallback;
-  pillStyling?: { className?: string; style?: React.CSSProperties };
+  pillStyling?: MentionStylePillProps;
+  secondaryContent?: MentionSecondaryContent;
 }): MentionSuggestionExtension => ({
   char: trigger,
   items:
@@ -32,6 +36,8 @@ export const createMentionSuggestionExtension = ({
       onBeforeStart: ({ editor }) => {
         if (popoverContent) editor.commands.setPopoverByTrigger(trigger, popoverContent);
         if (pillStyling) editor.commands.setPillStylingByTrigger(trigger, pillStyling);
+        if (secondaryContent)
+          editor.commands.setSecondaryContentByTrigger(trigger, secondaryContent);
       },
       onStart: (props) => {
         const { editor } = props;

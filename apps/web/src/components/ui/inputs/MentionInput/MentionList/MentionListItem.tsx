@@ -8,11 +8,11 @@ export function MentionListItem<T = string>({
   value,
   label,
   icon,
-  secondaryContent,
   loading,
   disabled,
   setSelectedItem,
   onSelectItem,
+  secondaryContent,
 }: MentionTriggerItemExtended<T>) {
   return (
     <div
@@ -23,7 +23,7 @@ export function MentionListItem<T = string>({
       data-selected={isSelected}
       className={cn(
         'flex items-center justify-between gap-x-1.5',
-        `cursor-pointer px-2 py-1 h-8  text-base rounded transition-all duration-100`,
+        `cursor-pointer px-2.5 h-8 text-base rounded transition-all duration-100`,
         isSelected && 'bg-item-hover'
       )}
     >

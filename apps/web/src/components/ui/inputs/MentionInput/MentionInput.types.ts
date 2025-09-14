@@ -12,13 +12,14 @@ export type MentionPopoverContentCallback = (
   props: Pick<MentionTriggerItem, 'value'>
 ) => React.ReactNode;
 
-export type MentionPopoverStorageSet = Set<MentionPopoverContentCallback>;
+export type MentionPopoverStorageMap = Map<string, MentionPopoverContentCallback>;
+
+export type MentionStylePillStorageMap = Map<string, MentionStylePillProps>;
 
 type MentionTriggerItemBase<T = string> = {
   value: T;
   label: string | React.ReactNode;
   labelMatches?: string[]; //if this is provided, we will use it to filter the items
-  secondaryContent?: string | React.ReactNode;
   icon?: React.ReactNode;
   onSelect?: (d: MentionOnSelectParams) => void;
   disabled?: boolean; //will inherit from if undefined
@@ -26,6 +27,7 @@ type MentionTriggerItemBase<T = string> = {
   type?: 'item';
   selected?: boolean;
   doNotAddPipeOnSelect?: boolean;
+  secondaryContent?: React.ReactNode;
 };
 
 type MentionTriggerItemNotPiped<T = string> = MentionTriggerItemBase<T> & {
@@ -73,8 +75,8 @@ export type MentionSuggestionExtension<T = string> = MentionOptions<
 declare module '@tiptap/core' {
   interface Storage {
     mention: {
-      popoverByTrigger: Map<string, MentionPopoverContentCallback>;
-      pillStylingByTrigger: Map<string, MentionStylePillProps>;
+      popoverByTrigger: MentionPopoverStorageMap;
+      pillStylingByTrigger: MentionStylePillStorageMap;
     };
   }
   interface Commands {
