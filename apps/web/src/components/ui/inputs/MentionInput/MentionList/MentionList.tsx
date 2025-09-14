@@ -6,7 +6,12 @@ import type {
   MentionOnSelectParams,
   MentionTriggerItem,
 } from '../MentionInput.types';
-import { findFirstValueInItems, findNextValue, findPreviousValue } from './find-values-helpers';
+import {
+  findFirstValueInItems,
+  findItemByValue,
+  findNextValue,
+  findPreviousValue,
+} from './find-values-helpers';
 import { MentionListSelector } from './MentionListSelector';
 export interface MentionListImperativeHandle {
   onKeyDown: (props: { event: KeyboardEvent }) => boolean;
@@ -24,18 +29,10 @@ function MentionListInner<T = string>(
   const [selectedItem, setSelectedItem] = useState<T | undefined>(undefined);
 
   const selectItem = (value: T) => {
-    const item = items.find((item) => (item as MentionTriggerItem<T>).value === value);
+    const item = findItemByValue(items, value);
 
     if (!item) {
-      console.warn('invalid item', value);
-      return;
-    }
-
-    const isInvalidItem =
-      ('type' in item && item.type === 'separator') || ('type' in item && item.type === 'group');
-
-    if (isInvalidItem) {
-      console.warn('invalid item', item);
+      console.warn('item not found', value);
       return;
     }
 
@@ -101,7 +98,7 @@ function MentionListInner<T = string>(
   }));
 
   return (
-    <div className="flex flex-col p-1 bg-background rounded border w-full">
+    <div className="flex flex-col p-1 bg-background rounded border w-full min-w-[200px]">
       {items.length ? (
         items.map((item, index: number) => (
           <MentionListSelector<T>
@@ -109,6 +106,7 @@ function MentionListInner<T = string>(
             {...item}
             selectedItem={selectedItem}
             setSelectedItem={setSelectedItem}
+            onSelectItem={selectItem}
           />
         ))
       ) : (

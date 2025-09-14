@@ -47,5 +47,5 @@ export const MentionExtension = Mention.extend({
     SuggestionOptions<MentionInputTriggerItem, MentionNodeAttrs>,
     'editor'
   >[],
-  deleteTriggerWithBackspace: true,
+  deleteTriggerWithBackspace: false,
 });

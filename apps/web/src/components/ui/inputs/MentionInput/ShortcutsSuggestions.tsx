@@ -35,7 +35,7 @@ const listOfSports: MentionInputTriggerItem[] = [
     value: 'manageShortcuts',
     label: 'Manage Shortcuts',
     icon: <PenWriting />,
-    doNotAddPipeOnSelect: true as const,
+    doNotAddPipeOnSelect: true,
     onSelect: (props) => {
       console.log('manageShortcuts', props);
     },

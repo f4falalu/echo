@@ -6,6 +6,7 @@ export function MentionListGroup<T = string>({
   icon,
   setSelectedItem,
   selectedItem,
+  onSelectItem,
 }: MentionListGroupExtended<T>) {
   return (
     <div className="mention-list-group">
@@ -20,6 +21,7 @@ export function MentionListGroup<T = string>({
           {...item}
           selectedItem={selectedItem}
           setSelectedItem={setSelectedItem}
+          onSelectItem={onSelectItem}
         />
       ))}
     </div>

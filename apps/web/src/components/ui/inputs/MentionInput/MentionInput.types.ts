@@ -25,7 +25,7 @@ type MentionTriggerItemBase<T = string> = {
   loading?: boolean;
   type?: 'item';
   selected?: boolean;
-  doNotAddPipeOnSelect?: false;
+  doNotAddPipeOnSelect?: boolean;
 };
 
 type MentionTriggerItemNotPiped<T = string> = MentionTriggerItemBase<T> & {

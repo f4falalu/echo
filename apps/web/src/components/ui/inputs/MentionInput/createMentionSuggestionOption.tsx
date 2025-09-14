@@ -53,7 +53,7 @@ export const createMentionSuggestionExtension = ({
         element.style.position = 'absolute';
         element.style.left = `${rect.left}px`;
         element.style.top = `${rect.top}px`;
-        element.style.transform = `translateY(1.0lh)`;
+        element.style.transform = `translateY(1.15lh)`;
 
         document.body.appendChild(component.element);
       },
