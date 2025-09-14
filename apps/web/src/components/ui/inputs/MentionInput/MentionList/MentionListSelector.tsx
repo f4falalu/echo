@@ -6,6 +6,8 @@ import { MentionListSeperator } from './MentionListSeperator';
 
 type MentionInputTriggerItemExtended<T = string> = MentionInputTriggerItem<T> & {
   isSelected: boolean;
+  index: number;
+  setSelectedIndex: (index: number) => void;
 };
 
 export function MentionListSelector<T = string>(props: MentionInputTriggerItemExtended<T>) {

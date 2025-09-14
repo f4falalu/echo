@@ -20,7 +20,7 @@ type MentionTriggerItemBase<T = string> = {
   labelMatches?: string[]; //if this is provided, we will use it to filter the items
   secondaryContent?: string | React.ReactNode;
   icon?: React.ReactNode;
-  onSelect?: (d: MentionOnSelectParams) => void | Promise<void>;
+  onSelect?: (d: MentionOnSelectParams) => void;
   disabled?: boolean; //will inherit from if undefined
   loading?: boolean;
   type?: 'item';

@@ -84,7 +84,13 @@ function MentionListInner<T = string>(
     <div className="flex flex-col p-1 bg-background rounded border w-full">
       {items.length ? (
         items.map((item, index: number) => (
-          <MentionListSelector<T> key={index} {...item} isSelected={index === selectedIndex} />
+          <MentionListSelector<T>
+            key={index}
+            {...item}
+            isSelected={index === selectedIndex}
+            index={index}
+            setSelectedIndex={setSelectedIndex}
+          />
         ))
       ) : (
         <div className="text-gray-light">{emptyState || 'No results'}</div>
