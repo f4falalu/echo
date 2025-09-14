@@ -1,4 +1,4 @@
-import type { UserResponse } from '@buster/server-shared/user';
+import type { GetSuggestedPromptsResponse, UserResponse } from '@buster/server-shared/user';
 import {
   type QueryClient,
   type UseQueryOptions,
@@ -11,7 +11,7 @@ import { userQueryKeys } from '@/api/query_keys/users';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import type { RustApiError } from '../../errors';
 import { useCreateOrganization } from '../organizations/queryRequests';
-import { getMyUserInfo, getUser, inviteUser, updateOrganizationUser } from './requests';
+import { getMyUserInfo, getSuggestedPrompts, getUser, inviteUser, updateOrganizationUser } from './requests';
 
 export const useGetMyUserInfo = <TData = UserResponse>(
   props?: Omit<UseQueryOptions<UserResponse | null, RustApiError, TData>, 'queryKey' | 'queryFn'>
@@ -115,4 +115,20 @@ export const useCreateUserOrganization = () => {
   );
 
   return onCreateUserOrganization;
+};
+
+export const useGetSuggestedPrompts = (params: Parameters<typeof getSuggestedPrompts>[0]) => {
+  const queryFn = () => getSuggestedPrompts(params);
+  return useQuery({
+    ...userQueryKeys.userGetSuggestedPrompts(params.userId),
+    queryFn,
+  });
+};
+
+export const prefetchGetSuggestedPrompts = async (userId: string, queryClient: QueryClient) => {
+  await queryClient.prefetchQuery({
+    ...userQueryKeys.userGetSuggestedPrompts(userId),
+    queryFn: () => getSuggestedPrompts({ userId }),
+  });
+  return queryClient.getQueryData(userQueryKeys.userGetSuggestedPrompts(userId).queryKey);
 };
