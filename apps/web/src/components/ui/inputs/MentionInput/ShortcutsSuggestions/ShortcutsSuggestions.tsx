@@ -1,11 +1,9 @@
 import PenWriting from '@/components/ui/icons/NucleoIconOutlined/pen-writing';
 import Plus from '@/components/ui/icons/NucleoIconOutlined/plus';
-import { Button } from '../../buttons';
-import { Dropdown } from '../../dropdown';
-import { Dots } from '../../icons';
-import { createMentionSuggestionExtension } from './createMentionSuggestionOption';
-import type { MentionInputTriggerItem } from './MentionInput.types';
-import { SecondaryContentDropdown } from './SecondaryContentDropdown';
+import { createMentionSuggestionExtension } from '../createMentionSuggestionOption';
+import type { MentionInputTriggerItem } from '../MentionInput.types';
+import { SecondaryContentDropdown } from '../SecondaryContentDropdown';
+import { ShortcutPopoverContent } from './ShortcutPopoverContent';
 
 const listOfSports: MentionInputTriggerItem[] = [
   {
@@ -81,8 +79,6 @@ export const createShortcutsSuggestions = () => {
   return createMentionSuggestionExtension({
     trigger: '/',
     items: listOfSports,
-    popoverContent: (props) => {
-      return <div>Hello {props.value}</div>;
-    },
+    popoverContent: ShortcutPopoverContent,
   });
 };

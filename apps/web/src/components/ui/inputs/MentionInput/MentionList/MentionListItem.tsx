@@ -1,4 +1,3 @@
-import React from 'react';
 import { Text } from '@/components/ui/typography/Text';
 import { cn } from '@/lib/utils';
 import type { MentionTriggerItemExtended } from './MentionListSelector';

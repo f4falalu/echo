@@ -25,7 +25,7 @@ export const MentionPill = <T extends string>({
           className={cn(
             'text-sm px-1.5 py-0.5',
             'bg-item-select hover:bg-item-hover-active hover:shadow transition-all border rounded w-fit',
-            'cursor-pointer',
+            'cursor-pointer select-none',
             pillClassName
           )}
           style={pillStyle}
@@ -53,7 +53,14 @@ const PopoverWrapper = <T extends string>({
     if (!PopoverContent) return children;
 
     return (
-      <Popover trigger="click" content={<PopoverContent value={value} />} className="p-0">
+      <Popover
+        trigger="click"
+        align="start"
+        side="bottom"
+        sideOffset={8}
+        content={<PopoverContent value={value} />}
+        className="p-0"
+      >
         {children}
       </Popover>
     );
