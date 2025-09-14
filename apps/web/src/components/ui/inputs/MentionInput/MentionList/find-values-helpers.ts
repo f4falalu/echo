@@ -53,6 +53,34 @@ export const findPreviousValue = <T = string>(
   return allValues[(currentIndex - 1 + allValues.length) % allValues.length];
 };
 
+export const findItemByValue = <T = string>(
+  items: MentionInputTriggerItem<T>[],
+  value: T
+): MentionTriggerItem<T> | undefined => {
+  for (const item of items) {
+    // Skip separators
+    if ('type' in item && item.type === 'separator') {
+      continue;
+    }
+
+    // If it's a group, search within the group's items
+    if ('type' in item && item.type === 'group') {
+      const foundInGroup = findItemByValueInGroup(item.items, value);
+      if (foundInGroup) {
+        return foundInGroup;
+      }
+      continue;
+    }
+
+    // If it's a regular item with the matching value, return it
+    if ('value' in item && item.value === value) {
+      return item;
+    }
+  }
+
+  return undefined;
+};
+
 /**
  * Extracts all selectable values from items, flattening groups and skipping separators
  */
@@ -78,6 +106,21 @@ const getAllSelectableValues = <T = string>(items: MentionInputTriggerItem<T>[])
   }
 
   return values;
+};
+
+/**
+ * Helper to find an item by value within group items (which are MentionTriggerItem[])
+ */
+const findItemByValueInGroup = <T = string>(
+  items: MentionTriggerItem<T>[],
+  value: T
+): MentionTriggerItem<T> | undefined => {
+  for (const item of items) {
+    if ('value' in item && item.value === value) {
+      return item;
+    }
+  }
+  return undefined;
 };
 
 /**

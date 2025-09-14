@@ -1,5 +1,3 @@
-import type React from 'react';
-import type { MentionInputTriggerGroup } from '../MentionInput.types';
 import { type MentionListGroupExtended, MentionListSelector } from './MentionListSelector';
 
 export function MentionListGroup<T = string>({
@@ -11,20 +9,19 @@ export function MentionListGroup<T = string>({
 }: MentionListGroupExtended<T>) {
   return (
     <div className="mention-list-group">
-      <div className="flex items-center px-2 py-1 text-sm font-medium text-muted-foreground">
-        {icon && <span className="mr-2">{icon}</span>}
+      <div className="flex items-center pb-1 px-2 pt-2 h-7 text-sm text-gray-dark">
+        {icon && <span className="mr-2 text-icon-color">{icon}</span>}
         {label}
       </div>
-      <div className="pl-2">
-        {items.map((item, index) => (
-          <MentionListSelector
-            key={index}
-            {...item}
-            selectedItem={selectedItem}
-            setSelectedItem={setSelectedItem}
-          />
-        ))}
-      </div>
+
+      {items.map((item, index) => (
+        <MentionListSelector
+          key={index}
+          {...item}
+          selectedItem={selectedItem}
+          setSelectedItem={setSelectedItem}
+        />
+      ))}
     </div>
   );
 }

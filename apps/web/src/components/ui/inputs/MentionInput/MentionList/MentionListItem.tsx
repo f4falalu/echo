@@ -1,9 +1,6 @@
 import React from 'react';
 import type { MentionTriggerItem } from '../MentionInput.types';
-
-type MentionTriggerItemExtended<T = string> = MentionTriggerItem<T> & {
-  isSelected: boolean;
-};
+import type { MentionTriggerItemExtended } from './MentionListSelector';
 
 export function MentionListItem<T = string>({
   isSelected,
@@ -16,6 +13,14 @@ export function MentionListItem<T = string>({
   disabled,
   selected,
   doNotAddPipeOnSelect,
+  setSelectedItem,
 }: MentionTriggerItemExtended<T>) {
-  return <div className={`cursor-pointer px-2 py-1 ${isSelected ? 'bg-muted' : ''}`}>{label}</div>;
+  return (
+    <div
+      onMouseEnter={() => setSelectedItem(value)}
+      className={`cursor-pointer px-2 py-1 ${isSelected ? 'bg-muted' : ''}`}
+    >
+      {label}
+    </div>
+  );
 }

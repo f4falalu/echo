@@ -53,7 +53,7 @@ const PopoverWrapper = <T extends string>({
     if (!PopoverContent) return children;
 
     return (
-      <Popover trigger="click" content={<PopoverContent value={value} />}>
+      <Popover trigger="click" content={<PopoverContent value={value} />} className="p-0">
         {children}
       </Popover>
     );
