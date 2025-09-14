@@ -1,18 +1,22 @@
 import type { SuggestionProps } from '@tiptap/suggestion';
 import React, { useEffect, useImperativeHandle, useState } from 'react';
 import { cn } from '@/lib/utils';
-import type { MentionInputTriggerItem, MentionTriggerItem } from '../MentionInput.types';
+import type {
+  MentionInputTriggerItem,
+  MentionOnSelectParams,
+  MentionTriggerItem,
+} from '../MentionInput.types';
 export interface MentionListImperativeHandle {
   onKeyDown: (props: { event: KeyboardEvent }) => boolean;
 }
 
 export type MentionListProps<T = string> = SuggestionProps<
   MentionInputTriggerItem<T>,
-  MentionTriggerItem<T>
->;
+  MentionTriggerItem<T> & { trigger: string }
+> & { trigger: string };
 
 function MentionListInner<T = string>(
-  props: MentionListProps<T>,
+  { trigger, ...props }: MentionListProps<T>,
   ref: React.ForwardedRef<MentionListImperativeHandle>
 ) {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -20,7 +24,13 @@ function MentionListInner<T = string>(
   const selectItem = (index: number) => {
     const item = props.items[index] as MentionTriggerItem<T>;
     if (item) {
-      props.command(item);
+      props.command({ ...item, trigger });
+      item.onSelect?.({
+        value: item.value,
+        disabled: item.disabled,
+        loading: item.loading,
+        selected: item.selected,
+      } satisfies MentionOnSelectParams<T>);
     }
   };
 

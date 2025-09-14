@@ -1,38 +1,10 @@
 import { Mention, type MentionNodeAttrs } from '@tiptap/extension-mention';
 import { ReactNodeViewRenderer } from '@tiptap/react';
 import type { SuggestionOptions } from '@tiptap/suggestion';
-import { createMentionSuggestionExtension } from './createMentionSuggestionOption';
-import type { MentionInputTriggerItem } from './MentionInput.types';
+import type { MentionInputTriggerItem, MentionPopoverContentCallback } from './MentionInput.types';
 import { MentionPill, type MentionPillAttributes } from './MentionPill';
-
-// Store items with popover content
-const mentionItems: MentionInputTriggerItem[] = [
-  {
-    value: 'Lea Thompson',
-    label: 'Lea Thompson',
-    popoverContent: ({ label }) => <div>Popover for {label}</div>,
-  },
-  {
-    value: 'Cyndi Lauper',
-    label: 'Cyndi Lauper',
-    popoverContent: ({ label }) => <div>Artist info for {label}</div>,
-  },
-  {
-    value: 'Tom Cruise',
-    label: 'Tom Cruise',
-    popoverContent: ({ label }) => <div>Actor details for {label}</div>,
-  },
-  {
-    value: 'Madonna',
-    label: 'Madonna',
-    popoverContent: ({ label }) => <div>Icon info for {label}</div>,
-  },
-];
-
-const atSuggestion = createMentionSuggestionExtension({
-  trigger: '@',
-  items: mentionItems,
-});
+import { createShortcutsSuggestions } from './ShortcutsSuggestions';
+import { testSuggestions } from './TestSuggests';
 
 export const MentionExtension = Mention.extend({
   addNodeView() {
@@ -40,17 +12,38 @@ export const MentionExtension = Mention.extend({
   },
   addStorage() {
     return {
-      mentionItems, // Store the items with popover content
+      pillStylingByTrigger: new Map<string, { className?: string; style?: React.CSSProperties }>(), // trigger -> styling //will be set in the beforeCreate on the suggestion extension
+      popoverByTrigger: new Map<string, MentionPopoverContentCallback>(), // trigger -> popover content //will be set in the beforeCreate on the suggestion extension
     };
   },
   addAttributes() {
     return {
       label: '',
       value: '',
+      trigger: '',
     } satisfies MentionPillAttributes;
   },
+  addCommands() {
+    return {
+      setPopoverByTrigger:
+        (trigger: string, popoverContent: MentionPopoverContentCallback) => () => {
+          this.editor.storage.mention.popoverByTrigger.set(trigger, popoverContent);
+        },
+      getPopoverByTrigger: (trigger) => () => {
+        return this.editor.storage.mention.popoverByTrigger.get(trigger);
+      },
+      setPillStylingByTrigger:
+        (trigger: string, pillStyling: { className?: string; style?: React.CSSProperties }) =>
+        () => {
+          this.editor.storage.mention.pillStylingByTrigger.set(trigger, pillStyling);
+        },
+      getPillStylingByTrigger: (trigger: string) => () => {
+        return this.editor.storage.mention.pillStylingByTrigger.get(trigger);
+      },
+    };
+  },
 }).configure({
-  suggestions: [atSuggestion] as Omit<
+  suggestions: [testSuggestions(), createShortcutsSuggestions()] as Omit<
     SuggestionOptions<MentionInputTriggerItem, MentionNodeAttrs>,
     'editor'
   >[],

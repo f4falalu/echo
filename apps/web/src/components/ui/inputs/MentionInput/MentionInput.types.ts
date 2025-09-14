@@ -1,12 +1,20 @@
 import type { MentionNodeAttrs, MentionOptions } from '@tiptap/extension-mention';
 import type { MentionPillAttributes } from './MentionPill';
 
-export type MentionOnSelectParams = Pick<
-  MentionTriggerItem,
-  'value' | 'onSelect' | 'doNotAddPipeOnSelect' | 'loading' | 'disabled' | 'selected'
->;
+export type MentionOnSelectParams<T = unknown> = {
+  value: T;
+  loading?: boolean;
+  disabled?: boolean;
+  selected?: boolean;
+};
 
-export type MentionTriggerItem<T = string> = {
+export type MentionPopoverContentCallback = (
+  props: Pick<MentionTriggerItem, 'value'>
+) => React.ReactNode;
+
+export type MentionPopoverStorageSet = Set<MentionPopoverContentCallback>;
+
+type MentionTriggerItemBase<T = string> = {
   value: T;
   label: string | React.ReactNode;
   labelMatches?: string[]; //if this is provided, we will use it to filter the items
@@ -17,10 +25,17 @@ export type MentionTriggerItem<T = string> = {
   loading?: boolean;
   type?: 'item';
   selected?: boolean;
-  doNotAddPipeOnSelect?: boolean;
-  //options for the pill
-  popoverContent?: (props: Pick<MentionTriggerItem, 'value' | 'label'>) => React.ReactNode;
+  doNotAddPipeOnSelect?: boolean | false;
 };
+
+type MentionTriggerItemNotPiped<T = string> = MentionTriggerItemBase<T> & {
+  doNotAddPipeOnSelect: true;
+  onSelect: (d: MentionOnSelectParams) => void;
+};
+
+export type MentionTriggerItem<T = string> =
+  | MentionTriggerItemBase<T>
+  | MentionTriggerItemNotPiped<T>;
 
 export type MentionInputTriggerGroup<T = string> = {
   items: MentionTriggerItem<T>[];
@@ -51,7 +66,29 @@ export type MentionInputProps = {
 
 //The tip tap type for a suggestion
 
-export type MentionSuggestionExtension = MentionOptions<
-  MentionInputTriggerItem,
+export type MentionSuggestionExtension<T = string> = MentionOptions<
+  MentionInputTriggerItem<T>,
   MentionPillAttributes & MentionNodeAttrs
 >['suggestion'];
+
+declare module '@tiptap/core' {
+  interface Storage {
+    mention: {
+      popoverByTrigger: Map<string, MentionPopoverContentCallback>;
+      pillStylingByTrigger: Map<string, { className?: string; style?: React.CSSProperties }>;
+    };
+  }
+  interface Commands {
+    mention: {
+      setPopoverByTrigger: (trigger: string, popoverContent: MentionPopoverContentCallback) => void;
+      getPopoverByTrigger: (trigger: string) => MentionPopoverContentCallback | undefined;
+      setPillStylingByTrigger: (
+        trigger: string,
+        pillStyling: { className?: string; style?: React.CSSProperties }
+      ) => void;
+      getPillStylingByTrigger: (
+        trigger: string
+      ) => { className?: string; style?: React.CSSProperties } | undefined;
+    };
+  }
+}

@@ -1,6 +1,10 @@
 import { posToDOMRect, ReactRenderer } from '@tiptap/react';
 import { defaultQueryMentionsFilter } from './defaultQueryMentionsFilter';
-import type { MentionInputTriggerItem, MentionSuggestionExtension } from './MentionInput.types';
+import type {
+  MentionInputTriggerItem,
+  MentionPopoverContentCallback,
+  MentionSuggestionExtension,
+} from './MentionInput.types';
 import {
   MentionList,
   type MentionListImperativeHandle,
@@ -10,9 +14,13 @@ import {
 export const createMentionSuggestionExtension = ({
   trigger,
   items,
+  popoverContent,
+  pillStyling,
 }: {
   trigger: string;
   items: MentionInputTriggerItem[] | ((props: { query: string }) => MentionInputTriggerItem[]); //if no function is provided we will use a literal string match
+  popoverContent?: MentionPopoverContentCallback;
+  pillStyling?: { className?: string; style?: React.CSSProperties };
 }): MentionSuggestionExtension => ({
   char: trigger,
   items:
@@ -21,24 +29,26 @@ export const createMentionSuggestionExtension = ({
     let component: ReactRenderer<MentionListImperativeHandle, MentionListProps<string>>;
 
     return {
+      onBeforeStart: ({ editor }) => {
+        if (popoverContent) editor.commands.setPopoverByTrigger(trigger, popoverContent);
+        if (pillStyling) editor.commands.setPillStylingByTrigger(trigger, pillStyling);
+      },
       onStart: (props) => {
         const { editor } = props;
         component = new ReactRenderer(
           MentionList as React.ComponentType<MentionListProps<string>>,
-          { props, editor: props.editor }
+          { props: { ...props, trigger }, editor: props.editor }
         );
 
         if (!props.clientRect) {
           console.warn('No client rect for mention suggestion');
           return;
         }
-
         const rect = posToDOMRect(
           editor.view,
           editor.state.selection.from,
           editor.state.selection.to
         );
-
         const element = component.element as HTMLElement;
         element.style.position = 'absolute';
         element.style.left = `${rect.left}px`;
@@ -69,10 +79,13 @@ export const createMentionSuggestionExtension = ({
       },
     };
   },
-
   command: ({ editor, props, range }) => {
     const doNotAddPipeOnSelect = props.doNotAddPipeOnSelect ?? false;
-    if (doNotAddPipeOnSelect) return;
+    if (doNotAddPipeOnSelect) {
+      // Remove the trigger node/text that was typed to trigger the mention
+      editor.chain().focus().deleteRange(range).run();
+      return;
+    }
     editor
       .chain()
       .focus()
