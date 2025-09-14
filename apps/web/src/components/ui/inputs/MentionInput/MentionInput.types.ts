@@ -1,4 +1,5 @@
-import type { MentionOptions } from '@tiptap/extension-mention';
+import type { MentionNodeAttrs, MentionOptions } from '@tiptap/extension-mention';
+import type { MentionPillAttributes } from './MentionPill';
 
 export type MentionOnSelectParams = Pick<
   MentionTriggerItem,
@@ -17,6 +18,8 @@ export type MentionTriggerItem<T = string> = {
   type?: 'item';
   selected?: boolean;
   doNotAddPipeOnSelect?: boolean;
+  //options for the pill
+  popoverContent?: (props: Pick<MentionTriggerItem, 'value' | 'label'>) => React.ReactNode;
 };
 
 export type MentionInputTriggerGroup<T = string> = {
@@ -48,4 +51,7 @@ export type MentionInputProps = {
 
 //The tip tap type for a suggestion
 
-export type MentionSuggestionExtension = MentionOptions<MentionInputTriggerItem>['suggestion'];
+export type MentionSuggestionExtension = MentionOptions<
+  MentionInputTriggerItem,
+  MentionPillAttributes & MentionNodeAttrs
+>['suggestion'];

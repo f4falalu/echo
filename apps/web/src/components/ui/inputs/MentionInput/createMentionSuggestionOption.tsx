@@ -1,10 +1,6 @@
 import { posToDOMRect, ReactRenderer } from '@tiptap/react';
 import { defaultQueryMentionsFilter } from './defaultQueryMentionsFilter';
-import type {
-  MentionInputTriggerItem,
-  MentionSuggestionExtension,
-  MentionTriggerItem,
-} from './MentionInput.types';
+import type { MentionInputTriggerItem, MentionSuggestionExtension } from './MentionInput.types';
 import {
   MentionList,
   type MentionListImperativeHandle,
@@ -18,7 +14,7 @@ export const createMentionSuggestionExtension = ({
   trigger: string;
   items: MentionInputTriggerItem[] | ((props: { query: string }) => MentionInputTriggerItem[]); //if no function is provided we will use a literal string match
 }): MentionSuggestionExtension => ({
-  char: '@',
+  char: trigger,
   items:
     typeof items === 'function' ? items : ({ query }) => defaultQueryMentionsFilter(query, items),
   render: () => {
@@ -75,7 +71,8 @@ export const createMentionSuggestionExtension = ({
   },
 
   command: ({ editor, props, range }) => {
-    console.log(props);
+    const doNotAddPipeOnSelect = props.doNotAddPipeOnSelect ?? false;
+    if (doNotAddPipeOnSelect) return;
     editor
       .chain()
       .focus()

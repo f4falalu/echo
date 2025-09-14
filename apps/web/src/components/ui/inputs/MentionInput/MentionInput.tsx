@@ -11,10 +11,9 @@ export const MentionInput = () => {
     extensions: [Document, Paragraph, Text, MentionExtension],
     content: '',
     autofocus: true,
-    editable: true,
     editorProps: {
       attributes: {
-        class: 'p-1 swag',
+        class: 'p-1',
       },
     },
   });
