@@ -1,6 +1,9 @@
 import isEmpty from 'lodash/isEmpty';
-import React, { useMemo } from 'react';
-import type { BusterChatMessageReasoning_files } from '@/api/asset_interfaces/chat';
+import React, { useCallback, useMemo } from 'react';
+import type {
+  BusterChatMessage,
+  BusterChatMessageReasoning_files,
+} from '@/api/asset_interfaces/chat';
 import { useGetChatMessage } from '@/api/buster_rest/chats';
 import { ReasoningFileCode } from '@/components/features/reasoning/ReasoningFileCode';
 import { ReasoningFileButtons } from './ReasoningFileButtons';
@@ -17,10 +20,14 @@ export type ReasoningMessageFileProps = {
 export const ReasoningMessage_File: React.FC<ReasoningMessageFileProps> = React.memo(
   ({ isStreamFinished, fileId, chatId, messageId, reasoningMessageId }) => {
     const { data: file } = useGetChatMessage(messageId, {
-      select: (x) =>
-        (x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_files)?.files?.[
-          fileId
-        ],
+      select: useCallback(
+        (x: BusterChatMessage) =>
+          (x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_files)?.files?.[
+            fileId
+          ],
+        [reasoningMessageId, fileId]
+      ),
+      notifyOnChangeProps: ['data'],
     });
 
     const { status, file_type, id, version_number } = file || {};
