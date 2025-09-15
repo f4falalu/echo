@@ -23,6 +23,8 @@ jobs:
 
       - name: Setup Node Environment
         uses: ./.github/actions/setup-node-env
+        with:
+          cache-key: build-lint-unit
 
       - name: Build all packages (excluding web)
         run: pnpm turbo build --filter="!@buster-app/web"
@@ -49,6 +51,8 @@ jobs:
 
       - name: Setup Node Environment
         uses: ./.github/actions/setup-node-env
+        with:
+          cache-key: build-lint-unit
 
       - name: Lint all packages (excluding web)
         run: pnpm turbo lint
@@ -67,6 +71,8 @@ jobs:
 
       - name: Setup Node Environment
         uses: ./.github/actions/setup-node-env
+        with:
+          cache-key: build-lint-unit
 
       - name: Build required packages
         run: pnpm turbo build --filter="!@buster-app/web"
