@@ -18,7 +18,7 @@ export const MetricAssetContainer: React.FC<{
           return (
             <React.Fragment>
               <AssetContainer
-                headerBorderVariant={isMetricEditMode ? 'default' : 'ghost'}
+                headerBorderVariant={isMetricEditMode ? 'default' : undefined}
                 header={
                   <MetricAssetHeader
                     metricId={metricId}
