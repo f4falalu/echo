@@ -19,7 +19,7 @@ BEGIN
             updated_at = EXCLUDED.updated_at,
             deleted_at = EXCLUDED.deleted_at;
     ELSIF TG_OP = 'DELETE' THEN
-        UPDATE text_search
+        UPDATE public.text_search
         SET deleted_at = NOW()
         WHERE asset_id = OLD.id AND asset_type = 'chat';
     END IF;
@@ -46,7 +46,7 @@ BEGIN
             updated_at = EXCLUDED.updated_at,
             deleted_at = EXCLUDED.deleted_at;
     ELSIF TG_OP = 'DELETE' THEN
-        UPDATE text_search
+        UPDATE public.text_search
         SET deleted_at = NOW()
         WHERE asset_id = OLD.id AND asset_type = 'metric_file';
     END IF;
@@ -73,7 +73,7 @@ BEGIN
             updated_at = EXCLUDED.updated_at,
             deleted_at = EXCLUDED.deleted_at;
     ELSIF TG_OP = 'DELETE' THEN
-        UPDATE text_search
+        UPDATE public.text_search
         SET deleted_at = NOW()
         WHERE asset_id = OLD.id AND asset_type = 'dashboard_file';
     END IF;
@@ -100,7 +100,7 @@ BEGIN
             updated_at = EXCLUDED.updated_at,
             deleted_at = EXCLUDED.deleted_at;
     ELSIF TG_OP = 'DELETE' THEN
-        UPDATE text_search
+        UPDATE public.text_search
         SET deleted_at = NOW()
         WHERE asset_id = OLD.id AND asset_type = 'report_file';
     END IF;
@@ -137,7 +137,7 @@ BEGIN
                 deleted_at = EXCLUDED.deleted_at;
         END IF;
     ELSIF TG_OP = 'DELETE' THEN
-        UPDATE text_search
+        UPDATE public.text_search
         SET deleted_at = NOW()
         WHERE asset_id = OLD.id AND asset_type = 'message';
     END IF;

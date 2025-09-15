@@ -12,12 +12,12 @@ import { and, eq, isNull } from '@buster/database';
 import type { Ancestor, AssetAncestors } from '@buster/server-shared';
 
 /**
- * Traces the lineage of an asset through its relationships
+ * Traces the ancestors of an asset through its relationships
  * @param assetId - The ID of the asset to trace
  * @param assetType - The type of asset ('message', 'dashboard', 'metric', 'report')
  * @param userId - The user ID making the request
  * @param organizationId - The organization ID for scoping
- * @returns Promise<AssetLineage> - The complete lineage tree for the asset
+ * @returns Promise<AssetAncestors> - The complete ancestors tree for the asset
  */
 export async function getAssetAncestors(
   assetId: string,
@@ -105,7 +105,7 @@ async function getAssetCollectionAncestor(assetId: string): Promise<Ancestor[]> 
     );
 }
 /**
- * Get lineage for a dashboard - find chats that contain this dashboard
+ * Get ancestors for a dashboard - find chats that contain this dashboard
  */
 async function getMetricDashboardAncestors(metricId: string): Promise<Ancestor[]> {
   return await db

@@ -6,7 +6,7 @@ import { getAssetAncestors } from './get-search-result-ancestors';
  * Perform text search and enhance results with asset ancestors
  * @param userId - The user ID making the request
  * @param searchRequest - The search request parameters
- * @returns Promise<SearchResponseWithAncestors> - Search results with ancestors
+ * @returns Promise<SearchTextResponse> - Search results with ancestors
  */
 export async function performTextSearch(
   userId: string,
