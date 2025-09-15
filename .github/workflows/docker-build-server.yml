@@ -36,6 +36,7 @@ jobs:
         uses: ./.github/actions/setup-node-env
         with:
           install-filter: "@buster-app/server..."
+          cache-key: docker-build-server
       
       - name: Mount Turbo cache sticky disk
         uses: useblacksmith/stickydisk@v1

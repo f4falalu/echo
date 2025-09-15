@@ -18,6 +18,10 @@ inputs:
     description: 'Optional pnpm filter for selective dependency installation'
     required: false
     default: ''
+  cache-key:
+    description: 'Optional cache key for the cache action'
+    required: false
+    default: 'default'
 
 runs:
   using: 'composite'
@@ -40,9 +44,10 @@ runs:
           node_modules
           apps/*/node_modules
           packages/*/node_modules
-        key: pnpm-workspace-${{ hashFiles('pnpm-lock.yaml') }}
+        key: pnpm-workspace-v2-${{ inputs.cache-key }}-${{ github.ref_name }}-${{ hashFiles('pnpm-lock.yaml') }}
         restore-keys: |
-          pnpm-workspace-
+          pnpm-workspace-v2-${{ inputs.cache-key }}-${{ github.ref_name }}-
+          pnpm-workspace-v2-${{ inputs.cache-key }}-
 
     - name: Cache Turbo
       uses: actions/cache@v4
