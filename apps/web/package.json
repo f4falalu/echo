@@ -12,7 +12,7 @@
     "build-storybook": "storybook build",
     "build:visualize": "npx vite-bundle-visualizer",
     "dev": "vite dev --port 3000",
-    "dev:fast": "pnpm run build:local && pnpm run start:bun",
+    "dev:fast": "pnpm run build:local && pnpm run start:local",
     "generate-routes": "tsr generate",
     "lint": "biome check --write",
     "serve": "vite preview",
