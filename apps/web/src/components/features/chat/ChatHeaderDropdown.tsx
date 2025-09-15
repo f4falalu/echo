@@ -4,7 +4,7 @@ import type { IBusterChat } from '@/api/asset_interfaces';
 import { useGetChat } from '@/api/buster_rest/chats';
 import { Dropdown, type IDropdownItems } from '@/components/ui/dropdown';
 import { useGetChatId } from '@/context/Chats/useGetChatId';
-import { getIsEffectiveOwner } from '@/lib/share';
+import { canEdit, getIsEffectiveOwner } from '@/lib/share';
 import {
   useDeleteChatSelectMenu,
   useDuplicateChatSelectMenu,
@@ -32,6 +32,7 @@ export const ChatContainerHeaderDropdown: React.FC<{
   const deleteChat = useDeleteChatSelectMenu({ chatId });
 
   const isOwnerEffective = getIsEffectiveOwner(permission);
+  const canEditChat = canEdit(permission);
 
   const menuItem: IDropdownItems = useMemo(() => {
     return [
@@ -40,10 +41,20 @@ export const ChatContainerHeaderDropdown: React.FC<{
       favoriteChat,
       openInNewTab,
       { type: 'divider' },
-      duplicateChat,
-      deleteChat,
+      canEditChat && duplicateChat,
+      canEditChat && deleteChat,
     ].filter(Boolean) as IDropdownItems;
-  }, [chatId, duplicateChat, deleteChat, duplicateChat]);
+  }, [
+    chatId,
+    isOwnerEffective,
+    canEditChat,
+    shareMenu,
+    renameChatTitle,
+    favoriteChat,
+    openInNewTab,
+    duplicateChat,
+    deleteChat,
+  ]);
 
   return (
     <Dropdown align="end" items={menuItem}>
