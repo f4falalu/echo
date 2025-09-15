@@ -2,7 +2,7 @@
   "name": "@buster-app/web",
   "private": true,
   "type": "module",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "scripts": {
     "prebuild": "tsx scripts/validate-env.ts",
     "build": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build -- --typecheck",
