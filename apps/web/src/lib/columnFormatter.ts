@@ -157,9 +157,9 @@ const prefixSuffixHandler = (
   if (replaceMissingDataWith === null && !text) return String(text);
 
   let result = String(text);
+  if (style === 'percent' && suffix !== '%') result = `${result}%`;
   if (prefix) result = prefix + result;
   if (suffix) result = result + suffix;
-  if (style === 'percent' && suffix !== '%') result = `${result}%`;
 
   return result;
 };
