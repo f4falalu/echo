@@ -33,6 +33,7 @@
     "@buster/env-utils": "workspace:*",
     "@buster/data-source": "workspace:*",
     "@buster/database": "workspace:*",
+    "@buster/server-shared": "workspace:*",
     "@turbopuffer/turbopuffer": "^1.0.0",
     "zod": "^3.22.4"
   },

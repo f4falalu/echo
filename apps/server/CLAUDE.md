@@ -1,356 +1,468 @@
-# Hono Server Development Guidelines
+# Server Application
 
-This document provides specific guidelines for developing the Hono-based backend server in this monorepo.
+This is the main TypeScript/Node.js API server using Hono framework. It assembles packages to create the REST API.
 
-## API Development Standards
+## Core Responsibility
 
-### Directory Structure
+`@buster-app/server` is responsible for:
+- HTTP API endpoints
+- Request/response handling
+- Authentication middleware
+- Routing and middleware
+- Assembling package functionality
+
+## File-Path Based Routing
+
+**CRITICAL**: Routes should be organized using file-path based structure that matches the actual API path.
+
+### Routing Structure
+
 ```
-apps/server/src/api/
-├── v2/                    # Current API version
-│   ├── chats/            # Feature folder
-│   │   ├── index.ts      # Route definitions
-│   │   ├── handler.ts    # Main handler (if single)
-│   │   ├── create-chat.ts # Individual handlers
-│   │   └── services/     # Business logic
-│   └── security/         # Another feature
-│       ├── index.ts
-│       ├── get-workspace-settings.ts
-│       └── update-workspace-settings.ts
-└── healthcheck.ts        # Non-versioned endpoints
+server/
+├── src/
+│   ├── api/
+│   │   ├── v2/
+│   │   │   ├── users/
+│   │   │   │   ├── index.ts              # /v2/users
+│   │   │   │   ├── GET.ts                # GET /v2/users
+│   │   │   │   ├── POST.ts               # POST /v2/users
+│   │   │   │   └── [id]/
+│   │   │   │       ├── index.ts          # /v2/users/:id
+│   │   │   │       ├── GET.ts            # GET /v2/users/:id
+│   │   │   │       ├── PUT.ts            # PUT /v2/users/:id
+│   │   │   │       ├── DELETE.ts         # DELETE /v2/users/:id
+│   │   │   │       └── suggested-questions/
+│   │   │   │           ├── index.ts      # /v2/users/:id/suggested-questions
+│   │   │   │           └── GET.ts        # GET /v2/users/:id/suggested-questions
+│   │   │   ├── organizations/
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── GET.ts
+│   │   │   │   ├── POST.ts
+│   │   │   │   └── [orgId]/
+│   │   │   │       ├── members/
+│   │   │   │       │   ├── GET.ts
+│   │   │   │       │   └── POST.ts
+│   │   │   │       └── settings/
+│   │   │   │           └── GET.ts
+│   │   │   └── index.ts                  # Main v2 router
+│   │   └── index.ts                       # Main API router
+│   └── index.ts                           # App entry point
 ```
 
-### Route Definition Pattern
+### Route File Pattern
 
-Always follow this pattern in `index.ts`:
+Each HTTP method gets its own file:
 
 ```typescript
-import { RequestSchema } from '@buster/server-shared/feature';
-import { zValidator } from '@hono/zod-validator';
+// src/api/v2/users/[id]/GET.ts
 import { Hono } from 'hono';
-import { requireAuth } from '../../../middleware/auth';
-import '../../../types/hono.types';
-import { HTTPException } from 'hono/http-exception';
-import { handlerFunction } from './handler-file';
+import { z } from 'zod';
+import { zValidator } from '@hono/zod-validator';
+import type { GetUserResponse } from '@buster/server-shared';
+import { getUserHandler } from './handlers/get-user';
 
-const app = new Hono()
-  // Apply authentication middleware
-  .use('*', requireAuth)
-  
-  // GET endpoint (no body validation)
-  .get('/endpoint', async (c) => {
-    const user = c.get('busterUser');
-    const response = await handlerFunction(user);
-    return c.json(response);
-  })
-  
-  // POST/PATCH/PUT endpoint (with body validation)
-  .post('/endpoint', zValidator('json', RequestSchema), async (c) => {
-    const request = c.req.valid('json');
-    const user = c.get('busterUser');
-    const response = await handlerFunction(request, user);
-    return c.json(response);
-  })
-  
-  // Error handling
-  .onError((e, c) => {
-    if (e instanceof HTTPException) {
-      return e.getResponse();
+const ParamsSchema = z.object({
+  id: z.string().uuid()
+});
+
+export const GET = new Hono()
+  .get(
+    '/',
+    zValidator('param', ParamsSchema),
+    async (c) => {
+      const user = c.get('busterUser');
+      const params = c.req.valid('param');
+      
+      const response = await getUserHandler({
+        userId: params.id,
+        requestingUser: user
+      });
+      
+      return c.json<GetUserResponse>(response);
     }
-    
-    throw new HTTPException(500, {
-      message: 'Internal server error',
-    });
-  });
-
-export default app;
+  );
 ```
 
-### Handler Function Pattern
+### Index Router Pattern
 
-Each handler must:
-1. Be in its own file
-2. Be a pure async function
-3. Accept typed parameters
-4. Return typed responses
-5. Handle business logic or delegate to services
+Each directory has an index.ts that combines routes:
 
 ```typescript
-import type { 
-  FeatureRequest, 
-  FeatureResponse 
-} from '@buster/server-shared/feature';
-import type { User } from '@buster/database';
+// src/api/v2/users/[id]/index.ts
+import { Hono } from 'hono';
+import { GET } from './GET';
+import { PUT } from './PUT';
+import { DELETE } from './DELETE';
+import { suggestedQuestions } from './suggested-questions';
 
-export async function featureHandler(
-  request: FeatureRequest,
-  user: User
-): Promise<FeatureResponse> {
-  // TODO: Implement business logic
+export const userById = new Hono()
+  .route('/', GET)
+  .route('/', PUT)
+  .route('/', DELETE)
+  .route('/suggested-questions', suggestedQuestions);
+```
+
+### Parent Router Pattern
+
+```typescript
+// src/api/v2/users/index.ts
+import { Hono } from 'hono';
+import { GET } from './GET';
+import { POST } from './POST';
+import { userById } from './[id]';
+
+export const users = new Hono()
+  .route('/', GET)
+  .route('/', POST)
+  .route('/:id', userById);
+```
+
+## Handler Pattern
+
+Handlers are pure functions in separate files:
+
+```typescript
+// src/api/v2/users/[id]/handlers/get-user.ts
+import { z } from 'zod';
+import type { User } from '@buster/database';
+import { getUser } from '@buster/database';
+import { checkPermission } from '@buster/access-controls';
+
+const GetUserHandlerParamsSchema = z.object({
+  userId: z.string().uuid(),
+  requestingUser: z.custom<User>()
+});
+
+type GetUserHandlerParams = z.infer<typeof GetUserHandlerParamsSchema>;
+
+export async function getUserHandler(params: GetUserHandlerParams) {
+  const validated = GetUserHandlerParamsSchema.parse(params);
   
-  // For complex logic, delegate to service functions
-  // const result = await featureService.process(request, user);
+  // Check permissions
+  const canAccess = await checkPermission({
+    user: validated.requestingUser,
+    action: 'read',
+    resource: {
+      type: 'user',
+      id: validated.userId
+    }
+  });
+  
+  if (!canAccess) {
+    throw new ForbiddenError();
+  }
+  
+  // Get user from database
+  const user = await getUser({ userId: validated.userId });
+  
+  if (!user) {
+    throw new NotFoundError('User not found');
+  }
   
   return {
-    // Response data matching FeatureResponse type
+    user,
+    permissions: await getUserPermissions(user.id)
   };
 }
 ```
 
-### Type Safety Requirements
+## Middleware
 
-1. **Request/Response Types**: Define all types in `@buster/server-shared`
-   ```typescript
-   // In @buster/server-shared/feature/requests.ts
-   export const FeatureRequestSchema = z.object({
-     field: z.string(),
-   });
-   
-   export type FeatureRequest = z.infer<typeof FeatureRequestSchema>;
-   ```
-
-2. **Validation**: Always use `zValidator` for request body validation
-   ```typescript
-   .post('/endpoint', zValidator('json', RequestSchema), async (c) => {
-     const request = c.req.valid('json'); // Fully typed
-   })
-   ```
-
-3. **User Type**: Always use `User` from `@buster/database`
-   ```typescript
-   import type { User } from '@buster/database';
-   ```
-
-### Authentication Pattern
-
-1. Apply `requireAuth` middleware to all protected routes
-2. Extract user with `c.get('busterUser')`
-3. Pass user to handler functions
+### Authentication Middleware
 
 ```typescript
-const app = new Hono()
-  .use('*', requireAuth) // Protects all routes in this app
-  .get('/protected', async (c) => {
-    const user = c.get('busterUser'); // Type: User from @buster/database
-    // Use user in handler
-  });
-```
+// src/middleware/auth.ts
+import type { Context, Next } from 'hono';
+import { validateSession } from '@buster/access-controls';
 
-### Error Handling
-
-1. **Custom Errors**: Create domain-specific error classes
-   ```typescript
-   export class FeatureError extends Error {
-     constructor(
-       public code: string,
-       message: string,
-       public statusCode: number
-     ) {
-       super(message);
-     }
-   }
-   ```
-
-2. **Error Responses**: Handle in route error handler
-   ```typescript
-   .onError((e, c) => {
-     if (e instanceof FeatureError) {
-       return c.json({ error: e.message, code: e.code }, e.statusCode);
-     }
-     // Default error handling
-   })
-   ```
-
-### Testing Guidelines
-
-1. **Unit Tests**: Test handlers in isolation
-   ```typescript
-   // handler.test.ts
-   describe('featureHandler', () => {
-     it('should process valid request', async () => {
-       const mockUser = { id: '123' } as User;
-       const request = { field: 'value' };
-       
-       const result = await featureHandler(request, mockUser);
-       
-       expect(result).toMatchObject({
-         // Expected response
-       });
-     });
-   });
-   ```
-
-2. **Integration Tests**: Test full API routes
-   ```typescript
-   // index.test.ts
-   import { testClient } from 'hono/testing';
-   ```
-
-### Best Practices
-
-1. **Separation of Concerns**
-   - Routes: Handle HTTP concerns only
-   - Handlers: Coordinate business logic
-   - Services: Implement business logic
-   - Repositories: Handle data access
-
-2. **Consistent Naming**
-   - Handler files: `verb-resource.ts` (e.g., `get-user.ts`, `update-settings.ts`)
-   - Handler functions: `verbResourceHandler` (e.g., `getUserHandler`)
-   - Service files: `resource-service.ts`
-
-3. **Response Validation**
-   - Consider validating responses in development
-   - Use `.safeParse()` for critical endpoints
-
-4. **Logging**
-   - Log errors with context
-   - Use appropriate log levels
-   - Include user context where relevant
-
-5. **Performance**
-   - Keep handlers lightweight
-   - Delegate heavy computation to background jobs
-   - Monitor response times
-
-## Common Patterns
-
-### Pagination
-```typescript
-// In request schema
-export const ListRequestSchema = z.object({
-  page: z.number().min(1).default(1),
-  limit: z.number().min(1).max(100).default(20),
-});
-
-// In handler
-const offset = (request.page - 1) * request.limit;
-```
-
-### Query Parameters
-```typescript
-// Define query schema in server-shared
-export const ListItemsQuerySchema = z.object({
-  search: z.string().optional(),
-  status: z.enum(['active', 'inactive', 'all']).default('all'),
-  page: z.coerce.number().min(1).default(1),
-  limit: z.coerce.number().min(1).max(100).default(20),
-  sortBy: z.enum(['created_at', 'name', 'updated_at']).default('created_at'),
-  sortOrder: z.enum(['asc', 'desc']).default('desc'),
-});
-
-export type ListItemsQuery = z.infer<typeof ListItemsQuerySchema>;
-
-// Route definition with query validation
-.get('/items', zValidator('query', ListItemsQuerySchema), async (c) => {
-  const query = c.req.valid('query'); // Fully typed as ListItemsQuery
-  const user = c.get('busterUser');
+export async function requireAuth(c: Context, next: Next) {
+  const token = c.req.header('Authorization')?.replace('Bearer ', '');
   
-  const response = await listItemsHandler(query, user);
-  return c.json(response);
-})
-
-// Handler receives typed query
-export async function listItemsHandler(
-  query: ListItemsQuery,
-  user: User
-): Promise<ListItemsResponse> {
-  const offset = (query.page - 1) * query.limit;
-  // Use query.search, query.status, etc. with full type safety
+  if (!token) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+  
+  const user = await validateSession(token);
+  if (!user) {
+    return c.json({ error: 'Invalid session' }, 401);
+  }
+  
+  c.set('busterUser', user);
+  await next();
 }
 ```
 
-### Path Parameters
+### Error Handling Middleware
+
 ```typescript
-// Define param schema
-export const ItemParamsSchema = z.object({
-  item_id: z.string().uuid(),
-});
-
-export type ItemParams = z.infer<typeof ItemParamsSchema>;
-
-// Route with path param validation
-.get('/items/:item_id', zValidator('param', ItemParamsSchema), async (c) => {
-  const params = c.req.valid('param'); // Typed as ItemParams
-  const user = c.get('busterUser');
-  
-  const response = await getItemHandler(params.item_id, user);
-  return c.json(response);
-})
-
-// Handler receives typed param
-export async function getItemHandler(
-  itemId: string,
-  user: User
-): Promise<ItemResponse> {
-  // itemId is guaranteed to be a valid UUID
-}
-```
-
-### Combined Parameters (Path + Query + Body)
-```typescript
-// Define schemas
-export const UpdateItemParamsSchema = z.object({
-  item_id: z.string().uuid(),
-});
-
-export const UpdateItemQuerySchema = z.object({
-  validate: z.coerce.boolean().default(true),
-});
-
-export const UpdateItemBodySchema = z.object({
-  name: z.string().min(1).max(255),
-  description: z.string().optional(),
-  status: z.enum(['active', 'inactive']).optional(),
-});
-
-// Route with multiple validations
-.patch(
-  '/items/:item_id',
-  zValidator('param', UpdateItemParamsSchema),
-  zValidator('query', UpdateItemQuerySchema),
-  zValidator('json', UpdateItemBodySchema),
-  async (c) => {
-    const params = c.req.valid('param');
-    const query = c.req.valid('query');
-    const body = c.req.valid('json');
-    const user = c.get('busterUser');
+// src/middleware/error-handler.ts
+export async function errorHandler(c: Context, next: Next) {
+  try {
+    await next();
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      return c.json({ 
+        error: 'Validation failed',
+        details: error.errors 
+      }, 400);
+    }
     
-    const response = await updateItemHandler(
-      params.item_id,
-      body,
-      { validate: query.validate },
-      user
-    );
-    return c.json(response);
+    if (error instanceof ForbiddenError) {
+      return c.json({ error: 'Forbidden' }, 403);
+    }
+    
+    if (error instanceof NotFoundError) {
+      return c.json({ error: error.message }, 404);
+    }
+    
+    // Log internal errors
+    console.error('Unhandled error:', error);
+    
+    // Don't expose internal errors
+    return c.json({ error: 'Internal server error' }, 500);
+  }
+}
+```
+
+## Type Safety
+
+### Request/Response Types
+
+All types come from server-shared:
+
+```typescript
+import type { 
+  CreateUserRequest,
+  CreateUserResponse,
+  GetUsersRequest,
+  GetUsersResponse 
+} from '@buster/server-shared';
+
+// Never define types locally
+// ❌ Wrong
+interface LocalUserType {
+  id: string;
+  email: string;
+}
+
+// ✅ Correct - import from server-shared
+import type { User } from '@buster/server-shared';
+```
+
+### Validation Pattern
+
+```typescript
+import { zValidator } from '@hono/zod-validator';
+import { CreateUserRequestSchema } from '@buster/server-shared';
+
+// Validate request body
+.post(
+  '/',
+  zValidator('json', CreateUserRequestSchema),
+  async (c) => {
+    const data = c.req.valid('json');
+    // data is fully typed
   }
 )
 
-// Handler with all parameters typed
-export async function updateItemHandler(
-  itemId: string,
-  data: UpdateItemBody,
-  options: { validate: boolean },
-  user: User
-): Promise<ItemResponse> {
-  if (options.validate) {
-    // Perform validation
+// Validate query params
+.get(
+  '/',
+  zValidator('query', GetUsersQuerySchema),
+  async (c) => {
+    const query = c.req.valid('query');
+    // query is fully typed
   }
-  // Update logic
-}
+)
 ```
 
-### Important Notes on Type Coercion
-- Use `z.coerce.number()` for numeric query params (they come as strings)
-- Use `z.coerce.boolean()` for boolean query params
-- Path params are always strings, validate format with `.uuid()`, `.regex()`, etc.
-- Query arrays need special handling: `ids: z.array(z.string()).or(z.string()).transform(v => Array.isArray(v) ? v : [v])`
+## App Structure
 
-### Background Jobs
+### Main App Setup
+
 ```typescript
-// Queue job without waiting
-import { tasks } from '@trigger.dev/sdk/v3';
+// src/index.ts
+import { Hono } from 'hono';
+import { cors } from 'hono/cors';
+import { logger } from 'hono/logger';
+import { api } from './api';
+import { errorHandler } from './middleware/error-handler';
 
-await tasks.trigger('job-name', { data });
-// Return immediately, don't await job completion
+const app = new Hono();
+
+// Global middleware
+app.use('*', cors());
+app.use('*', logger());
+app.use('*', errorHandler);
+
+// Mount API routes
+app.route('/api', api);
+
+// Health check
+app.get('/health', (c) => c.json({ status: 'ok' }));
+
+export default app;
 ```
+
+### Environment Configuration
+
+```typescript
+// src/config/env.ts
+import { z } from 'zod';
+
+const EnvSchema = z.object({
+  PORT: z.string().default('8080'),
+  DATABASE_URL: z.string(),
+  REDIS_URL: z.string(),
+  JWT_SECRET: z.string(),
+  NODE_ENV: z.enum(['development', 'production', 'test'])
+});
+
+export const env = EnvSchema.parse(process.env);
+```
+
+## Testing Patterns
+
+### Route Testing
+
+```typescript
+describe('GET /v2/users/:id', () => {
+  it('should return user when authorized', async () => {
+    const app = createTestApp();
+    
+    const response = await app.request('/api/v2/users/123', {
+      headers: {
+        Authorization: 'Bearer valid-token'
+      }
+    });
+    
+    expect(response.status).toBe(200);
+    const data = await response.json();
+    expect(data.user).toBeDefined();
+  });
+  
+  it('should return 401 when not authenticated', async () => {
+    const app = createTestApp();
+    
+    const response = await app.request('/api/v2/users/123');
+    
+    expect(response.status).toBe(401);
+  });
+});
+```
+
+### Handler Testing
+
+```typescript
+describe('getUserHandler', () => {
+  it('should return user data', async () => {
+    const mockUser = { id: '123', email: 'test@example.com' };
+    jest.spyOn(database, 'getUser').mockResolvedValue(mockUser);
+    
+    const result = await getUserHandler({
+      userId: '123',
+      requestingUser: mockUser
+    });
+    
+    expect(result.user).toEqual(mockUser);
+  });
+});
+```
+
+## Best Practices
+
+### DO:
+- Use file-path based routing
+- Separate handlers from routes
+- Import types from server-shared
+- Validate all inputs with Zod
+- Use functional handlers
+- Apply auth middleware globally
+- Handle errors gracefully
+- Test routes and handlers separately
+
+### DON'T:
+- Define types locally
+- Mix business logic with routes
+- Use classes for handlers
+- Skip validation
+- Expose internal errors
+- Access database directly
+- Hardcode configuration
+
+## WebSocket Support
+
+### WebSocket Handler
+
+```typescript
+// src/api/ws/chat.ts
+import { createBunWebSocket } from 'hono/bun';
+import type { ServerWebSocket } from 'bun';
+
+const { upgradeWebSocket, websocket } = createBunWebSocket<{ user: User }>();
+
+export const chatWebSocket = new Hono()
+  .get(
+    '/chat',
+    upgradeWebSocket((c) => {
+      return {
+        onOpen(evt, ws) {
+          console.info('WebSocket opened');
+        },
+        onMessage(evt, ws) {
+          const message = JSON.parse(evt.data);
+          // Handle message
+          ws.send(JSON.stringify({ type: 'ack' }));
+        },
+        onClose(evt, ws) {
+          console.info('WebSocket closed');
+        }
+      };
+    })
+  );
+```
+
+## Performance Optimization
+
+### Response Caching
+
+```typescript
+import { cache } from 'hono/cache';
+
+// Cache GET requests
+.get(
+  '/',
+  cache({
+    cacheName: 'users',
+    cacheControl: 'max-age=3600'
+  }),
+  getUsersHandler
+)
+```
+
+### Rate Limiting
+
+```typescript
+import { rateLimiter } from './middleware/rate-limiter';
+
+// Apply rate limiting
+.use('/api/*', rateLimiter({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+}))
+```
+
+## Deployment
+
+The server runs on Bun runtime for optimal performance:
+
+```bash
+# Development
+turbo dev --filter=@buster-app/server
+
+# Production
+turbo build --filter=@buster-app/server
+bun run dist/index.js
+```
+
+This app should ONLY assemble packages and handle HTTP concerns. All business logic belongs in packages.

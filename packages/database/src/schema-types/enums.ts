@@ -15,7 +15,8 @@ export type AssetType =
   | 'tool'
   | 'source'
   | 'collection_file'
-  | 'dataset_permission';
+  | 'dataset_permission'
+  | 'message';
 
 export type AssetPermissionRole =
   | 'owner'

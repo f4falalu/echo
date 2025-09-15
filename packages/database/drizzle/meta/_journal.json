@@ -687,6 +687,20 @@
       "when": 1757702231051,
       "tag": "0097_polite_black_widow",
       "breakpoints": true
+    },
+    {
+      "idx": 98,
+      "version": "7",
+      "when": 1757966322389,
+      "tag": "0098_blue_blacklash",
+      "breakpoints": true
+    },
+    {
+      "idx": 99,
+      "version": "7",
+      "when": 1757966355180,
+      "tag": "0099_red_blindfold",
+      "breakpoints": true
     }
   ]
 }

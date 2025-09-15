@@ -20,7 +20,6 @@ export const useSignOut = () => {
       }
     } catch (error) {
       console.error('Error signing out', error);
-      openErrorMessage('Error signing out');
     } finally {
       navigate({ to: '/auth/login' });
     }

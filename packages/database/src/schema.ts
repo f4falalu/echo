@@ -52,6 +52,7 @@ export const assetTypeEnum = pgEnum('asset_type_enum', [
   'source',
   'collection_file',
   'dataset_permission',
+  'message',
 ]);
 // Asset type enum removed - now using text for all asset_type columns
 export const dataSourceOnboardingStatusEnum = pgEnum('data_source_onboarding_status_enum', [
@@ -2392,5 +2393,35 @@ export const docs = pgTable(
       name: 'docs_organization_id_fkey',
     }).onDelete('cascade'),
     unique('docs_name_organization_id_key').on(table.name, table.organizationId),
+  ]
+);
+
+export const textSearch = pgTable(
+  'text_search',
+  {
+    id: uuid().defaultRandom().primaryKey().notNull(),
+    assetType: assetTypeEnum('asset_type').notNull(),
+    assetId: uuid('asset_id').notNull(),
+    organizationId: uuid('organization_id').notNull(),
+    searchableText: text('searchable_text').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.organizationId],
+      foreignColumns: [organizations.id],
+      name: 'text_search_organization_id_fkey',
+    }).onDelete('cascade'),
+    index('pgroonga_search_text_index').using(
+      'pgroonga',
+      table.searchableText.asc().nullsLast().op('pgroonga_text_full_text_search_ops_v2')
+    ),
+    unique('text_search_asset_type_asset_id_unique').on(table.assetId, table.assetType),
   ]
 );
