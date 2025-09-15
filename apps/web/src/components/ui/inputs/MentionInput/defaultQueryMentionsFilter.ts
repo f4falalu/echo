@@ -4,7 +4,7 @@ import type { MentionInputTriggerItem, MentionTriggerItem } from './MentionInput
 // Fuse.js configuration for consistent fuzzy search settings
 const fuseConfig = {
   threshold: 0.3, // Conservative fuzzy matching (0.0 = exact, 1.0 = very fuzzy)
-  includeScore: true,
+  includeScore: false,
   minMatchCharLength: 1,
   ignoreLocation: true, // Don't care about position of match in string
   findAllMatches: true,
