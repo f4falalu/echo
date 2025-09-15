@@ -18,8 +18,6 @@ export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = Reac
 
     const { isSelectedFile } = useGetIsSelectedFile({ responseMessage });
 
-    // const linkParams = useGetFileHref({ responseMessage, isSelectedFile, chatId });
-
     const linkParams = createChatAssetRoute({
       asset_type: file_type,
       id: responseMessage.id,

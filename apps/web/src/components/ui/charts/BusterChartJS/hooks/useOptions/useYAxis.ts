@@ -3,6 +3,7 @@ import {
   type ChartEncodes,
   type ChartType,
   type ColumnLabelFormat,
+  type ComboChartAxis,
   DEFAULT_COLUMN_LABEL_FORMAT,
 } from '@buster/server-shared/metrics';
 import type { GridLineOptions, Scale, ScaleChartOptions } from 'chart.js';
@@ -13,6 +14,7 @@ import type { BusterChartProps } from '../../../BusterChart.types';
 import { formatYAxisLabel, yAxisSimilar } from '../../../commonHelpers';
 import { useYAxisTitle } from './axisHooks/useYAxisTitle';
 import { useIsStacked } from './useIsStacked';
+import { DEFAULT_Y2_AXIS_COUNT } from './useY2Axis';
 
 export const useYAxis = ({
   columnLabelFormats,
@@ -41,6 +43,7 @@ export const useYAxis = ({
   gridLines: BusterChartProps['gridLines'];
 }): DeepPartial<ScaleChartOptions<'bar'>['scales']['y']> | undefined => {
   const yAxisKeys = selectedAxis.y;
+  const hasY2Axis = (selectedAxis as ComboChartAxis)?.y2?.length > 0;
 
   const isSupportedType = useMemo(() => {
     return selectedChartType !== 'pie';
@@ -122,11 +125,12 @@ export const useYAxis = ({
         ticks: {
           display: yAxisShowAxisLabel,
           callback: tickCallback,
+          count: hasY2Axis ? DEFAULT_Y2_AXIS_COUNT : undefined,
         },
         border: {
           display: yAxisShowAxisLabel,
         },
-      } satisfies DeepPartial<ScaleChartOptions<'bar'>['scales']['y']>;
+      } as DeepPartial<ScaleChartOptions<'bar'>['scales']['y']>;
     }, [
       tickCallback,
       type,

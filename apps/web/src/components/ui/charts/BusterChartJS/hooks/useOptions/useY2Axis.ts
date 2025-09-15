@@ -15,6 +15,8 @@ import type { BusterChartProps } from '../../../BusterChart.types';
 import { formatYAxisLabel, yAxisSimilar } from '../../../commonHelpers';
 import { useY2AxisTitle } from './axisHooks/useY2AxisTitle';
 
+export const DEFAULT_Y2_AXIS_COUNT = 7;
+
 export const useY2Axis = ({
   columnLabelFormats,
   selectedAxis: selectedAxisProp,
@@ -99,13 +101,14 @@ export const useY2Axis = ({
           text: title,
         },
         ticks: {
+          count: DEFAULT_Y2_AXIS_COUNT,
           autoSkip: true,
           callback: tickCallback,
         },
         grid: {
           drawOnChartArea: false, // only want the grid lines for one axis to show up
         },
-      } satisfies DeepPartial<ScaleChartOptions<'bar'>['scales']['y2']>;
+      } as DeepPartial<ScaleChartOptions<'bar'>['scales']['y2']>;
     }, [
       tickCallback,
       title,
