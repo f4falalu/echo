@@ -10,11 +10,11 @@ import {
 import { ChatLayout } from '@/layouts/ChatLayout';
 
 export const Route = createFileRoute('/app/_app/_asset/chats/$chatId')({
-  loader: async ({ params, context }) => {
+  beforeLoad: async ({ params, context }) => {
     const chatId = params.chatId;
     const assetParams = omit(params, 'chatId');
     const assetType = context.assetType;
-    const autoSaveId = `chat-${chatId ? 'C' : 'X'}-${assetType ? 'Y' : 'N'}`;
+    const autoSaveId = `chat-${chatId ? 'C' : 'NXC'}-${assetType ? 'Y' : 'NXA'}`;
     const selectedLayout = getDefaultLayoutMode({
       chatId,
       assetParams,
@@ -22,15 +22,7 @@ export const Route = createFileRoute('/app/_app/_asset/chats/$chatId')({
     const defaultLayout = getDefaultLayout({
       layout: selectedLayout,
     });
-
-    const [chatLayout, title] = await Promise.all([
-      context.getAppLayout({ id: autoSaveId }),
-      context.getAssetTitle({
-        assetId: params.chatId,
-        assetType: 'chat',
-      }),
-      prefetchGetChat({ id: chatId }, context.queryClient),
-    ]);
+    const chatLayout = await context.getAppLayout({ id: autoSaveId });
 
     const initialLayout = chooseInitialLayout({
       layout: selectedLayout,
@@ -39,11 +31,25 @@ export const Route = createFileRoute('/app/_app/_asset/chats/$chatId')({
     });
 
     return {
-      title,
       autoSaveId,
       initialLayout,
       defaultLayout,
       selectedLayout,
+    };
+  },
+  loader: async ({ params, context }) => {
+    const chatId = params.chatId;
+
+    const [title] = await Promise.all([
+      context.getAssetTitle({
+        assetId: params.chatId,
+        assetType: 'chat',
+      }),
+      prefetchGetChat({ id: chatId }, context.queryClient),
+    ]);
+
+    return {
+      title,
     };
   },
   head: ({ loaderData }) => ({
@@ -55,7 +61,7 @@ export const Route = createFileRoute('/app/_app/_asset/chats/$chatId')({
     ],
   }),
   component: () => {
-    const { initialLayout, selectedLayout, autoSaveId, defaultLayout } = Route.useLoaderData();
+    const { initialLayout, selectedLayout, autoSaveId, defaultLayout } = Route.useRouteContext();
 
     return (
       <ChatLayout

@@ -38,7 +38,10 @@ export const useAutoChatSplitter = ({
 
   useUpdateEffect(() => {
     const isSplitterClosed = appSplitterRef.current?.isSideClosed('right');
-    if (isSplitterClosed && selectedAssetId) {
+
+    if (layoutTrigger === 'chat') {
+      animateOpenSplitter('left');
+    } else if (layoutTrigger === true) {
       animateOpenSplitter('both');
     } else {
       animateOpenSplitter('left');
