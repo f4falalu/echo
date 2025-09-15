@@ -54,7 +54,7 @@ jobs:
         with:
           cache-key: build-lint-unit
 
-      - name: Lint all packages (excluding web)
+      - name: Lint all packages
         run: pnpm turbo lint
         env:
           TURBO_CACHE_DIR: .turbo
@@ -82,7 +82,7 @@ jobs:
           TURBO_CACHE_DIR: .turbo
           TURBO_TELEMETRY_DISABLED: 1
 
-      - name: Run all unit tests (excluding web)
+      - name: Run all unit tests
         run: pnpm turbo test:unit
         env:
           TURBO_CACHE_DIR: .turbo
