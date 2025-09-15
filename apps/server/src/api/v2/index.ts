@@ -14,6 +14,7 @@ import organizationRoutes from './organization';
 import publicRoutes from './public';
 import reportsRoutes from './reports';
 import s3IntegrationsRoutes from './s3-integrations';
+import searchRoutes from './search';
 import securityRoutes from './security';
 import shortcutsRoutes from './shortcuts';
 import slackRoutes from './slack';
@@ -41,6 +42,7 @@ const app = new Hono()
   .route('/title', titleRoutes)
   .route('/reports', reportsRoutes)
   .route('/s3-integrations', s3IntegrationsRoutes)
+  .route('/search', searchRoutes)
   .route('/public', publicRoutes);
 
 export default app;

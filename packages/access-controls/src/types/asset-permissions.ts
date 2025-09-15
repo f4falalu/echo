@@ -23,6 +23,7 @@ export const AssetTypeSchema = z.enum([
   'source',
   'collection_file',
   'dataset_permission',
+  'message',
 ]);
 export type AssetType = z.infer<typeof AssetTypeSchema>;
 
