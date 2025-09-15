@@ -22,7 +22,7 @@ interface FileCardProps {
   headerWrapper?: React.ComponentType<{ children: React.ReactNode }>;
 }
 
-const MIN_COLLAPSIBLE_HEIGHT = 275;
+const MIN_COLLAPSIBLE_HEIGHT = 250;
 
 export const FileCard = React.memo(
   ({
@@ -163,7 +163,7 @@ const CollapseContent = React.memo(
     const collapsedHeight = useMemo(() => {
       if (!fullHeight) return 32; // fallback
       const sixtyFivePercent = Math.floor(fullHeight * 0.65);
-      return Math.min(sixtyFivePercent, 200);
+      return Math.min(sixtyFivePercent, MIN_COLLAPSIBLE_HEIGHT);
     }, [fullHeight]);
 
     // Check if content is too small to warrant collapsing (for overlay-peek only)
@@ -179,7 +179,11 @@ const CollapseContent = React.memo(
         const resizeObserver = new ResizeObserver(() => {
           console.log('content height changed', contentRef.current?.scrollHeight);
           if (contentRef.current) {
-            setFullHeight(contentRef.current.scrollHeight);
+            requestAnimationFrame(() => {
+              if (contentRef.current) {
+                setFullHeight(contentRef.current.scrollHeight);
+              }
+            });
           }
         });
 
@@ -211,7 +215,7 @@ const CollapseContent = React.memo(
       ) : null;
 
     const ContentWrapper = (
-      <div ref={contentRef} className="w-full">
+      <div ref={contentRef} data-testid="collapse-content-wrapper" className="w-full">
         {children}
       </div>
     );
@@ -220,7 +224,16 @@ const CollapseContent = React.memo(
     if (collapsible === 'overlay-peek') {
       // If content is too small, just render it without collapse functionality
       if (isTooSmallToCollapse) {
-        return <div className="relative overflow-hidden">{ContentWrapper}</div>;
+        return (
+          <div
+            className="relative overflow-hidden"
+            style={{
+              maxHeight: MIN_COLLAPSIBLE_HEIGHT,
+            }}
+          >
+            {ContentWrapper}
+          </div>
+        );
       }
 
       // Normal overlay-peek behavior for larger content
@@ -264,7 +277,7 @@ const CollapseContent = React.memo(
               duration: 0.2,
               ease: 'easeInOut',
             }}
-            className="group relative overflow-hidden"
+            className={'group relative overflow-hidden'}
             data-testid="collapse-content"
           >
             {children}
