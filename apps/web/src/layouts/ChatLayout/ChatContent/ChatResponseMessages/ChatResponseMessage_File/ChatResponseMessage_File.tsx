@@ -1,10 +1,11 @@
 import React, { useMemo } from 'react';
 import type { BusterChatResponseMessage_file } from '@/api/asset_interfaces';
 import { useGetChatMessage } from '@/api/buster_rest/chats';
+import { defineLink } from '@/lib/routes';
+import type { ILinkProps } from '@/types/routes';
 import type { ChatResponseMessageProps } from '../ChatResponseMessageSelector';
 import { ChatResponseMessage_DashboardFile } from './ChatResponseMessage_DashboardFile';
 import { ChatResponseMessage_StandardFile } from './ChatResponseMessage_StandardFile';
-import { useGetFileHref } from './useGetFileHref';
 import { useGetIsSelectedFile } from './useGetIsSelectedFile';
 
 export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = React.memo(
@@ -17,7 +18,25 @@ export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = Reac
 
     const { isSelectedFile } = useGetIsSelectedFile({ responseMessage });
 
-    const linkParams = useGetFileHref({ responseMessage, isSelectedFile, chatId });
+    // const linkParams = useGetFileHref({ responseMessage, isSelectedFile, chatId });
+
+    const linkParams: ILinkProps = useMemo(() => {
+      if (file_type === 'dashboard') {
+        return defineLink({
+          to: '/app/dashboards/$dashboardId',
+          params: {
+            dashboardId: responseMessage.id,
+          },
+        });
+      }
+
+      return defineLink({
+        to: '/app/chats/$chatId',
+        params: {
+          chatId,
+        },
+      });
+    }, [responseMessage, isSelectedFile, chatId]);
 
     const SelectedComponent = useMemo(() => {
       if (file_type === 'dashboard') {

@@ -1106,3 +1106,33 @@ export const ProblematicData: Story = {
     ],
   },
 };
+
+export const ComboChartWithNegativeNumbers: Story = {
+  args: {
+    ...DualLineChart.args,
+    data: Array.from({ length: 12 }, (_, i) => ({
+      date: `2024-0${i + 1}-01`,
+      revenue: -100 + i * 10,
+      orders: 100 + i * 10,
+    })),
+    gridLines: true,
+    showLegend: true,
+    comboChartAxis: {
+      category: [],
+      x: ['date'],
+      y: ['revenue'],
+      y2: ['orders'],
+      tooltip: null,
+    },
+    columnSettings: {
+      revenue: {
+        ...DEFAULT_COLUMN_SETTINGS,
+        columnVisualization: 'bar',
+      },
+      orders: {
+        ...DEFAULT_COLUMN_SETTINGS,
+        columnVisualization: 'bar',
+      },
+    },
+  },
+};
