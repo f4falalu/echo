@@ -358,4 +358,22 @@ describe('formatLabel', () => {
       ).toBe('null');
     });
   });
+
+  describe('percent formatter', () => {
+    it('should format percentages', () => {
+      expect(formatLabel(0.1234, { columnType: 'number', style: 'percent' })).toBe('0.12%');
+    });
+
+    it('should format percentages with custom format', () => {
+      expect(
+        formatLabel(0.1234, { columnType: 'number', style: 'percent', dateFormat: 'YYYY-MM-DD' })
+      ).toBe('0.12%');
+    });
+
+    it('should put suffix after the percentage', () => {
+      expect(formatLabel(0.1234, { columnType: 'number', style: 'percent', suffix: ' WOW!' })).toBe(
+        '0.12% WOW!'
+      );
+    });
+  });
 });
