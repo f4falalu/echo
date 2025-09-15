@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import type { BusterChatResponseMessage_file } from '@/api/asset_interfaces';
 import { useGetChatMessage } from '@/api/buster_rest/chats';
-import { defineLink } from '@/lib/routes';
+import { createChatAssetRoute } from '@/lib/routes/createSimpleAssetRoute';
 import type { ILinkProps } from '@/types/routes';
 import type { ChatResponseMessageProps } from '../ChatResponseMessageSelector';
 import { ChatResponseMessage_DashboardFile } from './ChatResponseMessage_DashboardFile';
@@ -20,23 +20,11 @@ export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = Reac
 
     // const linkParams = useGetFileHref({ responseMessage, isSelectedFile, chatId });
 
-    const linkParams: ILinkProps = useMemo(() => {
-      if (file_type === 'dashboard') {
-        return defineLink({
-          to: '/app/dashboards/$dashboardId',
-          params: {
-            dashboardId: responseMessage.id,
-          },
-        });
-      }
-
-      return defineLink({
-        to: '/app/chats/$chatId',
-        params: {
-          chatId,
-        },
-      });
-    }, [responseMessage, isSelectedFile, chatId]);
+    const linkParams = createChatAssetRoute({
+      asset_type: file_type,
+      id: responseMessage.id,
+      chatId,
+    }) as unknown as ILinkProps;
 
     const SelectedComponent = useMemo(() => {
       if (file_type === 'dashboard') {

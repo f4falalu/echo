@@ -19,6 +19,7 @@ import { useGetDashboardParams } from '@/context/Dashboards/useGetDashboardParam
 import { useGetMetricParams } from '@/context/Metrics/useGetMetricParams';
 import { getSelectedChartTypeConfig } from '@/lib/metrics/selectedChartType';
 import type { ILinkProps } from '@/types/routes';
+import type { ResponseMessageFileProps } from './ResponseMessageFile.types';
 
 const itemAnimationConfig: MotionProps = {
   initial: { opacity: 0 },
@@ -26,77 +27,73 @@ const itemAnimationConfig: MotionProps = {
   transition: { duration: 0.7 },
 };
 
-export const ChatResponseMessage_DashboardFile: React.FC<{
-  isStreamFinished: boolean;
-  responseMessage: BusterChatResponseMessage_file;
-  isSelectedFile: boolean;
-  chatId: string;
-  linkParams: ILinkProps;
-}> = React.memo(({ isStreamFinished, responseMessage, isSelectedFile, chatId, linkParams }) => {
-  const { version_number, id, file_name } = responseMessage;
-  const { metricId } = useGetMetricParams();
-  const { dashboardId } = useGetDashboardParams();
-  const prefetchGetDashboard = usePrefetchGetDashboardClient();
-  const {
-    data: dashboardResponse,
-    isError,
-    isFetched: isFetchedDashboard,
-    isLoading,
-  } = useGetDashboard(
-    { id, versionNumber: version_number },
-    { select: ({ dashboard, metrics }) => ({ dashboard, metrics }) }
-  );
+export const ChatResponseMessage_DashboardFile: React.FC<ResponseMessageFileProps> = React.memo(
+  ({ isStreamFinished, responseMessage, isSelectedFile, chatId, linkParams }) => {
+    const { version_number, id, file_name } = responseMessage;
+    const { metricId } = useGetMetricParams();
+    const { dashboardId } = useGetDashboardParams();
+    const prefetchGetDashboard = usePrefetchGetDashboardClient();
+    const {
+      data: dashboardResponse,
+      isError,
+      isFetched: isFetchedDashboard,
+      isLoading,
+    } = useGetDashboard(
+      { id, versionNumber: version_number },
+      { select: ({ dashboard, metrics }) => ({ dashboard, metrics }) }
+    );
 
-  const hasMetrics = Object.keys(dashboardResponse?.metrics || {}).length > 0;
+    const hasMetrics = Object.keys(dashboardResponse?.metrics || {}).length > 0;
 
-  const FileInfo = useMemo(() => {
-    if (metricId) {
-      return (
-        <SelectDashboardButtonAndText
-          fileName={file_name}
-          dashboardId={id}
-          chatId={chatId}
-          versionNumber={version_number}
-        />
-      );
-    }
+    const FileInfo = useMemo(() => {
+      if (metricId) {
+        return (
+          <SelectDashboardButtonAndText
+            fileName={file_name}
+            dashboardId={id}
+            chatId={chatId}
+            versionNumber={version_number}
+          />
+        );
+      }
 
-    return <TextAndVersionText text={file_name} version={version_number} />;
-  }, [file_name, version_number, metricId]);
+      return <TextAndVersionText text={file_name} version={version_number} />;
+    }, [file_name, version_number, metricId]);
 
-  return (
-    <AnimatePresence initial={!isStreamFinished}>
-      <motion.div
-        id={id}
-        {...itemAnimationConfig}
-        onMouseEnter={() => {
-          prefetchGetDashboard(id, version_number);
-        }}
-      >
-        <CollapisbleFileCard
-          collapseContent={true}
-          collapsible={hasMetrics ? 'chevron' : false}
-          selected={isSelectedFile}
-          collapseDefaultIcon={<HeaderIcon isLoading={isLoading} isError={isError} />}
-          fileName={FileInfo}
-          headerWrapper={LinkHeaderWrapper({ linkProps: linkParams, metricId })}
+    return (
+      <AnimatePresence initial={!isStreamFinished}>
+        <motion.div
+          id={id}
+          {...itemAnimationConfig}
+          onMouseEnter={() => {
+            prefetchGetDashboard(id, version_number);
+          }}
         >
-          {!hasMetrics ? null : dashboardResponse ? (
-            <Content
-              dashboardResponse={dashboardResponse}
-              isFetched={isFetchedDashboard}
-              metricId={metricId}
-              dashboardId={dashboardId}
-              chatId={chatId}
-            />
-          ) : (
-            <ShimmerText text="Loading..." />
-          )}
-        </CollapisbleFileCard>
-      </motion.div>
-    </AnimatePresence>
-  );
-});
+          <CollapisbleFileCard
+            collapseContent={true}
+            collapsible={hasMetrics ? 'chevron' : false}
+            selected={isSelectedFile}
+            collapseDefaultIcon={<HeaderIcon isLoading={isLoading} isError={isError} />}
+            fileName={FileInfo}
+            headerWrapper={LinkHeaderWrapper({ linkProps: linkParams, metricId })}
+          >
+            {!hasMetrics ? null : dashboardResponse ? (
+              <Content
+                dashboardResponse={dashboardResponse}
+                isFetched={isFetchedDashboard}
+                metricId={metricId}
+                dashboardId={dashboardId}
+                chatId={chatId}
+              />
+            ) : (
+              <ShimmerText text="Loading..." />
+            )}
+          </CollapisbleFileCard>
+        </motion.div>
+      </AnimatePresence>
+    );
+  }
+);
 
 ChatResponseMessage_DashboardFile.displayName = 'ChatResponseMessage_DashboardFile';
 
