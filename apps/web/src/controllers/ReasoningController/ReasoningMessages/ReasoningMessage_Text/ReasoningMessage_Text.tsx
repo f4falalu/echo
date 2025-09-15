@@ -20,8 +20,6 @@ export const ReasoningMessage_Text: React.FC<ReasoningMessageProps> = React.memo
 
     if (!message) return null;
 
-    console.log('isStreamFinished in ReasoningMessage_Text', isStreamFinished, isLastMessage);
-
     return (
       <AppMarkdownStreaming
         content={message}

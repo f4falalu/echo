@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import '../animation-common/animations.css'; // Ensure CSS is loaded
 import { createAnimationStyle, type MarkdownAnimation } from '../animation-common';
 
 type TokenizedTextProps = {
