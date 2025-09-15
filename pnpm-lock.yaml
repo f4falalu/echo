@@ -932,6 +932,9 @@ importers:
 
   packages/access-controls:
     dependencies:
+      '@buster/data-source':
+        specifier: workspace:*
+        version: link:../data-source
       '@buster/database':
         specifier: workspace:*
         version: link:../database
@@ -950,9 +953,15 @@ importers:
       lru-cache:
         specifier: ^11.1.0
         version: 11.1.0
+      node-sql-parser:
+        specifier: ^5.3.12
+        version: 5.3.12
       uuid:
         specifier: 'catalog:'
         version: 11.1.0
+      yaml:
+        specifier: ^2.8.1
+        version: 2.8.1
       zod:
         specifier: 'catalog:'
         version: 3.25.76
