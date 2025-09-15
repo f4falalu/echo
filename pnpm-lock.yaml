@@ -242,6 +242,9 @@ importers:
       '@buster/github':
         specifier: workspace:*
         version: link:../../packages/github
+      '@buster/search':
+        specifier: workspace:*
+        version: link:../../packages/search
       '@buster/server-shared':
         specifier: workspace:*
         version: link:../../packages/server-shared
@@ -1211,6 +1214,9 @@ importers:
       '@buster/env-utils':
         specifier: workspace:*
         version: link:../env-utils
+      '@buster/server-shared':
+        specifier: workspace:*
+        version: link:../server-shared
       '@buster/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config

@@ -33,7 +33,6 @@ export const BusterPosthogProvider: React.FC<PropsWithChildren> = ({ children })
 BusterPosthogProvider.displayName = 'BusterPosthogProvider';
 
 const options: Partial<PostHogConfig> = {
-  api_host: env.VITE_PUBLIC_POSTHOG_HOST,
   person_profiles: 'always',
   session_recording: {
     recordBody: true,
