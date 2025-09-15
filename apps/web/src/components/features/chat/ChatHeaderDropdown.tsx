@@ -42,7 +42,7 @@ export const ChatContainerHeaderDropdown: React.FC<{
       openInNewTab,
       { type: 'divider' },
       canEditChat && duplicateChat,
-      canEditChat && deleteChat,
+      isOwnerEffective && deleteChat,
     ].filter(Boolean) as IDropdownItems;
   }, [
     chatId,
