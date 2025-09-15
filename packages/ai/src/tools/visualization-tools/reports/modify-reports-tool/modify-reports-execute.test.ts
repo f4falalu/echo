@@ -15,6 +15,7 @@ const mockDbSelect = vi.fn();
 vi.mock('@buster/database', () => ({
   updateMessageEntries: vi.fn().mockResolvedValue({ success: true }),
   batchUpdateReport: vi.fn().mockResolvedValue({ success: true }),
+  updateMetricsToReports: vi.fn().mockResolvedValue({ created: 0, updated: 0, deleted: 0 }),
   db: {
     select: () => ({
       from: () => ({
