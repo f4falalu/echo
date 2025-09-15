@@ -1,8 +1,12 @@
-import { batchUpdateReport, updateMessageEntries } from '@buster/database';
+import { batchUpdateReport, updateMessageEntries, updateMetricsToReports } from '@buster/database';
 import type { ChatMessageResponseMessage } from '@buster/server-shared/chats';
 import { wrapTraced } from 'braintrust';
 import { createRawToolResultEntry } from '../../../shared/create-raw-llm-tool-result-entry';
-import { extractAndCacheMetricsWithUserContext } from '../helpers/metric-extraction';
+import { trackFileAssociations } from '../../file-tracking-helper';
+import {
+  extractAndCacheMetricsWithUserContext,
+  extractMetricIds,
+} from '../helpers/metric-extraction';
 import { updateCachedSnapshot } from '../report-snapshot-cache';
 import type {
   CreateReportsContext,
@@ -168,6 +172,31 @@ export function createCreateReportsExecute(
 
             // Update cache with the newly created report content
             updateCachedSnapshot(reportId, content, versionHistory);
+
+            const metricIds = extractMetricIds(content);
+
+            console.info('[create-reports] Updating metrics to reports', {
+              reportId,
+              metricIds,
+              userId: context.userId,
+            });
+
+            await updateMetricsToReports({
+              reportId,
+              metricIds,
+              userId: context.userId,
+            });
+
+            // Track file associations if messageId is available
+            if (context.messageId) {
+              await trackFileAssociations({
+                messageId: context.messageId,
+                files: {
+                  id: reportId,
+                  version: versionHistory['1'].version_number,
+                },
+              });
+            }
 
             // Cache any metrics in the report content
             if (context.userId) {

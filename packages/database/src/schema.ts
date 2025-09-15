@@ -1748,6 +1748,55 @@ export const metricFilesToDashboardFiles = pgTable(
   ]
 );
 
+export const metricFilesToReportFiles = pgTable(
+  'metric_files_to_report_files',
+  {
+    metricFileId: uuid('metric_file_id').notNull(),
+    reportFileId: uuid('report_file_id').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
+    createdBy: uuid('created_by').notNull(),
+  },
+  (table) => [
+    index('metric_files_to_report_files_report_id_idx').using(
+      'btree',
+      table.reportFileId.asc().nullsLast().op('uuid_ops')
+    ),
+    index('metric_files_to_report_files_deleted_at_idx').using(
+      'btree',
+      table.deletedAt.asc().nullsLast().op('timestamptz_ops')
+    ),
+    index('metric_files_to_report_files_metric_id_idx').using(
+      'btree',
+      table.metricFileId.asc().nullsLast().op('uuid_ops')
+    ),
+    foreignKey({
+      columns: [table.metricFileId],
+      foreignColumns: [metricFiles.id],
+      name: 'metric_files_to_report_files_metric_file_id_fkey',
+    }),
+    foreignKey({
+      columns: [table.reportFileId],
+      foreignColumns: [reportFiles.id],
+      name: 'metric_files_to_report_files_report_file_id_fkey',
+    }),
+    foreignKey({
+      columns: [table.createdBy],
+      foreignColumns: [users.id],
+      name: 'metric_files_to_report_files_created_by_fkey',
+    }).onUpdate('cascade'),
+    primaryKey({
+      columns: [table.metricFileId, table.reportFileId],
+      name: 'metric_files_to_report_files_pkey',
+    }),
+  ]
+);
+
 export const collectionsToAssets = pgTable(
   'collections_to_assets',
   {
