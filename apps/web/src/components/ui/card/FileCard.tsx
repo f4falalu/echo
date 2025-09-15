@@ -177,6 +177,7 @@ const CollapseContent = React.memo(
     useEffect(() => {
       if (collapsible === 'overlay-peek' && contentRef.current) {
         const resizeObserver = new ResizeObserver(() => {
+          console.log('content height changed', contentRef.current?.scrollHeight);
           if (contentRef.current) {
             setFullHeight(contentRef.current.scrollHeight);
           }

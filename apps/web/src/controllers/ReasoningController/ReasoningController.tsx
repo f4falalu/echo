@@ -41,8 +41,6 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
 
   const viewportRef = useRef<HTMLDivElement | null>(null);
 
-  console.log('isStreamFinished', isStreamFinished);
-
   const { isAutoScrollEnabled, isMountedAutoScrollObserver, scrollToBottom, enableAutoScroll } =
     useAutoScroll(viewportRef, {
       observeSubTree: true,

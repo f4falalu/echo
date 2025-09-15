@@ -28,8 +28,8 @@ export const createCspHeader = (isEmbed = false): string => {
   return [
     // Default directives
     "default-src 'self'",
-    // Scripts - removed 'unsafe-eval' which can cause hydration issues in Cloudflare
-    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://*.cloudflareinsights.com https://*.posthog.com https://us-assets.i.posthog.com https://eu-assets.i.posthog.com",
+    // Scripts - includes 'unsafe-eval' for WebAssembly modules like Shiki
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://*.cloudflareinsights.com https://*.posthog.com https://us-assets.i.posthog.com https://eu-assets.i.posthog.com",
     // Styles
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
     // Images
