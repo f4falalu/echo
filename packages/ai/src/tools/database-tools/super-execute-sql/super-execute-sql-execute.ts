@@ -1,7 +1,7 @@
+import { checkQueryIsReadOnly } from '@buster/access-controls';
 import { type DataSource, withRateLimit } from '@buster/data-source';
 import { wrapTraced } from 'braintrust';
 import { getDataSource } from '../../../utils/get-data-source';
-import { checkQueryIsReadOnly } from '../../../utils/sql-permissions/sql-parser-helpers';
 import type {
   SuperExecuteSqlContext,
   SuperExecuteSqlInput,

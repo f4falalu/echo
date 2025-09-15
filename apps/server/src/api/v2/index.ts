@@ -17,6 +17,7 @@ import s3IntegrationsRoutes from './s3-integrations';
 import securityRoutes from './security';
 import shortcutsRoutes from './shortcuts';
 import slackRoutes from './slack';
+import sqlRoutes from './sql';
 import supportRoutes from './support';
 import titleRoutes from './title';
 import userRoutes from './users';
@@ -33,6 +34,7 @@ const app = new Hono()
   .route('/metric_files', metricFilesRoutes)
   .route('/github', githubRoutes)
   .route('/slack', slackRoutes)
+  .route('/sql', sqlRoutes)
   .route('/support', supportRoutes)
   .route('/security', securityRoutes)
   .route('/shortcuts', shortcutsRoutes)
