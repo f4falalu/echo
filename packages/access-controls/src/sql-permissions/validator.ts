@@ -122,8 +122,7 @@ export async function validateSqlPermissions(
         if (
           tableNameLower === datasetFullNameLower ||
           tableNameLower === datasetTableLower ||
-          tableNameLower.endsWith(`.${datasetTableLower}`) ||
-          datasetFullNameLower === tableNameLower
+          tableNameLower.endsWith(`.${datasetTableLower}`)
         ) {
           matchingDataset = dataset;
           break;

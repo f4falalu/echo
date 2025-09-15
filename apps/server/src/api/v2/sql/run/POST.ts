@@ -75,10 +75,17 @@ export async function runSqlHandler(request: RunSqlRequest, user: User): Promise
       dataSourceId: request.data_source_id,
     });
 
-    // Ensure credentials have the correct type
+    // Validate credential type matches data source type
+    if (rawCredentials.type && rawCredentials.type !== dataSource.type) {
+      console.warn(
+        `Credential type mismatch: credentials have type '${rawCredentials.type}' but data source has type '${dataSource.type}'. Using data source type.`
+      );
+    }
+
+    // Use data source type as the source of truth
     credentials = {
       ...rawCredentials,
-      type: rawCredentials.type || dataSource.type,
+      type: dataSource.type,
     } as Credentials;
   } catch (error) {
     console.error('Failed to retrieve data source credentials:', error);
@@ -100,10 +107,14 @@ export async function runSqlHandler(request: RunSqlRequest, user: User): Promise
     const hasMore = result.data.length > 5000;
     const trimmedData = result.data.slice(0, 5000);
 
+    // Use the data source's hasMoreRecords if available, otherwise use our local check
+    // This ensures we have a single source of truth for pagination state
+    const hasMoreRecords = result.hasMoreRecords !== undefined ? result.hasMoreRecords : hasMore;
+
     const response: RunSqlResponse = {
       data: trimmedData,
       data_metadata: result.dataMetadata,
-      has_more_records: hasMore || result.hasMoreRecords,
+      has_more_records: hasMoreRecords,
     };
 
     return response;
