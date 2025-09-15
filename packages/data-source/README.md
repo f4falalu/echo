@@ -1,411 +1,298 @@
-# @buster/data-source
+# Data Source Package
 
-A TypeScript library for connecting to, querying, and introspecting multiple data source types including Snowflake, BigQuery, PostgreSQL, MySQL, SQL Server, Redshift, and Databricks.
-
-## Features
-
-- **Multi-Database Support**: Connect to 7+ different database types with a unified interface
-- **Query Routing**: Route queries to specific data sources or use intelligent defaults
-- **Database Introspection**: Discover database structure, tables, columns, and statistics
-- **Type Safety**: Full TypeScript support with comprehensive type definitions
-- **Connection Management**: Automatic connection pooling and lifecycle management
-- **Error Handling**: Graceful error handling with detailed error information
-
-## Supported Data Sources
-
-- **Snowflake** - Full introspection support with clustering information
-- **PostgreSQL** - Full introspection support
-- **MySQL** - Full introspection support
-- **BigQuery** - Basic support (introspection placeholder)
-- **SQL Server** - Basic support (introspection placeholder)
-- **Redshift** - Basic support (introspection placeholder)
-- **Databricks** - Basic support (introspection placeholder)
+Secure, isolated connections to customer data sources. This package handles all external database connections with a security-first approach.
 
 ## Installation
 
 ```bash
-npm install @buster/data-source
+pnpm add @buster/data-source
 ```
 
-## Quick Start
+## Overview
 
-### Basic Usage
+`@buster/data-source` provides:
+- Secure connections to customer databases (PostgreSQL, MySQL, BigQuery, Snowflake, etc.)
+- Data source introspection and schema discovery
+- Secure query execution with timeouts and limits
+- Connection pooling and management
+- Query result transformation
+
+## Security Principles
+
+🔒 **SECURITY IS PARAMOUNT** 🔒
+
+This package handles sensitive customer data and MUST:
+- Never log credentials or sensitive data
+- Always use encrypted connections
+- Implement query timeouts and resource limits
+- Validate and sanitize all inputs
+- Use read-only connections where possible
+- Implement proper connection pooling
+- Handle credentials securely (never in code)
+
+## Architecture
+
+```
+Apps → @buster/data-source → Customer Databases
+            ↓
+        Adapters
+    (DB-specific logic)
+```
+
+## Supported Data Sources
+
+- **PostgreSQL** - Full introspection and query support
+- **MySQL** - Full introspection and query support
+- **Snowflake** - Full support with clustering information
+- **BigQuery** - Google Cloud data warehouse
+- **Redshift** - AWS data warehouse
+- **SQL Server** - Microsoft SQL Server
+- **Databricks** - Unified analytics platform
+
+## Usage
+
+### Creating a Connection
 
 ```typescript
-import { DataSource, DataSourceType } from '@buster/data-source';
+import { createConnection } from '@buster/data-source';
 
-// Configure your data sources
-const dataSource = new DataSource({
-  dataSources: [
-    {
-      name: 'snowflake-prod',
-      type: DataSourceType.Snowflake,
-      credentials: {
-        type: DataSourceType.Snowflake,
-        account_id: 'your-account',
-        username: 'your-username',
-        password: 'your-password',
-        warehouse_id: 'your-warehouse',
-        default_database: 'your-database',
-      },
-    },
-    {
-      name: 'postgres-dev',
-      type: DataSourceType.PostgreSQL,
-      credentials: {
-        type: DataSourceType.PostgreSQL,
-        host: 'localhost',
-        port: 5432,
-        database: 'dev_db',
-        username: 'dev_user',
-        password: 'dev_password',
-      },
-    },
-  ],
-  defaultDataSource: 'snowflake-prod',
+const connection = await createConnection({
+  type: 'postgresql',
+  host: 'localhost',
+  port: 5432,
+  database: 'mydb',
+  username: 'user',
+  password: encryptedPassword, // Always encrypted
+  ssl: true,
+  connectionTimeout: 30000,
+  queryTimeout: 60000,
+  maxConnections: 10
+});
+```
+
+### Executing Queries
+
+```typescript
+import { executeQuery } from '@buster/data-source';
+
+const result = await executeQuery({
+  dataSourceId: 'source-123',
+  query: 'SELECT * FROM users',
+  maxRows: 1000,
+  timeout: 60000
 });
 
-// Execute queries
-const result = await dataSource.execute({
-  sql: 'SELECT * FROM users LIMIT 10',
-  warehouse: 'snowflake-prod', // Optional: specify data source
-});
-
-console.log(result.rows);
+// Result is automatically limited and sanitized
+console.info(`Retrieved ${result.rowCount} rows`);
 ```
 
 ### Database Introspection
 
 ```typescript
-// Get all databases
-const databases = await dataSource.getDatabases('snowflake-prod');
-console.log('Databases:', databases.map(db => db.name));
+import { introspectDatabase } from '@buster/data-source';
 
-// Get schemas in a database
-const schemas = await dataSource.getSchemas('snowflake-prod', 'ANALYTICS_DB');
-console.log('Schemas:', schemas.map(s => s.name));
+const schema = await introspectDatabase('source-123');
 
-// Get tables in a schema
-const tables = await dataSource.getTables('snowflake-prod', 'ANALYTICS_DB', 'PUBLIC');
-console.log('Tables:', tables.map(t => ({ name: t.name, type: t.type, rows: t.rowCount })));
-
-// Get columns in a table
-const columns = await dataSource.getColumns('snowflake-prod', 'ANALYTICS_DB', 'PUBLIC', 'USERS');
-console.log('Columns:', columns.map(c => ({ name: c.name, type: c.dataType, nullable: c.isNullable })));
-
-// Get table statistics (Snowflake)
-const stats = await dataSource.getTableStatistics('ANALYTICS_DB', 'PUBLIC', 'USERS', 'snowflake-prod');
-console.log('Table stats:', {
-  rowCount: stats.rowCount,
-  sizeBytes: stats.sizeBytes,
-  columnStats: stats.columnStatistics.length,
-});
-
-// Get comprehensive introspection
-const fullIntrospection = await dataSource.getFullIntrospection('snowflake-prod');
-console.log('Full catalog:', {
-  databases: fullIntrospection.databases.length,
-  schemas: fullIntrospection.schemas.length,
-  tables: fullIntrospection.tables.length,
-  columns: fullIntrospection.columns.length,
+// Get table and column information
+schema.tables.forEach(table => {
+  console.info(`Table: ${table.name}`);
+  table.columns.forEach(column => {
+    console.info(`  - ${column.name}: ${column.type}`);
+  });
 });
 ```
 
-### Advanced Usage
+## Adapter Pattern
+
+Each data source type has its own adapter:
 
 ```typescript
-// Direct introspector access
-const introspector = await dataSource.introspect('snowflake-prod');
-const databases = await introspector.getDatabases();
+export interface DataSourceAdapter {
+  connect(config: unknown): Promise<void>;
+  disconnect(): Promise<void>;
+  executeQuery(query: string, params?: unknown[]): Promise<QueryResult>;
+  introspect(): Promise<IntrospectionResult>;
+  testConnection(): Promise<boolean>;
+}
+```
 
-// Add data sources dynamically
-await dataSource.addDataSource({
-  name: 'mysql-analytics',
-  type: DataSourceType.MySQL,
-  credentials: {
-    type: DataSourceType.MySQL,
-    host: 'mysql.example.com',
-    database: 'analytics',
-    username: 'analyst',
-    password: 'secret',
-  },
+### PostgreSQL Adapter Example
+
+```typescript
+import { PostgreSQLAdapter } from '@buster/data-source';
+
+const adapter = new PostgreSQLAdapter();
+await adapter.connect({
+  host: 'localhost',
+  port: 5432,
+  database: 'mydb',
+  username: 'user',
+  password: encryptedPassword,
+  ssl: true
 });
 
-// Test connections
-const connectionStatus = await dataSource.testAllDataSources();
-console.log('Connection status:', connectionStatus);
-
-// Clean up
-await dataSource.close();
+const result = await adapter.executeQuery('SELECT NOW()');
 ```
 
-## Configuration
+## Security Features
 
-### Data Source Configuration
+### Connection Security
 
 ```typescript
-interface DataSourceConfig {
-  name: string;                    // Unique identifier
-  type: DataSourceType;           // Database type
-  credentials: Credentials;       // Type-specific credentials
-  config?: Record<string, unknown>; // Additional options
-}
+// All connections use SSL by default
+const connection = await createConnection({
+  type: 'postgresql',
+  ssl: true, // Default
+  // SSL options
+  ssl: {
+    rejectUnauthorized: true,
+    ca: certificateAuthority,
+    cert: clientCertificate,
+    key: clientKey
+  }
+});
 ```
 
-### Snowflake Credentials
+### Query Limits
 
 ```typescript
-interface SnowflakeCredentials {
-  type: DataSourceType.Snowflake;
-  account_id: string;             // Account identifier
-  warehouse_id: string;           // Warehouse for compute
-  username: string;
-  password: string;
-  role?: string;                  // Optional role
-  default_database: string;
-  default_schema?: string;
-}
+// Automatic row limiting
+const result = await executeQuery({
+  query: 'SELECT * FROM large_table',
+  maxRows: 1000 // Enforced limit
+});
+
+// Query timeout
+const result = await executeQuery({
+  query: 'SELECT * FROM slow_query',
+  timeout: 30000 // 30 second timeout
+});
 ```
 
-### PostgreSQL Credentials
+### Read-Only Connections
 
 ```typescript
-interface PostgreSQLCredentials {
-  type: DataSourceType.PostgreSQL;
-  host: string;
-  port?: number;                  // Default: 5432
-  database: string;
-  username: string;
-  password: string;
-  schema?: string;                // Default schema
-  ssl?: boolean | SSLConfig;      // SSL configuration
-  connection_timeout?: number;    // Connection timeout in ms
-}
-```
-
-## Introspection Types
-
-### Database Structure
-
-```typescript
-interface Database {
-  name: string;
-  owner?: string;
-  comment?: string;
-  created?: Date;
-  lastModified?: Date;
-  metadata?: Record<string, unknown>;
-}
-
-interface Schema {
-  name: string;
-  database: string;
-  owner?: string;
-  comment?: string;
-  created?: Date;
-  lastModified?: Date;
-}
-
-interface Table {
-  name: string;
-  schema: string;
-  database: string;
-  type: 'TABLE' | 'VIEW' | 'MATERIALIZED_VIEW' | 'EXTERNAL_TABLE' | 'TEMPORARY_TABLE';
-  rowCount?: number;
-  sizeBytes?: number;
-  comment?: string;
-  created?: Date;
-  lastModified?: Date;
-  clusteringKeys?: string[];      // Snowflake clustering keys
-}
-
-interface Column {
-  name: string;
-  table: string;
-  schema: string;
-  database: string;
-  position: number;
-  dataType: string;
-  isNullable: boolean;
-  defaultValue?: string;
-  maxLength?: number;
-  precision?: number;
-  scale?: number;
-  comment?: string;
-  isPrimaryKey?: boolean;
-  isForeignKey?: boolean;
-}
-```
-
-### Statistics
-
-```typescript
-interface TableStatistics {
-  table: string;
-  schema: string;
-  database: string;
-  rowCount?: number;
-  sizeBytes?: number;
-  columnStatistics: ColumnStatistics[];
-  clusteringInfo?: ClusteringInfo;  // Snowflake-specific
-  lastUpdated?: Date;
-}
-
-interface ColumnStatistics {
-  columnName: string;
-  distinctCount?: number;
-  nullCount?: number;
-  minValue?: unknown;
-  maxValue?: unknown;
-  avgValue?: number;
-  topValues?: Array<{ value: unknown; frequency: number }>;
-}
+// Use read-only connections for safety
+const connection = await createConnection({
+  type: 'postgresql',
+  readOnly: true, // Sets transaction to read-only
+  options: '-c default_transaction_read_only=on'
+});
 ```
 
 ## Error Handling
 
 ```typescript
-// Query results include success status and error details
-const result = await dataSource.execute({
-  sql: 'SELECT * FROM non_existent_table',
-});
+import { DataSourceError } from '@buster/data-source';
 
-if (!result.success) {
-  console.error('Query failed:', result.error?.message);
-  console.error('Error code:', result.error?.code);
+try {
+  await executeQuery({
+    dataSourceId: 'source-123',
+    query: 'SELECT * FROM users'
+  });
+} catch (error) {
+  if (error instanceof DataSourceError) {
+    // Handle known errors
+    console.error(`Query failed: ${error.message}`);
+    // error.code contains error code
+    // No sensitive information exposed
+  } else {
+    // Unknown error
+    console.error('Unexpected error occurred');
+  }
 }
 ```
 
-## Backward Compatibility
-
-The package maintains backward compatibility with the previous `QueryRouter` class:
+## Connection Pooling
 
 ```typescript
-import { QueryRouter } from '@buster/data-source';
+// Connections are automatically pooled
+const pool = await createConnectionPool({
+  type: 'postgresql',
+  min: 2,
+  max: 10,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000
+});
 
-// This still works
-const router = new QueryRouter({ dataSources: [...] });
+// Use connection from pool
+const result = await pool.query('SELECT * FROM users');
 ```
 
-## Examples
+## Testing
 
-See the [examples directory](./examples/) for comprehensive usage examples:
+### Unit Tests
 
-- [Basic Usage](./examples/basic-usage.ts) - Simple query execution
-- [Introspection](./examples/introspection.ts) - Database discovery and cataloging
-- [Advanced Routing](./examples/advanced-routing.ts) - Multi-database scenarios
+```typescript
+describe('PostgreSQLAdapter', () => {
+  it('should validate connection config', () => {
+    const invalidConfig = {
+      host: 'localhost',
+      port: 'not-a-number' // Invalid
+    };
+    
+    expect(() => {
+      PostgreSQLConfigSchema.parse(invalidConfig);
+    }).toThrow();
+  });
+  
+  it('should enforce query timeout', async () => {
+    const adapter = new PostgreSQLAdapter();
+    const longQuery = 'SELECT pg_sleep(10)';
+    
+    await expect(
+      adapter.executeQuery(longQuery, { timeout: 1000 })
+    ).rejects.toThrow('Query timeout');
+  });
+});
+```
+
+### Integration Tests
+
+```typescript
+describe('data-source.int.test.ts', () => {
+  it('should connect to database', async () => {
+    const connection = await createConnection(testConfig);
+    const result = await connection.testConnection();
+    expect(result).toBe(true);
+    await connection.disconnect();
+  });
+});
+```
+
+## Best Practices
+
+### DO:
+- Always use encrypted connections
+- Implement connection pooling
+- Set query and connection timeouts
+- Limit result set sizes
+- Validate all inputs with Zod
+- Use read-only connections when possible
+- Clear sensitive data from memory
+- Log errors internally, sanitize for users
+
+### DON'T:
+- Log credentials or query results
+- Expose internal error details
+- Allow unlimited result sets
+- Trust user input without validation
+- Keep connections open indefinitely
+- Store passwords in plain text
+- Expose connection details in errors
 
 ## Development
 
-### Running Tests
-
 ```bash
-# Run all tests
-npm test
+# Build
+turbo build --filter=@buster/data-source
 
-# Run specific test suite
-npm test -- tests/integration/adapters/snowflake.test.ts
+# Test
+turbo test:unit --filter=@buster/data-source
+turbo test:integration --filter=@buster/data-source
 
-# Type checking
-npm run typecheck
+# Lint
+turbo lint --filter=@buster/data-source
 ```
 
-### Environment Variables for Testing
-
-```bash
-# PostgreSQL
-TEST_POSTGRES_HOST=localhost
-TEST_POSTGRES_PORT=5432
-TEST_POSTGRES_DATABASE=test_db
-TEST_POSTGRES_USERNAME=test_user
-TEST_POSTGRES_PASSWORD=test_password
-
-# Snowflake
-TEST_SNOWFLAKE_ACCOUNT_ID=your_account
-TEST_SNOWFLAKE_USERNAME=your_username
-TEST_SNOWFLAKE_PASSWORD=your_password
-TEST_SNOWFLAKE_WAREHOUSE_ID=your_warehouse
-TEST_SNOWFLAKE_DATABASE=your_database
-
-# MySQL
-TEST_MYSQL_HOST=localhost
-TEST_MYSQL_PORT=3306
-TEST_MYSQL_DATABASE=test_db
-TEST_MYSQL_USERNAME=test_user
-TEST_MYSQL_PASSWORD=test_password
-
-# BigQuery
-TEST_BIGQUERY_PROJECT_ID=your_project
-TEST_BIGQUERY_SERVICE_ACCOUNT_KEY=path/to/key.json
-```
-
-## Architecture
-
-```
-@buster/data-source
-├── src/
-│   ├── adapters/           # Database-specific adapters
-│   │   ├── base.ts        # Base adapter interface
-│   │   ├── snowflake.ts   # Snowflake implementation
-│   │   ├── postgresql.ts  # PostgreSQL implementation
-│   │   └── ...
-│   ├── introspection/     # Database introspection
-│   │   ├── base.ts        # Base introspector interface
-│   │   ├── snowflake.ts   # Snowflake introspection
-│   │   └── ...
-│   ├── types/             # Type definitions
-│   │   ├── credentials.ts # Credential interfaces
-│   │   ├── query.ts       # Query types
-│   │   └── introspection.ts # Introspection types
-│   ├── data-source.ts     # Main DataSource class
-│   └── index.ts           # Public API exports
-├── tests/                 # Test suites
-└── examples/              # Usage examples
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Ensure all tests pass
-5. Submit a pull request
-
-## License
-
-MIT License - see [LICENSE](./LICENSE) for details.
-
-## Scoped Full Introspection
-
-You can now scope full introspection to specific databases, schemas, or tables:
-
-```typescript
-// Get introspection for specific databases
-const result = await dataSource.getFullIntrospection('myDataSource', {
-  databases: ['sales_db', 'analytics_db']
-});
-
-// Get introspection for specific schemas
-const result = await dataSource.getFullIntrospection('myDataSource', {
-  schemas: ['public', 'reporting']
-});
-
-// Get introspection for specific tables
-const result = await dataSource.getFullIntrospection('myDataSource', {
-  tables: ['customers', 'orders', 'products']
-});
-
-// Combine filters - get specific tables from specific schemas
-const result = await dataSource.getFullIntrospection('myDataSource', {
-  schemas: ['public'],
-  tables: ['customers', 'orders']
-});
-```
-
-The scoping works hierarchically:
-- If `databases` is specified, only schemas, tables, columns, and views from those databases are included
-- If `schemas` is specified, only tables, columns, and views from those schemas are included  
-- If `tables` is specified, only those specific tables and their columns are included
-- Filters can be combined for more precise scoping
-
-This is particularly useful for large data sources where you only need to introspect a subset of the available objects. 
+This package is critical for customer data security. Always prioritize security over performance or convenience.

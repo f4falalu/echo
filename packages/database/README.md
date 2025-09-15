@@ -1,247 +1,331 @@
-# @buster/database
+# Database Package
 
-A TypeScript database library using Drizzle ORM with PostgreSQL connection pooling. This library provides a centralized database connection and schema management for the Buster application.
+The database layer for the Buster monorepo. This package owns ALL database interactions - no other package or app should use Drizzle ORM directly.
 
-## Architecture & Patterns
+## Installation
 
-### Schema Definition (`src/schema.ts`)
+```bash
+pnpm add @buster/database
+```
 
-The database schema is defined using Drizzle ORM. All table definitions and modifications should be made in this file.
+## Overview
 
-#### JSONB Columns with Type Safety
+`@buster/database` is the single source of truth for:
+- Database schema definitions
+- All database queries
+- Migrations
+- Database utilities and helpers
 
-For JSONB columns, we use a specific pattern to ensure type safety:
+## Cardinal Rule
+
+🚨 **ALL DATABASE INTERACTIONS MUST GO THROUGH THIS PACKAGE** 🚨
+
+No other package or app should:
+- Import Drizzle directly
+- Write raw SQL queries
+- Access database tables directly
+- Create database connections
+
+## Architecture
+
+```
+Apps/Packages → @buster/database → PostgreSQL (via Drizzle)
+                      ↓
+                   Queries folder
+                (All DB operations)
+```
+
+## File Organization
+
+```
+database/
+├── src/
+│   ├── queries/
+│   │   ├── users/
+│   │   │   ├── create-user.ts
+│   │   │   ├── get-user.ts
+│   │   │   ├── update-user.ts
+│   │   │   ├── delete-user.ts
+│   │   │   └── index.ts
+│   │   ├── organizations/
+│   │   ├── chats/
+│   │   └── index.ts
+│   ├── schema/
+│   │   ├── users.ts
+│   │   ├── organizations.ts
+│   │   └── index.ts
+│   └── index.ts
+```
+
+## Usage
+
+### Basic Query Example
 
 ```typescript
-// 1. Define the type in src/schema-types/[entity].ts
-export type OrganizationColorPalette = {
-  id: string | number;
-  colors: string[]; // Hex color codes
-};
+import { getUser, createUser, updateUser } from '@buster/database';
 
-export type OrganizationColorPalettes = OrganizationColorPalette[];
+// Get a user
+const user = await getUser({ 
+  userId: '123',
+  includeDeleted: false 
+});
 
-// 2. Export from src/schema-types/index.ts
-export * from './organization';
+// Create a user
+const newUser = await createUser({
+  email: 'user@example.com',
+  name: 'John Doe',
+  organizationId: 'org-123'
+});
 
-// 3. Use in schema.ts with .$type<T>()
-import type { OrganizationColorPalettes } from './schema-types';
-
-export const organizations = pgTable('organizations', {
-  // ... other columns
-  organizationColorPalettes: jsonb('organization_color_palettes')
-    .$type<OrganizationColorPalettes>()
-    .default(sql`'[]'::jsonb`)
-    .notNull(),
+// Update a user (upsert)
+const updated = await updateUser({
+  userId: '123',
+  name: 'Jane Doe',
+  updatedAt: new Date()
 });
 ```
 
-### Query Organization (`src/queries/`)
+### Query Pattern
 
-**ALL DATABASE INTERACTIONS MUST GO THROUGH THE QUERIES FOLDER**. Direct database access outside of this folder is not allowed.
-
-#### Directory Structure
-
-```
-queries/
-├── shared-types/          # Reusable query utilities and types
-│   ├── pagination.types.ts
-│   ├── with-pagination.ts
-│   └── index.ts
-├── organizations/         # Domain-specific queries
-│   ├── organizations.ts
-│   ├── update-organization.ts
-│   └── index.ts
-├── users/
-│   ├── user.ts
-│   ├── users-to-organizations.ts
-│   └── index.ts
-└── index.ts              # Exports all query modules
-```
-
-#### Query Function Pattern
-
-Every query function follows this pattern:
+Every query function must:
+1. Accept typed parameters (validated with Zod)
+2. Return typed results
+3. Handle errors appropriately
+4. Be pure and testable
 
 ```typescript
 import { z } from 'zod';
-import { type InferSelectModel } from 'drizzle-orm';
-import { db } from '../../connection';
-import { tableName } from '../../schema';
 
-// 1. Type inference from schema
-type TableType = InferSelectModel<typeof tableName>;
-
-// 2. Input validation schema using Zod
-const GetSomethingInputSchema = z.object({
-  id: z.string().uuid('ID must be a valid UUID'),
-  // ... other fields
+const GetUserParamsSchema = z.object({
+  userId: z.string().uuid().describe('User ID to fetch'),
+  includeDeleted: z.boolean().optional().describe('Include soft-deleted users')
 });
 
-type GetSomethingInput = z.infer<typeof GetSomethingInputSchema>;
+type GetUserParams = z.infer<typeof GetUserParamsSchema>;
 
-// 3. Query function with proper error handling
-export async function getSomething(params: GetSomethingInput): Promise<TableType> {
-  try {
-    // Validate input
-    const validated = GetSomethingInputSchema.parse(params);
-    
-    // Execute query
-    const result = await db
-      .select()
-      .from(tableName)
-      .where(/* conditions */)
-      .limit(1);
-    
-    if (!result.length || !result[0]) {
-      throw new Error('Resource not found');
-    }
-    
-    return result[0];
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      throw new Error(
-        `Invalid input: ${error.errors.map((e) => e.message).join(', ')}`
-      );
-    }
-    throw error;
+export async function getUser(params: GetUserParams) {
+  const validated = GetUserParamsSchema.parse(params);
+  
+  const query = db
+    .select()
+    .from(users)
+    .where(eq(users.id, validated.userId));
+  
+  if (!validated.includeDeleted) {
+    query.where(isNull(users.deletedAt));
   }
+  
+  const result = await query;
+  return result[0] || null;
 }
 ```
 
-### Pagination Pattern
+## Key Patterns
 
-For paginated queries, use the shared pagination utilities:
+### Soft Deletes
+
+We NEVER hard delete records:
 
 ```typescript
-import { withPagination, createPaginatedResponse, type PaginatedResponse } from '../shared-types';
+export async function deleteUser(params: DeleteUserParams) {
+  const validated = DeleteUserParamsSchema.parse(params);
+  
+  // Soft delete by setting deletedAt
+  const result = await db
+    .update(users)
+    .set({ 
+      deletedAt: new Date(),
+      updatedAt: new Date()
+    })
+    .where(eq(users.id, validated.userId))
+    .returning();
+  
+  return result[0];
+}
+```
 
-const GetUsersInputSchema = z.object({
-  page: z.number().optional().default(1),
-  page_size: z.number().optional().default(250),
-  // ... other filters
-});
+### Upserts
 
-export async function getUsers(params: GetUsersInput): Promise<PaginatedResponse<User>> {
-  const { page, page_size } = GetUsersInputSchema.parse(params);
+Prefer upserts over separate insert/update logic:
+
+```typescript
+export async function upsertUser(params: UpsertUserParams) {
+  const validated = UpsertUserParamsSchema.parse(params);
   
-  // Build base query
-  const baseQuery = db
-    .select()
-    .from(users)
-    .where(/* conditions */)
-    .$dynamic(); // Required for withPagination
+  const result = await db
+    .insert(users)
+    .values(validated)
+    .onConflictDoUpdate({
+      target: users.id,
+      set: {
+        ...validated,
+        updatedAt: new Date()
+      }
+    })
+    .returning();
   
-  // Apply pagination
-  const getData = withPagination(baseQuery, users.name, page, page_size);
-  
-  // Get total count
-  const getTotal = db
-    .select({ count: count() })
-    .from(users)
-    .where(/* same conditions */);
-  
-  // Execute in parallel
-  const [data, totalResult] = await Promise.all([getData, getTotal]);
-  
-  return createPaginatedResponse({
-    data,
-    page,
-    page_size,
-    total: totalResult[0]?.count ?? 0,
+  return result[0];
+}
+```
+
+### Transactions
+
+Use transactions for multi-step operations:
+
+```typescript
+export async function createUserWithOrg(params: CreateUserWithOrgParams) {
+  return await db.transaction(async (tx) => {
+    const user = await tx.insert(users).values(params.user).returning();
+    const org = await tx.insert(organizations).values(params.organization).returning();
+    
+    await tx.insert(organizationMembers).values({
+      userId: user[0].id,
+      orgId: org[0].id,
+      role: 'owner'
+    });
+    
+    return { user: user[0], organization: org[0] };
   });
 }
 ```
 
-### Type Safety Patterns
-
-#### Using Pick for Specific Types
-
-When you need only specific fields from multiple tables:
+### Pagination
 
 ```typescript
-// Type-safe subset using Pick
-type OrganizationUser = Pick<User, 'id' | 'name' | 'email' | 'avatarUrl'> &
-  Pick<UserToOrganization, 'role' | 'status'>;
-```
-
-#### Update Operations
-
-For update operations, validate input and build update objects dynamically:
-
-```typescript
-const UpdateOrganizationInputSchema = z.object({
-  organizationId: z.string().uuid(),
-  organizationColorPalettes: z.array(ColorPaletteSchema).optional(),
-});
-
-export async function updateOrganization(params: UpdateOrganizationInput): Promise<void> {
-  const validated = UpdateOrganizationInputSchema.parse(params);
+export async function getUsersPaginated(params: PaginationParams) {
+  const { page = 1, pageSize = 20 } = params;
+  const offset = (page - 1) * pageSize;
   
-  // Build update data dynamically
-  const updateData: Partial<Organization> = {
-    updatedAt: new Date().toISOString(),
+  const [items, [{ count }]] = await Promise.all([
+    db.select().from(users).limit(pageSize).offset(offset),
+    db.select({ count: count() }).from(users)
+  ]);
+  
+  return {
+    items,
+    total: count,
+    page,
+    pageSize,
+    hasMore: offset + items.length < count
   };
-  
-  if (validated.organizationColorPalettes !== undefined) {
-    updateData.organizationColorPalettes = validated.organizationColorPalettes;
-  }
-  
-  await db
-    .update(organizations)
-    .set(updateData)
-    .where(eq(organizations.id, validated.organizationId));
 }
 ```
 
-## Best Practices
+## Schema Definition
 
-1. **Always use Zod for input validation** - Parse inputs before using them in queries
-2. **Export types alongside functions** - Make types available for consumers
-3. **Use InferSelectModel for type safety** - Derive types from schema definitions
-4. **Handle errors explicitly** - Differentiate between validation errors and database errors
-5. **Use transactions for multi-step operations** - Ensure data consistency
-6. **Parallel queries when possible** - Use `Promise.all()` for independent queries
-7. **Consistent naming** - Use `get`, `create`, `update`, `delete` prefixes
+```typescript
+import { pgTable, uuid, text, timestamp, boolean } from 'drizzle-orm/pg-core';
 
-## Adding New Queries
+export const users = pgTable('users', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  email: text('email').notNull().unique(),
+  name: text('name').notNull(),
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  deletedAt: timestamp('deleted_at') // For soft deletes
+});
 
-1. Create a new folder under `queries/` for your domain if it doesn't exist
-2. Create query files following the pattern above
-3. Export all functions from an `index.ts` in your domain folder
-4. Add the export to the main `queries/index.ts`
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+```
 
-## Running Migrations
+## Migrations
 
 ```bash
-# Generate migration from schema changes
-pnpm drizzle-kit generate:pg
+# Generate migration
+pnpm db:generate
 
-# Apply migrations
-pnpm run migrations
+# Run migrations
+pnpm db:migrate
 
-# Push schema changes directly (development only)
-pnpm drizzle-kit push:pg
+# Push to database (development)
+pnpm db:push
 ```
 
 ## Testing
 
-Query functions should be tested with integration tests that use a test database. Unit tests can mock the database connection for isolated testing.
+### Unit Tests
 
 ```typescript
-// Example test structure
-describe('getUserOrganization', () => {
-  it('should return user organization data', async () => {
-    const result = await getUserOrganization({ userId: 'valid-uuid' });
-    expect(result).toMatchObject({
-      organizationId: expect.any(String),
-      role: expect.any(String),
-    });
+describe('getUser', () => {
+  it('should return user when exists', async () => {
+    const mockUser = { id: '123', email: 'test@example.com' };
+    jest.spyOn(db, 'select').mockResolvedValue([mockUser]);
+    
+    const result = await getUser({ userId: '123' });
+    expect(result).toEqual(mockUser);
   });
   
-  it('should throw on invalid UUID', async () => {
-    await expect(getUserOrganization({ userId: 'invalid' }))
-      .rejects.toThrow('User ID must be a valid UUID');
+  it('should filter soft-deleted users by default', async () => {
+    const result = await getUser({ userId: '123' });
+    // Verify deletedAt filter was applied
   });
 });
+```
+
+### Integration Tests
+
+```typescript
+describe('users.int.test.ts', () => {
+  beforeEach(async () => {
+    await db.delete(users); // Clean state
+  });
+  
+  it('should create and retrieve user', async () => {
+    const created = await createUser({
+      email: 'test@example.com',
+      name: 'Test User'
+    });
+    
+    const retrieved = await getUser({ userId: created.id });
+    expect(retrieved).toEqual(created);
+  });
+});
+```
+
+## Best Practices
+
+### DO:
+- Organize queries by table/domain
+- Validate all inputs with Zod
+- Use soft deletes (deletedAt field)
+- Prefer upserts over separate insert/update
+- Return typed results
+- Use transactions for multi-step operations
+- Create focused, composable query functions
+
+### DON'T:
+- Use Drizzle outside this package
+- Write raw SQL unless absolutely necessary
+- Hard delete records
+- Create queries in random locations
+- Mix business logic with database queries
+- Forget to handle soft deletes in queries
+
+## Development
+
+```bash
+# Build
+turbo build --filter=@buster/database
+
+# Test
+turbo test:unit --filter=@buster/database
+turbo test:integration --filter=@buster/database
+
+# Lint
+turbo lint --filter=@buster/database
+
+# Database operations
+pnpm db:generate    # Generate migrations
+pnpm db:migrate     # Run migrations
+pnpm db:push        # Push schema to database
+pnpm db:studio      # Open Drizzle Studio
+```
+
+## Local Database Access
+
+For integration testing:
+```bash
+psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
 ```

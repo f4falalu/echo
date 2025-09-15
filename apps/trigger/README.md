@@ -2,7 +2,13 @@
 
 This app handles all background job processing using Trigger.dev v3. It assembles packages to run long-running and scheduled tasks.
 
-## Core Responsibility
+## Installation
+
+```bash
+pnpm add @buster-app/trigger
+```
+
+## Overview
 
 `@buster-app/trigger` is responsible for:
 - Background job processing
@@ -10,6 +16,13 @@ This app handles all background job processing using Trigger.dev v3. It assemble
 - Long-running AI agent workflows
 - Async processing that shouldn't block the API
 - Never interfaces directly with clients
+
+## Technology Stack
+
+- **Framework**: Trigger.dev v3
+- **Runtime**: Node.js
+- **Validation**: Zod for input validation
+- **Architecture**: Task-based, functional
 
 ## Architecture
 
@@ -517,6 +530,38 @@ export const monitoredTask = task({
     }
   }
 });
+```
+
+## Development
+
+```bash
+# Development
+turbo dev --filter=@buster-app/trigger
+
+# Build
+turbo build --filter=@buster-app/trigger
+
+# Test
+turbo test:unit --filter=@buster-app/trigger
+turbo test:integration --filter=@buster-app/trigger
+
+# Lint
+turbo lint --filter=@buster-app/trigger
+```
+
+## Deployment
+
+Trigger.dev handles deployment and scaling:
+
+```bash
+# Deploy to Trigger.dev
+npx trigger deploy
+
+# View logs
+npx trigger logs
+
+# Monitor tasks
+npx trigger dashboard
 ```
 
 This app should ONLY orchestrate background tasks using packages. All business logic belongs in packages.

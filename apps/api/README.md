@@ -1,5 +1,8 @@
-# Buster Business Intelligence API
-This API runs the Buster Business Intelligence service.
+# ⚠️ DEPRECATED - Buster Business Intelligence API (Rust)
+
+**🚨 IMPORTANT: This Rust API is deprecated and is being migrated to TypeScript. All new development should use the TypeScript API in `apps/server`. Do not add new features to this codebase.**
+
+This API runs the legacy Buster Business Intelligence service.
 
 ## Get Started
 1. Load the .env file in the root of the project.

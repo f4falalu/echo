@@ -1,234 +1,214 @@
-# @buster/server-shared
+# Server Shared Package
 
-> Shared TypeScript types and schemas for the Buster ecosystem
+The API contract layer for the Buster monorepo. All request and response types for server communication live here.
+
+## Installation
+
+```bash
+pnpm add @buster/server-shared
+```
 
 ## Overview
 
-The `@buster/server-shared` package provides a centralized location for all shared TypeScript types, Zod schemas, and type utilities used across the Buster monorepo. This package ensures type safety and consistency between frontend and backend services.
+`@buster/server-shared` is the single source of truth for:
+- API request schemas and types
+- API response schemas and types  
+- Shared validation logic
+- Type flow from database to clients
 
-## Architecture Principles
+## Architecture
 
-### 1. Zod-First Approach
-All types are defined using Zod schemas first, then TypeScript types are inferred from them:
-
-```typescript
-// ✅ Good: Define schema first
-export const UserSchema = z.object({
-  id: z.string(),
-  email: z.string().email(),
-  name: z.string(),
-});
-
-export type User = z.infer<typeof UserSchema>;
-
-// ❌ Bad: Defining types without schemas
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-}
+Types flow through the system in this order:
+```
+@buster/database → @buster/server-shared → Apps (web, cli, etc.)
 ```
 
-### 2. Database Type Imports
-When referencing database types from `@buster/database`, **ALWAYS** import them as types to avoid compilation errors:
+## Usage
 
-```typescript
-// ✅ Good: Import as type
-import type { organizations, userOrganizationRoleEnum } from '@buster/database';
+### Defining API Types
 
-// ❌ Bad: Import as value
-import { organizations } from '@buster/database';
-```
-
-### 3. Enum Pattern for Database Parity
-When creating enums that mirror database enums, use frozen objects to maintain type safety:
-
-```typescript
-import type { userOrganizationRoleEnum } from '@buster/database';
-
-type OrganizationRoleBase = (typeof userOrganizationRoleEnum.enumValues)[number];
-
-// Create a frozen object that mirrors the database enum
-export const OrganizationRoleEnum: Record<OrganizationRoleBase, OrganizationRoleBase> = 
-  Object.freeze({
-    viewer: 'viewer',
-    workspace_admin: 'workspace_admin',
-    data_admin: 'data_admin',
-    querier: 'querier',
-    restricted_querier: 'restricted_querier',
-  });
-
-// Create Zod schema from the enum
-export const OrganizationRoleSchema = z.enum(
-  Object.values(OrganizationRoleEnum) as [OrganizationRoleBase, ...OrganizationRoleBase[]]
-);
-
-export type OrganizationRole = z.infer<typeof OrganizationRoleSchema>;
-```
-
-### 4. Type Parity Checks
-When types are direct copies of database models, use the `Expect` and `Equal` utilities to ensure parity:
-
-```typescript
-import type { organizations } from '@buster/database';
-import type { Equal, Expect } from '../type-utilities';
-
-export type Organization = z.infer<typeof OrganizationSchema>;
-
-// This will cause a TypeScript error if the types don't match
-type _OrganizationEqualityCheck = Expect<Equal<Organization, typeof organizations.$inferSelect>>;
-```
-
-## Directory Structure
-
-```
-src/
-├── index.ts                 # Main barrel export (currently incomplete)
-├── chats/                   # Chat-related types
-│   ├── index.ts            # Barrel exports for chats
-│   ├── chat.types.ts       # Core chat types
-│   ├── chat-message.types.ts
-│   └── ...
-├── organization/            # Organization types
-│   ├── index.ts            # Barrel exports
-│   ├── organization.types.ts
-│   ├── requests.ts         # Request schemas/types
-│   ├── responses.ts        # Response schemas/types
-│   └── ...
-├── metrics/                 # Metrics types
-│   ├── index.ts
-│   ├── requests.types.ts   # Note: Some use .types.ts suffix
-│   ├── responses.types.ts
-│   └── ...
-├── type-utilities/          # Generic utility types
-│   ├── index.ts
-│   ├── pagination.ts       # Pagination utilities
-│   ├── isEqual.ts          # Type equality checks
-│   └── ...
-└── ... (other modules)
-```
-
-## Module Structure Guidelines
-
-Each module should follow this structure:
-
-### 1. Barrel Export (index.ts)
-Export all public types from the module:
-
-```typescript
-export * from './organization.types';
-export * from './roles.types';
-export * from './requests';
-export * from './responses';
-```
-
-### 2. Request Types (requests.ts)
-Define all request schemas for the module:
+All API types must be defined as Zod schemas first:
 
 ```typescript
 import { z } from 'zod';
 
+// Define request schema with descriptions
 export const CreateUserRequestSchema = z.object({
-  email: z.string().email(),
-  name: z.string(),
+  email: z.string().email().describe('User email address'),
+  name: z.string().min(1).describe('User full name'),
+  orgId: z.string().uuid().describe('Organization identifier'),
+  role: z.enum(['admin', 'member', 'viewer']).describe('User role')
 });
 
+// Export inferred type
 export type CreateUserRequest = z.infer<typeof CreateUserRequestSchema>;
 ```
 
-### 3. Response Types (responses.ts)
-Define all response schemas for the module:
+### Using in Server
 
 ```typescript
-import { z } from 'zod';
-import { UserSchema } from './user.types';
+import { CreateUserRequestSchema } from '@buster/server-shared';
+import { zValidator } from '@hono/zod-validator';
 
-export const GetUserResponseSchema = UserSchema;
-export type GetUserResponse = z.infer<typeof GetUserResponseSchema>;
-
-export const ListUsersResponseSchema = z.object({
-  users: z.array(UserSchema),
-  total: z.number(),
-});
-export type ListUsersResponse = z.infer<typeof ListUsersResponseSchema>;
+app.post('/users', 
+  zValidator('json', CreateUserRequestSchema),
+  async (c) => {
+    const data = c.req.valid('json');
+    // data is fully typed as CreateUserRequest
+  }
+);
 ```
 
-## Usage Examples
+### Using in Client
 
-### Importing Types
 ```typescript
-// Import from specific modules
-import { Organization, UpdateOrganizationRequest } from '@buster/server-shared/organization';
-import { Chat, ChatMessage } from '@buster/server-shared/chats';
-import { PaginationParams } from '@buster/server-shared/type-utilities';
-```
+import type { CreateUserRequest, CreateUserResponse } from '@buster/server-shared';
 
-### Using Schemas for Validation
-```typescript
-import { UpdateOrganizationRequestSchema } from '@buster/server-shared/organization';
-
-// Validate incoming data
-const validatedData = UpdateOrganizationRequestSchema.parse(requestBody);
-
-// Or safe parse with error handling
-const result = UpdateOrganizationRequestSchema.safeParse(requestBody);
-if (!result.success) {
-  console.error(result.error);
+async function createUser(data: CreateUserRequest): Promise<CreateUserResponse> {
+  const response = await fetch('/api/v2/users', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  });
+  return response.json();
 }
 ```
 
-## Adding New Modules
+## File Organization
 
-1. Create a new directory under `src/`
-2. Add the following files:
-   - `index.ts` - Barrel exports
-   - `requests.ts` - Request schemas/types
-   - `responses.ts` - Response schemas/types
-   - Additional type files as needed
-3. Update `package.json` exports:
-   ```json
-   "./your-module": {
-     "types": "./dist/your-module/index.d.ts",
-     "default": "./dist/your-module/index.js"
-   }
-   ```
-
-## Common Patterns
-
-### Hex Color Validation
-```typescript
-const HexColorSchema = z
-  .string()
-  .regex(
-    /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/,
-    'Must be a valid 3 or 6 digit hex color code'
-  );
+```
+server-shared/
+├── src/
+│   ├── users/
+│   │   ├── requests.ts      # User request schemas
+│   │   ├── responses.ts     # User response schemas
+│   │   └── index.ts         # Barrel export
+│   ├── chats/
+│   ├── dashboards/
+│   └── index.ts             # Main export
 ```
 
-### Pagination
-Use the generic pagination types from `type-utilities`:
-```typescript
-import { PaginationParams } from '../type-utilities';
+## Type Patterns
 
-export const ListUsersRequestSchema = z.object({
-  ...PaginationParams.shape,
-  filter: z.string().optional(),
+### Request Types
+
+```typescript
+export const CreateDashboardRequestSchema = z.object({
+  name: z.string().describe('Dashboard name'),
+  dataSourceId: z.string().uuid().describe('Data source ID'),
+  isPublic: z.boolean().default(false).describe('Public visibility')
+});
+
+export type CreateDashboardRequest = z.infer<typeof CreateDashboardRequestSchema>;
+```
+
+### Response Types
+
+```typescript
+import type { Dashboard } from '@buster/database';
+
+export const CreateDashboardResponseSchema = z.object({
+  dashboard: z.custom<Dashboard>().describe('Created dashboard'),
+  permissions: z.array(z.string()).describe('User permissions')
+});
+
+export type CreateDashboardResponse = z.infer<typeof CreateDashboardResponseSchema>;
+```
+
+### Paginated Responses
+
+```typescript
+export const PaginatedResponseSchema = <T extends z.ZodType>(itemSchema: T) =>
+  z.object({
+    items: z.array(itemSchema),
+    total: z.number(),
+    page: z.number(),
+    pageSize: z.number(),
+    hasMore: z.boolean()
+  });
+```
+
+### Error Responses
+
+```typescript
+export const ErrorResponseSchema = z.object({
+  error: z.object({
+    code: z.string(),
+    message: z.string(),
+    details: z.record(z.unknown()).optional()
+  })
 });
 ```
 
-## Important Notes
+## Best Practices
 
-1. **Never import database constants directly** - This will cause build failures in frontend packages
-2. **Always define schemas before types** - Types should be inferred from schemas
-3. **Maintain type parity** - Use `Expect<Equal<>>` pattern for database model copies
-4. **Export through package.json** - Each module needs its own export entry
-5. **Follow naming conventions** - Use either `requests.ts/responses.ts` or `requests.types.ts/responses.types.ts` consistently within a module
+### DO:
+- Define ALL API types as Zod schemas with descriptions
+- Export both schema and inferred type
+- Import database types as type-only
+- Use const assertions for string literals
+- Organize by feature/domain
+- Validate at API boundaries
 
-## Contributing
+### DON'T:
+- Import database package as values
+- Define types without Zod schemas
+- Use `.parse()` unnecessarily when types are sufficient
+- Create circular dependencies
+- Mix request/response types in same file
 
-When adding new types or modifying existing ones:
-1. Follow the Zod-first approach
-2. Ensure proper barrel exports
-3. Add request/response types where applicable
-4. Update package.json exports if adding new modules
-5. Run type checking before committing 
+## Database Type Imports
+
+Always import database types as type-only:
+
+```typescript
+// ✅ Correct
+import type { User, Organization } from '@buster/database';
+
+// ❌ Wrong - causes build failures
+import { User, Organization } from '@buster/database';
+```
+
+## Testing
+
+```typescript
+import { CreateUserRequestSchema } from '@buster/server-shared';
+
+describe('CreateUserRequestSchema', () => {
+  it('validates valid data', () => {
+    const data = {
+      email: 'test@example.com',
+      name: 'Test User',
+      orgId: '123e4567-e89b-12d3-a456-426614174000',
+      role: 'member'
+    };
+    
+    const result = CreateUserRequestSchema.safeParse(data);
+    expect(result.success).toBe(true);
+  });
+  
+  it('rejects invalid email', () => {
+    const data = {
+      email: 'not-an-email',
+      name: 'Test User',
+      orgId: '123e4567-e89b-12d3-a456-426614174000',
+      role: 'member'
+    };
+    
+    const result = CreateUserRequestSchema.safeParse(data);
+    expect(result.success).toBe(false);
+  });
+});
+```
+
+## Development
+
+```bash
+# Build
+turbo build --filter=@buster/server-shared
+
+# Test
+turbo test:unit --filter=@buster/server-shared
+
+# Lint
+turbo lint --filter=@buster/server-shared
+```
