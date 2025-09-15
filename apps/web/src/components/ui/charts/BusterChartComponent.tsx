@@ -59,6 +59,8 @@ export const BusterChartComponent: React.FC<BusterChartRenderComponentProps> = (
     trendlines,
   };
 
+  console.log('chartProps', chartProps);
+
   return (
     <ClientOnly>
       <BusterChartJS {...chartProps} />

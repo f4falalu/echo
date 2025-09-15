@@ -23,8 +23,6 @@ import { useXAxisTitle } from '../axisHooks/useXAxisTitle';
 import { useIsStacked } from '../useIsStacked';
 import { AUTO_DATE_FORMATS } from './config';
 
-const DEFAULT_X_AXIS_TICK_CALLBACK = ChartJS.defaults.scales.category?.ticks?.callback;
-
 export const useXAxis = ({
   columnLabelFormats,
   selectedAxis,
@@ -52,6 +50,8 @@ export const useXAxis = ({
   columnSettings: BusterChartProps['columnSettings'];
   xAxisTimeInterval: BusterChartProps['xAxisTimeInterval'];
 }): DeepPartial<ScaleChartOptions<'bar'>['scales']['x']> | undefined => {
+  const DEFAULT_X_AXIS_TICK_CALLBACK = ChartJS.defaults.scales.category?.ticks?.callback; //keep inside function to avoid initialization errors
+
   const isScatterChart = selectedChartType === 'scatter';
   const isPieChart = selectedChartType === 'pie';
   const isLineChart = selectedChartType === 'line';
