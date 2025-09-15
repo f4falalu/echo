@@ -8,20 +8,21 @@ packages:
   - apps/web
 
 catalog:
-  '@aws-sdk/client-s3': ^3.873.0
-  '@electric-sql/client': ^1.0.9
-  '@supabase/supabase-js': ^2.57.0
+  '@aws-sdk/client-s3': ^3.888.0
+  '@aws-sdk/s3-request-presigner': ^3.888.0
+  '@electric-sql/client': ^1.0.10
+  '@supabase/supabase-js': ^2.57.4
   '@trigger.dev/build': ^4.0.2
   '@trigger.dev/sdk': ^4.0.2
   '@types/js-yaml': ^4.0.9
-  '@types/react': ^19.1.12
+  '@types/react': ^19.1.13
   '@types/react-dom': ^19.1.9
-  ai: ^5.0.39
-  axios: ^1.11.0
-  braintrust: ^0.2.4
+  ai: ^5.0.44
+  axios: ^1.12.2
+  braintrust: ^0.3.7
   dotenv: ^17.2.2
   drizzle-orm: ^0.44.5
-  hono: ^4.9.6
+  hono: ^4.9.7
   js-yaml: ^4.1.0
   lodash-es: ^4.17.21
   pg: ^8.16.3
