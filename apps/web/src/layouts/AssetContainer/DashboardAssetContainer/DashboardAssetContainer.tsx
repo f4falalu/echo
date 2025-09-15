@@ -18,7 +18,6 @@ export const DashboardAssetContainer: React.FC<{
           return (
             <>
               <AssetContainer
-                headerBorderVariant={'ghost'}
                 scrollable
                 header={
                   <DashboardAssetHeader
