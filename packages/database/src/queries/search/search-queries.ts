@@ -2,8 +2,12 @@ import { and, count, eq, gte, inArray, isNull, lte, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
 import { textSearch } from '../../schema';
+import {
+  type PaginatedResponse,
+  PaginationInputSchema,
+  createPaginatedResponse,
+} from '../shared-types';
 import { createPermissionedAssetsSubquery } from './access-control-helpers';
-import { createPaginatedResponse, PaginationInputSchema, type PaginatedResponse } from '../shared-types';
 
 // Type inference from schema
 export const TextSearchResultSchema = z.object({
@@ -43,13 +47,14 @@ export const SearchFiltersSchema = z
 /**
  * Input schemas for type safety
  */
-export const SearchTextInputSchema = z.object({
-  searchString: z.string().optional(),
-  organizationId: z.string().uuid(),
-  userId: z.string().uuid(),
-  filters: SearchFiltersSchema,
-}).merge(PaginationInputSchema);
-
+export const SearchTextInputSchema = z
+  .object({
+    searchString: z.string().optional(),
+    organizationId: z.string().uuid(),
+    userId: z.string().uuid(),
+    filters: SearchFiltersSchema,
+  })
+  .merge(PaginationInputSchema);
 
 export type SearchFilters = z.infer<typeof SearchFiltersSchema>;
 export type SearchTextInput = z.infer<typeof SearchTextInputSchema>;
@@ -76,7 +81,7 @@ export async function searchText(input: SearchTextInput): Promise<SearchTextResp
 
     // Asset types filter (multiple asset types)
     if (filters?.assetTypes && filters.assetTypes.length > 0) {
-        console.info('filters.assetTypes', filters.assetTypes);
+      console.info('filters.assetTypes', filters.assetTypes);
       filterConditions.push(inArray(textSearch.assetType, filters.assetTypes));
     }
 
@@ -96,7 +101,6 @@ export async function searchText(input: SearchTextInput): Promise<SearchTextResp
       isNull(textSearch.deletedAt),
       ...filterConditions,
     ];
-
 
     // Create the permissioned assets subquery for this user
     const permissionedAssetsSubquery = createPermissionedAssetsSubquery(userId, organizationId);
@@ -145,4 +149,3 @@ export async function searchText(input: SearchTextInput): Promise<SearchTextResp
     throw error;
   }
 }
-
