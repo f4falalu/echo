@@ -53,8 +53,8 @@ export const useChatInputFlow = ({
       return;
 
     if (loading) {
-      onStopChat();
-      return;
+      await onStopChat();
+      await timeout(100);
     }
 
     const trimmedInputValue = inputValue.trim();
@@ -130,8 +130,5 @@ export const useChatInputFlow = ({
     }, 100);
   });
 
-  return useMemo(
-    () => ({ onSubmitPreflight, onStopChat, isFileChanged }),
-    [onSubmitPreflight, onStopChat, isFileChanged]
-  );
+  return { onSubmitPreflight, onStopChat, isFileChanged };
 };
