@@ -17,7 +17,7 @@ function RouteComponent() {
   );
 }
 
-const ReasoningControllerHeader: React.FC<{}> = () => {
+const ReasoningControllerHeader: React.FC = () => {
   return (
     <div className="w-full flex items-center justify-between">
       <AppSegmented

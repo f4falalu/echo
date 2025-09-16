@@ -42,14 +42,12 @@ export const useStopChat = () => {
         currentChat.message_ids.forEach((messageId) => {
           queryClient.setQueryData(chatQueryKeys.chatsMessages(messageId).queryKey, (v) => {
             if (v) {
-              return {
-                ...v,
-                is_completed: true,
-              };
+              return { ...v, is_completed: true };
             }
           });
         });
       }
+
       queryClient.invalidateQueries({
         queryKey: chatQueryKeys.chatsGetList().queryKey,
         refetchType: 'all',

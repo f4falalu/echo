@@ -58,7 +58,6 @@ export const useChatInputFlow = ({
       submittingCooldown.current = true;
 
       if (isChatMode || selectedAssetType === 'chat') {
-        console.log('following up chat');
         await onFollowUpChat({ prompt: trimmedInputValue, chatId });
       } else if (selectedAssetType === 'collection') {
         // maybe we will support this one day. Good day that'll be. Until then, we will just dream.

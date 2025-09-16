@@ -18,7 +18,7 @@ type StartChatParams = {
 export const useChat = () => {
   const navigate = useNavigate();
   const { mutateAsync: startNewChat, isPending: isSubmittingChat } = useStartNewChat();
-  const { mutate: stopChatMutation } = useStopChat();
+  const { mutateAsync: stopChatMutation } = useStopChat();
   const getChatMemoized = useGetChatMemoized();
   const getChatMessageMemoized = useGetChatMessageMemoized();
   const { onUpdateChat, onUpdateChatMessage } = useChatUpdate();
@@ -82,8 +82,8 @@ export const useChat = () => {
     }
   );
 
-  const onStopChat = useMemoizedFn(({ chatId }: { chatId: string }) => {
-    stopChatMutation(chatId);
+  const onStopChat = useMemoizedFn(async ({ chatId }: { chatId: string }) => {
+    return await stopChatMutation(chatId);
   });
 
   const onReplaceMessageInChat = useMemoizedFn(
