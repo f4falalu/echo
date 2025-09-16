@@ -28,10 +28,19 @@ export function getSupabaseServerClient() {
       },
       setAll(cookies) {
         cookies.forEach((cookie) => {
-          setCookie(cookie.name, cookie.value, {
-            ...COOKIE_OPTIONS,
-            ...cookie.options,
-          });
+          try {
+            setCookie(cookie.name, cookie.value, {
+              ...COOKIE_OPTIONS,
+              ...cookie.options,
+            });
+          } catch (error) {
+            // Ignore headers already sent errors in production
+            if (error instanceof Error && error.message.includes('ERR_HTTP_HEADERS_SENT')) {
+              console.warn('Attempted to set cookie after headers sent:', cookie.name);
+              return;
+            }
+            throw error;
+          }
         });
       },
     },
