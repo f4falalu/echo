@@ -6,6 +6,7 @@ import { SnowflakeIntrospector } from '../introspection/snowflake';
 import { type Credentials, DataSourceType, type SnowflakeCredentials } from '../types/credentials';
 import type { QueryParameter } from '../types/query';
 import { type AdapterQueryResult, BaseAdapter, type FieldMetadata } from './base';
+import { normalizeRowValues } from './helpers/normalize-values';
 
 // Use Snowflake SDK types directly
 type SnowflakeError = snowflake.SnowflakeError;
@@ -246,7 +247,8 @@ export class SnowflakeAdapter extends BaseAdapter {
                   for (const [key, value] of Object.entries(row)) {
                     transformedRow[key.toLowerCase()] = value;
                   }
-                  rows.push(transformedRow);
+                  // Normalize values to ensure proper types (numbers, dates, etc.)
+                  rows.push(normalizeRowValues(transformedRow));
                 }
                 rowCount++;
               })

@@ -5,6 +5,7 @@ import { PostgreSQLIntrospector } from '../introspection/postgresql';
 import { type Credentials, DataSourceType, type PostgreSQLCredentials } from '../types/credentials';
 import type { QueryParameter } from '../types/query';
 import { type AdapterQueryResult, BaseAdapter, type FieldMetadata } from './base';
+import { normalizeRowValues } from './helpers/normalize-values';
 
 // Internal types for pg-cursor that aren't exported
 interface CursorResult {
@@ -109,7 +110,7 @@ export class PostgreSQLAdapter extends BaseAdapter {
           })) || [];
 
         return {
-          rows: result.rows,
+          rows: result.rows.map(normalizeRowValues),
           rowCount: result.rowCount || result.rows.length,
           fields,
           hasMoreRows: false,
@@ -157,11 +158,11 @@ export class PostgreSQLAdapter extends BaseAdapter {
         // Check if we have more rows than requested
         if (totalRead + batchRows.length > maxRows) {
           hasMoreRows = true;
-          rows.push(...batchRows.slice(0, maxRows - totalRead));
+          rows.push(...batchRows.slice(0, maxRows - totalRead).map(normalizeRowValues));
           break;
         }
 
-        rows.push(...batchRows);
+        rows.push(...batchRows.map(normalizeRowValues));
         totalRead += batchRows.length;
 
         // If we got fewer rows than requested, we've reached the end

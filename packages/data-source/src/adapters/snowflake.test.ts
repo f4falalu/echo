@@ -302,6 +302,75 @@ describe('SnowflakeAdapter', () => {
       expect(result.hasMoreRows).toBe(false); // We got exactly the limit, not more
     });
 
+    it('should normalize numeric strings to JavaScript numbers', async () => {
+      const mockStream = {
+        on: vi.fn(),
+      };
+
+      const mockStatement = {
+        getColumns: () => [
+          {
+            getName: () => 'COMMISSION_RATE_PCT',
+            getType: () => 'FIXED',
+            isNullable: () => true,
+            getScale: () => 3,
+            getPrecision: () => 10,
+          },
+          {
+            getName: () => 'SALESYTD',
+            getType: () => 'FIXED',
+            isNullable: () => true,
+            getScale: () => 4,
+            getPrecision: () => 15,
+          },
+          {
+            getName: () => 'PRODUCT_NAME',
+            getType: () => 'TEXT',
+            isNullable: () => true,
+            getScale: () => 0,
+            getPrecision: () => 0,
+          },
+        ],
+        streamRows: vi.fn().mockReturnValue(mockStream),
+      };
+
+      mockConnection.execute.mockImplementation(({ complete, streamResult }) => {
+        expect(streamResult).toBe(true);
+        complete(null, mockStatement);
+      });
+
+      const mockRow = {
+        COMMISSION_RATE_PCT: '1.500',
+        SALESYTD: '4251368.5497',
+        PRODUCT_NAME: 'Widget XL',
+      };
+
+      mockStream.on.mockImplementation((event: string, handler: (data?: unknown) => void) => {
+        if (event === 'data') {
+          setTimeout(() => handler(mockRow), 0);
+        } else if (event === 'end') {
+          setTimeout(() => handler(), 0);
+        }
+        return mockStream;
+      });
+
+      const result = await adapter.query('SELECT * FROM sales_data');
+
+      expect(result.rows).toHaveLength(1);
+      const row = result.rows[0];
+
+      // Verify numeric strings were converted to numbers
+      expect(typeof row.commission_rate_pct).toBe('number');
+      expect(row.commission_rate_pct).toBe(1.5);
+
+      expect(typeof row.salesytd).toBe('number');
+      expect(row.salesytd).toBe(4251368.5497);
+
+      // Verify text remains as string
+      expect(typeof row.product_name).toBe('string');
+      expect(row.product_name).toBe('Widget XL');
+    });
+
     it('should handle query errors', async () => {
       mockConnection.execute.mockImplementation(({ complete, streamResult }) => {
         expect(streamResult).toBe(true);
