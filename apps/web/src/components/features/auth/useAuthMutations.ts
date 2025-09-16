@@ -20,6 +20,7 @@ export const useOAuthMutation = (
         window.location.href = data.url;
       }
     },
+    throwOnError: true,
   });
 };
 
@@ -71,13 +72,20 @@ export const useAuthMutations = (redirectTo?: string | null, onSignUpSuccess?: (
       if (!data.error) {
         await navigate({ to: redirectTo || '/app/home' });
       }
+      if (data.error) {
+        throw new Error(data.message);
+      }
     },
+    throwOnError: true,
   });
 
   const emailSignUpMutation = useMutation({
     mutationFn: ({ email, password }: { email: string; password: string }) =>
       signUpWithEmailAndPassword({ data: { email, password, redirectTo } }),
     onSuccess: (data) => {
+      if (data.error) {
+        throw new Error(data.error);
+      }
       if (data.success && onSignUpSuccess) {
         onSignUpSuccess();
       }

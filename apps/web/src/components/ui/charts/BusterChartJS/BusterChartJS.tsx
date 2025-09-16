@@ -1,5 +1,3 @@
-import './ChartJSTheme';
-
 import {
   DEFAULT_CHART_CONFIG,
   DEFAULT_CHART_THEME,
@@ -13,6 +11,8 @@ import { BusterChartJSComponent } from './BusterChartJSComponent';
 import { BusterChartJSLegendWrapper } from './BusterChartJSLegendWrapper';
 import { useSetupChartJS } from './ChartJsContextStore';
 import type { ChartJSOrUndefined } from './core/types';
+
+import './ChartJSTheme';
 
 export const BusterChartJS: React.FC<BusterChartComponentProps> = ({
   selectedChartType,

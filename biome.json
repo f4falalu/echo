@@ -62,6 +62,14 @@
       "enabled": true
     }
   },
+  "css": {
+    "formatter": {
+      "enabled": true,
+      "indentStyle": "space",
+      "indentWidth": 2,
+      "lineWidth": 100
+    }
+  },
   "files": {
     "include": [
       "packages/**/*.ts",
@@ -69,6 +77,7 @@
       "packages/**/*.js",
       "packages/**/*.jsx",
       "packages/**/*.json",
+      "packages/**/*.css",
       "packages/**/*.mjs",
       "packages/**/*.cjs",
       "packages/**/*.mts",

@@ -1,7 +1,6 @@
 import type { OrganizationUser } from '@buster/server-shared/organization';
-import type { UserResponse } from '@buster/server-shared/user';
-import { BASE_URL } from '@/api/config';
-import { mainApi } from '../instances';
+import type { GetSuggestedPromptsResponse, UserResponse } from '@buster/server-shared/user';
+import { mainApi, mainApiV2 } from '../instances';
 
 export const getMyUserInfo = async () => {
   return mainApi.get<UserResponse>('/users').then((response) => response.data);
@@ -35,4 +34,10 @@ export const inviteUser = async ({
     emails,
     team_ids,
   });
+};
+
+export const getSuggestedPrompts = async ({ userId }: { userId: string }) => {
+  return mainApiV2
+    .get<GetSuggestedPromptsResponse>(`/users/${userId}/suggested-prompts`)
+    .then((response) => response.data);
 };
