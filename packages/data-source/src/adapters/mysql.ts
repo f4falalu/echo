@@ -5,6 +5,7 @@ import { type Credentials, DataSourceType, type MySQLCredentials } from '../type
 import type { QueryParameter } from '../types/query';
 import { type AdapterQueryResult, BaseAdapter, type FieldMetadata } from './base';
 import { normalizeRowValues } from './helpers/normalize-values';
+import { mapMySQLType } from './type-mappings/mysql';
 
 /**
  * MySQL database adapter
@@ -116,7 +117,7 @@ export class MySQLAdapter extends BaseAdapter {
       const fieldMetadata: FieldMetadata[] = Array.isArray(fields)
         ? fields.map((field) => ({
             name: field.name,
-            type: `mysql_type_${field.type}`, // MySQL field type
+            type: mapMySQLType(`mysql_type_${field.type}`), // Map type code to normalized type
             nullable: typeof field.flags === 'number' ? (field.flags & 1) === 0 : true, // NOT_NULL flag is bit 0
             length: typeof field.length === 'number' && field.length > 0 ? field.length : 0,
             precision:

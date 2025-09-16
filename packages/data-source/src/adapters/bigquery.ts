@@ -117,7 +117,9 @@ export class BigQueryAdapter extends BaseAdapter {
         resultRows = resultRows.slice(0, maxRows);
       }
 
-      // BigQuery doesn't provide detailed field metadata in the same way as other databases
+      // BigQuery field metadata extraction
+      // TODO: Extract schema from job metadata when available
+      // For now, return empty fields array to maintain compatibility
       const fields: FieldMetadata[] = [];
 
       return {

@@ -6,6 +6,7 @@ import { type Credentials, DataSourceType, type PostgreSQLCredentials } from '..
 import type { QueryParameter } from '../types/query';
 import { type AdapterQueryResult, BaseAdapter, type FieldMetadata } from './base';
 import { normalizeRowValues } from './helpers/normalize-values';
+import { mapPostgreSQLType } from './type-mappings/postgresql';
 
 // Internal types for pg-cursor that aren't exported
 interface CursorResult {
@@ -104,7 +105,7 @@ export class PostgreSQLAdapter extends BaseAdapter {
         const fields: FieldMetadata[] =
           result.fields?.map((field) => ({
             name: field.name,
-            type: `pg_type_${field.dataTypeID}`, // PostgreSQL type ID
+            type: mapPostgreSQLType(`pg_type_${field.dataTypeID}`), // Map OID to normalized type
             nullable: true, // PostgreSQL doesn't provide this info directly
             length: field.dataTypeSize > 0 ? field.dataTypeSize : 0,
           })) || [];
@@ -149,7 +150,7 @@ export class PostgreSQLAdapter extends BaseAdapter {
         if (fields.length === 0 && cursor._result?.fields) {
           fields = cursor._result.fields.map((field) => ({
             name: field.name,
-            type: `pg_type_${field.dataTypeID}`,
+            type: mapPostgreSQLType(`pg_type_${field.dataTypeID}`), // Map OID to normalized type
             nullable: true,
             length: field.dataTypeSize > 0 ? field.dataTypeSize : 0,
           }));
