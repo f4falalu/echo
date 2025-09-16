@@ -169,4 +169,28 @@ describe('normalizeRowValues', () => {
     expect(typeof result.commission_rate_pct).toBe('number');
     expect(typeof result.salesytd).toBe('number');
   });
+
+  it('should not convert timestamps with trailing text, but allow proper ISO variants', () => {
+    const input = {
+      tz_abbrev: '2024-01-15 10:30:00 PST',
+      trailing_text_after_z: '2024-01-15T10:30:00Z extra',
+      trailing_text_after_sql: '2024-01-15 10:30:00 something',
+      valid_iso_offset: '2024-01-15T10:30:00-07:00',
+      valid_fractional_z: '2024-01-15T10:30:00.123Z',
+    };
+
+    const result = normalizeRowValues(input);
+
+    expect(typeof result.tz_abbrev).toBe('string');
+    expect(result.tz_abbrev).toBe('2024-01-15 10:30:00 PST');
+
+    expect(typeof result.trailing_text_after_z).toBe('string');
+    expect(result.trailing_text_after_z).toBe('2024-01-15T10:30:00Z extra');
+
+    expect(typeof result.trailing_text_after_sql).toBe('string');
+    expect(result.trailing_text_after_sql).toBe('2024-01-15 10:30:00 something');
+
+    expect(result.valid_iso_offset).toBeInstanceOf(Date);
+    expect(result.valid_fractional_z).toBeInstanceOf(Date);
+  });
 });

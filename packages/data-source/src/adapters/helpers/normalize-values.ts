@@ -50,7 +50,8 @@ function isValidDateString(value: string): boolean {
   // Common date/timestamp patterns from databases
   const datePatterns = [
     /^\d{4}-\d{2}-\d{2}$/, // YYYY-MM-DD
-    /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}/, // ISO timestamps and SQL timestamps
+    // ISO and SQL-like timestamps, anchored to end. Allows optional fractional seconds and numeric timezone offsets.
+    /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?$/, // ISO timestamps and SQL timestamps
     /^\d{2}\/\d{2}\/\d{4}$/, // MM/DD/YYYY
   ];
 
