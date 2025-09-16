@@ -45,7 +45,7 @@ describe('snowflake-numeric-normalization.int.test.ts', () => {
       };
 
       await adapter.initialize(credentials);
-      
+
       // Query that returns various numeric types that Snowflake typically returns as strings
       const result = await adapter.query(`
         SELECT 
@@ -80,7 +80,7 @@ describe('snowflake-numeric-normalization.int.test.ts', () => {
       expect(row.zero_decimal).toBe(0);
 
       expect(typeof row.pi_value).toBe('number');
-      expect(row.pi_value).toBeCloseTo(3.14159);
+      expect(row.pi_value).toBeCloseTo(Math.PI, 5);
 
       // Verify non-numeric values remain as expected types
       expect(typeof row.product_name).toBe('string');
@@ -111,7 +111,7 @@ describe('snowflake-numeric-normalization.int.test.ts', () => {
       };
 
       await adapter.initialize(credentials);
-      
+
       // Test with numbers at JavaScript's precision limits
       const result = await adapter.query(`
         SELECT 
@@ -135,7 +135,7 @@ describe('snowflake-numeric-normalization.int.test.ts', () => {
       expect(row.small_decimal).toBeCloseTo(0.1);
 
       expect(typeof row.large_decimal).toBe('number');
-      expect(row.large_decimal).toBeCloseTo(999999999999.999999);
+      expect(row.large_decimal).toBeCloseTo(1000000000000);
     },
     TEST_TIMEOUT
   );
@@ -155,7 +155,7 @@ describe('snowflake-numeric-normalization.int.test.ts', () => {
       };
 
       await adapter.initialize(credentials);
-      
+
       // Simulate a real scatter plot query with X and Y numeric axes
       const result = await adapter.query(`
         WITH scatter_data AS (
