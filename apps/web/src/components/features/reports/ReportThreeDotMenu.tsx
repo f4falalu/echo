@@ -285,6 +285,7 @@ const useRefreshReportSelectMenu = ({ reportId }: { reportId: string }): IDropdo
   const { onCreateFileClick, loading: isPending } = useStartChatFromAsset({
     assetId: reportId,
     assetType: 'report',
+    prompt: 'Hey Buster. Please refresh the report with the latest data.',
   });
 
   const onClick = useMemoizedFn(async () => {

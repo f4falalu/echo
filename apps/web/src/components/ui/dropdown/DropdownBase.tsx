@@ -102,7 +102,6 @@ const DropdownMenuItem = React.forwardRef<
     )}
     //some weird bug in a nested menu required this
     onMouseDown={(e) => {
-      console.log('onMouseDown', closeOnSelect, e);
       if (!closeOnSelect) {
         e.stopPropagation();
         e.preventDefault();

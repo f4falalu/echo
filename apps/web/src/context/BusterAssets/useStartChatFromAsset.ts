@@ -7,9 +7,11 @@ import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 export const useStartChatFromAsset = ({
   assetId,
   assetType,
+  prompt,
 }: {
   assetId: string;
   assetType: ChatAssetType;
+  prompt?: string;
 }) => {
   const [loading, setLoading] = useState(false);
   const { mutateAsync: startChatFromAsset, isPending } = useStartChatFromAssetBase();
@@ -18,7 +20,7 @@ export const useStartChatFromAsset = ({
   const onCreateFileClick = useMemoizedFn(async () => {
     setLoading(true);
     try {
-      const result = await startChatFromAsset({ asset_id: assetId, asset_type: assetType });
+      const result = await startChatFromAsset({ asset_id: assetId, asset_type: assetType, prompt });
 
       if (assetType === 'metric') {
         await navigate({
