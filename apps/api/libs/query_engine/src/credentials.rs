@@ -42,9 +42,15 @@ where
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct BigqueryCredentials {
-    #[serde(alias = "service_role_key", deserialize_with = "deserialize_credentials")]
+    #[serde(
+        deserialize_with = "deserialize_credentials",
+        rename = "service_account_key",
+        alias = "credentials_json"
+    )]
     pub credentials_json: Value,
+    #[serde(rename = "project_id")]
     pub default_project_id: String,
+    #[serde(rename = "default_dataset")]
     pub default_dataset_id: String,
 }
 // Can get rid of project_id
