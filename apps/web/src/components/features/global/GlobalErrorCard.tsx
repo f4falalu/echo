@@ -3,6 +3,7 @@ import { usePostHog } from 'posthog-js/react';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/buttons';
 import { Card, CardContent, CardFooter } from '@/components/ui/card/CardBase';
+import { Title } from '@/components/ui/typography';
 import { useMount } from '../../../hooks/useMount';
 
 export const ErrorCard = ({
@@ -24,9 +25,8 @@ export const ErrorCard = ({
       <Card className="-mt-10 max-w-100">
         <CardContent>
           <div className="flex flex-col gap-4">
-            <h1 className="text-2xl font-medium">{header}</h1>
-
-            <h5 className="m-0 text-base font-medium text-gray-600">{message}</h5>
+            <Title className="text-2xl font-semibold">{header}</Title>
+            <Title className="m-0 text-base text-gray-600 font-normal">{message}</Title>
           </div>
         </CardContent>
 
