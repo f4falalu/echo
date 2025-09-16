@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { useState } from 'react';
 import { InputNumber } from './InputNumber';
 
 const meta: Meta<typeof InputNumber> = {
@@ -45,7 +46,25 @@ export const Default: Story = {
 export const WithValue: Story = {
   args: {
     value: 42,
+    min: 0,
+    max: 42,
     placeholder: 'Enter number...',
+  },
+  render: (args) => {
+    const [value, setValue] = useState(args.value);
+    return (
+      <div className="w-full">
+        <InputNumber
+          {...args}
+          value={value}
+          onChange={(v) => {
+            console.log('onChange', v);
+            setValue(v);
+          }}
+        />
+        <div className="bg-red-100 p-3 w-full hover:bg-red-200">Click to unfocus</div>
+      </div>
+    );
   },
 };
 

@@ -49,14 +49,14 @@ export const EditDecimals: React.FC<{
         <InputNumber
           min={0}
           prefix="Min"
-          value={min}
+          defaultValue={min}
           className="w-full!"
           onChange={(value) => handleMinChange(value)}
         />
         <InputNumber
           prefix="Max"
           max={10}
-          value={max}
+          defaultValue={max}
           className="w-full!"
           onChange={(value) => handleMaxChange(value)}
         />
