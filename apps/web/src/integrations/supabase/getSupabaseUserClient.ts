@@ -34,18 +34,18 @@ const getClientSupabaseSessionFast = async (): Promise<{
   data: SimplifiedSupabaseSession;
   error: null | AuthError;
 }> => {
-  try {
-    const cookieRes = await getSupabaseCookieClient();
-    const almostExpired = isTokenAlmostExpired(cookieRes.expiresAt);
-    if (!almostExpired) {
-      return {
-        data: cookieRes satisfies SimplifiedSupabaseSession,
-        error: null,
-      };
-    }
-  } catch (error) {
-    console.error('error in getClientSupabaseSessionFast', error);
-  }
+  // try {
+  //   const cookieRes = await getSupabaseCookieClient();
+  //   const almostExpired = isTokenAlmostExpired(cookieRes.expiresAt);
+  //   if (!almostExpired) {
+  //     return {
+  //       data: cookieRes satisfies SimplifiedSupabaseSession,
+  //       error: null,
+  //     };
+  //   }
+  // } catch (error) {
+  //   console.error('error in getClientSupabaseSessionFast', error);
+  // }
 
   return extractSimplifiedSupabaseSession(supabase);
 };
