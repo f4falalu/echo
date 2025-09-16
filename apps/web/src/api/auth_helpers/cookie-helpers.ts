@@ -45,7 +45,10 @@ function listAllCookies() {
 
 async function getSupabaseCookieRawClient() {
   const getCookieByKey = (d: [string, string][]) => {
-    const cookie = d.find(([name]) => name.startsWith('sb-') && name.endsWith('-auth-token'));
+    const cookie = d.find(
+      ([name, value]) =>
+        name.startsWith('sb-') && name.endsWith('-auth-token') && value.startsWith('base64-')
+    );
     supabaseCookieName = cookie?.[0] || '';
     return cookie?.[1];
   };
