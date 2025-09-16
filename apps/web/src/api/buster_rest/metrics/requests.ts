@@ -41,7 +41,7 @@ export const getMetricData = async ({
   id,
   ...params
 }: GetMetricDataRequest): Promise<MetricDataResponse> => {
-  return mainApi
+  return mainApiV2
     .get<MetricDataResponse>(`/metric_files/${id}/data`, { params })
     .then((res) => res.data);
 };
