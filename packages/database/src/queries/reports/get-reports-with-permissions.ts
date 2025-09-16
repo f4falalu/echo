@@ -182,8 +182,14 @@ export async function getReportsWithPermissions(
         created_by_id: reportFiles.createdBy,
         created_by_name: users.name,
         created_by_avatar: users.avatarUrl,
-        // Get the user's permission for this report
-        permission: assetPermissions.role,
+        // Get the user's permission for this report, with owner fallback for creators
+        permission: sql<string | null>`
+          CASE
+            WHEN ${assetPermissions.role} IS NOT NULL THEN ${assetPermissions.role}
+            WHEN ${reportFiles.createdBy} = ${userId} THEN 'owner'
+            ELSE NULL
+          END
+        `,
         // Calculate is_shared directly in SQL
         // Check if report is shared with OTHER users or teams (not just the current user)
         is_shared: sql<boolean>`
@@ -229,15 +235,8 @@ export async function getReportsWithPermissions(
 
     const total = totalResult[0]?.count ?? 0;
 
-    // Transform the data to set permission
-    const transformedData = data.map((report) => ({
-      ...report,
-      // If no explicit permission but user is creator, they're the owner
-      permission: report.permission || (report.created_by_id === userId ? 'owner' : null),
-    }));
-
     return createPaginatedResponse({
-      data: transformedData,
+      data,
       page,
       page_size,
       total,
