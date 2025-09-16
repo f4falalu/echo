@@ -21,8 +21,6 @@ const searchParamsSchema = z.object({
     .optional(),
 });
 
-const RouteRequest = getRouteApi('/app');
-
 export const Route = createFileRoute('/app/_app/home')({
   head: () => {
     return {
