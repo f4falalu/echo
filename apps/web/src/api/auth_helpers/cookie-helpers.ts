@@ -16,6 +16,7 @@ export function parseBase64Cookie(cookieValue: string): {
     email: string;
   };
 } | null {
+  console.log('cookieValue', cookieValue);
   if (!cookieValue) {
     return null;
   }
@@ -38,6 +39,7 @@ export function parseBase64Cookie(cookieValue: string): {
   let jsonStr: string = '';
 
   try {
+    console.log('payload for parseBase64Cookie', payload);
     jsonStr = atob(payload);
     console.log('jsonStr for parseBase64Cookie', jsonStr);
   } catch (error) {
