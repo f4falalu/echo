@@ -1,10 +1,11 @@
 import { useBlocker } from '@tanstack/react-router';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ConfirmProps } from '@/components/ui/modal/ConfirmModal';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useUnmount } from '@/hooks/useUnmount';
 import { timeout } from '@/lib/timeout';
 import { useOpenConfirmModal } from '../BusterNotifications';
+import { setBlocker } from './blocker-store';
 
 export const useBlockerWithModal = ({
   onReset,
@@ -54,6 +55,10 @@ export const useBlockerWithModal = ({
   useUnmount(() => {
     cancelCooldownTimer();
   });
+
+  useEffect(() => {
+    setBlocker(enableBlocker);
+  }, [enableBlocker]);
 
   useBlocker({
     disabled: !enableBlocker || explicitlyUnblocked,
