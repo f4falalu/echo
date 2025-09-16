@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
-import cookies from 'js-cookie';
+import Cookies from 'js-cookie';
 import { getServerCookie } from '@/api/server-functions/getServerCookie';
 import { isServer } from './window';
 
@@ -30,7 +30,7 @@ export const detectClientTimezone = (): string => {
 export const setTimezoneInCookie = (timezone: string): void => {
   if (isServer || !timezone) return;
 
-  cookies.set(TIMEZONE_COOKIE_KEY, timezone, {
+  Cookies.set(TIMEZONE_COOKIE_KEY, timezone, {
     expires: TIMEZONE_COOKIE_EXPIRY,
     sameSite: 'lax',
     secure: true,
@@ -46,7 +46,7 @@ export const getTimezoneFromCookie = async (): Promise<string | null> => {
     return cookieData || null;
   }
 
-  return cookies.get(TIMEZONE_COOKIE_KEY) || null;
+  return Cookies.get(TIMEZONE_COOKIE_KEY) || null;
 };
 
 /**

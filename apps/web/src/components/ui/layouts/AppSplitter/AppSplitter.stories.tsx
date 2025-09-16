@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import cookies from 'js-cookie';
+import Cookies from 'js-cookie';
 import React, { useRef } from 'react';
 import { Button } from '@/components/ui/buttons/Button';
 import { Text } from '@/components/ui/typography/Text';
@@ -83,7 +83,7 @@ export const PassingInitialLayoutFromCookies: Story = {
       const tagRaw = 'this-is-a-test';
       const tag = createAutoSaveId(tagRaw);
       const initialLayoutFromCookie: { value: number } = JSON.parse(
-        cookies.get(tag) ?? '["100px", "auto"]'
+        Cookies.get(tag) ?? '["100px", "auto"]'
       );
 
       const initialLayout: LayoutSize = [
@@ -589,11 +589,11 @@ const ThreePanelWithAnimationExample = () => {
   };
 
   const initialLayoutParent = parseLayout(
-    cookies.get('app-splitter-three-panel-outer') ?? '',
+    Cookies.get('app-splitter-three-panel-outer') ?? '',
     'left'
   );
   const initialLayoutInner = parseLayout(
-    cookies.get('app-splitter-three-panel-inner') ?? '',
+    Cookies.get('app-splitter-three-panel-inner') ?? '',
     'right'
   );
 

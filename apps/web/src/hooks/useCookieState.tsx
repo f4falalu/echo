@@ -1,5 +1,5 @@
 import { isServer } from '@tanstack/react-query';
-import cookies from 'js-cookie';
+import Cookies from 'js-cookie';
 import { useState } from 'react';
 import { useMemoizedFn } from './useMemoizedFn';
 import { useMount } from './useMount';
@@ -43,7 +43,7 @@ const setCookie = (
   const expires = new Date(Date.now() + expirationTime);
   const { domain, path = '/', secure = true, sameSite = 'lax' } = options;
 
-  cookies.set(name, value, {
+  Cookies.set(name, value, {
     expires,
     path,
     domain,
@@ -57,7 +57,7 @@ const removeCookie = (name: string, options: CookieOptions = {}): void => {
   if (isServer) return;
 
   const { domain, path = '/' } = options;
-  cookies.remove(name, { path, domain });
+  Cookies.remove(name, { path, domain });
 };
 
 export function useCookieState<T>(
@@ -79,7 +79,7 @@ export function useCookieState<T>(
     return typeof defaultValue === 'function' ? (defaultValue as () => T)() : defaultValue;
   });
 
-  // Get initial value from cookies or use default
+  // Get initial value from Cookies or use default
   const getInitialValue = useMemoizedFn((): T | undefined => {
     // Prefer explicitly provided initialValue if present
     if (initialValue !== undefined) {
@@ -87,7 +87,7 @@ export function useCookieState<T>(
     }
 
     try {
-      const cookieValue = cookies.get(key);
+      const cookieValue = Cookies.get(key);
 
       if (!cookieValue) {
         return executeBustStorage();
@@ -128,7 +128,7 @@ export function useCookieState<T>(
 
   const [state, setState] = useState<T | undefined>(() => getInitialValue());
 
-  // Initialize state from cookies on mount
+  // Initialize state from Cookies on mount
   useMount(() => {
     setState(getInitialValue());
   });
