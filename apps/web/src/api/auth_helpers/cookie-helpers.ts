@@ -30,21 +30,37 @@ export function parseBase64Cookie(cookieValue: string) {
 }
 
 export const getSupabaseCookieClient = async () => {
-  const supabaseCookieRaw = await getSupabaseCookieRawClient();
+  try {
+    const supabaseCookieRaw = await getSupabaseCookieRawClient();
+    if (supabaseCookieRaw) {
+      const decodedCookie = parseBase64Cookie(supabaseCookieRaw || '') as {
+        access_token: string;
+        expires_at: number;
+        expires_in: number;
+        token_type: 'bearer';
+        user: {
+          id: string;
+          is_anonymous: boolean;
+          email: string;
+        };
+      };
+      return decodedCookie;
+    }
+  } catch (error) {
+    console.error('Failed to get supabase cookie:', error);
+  }
 
-  const decodedCookie = parseBase64Cookie(supabaseCookieRaw || '') as {
-    access_token: string;
-    expires_at: number;
-    expires_in: number;
-    token_type: 'bearer';
+  return {
+    access_token: '',
+    expires_at: 0,
+    expires_in: 0,
+    token_type: 'bearer',
     user: {
-      id: string;
-      is_anonymous: boolean;
-      email: string;
-    };
+      id: '',
+      is_anonymous: false,
+      email: '',
+    },
   };
-
-  return decodedCookie;
 };
 
 function listAllCookies() {
@@ -57,18 +73,23 @@ function listAllCookies() {
 }
 
 export async function getSupabaseCookieRawClient() {
-  const getCookieByKey = (d: [string, string][]) => {
-    const cookie = d.find(
-      ([name, value]) =>
-        name.startsWith('sb-') && name.endsWith('-auth-token') && value.startsWith('base64-')
-    );
-    supabaseCookieName = cookie?.[0] || '';
-    return cookie?.[1];
-  };
+  try {
+    const getCookieByKey = (d: [string, string][]) => {
+      const cookie = d.find(
+        ([name, value]) =>
+          name.startsWith('sb-') && name.endsWith('-auth-token') && value.startsWith('base64-')
+      );
+      supabaseCookieName = cookie?.[0] || '';
+      return cookie?.[1];
+    };
 
-  if (supabaseCookieName) {
-    const Cookies = await import('js-cookie').then((m) => m.default);
-    return Cookies.get(supabaseCookieName);
+    if (supabaseCookieName) {
+      const Cookies = await import('js-cookie').then((m) => m.default);
+      return Cookies.get(supabaseCookieName);
+    }
+    return getCookieByKey(Object.entries(listAllCookies()));
+  } catch (error) {
+    console.error('Failed to get supabase cookie raw:', error);
+    return '';
   }
-  return getCookieByKey(Object.entries(listAllCookies()));
 }
