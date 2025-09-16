@@ -1,37 +1,46 @@
+import type { AuthError, Session, SupabaseClient } from '@supabase/supabase-js';
 import { createServerFn } from '@tanstack/react-start';
+import type { SimplifiedSupabaseSession } from '@/integrations/supabase/getSupabaseUserClient';
 import { getSupabaseServerClient } from '@/integrations/supabase/server';
+import { isTokenExpired } from '../auth_helpers/expiration-helpers';
+
+export const extractSimplifiedSupabaseSession = async (
+  supabaseClient: SupabaseClient
+): Promise<{
+  data: SimplifiedSupabaseSession;
+  error: null | AuthError;
+}> => {
+  const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+  const session = sessionData.session;
+  return {
+    data: {
+      accessToken: session?.access_token ?? '',
+      expiresAt: session?.expires_at ?? 0,
+      expiresIn: session?.expires_in ?? 0,
+      isExpired: isTokenExpired(session?.expires_at),
+      user: session?.user
+        ? {
+            id: session.user.id,
+            is_anonymous: session.user.is_anonymous,
+            email: session.user.email,
+          }
+        : {
+            id: '',
+            is_anonymous: true,
+            email: '',
+          },
+    } satisfies SimplifiedSupabaseSession,
+    error: sessionError,
+  };
+};
 
 export const getSupabaseSessionServerFn = createServerFn({ method: 'GET' }).handler(async () => {
   try {
     const supabase = getSupabaseServerClient();
-
-    // Wrap the auth operation to catch any async errors
-    const sessionData = await supabase.auth.getSession().catch((error) => {
-      // Handle headers already sent errors gracefully
-      if (error instanceof Error && error.message.includes('ERR_HTTP_HEADERS_SENT')) {
-        console.warn('Headers already sent when getting session, returning null session');
-        return {
-          data: { session: null },
-          error: null,
-        };
-      }
-      // Re-throw other errors
-      throw error;
-    });
-
-    const session = sessionData.data?.session;
-    const sessionError = sessionData.error;
-    const pickedSession = {
-      access_token: session?.access_token,
-      expires_at: session?.expires_at,
-      expires_in: session?.expires_in,
-    };
-
+    const { data, error } = await extractSimplifiedSupabaseSession(supabase);
     return {
-      data: {
-        session: pickedSession,
-      },
-      error: sessionError,
+      data,
+      error,
     };
   } catch (error) {
     // Final catch-all for any unhandled errors
@@ -39,12 +48,16 @@ export const getSupabaseSessionServerFn = createServerFn({ method: 'GET' }).hand
       console.warn('Headers already sent error in session handler, returning empty session');
       return {
         data: {
-          session: {
-            access_token: undefined,
-            expires_at: undefined,
-            expires_in: undefined,
+          accessToken: '',
+          expiresAt: 0,
+          expiresIn: 0,
+          isExpired: true,
+          user: {
+            id: '',
+            is_anonymous: true,
+            email: '',
           },
-        },
+        } satisfies SimplifiedSupabaseSession,
         error: null,
       };
     }

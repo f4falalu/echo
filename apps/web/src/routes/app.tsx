@@ -39,17 +39,17 @@ export const Route = createFileRoute('/app')({
   loader: async ({ context }) => {
     const { queryClient, accessToken } = context;
     try {
-      const [initialLayout, supabaseUser] = await Promise.all([
+      const [initialLayout, supabaseSession] = await Promise.all([
         getAppLayout({ id: PRIMARY_APP_LAYOUT_ID }),
-        getSupabaseUser(),
+        getSupabaseSession(),
         prefetchGetMyUserInfo(queryClient),
         prefetchGetUserFavorites(queryClient),
         prefetchListDatasources(queryClient),
         prefetchGetDatasets(queryClient),
       ]);
 
-      if (!supabaseUser) {
-        console.error('User not found - redirecting to login');
+      if (!supabaseSession?.accessToken) {
+        console.error('Session not found - redirecting to login');
         throw redirect({ to: '/auth/login', replace: true, statusCode: 307 });
       }
 
@@ -58,7 +58,7 @@ export const Route = createFileRoute('/app')({
         layoutId: PRIMARY_APP_LAYOUT_ID,
         defaultLayout: DEFAULT_LAYOUT,
         accessToken,
-        supabaseUser,
+        supabaseSession,
       };
     } catch (error) {
       console.error('Error in app route loader:', error);
@@ -66,10 +66,10 @@ export const Route = createFileRoute('/app')({
     }
   },
   component: () => {
-    const { supabaseUser, accessToken } = Route.useLoaderData();
+    const { supabaseSession, accessToken } = Route.useLoaderData();
 
     return (
-      <AppProviders supabaseUser={supabaseUser} accessToken={accessToken}>
+      <AppProviders supabaseSession={supabaseSession}>
         <Outlet />
       </AppProviders>
     );

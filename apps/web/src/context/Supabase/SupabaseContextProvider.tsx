@@ -3,24 +3,21 @@ import React, { useRef, useState } from 'react';
 import { createContext } from 'use-context-selector';
 import { useMount } from '@/hooks/useMount';
 import { getBrowserClient } from '@/integrations/supabase/client';
+import type { SimplifiedSupabaseSession } from '@/integrations/supabase/getSupabaseUserClient';
 
 export type SupabaseContextType = {
-  supabaseUser: Pick<User, 'id' | 'is_anonymous' | 'email'>;
-  accessToken: string;
+  supabaseSession: SimplifiedSupabaseSession;
 };
 
 const supabase = getBrowserClient();
 const fiveMinutes = 5 * 60 * 1000;
 
-const useSupabaseContextInternal = ({
-  supabaseUser: supabaseUserProp,
-  accessToken: accessTokenProp,
-}: SupabaseContextType) => {
+const useSupabaseContextInternal = ({ supabaseSession }: SupabaseContextType) => {
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const [supabaseUser, setSupabaseUser] = useState<SupabaseContextType['supabaseUser'] | null>(
-    supabaseUserProp
-  );
-  const [accessToken, setAccessToken] = useState(accessTokenProp);
+  const [supabaseUser, setSupabaseUser] = useState<
+    SupabaseContextType['supabaseSession']['user'] | null
+  >(supabaseSession?.user);
+  const [accessToken, setAccessToken] = useState(supabaseSession.accessToken);
 
   const isAnonymousUser: boolean = !supabaseUser?.id || supabaseUser?.is_anonymous === true;
 
@@ -33,7 +30,9 @@ const useSupabaseContextInternal = ({
       const timerMs = expiresAt - fiveMinutes;
       const accessToken = session?.access_token ?? '';
 
-      setSupabaseUser(user);
+      setSupabaseUser(
+        user ? { id: user.id, is_anonymous: user.is_anonymous, email: user.email } : null
+      );
 
       if (accessToken) setAccessToken(accessToken);
 
@@ -67,8 +66,8 @@ export const SupabaseContext = createContext<ReturnType<typeof useSupabaseContex
 
 export const SupabaseContextProvider: React.FC<
   SupabaseContextType & { children: React.ReactNode }
-> = React.memo(({ supabaseUser, accessToken, children }) => {
-  const value = useSupabaseContextInternal({ supabaseUser, accessToken });
+> = React.memo(({ supabaseSession, children }) => {
+  const value = useSupabaseContextInternal({ supabaseSession });
 
   return <SupabaseContext.Provider value={value}>{children}</SupabaseContext.Provider>;
 });
