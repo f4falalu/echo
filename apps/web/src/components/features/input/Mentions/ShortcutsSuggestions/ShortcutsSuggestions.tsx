@@ -1,9 +1,11 @@
 import { Trash } from '@/components/ui/icons';
 import PenWriting from '@/components/ui/icons/NucleoIconOutlined/pen-writing';
 import Plus from '@/components/ui/icons/NucleoIconOutlined/plus';
-import { createMentionSuggestionExtension } from '../createMentionSuggestionOption';
-import type { MentionInputTriggerItem } from '../MentionInput.types';
-import { SecondaryContentDropdown } from '../SecondaryContentDropdown';
+import {
+  createMentionSuggestionExtension,
+  type MentionInputTriggerItem,
+  MentionSecondaryContentDropdown,
+} from '@/components/ui/inputs/MentionInput';
 import { ShortcutPopoverContent } from './ShortcutPopoverContent';
 
 const listOfSports: MentionInputTriggerItem[] = [
@@ -34,7 +36,7 @@ const listOfSports: MentionInputTriggerItem[] = [
     ].map((item) => ({
       ...item,
       secondaryContent: (
-        <SecondaryContentDropdown
+        <MentionSecondaryContentDropdown
           items={[
             {
               label: 'Edit',

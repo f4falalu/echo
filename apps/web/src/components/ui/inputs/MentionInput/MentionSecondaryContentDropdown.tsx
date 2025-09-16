@@ -4,11 +4,13 @@ import { Button } from '../../buttons';
 import { Dropdown, type IDropdownItems } from '../../dropdown';
 import { Dots } from '../../icons';
 
-interface SecondaryContentDropdownProps {
+interface MentionSecondaryContentDropdownProps {
   items: IDropdownItems;
 }
 
-export const SecondaryContentDropdown = ({ items }: SecondaryContentDropdownProps) => {
+export const MentionSecondaryContentDropdown = ({
+  items,
+}: MentionSecondaryContentDropdownProps) => {
   const [open, setOpen] = useState(false);
   return (
     <Dropdown open={open} onOpenChange={setOpen} items={items}>

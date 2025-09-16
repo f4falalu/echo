@@ -1,6 +1,6 @@
+import type { MentionPopoverContentCallback } from '@/components/ui/inputs/MentionInput';
 import { Paragraph } from '@/components/ui/typography/Paragraph';
 import { Text } from '@/components/ui/typography/Text';
-import type { MentionPopoverContentCallback } from '../MentionInput.types';
 
 export const ShortcutPopoverContent: MentionPopoverContentCallback = ({ value }) => {
   const shortcutName = `TODO: ${value}`;
