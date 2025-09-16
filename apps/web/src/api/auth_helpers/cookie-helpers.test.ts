@@ -1,4 +1,3 @@
-import { jwtDecode } from 'jwt-decode';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock js-cookie
