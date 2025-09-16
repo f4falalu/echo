@@ -1,4 +1,3 @@
-import { jwtDecode } from 'jwt-decode';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock js-cookie
@@ -12,6 +11,7 @@ vi.mock('js-cookie', () => ({
 
 // Import after mocking
 import { parseBase64Cookie } from './cookie-helpers';
+import { isTokenAlmostExpired } from './expiration-helpers';
 
 // Mock the document.cookie property more effectively
 const mockDocumentCookie = vi.fn();
@@ -85,4 +85,15 @@ describe('parseBase64Cookie', () => {
     const result = parseBase64Cookie(`base64-${base64}`);
     expect(result).toEqual(testData);
   });
+
+  // it('expiration looks okay', () => {
+  //   const result = parseBase64Cookie(realCookieValue);
+  //   expect(result).toHaveProperty('expires_at', 1758041068);
+
+  //   let isAlmostExpired = isTokenAlmostExpired(result.expires_at);
+  //   expect(isAlmostExpired).toBe(true);
+
+  //   isAlmostExpired = isTokenAlmostExpired(result.expires_at, 1);
+  //   expect(isAlmostExpired).toBe(false);
+  // });
 });
