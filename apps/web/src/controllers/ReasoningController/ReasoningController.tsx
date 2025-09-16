@@ -57,31 +57,29 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
 
   return (
     <ClientOnly>
-      <ScrollArea viewportRef={viewportRef} className="h-full">
-        <div
-          className={cn(
-            'h-full flex-col space-y-0.5 overflow-y-auto p-5',
-            !isMountedAutoScrollObserver && 'invisible'
-          )}
-        >
-          {reasoningMessageIds?.map((reasoningMessageId, messageIndex) => (
-            <ReasoningMessageSelector
-              key={reasoningMessageId}
-              reasoningMessageId={reasoningMessageId}
-              isStreamFinished={isStreamFinished ?? true}
-              chatId={chatId}
-              messageId={messageId}
-              isLastMessage={messageIndex === reasoningMessageIds.length - 1 && !blackBoxMessage}
-            />
-          ))}
-
-          <BlackBoxMessage
-            blackBoxMessage={blackBoxMessage}
-            finalReasoningMessage={finalReasoningMessage}
+      <div
+        className={cn(
+          'h-full flex-col space-y-0.5 p-5',
+          !isMountedAutoScrollObserver && 'invisible'
+        )}
+      >
+        {reasoningMessageIds?.map((reasoningMessageId, messageIndex) => (
+          <ReasoningMessageSelector
+            key={reasoningMessageId}
+            reasoningMessageId={reasoningMessageId}
             isStreamFinished={isStreamFinished ?? true}
+            chatId={chatId}
+            messageId={messageId}
+            isLastMessage={messageIndex === reasoningMessageIds.length - 1 && !blackBoxMessage}
           />
-        </div>
-      </ScrollArea>
+        ))}
+
+        <BlackBoxMessage
+          blackBoxMessage={blackBoxMessage}
+          finalReasoningMessage={finalReasoningMessage}
+          isStreamFinished={isStreamFinished ?? true}
+        />
+      </div>
 
       {viewportRef.current && (
         <ScrollToBottomButton
