@@ -57,6 +57,20 @@ const getClientSupabaseSessionFast = async () => {
 export const getSupabaseUser = async () => {
   const { data: userData } = isServer
     ? await getSupabaseUserServerFn()
-    : await supabase.auth.getUser();
+    : await getSupbaseUserFastClient();
   return userData.user;
 };
+
+async function getSupbaseUserFastClient() {
+  const cookieRes = await getSupabaseCookieClient();
+  const almostExpired = isTokenAlmostExpired(cookieRes.expires_at);
+  if (!almostExpired) {
+    return {
+      data: {
+        user: cookieRes.user,
+      },
+    };
+  }
+
+  return await supabase.auth.getUser();
+}
