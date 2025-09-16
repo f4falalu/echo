@@ -20,6 +20,7 @@ export {
   checkMetricDashboardAccess,
   checkMetricChatAccess,
   checkMetricCollectionAccess,
+  checkMetricReportAccess,
 } from './assets';
 
 // Export dataset permissions
