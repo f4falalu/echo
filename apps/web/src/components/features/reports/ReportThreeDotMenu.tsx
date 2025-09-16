@@ -121,6 +121,12 @@ export const ReportThreeDotMenu = React.memo(
 ReportThreeDotMenu.displayName = 'ReportThreeDotMenu';
 
 const useEditWithAI = ({ reportId }: { reportId: string }): IDropdownItem => {
+  const { data: shareAssetConfig } = useGetReport(
+    { id: reportId },
+    { select: getShareAssetConfig }
+  );
+  const isEditor = canEdit(shareAssetConfig?.permission);
+
   const { onCreateFileClick, loading } = useStartChatFromAsset({
     assetId: reportId,
     assetType: 'report',
@@ -133,9 +139,10 @@ const useEditWithAI = ({ reportId }: { reportId: string }): IDropdownItem => {
         value: 'edit-with-ai',
         icon: <PenSparkle />,
         onClick: onCreateFileClick,
+        disabled: !isEditor,
         loading,
       }),
-    [reportId, onCreateFileClick, loading]
+    [reportId, onCreateFileClick, loading, isEditor]
   );
 };
 
