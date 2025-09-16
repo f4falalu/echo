@@ -33,8 +33,28 @@ export const useStartNewChat = () => {
 };
 
 export const useStopChat = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (chatId: string) => stopChat({ chatId }),
+    onSuccess: (_data, chatId) => {
+      const currentChat = queryClient.getQueryData(chatQueryKeys.chatsGetChat(chatId).queryKey);
+      if (currentChat) {
+        currentChat.message_ids.forEach((messageId) => {
+          queryClient.setQueryData(chatQueryKeys.chatsMessages(messageId).queryKey, (v) => {
+            if (v) {
+              return {
+                ...v,
+                is_completed: true,
+              };
+            }
+          });
+        });
+      }
+      queryClient.invalidateQueries({
+        queryKey: chatQueryKeys.chatsGetList().queryKey,
+        refetchType: 'all',
+      });
+    },
   });
 };
 
