@@ -1,13 +1,8 @@
 /** biome-ignore-all lint/complexity/noUselessFragments: Intersting bug when NOT using fragments */
 import { Command } from 'cmdk';
-import React, { type Component, useMemo, useRef, useState } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
-import { Mention, type MentionProps, MentionsInput, type MentionsInputProps } from 'react-mentions';
-import { useMount } from '@/hooks/useMount';
+import React from 'react';
 import { cn } from '@/lib/classMerge';
 import type { BusterInputProps } from './BusterInput.types';
-import styles from './BusterMentions.module.css';
-import { DEFAULT_MENTION_MARKUP } from './parse-input';
 
 export type BusterMentionsInputProps = Pick<
   BusterInputProps,
@@ -17,7 +12,7 @@ export type BusterMentionsInputProps = Pick<
   | 'defaultValue'
   | 'shouldFilter'
   | 'filter'
-  | 'onMentionClick'
+  | 'onMentionItemClick'
 > & {
   onChangeInputValue: (value: string) => void;
 } & React.ComponentPropsWithoutRef<typeof Command.Input>;
@@ -34,31 +29,9 @@ export const BusterMentionsInput = ({
   style,
   ...props
 }: BusterMentionsInputProps) => {
-  const ref = useRef<Component<MentionsInputProps>>(null);
-  const mentionsComponents = useFormattedMentions(mentions);
-
   return (
     <React.Fragment>
-      <MentionsInput
-        ref={ref}
-        value={value}
-        onChange={(e) => onChangeInputValue(e.target.value)}
-        placeholder={placeholder}
-        style={
-          {
-            //   control: { fontSize: 16 },
-            //   highlighter: { padding: 8, background: 'yellow' },
-            //   input: { padding: 8 },
-            //  '&multiLine': {},
-            //   '&singleLine': {},
-          }
-        }
-        className={cn('mentions')}
-        classNames={styles}
-        autoFocus
-      >
-        {mentionsComponents}
-      </MentionsInput>
+      <textarea />
 
       <Command.Input
         value={value}
@@ -69,31 +42,5 @@ export const BusterMentionsInput = ({
         {children}
       </Command.Input>
     </React.Fragment>
-  );
-};
-
-const useFormattedMentions = (mentions: BusterInputProps['mentions']) => {
-  return useMemo(
-    () =>
-      mentions?.map((mention) => {
-        const formattedItems = mention.items.map((item) => ({
-          id: String(item.value),
-          display: typeof item.label === 'string' ? item.label : String(item.value),
-        }));
-        return (
-          <Mention
-            key={mention.trigger}
-            trigger={mention.trigger}
-            markup={DEFAULT_MENTION_MARKUP}
-            data={formattedItems}
-            displayTransform={mention.displayTransform ?? ((_value, label) => `${label}`)}
-            appendSpaceOnAdd={mention.appendSpaceOnAdd ?? true}
-            renderSuggestion={(suggestion, _search, highlightedDisplay, _index, focused) => {
-              return highlightedDisplay;
-            }}
-          />
-        );
-      }) ?? <Mention trigger="" markup={DEFAULT_MENTION_MARKUP} data={[]} appendSpaceOnAdd />,
-    [mentions]
   );
 };

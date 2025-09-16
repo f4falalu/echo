@@ -13,7 +13,7 @@ export const BusterItemSelector = ({
   addValueToInput,
   closeOnSelect,
 }: {
-  item: BusterInputProps['items'][number];
+  item: BusterInputProps['suggestionItems'][number];
   onSelect: (params: BusterOnSelectParams) => void;
 } & GroupOverrideProps) => {
   if (item.type === 'separator') {
@@ -35,16 +35,16 @@ export const BusterItemSelector = ({
 };
 
 export const BusterItemsSelector = ({
-  items,
+  suggestionItems,
   onSelect,
   addValueToInput,
   closeOnSelect,
 }: {
-  items: BusterInputProps['items'];
+  suggestionItems: BusterInputProps['suggestionItems'];
   onSelect: (params: BusterOnSelectParams) => void;
 } & GroupOverrideProps) => {
-  if (!items) return null;
-  return items.map((item, index) => (
+  if (!suggestionItems) return null;
+  return suggestionItems.map((item, index) => (
     <BusterItemSelector
       key={keySelector(item, index)}
       item={item}
@@ -55,7 +55,7 @@ export const BusterItemsSelector = ({
   ));
 };
 
-const keySelector = (item: BusterInputProps['items'][number], index: number) => {
+const keySelector = (item: BusterInputProps['suggestionItems'][number], index: number) => {
   if (item.type === 'separator') return `separator${index}`;
   if (item.type === 'group') return `${item.label} + index`;
   return item.value;

@@ -1,6 +1,7 @@
 import type { Command } from 'cmdk';
 import type React from 'react';
-import type { DisplayTransformFunc } from 'react-mentions';
+import type { MentionSuggestionExtension } from '../MentionInput';
+import type { MentionTriggerItem } from '../MentionInput/MentionInput.types';
 
 /**
  * @description Override the addValueToInput and closeOnSelect props for the item based on the group props
@@ -38,11 +39,9 @@ export type BusterOnSelectParams = NonNullable<
   >
 >;
 
-export type BusterOnMentionClickParams = Pick<BusterMentionItem, 'value' | 'label'>;
-
 export type BusterInputDropdownGroup<T = string> = {
   label: string | React.ReactNode;
-  items: BusterInputDropdownItem<T>[];
+  suggestionItems: BusterInputDropdownItem<T>[];
   addValueToInput?: boolean;
   closeOnSelect?: boolean;
   type: 'group';
@@ -52,35 +51,7 @@ export type BusterInputSeperator = {
   type: 'separator';
 };
 
-export type BusterMentionItem<V = string, M = unknown> = {
-  value: V;
-  parsedValue?: string; //if this is undefined, the value will be used
-  label: string | React.ReactNode;
-  selected?: boolean;
-  meta?: M;
-};
-
-export type BusterMentionItems<T = string, V = string, M = unknown> = {
-  items: BusterMentionItem<V, M>[];
-  displayTransform?: DisplayTransformFunc;
-  style?: React.CSSProperties;
-  appendSpaceOnAdd?: boolean; //defaults to true
-  trigger: T;
-  popoverContent?: (v: BusterMentionItem<V, M>) => React.ReactNode;
-};
-
-export type BusterMentions<V = string, T extends string = string, M = unknown> = BusterMentionItems<
-  V,
-  T,
-  M
->[];
-
-export type BusterInputProps<
-  T = string,
-  TMention = string,
-  VMention extends string = string,
-  MMention = unknown,
-> = {
+export type BusterInputProps<T = string> = {
   defaultValue: string;
   value?: string;
   onChange?: (value: string) => void;
@@ -88,18 +59,24 @@ export type BusterInputProps<
   disabled?: boolean;
   onSubmit: (value: string) => void;
   onStop: () => void;
-  onItemClick?: (params: Omit<BusterOnSelectParams, 'onClick'>) => void;
-  onMentionClick?: (params: BusterMentionItem<T>) => void;
-  items: (BusterInputDropdownItem<T> | BusterInputDropdownGroup<T> | BusterInputSeperator)[];
-  mentions?: BusterMentions<TMention, VMention, MMention>;
   variant?: 'default';
   sendIcon?: React.ReactNode;
   secondaryActions?: React.ReactNode;
-  addValueToInput?: boolean; //defaults to true
-  closeOnSelect?: boolean; //defaults to true
   placeholder?: string;
   ariaLabel?: string;
   emptyComponent?: React.ReactNode | string | false; //if false, no empty component will be shown
+  //mentions
+  onMentionItemClick?: (params: MentionTriggerItem<T>) => void;
+  mentions?: MentionSuggestionExtension[];
+  //suggestions
+  suggestionItems: (
+    | BusterInputDropdownItem<T>
+    | BusterInputDropdownGroup<T>
+    | BusterInputSeperator
+  )[];
+  onSuggestionItemClick?: (params: Omit<BusterOnSelectParams, 'onClick'>) => void;
+  addSuggestionValueToInput?: boolean; //defaults to true
+  closeSuggestionOnSelect?: boolean; //defaults to true
 } & Pick<React.ComponentProps<typeof Command>, 'filter' | 'shouldFilter'>;
 
 export type BusterInputContainerProps = {

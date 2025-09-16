@@ -1,9 +1,5 @@
-import type {
-  BusterInputDropdownGroup,
-  BusterInputDropdownItem,
-  BusterMentionItem,
-  BusterMentionItems,
-} from './BusterInput.types';
+import type { MentionTriggerItem } from '../MentionInput';
+import type { BusterInputDropdownGroup, BusterInputDropdownItem } from './BusterInput.types';
 
 export const createInputItem = <T = string>() => {
   return (item: BusterInputDropdownItem<T>) => item;
@@ -21,10 +17,10 @@ export const createInputGroups = <T = string>() => {
   return (groups: BusterInputDropdownGroup<T>[]) => groups;
 };
 
-export const createInputMention = <T = string, M = unknown>() => {
-  return (mention: BusterMentionItem<T, M>) => mention;
+export const createInputMention = <T = string>() => {
+  return (mention: MentionTriggerItem<T>) => mention;
 };
 
-export const createInputMentions = <T = string, V = string, M = unknown>() => {
-  return (mentions: BusterMentionItems<T, V, M>[]) => mentions;
+export const createInputMentions = <T = string>() => {
+  return (mentions: MentionTriggerItem<T>[]) => mentions;
 };

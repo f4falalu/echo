@@ -55,11 +55,6 @@ export type MentionInputTriggerItem<T = string> =
   | MentionInputTriggerGroup<T>
   | MentionInputTriggerSeparator;
 
-export type MentionInputTrigger<T = string> = {
-  trigger: string;
-  items: MentionInputTriggerItem<T>;
-};
-
 export type MentionStylePillProps = {
   className?: string;
   style?: React.CSSProperties;
@@ -70,7 +65,25 @@ export type MentionStylePillProps = {
 export type MentionSuggestionExtension<T = string> = MentionOptions<
   MentionInputTriggerItem<T>,
   MentionPillAttributes & MentionNodeAttrs
->['suggestion'];
+>['suggestion'] & {
+  onChangeTransform?: (v: MentionPillAttributes) => string;
+};
+
+export type MentionArrayItem =
+  | {
+      type: 'text';
+      text: string;
+    }
+  | {
+      type: 'mention';
+      attrs: MentionPillAttributes;
+    };
+
+export type MentionOnChangeParams = (
+  transformedValue: string,
+  arrayValue: MentionArrayItem[],
+  rawValue: string
+) => void;
 
 declare module '@tiptap/core' {
   interface Storage {

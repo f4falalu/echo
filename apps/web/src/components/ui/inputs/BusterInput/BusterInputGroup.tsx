@@ -12,7 +12,7 @@ export type BusterInputGroupProps = BusterInputDropdownGroup & {
 };
 
 export const BusterInputGroup = ({
-  items,
+  suggestionItems,
   label,
   onSelect,
   addValueToInput,
@@ -30,7 +30,7 @@ export const BusterInputGroup = ({
       heading={label}
     >
       <BusterItemsSelector
-        items={items}
+        suggestionItems={suggestionItems}
         onSelect={onSelect}
         addValueToInput={addValueToInput}
         closeOnSelect={closeOnSelect}

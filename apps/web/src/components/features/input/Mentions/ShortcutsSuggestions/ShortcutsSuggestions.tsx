@@ -1,3 +1,5 @@
+import type { ListShortcutsResponse, Shortcut } from '@buster/server-shared/shortcuts';
+import { useMemo } from 'react';
 import { Trash } from '@/components/ui/icons';
 import PenWriting from '@/components/ui/icons/NucleoIconOutlined/pen-writing';
 import Plus from '@/components/ui/icons/NucleoIconOutlined/plus';
@@ -8,82 +10,72 @@ import {
 } from '@/components/ui/inputs/MentionInput';
 import { ShortcutPopoverContent } from './ShortcutPopoverContent';
 
-const listOfSports: MentionInputTriggerItem[] = [
-  {
-    type: 'group',
-    label: 'Sports',
-    items: [
-      {
-        value: 'Basketball',
-        label: 'Basketball with a really long label like super long',
+export const createShortcutsSuggestions = (shortcutsResponse: ListShortcutsResponse) => {
+  return useMemo(
+    () =>
+      createMentionSuggestionExtension({
+        trigger: '/',
+        items: createAllItems(shortcutsResponse),
+        popoverContent: ShortcutPopoverContent,
+      }),
+    [shortcutsResponse]
+  );
+};
+
+const createAllItems = (shortcutsResponse: ListShortcutsResponse): MentionInputTriggerItem[] => {
+  return [
+    ...shortcutsResponse.shortcuts.map(createShortcut),
+    { type: 'separator' },
+    {
+      value: 'manageShortcuts',
+      label: 'Manage shortcuts',
+      icon: <PenWriting />,
+      doNotAddPipeOnSelect: true,
+      onSelect: (props) => {
+        console.log('manageShortcuts', props);
       },
-      {
-        value: 'Soccer',
-        label: 'Soccer',
-      },
-      {
-        value: 'Tennis',
-        label: 'Tennis',
-      },
-      {
-        value: 'Baseball',
-        label: 'Baseball',
-      },
-      {
-        value: 'Hockey',
-        label: 'Hockey',
-      },
-    ].map((item) => ({
-      ...item,
-      secondaryContent: (
-        <MentionSecondaryContentDropdown
-          items={[
-            {
-              label: 'Edit',
-              icon: <PenWriting />,
-              value: 'edit',
-              onClick: () => {
-                console.log('edit');
-              },
-            },
-            {
-              label: 'Delete',
-              icon: <Trash />,
-              value: 'delete',
-              onClick: () => {
-                console.log('delete');
-              },
-            },
-          ]}
-        />
-      ),
-    })),
-  },
-  { type: 'separator' },
-  {
-    value: 'manageShortcuts',
-    label: 'Manage shortcuts',
-    icon: <PenWriting />,
-    doNotAddPipeOnSelect: true,
-    onSelect: (props) => {
-      console.log('manageShortcuts', props);
     },
-  },
-  {
-    value: 'createShortcut',
-    label: 'Create shortcut',
-    icon: <Plus />,
-    doNotAddPipeOnSelect: true as const,
+    {
+      value: 'createShortcut',
+      label: 'Create shortcut',
+      icon: <Plus />,
+      doNotAddPipeOnSelect: true as const,
+      onSelect: (props) => {
+        console.log('createShortcut', props);
+      },
+    },
+  ];
+};
+
+const createShortcut = (shortcut: Shortcut): MentionInputTriggerItem<string> => {
+  return {
+    value: shortcut.id,
+    label: shortcut.name,
+    icon: <PenWriting />,
     onSelect: (props) => {
       console.log('createShortcut', props);
     },
-  },
-];
-
-export const createShortcutsSuggestions = () => {
-  return createMentionSuggestionExtension({
-    trigger: '/',
-    items: listOfSports,
-    popoverContent: ShortcutPopoverContent,
-  });
+    secondaryContent: (
+      <MentionSecondaryContentDropdown
+        items={[
+          {
+            label: 'Edit',
+            icon: <PenWriting />,
+            value: 'edit',
+            onClick: () => {
+              console.log('edit');
+            },
+          },
+          {
+            label: 'Delete',
+            icon: <Trash />,
+            value: 'delete',
+            onClick: () => {
+              console.log('delete');
+            },
+          },
+        ]}
+      />
+    ),
+  };
 };

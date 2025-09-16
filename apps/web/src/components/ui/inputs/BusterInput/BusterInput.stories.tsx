@@ -18,7 +18,7 @@ const meta: Meta<typeof BusterInput> = {
 export default meta;
 type Story = StoryObj<typeof BusterInput>;
 
-const items: BusterInputProps['items'] = [
+const items: BusterInputProps['suggestionItems'] = [
   ...Array.from({ length: 3 }, (_, i) => ({
     label: `Item ${i + 1}`,
     value: `item${i + 1}`,
@@ -41,42 +41,42 @@ const items: BusterInputProps['items'] = [
 ];
 
 const mentions: BusterInputProps['mentions'] = [
-  {
-    trigger: '@',
-    items: [
-      {
-        value: '1',
-        label: 'BigNate',
-      },
-      {
-        value: '2',
-        label: 'ReactFan42',
-      },
-      {
-        value: '3',
-        label: 'NextJSDev',
-      },
-    ],
-  },
-  {
-    trigger: '#',
-    items: [
-      {
-        value: '1',
-        label: 'My number is 1',
-      },
-      {
-        value: '2',
-        label: 'My number is 2',
-      },
-    ],
-  },
+  // {
+  //   trigger: '@',
+  //   items: [
+  //     {
+  //       value: '1',
+  //       label: 'BigNate',
+  //     },
+  //     {
+  //       value: '2',
+  //       label: 'ReactFan42',
+  //     },
+  //     {
+  //       value: '3',
+  //       label: 'NextJSDev',
+  //     },
+  //   ],
+  // },
+  // {
+  //   trigger: '#',
+  //   items: [
+  //     {
+  //       value: '1',
+  //       label: 'My number is 1',
+  //     },
+  //     {
+  //       value: '2',
+  //       label: 'My number is 2',
+  //     },
+  //   ],
+  // },
 ];
 
 export const Default: Story = {
   args: {
     value: 'Sample text value',
-    items,
+    suggestionItems: items,
     mentions,
   },
 };

@@ -10,13 +10,9 @@ import { BusterMentionsInput } from './BusterMentionsInput';
 
 export const BusterInput = ({
   placeholder,
-  mentions,
   defaultValue,
   value: valueProp,
   emptyComponent,
-  items,
-  closeOnSelect = true,
-  addValueToInput = true,
   submitting,
   onSubmit,
   disabled: disabledGlobal = false,
@@ -25,16 +21,22 @@ export const BusterInput = ({
   secondaryActions,
   variant = 'default',
   onChange,
-  onItemClick,
   ariaLabel = 'Buster Input',
-  shouldFilter,
-  onMentionClick,
+  //suggestions
+  suggestionItems,
+  closeSuggestionOnSelect = true,
+  addSuggestionValueToInput = true,
+  onSuggestionItemClick,
   filter,
+  shouldFilter,
+  //mentions
+  onMentionItemClick,
+  mentions,
 }: BusterInputProps) => {
   const [hasClickedSelect, setHasClickedSelect] = useState(false);
   const [value, setValue] = useState(valueProp ?? defaultValue);
 
-  const showList = !hasClickedSelect && items.length > 0;
+  const showSuggestionList = !hasClickedSelect && suggestionItems.length > 0;
 
   const onChangeInputValue = useCallback((value: string) => {
     setValue(value);
@@ -58,8 +60,8 @@ export const BusterInput = ({
     }
     if (addValueToInput) setValue(inputValue ?? String(label));
     onClick?.();
-    if (closeOnSelect) setHasClickedSelect(true);
-    onItemClick?.(params);
+    if (closeSuggestionOnSelect) setHasClickedSelect(true);
+    onSuggestionItemClick?.(params);
   });
 
   const onSubmitPreflight = useMemoizedFn((value: string) => {
@@ -99,15 +101,15 @@ export const BusterInput = ({
           onChangeInputValue={onChangeInputValue}
           shouldFilter={shouldFilter}
           filter={filter}
-          onMentionClick={onMentionClick}
+          onMentionItemClick={onMentionItemClick}
         />
       </BusterInputContainer>
-      <BusterInputList show={showList}>
+      <BusterInputList show={showSuggestionList}>
         <BusterItemsSelector
-          items={items}
+          suggestionItems={suggestionItems}
           onSelect={onSelectItem}
-          addValueToInput={addValueToInput}
-          closeOnSelect={closeOnSelect}
+          addValueToInput={addSuggestionValueToInput}
+          closeOnSelect={closeSuggestionOnSelect}
         />
         {emptyComponent && <BusterInputEmpty>{emptyComponent}</BusterInputEmpty>}
       </BusterInputList>
