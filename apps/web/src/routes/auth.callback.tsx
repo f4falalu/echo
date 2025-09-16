@@ -41,37 +41,61 @@ export const ServerRoute = createServerFileRoute('/auth/callback').methods({
       console.error('No next URL found');
     }
 
-    const supabase = await getSupabaseServerClient();
+    try {
+      const supabase = getSupabaseServerClient();
 
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+      // Wrap the auth operation to catch any async errors
+      const { error } = await supabase.auth.exchangeCodeForSession(code).catch((authError) => {
+        // Handle headers already sent errors gracefully
+        if (authError instanceof Error && authError.message.includes('ERR_HTTP_HEADERS_SENT')) {
+          console.warn('Headers already sent during code exchange, proceeding with redirect');
+          return { error: null };
+        }
+        // Return error for other cases
+        return { error: authError };
+      });
 
-    if (error) {
-      console.error('Error exchanging code for session', error);
-      return new Response('Error exchanging code for session', { status: 500 });
-    }
+      if (error) {
+        console.error('Error exchanging code for session', error);
+        return new Response('Error exchanging code for session', { status: 500 });
+      }
 
-    const forwardedHost = request.headers.get('x-forwarded-host');
-    const origin = request.headers.get('origin') || env.VITE_PUBLIC_URL || '';
-    const isLocalEnv = import.meta.env.DEV;
+      const forwardedHost = request.headers.get('x-forwarded-host');
+      const origin = request.headers.get('origin') || env.VITE_PUBLIC_URL || '';
+      const isLocalEnv = import.meta.env.DEV;
 
-    if (isLocalEnv) {
-      const redirectPath = next?.startsWith('/') ? next : AppHomeRoute.to || '/app/home';
+      if (isLocalEnv) {
+        const redirectPath = next?.startsWith('/') ? next : AppHomeRoute.to || '/app/home';
+        return new Response(null, {
+          status: 302,
+          headers: { Location: `${origin}${redirectPath}` },
+        });
+      }
+
+      if (forwardedHost) {
+        return new Response(null, {
+          status: 302,
+          headers: { Location: `https://${forwardedHost}${next}` },
+        });
+      }
+
       return new Response(null, {
         status: 302,
-        headers: { Location: `${origin}${redirectPath}` },
+        headers: { Location: `${origin}${next}` },
       });
+    } catch (error) {
+      // Final catch-all for any unhandled errors
+      if (error instanceof Error && error.message.includes('ERR_HTTP_HEADERS_SENT')) {
+        console.warn('Headers already sent in auth callback, attempting redirect anyway');
+        // Try to redirect anyway since the auth might have succeeded
+        const origin = request.headers.get('origin') || env.VITE_PUBLIC_URL || '';
+        return new Response(null, {
+          status: 302,
+          headers: { Location: `${origin}${next}` },
+        });
+      }
+      console.error('Unexpected error in auth callback:', error);
+      return new Response('Internal server error', { status: 500 });
     }
-
-    if (forwardedHost) {
-      return new Response(null, {
-        status: 302,
-        headers: { Location: `https://${forwardedHost}${next}` },
-      });
-    }
-
-    return new Response(null, {
-      status: 302,
-      headers: { Location: `${origin}${next}` },
-    });
   },
 });
