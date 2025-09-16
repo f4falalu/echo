@@ -29,5 +29,5 @@
   text-align: right;
   color: var(--color-text-tertiary);
   user-select: none;
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-family: "Consolas", "Monaco", "Courier New", monospace;
 }

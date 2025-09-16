@@ -21,12 +21,12 @@ describe('parseMarkupInput', () => {
     },
   ];
 
-  const mockItemsRecord = {
-    '@': {
+  const mockItemsRecord = [
+    {
       items: mockItems,
       trigger: '@' as const,
     },
-  };
+  ];
 
   it('should replace mention markup with parsedValue when available', () => {
     const input = 'Hello @[BigNate](1) how are you?';
