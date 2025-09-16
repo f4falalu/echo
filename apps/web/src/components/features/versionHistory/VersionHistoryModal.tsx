@@ -77,16 +77,17 @@ export const VersionHistoryModal = ({
         <AppPageLayout
           headerBorderVariant="default"
           header={<Text>{title}</Text>}
-          headerClassName="bg-panel-background"
+          headerClassName="bg-page-background"
+          mainClassName="bg-panel-background"
         >
           {open && children}
         </AppPageLayout>
         <AppPageLayout
           headerBorderVariant="ghost"
           className="border-l"
-          headerClassName="bg-panel-background"
+          headerClassName="bg-page-background"
           scrollable
-          mainClassName="bg-panel-background relative"
+          mainClassName="bg-page-background relative"
           header={
             <div className="flex w-full items-center justify-between gap-x-2.5">
               <Text>Version history</Text>

@@ -20,6 +20,8 @@ describe('useY2Axis', () => {
     y2AxisShowAxisLabel: true,
     y2AxisStartAxisAtZero: true,
     y2AxisScaleType: 'linear' as const,
+    columnMetadata: [],
+    columnSettings: {},
   } as Parameters<typeof useY2Axis>[0];
 
   it('should return undefined display when chart type is not Combo', () => {

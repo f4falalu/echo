@@ -34,7 +34,13 @@ const BusterListRowComponentSelectorInner = React.forwardRef(
 
     if (row.rowSection) {
       return (
-        <BusterListSectionComponent rowSection={row.rowSection} ref={ref} key={row.id} {...rest} />
+        <BusterListSectionComponent
+          rowSection={row.rowSection}
+          ref={ref}
+          key={row.id}
+          selectedRowKeys={selectedRowKeys}
+          {...rest}
+        />
       );
     }
 

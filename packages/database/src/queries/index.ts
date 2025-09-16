@@ -1,7 +1,7 @@
 export * from './api-keys';
 export * from './messages';
 export * from './users';
-export * from './dataSources';
+export * from './data-sources';
 export * from './datasets';
 export * from './assets';
 export * from './asset-permissions';
@@ -19,3 +19,5 @@ export * from './vault';
 export * from './cascading-permissions';
 export * from './github-integrations';
 export * from './shortcuts';
+export * from './search';
+export * from './metrics-to-reports';

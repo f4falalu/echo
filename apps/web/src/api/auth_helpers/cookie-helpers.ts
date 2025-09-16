@@ -1,32 +1,4 @@
-import { parse } from '@supabase/ssr';
-import { parseCookies } from '@tanstack/react-start/server';
-import { jwtDecode } from 'jwt-decode';
-import { getExpiresAtMilliseconds } from './expiration-helpers';
-
-export const checkTokenValidityFromToken = (token: string | undefined) => {
-  const decoded = decodeJwtToken(token);
-};
-
-export const decodeJwtToken = (token: string | undefined) => {
-  try {
-    const decoded = jwtDecode(token || '');
-    return decoded as { exp?: number };
-  } catch {
-    console.error('Error decoding token', token);
-    return null;
-  }
-};
-
-export const getExpiresAtFromToken = (token: string | undefined) => {
-  try {
-    const expiresAtDecoded = decodeJwtToken(token)?.exp ?? 0;
-    return getExpiresAtMilliseconds(expiresAtDecoded);
-  } catch {
-    console.error('Error decoding token', token);
-    // If token is missing/invalid, report that it is effectively expired now
-    return 0;
-  }
-};
+let supabaseCookieName = '';
 
 function parseJwt(payload: string) {
   // Remove the prefix if present
@@ -44,19 +16,43 @@ function parseJwt(payload: string) {
   return JSON.parse(jsonStr);
 }
 
-export const getSupabaseCookie = () => {
-  const supabaseCookieRaw = Object.entries(parseCookies()).find(
-    ([name]) => name.startsWith('sb-') && name.endsWith('-auth-token')
-  )?.[1];
-  if (!supabaseCookieRaw) {
-    return '';
-  }
+export const getSupabaseCookieClient = async () => {
+  const supabaseCookieRaw = await getSupabaseCookieRawClient();
 
-  try {
-    const decodedCookie = parseJwt(supabaseCookieRaw);
-  } catch (error) {
-    console.error('nope');
-  }
+  const decodedCookie = parseJwt(supabaseCookieRaw || '') as {
+    access_token: string;
+    expires_at: number;
+    expires_in: number;
+    token_type: 'bearer';
+    user: {
+      id: string;
+      is_anonymous: boolean;
+      email: string;
+    };
+  };
 
-  return '';
+  return decodedCookie;
 };
+
+function listAllCookies() {
+  return Object.fromEntries(
+    document.cookie.split('; ').map((cookieStr) => {
+      const [name, ...rest] = cookieStr.split('=');
+      return [name, rest.join('=')];
+    })
+  );
+}
+
+async function getSupabaseCookieRawClient() {
+  const getCookieByKey = (d: [string, string][]) => {
+    const cookie = d.find(([name]) => name.startsWith('sb-') && name.endsWith('-auth-token'));
+    supabaseCookieName = cookie?.[0] || '';
+    return cookie?.[1];
+  };
+
+  if (supabaseCookieName) {
+    const Cookies = await import('js-cookie').then((m) => m.default);
+    return Cookies.get(supabaseCookieName);
+  }
+  return getCookieByKey(Object.entries(listAllCookies()));
+}

@@ -56,7 +56,7 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
   if (!hasChat || !reasoningMessageIds) return <FileIndeterminateLoader />;
 
   return (
-    <>
+    <ClientOnly>
       <ScrollArea viewportRef={viewportRef} className="h-full">
         <div
           className={cn(
@@ -89,6 +89,6 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
           scrollToBottom={scrollToBottom}
         />
       )}
-    </>
+    </ClientOnly>
   );
 };

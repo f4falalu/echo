@@ -66,8 +66,10 @@ export const AppPageLayout: React.FC<React.PropsWithChildren<AppPageLayoutProps>
         id={contentContainerId}
       >
         <div
+          data-testid="scroll-shadow-bar"
           className={cn(
-            'pointer-events-none top-[0px] scroll-header z-10 right-0 left-0 h-[0.5px] w-full sticky bg-border transition-colors duration-300',
+            'pointer-events-none top-[0px]  z-10 right-0 left-0 h-[0.5px] w-full sticky bg-border transition-colors duration-300',
+            isGhostBorder && 'scroll-header',
             !scrollable && isGhostBorder && 'bg-transparent'
           )}
         />

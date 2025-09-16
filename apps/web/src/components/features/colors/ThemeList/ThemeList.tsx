@@ -3,7 +3,6 @@ import { Text } from '@/components/ui/typography';
 import { cn } from '@/lib/classMerge';
 import { Button } from '../../../ui/buttons';
 import { Dots } from '../../../ui/icons';
-import { Popover } from '../../../ui/popover';
 import type { IColorPalette } from './interfaces';
 import { ThemeColorDots } from './ThemeColorDots';
 

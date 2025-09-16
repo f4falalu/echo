@@ -18,7 +18,6 @@ export const ReportAssetContainer: React.FC<{
           return (
             <React.Fragment>
               <AssetContainer
-                headerBorderVariant={'ghost'}
                 scrollable
                 header={
                   <ReportAssetHeader

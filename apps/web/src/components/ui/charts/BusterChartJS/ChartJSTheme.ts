@@ -35,24 +35,6 @@ import './core/plugins/chartjs-scale-tick-duplicate';
 import './core/plugins/chartjs-plugin-trendlines';
 import { timeout } from '@/lib/timeout';
 
-export const DEFAULT_CHART_LAYOUT = {
-  autoPadding: true,
-  padding: {
-    top: 14,
-    bottom: 4,
-    left: 10,
-    right: 10,
-  },
-};
-
-const chartJSThemefontFamily = isServer
-  ? 'Roobert_Pro'
-  : getComputedStyle(document.documentElement).getPropertyValue('--font-sans');
-const chartJSThemecolor = isServer
-  ? '#575859'
-  : getComputedStyle(document.documentElement).getPropertyValue('--color-text-secondary');
-const chartJSThemebackgroundColor = isServer ? '#ffffff' : 'transparent'; //used to be white but the report selected state made it weird
-
 ChartJS.register(
   LineController,
   BarController,
@@ -83,6 +65,24 @@ ChartJS.register(
   ChartDataLabels,
   ChartTrendlinePlugin
 );
+
+export const DEFAULT_CHART_LAYOUT = {
+  autoPadding: true,
+  padding: {
+    top: 14,
+    bottom: 4,
+    left: 10,
+    right: 10,
+  },
+};
+
+const chartJSThemefontFamily = isServer
+  ? 'Roobert_Pro'
+  : getComputedStyle(document.documentElement).getPropertyValue('--font-sans');
+const chartJSThemecolor = isServer
+  ? '#575859'
+  : getComputedStyle(document.documentElement).getPropertyValue('--color-text-secondary');
+const chartJSThemebackgroundColor = isServer ? '#ffffff' : 'transparent'; //used to be white but the report selected state made it weird
 
 ChartJS.defaults.responsive = true;
 ChartJS.defaults.clip = false;

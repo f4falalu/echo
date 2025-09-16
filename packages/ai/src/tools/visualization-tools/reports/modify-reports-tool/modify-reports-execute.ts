@@ -1,10 +1,19 @@
-import { batchUpdateReport, db, reportFiles, updateMessageEntries } from '@buster/database';
+import {
+  batchUpdateReport,
+  db,
+  reportFiles,
+  updateMessageEntries,
+  updateMetricsToReports,
+} from '@buster/database';
 import type { ChatMessageResponseMessage } from '@buster/server-shared/chats';
 import { wrapTraced } from 'braintrust';
 import { and, eq, isNull } from 'drizzle-orm';
 import { createRawToolResultEntry } from '../../../shared/create-raw-llm-tool-result-entry';
 import { trackFileAssociations } from '../../file-tracking-helper';
-import { extractAndCacheMetricsWithUserContext } from '../helpers/metric-extraction';
+import {
+  extractAndCacheMetricsWithUserContext,
+  extractMetricIds,
+} from '../helpers/metric-extraction';
 import { shouldIncrementVersion, updateVersionHistory } from '../helpers/report-version-helper';
 import { updateCachedSnapshot } from '../report-snapshot-cache';
 import {
@@ -168,6 +177,28 @@ async function processEditOperations(
 
     // Update cache with the modified content for future operations
     updateCachedSnapshot(reportId, currentContent, newVersionHistory);
+
+    const metricIds = extractMetricIds(currentContent);
+
+    console.info('[modify-reports] Updating metrics to reports', {
+      reportId,
+      metricIds,
+    });
+
+    await updateMetricsToReports({
+      reportId,
+      metricIds,
+    });
+
+    if (messageId) {
+      await trackFileAssociations({
+        messageId,
+        files: {
+          id: reportId,
+          version: newVersionNumber,
+        },
+      });
+    }
 
     return {
       success: true,

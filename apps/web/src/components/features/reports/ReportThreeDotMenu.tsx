@@ -409,6 +409,7 @@ const useDuplicateReportSelectMenu = ({ reportId }: { reportId: string }): IDrop
       icon: <DuplicatePlus />,
       onClick: () => {
         console.log('Duplicate report');
+        alert('This feature is not available yet');
       },
     }),
     [reportId]

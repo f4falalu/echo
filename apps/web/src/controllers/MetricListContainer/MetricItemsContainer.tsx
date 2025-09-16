@@ -34,36 +34,18 @@ export const MetricItemsContainer: React.FC<{
 
   const metricsByDate: BusterListRowItem<BusterMetricListItem>[] = useMemo(() => {
     const createMetricLinkItem = createListItem<BusterMetricListItem>();
-    return Object.entries(logsRecord).flatMap<BusterListRowItem<BusterMetricListItem>>(
-      ([key, metrics]) => {
-        const records = metrics.map((metric) =>
-          createMetricLinkItem({
-            id: metric.id,
-            data: metric,
-            link: {
-              to: '/app/metrics/$metricId',
-              params: {
-                metricId: metric.id,
-              },
-            },
-          })
-        ) as BusterListRowItem<BusterMetricListItem>[];
-        const hasRecords = records.length > 0;
-        if (!hasRecords) {
-          return [];
-        }
-        return [
-          createMetricLinkItem({
-            id: key,
-            data: null,
-            rowSection: {
-              title: makeHumanReadble(key),
-              secondaryTitle: String(records.length),
-            },
-          }),
-          ...records,
-        ];
-      }
+
+    return metrics.map((metric) =>
+      createMetricLinkItem({
+        id: metric.id,
+        data: metric,
+        link: {
+          to: '/app/metrics/$metricId',
+          params: {
+            metricId: metric.id,
+          },
+        },
+      })
     );
   }, [logsRecord]);
 
@@ -125,6 +107,7 @@ export const MetricItemsContainer: React.FC<{
         onSelectChange={onSelectChange}
         selectedRowKeys={selectedRowKeys}
         emptyState={useMemo(() => <EmptyState loading={loading} />, [loading])}
+        showSelectAll={false}
       />
 
       <MetricSelectedOptionPopup

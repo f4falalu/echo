@@ -52,8 +52,8 @@
   --success-foreground: #34a32d;
 
   /* Component colors */
-  --panel-background: #fcfcfc;
-  --page-background: #ffffff;
+  --panel-background: #ffffff;
+  --page-background: #fcfcfc;
   --item-hover: #f8f8f8;
   --item-hover-active: #f0f0f0;
   --item-active: #f2f2f2;

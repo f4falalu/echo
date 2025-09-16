@@ -2,6 +2,7 @@ import type React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { cn } from '@/lib/classMerge';
+import '../animation-common/animations.css'; // Ensure CSS is loaded
 import type { MarkdownAnimation } from '../animation-common';
 import styles from './AnimatedMarkdown.module.css';
 import { useMarkdownComponents } from './useMarkdownComponents';

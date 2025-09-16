@@ -30,10 +30,13 @@
   },
   "dependencies": {
     "@buster/database": "workspace:*",
+    "@buster/data-source": "workspace:*",
     "@buster/env-utils": "workspace:*",
     "@buster/typescript-config": "workspace:*",
     "@buster/vitest-config": "workspace:*",
     "lru-cache": "^11.1.0",
+    "node-sql-parser": "^5.3.12",
+    "yaml": "^2.8.1",
     "zod": "catalog:",
     "uuid": "catalog:",
     "drizzle-orm": "catalog:"

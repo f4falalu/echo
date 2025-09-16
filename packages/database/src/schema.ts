@@ -52,6 +52,7 @@ export const assetTypeEnum = pgEnum('asset_type_enum', [
   'source',
   'collection_file',
   'dataset_permission',
+  'message',
 ]);
 // Asset type enum removed - now using text for all asset_type columns
 export const dataSourceOnboardingStatusEnum = pgEnum('data_source_onboarding_status_enum', [
@@ -1747,6 +1748,55 @@ export const metricFilesToDashboardFiles = pgTable(
   ]
 );
 
+export const metricFilesToReportFiles = pgTable(
+  'metric_files_to_report_files',
+  {
+    metricFileId: uuid('metric_file_id').notNull(),
+    reportFileId: uuid('report_file_id').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
+    createdBy: uuid('created_by').notNull(),
+  },
+  (table) => [
+    index('metric_files_to_report_files_report_id_idx').using(
+      'btree',
+      table.reportFileId.asc().nullsLast().op('uuid_ops')
+    ),
+    index('metric_files_to_report_files_deleted_at_idx').using(
+      'btree',
+      table.deletedAt.asc().nullsLast().op('timestamptz_ops')
+    ),
+    index('metric_files_to_report_files_metric_id_idx').using(
+      'btree',
+      table.metricFileId.asc().nullsLast().op('uuid_ops')
+    ),
+    foreignKey({
+      columns: [table.metricFileId],
+      foreignColumns: [metricFiles.id],
+      name: 'metric_files_to_report_files_metric_file_id_fkey',
+    }),
+    foreignKey({
+      columns: [table.reportFileId],
+      foreignColumns: [reportFiles.id],
+      name: 'metric_files_to_report_files_report_file_id_fkey',
+    }),
+    foreignKey({
+      columns: [table.createdBy],
+      foreignColumns: [users.id],
+      name: 'metric_files_to_report_files_created_by_fkey',
+    }).onUpdate('cascade'),
+    primaryKey({
+      columns: [table.metricFileId, table.reportFileId],
+      name: 'metric_files_to_report_files_pkey',
+    }),
+  ]
+);
+
 export const collectionsToAssets = pgTable(
   'collections_to_assets',
   {
@@ -2392,5 +2442,35 @@ export const docs = pgTable(
       name: 'docs_organization_id_fkey',
     }).onDelete('cascade'),
     unique('docs_name_organization_id_key').on(table.name, table.organizationId),
+  ]
+);
+
+export const textSearch = pgTable(
+  'text_search',
+  {
+    id: uuid().defaultRandom().primaryKey().notNull(),
+    assetType: assetTypeEnum('asset_type').notNull(),
+    assetId: uuid('asset_id').notNull(),
+    organizationId: uuid('organization_id').notNull(),
+    searchableText: text('searchable_text').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.organizationId],
+      foreignColumns: [organizations.id],
+      name: 'text_search_organization_id_fkey',
+    }).onDelete('cascade'),
+    index('pgroonga_search_text_index').using(
+      'pgroonga',
+      table.searchableText.asc().nullsLast().op('pgroonga_text_full_text_search_ops_v2')
+    ),
+    unique('text_search_asset_type_asset_id_unique').on(table.assetId, table.assetType),
   ]
 );

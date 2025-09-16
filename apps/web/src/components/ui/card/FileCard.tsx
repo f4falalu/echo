@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useHotkeys } from 'react-hotkeys-hook';
 import { ChevronExpandY } from '@/components/ui/icons';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { cn } from '@/lib/classMerge';
@@ -22,7 +23,7 @@ interface FileCardProps {
   headerWrapper?: React.ComponentType<{ children: React.ReactNode }>;
 }
 
-const MIN_COLLAPSIBLE_HEIGHT = 275;
+const MIN_COLLAPSIBLE_HEIGHT = 250;
 
 export const FileCard = React.memo(
   ({
@@ -163,7 +164,7 @@ const CollapseContent = React.memo(
     const collapsedHeight = useMemo(() => {
       if (!fullHeight) return 32; // fallback
       const sixtyFivePercent = Math.floor(fullHeight * 0.65);
-      return Math.min(sixtyFivePercent, 200);
+      return Math.min(sixtyFivePercent, MIN_COLLAPSIBLE_HEIGHT);
     }, [fullHeight]);
 
     // Check if content is too small to warrant collapsing (for overlay-peek only)
@@ -176,15 +177,63 @@ const CollapseContent = React.memo(
     // Measure content height when it changes
     useEffect(() => {
       if (collapsible === 'overlay-peek' && contentRef.current) {
-        const resizeObserver = new ResizeObserver(() => {
-          if (contentRef.current) {
-            setFullHeight(contentRef.current.scrollHeight);
+        const element = contentRef.current;
+        let rafId: number | null = null;
+        let lastHeight = 0;
+
+        const updateHeight = () => {
+          if (element) {
+            const newHeight = element.scrollHeight;
+            // Only update if height actually changed
+            if (newHeight !== lastHeight) {
+              lastHeight = newHeight;
+              setFullHeight(newHeight);
+            }
+          }
+        };
+
+        const scheduleUpdate = () => {
+          if (rafId) return; // Already scheduled
+          rafId = requestAnimationFrame(() => {
+            rafId = null;
+            updateHeight();
+          });
+        };
+
+        const resizeObserver = new ResizeObserver(scheduleUpdate);
+
+        // Only observe mutations that could affect height, not all DOM changes
+        const mutationObserver = new MutationObserver((mutations) => {
+          // Check if any mutation might affect height
+          const hasRelevantMutation = mutations.some((mutation) => {
+            if (
+              mutation.type === 'childList' &&
+              (mutation.addedNodes.length || mutation.removedNodes.length)
+            ) {
+              return true;
+            }
+            if (mutation.type === 'attributes') {
+              const attrName = mutation.attributeName;
+              return attrName === 'style' || attrName === 'class';
+            }
+            return false;
+          });
+
+          if (hasRelevantMutation) {
+            scheduleUpdate();
           }
         });
 
-        resizeObserver.observe(contentRef.current);
+        resizeObserver.observe(element);
+        mutationObserver.observe(element, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: ['style', 'class'],
+        });
+
         // Initial measurement
-        setFullHeight(contentRef.current.scrollHeight);
+        updateHeight();
 
         if (isInitialMount) {
           setTimeout(() => {
@@ -192,9 +241,15 @@ const CollapseContent = React.memo(
           }, 220);
         }
 
-        return () => resizeObserver.disconnect();
+        return () => {
+          if (rafId) {
+            cancelAnimationFrame(rafId);
+          }
+          resizeObserver.disconnect();
+          mutationObserver.disconnect();
+        };
       }
-    }, [collapsible]);
+    }, [collapsible, children]);
 
     const ExpandButton =
       collapsible === 'overlay-peek' && !isTooSmallToCollapse ? (
@@ -210,7 +265,7 @@ const CollapseContent = React.memo(
       ) : null;
 
     const ContentWrapper = (
-      <div ref={contentRef} className="w-full">
+      <div ref={contentRef} data-testid="collapse-content-wrapper" className="w-full">
         {children}
       </div>
     );
@@ -219,7 +274,17 @@ const CollapseContent = React.memo(
     if (collapsible === 'overlay-peek') {
       // If content is too small, just render it without collapse functionality
       if (isTooSmallToCollapse) {
-        return <div className="relative overflow-hidden">{ContentWrapper}</div>;
+        return (
+          <div
+            data-testid="collapse-content-wrapper-small"
+            className="relative overflow-y-auto"
+            style={{
+              maxHeight: MIN_COLLAPSIBLE_HEIGHT,
+            }}
+          >
+            {ContentWrapper}
+          </div>
+        );
       }
 
       // Normal overlay-peek behavior for larger content
@@ -263,7 +328,7 @@ const CollapseContent = React.memo(
               duration: 0.2,
               ease: 'easeInOut',
             }}
-            className="group relative overflow-hidden"
+            className={'group relative overflow-hidden'}
             data-testid="collapse-content"
           >
             {children}

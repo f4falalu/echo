@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "catalog:",
-    "@aws-sdk/s3-request-presigner": "^3.864.0",
+    "@aws-sdk/s3-request-presigner": "catalog:",
     "@buster/database": "workspace:*",
     "@buster/env-utils": "workspace:*",
     "@buster/server-shared": "workspace:*",
