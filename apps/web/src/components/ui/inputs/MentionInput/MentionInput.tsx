@@ -5,10 +5,11 @@ import Text from '@tiptap/extension-text';
 import { EditorContent, EditorContext, useEditor } from '@tiptap/react';
 import { useMemo } from 'react';
 import { MentionExtension } from './MentionExtension';
+import type { MentionSuggestionExtension } from './MentionInput.types';
 
-export const MentionInput = () => {
+export const MentionInput = ({ suggestions }: { suggestions: MentionSuggestionExtension[] }) => {
   const editor = useEditor({
-    extensions: [Document, Paragraph, Text, MentionExtension],
+    extensions: [Document, Paragraph, Text, MentionExtension(suggestions)],
     content: '',
     autofocus: true,
     editorProps: {

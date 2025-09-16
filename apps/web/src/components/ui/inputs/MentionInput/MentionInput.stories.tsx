@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { testSuggestions } from '@/components/features/input/Mentions/TestSuggests';
 import { MentionInput } from './MentionInput';
 
 const meta = {
@@ -23,7 +24,9 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  args: {
+    suggestions: [testSuggestions()],
+  },
   parameters: {
     docs: {
       description: {

@@ -1,5 +1,8 @@
-import { createMentionSuggestionExtension } from './createMentionSuggestionOption';
-import type { MentionInputTriggerItem, MentionOnSelectParams } from './MentionInput.types';
+import { createMentionSuggestionExtension } from '@/components/ui/inputs/MentionInput';
+import type {
+  MentionInputTriggerItem,
+  MentionOnSelectParams,
+} from '../../../ui/inputs/MentionInput/MentionInput.types';
 
 // Store items with popover content
 const mentionItems: MentionInputTriggerItem[] = [

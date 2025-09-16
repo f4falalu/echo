@@ -1,3 +1,4 @@
+import { Trash } from '@/components/ui/icons';
 import PenWriting from '@/components/ui/icons/NucleoIconOutlined/pen-writing';
 import Plus from '@/components/ui/icons/NucleoIconOutlined/plus';
 import { createMentionSuggestionExtension } from '../createMentionSuggestionOption';
@@ -12,7 +13,7 @@ const listOfSports: MentionInputTriggerItem[] = [
     items: [
       {
         value: 'Basketball',
-        label: 'Basketball',
+        label: 'Basketball with a really long label like super long',
       },
       {
         value: 'Soccer',
@@ -37,6 +38,7 @@ const listOfSports: MentionInputTriggerItem[] = [
           items={[
             {
               label: 'Edit',
+              icon: <PenWriting />,
               value: 'edit',
               onClick: () => {
                 console.log('edit');
@@ -44,6 +46,7 @@ const listOfSports: MentionInputTriggerItem[] = [
             },
             {
               label: 'Delete',
+              icon: <Trash />,
               value: 'delete',
               onClick: () => {
                 console.log('delete');
@@ -57,7 +60,7 @@ const listOfSports: MentionInputTriggerItem[] = [
   { type: 'separator' },
   {
     value: 'manageShortcuts',
-    label: 'Manage Shortcuts',
+    label: 'Manage shortcuts',
     icon: <PenWriting />,
     doNotAddPipeOnSelect: true,
     onSelect: (props) => {
@@ -66,7 +69,7 @@ const listOfSports: MentionInputTriggerItem[] = [
   },
   {
     value: 'createShortcut',
-    label: 'Create Shortcut',
+    label: 'Create shortcut',
     icon: <Plus />,
     doNotAddPipeOnSelect: true as const,
     onSelect: (props) => {

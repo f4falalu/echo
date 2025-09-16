@@ -97,7 +97,7 @@ function MentionListInner<T = string>(
   }));
 
   return (
-    <div className="flex flex-col p-1 bg-background rounded border w-full min-w-[200px]">
+    <div className="flex flex-col p-1 bg-background rounded border w-full min-w-[200px] max-w-[280px] overflow-hidden">
       {items.length ? (
         items.map((item, index: number) => (
           <MentionListSelector<T>
