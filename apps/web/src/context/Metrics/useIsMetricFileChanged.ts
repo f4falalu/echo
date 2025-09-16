@@ -14,7 +14,7 @@ export const useIsMetricFileChanged = ({
   useAssetNavigationBlocker({
     isFileChanged,
     onResetToOriginal,
-    enableBlocker: enabled,
+    enableBlocker: isFileChanged && enabled,
     assetType: 'metric',
   });
 

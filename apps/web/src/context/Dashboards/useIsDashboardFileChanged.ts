@@ -17,7 +17,7 @@ export const useIsDashboardFileChanged = ({
   useAssetNavigationBlocker({
     isFileChanged,
     onResetToOriginal: onResetToOriginal,
-    enableBlocker: enabled,
+    enableBlocker: isFileChanged && enabled,
     assetType: 'dashboard',
   });
 
