@@ -28,6 +28,16 @@ export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = Reac
       if (file_type === 'dashboard') {
         return ChatResponseMessage_DashboardFile;
       }
+      if (file_type === 'report') {
+        return ChatResponseMessage_StandardFile;
+      }
+      if (file_type === 'metric') {
+        return ChatResponseMessage_StandardFile;
+      }
+      if (file_type === 'reasoning') {
+        return ChatResponseMessage_StandardFile;
+      }
+      const _exhaustiveCheck: never = file_type;
       return ChatResponseMessage_StandardFile;
     }, [file_type]);
 
