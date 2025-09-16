@@ -2,6 +2,7 @@ import { and, eq, isNull } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
 import {
+  assetPermissionRoleEnum,
   assetPermissions,
   collections,
   collectionsToAssets,
@@ -14,6 +15,7 @@ import { getOrganizationMemberCount, getUserOrganizationId } from '../organizati
 export const GetReportInputSchema = z.object({
   reportId: z.string().uuid('Report ID must be a valid UUID'),
   userId: z.string().uuid('User ID must be a valid UUID'),
+  permissionRole: z.enum(assetPermissionRoleEnum.enumValues).optional(),
 });
 
 type GetReportInput = z.infer<typeof GetReportInputSchema>;
@@ -21,7 +23,7 @@ type GetReportInput = z.infer<typeof GetReportInputSchema>;
 export async function getReport(input: GetReportInput) {
   const validated = GetReportInputSchema.parse(input);
 
-  const { reportId, userId } = validated;
+  const { reportId, userId, permissionRole } = validated;
 
   const userOrg = await getUserOrganizationId(userId);
 
@@ -144,7 +146,7 @@ export async function getReport(input: GetReportInput) {
     versions: versionHistoryArray,
     collections: reportCollectionsResult,
     individual_permissions: individualPermissionsResult,
-    permission: userPermission ?? 'can_view',
+    permission: permissionRole ? permissionRole : (userPermission ?? 'can_view'),
     workspace_member_count: workspaceMemberCount,
   };
 
