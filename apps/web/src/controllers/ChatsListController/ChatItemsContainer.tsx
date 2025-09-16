@@ -138,6 +138,7 @@ export const ChatItemsContainer: React.FC<{
         onSelectChange={onSelectChange}
         selectedRowKeys={selectedRowKeys}
         emptyState={useMemo(() => <EmptyState loading={loading} type={type} />, [loading, type])}
+        showSelectAll={false}
       />
 
       <ChatSelectedOptionPopup

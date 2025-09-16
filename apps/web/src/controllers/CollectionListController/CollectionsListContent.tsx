@@ -99,9 +99,9 @@ const CollectionList: React.FC<{
 }> = React.memo(({ collectionsList, setOpenNewCollectionModal, loadedCollections }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
 
-  const createCollectionLinkItem = createListItem<BusterCollectionListItem>();
-
   const collections: BusterListRowItem<BusterCollectionListItem>[] = useMemo(() => {
+    const createCollectionLinkItem = createListItem<BusterCollectionListItem>();
+
     return collectionsList.map((collection) => {
       return createCollectionLinkItem({
         id: collection.id,
