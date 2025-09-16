@@ -18,8 +18,6 @@ export const useSignOut = () => {
       } catch (error) {
         console.error('Error clearing browser storage', error);
       }
-    } catch (error) {
-      console.error('Error signing out', error);
     } finally {
       navigate({ to: '/auth/login' });
     }
