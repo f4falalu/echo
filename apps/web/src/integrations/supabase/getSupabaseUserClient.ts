@@ -49,6 +49,7 @@ const getClientSupabaseSessionFast = async () => {
     }
   } catch (error) {
     //fail silently
+    console.error('error in getClientSupabaseSessionFast', error);
   }
 
   return await supabase.auth.getSession(); //100ms on server, that's why we're using the cookie instead.
@@ -74,7 +75,7 @@ async function getSupbaseUserFastClient() {
       };
     }
   } catch (error) {
-    //fail silently
+    console.error('error in getSupbaseUserFastClient', error);
   }
 
   return await supabase.auth.getUser();
