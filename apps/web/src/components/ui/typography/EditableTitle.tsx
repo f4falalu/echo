@@ -6,9 +6,9 @@ import { Input } from '../inputs/Input';
 const editableTitleVariants = cva('relative flex items-center justify-between', {
   variants: {
     level: {
-      1: 'text-3xl',
-      2: 'text-2xl',
-      3: 'text-xl',
+      1: 'text-3xl font-semibold',
+      2: 'text-2xl font-semibold',
+      3: 'text-xl font-semibold',
       4: 'text-md',
       5: 'text-base',
     },
