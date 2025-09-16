@@ -7,6 +7,7 @@ import {
   messages,
   messagesToFiles,
   metricFilesToDashboardFiles,
+  metricFilesToReportFiles,
   textSearch,
 } from '../../schema';
 
@@ -163,6 +164,45 @@ export function getDashboardInheritedPermissionedAssets(userId: string, organiza
 }
 
 /**
+ * Get assets with permissions inherited from reports
+ */
+export function getReportInheritedPermissionedAssets(userId: string, organizationId: string) {
+  return db
+    .selectDistinct({
+      assetId: textSearch.assetId,
+    })
+    .from(textSearch)
+    .innerJoin(
+      metricFilesToReportFiles,
+      and(
+        eq(metricFilesToReportFiles.metricFileId, textSearch.assetId),
+        isNull(metricFilesToReportFiles.deletedAt)
+      )
+    )
+    .innerJoin(
+      assetPermissions,
+      and(
+        eq(assetPermissions.assetId, metricFilesToReportFiles.reportFileId),
+        eq(assetPermissions.assetType, 'report_file')
+      )
+    )
+    .where(
+      and(
+        or(
+          and(eq(assetPermissions.identityType, 'user'), eq(assetPermissions.identityId, userId)),
+          and(
+            eq(assetPermissions.identityType, 'organization'),
+            eq(assetPermissions.identityId, organizationId)
+          )
+        ),
+        isNull(assetPermissions.deletedAt),
+        isNull(textSearch.deletedAt),
+        eq(textSearch.assetType, 'metric_file')
+      )
+    );
+}
+
+/**
  * Get messages with permissions inherited from their parent chats
  */
 export function getMessagePermissionedAssets(userId: string, organizationId: string) {
@@ -201,12 +241,14 @@ export function getAllUserAccessibleAssets(userId: string, organizationId: strin
   const collectionInherited = getCollectionInheritedPermissionedAssets(userId, organizationId);
   const dashboardInherited = getDashboardInheritedPermissionedAssets(userId, organizationId);
   const messagePermissions = getMessagePermissionedAssets(userId, organizationId);
+  const reportInherited = getReportInheritedPermissionedAssets(userId, organizationId);
 
   return directPermissions
     .union(chatInherited)
     .union(collectionInherited)
     .union(dashboardInherited)
-    .union(messagePermissions);
+    .union(messagePermissions)
+    .union(reportInherited);
 }
 
 /**

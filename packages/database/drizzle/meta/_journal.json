@@ -701,6 +701,20 @@
       "when": 1757966355180,
       "tag": "0099_red_blindfold",
       "breakpoints": true
+    },
+    {
+      "idx": 100,
+      "version": "7",
+      "when": 1757974984900,
+      "tag": "0100_wealthy_skaar",
+      "breakpoints": true
+    },
+    {
+      "idx": 101,
+      "version": "7",
+      "when": 1757975000317,
+      "tag": "0101_superb_norman_osborn",
+      "breakpoints": true
     }
   ]
 }

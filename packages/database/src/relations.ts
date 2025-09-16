@@ -22,10 +22,12 @@ import {
   metricFiles,
   metricFilesToDashboardFiles,
   metricFilesToDatasets,
+  metricFilesToReportFiles,
   organizations,
   permissionGroups,
   permissionGroupsToIdentities,
   permissionGroupsToUsers,
+  reportFiles,
   s3Integrations,
   schemaMetadata,
   storedValuesSyncJobs,
@@ -158,6 +160,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   userFavorites: many(userFavorites),
   teamsToUsers: many(teamsToUsers),
   metricFilesToDashboardFiles: many(metricFilesToDashboardFiles),
+  metricFilesToReportFiles: many(metricFilesToReportFiles),
   collectionsToAssets_createdBy: many(collectionsToAssets, {
     relationName: 'collectionsToAssets_createdBy_users_id',
   }),
@@ -491,6 +494,7 @@ export const metricFilesRelations = relations(metricFiles, ({ one, many }) => ({
   }),
   metricFilesToDatasets: many(metricFilesToDatasets),
   metricFilesToDashboardFiles: many(metricFilesToDashboardFiles),
+  metricFilesToReportFiles: many(metricFilesToReportFiles),
 }));
 
 export const permissionGroupsToUsersRelations = relations(permissionGroupsToUsers, ({ one }) => ({
@@ -601,6 +605,21 @@ export const metricFilesToDashboardFilesRelations = relations(
     }),
   })
 );
+
+export const metricFilesToReportFilesRelations = relations(metricFilesToReportFiles, ({ one }) => ({
+  metricFile: one(metricFiles, {
+    fields: [metricFilesToReportFiles.metricFileId],
+    references: [metricFiles.id],
+  }),
+  reportFile: one(reportFiles, {
+    fields: [metricFilesToReportFiles.reportFileId],
+    references: [reportFiles.id],
+  }),
+  user: one(users, {
+    fields: [metricFilesToReportFiles.createdBy],
+    references: [users.id],
+  }),
+}));
 
 export const collectionsToAssetsRelations = relations(collectionsToAssets, ({ one }) => ({
   user_createdBy: one(users, {
