@@ -14,11 +14,10 @@ export const RootProviders: React.FC<PropsWithChildren> = ({ children }) => {
 
 export const AppProviders: React.FC<PropsWithChildren<SupabaseContextType>> = ({
   children,
-  user,
-  accessToken,
+  supabaseSession,
 }) => {
   return (
-    <SupabaseContextProvider user={user} accessToken={accessToken}>
+    <SupabaseContextProvider supabaseSession={supabaseSession}>
       <BusterPosthogProvider>{children}</BusterPosthogProvider>
     </SupabaseContextProvider>
   );

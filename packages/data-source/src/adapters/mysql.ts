@@ -4,6 +4,7 @@ import { MySQLIntrospector } from '../introspection/mysql';
 import { type Credentials, DataSourceType, type MySQLCredentials } from '../types/credentials';
 import type { QueryParameter } from '../types/query';
 import { type AdapterQueryResult, BaseAdapter, type FieldMetadata } from './base';
+import { normalizeRowValues } from './helpers/normalize-values';
 
 /**
  * MySQL database adapter
@@ -124,7 +125,7 @@ export class MySQLAdapter extends BaseAdapter {
         : [];
 
       return {
-        rows: resultRows,
+        rows: resultRows.map(normalizeRowValues),
         rowCount,
         fields: fieldMetadata,
         hasMoreRows,

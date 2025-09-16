@@ -1,4 +1,3 @@
-import { getRouteApi } from '@tanstack/react-router';
 import { MetricViewSQLController } from '@/controllers/MetricController/MetricViewSQL';
 import { useGetMetricParams } from '../../Metrics/useGetMetricParams';
 

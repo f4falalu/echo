@@ -49,6 +49,8 @@ This is a POST endpoint that sends a support request to the Buster team.
       return c.json({ error: 'Help requests require a subject' }, { status: 400 });
     }
 
+    const messageBlocks = createMessageBlocks(message);
+
     const slackMessage = {
       text: 'New Support Request',
       blocks: [
@@ -96,13 +98,7 @@ This is a POST endpoint that sends a support request to the Buster team.
             },
           ],
         },
-        {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: `*Message:*\n${message}`,
-          },
-        },
+        ...messageBlocks,
         {
           type: 'section',
           text: {
@@ -166,3 +162,46 @@ This is a POST endpoint that sends a support request to the Buster team.
   });
 
 export default app;
+
+// Split long messages into multiple blocks if needed because of slack's 3000 character limit
+const createMessageBlocks = (messageText: string) => {
+  const messagePrefix = '*Message:*\n';
+  const maxTextLength = 2900; // Leave 100 charcter buffer
+
+  if (messageText.length <= maxTextLength) {
+    return [
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `${messagePrefix}${messageText}`,
+        },
+      },
+    ];
+  }
+
+  // Split into multiple blocks
+  const blocks = [];
+  const continuedMessagePrefix = '*Continued Message:*\n';
+  let remainingText = messageText;
+  let isFirst = true;
+
+  while (remainingText.length > 0) {
+    const chunkSize = maxTextLength;
+    const chunk = remainingText.substring(0, chunkSize);
+    const text = isFirst ? `${messagePrefix}${chunk}` : `${continuedMessagePrefix}${chunk}`;
+
+    blocks.push({
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: text,
+      },
+    });
+
+    remainingText = remainingText.substring(chunkSize);
+    isFirst = false;
+  }
+
+  return blocks;
+};

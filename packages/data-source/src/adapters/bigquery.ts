@@ -4,6 +4,7 @@ import { BigQueryIntrospector } from '../introspection/bigquery';
 import { type BigQueryCredentials, type Credentials, DataSourceType } from '../types/credentials';
 import type { QueryParameter } from '../types/query';
 import { type AdapterQueryResult, BaseAdapter, type FieldMetadata } from './base';
+import { normalizeRowValues } from './helpers/normalize-values';
 
 /**
  * BigQuery database adapter
@@ -106,8 +107,8 @@ export class BigQueryAdapter extends BaseAdapter {
       const [job] = await this.client.createQueryJob(options);
       const [rows] = await job.getQueryResults();
 
-      // Convert BigQuery rows to plain objects
-      let resultRows: Record<string, unknown>[] = rows.map((row) => ({ ...row }));
+      // Convert BigQuery rows to plain objects and normalize values
+      let resultRows: Record<string, unknown>[] = rows.map((row) => normalizeRowValues({ ...row }));
 
       // Check if we have more rows than requested
       if (maxRows && resultRows.length > maxRows) {

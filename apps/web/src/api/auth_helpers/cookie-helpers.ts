@@ -1,6 +1,14 @@
+import type { SimplifiedSupabaseSession } from '@/integrations/supabase/getSupabaseUserClient';
+import { isTokenAlmostExpired, isTokenExpired } from './expiration-helpers';
+
 let supabaseCookieName = '';
 
-export function parseBase64Cookie(cookieValue: string) {
+// Export for testing purposes only
+export function resetSupabaseCookieNameCache() {
+  supabaseCookieName = '';
+}
+
+export function parseBase64Cookie(cookieValue: string): SimplifiedSupabaseSession | null {
   if (!cookieValue) {
     return null;
   }
@@ -20,46 +28,90 @@ export function parseBase64Cookie(cookieValue: string) {
     payload += '=';
   }
 
+  let jsonStr: string = '';
+
   try {
-    const jsonStr = atob(payload);
+    jsonStr = atob(payload);
+  } catch (error) {
+    // Handle invalid base64 (truncated cookie from Supabase)
+
+    // Try to decode what we can - the cookie might be truncated
+    let trimmedPayload = payload;
+
+    // If the base64 ends with incomplete padding, fix it
+    while (trimmedPayload.length > 0) {
+      try {
+        jsonStr = atob(trimmedPayload);
+        break;
+      } catch {
+        // Remove last character and try again
+        trimmedPayload = trimmedPayload.slice(0, -1);
+      }
+    }
+
+    if (!jsonStr) {
+      return null;
+    }
+  }
+
+  try {
     return JSON.parse(jsonStr);
   } catch (error) {
-    console.error('Failed to parse base64 cookie:', error);
+    // Try to handle truncated JSON from Supabase
+    if (error instanceof SyntaxError && jsonStr) {
+      try {
+        // Try to extract the essential fields even if JSON is truncated
+        // Look for the access_token which is usually complete
+        const accessTokenMatch = jsonStr.match(/"access_token"\s*:\s*"([^"]+)"/);
+        const expiresAtMatch = jsonStr.match(/"expires_at"\s*:\s*(\d+)/);
+        const expiresInMatch = jsonStr.match(/"expires_in"\s*:\s*(\d+)/);
+        const tokenTypeMatch = jsonStr.match(/"token_type"\s*:\s*"([^"]+)"/);
+        const userIdMatch = jsonStr.match(/"user"\s*:\s*\{[^}]*"id"\s*:\s*"([^"]+)"/);
+        const userEmailMatch = jsonStr.match(/"user"\s*:\s*\{[^}]*"email"\s*:\s*"([^"]+)"/);
+
+        if (
+          accessTokenMatch &&
+          expiresAtMatch &&
+          expiresInMatch &&
+          tokenTypeMatch &&
+          userIdMatch &&
+          userEmailMatch
+        ) {
+          // Reconstruct a minimal valid session object
+          return {
+            accessToken: accessTokenMatch[1],
+            expiresAt: parseInt(expiresAtMatch[1], 10),
+            expiresIn: parseInt(expiresInMatch[1], 10),
+            isExpired: isTokenExpired(parseInt(expiresAtMatch[1], 10)),
+          };
+        }
+      } catch (extractError) {
+        //fail silently
+      }
+    }
+
     return null;
   }
 }
 
-export const getSupabaseCookieClient = async () => {
+export const getSupabaseCookieClient = async (): Promise<SimplifiedSupabaseSession> => {
   try {
     const supabaseCookieRaw = await getSupabaseCookieRawClient();
+
     if (supabaseCookieRaw) {
-      const decodedCookie = parseBase64Cookie(supabaseCookieRaw || '') as {
-        access_token: string;
-        expires_at: number;
-        expires_in: number;
-        token_type: 'bearer';
-        user: {
-          id: string;
-          is_anonymous: boolean;
-          email: string;
-        };
-      };
-      return decodedCookie;
+      const decodedCookie = parseBase64Cookie(supabaseCookieRaw || '');
+      if (decodedCookie) return decodedCookie;
     }
   } catch (error) {
     console.error('Failed to get supabase cookie:', error);
+    resetSupabaseCookieNameCache();
   }
 
   return {
-    access_token: '',
-    expires_at: 0,
-    expires_in: 0,
-    token_type: 'bearer',
-    user: {
-      id: '',
-      is_anonymous: false,
-      email: '',
-    },
+    accessToken: '',
+    expiresAt: 0,
+    expiresIn: 0,
+    isExpired: true,
   };
 };
 
@@ -77,7 +129,7 @@ export async function getSupabaseCookieRawClient() {
     const getCookieByKey = (d: [string, string][]) => {
       const cookie = d.find(
         ([name, value]) =>
-          name.startsWith('sb-') && name.endsWith('-auth-token') && value.startsWith('base64-')
+          name.startsWith('sb-') && name.includes('-auth-token') && value.startsWith('base64-')
       );
       supabaseCookieName = cookie?.[0] || '';
       return cookie?.[1];
@@ -87,6 +139,7 @@ export async function getSupabaseCookieRawClient() {
       const Cookies = await import('js-cookie').then((m) => m.default);
       return Cookies.get(supabaseCookieName);
     }
+
     return getCookieByKey(Object.entries(listAllCookies()));
   } catch (error) {
     console.error('Failed to get supabase cookie raw:', error);
