@@ -65,9 +65,7 @@ export const getSupabaseUser = async () => {
 async function getSupbaseUserFastClient() {
   try {
     const cookieRes = await getSupabaseCookieClient();
-    console.log('cookieRes', cookieRes);
     const almostExpired = isTokenAlmostExpired(cookieRes.expires_at);
-    console.log('almostExpired', almostExpired);
 
     if (!almostExpired) {
       return {
