@@ -21,33 +21,13 @@ export type SimplifiedSupabaseSession = {
 export const getSupabaseSession = async (): Promise<SimplifiedSupabaseSession> => {
   const { data: sessionData, error: sessionError } = isServer
     ? await getSupabaseSessionServerFn()
-    : await getClientSupabaseSessionFast();
+    : await extractSimplifiedSupabaseSession(supabase);
 
   if ((!sessionData.accessToken || sessionError) && !isServer) {
     return sessionData;
   }
 
   return sessionData;
-};
-
-const getClientSupabaseSessionFast = async (): Promise<{
-  data: SimplifiedSupabaseSession;
-  error: null | AuthError;
-}> => {
-  // try {
-  //   const cookieRes = await getSupabaseCookieClient();
-  //   const almostExpired = isTokenAlmostExpired(cookieRes.expiresAt);
-  //   if (!almostExpired) {
-  //     return {
-  //       data: cookieRes satisfies SimplifiedSupabaseSession,
-  //       error: null,
-  //     };
-  //   }
-  // } catch (error) {
-  //   console.error('error in getClientSupabaseSessionFast', error);
-  // }
-
-  return extractSimplifiedSupabaseSession(supabase);
 };
 
 export const getSupabaseUser = async () => {
