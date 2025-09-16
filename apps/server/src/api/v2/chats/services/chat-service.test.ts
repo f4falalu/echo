@@ -84,6 +84,7 @@ vi.mock('@buster/database', () => ({
   createMessage: vi.fn(),
   generateAssetMessages: vi.fn(),
   getMessagesForChat: vi.fn(),
+  createAssetPermission: vi.fn(),
 }));
 
 // Mock access-controls
