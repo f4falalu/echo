@@ -77,23 +77,17 @@ export async function getSupabaseCookieRawClient() {
     const getCookieByKey = (d: [string, string][]) => {
       const cookie = d.find(
         ([name, value]) =>
-          name.startsWith('sb-') && name.endsWith('-auth-token') && value.startsWith('base64-')
+          name.startsWith('sb-') && name.includes('-auth-token') && value.startsWith('base64-')
       );
       supabaseCookieName = cookie?.[0] || '';
-      console.log('supabaseCookieName', supabaseCookieName);
       return cookie?.[1];
     };
 
     if (supabaseCookieName) {
       const Cookies = await import('js-cookie').then((m) => m.default);
-      console.log('Cookies.get(supabaseCookieName)', Cookies.get(supabaseCookieName));
       return Cookies.get(supabaseCookieName);
     }
-    console.log(
-      'listAllCookies()',
-      listAllCookies(),
-      getCookieByKey(Object.entries(listAllCookies()))
-    );
+
     return getCookieByKey(Object.entries(listAllCookies()));
   } catch (error) {
     console.error('Failed to get supabase cookie raw:', error);
