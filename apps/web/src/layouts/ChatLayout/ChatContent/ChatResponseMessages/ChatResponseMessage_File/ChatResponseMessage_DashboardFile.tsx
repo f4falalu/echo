@@ -75,7 +75,12 @@ export const ChatResponseMessage_DashboardFile: React.FC<ResponseMessageFileProp
             selected={isSelectedFile}
             collapseDefaultIcon={<HeaderIcon isLoading={isLoading} isError={isError} />}
             fileName={FileInfo}
-            headerWrapper={LinkHeaderWrapper({ linkProps: linkParams, metricId })}
+            headerWrapper={({ children }) => (
+              <Link {...linkParams}>
+                {/** biome-ignore lint/complexity/noUselessFragments: weird error */}
+                <>{children}</>
+              </Link>
+            )}
           >
             {!hasMetrics ? null : dashboardResponse ? (
               <Content
@@ -202,6 +207,7 @@ const Content = <
   return (
     <div
       className="flex flex-col gap-y-2.5 px-3.5 py-2"
+      data-testid="dashboard-items"
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -264,22 +270,3 @@ const SelectDashboardButtonAndText: React.FC<{
 });
 
 SelectDashboardButtonAndText.displayName = 'SelectDashboardButtonAndText';
-
-const LinkHeaderWrapper = ({
-  linkProps,
-  metricId,
-}: {
-  linkProps: ILinkProps;
-  metricId: string | undefined;
-}): React.ComponentType<{ children: React.ReactNode }> => {
-  if (!metricId) {
-    return ({ children }: { children: React.ReactNode }) => children;
-  }
-
-  return ({ children }: { children: React.ReactNode }) => (
-    <Link {...linkProps}>
-      {/** biome-ignore lint/complexity/noUselessFragments: weird error */}
-      <>{children}</>
-    </Link>
-  );
-};

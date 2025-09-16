@@ -14,7 +14,6 @@ export const AssetContainer: React.FC<{
   const headerBorderVariant: AppPageLayoutProps['headerBorderVariant'] =
     headerBorderVariantProp ?? (isChatMode ? 'ghost' : 'default');
 
-  console.log('isChatMode', isChatMode, headerBorderVariant);
   return (
     <AppPageLayout
       header={header}
