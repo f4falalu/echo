@@ -19,11 +19,6 @@ export type SimplifiedSupabaseSession = {
   isExpired: boolean;
   expiresAt: number;
   expiresIn: number;
-  user: {
-    id: string;
-    is_anonymous: boolean | undefined;
-    email: string | undefined;
-  };
 };
 
 export const getSupabaseSession = async (): Promise<SimplifiedSupabaseSession> => {
@@ -62,27 +57,6 @@ const getClientSupabaseSessionFast = async (): Promise<{
 export const getSupabaseUser = async () => {
   const { data: userData } = isServer
     ? await getSupabaseUserServerFn()
-    : await getSupbaseUserFastClient();
+    : await supabase.auth.getUser();
   return userData.user;
 };
-
-async function getSupbaseUserFastClient() {
-  try {
-    const cookieRes = await getSupabaseCookieClient();
-    const almostExpired = isTokenAlmostExpired(cookieRes.expiresAt);
-
-    if (!almostExpired) {
-      return {
-        data: {
-          user: cookieRes.user,
-        },
-      };
-    }
-  } catch (error) {
-    console.error('error in getSupbaseUserFastClient', error);
-  }
-
-  resetSupabaseCookieNameCache();
-
-  return await supabase.auth.getUser();
-}

@@ -18,17 +18,6 @@ export const extractSimplifiedSupabaseSession = async (
       expiresAt: session?.expires_at ?? 0,
       expiresIn: session?.expires_in ?? 0,
       isExpired: isTokenExpired(session?.expires_at),
-      user: session?.user
-        ? {
-            id: session.user.id,
-            is_anonymous: session.user.is_anonymous,
-            email: session.user.email,
-          }
-        : {
-            id: '',
-            is_anonymous: true,
-            email: '',
-          },
     } satisfies SimplifiedSupabaseSession,
     error: sessionError,
   };
@@ -52,11 +41,6 @@ export const getSupabaseSessionServerFn = createServerFn({ method: 'GET' }).hand
           expiresAt: 0,
           expiresIn: 0,
           isExpired: true,
-          user: {
-            id: '',
-            is_anonymous: true,
-            email: '',
-          },
         } satisfies SimplifiedSupabaseSession,
         error: null,
       };

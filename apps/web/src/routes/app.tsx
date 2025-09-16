@@ -5,7 +5,7 @@ import { prefetchGetUserFavorites } from '@/api/buster_rest/users/favorites/quer
 import { prefetchGetMyUserInfo } from '@/api/buster_rest/users/queryRequests';
 import { getAppLayout } from '@/api/server-functions/getAppLayout';
 import { AppProviders } from '@/context/Providers';
-import { getSupabaseSession, getSupabaseUser } from '@/integrations/supabase/getSupabaseUserClient';
+import { getSupabaseSession } from '@/integrations/supabase/getSupabaseUserClient';
 import { preventBrowserCacheHeaders } from '@/middleware/shared-headers';
 import type { LayoutSize } from '../components/ui/layouts/AppLayout';
 
@@ -27,17 +27,13 @@ export const Route = createFileRoute('/app')({
         console.error('Access token is expired or not found');
         throw redirect({ to: '/auth/login', replace: true, statusCode: 307 });
       }
-
-      return {
-        accessToken,
-      };
     } catch (error) {
       console.error('Error in app route beforeLoad:', error);
       throw redirect({ to: '/auth/login', replace: true, statusCode: 307 });
     }
   },
   loader: async ({ context }) => {
-    const { queryClient, accessToken } = context;
+    const { queryClient } = context;
     try {
       const [initialLayout, supabaseSession] = await Promise.all([
         getAppLayout({ id: PRIMARY_APP_LAYOUT_ID }),
@@ -57,7 +53,7 @@ export const Route = createFileRoute('/app')({
         initialLayout,
         layoutId: PRIMARY_APP_LAYOUT_ID,
         defaultLayout: DEFAULT_LAYOUT,
-        accessToken,
+
         supabaseSession,
       };
     } catch (error) {
@@ -66,7 +62,7 @@ export const Route = createFileRoute('/app')({
     }
   },
   component: () => {
-    const { supabaseSession, accessToken } = Route.useLoaderData();
+    const { supabaseSession } = Route.useLoaderData();
 
     return (
       <AppProviders supabaseSession={supabaseSession}>

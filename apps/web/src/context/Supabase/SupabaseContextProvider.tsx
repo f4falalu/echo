@@ -1,6 +1,7 @@
 import type { User } from '@supabase/supabase-js';
 import React, { useRef, useState } from 'react';
 import { createContext } from 'use-context-selector';
+import { useGetUserBasicInfo } from '@/api/buster_rest/users/useGetUserInfo';
 import { useMount } from '@/hooks/useMount';
 import { getBrowserClient } from '@/integrations/supabase/client';
 import type { SimplifiedSupabaseSession } from '@/integrations/supabase/getSupabaseUserClient';
@@ -14,12 +15,11 @@ const fiveMinutes = 5 * 60 * 1000;
 
 const useSupabaseContextInternal = ({ supabaseSession }: SupabaseContextType) => {
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const [supabaseUser, setSupabaseUser] = useState<
-    SupabaseContextType['supabaseSession']['user'] | null
-  >(supabaseSession?.user);
+  const busterUser = useGetUserBasicInfo();
+  const [supabaseUser, setSupabaseUser] = useState<null | User>(null);
   const [accessToken, setAccessToken] = useState(supabaseSession.accessToken);
 
-  const isAnonymousUser: boolean = !supabaseUser?.id || supabaseUser?.is_anonymous === true;
+  const isAnonymousUser: boolean = !busterUser?.id || supabaseUser?.is_anonymous === true;
 
   useMount(() => {
     const {
@@ -30,9 +30,7 @@ const useSupabaseContextInternal = ({ supabaseSession }: SupabaseContextType) =>
       const timerMs = expiresAt - fiveMinutes;
       const accessToken = session?.access_token ?? '';
 
-      setSupabaseUser(
-        user ? { id: user.id, is_anonymous: user.is_anonymous, email: user.email } : null
-      );
+      setSupabaseUser(user ?? null);
 
       if (accessToken) setAccessToken(accessToken);
 
@@ -66,8 +64,8 @@ export const SupabaseContext = createContext<ReturnType<typeof useSupabaseContex
 
 export const SupabaseContextProvider: React.FC<
   SupabaseContextType & { children: React.ReactNode }
-> = React.memo(({ supabaseSession, children }) => {
-  const value = useSupabaseContextInternal({ supabaseSession });
+> = React.memo(({ children, ...props }) => {
+  const value = useSupabaseContextInternal(props);
 
   return <SupabaseContext.Provider value={value}>{children}</SupabaseContext.Provider>;
 });

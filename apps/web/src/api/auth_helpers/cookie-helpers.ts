@@ -87,11 +87,6 @@ export function parseBase64Cookie(cookieValue: string): SimplifiedSupabaseSessio
             expiresAt: parseInt(expiresAtMatch[1], 10),
             expiresIn: parseInt(expiresInMatch[1], 10),
             isExpired: isTokenExpired(parseInt(expiresAtMatch[1], 10)),
-            user: {
-              id: userIdMatch[1],
-              is_anonymous: false, // Default to false since we can't extract this
-              email: userEmailMatch[1],
-            },
           } satisfies SimplifiedSupabaseSession;
         }
       } catch (extractError) {
@@ -120,11 +115,6 @@ export const getSupabaseCookieClient = async (): Promise<SimplifiedSupabaseSessi
     expiresAt: 0,
     expiresIn: 0,
     isExpired: true,
-    user: {
-      id: '',
-      is_anonymous: false,
-      email: '',
-    },
   };
 };
 
