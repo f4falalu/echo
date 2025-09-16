@@ -9,6 +9,7 @@ import { cva } from 'class-variance-authority';
 import { motion } from 'framer-motion';
 import * as React from 'react';
 import { useEffect, useLayoutEffect, useState, useTransition } from 'react';
+import { useIsBlockerEnabled } from '@/context/Routes/blocker-store';
 import { useSize } from '@/hooks/useSize';
 import { cn } from '@/lib/classMerge';
 import type { ILinkProps } from '@/types/routes';
@@ -26,6 +27,7 @@ export interface SegmentedItem<
   disabled?: boolean;
   tooltip?: string;
   link?: ILinkProps<TRouter, TOptions, TFrom>;
+  respectBlocker?: boolean; //links automatically respect blocker
 }
 
 export interface AppSegmentedProps<
@@ -138,6 +140,7 @@ export const AppSegmented: AppSegmentedComponent = (<
   block = false,
   from,
 }: AppSegmentedProps<T, TRouter, TOptions, TFrom>) => {
+  const { blocker } = useIsBlockerEnabled();
   const rootRef = React.useRef<HTMLDivElement>(null);
   const elementSize = useSize(rootRef, 25);
   const tabRefs = React.useRef<Map<string, HTMLButtonElement>>(new Map());
@@ -151,6 +154,11 @@ export const AppSegmented: AppSegmentedComponent = (<
 
   const handleTabClick = (value: string) => {
     const item = options.find((item) => item.value === value);
+
+    if (blocker && (item?.link || item?.respectBlocker)) {
+      return;
+    }
+
     if (item && !item.disabled && value !== selectedValue) {
       setSelectedValue(item.value);
       startTransition(() => {
