@@ -58,7 +58,7 @@ export const ReportThreeDotMenu = React.memo(
     const favoriteItem = useFavoriteReportSelectMenu({ reportId });
     const versionHistory = useVersionHistorySelectMenu({ reportId });
     const undoRedo = useUndoRedo();
-    const duplicateReport = useDuplicateReportSelectMenu({ reportId });
+    // const duplicateReport = useDuplicateReportSelectMenu({ reportId }); TODO: EITHER Implement backend or remove feature
     // const verificationItem = useReportVerificationSelectMenu(); // Hidden - not supported yet
     const refreshReportItem = useRefreshReportSelectMenu({ reportId });
     const { dropdownItem: downloadPdfItem, exportPdfContainer } = useDownloadPdfSelectMenu({
@@ -87,7 +87,7 @@ export const ReportThreeDotMenu = React.memo(
         // verificationItem, // Hidden - not supported yet
         { type: 'divider' },
         isEditor && refreshReportItem,
-        duplicateReport,
+        // duplicateReport, TODO: EITHER Implement backend or remove feature
         downloadPdfItem,
       ].filter(Boolean) as IDropdownItems;
     }, [
@@ -103,7 +103,7 @@ export const ReportThreeDotMenu = React.memo(
       versionHistory,
       isEditor,
       refreshReportItem,
-      duplicateReport,
+      // duplicateReport, TODO: EITHER Implement backend or remove feature
       downloadPdfItem,
     ]);
 
