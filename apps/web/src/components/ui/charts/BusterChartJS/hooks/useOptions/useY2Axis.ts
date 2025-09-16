@@ -15,6 +15,8 @@ import type { BusterChartProps } from '../../../BusterChart.types';
 import { formatYAxisLabel, yAxisSimilar } from '../../../commonHelpers';
 import { useY2AxisTitle } from './axisHooks/useY2AxisTitle';
 
+export const DEFAULT_Y2_AXIS_COUNT = 7;
+
 export const useY2Axis = ({
   columnLabelFormats,
   selectedAxis: selectedAxisProp,
@@ -33,6 +35,7 @@ export const useY2Axis = ({
   y2AxisShowAxisLabel: BusterChartProps['y2AxisShowAxisLabel'];
   y2AxisStartAxisAtZero: BusterChartProps['y2AxisStartAxisAtZero'];
   y2AxisScaleType: BusterChartProps['y2AxisScaleType'];
+  columnMetadata: NonNullable<BusterChartProps['columnMetadata']>;
 }): DeepPartial<ScaleChartOptions<'bar'>['scales']['y2']> | undefined => {
   const selectedAxis = selectedAxisProp as ComboChartAxis;
   const y2AxisKeys = selectedAxis.y2 || [];
@@ -89,7 +92,7 @@ export const useY2Axis = ({
           display: false,
         };
 
-      return {
+      const baseConfig = {
         type,
         position: 'right',
         display: y2AxisShowAxisLabel !== false && y2AxisKeys.length > 0,
@@ -99,13 +102,17 @@ export const useY2Axis = ({
           text: title,
         },
         ticks: {
+          count: DEFAULT_Y2_AXIS_COUNT,
           autoSkip: true,
           callback: tickCallback,
+          includeBounds: true,
         },
         grid: {
           drawOnChartArea: false, // only want the grid lines for one axis to show up
         },
-      } satisfies DeepPartial<ScaleChartOptions<'bar'>['scales']['y2']>;
+      } as DeepPartial<ScaleChartOptions<'bar'>['scales']['y2']>;
+
+      return baseConfig;
     }, [
       tickCallback,
       title,

@@ -66,9 +66,23 @@ export const defaultAxiosRequestHandler = async (config: InternalAxiosRequestCon
 
   try {
     if (isServer) {
-      token = await getSupabaseSessionServerFn().then(
-        ({ data: { session } }) => session.access_token
-      );
+      try {
+        const sessionResponse = await getSupabaseSessionServerFn();
+        token = sessionResponse?.data?.accessToken;
+      } catch (supabaseError) {
+        // Handle headers already sent error gracefully
+        if (
+          supabaseError instanceof Error &&
+          supabaseError.message.includes('ERR_HTTP_HEADERS_SENT')
+        ) {
+          console.warn('Headers already sent when getting auth token, proceeding without token');
+          // Continue without token rather than crashing
+          return config;
+        }
+        // For other errors, log but continue without token instead of throwing
+        console.warn('Failed to get auth token from Supabase:', supabaseError);
+        return config;
+      }
     } else {
       // Always check token validity before making requests
       const tokenResult = await checkTokenValidity();
@@ -76,14 +90,18 @@ export const defaultAxiosRequestHandler = async (config: InternalAxiosRequestCon
     }
 
     if (!token) {
-      throw new Error('User authentication error - no token found');
+      // Log warning but don't throw - let the request proceed and handle auth errors in response interceptor
+      console.warn('No auth token available for request');
+      return config;
     }
 
     (config.headers as AxiosRequestHeaders).Authorization = `Bearer ${token}`;
 
     return config;
   } catch (error) {
-    console.error('Error getting auth token for request:', error);
-    throw new Error('User authentication error - failed to get valid token');
+    // Log the error but don't throw to prevent unhandled rejections
+    console.error('Error in axios request handler:', error);
+    // Return config without auth header - let the backend handle unauthorized requests
+    return config;
   }
 };

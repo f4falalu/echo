@@ -1,26 +1,25 @@
 import type { User } from '@supabase/supabase-js';
 import React, { useRef, useState } from 'react';
 import { createContext } from 'use-context-selector';
+import { useGetUserBasicInfo } from '@/api/buster_rest/users/useGetUserInfo';
 import { useMount } from '@/hooks/useMount';
 import { getBrowserClient } from '@/integrations/supabase/client';
+import type { SimplifiedSupabaseSession } from '@/integrations/supabase/getSupabaseUserClient';
 
 export type SupabaseContextType = {
-  user: Pick<User, 'id' | 'is_anonymous' | 'email'>;
-  accessToken: string;
+  supabaseSession: SimplifiedSupabaseSession;
 };
 
 const supabase = getBrowserClient();
 const fiveMinutes = 5 * 60 * 1000;
 
-const useSupabaseContextInternal = ({
-  user,
-  accessToken: accessTokenProp,
-}: SupabaseContextType) => {
+const useSupabaseContextInternal = ({ supabaseSession }: SupabaseContextType) => {
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const [supabaseUser, setSupabaseUser] = useState<SupabaseContextType['user'] | null>(user);
-  const [accessToken, setAccessToken] = useState(accessTokenProp);
+  const busterUser = useGetUserBasicInfo();
+  const [supabaseUser, setSupabaseUser] = useState<null | User>(null);
+  const [accessToken, setAccessToken] = useState(supabaseSession.accessToken);
 
-  const isAnonymousUser: boolean = !user?.id || user?.is_anonymous === true;
+  const isAnonymousUser: boolean = !busterUser?.id || supabaseUser?.is_anonymous === true;
 
   useMount(() => {
     const {
@@ -31,7 +30,7 @@ const useSupabaseContextInternal = ({
       const timerMs = expiresAt - fiveMinutes;
       const accessToken = session?.access_token ?? '';
 
-      setSupabaseUser(user);
+      setSupabaseUser(user ?? null);
 
       if (accessToken) setAccessToken(accessToken);
 
@@ -65,8 +64,8 @@ export const SupabaseContext = createContext<ReturnType<typeof useSupabaseContex
 
 export const SupabaseContextProvider: React.FC<
   SupabaseContextType & { children: React.ReactNode }
-> = React.memo(({ user, accessToken, children }) => {
-  const value = useSupabaseContextInternal({ user, accessToken });
+> = React.memo(({ children, ...props }) => {
+  const value = useSupabaseContextInternal(props);
 
   return <SupabaseContext.Provider value={value}>{children}</SupabaseContext.Provider>;
 });

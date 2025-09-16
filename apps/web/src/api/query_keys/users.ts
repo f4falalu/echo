@@ -1,5 +1,6 @@
 import type { OrganizationUser } from '@buster/server-shared/organization';
 import type {
+  GetSuggestedPromptsResponse,
   GetUserToOrganizationRequest,
   GetUserToOrganizationResponse,
   UserFavoriteResponse,
@@ -62,6 +63,12 @@ const userGetUserToOrganization = (params: GetUserToOrganizationRequest) =>
     staleTime: 20 * 1000,
   });
 
+const userGetSuggestedPrompts = (userId: string) =>
+  queryOptions<GetSuggestedPromptsResponse>({
+    queryKey: ['users', userId, 'suggestedPrompts'] as const,
+    staleTime: 1000 * 60 * 30, // 30 minutes
+  });
+
 export const userQueryKeys = {
   favoritesGetList,
   userGetUserMyself,
@@ -72,4 +79,5 @@ export const userQueryKeys = {
   userGetUserDatasets,
   userGetUserDatasetGroups,
   userGetUserToOrganization,
+  userGetSuggestedPrompts,
 };

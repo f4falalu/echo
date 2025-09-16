@@ -128,6 +128,7 @@ export const useOptions = ({
     yAxisShowAxisLabel,
     yAxisScaleType,
     gridLines,
+    columnSettings,
   });
 
   const y2Axis = useY2Axis({
@@ -139,6 +140,7 @@ export const useOptions = ({
     y2AxisShowAxisLabel,
     y2AxisScaleType,
     y2AxisStartAxisAtZero,
+    columnMetadata,
   });
 
   const isHorizontalBar = useMemo(() => {

@@ -5,7 +5,7 @@ import { useGetUserBasicInfo } from '@/api/buster_rest/users/useGetUserInfo';
 import type { RustApiError } from '@/api/errors';
 import { useGetSupabaseUser } from '@/context/Supabase';
 
-export const Route = createFileRoute('/app/healthcheck')({
+export const Route = createFileRoute('/app/_app/healthcheck')({
   component: RouteComponent,
 });
 

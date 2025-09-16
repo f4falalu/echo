@@ -1,39 +1,21 @@
-import { useBlocker } from '@tanstack/react-router';
-import { useOpenConfirmModal } from '../BusterNotifications';
+import type { AssetType } from '@buster/server-shared/assets';
+import { useBlockerWithModal } from '../Routes/useBlockerWithModal';
 
 export const useAssetNavigationBlocker = ({
   onResetToOriginal,
   isFileChanged,
   enableBlocker = true,
+  assetType,
 }: {
   onResetToOriginal: () => void | Promise<void>;
   isFileChanged: boolean;
   enableBlocker?: boolean;
+  assetType: AssetType;
 }) => {
-  const openConfirmModal = useOpenConfirmModal();
-
-  useBlocker({
-    disabled: !enableBlocker,
-    shouldBlockFn: async () => {
-      if (!isFileChanged || !enableBlocker) return false;
-
-      const shouldLeave = await openConfirmModal<true>({
-        title: 'Unsaved changes',
-        content: 'Looks like you have unsaved changes. Are you sure you want to leave?',
-        primaryButtonProps: {
-          text: 'Yes, leave',
-        },
-        cancelButtonProps: {
-          text: 'No, stay',
-        },
-        showClose: false,
-        onOk: () => {
-          onResetToOriginal();
-          return Promise.resolve(true);
-        },
-      });
-
-      return !shouldLeave;
-    },
+  return useBlockerWithModal({
+    onReset: onResetToOriginal,
+    enableBlocker: isFileChanged && enableBlocker,
+    title: 'Unsaved changes',
+    content: `Looks like you have unsaved changes for your ${assetType}. Are you sure you want to leave?`,
   });
 };

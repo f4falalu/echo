@@ -14,8 +14,7 @@
       "!**/dist",
       "!**/build",
       "!**/coverage",
-      "!**/.next",
-      "!**/*.css"
+      "!**/.next"
     ]
   },
   "linter": {
@@ -28,7 +27,8 @@
         "useExhaustiveDependencies": "off",
         "noChildrenProp": "off",
         "useUniqueElementIds": "off",
-        "useParseIntRadix": "off"
+        "useParseIntRadix": "off",
+        "noUnusedFunctionParameters": "warn"
       },
       "style": {
         "noNonNullAssertion": "error",
@@ -85,6 +85,12 @@
       "linter": {
         "enabled": false
       }
+    },
+    {
+      "includes": ["**/*.css"],
+      "linter": {
+        "enabled": false
+      }
     }
   ],
   "formatter": {
@@ -102,6 +108,11 @@
       "trailingCommas": "es5",
       "semicolons": "always",
       "arrowParentheses": "always"
+    }
+  },
+  "css": {
+    "parser": {
+      "cssModules": true
     }
   }
 }

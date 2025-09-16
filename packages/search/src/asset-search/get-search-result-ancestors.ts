@@ -7,6 +7,8 @@ import {
   messages,
   messagesToFiles,
   metricFilesToDashboardFiles,
+  metricFilesToReportFiles,
+  reportFiles,
 } from '@buster/database';
 import { and, eq, isNull } from '@buster/database';
 import type { Ancestor, AssetAncestors } from '@buster/server-shared';
@@ -36,8 +38,9 @@ export async function getAssetAncestors(
   const dashboardsPromise =
     assetType === 'metric_file' ? getMetricDashboardAncestors(assetId) : Promise.resolve([]);
 
-  // TODO: Get reports for metric files
-  const reportsPromise = Promise.resolve([]);
+  // Get Reports
+  const reportsPromise =
+    assetType === 'metric_file' ? getMetricReportAncestors(assetId) : Promise.resolve([]);
 
   const [chats, collections, dashboards, reports] = await Promise.all([
     chatsPromise,
@@ -105,7 +108,7 @@ async function getAssetCollectionAncestor(assetId: string): Promise<Ancestor[]> 
     );
 }
 /**
- * Get ancestors for a dashboard - find chats that contain this dashboard
+ * Get ancestors for a dashboard - find dashboards that contain this metric
  */
 async function getMetricDashboardAncestors(metricId: string): Promise<Ancestor[]> {
   return await db
@@ -120,6 +123,26 @@ async function getMetricDashboardAncestors(metricId: string): Promise<Ancestor[]
         eq(metricFilesToDashboardFiles.metricFileId, metricId),
         isNull(metricFilesToDashboardFiles.deletedAt),
         isNull(dashboardFiles.deletedAt)
+      )
+    );
+}
+
+/**
+ * Get ancestors for a Report - find reports that contain this metric
+ */
+async function getMetricReportAncestors(metricId: string): Promise<Ancestor[]> {
+  return await db
+    .select({
+      id: reportFiles.id,
+      title: reportFiles.name,
+    })
+    .from(metricFilesToReportFiles)
+    .innerJoin(reportFiles, eq(reportFiles.id, metricFilesToReportFiles.reportFileId))
+    .where(
+      and(
+        eq(metricFilesToReportFiles.metricFileId, metricId),
+        isNull(metricFilesToReportFiles.deletedAt),
+        isNull(reportFiles.deletedAt)
       )
     );
 }

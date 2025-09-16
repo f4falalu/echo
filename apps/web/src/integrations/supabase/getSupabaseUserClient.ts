@@ -1,33 +1,33 @@
-import { isTokenExpired } from '@/api/auth_helpers/expiration-helpers';
+import type { AuthError } from '@supabase/supabase-js';
+import { isTokenAlmostExpired } from '@/api/auth_helpers/expiration-helpers';
 import {
+  extractSimplifiedSupabaseSession,
   getSupabaseSessionServerFn,
   getSupabaseUserServerFn,
 } from '@/api/server-functions/getSupabaseSession';
 import { isServer } from '@/lib/window';
+import { getSupabaseCookieClient } from '../../api/auth_helpers/cookie-helpers';
 import { getBrowserClient } from './client';
 
 const supabase = getBrowserClient();
 
-export const getSupabaseSession = async () => {
+export type SimplifiedSupabaseSession = {
+  accessToken: string;
+  isExpired: boolean;
+  expiresAt: number;
+  expiresIn: number;
+};
+
+export const getSupabaseSession = async (): Promise<SimplifiedSupabaseSession> => {
   const { data: sessionData, error: sessionError } = isServer
     ? await getSupabaseSessionServerFn()
-    : await supabase.auth.getSession(); //10 - 15ms locally, maybe consider getting it from the cookie instead. console the supabase object it had it there.
+    : await extractSimplifiedSupabaseSession(supabase);
 
-  if ((!sessionData?.session || sessionError) && !isServer) {
-    return {
-      accessToken: '',
-      isExpired: true,
-      expiresAt: 0,
-    };
+  if ((!sessionData.accessToken || sessionError) && !isServer) {
+    return sessionData;
   }
 
-  const isExpired = isTokenExpired(sessionData.session?.expires_at);
-
-  return {
-    accessToken: sessionData.session?.access_token,
-    isExpired,
-    expiresAt: sessionData.session?.expires_at,
-  };
+  return sessionData;
 };
 
 export const getSupabaseUser = async () => {

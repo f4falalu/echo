@@ -12,8 +12,10 @@ import { ThumbsDown as ThumbsDownFilled } from '@/components/ui/icons/NucleoIcon
 import { AppTooltip } from '@/components/ui/tooltip';
 import { Text } from '@/components/ui/typography';
 import { useBusterNotifications } from '@/context/BusterNotifications';
+import { useChatPermission } from '@/context/Chats';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { formatDate } from '@/lib/date';
+import { canEdit } from '@/lib/share';
 import { timeout } from '@/lib/timeout';
 
 export const ChatMessageOptions: React.FC<{
@@ -24,6 +26,8 @@ export const ChatMessageOptions: React.FC<{
   const { openConfirmModal } = useBusterNotifications();
   const { mutateAsync: duplicateChat, isPending: isCopying } = useDuplicateChat();
   const { mutateAsync: updateChatMessageFeedback } = useUpdateChatMessageFeedback();
+  const permission = useChatPermission(chatId);
+  const canEditChat = canEdit(permission);
   const { data: feedback } = useGetChatMessage(messageId, {
     select: ({ feedback }) => feedback,
   });
@@ -65,14 +69,16 @@ export const ChatMessageOptions: React.FC<{
 
   return (
     <div className="flex items-center gap-1">
-      <AppTooltip title="Duplicate chat from this message">
-        <Button
-          variant="ghost"
-          prefix={<DuplicatePlus />}
-          loading={isCopying}
-          onClick={warnBeforeDuplicate}
-        />
-      </AppTooltip>
+      {canEditChat && (
+        <AppTooltip title="Duplicate chat from this message">
+          <Button
+            variant="ghost"
+            prefix={<DuplicatePlus />}
+            loading={isCopying}
+            onClick={warnBeforeDuplicate}
+          />
+        </AppTooltip>
+      )}
       <AppTooltip title="Report message">
         <Button
           variant="ghost"

@@ -1,5 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
+import { prefetchListShortcuts } from '@/api/buster_rest/shortcuts/queryRequests';
+import {
+  prefetchGetMyUserInfo,
+  prefetchGetSuggestedPrompts,
+} from '@/api/buster_rest/users/queryRequests';
 import { AppPageLayout } from '@/components/ui/layouts/AppPageLayout';
 import { HomePageController, HomePageHeader } from '@/controllers/HomePage';
 
@@ -27,6 +32,14 @@ export const Route = createFileRoute('/app/_app/home')({
     };
   },
   validateSearch: searchParamsSchema,
+  loader: async ({ context }) => {
+    const { queryClient } = context;
+    const user = await prefetchGetMyUserInfo(queryClient);
+    if (user?.user?.id) {
+      prefetchListShortcuts(queryClient);
+      prefetchGetSuggestedPrompts(user.user.id, queryClient);
+    }
+  },
   component: RouteComponent,
 });
 

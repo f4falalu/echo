@@ -28,6 +28,9 @@ export * from './datasets';
 // Export user utilities
 export * from './users';
 
+// Export SQL permissions
+export * from './sql-permissions';
+
 // Export cache functions separately
 export {
   clearAllCaches,

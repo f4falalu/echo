@@ -40,6 +40,8 @@ export const useDatasetBlocker = ({
 
       return !shouldLeave;
     },
+    enableBeforeUnload: false,
+    withResolver: false,
   });
 };
 

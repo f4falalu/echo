@@ -1218,3 +1218,29 @@ export const ProblematicBarChart: Story = {
     ],
   },
 };
+
+export const WithYearInXAxis: Story = {
+  args: {
+    ...Default.args,
+    barAndLineAxis: {
+      ...Default.args!.barAndLineAxis!,
+      x: ['year'],
+    },
+    data: Array.from({ length: 7 }, (_, index) => ({
+      year: 2015 + index,
+      sales: generateNumber(5000, 1000, index),
+    })),
+    columnLabelFormats: {
+      year: {
+        columnType: 'number',
+        style: 'number',
+        numberSeparatorStyle: null,
+      } as ColumnLabelFormat,
+      sales: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'USD',
+      } as ColumnLabelFormat,
+    },
+  },
+};

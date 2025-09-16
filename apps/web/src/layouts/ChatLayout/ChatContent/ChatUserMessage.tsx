@@ -7,9 +7,11 @@ import { InputTextArea } from '@/components/ui/inputs/InputTextArea';
 import { Tooltip } from '@/components/ui/tooltip';
 import { Paragraph } from '@/components/ui/typography';
 import { useBusterNotifications } from '@/context/BusterNotifications';
+import { useChatPermission } from '@/context/Chats';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useMount } from '@/hooks/useMount';
 import { cn } from '@/lib/classMerge';
+import { canEdit } from '@/lib/share';
 import { useChat } from '../../../context/Chats/useChat';
 import { MessageContainer } from './MessageContainer';
 
@@ -22,6 +24,8 @@ export const ChatUserMessage: React.FC<{
   const { openSuccessMessage } = useBusterNotifications();
   const [isTooltipOpen, setIsTooltipOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const permission = useChatPermission(chatId);
+  const canEditChat = canEdit(permission);
 
   const { sender_avatar, sender_id, sender_name, request } = requestMessage;
 
@@ -67,7 +71,7 @@ export const ChatUserMessage: React.FC<{
               {request}
             </Paragraph>
           </div>
-          {isStreamFinished && (
+          {isStreamFinished && canEditChat && (
             <RequestMessageTooltip
               isTooltipOpen={isTooltipOpen}
               setIsEditing={setIsEditing}

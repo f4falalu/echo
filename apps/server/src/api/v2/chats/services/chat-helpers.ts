@@ -1,8 +1,10 @@
 import { canUserAccessChatCached } from '@buster/access-controls';
 import type { ModelMessage } from '@buster/ai';
 import {
+  CreateAssetPermissionParams,
   type User,
   chats,
+  createAssetPermission,
   createMessage,
   db,
   generateAssetMessages,
@@ -327,6 +329,20 @@ export async function handleNewChat({
 
     if (!newChat) {
       throw new Error('Failed to create chat');
+    }
+
+    try {
+      await createAssetPermission({
+        identityId: user.id,
+        identityType: 'user',
+        assetId: newChat.id,
+        assetType: 'chat',
+        role: 'owner',
+        createdBy: user.id,
+      });
+    } catch (error) {
+      console.error('Failed to create chat asset permission for user');
+      throw error;
     }
 
     // Create initial message if prompt provided
