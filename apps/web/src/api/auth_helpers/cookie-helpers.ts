@@ -1,3 +1,6 @@
+import type { SimplifiedSupabaseSession } from '@/integrations/supabase/getSupabaseUserClient';
+import { isTokenAlmostExpired, isTokenExpired } from './expiration-helpers';
+
 let supabaseCookieName = '';
 
 // Export for testing purposes only
@@ -5,18 +8,7 @@ export function resetSupabaseCookieNameCache() {
   supabaseCookieName = '';
 }
 
-export function parseBase64Cookie(cookieValue: string): {
-  access_token: string;
-  expires_at: number;
-  expires_in: number;
-  token_type: 'bearer';
-  user: {
-    id: string;
-    is_anonymous: boolean;
-    email: string;
-  };
-} | null {
-  console.log('cookieValue', cookieValue);
+export function parseBase64Cookie(cookieValue: string): SimplifiedSupabaseSession | null {
   if (!cookieValue) {
     return null;
   }
@@ -39,12 +31,9 @@ export function parseBase64Cookie(cookieValue: string): {
   let jsonStr: string = '';
 
   try {
-    console.log('payload for parseBase64Cookie', payload);
     jsonStr = atob(payload);
-    console.log('jsonStr for parseBase64Cookie', jsonStr);
   } catch (error) {
     // Handle invalid base64 (truncated cookie from Supabase)
-    console.error('Failed to decode base64:', error);
 
     // Try to decode what we can - the cookie might be truncated
     let trimmedPayload = payload;
@@ -53,7 +42,6 @@ export function parseBase64Cookie(cookieValue: string): {
     while (trimmedPayload.length > 0) {
       try {
         jsonStr = atob(trimmedPayload);
-        console.log('Decoded truncated base64 successfully');
         break;
       } catch {
         // Remove last character and try again
@@ -69,8 +57,6 @@ export function parseBase64Cookie(cookieValue: string): {
   try {
     return JSON.parse(jsonStr);
   } catch (error) {
-    console.error('Failed to parse JSON:', error);
-
     // Try to handle truncated JSON from Supabase
     if (error instanceof SyntaxError && jsonStr) {
       try {
@@ -93,19 +79,14 @@ export function parseBase64Cookie(cookieValue: string): {
         ) {
           // Reconstruct a minimal valid session object
           return {
-            access_token: accessTokenMatch[1],
-            expires_at: parseInt(expiresAtMatch[1], 10),
-            expires_in: parseInt(expiresInMatch[1], 10),
-            token_type: tokenTypeMatch[1] as 'bearer',
-            user: {
-              id: userIdMatch[1],
-              is_anonymous: false, // Default to false since we can't extract this
-              email: userEmailMatch[1],
-            },
+            accessToken: accessTokenMatch[1],
+            expiresAt: parseInt(expiresAtMatch[1], 10),
+            expiresIn: parseInt(expiresInMatch[1], 10),
+            isExpired: isTokenExpired(parseInt(expiresAtMatch[1], 10)),
           };
         }
       } catch (extractError) {
-        console.error('Failed to extract data from truncated cookie:', extractError);
+        //fail silently
       }
     }
 
@@ -113,7 +94,7 @@ export function parseBase64Cookie(cookieValue: string): {
   }
 }
 
-export const getSupabaseCookieClient = async () => {
+export const getSupabaseCookieClient = async (): Promise<SimplifiedSupabaseSession> => {
   try {
     const supabaseCookieRaw = await getSupabaseCookieRawClient();
 
@@ -123,18 +104,14 @@ export const getSupabaseCookieClient = async () => {
     }
   } catch (error) {
     console.error('Failed to get supabase cookie:', error);
+    resetSupabaseCookieNameCache();
   }
 
   return {
-    access_token: '',
-    expires_at: 0,
-    expires_in: 0,
-    token_type: 'bearer',
-    user: {
-      id: '',
-      is_anonymous: false,
-      email: '',
-    },
+    accessToken: '',
+    expiresAt: 0,
+    expiresIn: 0,
+    isExpired: true,
   };
 };
 
