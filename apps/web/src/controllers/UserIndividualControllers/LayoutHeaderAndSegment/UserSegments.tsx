@@ -13,7 +13,7 @@ export enum UserSegmentsApps {
   DATASET_GROUPS = 'Dataset Groups',
   DATASETS = 'Datasets',
   ATTRIBUTES = 'Attributes',
-  TEAMS = 'Teams',
+  //TEAMS = 'Teams',
 }
 
 export const UserSegments: React.FC<{
@@ -80,16 +80,16 @@ export const UserSegments: React.FC<{
         //     },
         //   },
         // },
-        {
-          label: 'Teams',
-          value: UserSegmentsApps.TEAMS,
-          link: {
-            to: `/app/settings/users/$userId/teams`,
-            params: {
-              userId,
-            },
-          },
-        },
+        // {
+        //   label: 'Teams',
+        //   value: UserSegmentsApps.TEAMS,
+        //   link: {
+        //     to: `/app/settings/users/$userId/teams`,
+        //     params: {
+        //       userId,
+        //     },
+        //   },
+        // },
       ]),
     [userId]
   );

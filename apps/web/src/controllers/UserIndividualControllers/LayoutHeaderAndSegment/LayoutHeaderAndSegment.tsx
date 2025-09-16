@@ -60,12 +60,12 @@ const useRouteToSegments = (): UserSegmentsApps => {
     if (isDatasets) {
       return UserSegmentsApps.DATASETS;
     }
-    const isTeams = match({
-      from: '/app/settings/users/$userId/teams',
-    });
-    if (isTeams) {
-      return UserSegmentsApps.TEAMS;
-    }
+    // const isTeams = match({
+    //   from: '/app/settings/users/$userId/teams',
+    // });
+    // if (isTeams) {
+    //   return UserSegmentsApps.TEAMS;
+    // }
 
     return UserSegmentsApps.OVERVIEW;
   }, []);
