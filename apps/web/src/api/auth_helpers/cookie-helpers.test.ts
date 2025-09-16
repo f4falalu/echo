@@ -10,7 +10,11 @@ vi.mock('js-cookie', () => ({
 }));
 
 // Import after mocking
-import { getSupabaseCookieRawClient, parseBase64Cookie } from './cookie-helpers';
+import {
+  getSupabaseCookieRawClient,
+  parseBase64Cookie,
+  resetSupabaseCookieNameCache,
+} from './cookie-helpers';
 
 // Mock the document.cookie property more effectively
 const mockDocumentCookie = vi.fn();
@@ -98,6 +102,7 @@ describe('getSupabaseCookieRawClient', () => {
     vi.clearAllMocks();
     mockDocumentCookie.mockClear();
     mockJsCookie.get.mockClear();
+    resetSupabaseCookieNameCache(); // Reset the module-level cache
   });
 
   afterEach(() => {

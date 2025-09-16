@@ -4,7 +4,10 @@ import {
   getSupabaseUserServerFn,
 } from '@/api/server-functions/getSupabaseSession';
 import { isServer } from '@/lib/window';
-import { getSupabaseCookieClient } from '../../api/auth_helpers/cookie-helpers';
+import {
+  getSupabaseCookieClient,
+  resetSupabaseCookieNameCache,
+} from '../../api/auth_helpers/cookie-helpers';
 import { getBrowserClient } from './client';
 
 const supabase = getBrowserClient();
@@ -52,6 +55,8 @@ const getClientSupabaseSessionFast = async () => {
     console.error('error in getClientSupabaseSessionFast', error);
   }
 
+  resetSupabaseCookieNameCache();
+
   return await supabase.auth.getSession(); //100ms on server, that's why we're using the cookie instead.
 };
 
@@ -77,6 +82,8 @@ async function getSupbaseUserFastClient() {
   } catch (error) {
     console.error('error in getSupbaseUserFastClient', error);
   }
+
+  resetSupabaseCookieNameCache();
 
   return await supabase.auth.getUser();
 }

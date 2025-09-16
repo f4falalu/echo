@@ -1,5 +1,10 @@
 let supabaseCookieName = '';
 
+// Export for testing purposes only
+export function resetSupabaseCookieNameCache() {
+  supabaseCookieName = '';
+}
+
 export function parseBase64Cookie(cookieValue: string): {
   access_token: string;
   expires_at: number;
@@ -109,7 +114,7 @@ export function parseBase64Cookie(cookieValue: string): {
 export const getSupabaseCookieClient = async () => {
   try {
     const supabaseCookieRaw = await getSupabaseCookieRawClient();
-    console.log('supabaseCookieRaw', supabaseCookieRaw);
+
     if (supabaseCookieRaw) {
       const decodedCookie = parseBase64Cookie(supabaseCookieRaw || '');
       if (decodedCookie) return decodedCookie;
