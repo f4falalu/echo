@@ -1,5 +1,7 @@
-import { isTokenAlmostExpired, isTokenExpired } from '@/api/auth_helpers/expiration-helpers';
+import type { AuthError } from '@supabase/supabase-js';
+import { isTokenAlmostExpired } from '@/api/auth_helpers/expiration-helpers';
 import {
+  extractSimplifiedSupabaseSession,
   getSupabaseSessionServerFn,
   getSupabaseUserServerFn,
 } from '@/api/server-functions/getSupabaseSession';
@@ -12,78 +14,49 @@ import { getBrowserClient } from './client';
 
 const supabase = getBrowserClient();
 
-export const getSupabaseSession = async () => {
+export type SimplifiedSupabaseSession = {
+  accessToken: string;
+  isExpired: boolean;
+  expiresAt: number;
+  expiresIn: number;
+};
+
+export const getSupabaseSession = async (): Promise<SimplifiedSupabaseSession> => {
   const { data: sessionData, error: sessionError } = isServer
     ? await getSupabaseSessionServerFn()
     : await getClientSupabaseSessionFast();
 
-  if ((!sessionData?.session || sessionError) && !isServer) {
-    return {
-      accessToken: '',
-      isExpired: true,
-      expiresAt: 0,
-    };
+  if ((!sessionData.accessToken || sessionError) && !isServer) {
+    return sessionData;
   }
 
-  const isExpired = isTokenExpired(sessionData.session?.expires_at);
-
-  return {
-    accessToken: sessionData.session?.access_token,
-    isExpired,
-    expiresAt: sessionData.session?.expires_at,
-  };
+  return sessionData;
 };
 
-const getClientSupabaseSessionFast = async () => {
+const getClientSupabaseSessionFast = async (): Promise<{
+  data: SimplifiedSupabaseSession;
+  error: null | AuthError;
+}> => {
   try {
     const cookieRes = await getSupabaseCookieClient();
-    const almostExpired = isTokenAlmostExpired(cookieRes.expires_at);
+    const almostExpired = isTokenAlmostExpired(cookieRes.expiresAt);
     if (!almostExpired) {
       return {
-        data: {
-          session: {
-            access_token: cookieRes.access_token,
-            isExpired: false,
-            expires_at: cookieRes.expires_at,
-          },
-        },
+        data: cookieRes satisfies SimplifiedSupabaseSession,
         error: null,
       };
     }
   } catch (error) {
-    //fail silently
     console.error('error in getClientSupabaseSessionFast', error);
   }
 
   resetSupabaseCookieNameCache();
-
-  return await supabase.auth.getSession(); //100ms on server, that's why we're using the cookie instead.
+  return extractSimplifiedSupabaseSession(supabase);
 };
 
 export const getSupabaseUser = async () => {
   const { data: userData } = isServer
     ? await getSupabaseUserServerFn()
-    : await getSupbaseUserFastClient();
+    : await supabase.auth.getUser();
   return userData.user;
 };
-
-async function getSupbaseUserFastClient() {
-  try {
-    const cookieRes = await getSupabaseCookieClient();
-    const almostExpired = isTokenAlmostExpired(cookieRes.expires_at);
-
-    if (!almostExpired) {
-      return {
-        data: {
-          user: cookieRes.user,
-        },
-      };
-    }
-  } catch (error) {
-    console.error('error in getSupbaseUserFastClient', error);
-  }
-
-  resetSupabaseCookieNameCache();
-
-  return await supabase.auth.getUser();
-}
