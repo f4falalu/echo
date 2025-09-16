@@ -64,6 +64,7 @@ export const EditableTitle = React.forwardRef<
     inputRef
   ) => {
     const [value, setValue] = React.useState(children);
+    const [isFocused, setIsFocused] = React.useState(false);
 
     const isGhost = variant === 'ghost';
 
@@ -93,9 +94,11 @@ export const EditableTitle = React.forwardRef<
           onBlur={() => {
             onChange(value);
             onEdit?.(false);
+            setIsFocused(false);
           }}
           onFocus={() => {
             onEdit?.(true);
+            setIsFocused(true);
           }}
           onPressEnter={() => {
             onChange(value);
@@ -103,7 +106,12 @@ export const EditableTitle = React.forwardRef<
           }}
         />
         {!isGhost && !readOnly && (
-          <div className="from-page-background pointer-events-none absolute top-0 right-0 h-full w-6 bg-gradient-to-l to-transparent" />
+          <div
+            className={cn(
+              'from-page-background pointer-events-none absolute top-0 right-0 h-full bg-gradient-to-l to-transparent w-6',
+              isFocused && 'hidden'
+            )}
+          />
         )}
       </div>
     );
