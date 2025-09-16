@@ -58,6 +58,7 @@ export async function checkPermission(check: AssetPermissionCheck): Promise<Asse
       | 'chat'
       | 'metric_file'
       | 'dashboard_file'
+      | 'report_file'
       | 'collection',
   };
   if (organizationId !== undefined) {
