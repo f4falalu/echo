@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Result};
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
@@ -18,8 +18,31 @@ pub enum Credential {
     Snowflake(SnowflakeCredentials),
 }
 
+/// Custom deserializer that handles both string and JSON object formats for credentials
+fn deserialize_credentials<'de, D>(deserializer: D) -> Result<Value, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    use serde::de::Error;
+    
+    // First deserialize to a generic Value
+    let value: Value = Value::deserialize(deserializer)?;
+    
+    match value {
+        // If it's a string, parse it as JSON
+        Value::String(s) => {
+            serde_json::from_str(&s).map_err(|e| {
+                D::Error::custom(format!("Failed to parse credentials JSON string: {}", e))
+            })
+        }
+        // If it's already a JSON object, return it as-is
+        other => Ok(other),
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct BigqueryCredentials {
+    #[serde(alias = "service_role_key", deserialize_with = "deserialize_credentials")]
     pub credentials_json: Value,
     pub default_project_id: String,
     pub default_dataset_id: String,
