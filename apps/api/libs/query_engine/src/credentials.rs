@@ -45,12 +45,13 @@ pub struct BigqueryCredentials {
     #[serde(
         deserialize_with = "deserialize_credentials",
         rename = "service_account_key",
-        alias = "credentials_json"
+        alias = "credentials_json",
+        alias = "service_role_key"
     )]
     pub credentials_json: Value,
-    #[serde(rename = "project_id")]
+    #[serde(rename = "project_id", alias = "default_project_id")]
     pub default_project_id: String,
-    #[serde(rename = "default_dataset")]
+    #[serde(rename = "default_dataset", alias = "default_dataset_id")]
     pub default_dataset_id: String,
 }
 // Can get rid of project_id
