@@ -1,16 +1,9 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
-import { prefetchListDatasources } from '@/api/buster_rest/data_source';
-import { prefetchGetDatasets } from '@/api/buster_rest/datasets';
-import { prefetchGetUserFavorites } from '@/api/buster_rest/users/favorites/queryRequests';
 import { prefetchGetMyUserInfo } from '@/api/buster_rest/users/queryRequests';
 import { getAppLayout } from '@/api/server-functions/getAppLayout';
 import { AppProviders } from '@/context/Providers';
 import { getSupabaseSession } from '@/integrations/supabase/getSupabaseUserClient';
 import { preventBrowserCacheHeaders } from '@/middleware/shared-headers';
-import type { LayoutSize } from '../components/ui/layouts/AppLayout';
-
-const PRIMARY_APP_LAYOUT_ID = 'primary-sidebar';
-const DEFAULT_LAYOUT: LayoutSize = ['230px', 'auto'];
 
 export const Route = createFileRoute('/app')({
   head: () => {
@@ -35,13 +28,9 @@ export const Route = createFileRoute('/app')({
   loader: async ({ context }) => {
     const { queryClient } = context;
     try {
-      const [initialLayout, supabaseSession] = await Promise.all([
-        getAppLayout({ id: PRIMARY_APP_LAYOUT_ID }),
+      const [supabaseSession] = await Promise.all([
         getSupabaseSession(),
         prefetchGetMyUserInfo(queryClient),
-        prefetchGetUserFavorites(queryClient),
-        prefetchListDatasources(queryClient),
-        prefetchGetDatasets(queryClient),
       ]);
 
       if (!supabaseSession?.accessToken) {
@@ -50,10 +39,6 @@ export const Route = createFileRoute('/app')({
       }
 
       return {
-        initialLayout,
-        layoutId: PRIMARY_APP_LAYOUT_ID,
-        defaultLayout: DEFAULT_LAYOUT,
-
         supabaseSession,
       };
     } catch (error) {
