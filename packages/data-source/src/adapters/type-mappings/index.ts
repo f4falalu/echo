@@ -3,22 +3,24 @@
  * Provides consistent type normalization across different database systems
  */
 
-import { mapPostgreSQLType, getPostgreSQLSimpleType } from './postgresql';
-import { mapMySQLType, getMySQLSimpleType } from './mysql';
 import type { FieldMetadata } from '../base';
+import { getBigQuerySimpleType, mapBigQueryType } from './bigquery';
+import { getMySQLSimpleType, mapMySQLType } from './mysql';
+import { getPostgreSQLSimpleType, mapPostgreSQLType } from './postgresql';
 
 export * from './postgresql';
 export * from './mysql';
+export * from './bigquery';
 
 /**
  * Database type identifiers for routing to correct mapper
  */
-export type DatabaseType = 
-  | 'postgresql' 
-  | 'redshift' 
-  | 'mysql' 
-  | 'sqlserver' 
-  | 'snowflake' 
+export type DatabaseType =
+  | 'postgresql'
+  | 'redshift'
+  | 'mysql'
+  | 'sqlserver'
+  | 'snowflake'
   | 'bigquery';
 
 /**
@@ -37,19 +39,19 @@ export function mapDatabaseType(dbType: DatabaseType, typeValue: string | number
     case 'postgresql':
     case 'redshift': // Redshift uses PostgreSQL type OIDs
       return mapPostgreSQLType(typeValue);
-    
+
     case 'mysql':
       return mapMySQLType(typeValue);
-    
+
     case 'sqlserver':
     case 'snowflake':
       // These already return readable type names
       return typeof typeValue === 'string' ? typeValue.toLowerCase() : 'text';
-    
+
     case 'bigquery':
-      // BigQuery types are usually already normalized
-      return typeof typeValue === 'string' ? typeValue.toLowerCase() : 'text';
-    
+      // BigQuery only uses string type names, not numeric codes
+      return typeof typeValue === 'string' ? mapBigQueryType(typeValue) : 'text';
+
     default:
       return typeof typeValue === 'string' ? typeValue.toLowerCase() : 'text';
   }
@@ -66,13 +68,13 @@ export function getSimpleType(dbType: DatabaseType, normalizedType: string): Sim
     case 'postgresql':
     case 'redshift':
       return getPostgreSQLSimpleType(normalizedType);
-    
+
     case 'mysql':
       return getMySQLSimpleType(normalizedType);
-    
-    case 'sqlserver':
-    case 'snowflake':
+
     case 'bigquery':
+      return getBigQuerySimpleType(normalizedType);
+
     default:
       return getGenericSimpleType(normalizedType);
   }
@@ -85,7 +87,7 @@ export function getSimpleType(dbType: DatabaseType, normalizedType: string): Sim
  */
 export function getGenericSimpleType(normalizedType: string): SimpleType {
   const lowerType = normalizedType.toLowerCase();
-  
+
   // Numeric types
   if (
     lowerType.includes('int') ||
@@ -99,16 +101,12 @@ export function getGenericSimpleType(normalizedType: string): SimpleType {
   ) {
     return 'number';
   }
-  
+
   // Date/time types
-  if (
-    lowerType.includes('date') ||
-    lowerType.includes('time') ||
-    lowerType.includes('interval')
-  ) {
+  if (lowerType.includes('date') || lowerType.includes('time') || lowerType.includes('interval')) {
     return 'date';
   }
-  
+
   // Everything else is text
   return 'text';
 }

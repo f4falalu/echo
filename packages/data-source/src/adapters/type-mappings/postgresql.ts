@@ -8,7 +8,7 @@
 export const POSTGRESQL_TYPE_OID_MAP: Record<number, string> = {
   // Boolean type
   16: 'boolean',
-  
+
   // Numeric types
   20: 'bigint', // int8
   21: 'smallint', // int2
@@ -16,14 +16,14 @@ export const POSTGRESQL_TYPE_OID_MAP: Record<number, string> = {
   700: 'float4', // real
   701: 'float8', // double precision
   1700: 'numeric', // decimal
-  
+
   // String types
   18: 'char',
   19: 'name',
   25: 'text',
   1042: 'char', // bpchar
   1043: 'varchar',
-  
+
   // Date/time types
   1082: 'date',
   1083: 'time',
@@ -31,26 +31,26 @@ export const POSTGRESQL_TYPE_OID_MAP: Record<number, string> = {
   1184: 'timestamptz', // timestamp with timezone
   1186: 'interval',
   1266: 'timetz', // time with timezone
-  
+
   // UUID
   2950: 'uuid',
-  
+
   // JSON types
   114: 'json',
   3802: 'jsonb',
-  
+
   // Binary
   17: 'bytea',
-  
+
   // Money
   790: 'money',
-  
+
   // Network types
   869: 'inet',
   650: 'cidr',
   774: 'macaddr',
   829: 'macaddr8',
-  
+
   // Geometric types
   600: 'point',
   601: 'lseg',
@@ -59,7 +59,7 @@ export const POSTGRESQL_TYPE_OID_MAP: Record<number, string> = {
   604: 'polygon',
   628: 'line',
   718: 'circle',
-  
+
   // Array types (common ones)
   1000: '_bool', // boolean array
   1001: '_bytea', // bytea array
@@ -92,19 +92,19 @@ export function mapPostgreSQLType(pgType: string | number): string {
   if (typeof pgType === 'number') {
     return POSTGRESQL_TYPE_OID_MAP[pgType] || 'text';
   }
-  
+
   // Handle string format "pg_type_1043"
   if (typeof pgType === 'string') {
     const match = pgType.match(/^pg_type_(\d+)$/);
-    if (match && match[1]) {
-      const oid = parseInt(match[1], 10);
+    if (match?.[1]) {
+      const oid = Number.parseInt(match[1], 10);
       return POSTGRESQL_TYPE_OID_MAP[oid] || 'text';
     }
-    
+
     // If it's already a type name, return it
     return pgType.toLowerCase();
   }
-  
+
   return 'text';
 }
 
@@ -115,7 +115,7 @@ export function mapPostgreSQLType(pgType: string | number): string {
  */
 export function getPostgreSQLSimpleType(normalizedType: string): 'number' | 'text' | 'date' {
   const lowerType = normalizedType.toLowerCase();
-  
+
   // Numeric types
   if (
     lowerType.includes('int') ||
@@ -130,16 +130,12 @@ export function getPostgreSQLSimpleType(normalizedType: string): 'number' | 'tex
   ) {
     return 'number';
   }
-  
+
   // Date/time types
-  if (
-    lowerType.includes('date') ||
-    lowerType.includes('time') ||
-    lowerType.includes('interval')
-  ) {
+  if (lowerType.includes('date') || lowerType.includes('time') || lowerType.includes('interval')) {
     return 'date';
   }
-  
+
   // Everything else is text
   return 'text';
 }

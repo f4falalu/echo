@@ -37,10 +37,10 @@ export function createMetadataFromResults(
     if (adapterColumn) {
       // Use the normalized type from the adapter
       const normalizedType = adapterColumn.type.toLowerCase();
-      
+
       // Use our type mapping utility to determine simple type
       simpleType = getGenericSimpleType(normalizedType);
-      
+
       // Map to allowed ColumnMetaData types
       switch (normalizedType) {
         case 'integer':
@@ -142,11 +142,11 @@ export function createMetadataFromResults(
       const numericValues = values
         .map((v) => {
           if (typeof v === 'number') return v;
-          if (typeof v === 'string' && !isNaN(Number(v))) return Number(v);
+          if (typeof v === 'string' && !Number.isNaN(Number(v))) return Number(v);
           return null;
         })
         .filter((v): v is number => v !== null);
-      
+
       if (numericValues.length > 0) {
         minValue = Math.min(...numericValues);
         maxValue = Math.max(...numericValues);

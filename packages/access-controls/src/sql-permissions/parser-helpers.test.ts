@@ -1,63 +1,64 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  extractPhysicalTables,
-  extractColumnReferences,
-  tablesMatch,
   checkQueryIsReadOnly,
-  validateWildcardUsage,
-  extractTablesFromYml,
+  extractColumnReferences,
   extractDatasetsFromYml,
+  extractPhysicalTables,
+  extractTablesFromYml,
+  tablesMatch,
+  validateWildcardUsage,
 } from './parser-helpers';
 
 describe('extractPhysicalTables', () => {
   it('should handle BigQuery queries with backtick-quoted project names', () => {
-    const sql = "SELECT COUNT(DISTINCT u.user_id) as total_users FROM `buster-381916`.analytics.user u";
+    const sql =
+      'SELECT COUNT(DISTINCT u.user_id) as total_users FROM `buster-381916`.analytics.user u';
     const tables = extractPhysicalTables(sql, 'bigquery');
-    
+
     expect(tables).toHaveLength(1);
     expect(tables[0]).toMatchObject({
       database: 'buster-381916',
       schema: 'analytics',
       table: 'user',
-      fullName: 'buster-381916.analytics.user'
+      fullName: 'buster-381916.analytics.user',
     });
   });
 
   it('should handle standard BigQuery queries without backticks', () => {
     const sql = 'SELECT * FROM project.dataset.table';
     const tables = extractPhysicalTables(sql, 'bigquery');
-    
+
     expect(tables).toHaveLength(1);
     expect(tables[0]).toMatchObject({
       database: 'project',
       schema: 'dataset',
       table: 'table',
-      fullName: 'project.dataset.table'
+      fullName: 'project.dataset.table',
     });
   });
 
   it('should handle PostgreSQL queries', () => {
     const sql = 'SELECT * FROM public.users';
     const tables = extractPhysicalTables(sql, 'postgresql');
-    
+
     expect(tables).toHaveLength(1);
     expect(tables[0]).toMatchObject({
       schema: 'public',
       table: 'users',
-      fullName: 'public.users'
+      fullName: 'public.users',
     });
   });
 
   it('should handle Snowflake queries with quoted identifiers', () => {
     const sql = 'SELECT * FROM "DATABASE"."SCHEMA"."TABLE"';
     const tables = extractPhysicalTables(sql, 'snowflake');
-    
+
     expect(tables).toHaveLength(1);
     expect(tables[0]).toMatchObject({
       database: 'DATABASE',
       schema: 'SCHEMA',
       table: 'TABLE',
-      fullName: 'DATABASE.SCHEMA.TABLE'
+      fullName: 'DATABASE.SCHEMA.TABLE',
     });
   });
 
@@ -68,9 +69,9 @@ describe('extractPhysicalTables', () => {
       JOIN orders o ON u.id = o.user_id
     `;
     const tables = extractPhysicalTables(sql);
-    
+
     expect(tables).toHaveLength(2);
-    expect(tables.map(t => t.table)).toEqual(['users', 'orders']);
+    expect(tables.map((t) => t.table)).toEqual(['users', 'orders']);
   });
 
   it('should ignore CTEs and subqueries', () => {
@@ -83,9 +84,9 @@ describe('extractPhysicalTables', () => {
       SELECT * FROM users u JOIN user_stats s ON u.id = s.user_id
     `;
     const tables = extractPhysicalTables(sql);
-    
+
     expect(tables).toHaveLength(2);
-    expect(tables.map(t => t.table)).toEqual(['orders', 'users']);
+    expect(tables.map((t) => t.table)).toEqual(['orders', 'users']);
   });
 });
 
@@ -93,7 +94,7 @@ describe('extractColumnReferences', () => {
   it('should extract columns from WHERE clause', () => {
     const sql = "SELECT id FROM users WHERE status = 'active' AND created_at > '2024-01-01'";
     const columns = extractColumnReferences(sql);
-    
+
     expect(columns.has('users')).toBe(true);
     const userColumns = Array.from(columns.get('users')!);
     expect(userColumns).toContain('id');
@@ -109,10 +110,10 @@ describe('extractColumnReferences', () => {
       WHERE o.status = 'completed'
     `;
     const columns = extractColumnReferences(sql);
-    
+
     expect(columns.has('users')).toBe(true);
     expect(Array.from(columns.get('users')!)).toEqual(['id']);
-    
+
     expect(columns.has('orders')).toBe(true);
     expect(Array.from(columns.get('orders')!)).toContain('total');
     expect(Array.from(columns.get('orders')!)).toContain('user_id');
@@ -122,7 +123,7 @@ describe('extractColumnReferences', () => {
   it('should handle SELECT * queries', () => {
     const sql = 'SELECT * FROM users';
     const columns = extractColumnReferences(sql);
-    
+
     // SELECT * doesn't extract individual columns, it returns an empty map
     expect(columns.size).toBe(0);
   });
@@ -137,7 +138,7 @@ describe('checkQueryIsReadOnly', () => {
 
   it('should allow BigQuery SELECT with backticks', () => {
     const result = checkQueryIsReadOnly(
-      "SELECT COUNT(DISTINCT u.user_id) FROM `buster-381916`.analytics.user u",
+      'SELECT COUNT(DISTINCT u.user_id) FROM `buster-381916`.analytics.user u',
       'bigquery'
     );
     expect(result.isReadOnly).toBe(true);
@@ -202,7 +203,7 @@ describe('validateWildcardUsage', () => {
 
   it('should allow specific columns on BigQuery tables', () => {
     const result = validateWildcardUsage(
-      "SELECT u.user_id, u.name FROM `buster-381916`.analytics.user u",
+      'SELECT u.user_id, u.name FROM `buster-381916`.analytics.user u',
       'bigquery'
     );
     expect(result.isValid).toBe(true);
@@ -241,13 +242,13 @@ describe('tablesMatch', () => {
       database: 'buster-381916',
       schema: 'analytics',
       table: 'user',
-      fullName: 'buster-381916.analytics.user'
+      fullName: 'buster-381916.analytics.user',
     };
     const allowedTable = {
       database: 'buster-381916',
       schema: 'analytics',
       table: 'user',
-      fullName: 'buster-381916.analytics.user'
+      fullName: 'buster-381916.analytics.user',
     };
     expect(tablesMatch(queryTable, allowedTable)).toBe(true);
   });
@@ -275,19 +276,19 @@ models:
   - name: orders
     schema: sales
 `;
-    
+
     const tables = extractTablesFromYml(yml);
     expect(tables).toHaveLength(2);
     expect(tables[0]).toMatchObject({
       database: 'prod',
       schema: 'public',
       table: 'users',
-      fullName: 'prod.public.users'
+      fullName: 'prod.public.users',
     });
     expect(tables[1]).toMatchObject({
       schema: 'sales',
       table: 'orders',
-      fullName: 'sales.orders'
+      fullName: 'sales.orders',
     });
   });
 
@@ -297,14 +298,14 @@ name: user
 database: buster-381916
 schema: analytics
 `;
-    
+
     const tables = extractTablesFromYml(yml);
     expect(tables).toHaveLength(1);
     expect(tables[0]).toMatchObject({
       database: 'buster-381916',
       schema: 'analytics',
       table: 'user',
-      fullName: 'buster-381916.analytics.user'
+      fullName: 'buster-381916.analytics.user',
     });
   });
 
@@ -315,14 +316,14 @@ models:
     database: buster-381916
     schema: analytics
 `;
-    
+
     const tables = extractTablesFromYml(yml);
     expect(tables).toHaveLength(1);
     expect(tables[0]).toMatchObject({
       database: 'buster-381916',
       schema: 'analytics',
       table: 'user',
-      fullName: 'buster-381916.analytics.user'
+      fullName: 'buster-381916.analytics.user',
     });
   });
 });
@@ -340,7 +341,7 @@ dimensions:
 measures:
   - name: count
 `;
-    
+
     const datasets = extractDatasetsFromYml(yml);
     expect(datasets).toHaveLength(1);
     expect(datasets[0].table).toBe('users');
@@ -360,7 +361,7 @@ models:
       - name: id
       - name: status
 `;
-    
+
     const datasets = extractDatasetsFromYml(yml);
     expect(datasets).toHaveLength(1);
     expect(datasets[0].table).toBe('orders');
@@ -374,7 +375,7 @@ models:
 name: products
 schema: inventory
 `;
-    
+
     const datasets = extractDatasetsFromYml(yml);
     expect(datasets).toHaveLength(1);
     expect(datasets[0].table).toBe('products');

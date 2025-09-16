@@ -16,14 +16,14 @@ export const MYSQL_TYPE_CODE_MAP: Record<number, string> = {
   8: 'bigint',
   9: 'mediumint',
   246: 'decimal', // NEWDECIMAL
-  
+
   // Date and time types
   7: 'timestamp',
   10: 'date',
   11: 'time',
   12: 'datetime',
   13: 'year',
-  
+
   // String types
   15: 'varchar', // VARCHAR
   16: 'bit',
@@ -36,20 +36,20 @@ export const MYSQL_TYPE_CODE_MAP: Record<number, string> = {
   253: 'varchar', // VAR_STRING
   254: 'char', // STRING
   255: 'geometry',
-  
+
   // JSON type
   245: 'json',
 };
 
 // Alternative mapping for text types that might appear differently
 const TEXT_TYPE_ALIASES: Record<string, string> = {
-  'var_string': 'varchar',
-  'string': 'char',
-  'tiny_blob': 'tinytext',
-  'medium_blob': 'mediumtext',
-  'long_blob': 'longtext',
-  'blob': 'text',
-  'long': 'integer',  // LONG type is an integer type
+  var_string: 'varchar',
+  string: 'char',
+  tiny_blob: 'tinytext',
+  medium_blob: 'mediumtext',
+  long_blob: 'longtext',
+  blob: 'text',
+  long: 'integer', // LONG type is an integer type
 };
 
 /**
@@ -62,15 +62,15 @@ export function mapMySQLType(mysqlType: string | number): string {
   if (typeof mysqlType === 'number') {
     return MYSQL_TYPE_CODE_MAP[mysqlType] || 'text';
   }
-  
+
   // Handle string format "mysql_type_253"
   if (typeof mysqlType === 'string') {
     const match = mysqlType.match(/^mysql_type_(\d+)$/);
-    if (match && match[1]) {
-      const typeCode = parseInt(match[1], 10);
+    if (match?.[1]) {
+      const typeCode = Number.parseInt(match[1], 10);
       return MYSQL_TYPE_CODE_MAP[typeCode] || 'text';
     }
-    
+
     // Check for text type aliases (handle both mysql_type_ prefix and plain types)
     const lowerType = mysqlType.toLowerCase();
     // Remove mysql_type_ prefix if present
@@ -78,11 +78,11 @@ export function mapMySQLType(mysqlType: string | number): string {
     if (TEXT_TYPE_ALIASES[cleanType]) {
       return TEXT_TYPE_ALIASES[cleanType];
     }
-    
+
     // If it's already a type name, return it
     return lowerType;
   }
-  
+
   return 'text';
 }
 
@@ -93,7 +93,7 @@ export function mapMySQLType(mysqlType: string | number): string {
  */
 export function getMySQLSimpleType(normalizedType: string): 'number' | 'text' | 'date' {
   const lowerType = normalizedType.toLowerCase();
-  
+
   // Numeric types
   if (
     lowerType.includes('int') ||
@@ -105,16 +105,12 @@ export function getMySQLSimpleType(normalizedType: string): 'number' | 'text' | 
   ) {
     return 'number';
   }
-  
+
   // Date/time types
-  if (
-    lowerType.includes('date') ||
-    lowerType.includes('time') ||
-    lowerType === 'year'
-  ) {
+  if (lowerType.includes('date') || lowerType.includes('time') || lowerType === 'year') {
     return 'date';
   }
-  
+
   // Everything else is text
   return 'text';
 }
