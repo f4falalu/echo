@@ -675,13 +675,6 @@
       "breakpoints": true
     },
     {
-      "idx": 96,
-      "version": "7",
-      "when": 1757697778519,
-      "tag": "0096_chubby_agent_zero",
-      "breakpoints": true
-    },
-    {
       "idx": 97,
       "version": "7",
       "when": 1757702231051,
