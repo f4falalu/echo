@@ -21,6 +21,7 @@ jobs:
         uses: ./.github/actions/setup-node-env
         with:
           install-filter: "@buster-app/trigger..."
+          cache-key: trigger-deployment
         
       - name: 🚀 Deploy to ${{ github.ref_name == 'main' && 'Production' || 'Staging' }}
         env:

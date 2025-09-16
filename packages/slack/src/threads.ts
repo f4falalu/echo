@@ -1,4 +1,5 @@
 import { WebClient } from '@slack/web-api';
+import { decodeSlackMessageText } from './utils/html-entities';
 
 // Define our own simple types to avoid complex Slack API type issues
 interface SlackBlock {
@@ -45,9 +46,12 @@ export async function getThreadMessages({
       inclusive: true, // Include the parent message
     });
 
-    // Cast the result to our SlackMessage type
+    // Cast the result to our SlackMessage type and decode HTML entities
     const messages = result.messages || [];
-    return messages as SlackMessage[];
+    return messages.map((message) => ({
+      ...message,
+      text: decodeSlackMessageText(message.text),
+    })) as SlackMessage[];
   } catch (error) {
     console.error('Failed to get thread messages:', error);
     throw error;
@@ -81,7 +85,11 @@ export async function getMessage({
     });
 
     if (result.messages && result.messages.length > 0) {
-      return result.messages[0] as SlackMessage;
+      const message = result.messages[0];
+      return {
+        ...message,
+        text: decodeSlackMessageText(message?.text),
+      } as SlackMessage;
     }
 
     return null;

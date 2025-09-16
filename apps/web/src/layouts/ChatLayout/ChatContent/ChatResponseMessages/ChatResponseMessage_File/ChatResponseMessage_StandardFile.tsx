@@ -1,47 +1,44 @@
 import { Link } from '@tanstack/react-router';
 import React, { useMemo } from 'react';
-import type { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat/chatMessageInterfaces';
 import { ASSET_ICONS } from '@/components/features/icons/assetIcons';
 import { CollapisbleFileCard } from '@/components/ui/card/CollapisbleFileCard';
 import { Text } from '@/components/ui/typography';
 import { TextAndVersionText } from '@/components/ui/typography/TextAndVersionText';
-import type { ILinkProps } from '@/types/routes';
+import type { ResponseMessageFileProps } from './ResponseMessageFile.types';
 
-export const ChatResponseMessage_StandardFile: React.FC<{
-  responseMessage: BusterChatResponseMessage_file;
-  isSelectedFile: boolean;
-  linkParams: ILinkProps;
-}> = React.memo(({ responseMessage, isSelectedFile, linkParams }) => {
-  const { file_type, file_name, version_number } = responseMessage;
+export const ChatResponseMessage_StandardFile: React.FC<ResponseMessageFileProps> = React.memo(
+  ({ responseMessage, isSelectedFile, linkParams }) => {
+    const { file_type, file_name, version_number } = responseMessage;
 
-  const selectedIcon = useMemo(() => {
-    if (file_type === 'metric') return <ASSET_ICONS.metrics />;
-    if (file_type === 'dashboard') return <ASSET_ICONS.dashboards />;
-    if (file_type === 'report') return <ASSET_ICONS.reports />;
-    if (file_type === 'reasoning') return null;
-    const _exhaustiveCheck: never = file_type;
-    return null;
-  }, [file_type]);
+    const selectedIcon = useMemo(() => {
+      if (file_type === 'metric') return <ASSET_ICONS.metrics />;
+      if (file_type === 'dashboard') return <ASSET_ICONS.dashboards />;
+      if (file_type === 'report') return <ASSET_ICONS.reports />;
+      if (file_type === 'reasoning') return null;
+      const _exhaustiveCheck: never = file_type;
+      return null;
+    }, [file_type]);
 
-  const icon = useMemo(() => {
-    if (!selectedIcon) return null;
+    const icon = useMemo(() => {
+      if (!selectedIcon) return null;
+      return (
+        <Text size={'lg'} variant={'secondary'}>
+          {selectedIcon}
+        </Text>
+      );
+    }, [selectedIcon]);
+
     return (
-      <Text size={'lg'} variant={'secondary'}>
-        {selectedIcon}
-      </Text>
+      <Link {...linkParams} data-testid="chat-response-message-file">
+        <CollapisbleFileCard
+          fileName={<TextAndVersionText text={file_name} version={version_number} />}
+          icon={icon}
+          collapsible={false}
+          selected={isSelectedFile}
+        />
+      </Link>
     );
-  }, [selectedIcon]);
-
-  return (
-    <Link {...linkParams} data-testid="chat-response-message-file">
-      <CollapisbleFileCard
-        fileName={<TextAndVersionText text={file_name} version={version_number} />}
-        icon={icon}
-        collapsible={false}
-        selected={isSelectedFile}
-      />
-    </Link>
-  );
-});
+  }
+);
 
 ChatResponseMessage_StandardFile.displayName = 'ChatResponseMessage_StandardFile';

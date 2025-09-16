@@ -32,19 +32,7 @@ export const updateReport = async ({
   reportId,
   ...data
 }: UpdateReportRequest & { reportId: string }) => {
-  return mainApiV2
-    .put<UpdateReportResponse>(`/reports/${reportId}`, data)
-    .then((res) => res.data)
-    .catch((err) => {
-      console.error(err);
-      const IS_STAGING = window.location.hostname.includes('staging');
-      if (IS_STAGING) {
-        alert(
-          'Look at the request payload and TELL NATE IMMEDIATELY. This error will only show up staging.'
-        );
-      }
-      throw err;
-    });
+  return mainApiV2.put<UpdateReportResponse>(`/reports/${reportId}`, data).then((res) => res.data);
 };
 
 /**

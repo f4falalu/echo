@@ -60,7 +60,7 @@ export const DashboardEditTitles: React.FC<{
           value={description}
           minRows={1}
           maxRows={25}
-          className={'py-0! pl-0!'}
+          className={'py-0! pl-0! text-gray-dark!'}
           placeholder="Add description..."
         />
       )}

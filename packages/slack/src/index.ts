@@ -45,6 +45,7 @@ export * from './utils/validation-helpers';
 export * from './utils/message-formatter';
 export * from './utils/oauth-helpers';
 export { convertMarkdownToSlack } from './utils/markdown-to-slack';
+export { decodeHtmlEntities, decodeSlackMessageText } from './utils/html-entities';
 
 // Reactions
 export { addReaction, removeReaction, getReactions } from './reactions';

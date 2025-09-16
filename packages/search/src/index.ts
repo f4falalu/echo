@@ -8,3 +8,6 @@ export * from './searchable-values';
 
 // Export stored-values functionality
 export * from './stored-values';
+
+// Export asset search functionality
+export * from './asset-search';

@@ -23,6 +23,8 @@ jobs:
 
       - name: Setup Node Environment
         uses: ./.github/actions/setup-node-env
+        with:
+          cache-key: build-lint-unit
 
       - name: Build all packages (excluding web)
         run: pnpm turbo build --filter="!@buster-app/web"
@@ -49,8 +51,10 @@ jobs:
 
       - name: Setup Node Environment
         uses: ./.github/actions/setup-node-env
+        with:
+          cache-key: build-lint-unit
 
-      - name: Lint all packages (excluding web)
+      - name: Lint all packages
         run: pnpm turbo lint
         env:
           TURBO_CACHE_DIR: .turbo
@@ -67,6 +71,8 @@ jobs:
 
       - name: Setup Node Environment
         uses: ./.github/actions/setup-node-env
+        with:
+          cache-key: build-lint-unit
 
       - name: Build required packages
         run: pnpm turbo build --filter="!@buster-app/web"
@@ -76,7 +82,7 @@ jobs:
           TURBO_CACHE_DIR: .turbo
           TURBO_TELEMETRY_DISABLED: 1
 
-      - name: Run all unit tests (excluding web)
+      - name: Run all unit tests
         run: pnpm turbo test:unit
         env:
           TURBO_CACHE_DIR: .turbo

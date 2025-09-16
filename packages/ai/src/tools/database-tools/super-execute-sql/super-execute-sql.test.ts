@@ -1,7 +1,7 @@
+import { checkQueryIsReadOnly } from '@buster/access-controls';
 import type { DataSource } from '@buster/data-source';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getDataSource } from '../../../utils/get-data-source';
-import { checkQueryIsReadOnly } from '../../../utils/sql-permissions/sql-parser-helpers';
 import type { SuperExecuteSqlContext, SuperExecuteSqlState } from './super-execute-sql';
 import { createSuperExecuteSqlExecute } from './super-execute-sql-execute';
 
@@ -10,7 +10,7 @@ vi.mock('../../../utils/get-data-source', () => ({
   getDataSource: vi.fn(),
 }));
 
-vi.mock('../../../utils/sql-permissions/sql-parser-helpers', () => ({
+vi.mock('@buster/access-controls', () => ({
   checkQueryIsReadOnly: vi.fn(),
 }));
 

@@ -13,7 +13,7 @@ export const BusterListSectionComponent = React.memo(
       rowSection: NonNullable<BusterListRowItem['rowSection']>;
       onSelectSectionChange?: (v: boolean, id: string) => void;
       id: string;
-      selectedRowKeys?: string[];
+      selectedRowKeys: string[] | undefined;
       rows: BusterListRowItem[];
       style?: React.CSSProperties;
       rowClassName?: string;

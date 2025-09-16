@@ -1,641 +1,522 @@
-# CLAUDE.md
+# Trigger Application
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This app handles all background job processing using Trigger.dev v3. It assembles packages to run long-running and scheduled tasks.
 
-## Project Overview
+## Core Responsibility
 
-This is a Trigger.dev v3 background job processing service for the Buster AI data analysis platform. It handles long-running AI agent tasks and data source introspection operations.
-
-## Development Commands
-
-### Core Operations
-```bash
-# Development server with live reload
-npm run dev
-
-# Build for deployment
-npm run build
-
-# Deploy to Trigger.dev
-npm run deploy
-```
-
-### TypeScript
-```bash
-# Type checking (extends from ../tsconfig.base.json)
-npx tsc --noEmit
-```
+`@buster-app/trigger` is responsible for:
+- Background job processing
+- Scheduled/cron tasks
+- Long-running AI agent workflows
+- Async processing that shouldn't block the API
+- Never interfaces directly with clients
 
 ## Architecture
 
-### Task-Based Architecture
-This service implements Trigger.dev v3 tasks for background processing:
+```
+Apps → @buster-app/trigger → Trigger.dev v3
+              ↓
+         Task Functions
+              ↓
+          Packages
+    (Reuse all package logic)
+```
 
-- **Task Definition**: All tasks are in `src/tasks/` with standard structure:
-  - `index.ts` - Exports
-  - `{task-name}.ts` - Task implementation with trigger.dev config
-  - `interfaces.ts` - TypeScript types
-  - `README.md` - Documentation
+## Task Organization
 
-### Current Tasks
+### Directory Structure
 
-#### Analyst Agent Task (`src/tasks/analyst-agent-task/`)
-- **Purpose**: Advanced AI-powered data analysis with multi-step workflow
-- **Duration**: 30 minutes max (1800 seconds)
-- **Features**: Multi-state execution (initializing → searching → planning → analyzing → reviewing)
-- **Architecture**: Integrates with Buster multi-agent system for sophisticated analysis
-- **Key Workflow**: Takes user queries, discovers data sources, generates insights/metrics/dashboards
+```
+trigger/
+├── src/
+│   ├── tasks/
+│   │   ├── ai/
+│   │   │   ├── analyst-workflow.ts
+│   │   │   ├── data-processing.ts
+│   │   │   └── report-generation.ts
+│   │   ├── data/
+│   │   │   ├── sync-data-sources.ts
+│   │   │   ├── refresh-materialized-views.ts
+│   │   │   └── cleanup-old-data.ts
+│   │   ├── notifications/
+│   │   │   ├── send-email.ts
+│   │   │   ├── send-slack.ts
+│   │   │   └── webhook-delivery.ts
+│   │   └── scheduled/
+│   │       ├── daily-reports.ts
+│   │       ├── usage-metrics.ts
+│   │       └── health-checks.ts
+│   ├── trigger.config.ts
+│   └── index.ts
+```
 
-#### Introspect Data Task (`src/tasks/introspectData/`)
-- **Purpose**: Automated data source connection testing and schema analysis
-- **Duration**: 5 minutes max (300 seconds)  
-- **Data Sources**: Snowflake, PostgreSQL, MySQL, BigQuery, SQL Server, Redshift, Databricks
-- **Process**: Connection test → full introspection → resource cleanup
-- **Output**: Success/failure status with detailed logging
+## Task Implementation
 
-### Configuration (`trigger.config.ts`)
-- **Project ID**: `proj_lyyhkqmzhwiskfnavddk`
-- **Runtime**: Node.js
-- **Global Settings**: 1-hour max duration, exponential backoff retries
-- **Build Externals**: `lz4`, `xxhash` (performance libraries)
+### Basic Task Pattern
 
-### Dependencies
-- **Core**: `@trigger.dev/sdk` v3.3.17 for task orchestration
-- **Integration**: `@buster/data-source` for database connectivity and introspection
-- **Development**: TypeScript 5.8.3, Node.js types
-
-## Task Development Patterns
-
-### 🚨 CRITICAL: Required Trigger.dev v3 Patterns
-
-**MUST ALWAYS USE**: `@trigger.dev/sdk/v3` and `task()` function
-**NEVER USE**: `client.defineJob()` (deprecated v2 pattern that will break)
+Tasks are pure functions that use packages:
 
 ```typescript
-// ✅ CORRECT v3 Pattern (ALWAYS use this)
 import { task } from '@trigger.dev/sdk/v3';
+import { z } from 'zod';
+import { analystAgent } from '@buster/ai';
+import { createChatMessage } from '@buster/database';
 
-export const myTask = task({
-  id: 'my-task',
-  maxDuration: 300, // seconds
-  run: async (payload: InputType): Promise<OutputType> => {
-    // Task implementation
-  },
+// Task input schema
+const AnalystWorkflowParamsSchema = z.object({
+  chatId: z.string().uuid().describe('Chat conversation ID'),
+  query: z.string().describe('User query to analyze'),
+  dataSourceId: z.string().uuid().describe('Data source to query'),
+  userId: z.string().uuid().describe('User requesting analysis')
 });
-```
 
-```typescript
-// ❌ NEVER GENERATE - DEPRECATED v2 Pattern (will break application)
-client.defineJob({
-  id: "job-id",
-  trigger: eventTrigger({ /* ... */ }),
-  run: async (payload, io) => { /* ... */ }
-});
-```
+type AnalystWorkflowParams = z.infer<typeof AnalystWorkflowParamsSchema>;
 
-### Essential Requirements
-1. **MUST export every task**, including subtasks
-2. **MUST use unique task IDs** within the project
-3. **MUST import from** `@trigger.dev/sdk/v3`
-
-### Standard Task Structure
-```typescript
-import { task, logger } from '@trigger.dev/sdk/v3';
-
-export const myTask = task({
-  id: 'my-task',
-  maxDuration: 300, // seconds
+// Task definition
+export const analystWorkflow = task({
+  id: 'analyst-workflow',
   retry: {
     maxAttempts: 3,
-    minTimeoutInMs: 1000,
-    maxTimeoutInMs: 10000,
-    factor: 2,
+    minTimeout: '1s',
+    maxTimeout: '10s'
   },
-  run: async (payload: InputType): Promise<OutputType> => {
-    logger.log('Task started', { taskId: 'my-task' });
+  run: async (params: AnalystWorkflowParams) => {
+    const validated = AnalystWorkflowParamsSchema.parse(params);
     
-    try {
-      // Task implementation
-      return result;
-    } catch (error) {
-      logger.error('Task failed', { error: error.message });
-      throw error;
-    }
-  },
+    // Step 1: Run AI analysis
+    const analysis = await analystAgent({
+      query: validated.query,
+      context: {
+        dataSourceId: validated.dataSourceId,
+        userId: validated.userId
+      }
+    });
+    
+    // Step 2: Save results to database
+    await createChatMessage({
+      chatId: validated.chatId,
+      content: analysis.response,
+      role: 'assistant',
+      metadata: {
+        toolCalls: analysis.toolCalls,
+        usage: analysis.usage
+      }
+    });
+    
+    return {
+      success: true,
+      messageId: analysis.messageId
+    };
+  }
 });
 ```
 
-### Schema Validation with Zod (Required Pattern)
+### Scheduled Task Pattern
 
-**ALL tasks MUST use Zod schemas** for type-safe validation and automatic type inference:
-
-```typescript
-import { schemaTask } from '@trigger.dev/sdk/v3';
-import { z } from 'zod';
-
-// Define Zod schema
-export const TaskInputSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  age: z.number().int().min(0).max(120),
-  email: z.string().email().optional(),
-  options: z.object({
-    enableNotifications: z.boolean().default(true),
-    maxRetries: z.number().int().min(0).max(5).default(3),
-  }).optional(),
-});
-
-// TypeScript type automatically inferred from schema
-export type TaskInput = z.infer<typeof TaskInputSchema>;
-
-export const validatedTask = schemaTask({
-  id: 'validated-task',
-  schema: TaskInputSchema,
-  run: async (payload) => {
-    // Payload is automatically validated and typed
-    console.log(payload.name, payload.age);
-    // Full TypeScript IntelliSense available
-  },
-});
-```
-
-### Zod Schema Patterns for Trigger Tasks
-
-#### 1. Use Schemas Instead of Interfaces
-```typescript
-// ❌ DON'T: Define separate interfaces
-export interface TaskInput {
-  name: string;
-  age: number;
-}
-
-// ✅ DO: Define Zod schema and infer types
-export const TaskInputSchema = z.object({
-  name: z.string(),
-  age: z.number(),
-});
-export type TaskInput = z.infer<typeof TaskInputSchema>;
-```
-
-#### 2. Complex Nested Schemas
-```typescript
-export const DataSourceSchema = z.object({
-  name: z.string().min(1, 'Data source name is required'),
-  type: z.enum(['snowflake', 'postgresql', 'mysql', 'bigquery']),
-  credentials: z.record(z.unknown()), // Flexible for different credential types
-});
-
-export const AnalysisOptionsSchema = z.object({
-  maxSteps: z.number().int().min(1).max(50).default(15),
-  model: z.enum(['claude-3-sonnet', 'claude-3-opus']).default('claude-3-sonnet'),
-  enableStreaming: z.boolean().default(false),
-});
-
-export const TaskInputSchema = z.object({
-  sessionId: z.string().uuid('Must be a valid UUID'),
-  query: z.string().min(1, 'Query cannot be empty'),
-  dataSources: z.array(DataSourceSchema).optional(),
-  options: AnalysisOptionsSchema.optional(),
-});
-```
-
-#### 3. Output Schema Validation
-```typescript
-export const TaskOutputSchema = z.object({
-  success: z.boolean(),
-  sessionId: z.string(),
-  result: z.object({
-    response: z.string(),
-    artifacts: z.array(z.object({
-      id: z.string(),
-      type: z.enum(['metric', 'dashboard', 'query', 'chart']),
-      title: z.string(),
-      content: z.record(z.unknown()),
-    })).default([]),
-  }).optional(),
-  error: z.object({
-    code: z.string(),
-    message: z.string(),
-    details: z.record(z.unknown()).optional(),
-  }).optional(),
-});
-
-export type TaskOutput = z.infer<typeof TaskOutputSchema>;
-```
-
-#### 4. Enum Validation
-```typescript
-export const DatabaseTypeSchema = z.enum([
-  'snowflake', 'postgresql', 'mysql', 'bigquery', 
-  'sqlserver', 'redshift', 'databricks'
-]);
-
-export const AgentPhaseSchema = z.enum([
-  'initializing', 'searching', 'planning', 
-  'analyzing', 'reviewing', 'completed', 'failed'
-]);
-```
-
-#### 5. Advanced Validation Rules
-```typescript
-export const CredentialsSchema = z.object({
-  type: DatabaseTypeSchema,
-  host: z.string().optional(),
-  port: z.number().int().min(1).max(65535).optional(),
-  database: z.string().optional(),
-  username: z.string().optional(),
-  password: z.string().optional(),
-}).passthrough() // Allow additional fields for different credential types
-  .refine(data => {
-    // Custom validation: BigQuery doesn't need host/port
-    if (data.type === 'bigquery') return true;
-    return data.host && data.port;
-  }, 'Host and port required for non-BigQuery databases');
-```
-
-### Benefits of Zod Schema Approach
-
-1. **Single Source of Truth** - Schema defines both validation and TypeScript types
-2. **Runtime Safety** - Validates payloads before task execution, preventing runtime errors
-3. **Better Error Messages** - Descriptive validation errors with field-specific context
-4. **Zero Duplication** - No need to maintain separate interfaces and validation logic
-5. **IDE Support** - Full IntelliSense, autocomplete, and error checking
-6. **Automatic Type Inference** - TypeScript types automatically generated from schemas
-
-### File Organization Pattern
-
-Each task should have an `interfaces.ts` file structured as:
-
-```typescript
-// interfaces.ts
-import { z } from 'zod';
-
-// 1. Define all Zod schemas
-export const InputSchema = z.object({ /* ... */ });
-export const OutputSchema = z.object({ /* ... */ });
-
-// 2. Export TypeScript types
-export type Input = z.infer<typeof InputSchema>;
-export type Output = z.infer<typeof OutputSchema>;
-
-// 3. Export any helper schemas for reuse
-export const CommonSchema = z.object({ /* ... */ });
-```
-
-### Migration from Interfaces
-
-When updating existing tasks:
-
-1. **Replace interfaces with Zod schemas**
-2. **Use `z.infer<typeof Schema>` for types**
-3. **Update task to use `schemaTask`**
-4. **Add meaningful validation rules**
-5. **Test payload validation**
-
-### Scheduled Tasks
 ```typescript
 import { schedules } from '@trigger.dev/sdk/v3';
+import { generateDailyReports } from '@buster/reporting';
+import { getActiveOrganizations } from '@buster/database';
 
-export const scheduledTask = schedules.task({
-  id: 'scheduled-task',
-  cron: '0 */2 * * *', // Every 2 hours
-  run: async (payload) => {
-    // Scheduled task logic
-  },
-});
-```
-
-### Task Triggering Patterns
-
-#### From Backend (Outside Tasks)
-```typescript
-import { tasks } from '@trigger.dev/sdk/v3';
-import type { myTask } from '~/trigger/my-task';
-
-// Single trigger
-const handle = await tasks.trigger<typeof myTask>('my-task', payload);
-
-// Batch trigger
-const batchHandle = await tasks.batchTrigger<typeof myTask>(
-  'my-task',
-  [{ payload: data1 }, { payload: data2 }]
-);
-```
-
-#### From Inside Tasks
-```typescript
-export const parentTask = task({
-  id: 'parent-task',
-  run: async (payload) => {
-    // Trigger and wait for result
-    const result = await childTask.triggerAndWait(childPayload);
+export const dailyReports = schedules.task({
+  id: 'daily-reports',
+  cron: '0 9 * * *', // 9 AM daily
+  run: async () => {
+    const organizations = await getActiveOrganizations();
     
-    // Trigger without waiting
-    const handle = await childTask.trigger(childPayload);
-    
-    // Batch trigger and wait
-    const results = await childTask.batchTriggerAndWait([
-      { payload: item1 },
-      { payload: item2 },
-    ]);
-  },
-});
-```
-
-### Error Handling Conventions
-- Always use try/catch for external operations
-- Log errors with context using `logger.error()`
-- Return structured error responses in output
-- Clean up resources in finally blocks
-- Use lifecycle hooks for cleanup:
-
-```typescript
-export const taskWithCleanup = task({
-  id: 'task-with-cleanup',
-  cleanup: async (payload, { ctx }) => {
-    // Always runs after each attempt
-  },
-  onFailure: async (payload, error, { ctx }) => {
-    // Runs after all retries exhausted
-  },
-  run: async (payload) => {
-    // Task logic
-  },
-});
-```
-
-### Logging Standards
-```typescript
-import { task, logger } from '@trigger.dev/sdk/v3';
-
-export const loggingExample = task({
-  id: 'logging-example',
-  run: async (payload: { data: Record<string, string> }) => {
-    logger.debug('Debug message', payload.data);
-    logger.log('Log message', payload.data);
-    logger.info('Info message', payload.data);
-    logger.warn('Warning message', payload.data);
-    logger.error('Error message', payload.data);
-  },
-});
-```
-
-### Metadata for Progress Tracking
-```typescript
-import { task, metadata } from '@trigger.dev/sdk/v3';
-
-export const progressTask = task({
-  id: 'progress-task',
-  run: async (payload) => {
-    // Set initial progress
-    metadata.set('progress', 0);
-    
-    // Update progress
-    metadata.increment('progress', 0.5);
-    
-    // Add logs
-    metadata.append('logs', 'Step 1 complete');
-    
-    return result;
-  },
-});
-```
-
-### Machine Configuration
-```typescript
-export const heavyTask = task({
-  id: 'heavy-task',
-  machine: {
-    preset: 'large-1x', // 4 vCPU, 8 GB RAM
-  },
-  maxDuration: 1800, // 30 minutes
-  run: async (payload) => {
-    // Compute-intensive task logic
-  },
-});
-```
-
-### Idempotency for Reliability
-```typescript
-import { task, idempotencyKeys } from '@trigger.dev/sdk/v3';
-
-export const idempotentTask = task({
-  id: 'idempotent-task',
-  run: async (payload) => {
-    const idempotencyKey = await idempotencyKeys.create(['user', payload.userId]);
-    
-    await childTask.trigger(
-      payload,
-      { idempotencyKey, idempotencyKeyTTL: '1h' }
+    // Process each org in parallel
+    const results = await Promise.all(
+      organizations.map(org => 
+        generateDailyReports({
+          organizationId: org.id,
+          date: new Date()
+        })
+      )
     );
-  },
+    
+    return {
+      processed: results.length,
+      successful: results.filter(r => r.success).length
+    };
+  }
 });
 ```
 
-## TypeScript Configuration
+## Long-Running Workflows
 
-- **Extends**: `../tsconfig.base.json` (monorepo shared config)
-- **Paths**: `@/*` maps to `src/*` for clean imports
-- **Build**: Outputs to `dist/` directory
-- **JSX**: React JSX transform enabled
+### Step-Based Workflows
 
-## Integration Points
+```typescript
+import { task, wait } from '@trigger.dev/sdk/v3';
 
-- **Data Sources**: Uses `@buster/data-source` package for database operations
-- **AI Agents**: Integrates with Buster multi-agent system (referenced but not implemented in current tasks)
-- **Monorepo**: Part of larger Buster platform with packages in `../packages/`
-
-## Development Notes
-
-- Tasks run in isolated environments with resource limits
-- Connection cleanup is critical for database tasks
-- Retry logic is configured globally but can be overridden per task
-- Real-time progress tracking is supported through Trigger.dev dashboard
-
-<!-- TRIGGER.DEV basic START -->
-# Trigger.dev Basic Tasks (v4)
-
-**MUST use `@trigger.dev/sdk` (v4), NEVER `client.defineJob`**
-
-## Basic Task
-
-```ts
-import { task } from "@trigger.dev/sdk";
-
-export const processData = task({
-  id: "process-data",
-  retry: {
-    maxAttempts: 10,
-    factor: 1.8,
-    minTimeoutInMs: 500,
-    maxTimeoutInMs: 30_000,
-    randomize: false,
-  },
-  run: async (payload: { userId: string; data: any[] }) => {
-    // Task logic - runs for long time, no timeouts
-    console.log(`Processing ${payload.data.length} items for user ${payload.userId}`);
-    return { processed: payload.data.length };
-  },
-});
-```
-
-## Schema Task (with validation)
-
-```ts
-import { schemaTask } from "@trigger.dev/sdk";
-import { z } from "zod";
-
-export const validatedTask = schemaTask({
-  id: "validated-task",
-  schema: z.object({
-    name: z.string(),
-    age: z.number(),
-    email: z.string().email(),
-  }),
-  run: async (payload) => {
-    // Payload is automatically validated and typed
-    return { message: `Hello ${payload.name}, age ${payload.age}` };
-  },
-});
-```
-
-## Scheduled Task
-
-```ts
-import { schedules } from "@trigger.dev/sdk";
-
-const dailyReport = schedules.task({
-  id: "daily-report",
-  cron: "0 9 * * *", // Daily at 9:00 AM UTC
-  // or with timezone: cron: { pattern: "0 9 * * *", timezone: "America/New_York" },
-  run: async (payload) => {
-    console.log("Scheduled run at:", payload.timestamp);
-    console.log("Last run was:", payload.lastTimestamp);
-    console.log("Next 5 runs:", payload.upcoming);
-
-    // Generate daily report logic
-    return { reportGenerated: true, date: payload.timestamp };
-  },
-});
-```
-
-## Triggering Tasks
-
-### From Backend Code
-
-```ts
-import { tasks } from "@trigger.dev/sdk";
-import type { processData } from "./trigger/tasks";
-
-// Single trigger
-const handle = await tasks.trigger<typeof processData>("process-data", {
-  userId: "123",
-  data: [{ id: 1 }, { id: 2 }],
-});
-
-// Batch trigger
-const batchHandle = await tasks.batchTrigger<typeof processData>("process-data", [
-  { payload: { userId: "123", data: [{ id: 1 }] } },
-  { payload: { userId: "456", data: [{ id: 2 }] } },
-]);
-```
-
-### From Inside Tasks (with Result handling)
-
-```ts
-export const parentTask = task({
-  id: "parent-task",
-  run: async (payload) => {
-    // Trigger and continue
-    const handle = await childTask.trigger({ data: "value" });
-
-    // Trigger and wait - returns Result object, NOT task output
-    const result = await childTask.triggerAndWait({ data: "value" });
-    if (result.ok) {
-      console.log("Task output:", result.output); // Actual task return value
-    } else {
-      console.error("Task failed:", result.error);
-    }
-
-    // Quick unwrap (throws on error)
-    const output = await childTask.triggerAndWait({ data: "value" }).unwrap();
-
-    // Batch trigger and wait
-    const results = await childTask.batchTriggerAndWait([
-      { payload: { data: "item1" } },
-      { payload: { data: "item2" } },
-    ]);
-
-    for (const run of results) {
-      if (run.ok) {
-        console.log("Success:", run.output);
-      } else {
-        console.log("Failed:", run.error);
-      }
-    }
-  },
-});
-
-export const childTask = task({
-  id: "child-task",
-  run: async (payload: { data: string }) => {
-    return { processed: payload.data };
-  },
-});
-```
-
-> Never wrap triggerAndWait or batchTriggerAndWait calls in a Promise.all or Promise.allSettled as this is not supported in Trigger.dev tasks.
-
-## Waits
-
-```ts
-import { task, wait } from "@trigger.dev/sdk";
-
-export const taskWithWaits = task({
-  id: "task-with-waits",
-  run: async (payload) => {
-    console.log("Starting task");
-
-    // Wait for specific duration
-    await wait.for({ seconds: 30 });
-    await wait.for({ minutes: 5 });
-    await wait.for({ hours: 1 });
-    await wait.for({ days: 1 });
-
-    // Wait until specific date
-    await wait.until({ date: new Date("2024-12-25") });
-
-    // Wait for token (from external system)
-    await wait.forToken({
-      token: "user-approval-token",
-      timeoutInSeconds: 3600, // 1 hour timeout
+export const dataImportWorkflow = task({
+  id: 'data-import-workflow',
+  run: async (params: ImportParams) => {
+    // Step 1: Validate data source
+    const validation = await task.run('validate-source', async () => {
+      return validateDataSource(params.dataSourceId);
     });
-
-    console.log("All waits completed");
-    return { status: "completed" };
-  },
+    
+    if (!validation.isValid) {
+      throw new Error(`Invalid data source: ${validation.error}`);
+    }
+    
+    // Step 2: Extract data
+    const extraction = await task.run('extract-data', async () => {
+      return extractData(params.dataSourceId);
+    });
+    
+    // Step 3: Transform data
+    const transformation = await task.run('transform-data', async () => {
+      return transformData(extraction.data);
+    });
+    
+    // Step 4: Wait for rate limit window
+    await wait.for({ seconds: 5 });
+    
+    // Step 5: Load data
+    const loading = await task.run('load-data', async () => {
+      return loadData(transformation.data);
+    });
+    
+    return {
+      recordsProcessed: loading.count,
+      duration: Date.now() - startTime
+    };
+  }
 });
 ```
 
-> Never wrap wait calls in a Promise.all or Promise.allSettled as this is not supported in Trigger.dev tasks.
+### Parallel Processing
 
-## Key Points
-
-- **Result vs Output**: `triggerAndWait()` returns a `Result` object with `ok`, `output`, `error` properties - NOT the direct task output
-- **Type safety**: Use `import type` for task references when triggering from backend
-- **Waits > 5 seconds**: Automatically checkpointed, don't count toward compute usage
-
-## NEVER Use (v2 deprecated)
-
-```ts
-// BREAKS APPLICATION
-client.defineJob({
-  id: "job-id",
-  run: async (payload, io) => {
-    /* ... */
-  },
+```typescript
+export const bulkAnalysis = task({
+  id: 'bulk-analysis',
+  run: async (params: BulkParams) => {
+    const items = await getItemsToProcess(params.batchId);
+    
+    // Process in chunks to avoid overwhelming the system
+    const chunks = chunkArray(items, 10);
+    
+    const results = [];
+    for (const chunk of chunks) {
+      const chunkResults = await Promise.all(
+        chunk.map(item => 
+          task.run(`analyze-${item.id}`, () => 
+            analyzeItem(item)
+          )
+        )
+      );
+      results.push(...chunkResults);
+      
+      // Rate limiting between chunks
+      await wait.for({ seconds: 2 });
+    }
+    
+    return {
+      total: results.length,
+      successful: results.filter(r => r.success).length
+    };
+  }
 });
 ```
 
-Use v4 SDK (`@trigger.dev/sdk`), check `result.ok` before accessing `result.output`
+## Error Handling
 
-<!-- TRIGGER.DEV basic END -->
+### Retry Configuration
+
+```typescript
+export const resilientTask = task({
+  id: 'resilient-task',
+  retry: {
+    maxAttempts: 5,
+    minTimeout: '1s',
+    maxTimeout: '30s',
+    factor: 2, // Exponential backoff
+    randomize: true
+  },
+  run: async (params) => {
+    try {
+      return await riskyOperation(params);
+    } catch (error) {
+      // Log error for monitoring
+      console.error('Task failed:', error);
+      
+      // Determine if should retry
+      if (error.code === 'RATE_LIMIT') {
+        // Will be retried automatically
+        throw error;
+      }
+      
+      if (error.code === 'INVALID_INPUT') {
+        // Don't retry for bad input
+        return {
+          success: false,
+          error: 'Invalid input provided'
+        };
+      }
+      
+      // Unknown error, let it retry
+      throw error;
+    }
+  }
+});
+```
+
+### Dead Letter Queue
+
+```typescript
+export const criticalTask = task({
+  id: 'critical-task',
+  onFailure: async ({ error, params, attempts }) => {
+    // Send to dead letter queue
+    await saveFailedTask({
+      taskId: 'critical-task',
+      params,
+      error: error.message,
+      attempts,
+      failedAt: new Date()
+    });
+    
+    // Alert team
+    await notifyOps({
+      message: `Critical task failed after ${attempts} attempts`,
+      error: error.message
+    });
+  },
+  run: async (params) => {
+    // Task implementation
+  }
+});
+```
+
+## Event-Driven Tasks
+
+### Webhook Handler
+
+```typescript
+import { eventTrigger } from '@trigger.dev/sdk/v3';
+
+export const handleWebhook = eventTrigger({
+  id: 'handle-webhook',
+  event: 'webhook.received',
+  run: async (event) => {
+    const { payload, headers } = event;
+    
+    // Verify webhook signature
+    const isValid = verifyWebhookSignature(
+      payload,
+      headers['x-signature']
+    );
+    
+    if (!isValid) {
+      throw new Error('Invalid webhook signature');
+    }
+    
+    // Process webhook
+    await processWebhookPayload(payload);
+    
+    return { processed: true };
+  }
+});
+```
+
+## Package Integration
+
+### Using Database Package
+
+```typescript
+import { 
+  createJob,
+  updateJobStatus,
+  getJobById 
+} from '@buster/database';
+
+export const databaseTask = task({
+  id: 'database-task',
+  run: async (params) => {
+    // Create job record
+    const job = await createJob({
+      type: 'data-processing',
+      status: 'running',
+      metadata: params
+    });
+    
+    try {
+      // Do work
+      const result = await processData(params);
+      
+      // Update job status
+      await updateJobStatus({
+        jobId: job.id,
+        status: 'completed',
+        result
+      });
+      
+      return result;
+    } catch (error) {
+      await updateJobStatus({
+        jobId: job.id,
+        status: 'failed',
+        error: error.message
+      });
+      throw error;
+    }
+  }
+});
+```
+
+### Using AI Package
+
+```typescript
+import { dataAnalysisWorkflow } from '@buster/ai';
+
+export const aiAnalysisTask = task({
+  id: 'ai-analysis',
+  run: async (params) => {
+    const result = await dataAnalysisWorkflow({
+      userQuery: params.query,
+      context: {
+        dataSourceId: params.dataSourceId,
+        userId: params.userId
+      },
+      schema: params.schema,
+      examples: params.examples
+    });
+    
+    return {
+      understanding: result.understanding,
+      sql: result.sql,
+      analysis: result.analysis
+    };
+  }
+});
+```
+
+## Testing Patterns
+
+### Task Testing
+
+```typescript
+import { createTestTask } from '@trigger.dev/sdk/v3/testing';
+
+describe('analystWorkflow', () => {
+  it('should process analysis request', async () => {
+    const testTask = createTestTask(analystWorkflow);
+    
+    const result = await testTask.run({
+      chatId: 'test-chat',
+      query: 'Show me sales data',
+      dataSourceId: 'test-source',
+      userId: 'test-user'
+    });
+    
+    expect(result.success).toBe(true);
+    expect(result.messageId).toBeDefined();
+  });
+  
+  it('should retry on failure', async () => {
+    const testTask = createTestTask(analystWorkflow);
+    
+    // Mock failure
+    jest.spyOn(ai, 'analystAgent')
+      .mockRejectedValueOnce(new Error('Temporary failure'))
+      .mockResolvedValueOnce({ response: 'Success' });
+    
+    const result = await testTask.run({
+      chatId: 'test-chat',
+      query: 'Test query',
+      dataSourceId: 'test-source',
+      userId: 'test-user'
+    });
+    
+    expect(result.success).toBe(true);
+    expect(testTask.attempts).toBe(2);
+  });
+});
+```
+
+## Configuration
+
+### Trigger Config
+
+```typescript
+// trigger.config.ts
+import { defineConfig } from '@trigger.dev/sdk/v3';
+
+export default defineConfig({
+  project: 'buster-trigger',
+  runtime: 'node',
+  logLevel: 'info',
+  retries: {
+    enabledInDev: true,
+    default: {
+      maxAttempts: 3,
+      minTimeout: 1000,
+      maxTimeout: 10000,
+      factor: 2
+    }
+  },
+  dirs: ['./src/tasks']
+});
+```
+
+## Best Practices
+
+### DO:
+- Use packages for all business logic
+- Validate inputs with Zod
+- Implement proper error handling
+- Use retries for transient failures
+- Log important events
+- Break large tasks into steps
+- Use parallel processing when possible
+- Clean up resources in finally blocks
+
+### DON'T:
+- Interface directly with clients
+- Store state in task functions
+- Use classes for task logic
+- Skip input validation
+- Ignore error handling
+- Create infinite loops
+- Make synchronous blocking calls
+- Access external services without packages
+
+## Monitoring
+
+### Task Metrics
+
+```typescript
+export const monitoredTask = task({
+  id: 'monitored-task',
+  run: async (params) => {
+    const startTime = Date.now();
+    
+    try {
+      const result = await performWork(params);
+      
+      // Log success metric
+      await logMetric({
+        task: 'monitored-task',
+        status: 'success',
+        duration: Date.now() - startTime
+      });
+      
+      return result;
+    } catch (error) {
+      // Log failure metric
+      await logMetric({
+        task: 'monitored-task',
+        status: 'failure',
+        duration: Date.now() - startTime,
+        error: error.message
+      });
+      
+      throw error;
+    }
+  }
+});
+```
+
+This app should ONLY orchestrate background tasks using packages. All business logic belongs in packages.
