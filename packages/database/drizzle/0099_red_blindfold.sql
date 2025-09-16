@@ -241,6 +241,6 @@ SELECT
     c.organization_id,
     m.created_at, m.updated_at, m.deleted_at
 FROM public.messages m
-JOIN chats c ON m.chat_id = c.id
+JOIN public.chats c ON m.chat_id = c.id
 WHERE m.deleted_at IS NULL AND m.request_message IS NOT NULL AND m.request_message != ''
 ON CONFLICT (asset_id, asset_type) DO NOTHING;
