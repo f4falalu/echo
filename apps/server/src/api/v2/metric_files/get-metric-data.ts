@@ -66,11 +66,11 @@ export async function getMetricDataHandler(
   }
 
   // Check if user has permission to view this metric file
-  // This follows the same pattern as report-files.ts - hasAssetPermission handles all the logic including:
-  // - Direct permissions
-  // - Workspace sharing permissions
-  // - Cascading permissions (dashboard, chat, collection)
-  // - Admin permissions
+  // hasAssetPermission internally handles:
+  // 1. Direct permissions
+  // 2. Admin permissions
+  // 3. Workspace sharing permissions (if provided)
+  // 4. Cascading permissions (dashboard, chat, collection)
   const hasAccess = await hasAssetPermission({
     userId: user.id,
     assetId: metricId,

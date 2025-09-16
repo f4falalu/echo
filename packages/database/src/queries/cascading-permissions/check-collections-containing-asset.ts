@@ -1,12 +1,18 @@
 import { and, eq, isNull } from 'drizzle-orm';
 import { db } from '../../connection';
 import { collections, collectionsToAssets } from '../../schema';
-import type { AssetType } from '../../schema-types';
+import type { AssetType, WorkspaceSharing } from '../../schema-types';
+
+export interface CollectionWithSharing {
+  id: string;
+  organizationId: string;
+  workspaceSharing: WorkspaceSharing | null;
+}
 
 export async function checkCollectionsContainingAsset(
   assetId: string,
   assetType: 'metric' | 'dashboard' | 'chat'
-): Promise<{ id: string }[]> {
+): Promise<CollectionWithSharing[]> {
   // Map our asset type strings to the enum values expected by the database
   const assetTypeMap: Record<string, AssetType> = {
     metric: 'metric_file',
@@ -22,6 +28,8 @@ export async function checkCollectionsContainingAsset(
   const result = await db
     .select({
       id: collections.id,
+      organizationId: collections.organizationId,
+      workspaceSharing: collections.workspaceSharing,
     })
     .from(collectionsToAssets)
     .innerJoin(collections, eq(collections.id, collectionsToAssets.collectionId))
