@@ -1,4 +1,4 @@
-import { type SQL, and, count, desc, eq, exists, isNull, ne, or } from 'drizzle-orm';
+import { type SQL, and, count, desc, eq, exists, isNull, ne, or, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
 import { assetPermissions, reportFiles, teamsToUsers, users } from '../../schema';
@@ -184,6 +184,22 @@ export async function getReportsWithPermissions(
         created_by_avatar: users.avatarUrl,
         // Get the user's permission for this report
         permission: assetPermissions.role,
+        // Calculate is_shared directly in SQL
+        // Check if report is shared with OTHER users or teams (not just the current user)
+        is_shared: sql<boolean>`
+          ${reportFiles.publiclyAccessible} = true 
+          OR ${reportFiles.workspaceSharing} != 'none' 
+          OR EXISTS (
+            SELECT 1 FROM asset_permissions ap
+            WHERE ap.asset_id = ${reportFiles.id}
+              AND ap.asset_type = 'report_file'
+              AND (
+                (ap.identity_type = 'user' AND ap.identity_id != ${userId})
+                OR ap.identity_type = 'team'
+              )
+              AND ap.deleted_at IS NULL
+          )
+        `,
       })
       .from(reportFiles)
       .innerJoin(users, eq(reportFiles.createdBy, users.id))
@@ -213,10 +229,9 @@ export async function getReportsWithPermissions(
 
     const total = totalResult[0]?.count ?? 0;
 
-    // Transform the data to include is_shared flag
+    // Transform the data to set permission
     const transformedData = data.map((report) => ({
       ...report,
-      is_shared: report.created_by_id !== userId,
       // If no explicit permission but user is creator, they're the owner
       permission: report.permission || (report.created_by_id === userId ? 'owner' : null),
     }));

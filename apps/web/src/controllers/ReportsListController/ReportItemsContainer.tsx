@@ -29,10 +29,10 @@ const columns: BusterListColumn<ReportListItem>[] = [
     },
   },
   {
-    dataIndex: 'publicly_accessible',
+    dataIndex: 'is_shared',
     title: 'Sharing',
     width: 65,
-    render: (_v, record) => getShareStatus({ is_shared: record.publicly_accessible }),
+    render: (_v, record) => getShareStatus({ is_shared: record.is_shared }),
   },
   {
     dataIndex: 'created_by_name',
@@ -54,8 +54,6 @@ export const ReportItemsContainer: React.FC<{
   loading: boolean;
 }> = ({ reports = [], loading }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
-  const renderedDates = useRef<Record<string, string>>({});
-  const renderedOwners = useRef<Record<string, React.ReactNode>>({});
 
   const onSelectChange = useMemoizedFn((selectedRowKeys: string[]) => {
     setSelectedRowKeys(selectedRowKeys);
