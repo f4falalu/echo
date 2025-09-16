@@ -153,6 +153,7 @@ const FeedbackForm = React.memo(
     return (
       <div className="flex flex-col space-y-4">
         <InputTextArea
+          className="max-h-[500px]"
           rows={5}
           maxRows={10}
           value={feedback}
