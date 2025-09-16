@@ -26,9 +26,11 @@ import { useStartChatFromAsset } from '@/context/BusterAssets/useStartChatFromAs
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { ensureElementExists } from '@/lib/element';
 import { downloadElementToImage, exportJSONToCSV } from '@/lib/exportUtils';
+import { canEdit } from '../../../lib/share';
 import { FollowUpWithAssetContent } from '../assets/FollowUpWithAsset';
 import { useFavoriteStar } from '../favorites';
 import { ASSET_ICONS } from '../icons/assetIcons';
+import { getShareAssetConfig } from '../ShareMenu/helpers';
 import { useListMetricVersionDropdownItems } from '../versionHistory/useListMetricVersionDropdownItems';
 import { METRIC_CHART_CONTAINER_ID } from './MetricChartCard/config';
 import { METRIC_CHART_TITLE_INPUT_ID } from './MetricChartCard/MetricViewChartHeader';
@@ -375,6 +377,12 @@ export const useNavigateToDashboardMetricItem = ({
 };
 
 export const useEditMetricWithAI = ({ metricId }: { metricId: string }): IDropdownItem => {
+  const { data: shareAssetConfig } = useGetMetric(
+    { id: metricId },
+    { select: getShareAssetConfig }
+  );
+  const isEditor = canEdit(shareAssetConfig?.permission);
+
   const { onCreateFileClick, loading } = useStartChatFromAsset({
     assetId: metricId,
     assetType: 'metric',
@@ -387,8 +395,9 @@ export const useEditMetricWithAI = ({ metricId }: { metricId: string }): IDropdo
         value: 'edit-with-ai',
         icon: <PenSparkle />,
         onClick: onCreateFileClick,
+        disabled: !isEditor,
         loading,
       }),
-    [metricId, onCreateFileClick, loading]
+    [metricId, onCreateFileClick, loading, isEditor]
   );
 };

@@ -14,7 +14,7 @@ import { DASHBOARD_TITLE_INPUT_ID } from '@/controllers/DashboardController/Dash
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { onOpenDashboardContentModal } from '../../../context/Dashboards/dashboard-content-store';
 import { ensureElementExists } from '../../../lib/element';
-import { getIsEffectiveOwner } from '../../../lib/share';
+import { canEdit, getIsEffectiveOwner } from '../../../lib/share';
 import type { IDropdownItem, IDropdownItems } from '../../ui/dropdown';
 import { createDropdownItem, DropdownContent } from '../../ui/dropdown';
 import {
@@ -283,6 +283,9 @@ export const useShareMenuSelectMenu = ({ dashboardId }: { dashboardId: string })
 };
 
 export const useEditDashboardWithAI = ({ dashboardId }: { dashboardId: string }) => {
+  const { data: dashboard } = useGetDashboard({ id: dashboardId }, { select: getShareAssetConfig });
+  const isEditor = canEdit(dashboard?.permission);
+
   const { onCreateFileClick, loading } = useStartChatFromAsset({
     assetId: dashboardId,
     assetType: 'dashboard',
@@ -295,8 +298,9 @@ export const useEditDashboardWithAI = ({ dashboardId }: { dashboardId: string })
         value: 'edit-with-ai',
         icon: <PenSparkle />,
         onClick: onCreateFileClick,
+        disabled: !isEditor,
         loading,
       }),
-    [dashboardId, onCreateFileClick, loading]
+    [dashboardId, onCreateFileClick, loading, isEditor]
   );
 };

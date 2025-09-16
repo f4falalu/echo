@@ -8,7 +8,7 @@ import { ClosePageButton } from '@/components/features/chat/ClosePageButton';
 import { ReportThreeDotMenu } from '@/components/features/reports/ReportThreeDotMenu';
 import { useIsChatMode, useIsFileMode } from '@/context/Chats/useMode';
 import { useIsReportReadOnly } from '@/context/Reports/useIsReportReadOnly';
-import { getIsEffectiveOwner } from '@/lib/share';
+import { canEdit, getIsEffectiveOwner } from '@/lib/share';
 import { FileButtonContainer } from '../FileButtonContainer';
 import { HideButtonContainer } from '../HideButtonContainer';
 
@@ -32,6 +32,7 @@ export const ReportContainerHeaderButtons: React.FC<ReportContainerHeaderButtons
   );
 
   const isEffectiveOwner = getIsEffectiveOwner(permission);
+  const isEditor = canEdit(permission);
 
   return (
     <FileButtonContainer>
@@ -43,7 +44,7 @@ export const ReportContainerHeaderButtons: React.FC<ReportContainerHeaderButtons
         isViewingOldVersion={isViewingOldVersion}
       />
 
-      <HideButtonContainer show={isFileMode}>
+      <HideButtonContainer show={isFileMode && isEditor}>
         <CreateChatButton assetId={reportId} assetType="report" />
       </HideButtonContainer>
       {isChatMode && <ClosePageButton />}

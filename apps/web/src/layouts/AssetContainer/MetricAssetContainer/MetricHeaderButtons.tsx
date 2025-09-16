@@ -45,7 +45,7 @@ export const MetricContainerHeaderButtons: React.FC<{
         isViewingOldVersion={isViewingOldVersion}
         versionNumber={metricVersionNumber}
       />
-      <HideButtonContainer show={isFileMode}>
+      <HideButtonContainer show={isFileMode && isEditor}>
         <CreateChatButton assetId={metricId} assetType="metric" />
       </HideButtonContainer>
       {isChatMode && <ClosePageButton />}
