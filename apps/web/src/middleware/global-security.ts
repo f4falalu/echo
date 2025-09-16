@@ -4,36 +4,46 @@ import { createSecurityHeaders } from './csp-helper';
 
 export const securityMiddleware = createMiddleware({ type: 'function' }).server(
   async ({ next }) => {
-    // Check if this is an embed route by examining the request URL
-    const request = getWebRequest();
-    const url = new URL(request.url);
-    const isEmbed = url.pathname.startsWith('/embed');
+    try {
+      // Check if this is an embed route by examining the request URL
+      const request = getWebRequest();
+      const url = new URL(request.url);
+      const isEmbed = url.pathname.startsWith('/embed');
 
-    setHeaders(createSecurityHeaders(isEmbed));
+      setHeaders(createSecurityHeaders(isEmbed));
 
-    // Set appropriate cache headers for static assets
-    const pathname = url.pathname;
-    if (
-      pathname.endsWith('.ico') ||
-      pathname.endsWith('.png') ||
-      pathname.endsWith('.jpg') ||
-      pathname.endsWith('.jpeg') ||
-      pathname.endsWith('.gif') ||
-      pathname.endsWith('.svg') ||
-      pathname.endsWith('.woff') ||
-      pathname.endsWith('.woff2') ||
-      pathname.endsWith('.ttf') ||
-      pathname.endsWith('.eot')
-    ) {
-      // Static assets with hashed filenames can be cached for 1 year
-      setHeaders({
-        'Cache-Control': 'public, max-age=31536000, immutable', // 1 year
-      });
-    } else if (pathname === '/manifest.json') {
-      // Manifest can be cached for a shorter time
-      setHeaders({
-        'Cache-Control': 'public, max-age=86400', // 1 day
-      });
+      // Set appropriate cache headers for static assets
+      const pathname = url.pathname;
+      if (
+        pathname.endsWith('.ico') ||
+        pathname.endsWith('.png') ||
+        pathname.endsWith('.jpg') ||
+        pathname.endsWith('.jpeg') ||
+        pathname.endsWith('.gif') ||
+        pathname.endsWith('.svg') ||
+        pathname.endsWith('.woff') ||
+        pathname.endsWith('.woff2') ||
+        pathname.endsWith('.ttf') ||
+        pathname.endsWith('.eot')
+      ) {
+        // Static assets with hashed filenames can be cached for 1 year
+        setHeaders({
+          'Cache-Control': 'public, max-age=31536000, immutable', // 1 year
+        });
+      } else if (pathname === '/manifest.json') {
+        // Manifest can be cached for a shorter time
+        setHeaders({
+          'Cache-Control': 'public, max-age=86400', // 1 day
+        });
+      }
+    } catch (error) {
+      // Ignore headers already sent errors to prevent crashes
+      if (error instanceof Error && error.message.includes('ERR_HTTP_HEADERS_SENT')) {
+        console.warn('Attempted to set security headers after headers sent');
+      } else {
+        // Log other errors but don't throw to avoid breaking the request
+        console.error('Error in security middleware:', error);
+      }
     }
 
     const result = await next();
