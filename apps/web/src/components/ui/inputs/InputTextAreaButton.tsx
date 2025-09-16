@@ -74,11 +74,11 @@ export const InputTextAreaButton = forwardRef<HTMLTextAreaElement, InputTextArea
       >
         <InputTextArea
           ref={textRef}
-          disabled={disabled || loading}
+          disabled={disabled}
           variant="ghost"
           className={cn(
             'leading-1.3 w-full px-5! pt-4! pr-10 align-middle',
-            loading && 'cursor-not-allowed! opacity-70',
+            loading && 'opacity-80',
             inputClassName
           )}
           style={style}
