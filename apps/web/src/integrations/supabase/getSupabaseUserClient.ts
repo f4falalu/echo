@@ -64,13 +64,14 @@ export const getSupabaseUser = async () => {
 async function getSupbaseUserFastClient() {
   const cookieRes = await getSupabaseCookieClient();
   const almostExpired = isTokenAlmostExpired(cookieRes.expires_at);
-  // if (!almostExpired) {
-  //   return {
-  //     data: {
-  //       user: cookieRes.user,
-  //     },
-  //   };
-  // }
+
+  if (!almostExpired) {
+    return {
+      data: {
+        user: cookieRes.user,
+      },
+    };
+  }
 
   return await supabase.auth.getUser();
 }
