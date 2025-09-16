@@ -66,9 +66,22 @@ export const defaultAxiosRequestHandler = async (config: InternalAxiosRequestCon
 
   try {
     if (isServer) {
-      token = await getSupabaseSessionServerFn().then(
-        ({ data: { session } }) => session.access_token
-      );
+      try {
+        token = await getSupabaseSessionServerFn().then(
+          ({ data: { session } }) => session.access_token
+        );
+      } catch (supabaseError) {
+        // Handle headers already sent error gracefully
+        if (
+          supabaseError instanceof Error &&
+          supabaseError.message.includes('ERR_HTTP_HEADERS_SENT')
+        ) {
+          console.warn('Headers already sent when getting auth token, proceeding without token');
+          // Continue without token rather than crashing
+          return config;
+        }
+        throw supabaseError;
+      }
     } else {
       // Always check token validity before making requests
       const tokenResult = await checkTokenValidity();
