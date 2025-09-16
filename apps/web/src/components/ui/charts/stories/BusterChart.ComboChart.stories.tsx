@@ -1187,6 +1187,14 @@ export const ComboChartWithNegativeNumbers: Story = {
       },
       {
         name: 'revenue',
+        min_value: '-1039.47',
+        max_value: '780212.37',
+        unique_values: 13,
+        simple_type: 'text',
+        type: 'text',
+      },
+      {
+        name: 'non_revenue',
         min_value: '-17040.32',
         max_value: '97699.16',
         unique_values: 13,

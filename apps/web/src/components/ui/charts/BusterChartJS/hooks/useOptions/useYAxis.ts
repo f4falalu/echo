@@ -5,6 +5,7 @@ import {
   type ColumnLabelFormat,
   type ComboChartAxis,
   DEFAULT_COLUMN_LABEL_FORMAT,
+  DEFAULT_COLUMN_SETTINGS,
 } from '@buster/server-shared/metrics';
 import type { GridLineOptions, Scale, ScaleChartOptions } from 'chart.js';
 import { useMemo } from 'react';
@@ -28,6 +29,8 @@ export const useYAxis = ({
   yAxisStartAxisAtZero,
   yAxisScaleType,
   gridLines,
+  columnMetadata,
+  columnSettings,
 }: {
   columnLabelFormats: NonNullable<ChartConfigProps['columnLabelFormats']>;
   selectedAxis: ChartEncodes;
@@ -40,10 +43,24 @@ export const useYAxis = ({
   yAxisShowAxisLabel: BusterChartProps['yAxisShowAxisLabel'];
   yAxisStartAxisAtZero: BusterChartProps['yAxisStartAxisAtZero'];
   yAxisScaleType: BusterChartProps['yAxisScaleType'];
+  columnSettings: NonNullable<BusterChartProps['columnSettings']>;
   gridLines: BusterChartProps['gridLines'];
 }): DeepPartial<ScaleChartOptions<'bar'>['scales']['y']> | undefined => {
   const yAxisKeys = selectedAxis.y;
   const hasY2Axis = (selectedAxis as ComboChartAxis)?.y2?.length > 0;
+
+  const useMinValue = useMemo(() => {
+    if (!hasY2Axis) return false;
+    if (selectedChartType !== 'combo') return false;
+    if (!columnMetadata) return false;
+    return columnMetadata?.some((column) => {
+      return (
+        yAxisKeys.includes(column.name) &&
+        (columnSettings[column.name]?.columnVisualization ||
+          DEFAULT_COLUMN_SETTINGS.columnVisualization) === 'bar'
+      );
+    });
+  }, [hasY2Axis, yAxisKeys, selectedChartType]);
 
   const isSupportedType = useMemo(() => {
     return selectedChartType !== 'pie';
@@ -112,7 +129,7 @@ export const useYAxis = ({
     useMemo(() => {
       if (!isSupportedType) return undefined;
 
-      return {
+      const baseConfig = {
         type,
         grid,
         max: usePercentageModeAxis ? 100 : undefined,
@@ -125,12 +142,16 @@ export const useYAxis = ({
         ticks: {
           display: yAxisShowAxisLabel,
           callback: tickCallback,
-          count: hasY2Axis ? DEFAULT_Y2_AXIS_COUNT : undefined,
+          count: useMinValue ? DEFAULT_Y2_AXIS_COUNT : undefined,
+          includeBounds: true,
         },
+        min: useMinValue ? 0 : undefined,
         border: {
           display: yAxisShowAxisLabel,
         },
       } as DeepPartial<ScaleChartOptions<'bar'>['scales']['y']>;
+
+      return baseConfig;
     }, [
       tickCallback,
       type,
