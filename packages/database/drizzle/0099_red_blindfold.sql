@@ -1,5 +1,15 @@
 -- Custom SQL migration file, put your code below! --
 
+-- Add the 'message' value to asset_type_enum if it doesn't exist
+-- This needs to be done first and committed before it can be used
+DO $$
+BEGIN
+    -- Check if 'message' value already exists in the enum
+    IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'message' AND enumtypid = 'asset_type_enum'::regtype) THEN
+        ALTER TYPE "public"."asset_type_enum" ADD VALUE 'message';
+    END IF;
+END $$;
+
 -- Function for chats table
 CREATE OR REPLACE FUNCTION sync_chats_to_text_search()
 RETURNS TRIGGER AS $$
