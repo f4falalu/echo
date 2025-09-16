@@ -5,7 +5,7 @@ import { useMount } from '@/hooks/useMount';
 import { getBrowserClient } from '@/integrations/supabase/client';
 
 export type SupabaseContextType = {
-  user: Pick<User, 'id' | 'is_anonymous' | 'email'>;
+  supabaseUser: Pick<User, 'id' | 'is_anonymous' | 'email'>;
   accessToken: string;
 };
 
@@ -13,14 +13,16 @@ const supabase = getBrowserClient();
 const fiveMinutes = 5 * 60 * 1000;
 
 const useSupabaseContextInternal = ({
-  user,
+  supabaseUser: supabaseUserProp,
   accessToken: accessTokenProp,
 }: SupabaseContextType) => {
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const [supabaseUser, setSupabaseUser] = useState<SupabaseContextType['user'] | null>(user);
+  const [supabaseUser, setSupabaseUser] = useState<SupabaseContextType['supabaseUser'] | null>(
+    supabaseUserProp
+  );
   const [accessToken, setAccessToken] = useState(accessTokenProp);
 
-  const isAnonymousUser: boolean = !user?.id || user?.is_anonymous === true;
+  const isAnonymousUser: boolean = !supabaseUser?.id || supabaseUser?.is_anonymous === true;
 
   useMount(() => {
     const {
@@ -65,8 +67,8 @@ export const SupabaseContext = createContext<ReturnType<typeof useSupabaseContex
 
 export const SupabaseContextProvider: React.FC<
   SupabaseContextType & { children: React.ReactNode }
-> = React.memo(({ user, accessToken, children }) => {
-  const value = useSupabaseContextInternal({ user, accessToken });
+> = React.memo(({ supabaseUser, accessToken, children }) => {
+  const value = useSupabaseContextInternal({ supabaseUser, accessToken });
 
   return <SupabaseContext.Provider value={value}>{children}</SupabaseContext.Provider>;
 });
