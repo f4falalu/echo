@@ -6,7 +6,7 @@ import {
   useGetCollection,
 } from '@/api/buster_rest/collections';
 import { useSearch } from '@/api/buster_rest/search';
-import { ASSET_ICONS, ASSET_TYPE_TO_ICON } from '@/components/features/icons/assetIcons';
+import { ASSET_ICONS, assetTypeToIcon } from '@/components/features/icons/assetIcons';
 import { Button } from '@/components/ui/buttons';
 import type { BusterListRowItem } from '@/components/ui/list/BusterList';
 import {
@@ -48,7 +48,7 @@ export const AddToCollectionModal: React.FC<{
         title: 'Name',
         dataIndex: 'name',
         render: (name, data) => {
-          const Icon = ASSET_TYPE_TO_ICON[data.type] || ASSET_ICONS.metrics;
+          const Icon = assetTypeToIcon(data.type) || ASSET_ICONS.metrics;
           return (
             <div className="flex items-center gap-1.5">
               <span className="text-icon-color">

@@ -26,17 +26,6 @@ export const ASSET_ICONS = {
   reports: FileContent,
 };
 
-export const ASSET_TYPE_TO_ICON: Record<
-  ShareAssetType | AssetType,
-  (props: iconProps) => JSX.Element
-> = {
-  metric_file: ASSET_ICONS.metrics,
-  dashboard_file: ASSET_ICONS.dashboards,
-  collection: ASSET_ICONS.collections,
-  chat: ASSET_ICONS.chats,
-  report_file: ASSET_ICONS.reports,
-};
-
 export const assetTypeToIcon = (assetType: ShareAssetType) => {
   switch (assetType) {
     case 'metric_file':

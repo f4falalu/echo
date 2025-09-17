@@ -56,13 +56,7 @@ export const useGetAssetPasswordConfig = (
       return chatQueryKeys.chatsGetChat(assetId);
     }
 
-    const _exhaustiveCheck:
-      | 'chat'
-      | 'report_file'
-      | 'dashboard_file'
-      | 'metric_file'
-      | 'collection'
-      | 'reasoning' = type;
+    const _exhaustiveCheck: 'chat' = type;
 
     return chatQueryKeys.chatsGetChat(assetId);
   }, [type, assetId, chosenVersionNumber]);
