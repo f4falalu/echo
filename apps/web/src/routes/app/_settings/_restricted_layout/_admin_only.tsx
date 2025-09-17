@@ -10,7 +10,6 @@ export const Route = createFileRoute('/app/_settings/_restricted_layout/_admin_o
       throw redirect({ to: '/auth/login', replace: true, statusCode: 307 });
     }
   },
-
   component: RouteComponent,
 });
 

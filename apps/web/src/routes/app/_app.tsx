@@ -10,6 +10,7 @@ const PRIMARY_APP_LAYOUT_ID = 'primary-sidebar';
 const DEFAULT_LAYOUT: LayoutSize = ['230px', 'auto'];
 
 export const Route = createFileRoute('/app/_app')({
+  ssr: false,
   loader: async ({ context }) => {
     const { queryClient } = context;
     const [initialLayout] = await Promise.all([

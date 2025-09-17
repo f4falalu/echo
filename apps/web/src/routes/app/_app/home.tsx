@@ -12,15 +12,14 @@ const searchParamsSchema = z.object({
   q: z.string().optional(),
   submit: z
     .preprocess((val) => {
-      if (typeof val === 'string') {
-        return val === 'true';
-      }
+      if (typeof val === 'string') val === 'true';
       return val;
     }, z.boolean())
     .optional(),
 });
 
 export const Route = createFileRoute('/app/_app/home')({
+  ssr: false,
   head: () => {
     return {
       meta: [
