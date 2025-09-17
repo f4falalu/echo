@@ -6,5 +6,5 @@ environments:
   - name: development
     baseUrl: http://localhost:3000
     envVariables:
-      USERNAME: "chad@buster.so"
+      EMAIL: "chad@buster.so"
       PASSWORD: "password"
