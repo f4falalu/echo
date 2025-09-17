@@ -1,6 +1,7 @@
 import type { ModelMessage } from 'ai';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  type StreamExecutor,
   analyzeError,
   calculateBackoffDelay,
   composeMiddleware,
@@ -427,14 +428,14 @@ describe('with-agent-retry', () => {
         const messages: ModelMessage[] = [];
         const callOrder: string[] = [];
 
-        const middleware1 = (next: any) => async (msgs: ModelMessage[]) => {
+        const middleware1 = (next: StreamExecutor<unknown>) => async (msgs: ModelMessage[]) => {
           callOrder.push('middleware1-before');
           const result = await next(msgs);
           callOrder.push('middleware1-after');
           return result;
         };
 
-        const middleware2 = (next: any) => async (msgs: ModelMessage[]) => {
+        const middleware2 = (next: StreamExecutor<unknown>) => async (msgs: ModelMessage[]) => {
           callOrder.push('middleware2-before');
           const result = await next(msgs);
           callOrder.push('middleware2-after');
