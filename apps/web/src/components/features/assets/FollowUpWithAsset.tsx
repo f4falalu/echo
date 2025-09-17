@@ -42,6 +42,12 @@ export const FollowUpWithAssetContent: React.FC<{
         return `Hey Buster. Can you filter or drill down into this metric based on the following request: ${userPrompt}`;
       }
 
+      if (assetType === 'report_file') {
+        return `Hey Buster. Can you filter or drill down into this report based on the following request: ${userPrompt}`;
+      }
+
+      const _exhaustiveCheck: never = assetType;
+
       return userPrompt;
     });
 
