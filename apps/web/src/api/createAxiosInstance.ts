@@ -1,11 +1,10 @@
 import { isServer } from '@tanstack/react-query';
 import type { AxiosRequestHeaders } from 'axios';
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
+import { getSupabaseSession } from '@/integrations/supabase/getSupabaseUserClient';
 import { Route as AuthRoute } from '@/routes/auth.login';
-import { checkTokenValidity } from './auth_helpers/check-token-validity';
 import { BASE_URL_V2 } from './config';
 import { rustErrorHandler } from './errors';
-import { getSupabaseSessionServerFn } from './server-functions/getSupabaseSession';
 
 const AXIOS_TIMEOUT = 120000; // 2 minutes
 
@@ -62,37 +61,21 @@ export const createAxiosInstance = (baseURL = BASE_URL_V2) => {
 };
 
 export const defaultAxiosRequestHandler = async (config: InternalAxiosRequestConfig<unknown>) => {
-  let token: string | undefined = '';
-
   try {
-    if (isServer) {
-      try {
-        const sessionResponse = await getSupabaseSessionServerFn();
-        token = sessionResponse?.data?.accessToken;
-      } catch (supabaseError) {
-        // Handle headers already sent error gracefully
-        if (
-          supabaseError instanceof Error &&
-          supabaseError.message.includes('ERR_HTTP_HEADERS_SENT')
-        ) {
-          console.warn('Headers already sent when getting auth token, proceeding without token');
-          // Continue without token rather than crashing
-          return config;
-        }
-        // For other errors, log but continue without token instead of throwing
-        console.warn('Failed to get auth token from Supabase:', supabaseError);
-        return config;
-      }
-    } else {
-      // Always check token validity before making requests
-      const tokenResult = await checkTokenValidity();
-      token = tokenResult?.access_token || '';
-    }
+    console.log('basic config', {
+      url: config.url,
+      method: config.method,
+      headers: config.headers,
+      data: config.data,
+      params: config.params,
+      baseURL: config.baseURL,
+      timeout: config.timeout,
+    });
+    const session = await getSupabaseSession();
+    const { accessToken: token } = session;
 
     if (!token) {
-      // Log warning but don't throw - let the request proceed and handle auth errors in response interceptor
-      console.warn('No auth token available for request');
-      return config;
+      console.warn('No token found');
     }
 
     (config.headers as AxiosRequestHeaders).Authorization = `Bearer ${token}`;
