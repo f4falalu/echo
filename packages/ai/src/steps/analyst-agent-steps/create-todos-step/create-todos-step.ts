@@ -130,6 +130,17 @@ async function generateTodosWithLLM(
     const result = await tracedTodosGeneration();
     return result.todos ?? '';
   } catch (llmError) {
+    // Re-throw overloaded errors so they can be retried
+    if (
+      llmError &&
+      typeof llmError === 'object' &&
+      'type' in llmError &&
+      llmError.type === 'overloaded_error'
+    ) {
+      console.info('[CreateTodos] Overloaded error detected, re-throwing for retry');
+      throw llmError;
+    }
+
     console.warn('[CreateTodos] LLM failed to generate valid response:', {
       error: llmError instanceof Error ? llmError.message : 'Unknown error',
       errorType: llmError instanceof Error ? llmError.name : 'Unknown',
@@ -191,6 +202,17 @@ export async function runCreateTodosStep(params: CreateTodosParams): Promise<Cre
       messages: resultMessages,
     };
   } catch (error) {
+    // Re-throw overloaded errors for retry logic
+    if (
+      error &&
+      typeof error === 'object' &&
+      'type' in error &&
+      error.type === 'overloaded_error'
+    ) {
+      console.info('[create-todos-step] Overloaded error detected, re-throwing for retry');
+      throw error;
+    }
+
     console.error('[create-todos-step] Unexpected error:', error);
     throw new Error(
       'Unable to create the analysis plan. Please try again or rephrase your request.'

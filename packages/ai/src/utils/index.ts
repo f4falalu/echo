@@ -24,3 +24,7 @@ export {
   // Don't export conflicting utilities - they're internal to retry logic
   // calculateBackoffDelay and sleep are available from embeddings if needed
 } from './with-agent-retry';
+
+// Step retry utilities
+export { withStepRetry, createRetryableStep, runStepsWithRetry } from './with-step-retry';
+export type { StepRetryOptions } from './with-step-retry';

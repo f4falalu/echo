@@ -25,6 +25,7 @@ import { CREATE_METRICS_TOOL_NAME } from '../../tools/visualization-tools/metric
 import { MODIFY_METRICS_TOOL_NAME } from '../../tools/visualization-tools/metrics/modify-metrics-tool/modify-metrics-tool';
 import { CREATE_REPORTS_TOOL_NAME } from '../../tools/visualization-tools/reports/create-reports-tool/create-reports-tool';
 import { MODIFY_REPORTS_TOOL_NAME } from '../../tools/visualization-tools/reports/modify-reports-tool/modify-reports-tool';
+import { withStepRetry } from '../../utils/with-step-retry';
 import {
   type AnalystWorkflowOutput,
   type ChartInfo,
@@ -261,24 +262,84 @@ async function runAnalystPrepSteps({
 }> {
   const shouldInjectUserPersonalizationTodo = Boolean(userPersonalizationConfig);
   const [todos, values, , analysisType] = await Promise.all([
-    runCreateTodosStep({
-      messages,
-      messageId,
-      shouldInjectUserPersonalizationTodo,
-    }),
-    runExtractValuesAndSearchStep({
-      messages,
-      dataSourceId,
-    }),
-    runGenerateChatTitleStep({
-      messages,
-      chatId,
-      messageId,
-    }),
-    runAnalysisTypeRouterStep({
-      messages,
-      messageAnalysisMode,
-    }),
+    withStepRetry(
+      () =>
+        runCreateTodosStep({
+          messages,
+          messageId,
+          shouldInjectUserPersonalizationTodo,
+        }),
+      {
+        stepName: 'create-todos',
+        maxAttempts: 3,
+        baseDelayMs: 2000,
+        onRetry: (attempt, error) => {
+          console.info('[create-todos] Retrying after error', {
+            messageId,
+            attempt,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+        },
+      }
+    ),
+    withStepRetry(
+      () =>
+        runExtractValuesAndSearchStep({
+          messages,
+          dataSourceId,
+        }),
+      {
+        stepName: 'extract-values',
+        maxAttempts: 3,
+        baseDelayMs: 2000,
+        onRetry: (attempt, error) => {
+          console.info('[extract-values] Retrying after error', {
+            messageId,
+            attempt,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+        },
+      }
+    ),
+    withStepRetry(
+      () =>
+        runGenerateChatTitleStep({
+          messages,
+          chatId,
+          messageId,
+        }),
+      {
+        stepName: 'generate-chat-title',
+        maxAttempts: 3,
+        baseDelayMs: 2000,
+        onRetry: (attempt, error) => {
+          console.info('[generate-chat-title] Retrying after error', {
+            messageId,
+            attempt,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+        },
+      }
+    ),
+    withStepRetry(
+      () =>
+        runAnalysisTypeRouterStep({
+          messages,
+          messageAnalysisMode,
+        }),
+      {
+        stepName: 'analysis-type-router',
+        maxAttempts: 3,
+        baseDelayMs: 2000,
+        onRetry: (attempt, error) => {
+          console.info('[analysis-type-router] Retrying after error', {
+            messageId,
+            attempt,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+        },
+      }
+    ),
   ]);
 
   return { todos, values, analysisType: analysisType.analysisType };
