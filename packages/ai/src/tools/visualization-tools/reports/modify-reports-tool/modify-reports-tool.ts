@@ -74,13 +74,12 @@ const ModifyReportsStateSchema = z.object({
   reportId: z.string().uuid().optional(),
   reportName: z.string().optional(),
   edits: z.array(ModifyReportsEditStateSchema).optional(),
-  currentContent: z.string().optional(),
   finalContent: z.string().optional(),
   version_number: z.number().optional(),
   startTime: z.number().optional(),
   responseMessageCreated: z.boolean().optional(),
   snapshotContent: z.string().optional(),
-  workingContent: z.string().optional(),
+  lastSavedContent: z.string().optional().describe('Track the last content saved to DB to avoid redundant updates'),
   reportsModifiedInMessage: z.set(z.string()).optional(),
   snapshotVersion: z.number().optional(),
   versionHistory: z
@@ -92,6 +91,7 @@ const ModifyReportsStateSchema = z.object({
       })
     )
     .optional(),
+  isComplete: z.boolean().optional().describe('Whether the tool execution is complete'),
 });
 
 // Export types
@@ -109,7 +109,6 @@ export function createModifyReportsTool(context: ModifyReportsContext) {
     reportId: undefined,
     reportName: undefined,
     edits: [],
-    currentContent: undefined,
     finalContent: undefined,
     version_number: undefined,
     toolCallId: undefined,

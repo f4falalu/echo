@@ -15,7 +15,7 @@ import {
   extractMetricIds,
 } from '../helpers/metric-extraction';
 import { shouldIncrementVersion, updateVersionHistory } from '../helpers/report-version-helper';
-import { updateCachedSnapshot } from '../report-snapshot-cache';
+import { getCachedSnapshot, updateCachedSnapshot } from '../report-snapshot-cache';
 import {
   createModifyReportsRawLlmMessageEntry,
   createModifyReportsReasoningEntry,
@@ -101,33 +101,44 @@ async function processEditOperations(
     baseContent = snapshotContent;
     baseVersionHistory = versionHistory || null;
   } else {
-    // Fallback: Get current report content and version history from DB
-    const existingReport = await db
-      .select({
-        content: reportFiles.content,
-        versionHistory: reportFiles.versionHistory,
-      })
-      .from(reportFiles)
-      .where(and(eq(reportFiles.id, reportId), isNull(reportFiles.deletedAt)))
-      .limit(1);
+    // Check cache first (write-through cache from delta)
+    const cached = getCachedSnapshot(reportId);
 
-    if (!existingReport.length) {
-      return {
-        success: false,
-        errors: ['Report not found'],
-      };
+    if (cached) {
+      console.info('[modify-reports-execute] Using cached snapshot', {
+        reportId,
+      });
+      baseContent = cached.content;
+      baseVersionHistory = cached.versionHistory as VersionHistory | null;
+    } else {
+      // Fallback: Get current report content and version history from DB
+      const existingReport = await db
+        .select({
+          content: reportFiles.content,
+          versionHistory: reportFiles.versionHistory,
+        })
+        .from(reportFiles)
+        .where(and(eq(reportFiles.id, reportId), isNull(reportFiles.deletedAt)))
+        .limit(1);
+
+      if (!existingReport.length) {
+        return {
+          success: false,
+          errors: ['Report not found'],
+        };
+      }
+
+      const report = existingReport[0];
+      if (!report) {
+        return {
+          success: false,
+          errors: ['Report not found'],
+        };
+      }
+
+      baseContent = report.content;
+      baseVersionHistory = report.versionHistory as VersionHistory | null;
     }
-
-    const report = existingReport[0];
-    if (!report) {
-      return {
-        success: false,
-        errors: ['Report not found'],
-      };
-    }
-
-    baseContent = report.content;
-    baseVersionHistory = report.versionHistory as VersionHistory | null;
   }
 
   let currentContent = baseContent;
@@ -193,10 +204,12 @@ async function processEditOperations(
     if (messageId) {
       await trackFileAssociations({
         messageId,
-        files: {
-          id: reportId,
-          version: newVersionNumber,
-        },
+        files: [
+          {
+            id: reportId,
+            version: newVersionNumber,
+          },
+        ],
       });
     }
 
@@ -374,6 +387,7 @@ export function createModifyReportsExecute(
 
       try {
         // Always process using the complete input as source of truth
+        // Execute should be the final authority, not delta
         console.info('[modify-reports] Processing modifications from complete input');
         const result = await modifyReportsFile(
           input,
@@ -410,9 +424,9 @@ export function createModifyReportsExecute(
             // Create response message for modified report
             const responseMessages: ChatMessageResponseMessage[] = [];
 
-            // Add to response messages if modification was successful
-            // AND we haven't already created a response message during delta streaming
-            if (success && finalContent && !state.responseMessageCreated) {
+            // Always create/update response message with final content from execute
+            // Execute is the source of truth, even if delta created one already
+            if (success && finalContent) {
               responseMessages.push({
                 id: input.id,
                 type: 'file' as const,
@@ -534,7 +548,7 @@ export function createModifyReportsExecute(
               file: {
                 id: state.reportId || input.id || '',
                 name: state.reportName || input.name || 'Untitled Report',
-                content: state.finalContent || state.currentContent || '',
+                content: state.finalContent || '',
                 version_number: state.version_number || 0,
                 updated_at: new Date().toISOString(),
               },
@@ -580,7 +594,7 @@ export function createModifyReportsExecute(
           file: {
             id: input.id || '',
             name: input.name || 'Unknown',
-            content: state.finalContent || state.currentContent || '',
+            content: state.finalContent || '',
             version_number: state.version_number || 0,
             updated_at: new Date().toISOString(),
           },

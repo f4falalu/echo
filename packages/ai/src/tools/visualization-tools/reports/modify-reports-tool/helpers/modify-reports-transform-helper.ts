@@ -33,7 +33,7 @@ export function createModifyReportsReasoningEntry(
       version_number: state.version_number || 1,
       status: 'loading',
       file: {
-        text: state.currentContent || state.finalContent || '',
+        text: state.finalContent || '',
       },
     };
   }

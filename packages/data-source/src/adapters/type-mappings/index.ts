@@ -7,10 +7,12 @@ import type { FieldMetadata } from '../base';
 import { getBigQuerySimpleType, mapBigQueryType } from './bigquery';
 import { getMySQLSimpleType, mapMySQLType } from './mysql';
 import { getPostgreSQLSimpleType, mapPostgreSQLType } from './postgresql';
+import { getSnowflakeSimpleType, mapSnowflakeType } from './snowflake';
 
 export * from './postgresql';
 export * from './mysql';
 export * from './bigquery';
+export * from './snowflake';
 
 /**
  * Database type identifiers for routing to correct mapper
@@ -43,9 +45,11 @@ export function mapDatabaseType(dbType: DatabaseType, typeValue: string | number
     case 'mysql':
       return mapMySQLType(typeValue);
 
-    case 'sqlserver':
     case 'snowflake':
-      // These already return readable type names
+      return mapSnowflakeType(typeValue);
+
+    case 'sqlserver':
+      // SQL Server already returns readable type names
       return typeof typeValue === 'string' ? typeValue.toLowerCase() : 'text';
 
     case 'bigquery':
@@ -74,6 +78,9 @@ export function getSimpleType(dbType: DatabaseType, normalizedType: string): Sim
 
     case 'bigquery':
       return getBigQuerySimpleType(normalizedType);
+
+    case 'snowflake':
+      return getSnowflakeSimpleType(normalizedType);
 
     default:
       return getGenericSimpleType(normalizedType);

@@ -63,6 +63,18 @@ describe('snowflake-numeric-normalization.int.test.ts', () => {
       expect(result.rows).toHaveLength(1);
       const row = result.rows[0];
 
+      // Verify field metadata has correct normalized types
+      const fieldMap = Object.fromEntries(result.fields.map((f) => [f.name, f.type]));
+      expect(fieldMap.commission_rate_pct).toBe('decimal');
+      expect(fieldMap.salesytd).toBe('decimal');
+      expect(fieldMap.quantity).toBe('integer');
+      expect(fieldMap.negative_value).toBe('float');
+      expect(fieldMap.zero_decimal).toBe('decimal');
+      expect(fieldMap.pi_value).toBe('double');
+      expect(fieldMap.product_name).toBe('text');
+      expect(fieldMap.order_date).toBe('date');
+      expect(fieldMap.is_active).toBe('boolean');
+
       // Verify numeric values are JavaScript numbers, not strings
       expect(typeof row.commission_rate_pct).toBe('number');
       expect(row.commission_rate_pct).toBe(1.5); // Should be normalized from "1.500"

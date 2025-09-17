@@ -213,8 +213,8 @@ describe('SnowflakeAdapter', () => {
         rows: mockRows,
         rowCount: 1,
         fields: [
-          { name: 'id', type: 'NUMBER', nullable: false, scale: 0, precision: 38 },
-          { name: 'name', type: 'TEXT', nullable: true, scale: 0, precision: 0 },
+          { name: 'id', type: 'decimal', nullable: false, scale: 0, precision: 38 },
+          { name: 'name', type: 'text', nullable: true, scale: 0, precision: 0 },
         ],
         hasMoreRows: false,
       });

@@ -138,7 +138,7 @@ export function createDoneToolStart(context: DoneToolContext, doneToolState: Don
         await updateMessageEntries(entries);
       }
 
-      // Mark message as completed and add final reasoning message with workflow time
+      // Add final reasoning message with workflow time (but don't mark as completed yet - that happens in execute)
       if (context.messageId) {
         const currentTime = Date.now();
         const elapsedTimeMs = currentTime - context.workflowStartTime;
@@ -153,7 +153,6 @@ export function createDoneToolStart(context: DoneToolContext, doneToolState: Don
         }
 
         await updateMessage(context.messageId, {
-          isCompleted: true,
           finalReasoningMessage: `Reasoned for ${timeString}`,
         });
       }
