@@ -14,6 +14,7 @@ export const Route = createFileRoute('/app')({
   context: ({ context }) => ({ ...context, getAppLayout }),
   beforeLoad: async () => {
     try {
+      console.log('app route beforeLoad', typeof window !== 'undefined', import.meta.env.SSR);
       const supabaseSession = await getSupabaseSession();
       const { isExpired, accessToken = '' } = supabaseSession;
       if (isExpired || !accessToken) {
