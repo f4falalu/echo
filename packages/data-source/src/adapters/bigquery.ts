@@ -78,7 +78,7 @@ export class BigQueryAdapter extends BaseAdapter {
     try {
       // Fix SQL to ensure proper escaping of identifiers with special characters
       const fixedSql = fixBigQueryTableReferences(sql);
-      
+
       const options: Query = {
         query: fixedSql,
         useLegacySql: false,

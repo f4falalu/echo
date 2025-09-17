@@ -45,8 +45,10 @@ describe('fixBigQueryTableReferences', () => {
   });
 
   it('should handle COUNT and other aggregate functions', () => {
-    const sql = 'SELECT COUNT(DISTINCT u.user_id) as total_users FROM buster-381916.analytics.user u';
-    const expected = 'SELECT COUNT(DISTINCT u.user_id) as total_users FROM `buster-381916`.analytics.user u';
+    const sql =
+      'SELECT COUNT(DISTINCT u.user_id) as total_users FROM buster-381916.analytics.user u';
+    const expected =
+      'SELECT COUNT(DISTINCT u.user_id) as total_users FROM `buster-381916`.analytics.user u';
     expect(fixBigQueryTableReferences(sql)).toBe(expected);
   });
 
