@@ -196,11 +196,11 @@ const workspaceItems: IDropdownItem<WorkspaceShareRole>[] = [
 ];
 
 const itemsRecord: Record<ShareAssetType, IDropdownItem<ShareRole>[]> = {
-  dashboard: dashboardItems,
-  metric: metricItems,
+  dashboard_file: dashboardItems,
+  metric_file: metricItems,
   collection: collectionItems,
   chat: collectionItems,
-  report: reportItems,
+  report_file: reportItems,
 };
 
 const OWNER_ITEM: IDropdownItem<DropdownValue> = {

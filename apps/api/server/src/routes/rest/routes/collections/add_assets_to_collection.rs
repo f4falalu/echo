@@ -64,9 +64,9 @@ pub async fn add_assets_to_collection(
     // Convert request assets to handler assets
     let assets: Vec<AssetToAdd> = request.assets.into_iter().filter_map(|asset| {
         let asset_type = match asset.type_.to_lowercase().as_str() {
-            "dashboard" => Some(AssetType::DashboardFile),
-            "metric" => Some(AssetType::MetricFile),
-            "report" => Some(AssetType::ReportFile),
+            "dashboard_file" => Some(AssetType::DashboardFile),
+            "metric_file" => Some(AssetType::MetricFile),
+            "report_file" => Some(AssetType::ReportFile),
             _ => None,
         };
         
@@ -80,9 +80,9 @@ pub async fn add_assets_to_collection(
         Ok(result) => {
             let failed_assets = result.failed_assets.into_iter().map(|(id, asset_type, error)| {
                 let type_str = match asset_type {
-                    AssetType::DashboardFile => "dashboard",
-                    AssetType::MetricFile => "metric",
-                    AssetType::ReportFile => "report",
+                    AssetType::DashboardFile => "dashboard_file",
+                    AssetType::MetricFile => "metric_file",
+                    AssetType::ReportFile => "report_file",
                     _ => "unknown",
                 };
                 

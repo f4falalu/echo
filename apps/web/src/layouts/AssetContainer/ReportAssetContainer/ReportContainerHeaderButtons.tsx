@@ -45,7 +45,7 @@ export const ReportContainerHeaderButtons: React.FC<ReportContainerHeaderButtons
       />
 
       <HideButtonContainer show={isFileMode && isEditor}>
-        <CreateChatButton assetId={reportId} assetType="report" />
+        <CreateChatButton assetId={reportId} assetType="report_file" />
       </HideButtonContainer>
       {isChatMode && <ClosePageButton />}
     </FileButtonContainer>

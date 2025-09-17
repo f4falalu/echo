@@ -49,9 +49,9 @@ interface ToolFileInfo {
 // File tracking type
 interface ExtractedFile {
   id: string;
-  fileType: 'metric' | 'dashboard' | 'report'; //TODO: scope to actually be the enum file type
+  fileType: 'metric_file' | 'dashboard_file' | 'report_file';
   fileName: string;
-  status: 'completed' | 'failed' | 'loading'; //TODO: use an enum from server shared
+  status: 'completed' | 'failed' | 'loading';
   operation?: 'created' | 'modified' | undefined;
   versionNumber?: number | undefined;
   metricIds?: string[] | undefined; // IDs of metrics that belong to this dashboard
@@ -158,9 +158,9 @@ export function extractAllFilesForChatUpdate(messages: ModelMessage[]): Extracte
 
   console.info('[done-tool-file-selection] All extracted files for chat update', {
     totalFiles: deduplicatedFiles.length,
-    metrics: deduplicatedFiles.filter((f) => f.fileType === 'metric').length,
-    dashboards: deduplicatedFiles.filter((f) => f.fileType === 'dashboard').length,
-    reports: deduplicatedFiles.filter((f) => f.fileType === 'report').length,
+    metrics: deduplicatedFiles.filter((f) => f.fileType === 'metric_file').length,
+    dashboards: deduplicatedFiles.filter((f) => f.fileType === 'dashboard_file').length,
+    reports: deduplicatedFiles.filter((f) => f.fileType === 'report_file').length,
   });
 
   return deduplicatedFiles;
@@ -302,16 +302,16 @@ export function extractFilesFromToolCalls(messages: ModelMessage[]): ExtractedFi
 
   // Count reports with metrics
   const reportsWithMetrics = files.filter((f) => {
-    if (f.fileType !== 'report') return false;
+    if (f.fileType !== 'report_file') return false;
     // Check if report has content and contains metrics
     return f.content?.match(/<metric\s+metricId\s*=\s*["'][a-f0-9-]+["']\s*\/>/i);
   });
 
   console.info('[done-tool-file-selection] Extracted files before deduplication', {
     totalFiles: files.length,
-    metrics: files.filter((f) => f.fileType === 'metric').length,
-    dashboards: files.filter((f) => f.fileType === 'dashboard').length,
-    reports: files.filter((f) => f.fileType === 'report').length,
+    metrics: files.filter((f) => f.fileType === 'metric_file').length,
+    dashboards: files.filter((f) => f.fileType === 'dashboard_file').length,
+    reports: files.filter((f) => f.fileType === 'report_file').length,
     reportsWithMetrics: reportsWithMetrics.length,
     lastReportContent: lastReportInfo ? `${lastReportInfo.content.substring(0, 100)}...` : 'none',
   });
@@ -328,7 +328,7 @@ export function extractFilesFromToolCalls(messages: ModelMessage[]): ExtractedFi
   // Filter out reports that don't have metrics (they won't be in responseMessages anyway)
   // Keep reports that have metrics since they'll be in the responseMessages
   filteredFiles = filteredFiles.filter((file) => {
-    if (file.fileType !== 'report') {
+    if (file.fileType !== 'report_file') {
       return true; // Keep all non-report files that passed previous filters
     }
 
@@ -426,7 +426,7 @@ function processMetricsOutput(
       console.info('[done-tool-file-selection] Processing metric file', {
         id: file.id,
         fileName,
-        fileType: 'metric',
+        fileType: 'metric_file',
         hasFileName: !!fileName,
         fileKeys: Object.keys(file),
       });
@@ -434,7 +434,7 @@ function processMetricsOutput(
       if (file.id && fileName) {
         files.push({
           id: file.id,
-          fileType: 'metric',
+          fileType: 'metric_file',
           fileName: fileName,
           status: 'completed',
           operation,
@@ -469,7 +469,7 @@ function processDashboardsOutput(
       if (file.id && fileName) {
         files.push({
           id: file.id,
-          fileType: 'dashboard',
+          fileType: 'dashboard_file',
           fileName: fileName,
           status: 'completed',
           operation,
@@ -510,7 +510,7 @@ function processCreateReportsOutput(
 
         files.push({
           id: file.id,
-          fileType: 'report',
+          fileType: 'report_file',
           fileName: fileName,
           status: 'completed',
           operation: 'created',
@@ -558,7 +558,7 @@ function processModifyReportsOutput(
     if (file.id && fileName) {
       files.push({
         id: file.id,
-        fileType: 'report',
+        fileType: 'report_file',
         fileName: fileName,
         status: 'completed',
         operation: 'modified',
@@ -589,12 +589,12 @@ function processDirectFileContent(content: unknown, files: ExtractedFile[]): voi
   if (contentObj.files && Array.isArray(contentObj.files)) {
     for (const file of contentObj.files) {
       const fileName = file.file_name || file.name || '';
-      const fileType = file.file_type || 'metric';
+      const fileType = file.file_type || 'metric_file';
 
       if (file.id && fileName) {
         files.push({
           id: file.id,
-          fileType: fileType as 'metric' | 'dashboard' | 'report',
+          fileType: fileType as 'metric_file' | 'dashboard_file' | 'report_file',
           fileName: fileName,
           status: 'completed',
           operation: 'created',
@@ -632,7 +632,7 @@ function filterOutDashboardMetrics(files: ExtractedFile[]): ExtractedFile[] {
   const metricsInDashboards = new Set<string>();
 
   for (const file of files) {
-    if (file.fileType === 'dashboard' && file.metricIds) {
+    if (file.fileType === 'dashboard_file' && file.metricIds) {
       for (const metricId of file.metricIds) {
         metricsInDashboards.add(metricId);
       }
@@ -647,7 +647,7 @@ function filterOutDashboardMetrics(files: ExtractedFile[]): ExtractedFile[] {
   // Filter out metrics that belong to dashboards
   const filtered = files.filter((file) => {
     // Keep all non-metric files
-    if (file.fileType !== 'metric') {
+    if (file.fileType !== 'metric_file') {
       return true;
     }
 
@@ -726,7 +726,7 @@ function filterOutReportContainedFiles(
   // Filter out metrics and dashboards that appear in report content
   const filtered = files.filter((file) => {
     // Check if this metric is referenced in a report
-    if (file.fileType === 'metric' && metricsInReports.has(file.id)) {
+    if (file.fileType === 'metric_file' && metricsInReports.has(file.id)) {
       console.info('[done-tool-file-selection] Excluding metric referenced in report', {
         metricId: file.id,
         metricName: file.fileName,
@@ -735,7 +735,7 @@ function filterOutReportContainedFiles(
     }
 
     // Check if this dashboard is referenced in a report
-    if (file.fileType === 'dashboard' && dashboardsInReports.has(file.id)) {
+    if (file.fileType === 'dashboard_file' && dashboardsInReports.has(file.id)) {
       console.info('[done-tool-file-selection] Excluding dashboard referenced in report', {
         dashboardId: file.id,
         dashboardName: file.fileName,
@@ -756,18 +756,18 @@ export function createFileResponseMessages(files: ExtractedFile[]): ChatMessageR
   return files.map((file) => {
     // Determine the display name for the file type
     const fileTypeDisplay =
-      file.fileType === 'dashboard'
+      file.fileType === 'dashboard_file'
         ? 'Dashboard'
-        : file.fileType === 'metric'
+        : file.fileType === 'metric_file'
           ? 'Metric'
-          : file.fileType === 'report'
+          : file.fileType === 'report_file'
             ? 'Report'
             : file.fileType;
 
     return {
       id: file.id,
       type: 'file' as const,
-      file_type: file.fileType as 'metric' | 'dashboard' | 'report',
+      file_type: file.fileType as 'metric_file' | 'dashboard_file' | 'report_file',
       file_name: file.fileName,
       version_number: file.versionNumber || 1,
       filter_version_id: null,

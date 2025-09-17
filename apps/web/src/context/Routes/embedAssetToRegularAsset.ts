@@ -15,7 +15,7 @@ export const embedAssetToRegularAsset = (matches: MakeRouteMatchUnion[]): LinkPr
   const staticData = lastMatch.staticData;
   const assetType = staticData?.assetType;
 
-  if (assetType === 'metric') {
+  if (assetType === 'metric_file') {
     const params = lastMatch.params as { metricId: string };
     const search = lastMatch.search as { metric_version_number?: number | undefined };
     return {
@@ -29,7 +29,7 @@ export const embedAssetToRegularAsset = (matches: MakeRouteMatchUnion[]): LinkPr
     } as const satisfies LinkProps;
   }
 
-  if (assetType === 'dashboard') {
+  if (assetType === 'dashboard_file') {
     const params = lastMatch.params as { dashboardId: string };
     return {
       to: '/embed/dashboard/$dashboardId',
@@ -39,7 +39,7 @@ export const embedAssetToRegularAsset = (matches: MakeRouteMatchUnion[]): LinkPr
     } as const satisfies LinkProps;
   }
 
-  if (assetType === 'report') {
+  if (assetType === 'report_file') {
     const params = lastMatch.params as { reportId: string };
     return {
       to: '/embed/report/$reportId',

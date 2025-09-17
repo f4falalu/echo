@@ -10,27 +10,27 @@ export const useIsAssetFileChanged = () => {
 
   const metricParams = useIsMetricFileChanged({
     metricId: assetId,
-    enabled: assetType === 'metric',
+    enabled: assetType === 'metric_file',
   });
   const dashboardParams = useIsDashboardChanged({
     dashboardId: assetId,
-    enabled: assetType === 'dashboard',
+    enabled: assetType === 'dashboard_file',
   });
   const reportParams = useIsReportFileChanged({
     reportId: assetId,
-    enabled: assetType === 'report',
+    enabled: assetType === 'report_file',
   });
 
   return useMemo(() => {
-    if (assetType === 'metric') {
+    if (assetType === 'metric_file') {
       return metricParams;
     }
 
-    if (assetType === 'dashboard') {
+    if (assetType === 'dashboard_file') {
       return dashboardParams;
     }
 
-    if (assetType === 'report') {
+    if (assetType === 'report_file') {
       return reportParams;
     }
 

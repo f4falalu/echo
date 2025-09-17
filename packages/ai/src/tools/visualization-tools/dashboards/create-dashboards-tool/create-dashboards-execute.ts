@@ -184,7 +184,7 @@ async function processDashboardFile(
   const dashboardFile: FileWithId = {
     id,
     name: dashboard.name,
-    file_type: 'dashboard',
+    file_type: 'dashboard_file',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     version_number: 1,

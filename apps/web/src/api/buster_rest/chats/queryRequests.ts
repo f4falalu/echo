@@ -99,7 +99,7 @@ const getChatQueryFn = (params: Parameters<typeof getChat>[0], queryClient: Quer
     const lastMessage = iChatMessages[lastMessageId];
     if (lastMessage) {
       for (const responseMessage of Object.values(lastMessage.response_messages)) {
-        if (responseMessage.type === 'file' && responseMessage.file_type === 'metric') {
+        if (responseMessage.type === 'file' && responseMessage.file_type === 'metric_file') {
           prefetchGetMetricDataClient(
             { id: responseMessage.id, version_number: responseMessage.version_number },
             queryClient

@@ -29,7 +29,7 @@ export function createModifyMetricsReasoningEntry(
     fileIds.push(id);
     filesRecord[id] = {
       id,
-      file_type: 'metric',
+      file_type: 'metric_file',
       file_name: f.file_name || `Metric ${id}`,
       version_number: f.version_number,
       status: f.status,

@@ -149,7 +149,7 @@ const TitleCell = React.memo<{ name: string; status: VerificationStatus; metricI
         <Text truncate>{name}</Text>
         <FavoriteStar
           id={metricId}
-          type={'metric'}
+          type={'metric_file'}
           iconStyle="tertiary"
           title={name}
           className="opacity-0 group-hover:opacity-100"

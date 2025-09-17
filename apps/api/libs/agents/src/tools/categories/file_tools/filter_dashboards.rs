@@ -387,7 +387,7 @@ impl ToolExecutor for FilterDashboardsTool {
                             FileWithId {
                                 id: file.id,
                                 name: file.name.clone(),
-                                file_type: "metric".to_string(),
+                                file_type: "metric_file".to_string(),
                                 yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
                                 validation_message: Some(batch.validation_messages[i].clone()),
                                 validation_results: Some(batch.validation_results[i].clone()),

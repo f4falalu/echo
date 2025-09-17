@@ -67,8 +67,8 @@ export const useChat = () => {
     }) => {
       return startChat({
         prompt,
-        metricId: fileType === 'metric' ? fileId : undefined,
-        dashboardId: fileType === 'dashboard' ? fileId : undefined,
+        metricId: fileType === 'metric_file' ? fileId : undefined,
+        dashboardId: fileType === 'dashboard_file' ? fileId : undefined,
       });
     }
   );

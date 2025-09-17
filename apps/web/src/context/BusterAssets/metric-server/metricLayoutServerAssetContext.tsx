@@ -12,7 +12,7 @@ export const validateSearch = z.object({
 });
 
 export const staticData = {
-  assetType: 'metric' as AssetType,
+  assetType: 'metric_file' as AssetType,
 };
 
 export const loader = async <T extends { metricId: string }>({

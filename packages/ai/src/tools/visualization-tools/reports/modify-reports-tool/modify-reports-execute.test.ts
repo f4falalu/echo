@@ -161,7 +161,7 @@ Updated content with metrics.`;
       expect(updateCall.responseMessages[0]).toMatchObject({
         id: 'report-123',
         type: 'file',
-        file_type: 'report',
+        file_type: 'report_file',
         file_name: 'Modified Sales Report',
       });
     });
@@ -214,7 +214,7 @@ Updated content with metrics.`;
       expect(updateCall.responseMessages?.[0]).toMatchObject({
         id: 'report-123',
         type: 'file',
-        file_type: 'report',
+        file_type: 'report_file',
         file_name: 'Modified Report',
         version_number: 2,
       });

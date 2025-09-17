@@ -21,6 +21,9 @@ vi.mock('@buster/database', () => ({
   messagesToFiles: {},
   dashboardFiles: {},
   metricFiles: {},
+  assetTypeEnum: {
+    enumValues: ['chat', 'metric_file', 'dashboard_file', 'report_file', 'collection'],
+  },
   eq: vi.fn(),
   and: vi.fn(),
   isNull: vi.fn(),
@@ -36,14 +39,7 @@ vi.mock('@buster/access-controls', () => ({
   canUserAccessChatCached: vi.fn(),
 }));
 
-vi.mock('./server-asset-conversion', () => ({
-  convertChatAssetTypeToDatabaseAssetType: vi.fn((type: ChatAssetType) =>
-    type === 'metric' ? 'metric_file' : 'dashboard_file'
-  ),
-}));
-
 import { createMessage, db, generateAssetMessages } from '@buster/database';
-import { eq } from 'drizzle-orm';
 import { handleAssetChat, handleAssetChatWithPrompt } from './chat-helpers';
 
 describe('chat-helpers', () => {
@@ -99,7 +95,7 @@ describe('chat-helpers', () => {
       {
         type: 'file',
         id: 'asset-123',
-        file_type: 'metric',
+        file_type: 'metric_file',
         file_name: 'Test Metric',
         version_number: 1,
         filter_version_id: null,
@@ -145,7 +141,7 @@ describe('chat-helpers', () => {
       {
         type: 'file',
         id: 'dashboard-123',
-        file_type: 'dashboard',
+        file_type: 'dashboard_file',
         file_name: 'Test Dashboard',
         version_number: 1,
         filter_version_id: null,
@@ -183,7 +179,7 @@ describe('chat-helpers', () => {
         'chat-123',
         'msg-123',
         'asset-123',
-        'metric',
+        'metric_file',
         mockUser,
         createMockChat()
       );
@@ -224,7 +220,7 @@ describe('chat-helpers', () => {
       expect(fileMessage).toMatchObject({
         type: 'file',
         id: 'asset-123',
-        file_type: 'metric',
+        file_type: 'metric_file',
         file_name: 'Test Metric',
         version_number: 1,
       });
@@ -245,7 +241,7 @@ describe('chat-helpers', () => {
         'chat-123',
         'msg-123',
         'dashboard-123',
-        'dashboard',
+        'dashboard_file',
         mockUser,
         createMockChat()
       );
@@ -270,7 +266,7 @@ describe('chat-helpers', () => {
       expect(fileMessage).toMatchObject({
         type: 'file',
         id: 'dashboard-123',
-        file_type: 'dashboard',
+        file_type: 'dashboard_file',
         file_name: 'Test Dashboard',
         version_number: 1,
       });
@@ -287,7 +283,7 @@ describe('chat-helpers', () => {
         'chat-123',
         'msg-123',
         'asset-123',
-        'metric',
+        'metric_file',
         mockUser,
         createMockChat()
       );
@@ -297,7 +293,7 @@ describe('chat-helpers', () => {
         expect.objectContaining({
           chatId: 'chat-123',
           assetId: 'asset-123',
-          chatAssetType: 'metric',
+          assetType: 'metric_file',
           userId: 'user-123',
         })
       );
@@ -348,7 +344,7 @@ describe('chat-helpers', () => {
         'chat-123',
         'msg-123',
         'asset-123',
-        'metric',
+        'metric_file',
         'Tell me about this metric',
         'auto',
         mockUser,
@@ -416,7 +412,7 @@ describe('chat-helpers', () => {
         'chat-123',
         'msg-123',
         'dashboard-123',
-        'dashboard',
+        'dashboard_file',
         'Explain this dashboard',
         'auto',
         mockUser,
@@ -449,7 +445,7 @@ describe('chat-helpers', () => {
         'chat-123',
         'msg-123',
         'asset-123',
-        'metric',
+        'metric_file',
         'Tell me about this metric',
         'auto',
         mockUser,
@@ -484,7 +480,7 @@ describe('chat-helpers', () => {
         'chat-123',
         'msg-123',
         'asset-123',
-        'metric',
+        'metric_file',
         'Tell me about this metric',
         'auto',
         mockUser,
@@ -525,7 +521,7 @@ describe('chat-helpers', () => {
         'chat-123',
         'msg-123',
         'asset-123',
-        'metric',
+        'metric_file',
         'Tell me about this metric',
         'auto',
         mockUser,

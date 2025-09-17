@@ -14,7 +14,7 @@ describe('modify-metrics-tool-transform-helper', () => {
         files: [
           {
             id: 'metric-1',
-            file_type: 'metric',
+            file_type: 'metric_file',
             file_name: 'Test Metric',
             version_number: 1,
             status: 'loading',
@@ -37,7 +37,7 @@ describe('modify-metrics-tool-transform-helper', () => {
         files: {
           'metric-1': {
             id: 'metric-1',
-            file_type: 'metric',
+            file_type: 'metric_file',
             file_name: 'Test Metric',
             version_number: 1,
             status: 'loading',
@@ -56,7 +56,7 @@ describe('modify-metrics-tool-transform-helper', () => {
         files: [
           {
             id: 'metric-1',
-            file_type: 'metric',
+            file_type: 'metric_file',
             file_name: 'Metric 1',
             version_number: 2,
             status: 'completed',
@@ -64,7 +64,7 @@ describe('modify-metrics-tool-transform-helper', () => {
           },
           {
             id: 'metric-2',
-            file_type: 'metric',
+            file_type: 'metric_file',
             file_name: 'Metric 2',
             version_number: 3,
             status: 'completed',
@@ -86,7 +86,7 @@ describe('modify-metrics-tool-transform-helper', () => {
         files: [
           {
             id: 'metric-1',
-            file_type: 'metric',
+            file_type: 'metric_file',
             file_name: 'Metric 1',
             version_number: 1,
             status: 'completed',
@@ -94,7 +94,7 @@ describe('modify-metrics-tool-transform-helper', () => {
           },
           {
             id: 'metric-2',
-            file_type: 'metric',
+            file_type: 'metric_file',
             file_name: 'Metric 2',
             version_number: 1,
             status: 'failed',
@@ -142,7 +142,7 @@ describe('modify-metrics-tool-transform-helper', () => {
         files: [
           {
             id: 'metric-1',
-            file_type: 'metric',
+            file_type: 'metric_file',
             file_name: 'Test Metric',
             version_number: 1,
             status: 'loading',
@@ -192,7 +192,7 @@ describe('modify-metrics-tool-transform-helper', () => {
         files: [
           {
             id: 'metric-1',
-            file_type: 'metric',
+            file_type: 'metric_file',
             file_name: 'Test 1',
             version_number: 1,
             status: 'loading',
@@ -200,7 +200,7 @@ describe('modify-metrics-tool-transform-helper', () => {
           },
           {
             id: '',
-            file_type: 'metric',
+            file_type: 'metric_file',
             file_name: 'Test 2',
             version_number: 1,
             status: 'loading',
@@ -208,7 +208,7 @@ describe('modify-metrics-tool-transform-helper', () => {
           },
           {
             id: 'metric-3',
-            file_type: 'metric',
+            file_type: 'metric_file',
             file_name: 'Test 3',
             version_number: 1,
             status: 'loading',

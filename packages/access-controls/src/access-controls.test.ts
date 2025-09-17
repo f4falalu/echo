@@ -261,8 +261,8 @@ describe('Utils', () => {
     });
 
     it('should handle lowercase inputs', () => {
-      const result = formatPermissionName('dashboard', 'write');
-      expect(result).toBe('dashboard:write');
+      const result = formatPermissionName('dashboard_file', 'write');
+      expect(result).toBe('dashboard_file:write');
     });
   });
 

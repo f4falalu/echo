@@ -1,11 +1,11 @@
-import type { User } from '@buster/database';
+import type { AssetType, User } from '@buster/database';
 import {
   checkChatsContainingAsset,
   checkCollectionsContainingAsset,
   checkDashboardsContainingMetric,
   checkReportsContainingMetric,
 } from '@buster/database';
-import type { AssetPermissionRole, AssetType, WorkspaceSharing } from '../types/asset-permissions';
+import type { AssetPermissionRole, WorkspaceSharing } from '../types/asset-permissions';
 import { AccessControlError } from '../types/errors';
 import { getCachedCascadingPermission, setCachedCascadingPermission } from './cache';
 import { hasAssetPermission } from './permissions';
@@ -56,7 +56,7 @@ export async function checkMetricDashboardAccess(metricId: string, user: User): 
 export async function checkMetricChatAccess(metricId: string, user: User): Promise<boolean> {
   try {
     // Get all chats containing this metric with their workspace sharing info
-    const chats = await checkChatsContainingAsset(metricId, 'metric');
+    const chats = await checkChatsContainingAsset(metricId, 'metric_file');
 
     if (!chats || chats.length === 0) {
       return false;
@@ -134,7 +134,7 @@ export async function checkMetricReportAccess(metricId: string, user: User): Pro
 export async function checkDashboardChatAccess(dashboardId: string, user: User): Promise<boolean> {
   try {
     // Get all chats containing this dashboard with their workspace sharing info
-    const chats = await checkChatsContainingAsset(dashboardId, 'dashboard');
+    const chats = await checkChatsContainingAsset(dashboardId, 'dashboard_file');
 
     if (!chats || chats.length === 0) {
       return false;
@@ -173,7 +173,7 @@ export async function checkDashboardChatAccess(dashboardId: string, user: User):
 export async function checkMetricCollectionAccess(metricId: string, user: User): Promise<boolean> {
   try {
     // Get all collections containing this metric with their workspace sharing info
-    const collections = await checkCollectionsContainingAsset(metricId, 'metric');
+    const collections = await checkCollectionsContainingAsset(metricId, 'metric_file');
 
     if (!collections || collections.length === 0) {
       return false;
@@ -215,7 +215,7 @@ export async function checkDashboardCollectionAccess(
 ): Promise<boolean> {
   try {
     // Get all collections containing this dashboard with their workspace sharing info
-    const collections = await checkCollectionsContainingAsset(dashboardId, 'dashboard');
+    const collections = await checkCollectionsContainingAsset(dashboardId, 'dashboard_file');
 
     if (!collections || collections.length === 0) {
       return false;
@@ -305,7 +305,6 @@ export async function checkCascadingPermissions(
     let hasAccess = false;
 
     switch (assetType) {
-      case 'metric':
       case 'metric_file': {
         // Check access through dashboards, chats, collections, and reports
         const dashboardAccess = await checkMetricDashboardAccess(assetId, user);
@@ -334,7 +333,6 @@ export async function checkCascadingPermissions(
         break;
       }
 
-      case 'dashboard':
       case 'dashboard_file': {
         // Check access through chats and collections
         const dashboardChatAccess = await checkDashboardChatAccess(assetId, user);

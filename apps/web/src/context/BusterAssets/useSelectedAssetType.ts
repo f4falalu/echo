@@ -18,11 +18,11 @@ export const useSelectedAssetId = () => {
   const assetType = useSelectedAssetType();
   const params = useParams({ strict: false });
 
-  if (assetType === 'dashboard') {
+  if (assetType === 'dashboard_file') {
     return params?.dashboardId;
   }
 
-  if (assetType === 'report') {
+  if (assetType === 'report_file') {
     return params?.reportId;
   }
 
@@ -30,7 +30,7 @@ export const useSelectedAssetId = () => {
     return params?.collectionId;
   }
 
-  if (assetType === 'metric') {
+  if (assetType === 'metric_file') {
     return params?.metricId;
   }
 
@@ -53,15 +53,15 @@ export const useGetSelectedAssetVersionNumber = () => {
   const assetType = useSelectedAssetType();
   const params = useSearch({ strict: false });
 
-  if (assetType === 'dashboard') {
+  if (assetType === 'dashboard_file') {
     return params?.dashboard_version_number;
   }
 
-  if (assetType === 'metric') {
+  if (assetType === 'metric_file') {
     return params?.metric_version_number;
   }
 
-  if (assetType === 'report') {
+  if (assetType === 'report_file') {
     return params?.report_version_number;
   }
 

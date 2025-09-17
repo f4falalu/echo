@@ -54,7 +54,7 @@ describe('createModifyMetricsStart', () => {
     state.files = [
       {
         id: 'metric-1',
-        file_type: 'metric',
+        file_type: 'metric_file',
         version_number: 1,
         status: 'loading',
         file: { text: 'content' },
@@ -89,7 +89,7 @@ describe('createModifyMetricsStart', () => {
     state.files = [
       {
         id: 'metric-1',
-        file_type: 'metric',
+        file_type: 'metric_file',
         version_number: 1,
         status: 'loading',
         file: { text: 'content' },
@@ -148,7 +148,7 @@ describe('createModifyMetricsStart', () => {
       files: [
         {
           id: 'metric-1',
-          file_type: 'metric',
+          file_type: 'metric_file',
           version_number: 1,
           status: 'loading',
           file: { text: 'content' },

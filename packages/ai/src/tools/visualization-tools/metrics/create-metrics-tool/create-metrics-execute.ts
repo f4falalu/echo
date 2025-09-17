@@ -131,7 +131,7 @@ async function processMetricFile(
     const metricFile: FileWithId = {
       id,
       name: finalMetricYml.name,
-      file_type: 'metric',
+      file_type: 'metric_file',
       result_message: sqlValidationResult.message || '',
       results: sqlValidationResult.results || [],
       created_at: now,

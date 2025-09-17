@@ -13,7 +13,6 @@ import type {
   ChatMessageResponseMessage,
 } from '@buster/server-shared/chats';
 import { eq } from 'drizzle-orm';
-import { convertChatAssetTypeToDatabaseAssetType } from './server-asset-conversion';
 
 /**
  * Creates an import message for an asset
@@ -28,9 +27,7 @@ export async function createAssetImportMessage(
   user: User
 ): Promise<Message> {
   // Create the import message content
-  const importContent = `Imported ${assetType === 'metric' ? 'metric' : 'dashboard'} "${
-    assetDetails.name
-  }"`;
+  const importContent = `Imported ${assetType} "${assetDetails.name}"`;
 
   // Create the message in the database
   const message = await createMessage({
@@ -48,7 +45,7 @@ export async function createAssetImportMessage(
       {
         id: assetId,
         type: 'file',
-        file_type: assetType === 'metric' ? 'metric' : 'dashboard',
+        file_type: assetType,
         file_name: assetDetails.name,
         version_number: assetDetails.versionNumber,
       },
@@ -56,15 +53,13 @@ export async function createAssetImportMessage(
   });
 
   // Create the file association
-  const dbAssetType = convertChatAssetTypeToDatabaseAssetType(assetType);
   await createMessageFileAssociation({
     messageId,
     fileId: assetId,
-    fileType: dbAssetType,
+    fileType: assetType,
     version: assetDetails.versionNumber,
   });
 
-  // Update the chat with most recent file information and title (matching Rust behavior)
   await db
     .update(chats)
     .set({
@@ -84,7 +79,7 @@ export async function createAssetImportMessage(
       {
         id: assetId,
         type: 'file',
-        file_type: assetType === 'metric' ? 'metric' : 'dashboard',
+        file_type: assetType,
         file_name: assetDetails.name,
         version_number: assetDetails.versionNumber,
       },

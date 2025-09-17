@@ -72,7 +72,7 @@ describe('createCreateMetricsFinish', () => {
     expect(state.files!).toHaveLength(2);
     expect(state.files![0]).toMatchObject({
       file_name: 'metric1',
-      file_type: 'metric',
+      file_type: 'metric_file',
       file: {
         text: 'content1',
       },
@@ -80,7 +80,7 @@ describe('createCreateMetricsFinish', () => {
     });
     expect(state.files![1]).toMatchObject({
       file_name: 'metric2',
-      file_type: 'metric',
+      file_type: 'metric_file',
       file: {
         text: 'content2',
       },
@@ -94,7 +94,7 @@ describe('createCreateMetricsFinish', () => {
       {
         id: 'existing-id-1',
         file_name: 'metric1',
-        file_type: 'metric',
+        file_type: 'metric_file',
         version_number: 2,
         file: {
           text: '',
@@ -122,7 +122,7 @@ describe('createCreateMetricsFinish', () => {
     expect(state.files![0]).toMatchObject({
       id: 'existing-id-1',
       file_name: 'metric1',
-      file_type: 'metric',
+      file_type: 'metric_file',
       version_number: 2,
       file: {
         text: 'updated content',
@@ -131,7 +131,7 @@ describe('createCreateMetricsFinish', () => {
     });
     expect(state.files![1]).toMatchObject({
       file_name: 'metric2',
-      file_type: 'metric',
+      file_type: 'metric_file',
       version_number: 1,
       file: {
         text: 'content2',
@@ -221,7 +221,7 @@ describe('createCreateMetricsFinish', () => {
       {
         id: 'id-1',
         file_name: 'metric1',
-        file_type: 'metric',
+        file_type: 'metric_file',
         version_number: 1,
         file: {
           text: 'old content',
@@ -231,7 +231,7 @@ describe('createCreateMetricsFinish', () => {
       {
         id: 'id-2',
         file_name: 'metric2',
-        file_type: 'metric',
+        file_type: 'metric_file',
         version_number: 1,
         file: {
           text: 'old content',
@@ -264,7 +264,7 @@ describe('createCreateMetricsFinish', () => {
       {
         id: 'id-123',
         file_name: 'metric1',
-        file_type: 'metric',
+        file_type: 'metric_file',
         version_number: 2,
         file: {
           text: '',
@@ -274,7 +274,7 @@ describe('createCreateMetricsFinish', () => {
       {
         id: 'id-456',
         file_name: 'metric2',
-        file_type: 'metric',
+        file_type: 'metric_file',
         version_number: 3,
         file: {
           text: '',
@@ -301,7 +301,7 @@ describe('createCreateMetricsFinish', () => {
       file_name: 'metric1',
       file: { text: 'final content' },
       id: 'id-123',
-      file_type: 'metric',
+      file_type: 'metric_file',
       version_number: 2,
       status: 'loading',
     });
@@ -310,7 +310,7 @@ describe('createCreateMetricsFinish', () => {
       file_name: 'metric2',
       file: { text: 'content2' },
       id: 'id-456',
-      file_type: 'metric',
+      file_type: 'metric_file',
       version_number: 3,
       status: 'loading',
     });

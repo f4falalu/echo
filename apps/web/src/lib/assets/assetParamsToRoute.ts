@@ -18,7 +18,7 @@ type ChatParamsToRoute = {
 };
 
 type MetricParamsToRoute = {
-  assetType: 'metric';
+  assetType: 'metric_file';
   assetId: string;
   dashboardId?: string;
   reportId?: string;
@@ -27,7 +27,7 @@ type MetricParamsToRoute = {
 };
 
 type DashboardParamsToRoute = {
-  assetType: 'dashboard';
+  assetType: 'dashboard_file';
   assetId: string;
   metricId?: string;
   reportId?: string;
@@ -37,7 +37,7 @@ type DashboardParamsToRoute = {
 };
 
 type ReportParamsToRoute = {
-  assetType: 'report';
+  assetType: 'report_file';
   assetId: string;
   metricId?: string;
   chatId?: string;
@@ -158,7 +158,7 @@ type GetRouteKey<T extends RouteBuilderState> =
                                     : T extends { metricId: string }
                                       ? 'metric'
                                       : T extends { reportId: string }
-                                        ? 'report'
+                                        ? 'report_file'
                                         : never;
 
 /**
@@ -443,7 +443,7 @@ export const assetParamsToRoute = (params: AssetParamsToRoute): ILinkProps => {
       return route.buildNavigationOptions();
     }
 
-    case 'metric': {
+    case 'metric_file': {
       let route = builder.withMetric(params.assetId);
       if (params.chatId) {
         route = route.withChat(params.chatId);
@@ -457,7 +457,7 @@ export const assetParamsToRoute = (params: AssetParamsToRoute): ILinkProps => {
       return route.buildNavigationOptions();
     }
 
-    case 'dashboard': {
+    case 'dashboard_file': {
       let route = builder.withDashboard(params.assetId);
       if (params.chatId) {
         route = route.withChat(params.chatId);
@@ -475,7 +475,7 @@ export const assetParamsToRoute = (params: AssetParamsToRoute): ILinkProps => {
       return route.buildNavigationOptions();
     }
 
-    case 'report': {
+    case 'report_file': {
       let route = builder.withReport(params.assetId);
       if (params.chatId) {
         route = route.withChat(params.chatId);

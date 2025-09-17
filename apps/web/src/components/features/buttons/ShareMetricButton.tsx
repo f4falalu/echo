@@ -11,7 +11,11 @@ export const ShareMetricButton = React.memo(({ metricId }: { metricId: string })
   );
 
   return (
-    <ShareMenu shareAssetConfig={shareAssetConfig || null} assetId={metricId} assetType={'metric'}>
+    <ShareMenu
+      shareAssetConfig={shareAssetConfig || null}
+      assetId={metricId}
+      assetType={'metric_file'}
+    >
       <ShareButton />
     </ShareMenu>
   );

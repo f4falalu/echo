@@ -140,7 +140,7 @@ impl ChatContextLoader {
                                                         );
 
                                                         match file_type {
-                                                            Some("metric") => {
+                                                            Some("metric_file") => {
                                                                 has_metrics = true;
 
                                                                 // Check if the metric has dataset references

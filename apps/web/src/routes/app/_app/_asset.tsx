@@ -24,7 +24,7 @@ export const Route = createFileRoute('/app/_app/_asset')({
 
 const stableCtxSelector = (ctx: RouteContext) => ctx.assetType;
 function RouteComponent() {
-  const assetType = Route.useRouteContext({ select: stableCtxSelector }) || 'metric';
+  const assetType = Route.useRouteContext({ select: stableCtxSelector }) || 'metric_file';
 
   return (
     <AppAssetCheckLayout assetType={assetType}>

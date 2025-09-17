@@ -255,7 +255,7 @@ describe('identify-assumptions-step integration', () => {
               files: [
                 {
                   created_at: '2025-06-24T22:29:54.034Z',
-                  file_type: 'metric',
+                  file_type: 'metric_file',
                   id: 'a4a649b9-c61b-4632-8103-21ae207d4eb8',
                   name: 'Mountain-500 Online Sales to NA Customers with ColonialVoice Card',
                   result_message: 'Query validated successfully and returned 1 records',
