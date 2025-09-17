@@ -7,7 +7,7 @@ import { getBrowserClient } from '@/integrations/supabase/client';
 import type { SimplifiedSupabaseSession } from '@/integrations/supabase/getSupabaseUserClient';
 
 export type SupabaseContextType = {
-  supabaseSession: SimplifiedSupabaseSession;
+  supabaseSession: SimplifiedSupabaseSession | undefined;
 };
 
 const supabase = getBrowserClient();
@@ -17,7 +17,7 @@ const useSupabaseContextInternal = ({ supabaseSession }: SupabaseContextType) =>
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const busterUser = useGetUserBasicInfo();
   const [supabaseUser, setSupabaseUser] = useState<null | User>(null);
-  const [accessToken, setAccessToken] = useState(supabaseSession.accessToken);
+  const [accessToken, setAccessToken] = useState(supabaseSession?.accessToken);
 
   const isAnonymousUser: boolean = !busterUser?.id || supabaseUser?.is_anonymous === true;
 
