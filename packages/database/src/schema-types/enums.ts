@@ -1,6 +1,8 @@
 // Type definitions for database enums
+import { z } from 'zod';
 
-export type AssetType = 'chat' | 'metric_file' | 'dashboard_file' | 'report_file' | 'collection';
+export const AssetTypeSchema = z.enum(['chat', 'metric_file', 'dashboard_file', 'report_file', 'collection']);
+export type AssetType = z.infer<typeof AssetTypeSchema>;
 
 export type AssetPermissionRole =
   | 'owner'

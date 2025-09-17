@@ -19,11 +19,12 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
-import type {
-  OrganizationColorPalettes,
-  UserPersonalizationConfigType,
-  UserShortcutTrackingType,
-  UserSuggestedPromptsType,
+import {
+  AssetTypeSchema,
+  type OrganizationColorPalettes,
+  type UserPersonalizationConfigType,
+  type UserShortcutTrackingType,
+  type UserSuggestedPromptsType,
 } from './schema-types';
 import { DEFAULT_USER_SUGGESTED_PROMPTS } from './schema-types/user';
 import type { MessageMetadata } from './schemas/message-schemas';
@@ -36,13 +37,7 @@ export const assetPermissionRoleEnum = pgEnum('asset_permission_role_enum', [
   'can_filter',
   'can_view',
 ]);
-export const assetTypeEnum = pgEnum('asset_type_enum', [
-  'chat',
-  'metric_file',
-  'dashboard_file',
-  'report_file',
-  'collection',
-]);
+export const assetTypeEnum = pgEnum('asset_type_enum', AssetTypeSchema.options);
 // Asset type enum removed - now using text for all asset_type columns
 export const dataSourceOnboardingStatusEnum = pgEnum('data_source_onboarding_status_enum', [
   'notStarted',
