@@ -16,7 +16,6 @@ export type SimplifiedSupabaseSession = {
 };
 
 export const getSupabaseSession = async (): Promise<SimplifiedSupabaseSession> => {
-  console.log('getSupabaseSession', isServer ? 'server' : 'client');
   const { data: sessionData, error: sessionError } = isServer
     ? await getSupabaseSessionServerFn()
     : await extractSimplifiedSupabaseSession(supabase);
