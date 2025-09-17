@@ -130,7 +130,7 @@ const useShareMenuSelectMenu = ({ metricId }: { metricId: string }): IDropdownIt
                       key={metricId}
                       shareAssetConfig={shareAssetConfig}
                       assetId={metricId}
-                      assetType={'metric'}
+                      assetType={'metric_file'}
                     />,
                   ]
                 : undefined,
@@ -143,7 +143,7 @@ const useShareMenuSelectMenu = ({ metricId }: { metricId: string }): IDropdownIt
 const useEditWithAI = ({ metricId }: { metricId: string }): IDropdownItem => {
   const { onCreateFileClick, loading } = useStartChatFromAsset({
     assetId: metricId,
-    assetType: 'metric',
+    assetType: 'metric_file',
   });
 
   return useMemo(

@@ -129,7 +129,7 @@ const useEditWithAI = ({ reportId }: { reportId: string }): IDropdownItem => {
 
   const { onCreateFileClick, loading } = useStartChatFromAsset({
     assetId: reportId,
-    assetType: 'report',
+    assetType: 'report_file',
   });
 
   return useMemo(
@@ -202,7 +202,7 @@ const useFavoriteReportSelectMenu = ({ reportId }: { reportId: string }): IDropd
   const { data: name } = useGetReport({ id: reportId }, { select: (x) => x.name });
   const { isFavorited, onFavoriteClick } = useFavoriteStar({
     id: reportId,
-    type: 'report',
+    type: 'report_file',
     name: name || '',
   });
 
@@ -291,7 +291,7 @@ const useReportVerificationSelectMenu = (): IDropdownItem => {
 const useRefreshReportSelectMenu = ({ reportId }: { reportId: string }): IDropdownItem => {
   const { onCreateFileClick, loading: isPending } = useStartChatFromAsset({
     assetId: reportId,
-    assetType: 'report',
+    assetType: 'report_file',
     prompt: 'Hey Buster. Please refresh the report with the latest data.',
   });
 

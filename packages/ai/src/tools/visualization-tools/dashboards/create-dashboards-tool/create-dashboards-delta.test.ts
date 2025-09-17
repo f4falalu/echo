@@ -99,7 +99,7 @@ describe('createDashboardsDelta', () => {
       expect(filesAfterComplete).toHaveLength(1);
       expect(filesAfterComplete[0]).toMatchObject({
         file_name: 'Dashboard 1',
-        file_type: 'dashboard',
+        file_type: 'dashboard_file',
         version_number: 1,
         file: {
           text: 'content1',
@@ -135,7 +135,7 @@ describe('createDashboardsDelta', () => {
       expect(files).toHaveLength(1);
       expect(files[0]).toMatchObject({
         file_name: 'Partial',
-        file_type: 'dashboard',
+        file_type: 'dashboard_file',
         version_number: 1,
         file: undefined,
         status: 'loading',
@@ -188,7 +188,7 @@ describe('createDashboardsDelta', () => {
       expect(filesTwo).toHaveLength(2);
       expect(filesTwo[0]).toMatchObject({
         file_name: 'Dashboard 1',
-        file_type: 'dashboard',
+        file_type: 'dashboard_file',
         version_number: 1,
         file: {
           text: 'content1',
@@ -197,7 +197,7 @@ describe('createDashboardsDelta', () => {
       });
       expect(filesTwo[1]).toMatchObject({
         file_name: 'Dashboard 2',
-        file_type: 'dashboard',
+        file_type: 'dashboard_file',
         version_number: 1,
         file: {
           text: 'content2',
@@ -367,7 +367,7 @@ describe('createDashboardsDelta', () => {
         {
           id: 'id-1',
           file_name: 'Dashboard 1',
-          file_type: 'dashboard',
+          file_type: 'dashboard_file',
           version_number: 1,
           file: { text: 'content1' },
           status: 'loading',
@@ -376,7 +376,7 @@ describe('createDashboardsDelta', () => {
         {
           id: 'id-2',
           file_name: 'Dashboard 2',
-          file_type: 'dashboard',
+          file_type: 'dashboard_file',
           version_number: 1,
           file: { text: 'content2' },
           status: 'loading',
@@ -459,7 +459,7 @@ describe('createDashboardsDelta', () => {
       expect(state.files).toHaveLength(1);
       expect(state.files?.[0]).toMatchObject({
         file_name: 'Dashboard 1',
-        file_type: 'dashboard',
+        file_type: 'dashboard_file',
         version_number: 1,
         file: {
           text: 'content1',

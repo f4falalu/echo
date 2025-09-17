@@ -3,13 +3,8 @@ import {
   checkAssetPermission as checkDbAssetPermission,
   getUserOrganizationsByUserId,
 } from '@buster/database';
-import type { User } from '@buster/database';
-import type {
-  AssetPermissionRole,
-  AssetType,
-  OrganizationMembership,
-  WorkspaceSharing,
-} from '../types';
+import type { AssetType, User } from '@buster/database';
+import type { AssetPermissionRole, OrganizationMembership, WorkspaceSharing } from '../types';
 import { getHighestPermission, isPermissionSufficient } from '../types/asset-permissions';
 import { getCachedPermission, setCachedPermission } from './cache';
 import { checkCascadingPermissions } from './cascading-permissions';
@@ -52,14 +47,7 @@ export async function checkPermission(check: AssetPermissionCheck): Promise<Asse
   const dbParams: CheckAssetPermissionParams = {
     userId,
     assetId,
-    assetType: assetType as
-      | 'dashboard'
-      | 'thread'
-      | 'chat'
-      | 'metric_file'
-      | 'dashboard_file'
-      | 'report_file'
-      | 'collection',
+    assetType,
   };
   if (organizationId !== undefined) {
     dbParams.organizationId = organizationId;

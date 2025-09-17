@@ -4,7 +4,7 @@ import { dashboardFiles, messagesToFiles, metricFiles, reportFiles } from '../..
 
 export interface MessageFile {
   id: string;
-  fileType: 'metric' | 'dashboard' | 'report';
+  fileType: 'metric_file' | 'dashboard_file' | 'report_file';
   fileName: string;
   versionNumber: number;
 }
@@ -38,7 +38,7 @@ export async function getMessageFiles(messageId: string): Promise<MessageFile[]>
   for (const metric of metricResults) {
     files.push({
       id: metric.id,
-      fileType: 'metric',
+      fileType: 'metric_file',
       fileName: metric.name,
       versionNumber: metric.versionNumber || 1,
     });
@@ -67,7 +67,7 @@ export async function getMessageFiles(messageId: string): Promise<MessageFile[]>
   for (const dashboard of dashboardResults) {
     files.push({
       id: dashboard.id,
-      fileType: 'dashboard',
+      fileType: 'dashboard_file',
       fileName: dashboard.name,
       versionNumber: dashboard.versionNumber || 1,
     });
@@ -96,7 +96,7 @@ export async function getMessageFiles(messageId: string): Promise<MessageFile[]>
   for (const report of reportResults) {
     files.push({
       id: report.id,
-      fileType: 'report',
+      fileType: 'report_file',
       fileName: report.name,
       versionNumber: report.versionNumber || 1,
     });

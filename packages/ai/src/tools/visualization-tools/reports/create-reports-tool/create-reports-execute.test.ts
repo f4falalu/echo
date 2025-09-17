@@ -67,7 +67,7 @@ describe('create-reports-execute', () => {
         {
           id: 'report-1',
           file_name: 'Sales Report Q4',
-          file_type: 'report',
+          file_type: 'report_file',
           version_number: 1,
           status: 'completed',
         },
@@ -102,7 +102,7 @@ describe('create-reports-execute', () => {
       expect(updateCall.responseMessages?.[0]).toMatchObject({
         id: 'report-1',
         type: 'file',
-        file_type: 'report',
+        file_type: 'report_file',
         file_name: 'Sales Report Q4',
         version_number: 1,
       });
@@ -114,7 +114,7 @@ describe('create-reports-execute', () => {
         {
           id: 'report-2',
           file_name: 'Simple Report',
-          file_type: 'report',
+          file_type: 'report_file',
           version_number: 1,
           status: 'completed',
         },
@@ -146,7 +146,7 @@ describe('create-reports-execute', () => {
       expect(updateCall?.responseMessages?.[0]).toMatchObject({
         id: 'report-2',
         type: 'file',
-        file_type: 'report',
+        file_type: 'report_file',
         file_name: 'Simple Report',
         version_number: 1,
       });
@@ -158,21 +158,21 @@ describe('create-reports-execute', () => {
         {
           id: 'report-1',
           file_name: 'Report With Metrics',
-          file_type: 'report',
+          file_type: 'report_file',
           version_number: 1,
           status: 'completed',
         },
         {
           id: 'report-2',
           file_name: 'Report Without Metrics',
-          file_type: 'report',
+          file_type: 'report_file',
           version_number: 1,
           status: 'completed',
         },
         {
           id: 'report-3',
           file_name: 'Another Report With Metrics',
-          file_type: 'report',
+          file_type: 'report_file',
           version_number: 1,
           status: 'completed',
         },
@@ -248,7 +248,7 @@ describe('create-reports-execute', () => {
         {
           id: 'report-1',
           file_name: 'Test Report',
-          file_type: 'report',
+          file_type: 'report_file',
           version_number: 1,
           status: 'completed',
         },
@@ -277,14 +277,14 @@ describe('create-reports-execute', () => {
         {
           id: 'report-1',
           file_name: 'Success Report',
-          file_type: 'report',
+          file_type: 'report_file',
           version_number: 1,
           status: 'completed',
         },
         {
           id: '', // No ID means report creation failed during delta
           file_name: 'Failed Report',
-          file_type: 'report',
+          file_type: 'report_file',
           version_number: 1,
           status: 'failed',
           error: 'Report creation failed during streaming',
@@ -328,7 +328,7 @@ describe('create-reports-execute', () => {
         {
           id: 'report-1',
           file_name: 'Test Report',
-          file_type: 'report',
+          file_type: 'report_file',
           version_number: 1,
           status: 'completed',
         },

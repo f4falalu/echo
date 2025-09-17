@@ -11,7 +11,7 @@ export const validateSearch = z.object({
 });
 
 export const staticData = {
-  assetType: 'dashboard' as AssetType,
+  assetType: 'dashboard_file' as AssetType,
 };
 
 export const loader = async ({

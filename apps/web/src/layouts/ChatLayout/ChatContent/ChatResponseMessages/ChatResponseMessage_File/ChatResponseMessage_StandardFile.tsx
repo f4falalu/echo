@@ -11,9 +11,9 @@ export const ChatResponseMessage_StandardFile: React.FC<ResponseMessageFileProps
     const { file_type, file_name, version_number } = responseMessage;
 
     const selectedIcon = useMemo(() => {
-      if (file_type === 'metric') return <ASSET_ICONS.metrics />;
-      if (file_type === 'dashboard') return <ASSET_ICONS.dashboards />;
-      if (file_type === 'report') return <ASSET_ICONS.reports />;
+      if (file_type === 'metric_file') return <ASSET_ICONS.metrics />;
+      if (file_type === 'dashboard_file') return <ASSET_ICONS.dashboards />;
+      if (file_type === 'report_file') return <ASSET_ICONS.reports />;
       if (file_type === 'reasoning') return null;
       const _exhaustiveCheck: never = file_type;
       return null;

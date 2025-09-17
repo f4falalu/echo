@@ -26,7 +26,7 @@ export const useShareMenuSelectMenu = ({ reportId }: { reportId: string }) => {
                   key={reportId}
                   shareAssetConfig={shareAssetConfig}
                   assetId={reportId}
-                  assetType={'report'}
+                  assetType={'report_file'}
                 />,
               ]
             : undefined,

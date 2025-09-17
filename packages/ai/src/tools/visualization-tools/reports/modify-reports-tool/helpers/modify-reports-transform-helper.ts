@@ -28,7 +28,7 @@ export function createModifyReportsReasoningEntry(
     fileIds.push(id);
     filesRecord[id] = {
       id,
-      file_type: 'report',
+      file_type: 'report_file',
       file_name: state.reportName,
       version_number: state.version_number || 1,
       status: 'loading',

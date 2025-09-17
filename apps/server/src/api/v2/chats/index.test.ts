@@ -127,12 +127,12 @@ describe('POST /chats', () => {
   it('should create asset-based chat', async () => {
     const response = await makeRequest(app, {
       asset_id: '123e4567-e89b-12d3-a456-426614174004',
-      asset_type: 'metric',
+      asset_type: 'metric_file',
     });
 
     expect(response.status).toBe(200);
     expect(createChatHandler).toHaveBeenCalledWith(
-      { asset_id: '123e4567-e89b-12d3-a456-426614174004', asset_type: 'metric' },
+      { asset_id: '123e4567-e89b-12d3-a456-426614174004', asset_type: 'metric_file' },
       mockUser
     );
   });

@@ -1,7 +1,6 @@
 import { canUserAccessChatCached } from '@buster/access-controls';
 import type { ModelMessage } from '@buster/ai';
 import {
-  CreateAssetPermissionParams,
   type User,
   chats,
   createAssetPermission,
@@ -26,7 +25,6 @@ import { ChatError, ChatErrorCode } from '@buster/server-shared/chats';
 import { PostProcessingMessageSchema } from '@buster/server-shared/message';
 import { and, eq, gte, isNull } from 'drizzle-orm';
 import type { z } from 'zod';
-import { convertChatAssetTypeToDatabaseAssetType } from './server-asset-conversion';
 
 /**
  * Validates a nullable JSONB field against a Zod schema
@@ -402,14 +400,13 @@ export async function handleAssetChat(
   chatId: string,
   _messageId: string,
   assetId: string,
-  chatAssetType: ChatAssetType,
+  assetType: ChatAssetType,
   user: User,
   chat: ChatWithMessages
 ): Promise<ChatWithMessages> {
   const userId = user.id;
   try {
     // Generate asset messages
-    const assetType = convertChatAssetTypeToDatabaseAssetType(chatAssetType);
     const assetMessages = await generateAssetMessages({
       assetId,
       assetType,
@@ -465,9 +462,6 @@ export async function handleAssetChat(
       chat.messages[msg.id] = chatMessage;
     }
 
-    // Update the chat with most recent file information and title (matching Rust behavior)
-    const fileType = chatAssetType === 'metric' ? 'metric' : 'dashboard';
-
     // Get the asset name from the first message
     const assetName = assetMessages[0]?.title || '';
 
@@ -476,7 +470,7 @@ export async function handleAssetChat(
       .set({
         title: assetName, // Set chat title to asset name
         mostRecentFileId: assetId,
-        mostRecentFileType: fileType,
+        mostRecentFileType: assetType,
         mostRecentVersionNumber: 1, // Asset imports always start at version 1
         updatedAt: new Date().toISOString(),
       })
@@ -490,7 +484,7 @@ export async function handleAssetChat(
     console.error('Failed to handle asset chat:', {
       chatId,
       assetId,
-      chatAssetType,
+      assetType,
       userId,
       error:
         error instanceof Error
@@ -515,7 +509,7 @@ export async function handleAssetChatWithPrompt(
   chatId: string,
   _messageId: string, // Initial message ID (not used since we create two messages)
   assetId: string,
-  chatAssetType: ChatAssetType,
+  assetType: ChatAssetType,
   prompt: string,
   messageAnalysisMode: MessageAnalysisMode | undefined,
   user: User,
@@ -525,7 +519,6 @@ export async function handleAssetChatWithPrompt(
   try {
     // First, use the exact same logic as handleAssetChat to import the asset
     // This ensures we get dashboard metrics and proper formatting
-    const assetType = convertChatAssetTypeToDatabaseAssetType(chatAssetType);
     const assetMessages = await generateAssetMessages({
       assetId,
       assetType,
@@ -617,7 +610,6 @@ export async function handleAssetChatWithPrompt(
     }
 
     // Update the chat with most recent file information and title (matching handleAssetChat)
-    const fileType = chatAssetType === 'metric' ? 'metric' : 'dashboard';
     const assetName = assetMessages[0]?.title || '';
 
     await db
@@ -625,7 +617,7 @@ export async function handleAssetChatWithPrompt(
       .set({
         title: assetName, // Set chat title to asset name
         mostRecentFileId: assetId,
-        mostRecentFileType: fileType,
+        mostRecentFileType: assetType,
         mostRecentVersionNumber: 1, // Asset imports always start at version 1
         updatedAt: new Date().toISOString(),
       })
@@ -675,7 +667,7 @@ export async function handleAssetChatWithPrompt(
     console.error('Failed to handle asset chat with prompt:', {
       chatId,
       assetId,
-      chatAssetType,
+      assetType,
       userId,
       error:
         error instanceof Error

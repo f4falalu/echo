@@ -75,7 +75,7 @@ pub async fn restore_chat_handler(
                     update_metric_handler(&request_clone1.asset_id, &user_clone1, metric_request)
                         .await?;
                 (
-                    "metric".to_string(),
+                    "metric_file".to_string(),
                     updated_metric.name,
                     updated_metric.id,
                     updated_metric.versions.len() as i32,

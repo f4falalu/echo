@@ -17,14 +17,7 @@ import type { AssetPermissionRole, AssetType, WorkspaceSharing } from '../../sch
 export interface CheckAssetPermissionParams {
   userId: string;
   assetId: string;
-  assetType:
-    | 'dashboard'
-    | 'thread'
-    | 'chat'
-    | 'metric_file'
-    | 'dashboard_file'
-    | 'report_file'
-    | 'collection';
+  assetType: AssetType;
   organizationId?: string;
 }
 
@@ -202,7 +195,7 @@ export async function checkMetricDashboardAccess(
 export async function checkAssetCollectionAccess(
   userId: string,
   assetId: string,
-  assetType: 'dashboard' | 'thread' | 'chat' | 'metric_file' | 'dashboard_file' | 'collection',
+  assetType: AssetType,
   visitedCollections: Set<string> = new Set()
 ): Promise<boolean> {
   // Get all collections containing this asset

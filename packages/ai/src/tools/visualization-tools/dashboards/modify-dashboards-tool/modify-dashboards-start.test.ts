@@ -53,7 +53,7 @@ describe('modify-dashboards-start', () => {
       files: [
         {
           id: 'dash-1',
-          file_type: 'dashboard',
+          file_type: 'dashboard_file',
           version_number: 1,
           status: 'loading',
           file: { text: 'dashboard content' }, // Need file content for entry to be created
@@ -138,7 +138,7 @@ describe('modify-dashboards-start', () => {
       files: [
         {
           id: 'dash-1',
-          file_type: 'dashboard',
+          file_type: 'dashboard_file',
           version_number: 1,
           status: 'loading',
           file: { text: 'dashboard content' },
@@ -155,7 +155,9 @@ describe('modify-dashboards-start', () => {
     expect(state.argsText).toBeUndefined(); // Args should be reset
 
     // Second call with different toolCallId - should reset state again
-    state.files = [{ id: 'dash-2', file_type: 'dashboard', version_number: 2, status: 'loading' }];
+    state.files = [
+      { id: 'dash-2', file_type: 'dashboard_file', version_number: 2, status: 'loading' },
+    ];
     state.argsText = 'some text';
 
     await onInputStart({ ...mockOptions, toolCallId: 'tool-456' });

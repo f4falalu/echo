@@ -28,14 +28,14 @@ export const ShareMenuContent: React.FC<{
     if (!assetId) {
       return;
     }
-    if (assetType === 'metric') {
+    if (assetType === 'metric_file') {
       url = buildLocation({
         to: '/app/metrics/$metricId/chart',
         params: {
           metricId: assetId,
         },
       }).href;
-    } else if (assetType === 'dashboard') {
+    } else if (assetType === 'dashboard_file') {
       url = buildLocation({
         to: '/app/dashboards/$dashboardId',
         params: {
@@ -49,7 +49,7 @@ export const ShareMenuContent: React.FC<{
           collectionId: assetId,
         },
       }).href;
-    } else if (assetType === 'report') {
+    } else if (assetType === 'report_file') {
       url = buildLocation({
         to: '/app/reports/$reportId',
         params: {

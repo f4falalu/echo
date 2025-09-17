@@ -94,7 +94,7 @@ export const useSaveMetricToCollections = () => {
       collectionIds.map((collectionId) =>
         addAssetToCollection({
           id: collectionId,
-          assets: metricIds.map((metricId) => ({ id: metricId, type: 'metric' })),
+          assets: metricIds.map((metricId) => ({ id: metricId, type: 'metric_file' })),
         })
       )
     );
@@ -163,7 +163,7 @@ export const useRemoveMetricFromCollection = () => {
       collectionIds.map((collectionId) =>
         removeAssetFromCollection({
           id: collectionId,
-          assets: metricIds.map((metricId) => ({ id: metricId, type: 'metric' })),
+          assets: metricIds.map((metricId) => ({ id: metricId, type: 'metric_file' })),
         })
       )
     );

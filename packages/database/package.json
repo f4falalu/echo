@@ -18,6 +18,10 @@
     "./connection": {
       "types": "./dist/connection.d.ts",
       "default": "./dist/connection.js"
+    },
+    "./schema-types": {
+      "types": "./dist/schema-types/index.d.ts",
+      "default": "./dist/schema-types/index.js"
     }
   },
   "main": "dist/index.js",

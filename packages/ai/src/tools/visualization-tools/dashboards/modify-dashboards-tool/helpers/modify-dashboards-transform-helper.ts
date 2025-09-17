@@ -29,7 +29,7 @@ export function createModifyDashboardsReasoningEntry(
     fileIds.push(id);
     filesRecord[id] = {
       id,
-      file_type: 'dashboard',
+      file_type: 'dashboard_file',
       file_name: f.file_name || `Dashboard ${id}`,
       version_number: f.version_number,
       status: f.status,
@@ -55,10 +55,10 @@ export function createModifyDashboardsReasoningEntry(
   const isComplete = completedFiles + failedFiles === totalFiles && totalFiles > 0;
   if (isComplete) {
     if (failedFiles === 0) {
-      title = `Modified ${completedFiles} ${completedFiles === 1 ? 'dashboard' : 'dashboards'}`;
+      title = `Modified ${completedFiles} ${completedFiles === 1 ? 'dashboard_file' : 'dashboards'}`;
       status = 'completed';
     } else if (completedFiles === 0) {
-      title = `Failed to modify ${failedFiles} ${failedFiles === 1 ? 'dashboard' : 'dashboards'}`;
+      title = `Failed to modify ${failedFiles} ${failedFiles === 1 ? 'dashboard_file' : 'dashboards'}`;
       status = 'failed';
     } else {
       title = `Modified ${completedFiles} of ${totalFiles} dashboards`;
