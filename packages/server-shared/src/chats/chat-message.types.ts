@@ -84,10 +84,8 @@ const ReasoningMessage_FilesSchema = z.object({
   files: z.record(z.string(), ReasoningFileSchema),
 });
 
-const ReasoingMessage_ThoughtFileTypeSchema = z.enum([
-  'metric_file',
-  'dashboard_file',
-  'collection',
+const ReasoningMessage_ThoughtFileTypeSchema = z.enum([
+  ...AssetTypeSchema.exclude(['chat']).options,
   'dataset',
   'term',
   'topic',
@@ -97,7 +95,7 @@ const ReasoingMessage_ThoughtFileTypeSchema = z.enum([
 
 const ReasoningMessage_PillSchema = z.object({
   text: z.string(),
-  type: ReasoingMessage_ThoughtFileTypeSchema,
+  type: ReasoningMessage_ThoughtFileTypeSchema,
   id: z.string(),
 });
 
