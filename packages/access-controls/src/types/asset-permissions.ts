@@ -1,4 +1,4 @@
-import type { AssetType } from '@buster/database';
+import type { AssetType } from '@buster/database/schema-types';
 import { z } from 'zod';
 
 // Internal types for asset permissions
@@ -7,12 +7,7 @@ export const IdentityTypeSchema = z.enum(['user', 'team', 'organization']);
 export type IdentityType = z.infer<typeof IdentityTypeSchema>;
 
 // Types that support cascading permissions
-export type CascadingAssetType =
-  | 'chat'
-  | 'metric_file'
-  | 'dashboard_file'
-  | 'report_file'
-  | 'collection';
+export type CascadingAssetType = AssetType;
 
 // Permission roles - matching database AssetPermissionRole enum
 export const AssetPermissionRoleSchema = z.enum([
