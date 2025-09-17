@@ -14,24 +14,24 @@ export const Route = createFileRoute('/app')({
   context: ({ context }) => ({ ...context, getAppLayout }),
   beforeLoad: async () => {
     try {
-      const { isExpired, accessToken = '' } = await getSupabaseSession();
-
+      const supabaseSession = await getSupabaseSession();
+      const { isExpired, accessToken = '' } = supabaseSession;
       if (isExpired || !accessToken) {
         console.error('Access token is expired or not found');
         throw redirect({ to: '/auth/login', replace: true, statusCode: 307 });
       }
+      return {
+        supabaseSession,
+      };
     } catch (error) {
       console.error('Error in app route beforeLoad:', error);
       throw redirect({ to: '/auth/login', replace: true, statusCode: 307 });
     }
   },
   loader: async ({ context }) => {
-    const { queryClient } = context;
+    const { queryClient, supabaseSession } = context;
     try {
-      const [supabaseSession] = await Promise.all([
-        getSupabaseSession(),
-        prefetchGetMyUserInfo(queryClient),
-      ]);
+      await Promise.all([prefetchGetMyUserInfo(queryClient)]);
 
       if (!supabaseSession?.accessToken) {
         console.error('Session not found - redirecting to login');
