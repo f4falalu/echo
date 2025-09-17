@@ -8,10 +8,7 @@ loadRootEnv();
 
 // Define required environment variables for this package
 const requiredEnv = {
-  // NODE_ENV is optional - will default to 'development' if not set
-  // Add your required environment variables here:
-  // DATABASE_URL: process.env.DATABASE_URL,
-  // API_KEY: process.env.API_KEY,
+  MOMENTIC_API_KEY: process.env.MOMENTIC_API_KEY,
 };
 
 // Validate environment variables
