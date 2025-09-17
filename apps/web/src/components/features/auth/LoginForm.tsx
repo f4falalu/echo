@@ -1,5 +1,5 @@
-import { Link, useNavigate } from '@tanstack/react-router';
-import Cookies from 'js-cookie';
+import { ClientOnly, Link } from '@tanstack/react-router';
+import { motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { Button } from '@/components/ui/buttons';
@@ -8,13 +8,14 @@ import Github from '@/components/ui/icons/customIcons/Github';
 import Google from '@/components/ui/icons/customIcons/Google';
 import Microsoft from '@/components/ui/icons/customIcons/Microsoft';
 import { Input } from '@/components/ui/inputs';
-import { AppTooltip } from '@/components/ui/tooltip';
 import { Text, Title } from '@/components/ui/typography';
 import { env } from '@/env';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { useMounted } from '@/hooks/useMount';
 import { cn } from '@/lib/classMerge';
 import { isValidEmail } from '@/lib/email';
-import { inputHasText, truncateText } from '@/lib/text';
+import { clearAllBrowserStorage } from '@/lib/storage';
+import { inputHasText } from '@/lib/text';
 import { PolicyCheck } from './PolicyCheck';
 import { useAuthMutations } from './useAuthMutations';
 import { type LastUsedReturnType, useLastUsed } from './useLastUsed';
@@ -96,18 +97,10 @@ const LoginOptions: React.FC<{
   const [password2, setPassword2] = useState('');
   const [passwordCheck, setPasswordCheck] = useState(false);
 
+  const { lastUsedMethod } = lastUsedProps;
+
   const disableSubmitButton =
     !inputHasText(password) || !inputHasText(password2) || password !== password2 || !passwordCheck;
-
-  const clearAllCookies = useMemoizedFn(() => {
-    for (const cookieName of Object.keys(Cookies.get())) {
-      Cookies.remove(cookieName);
-    }
-
-    //also clear local storage
-    localStorage.clear();
-    sessionStorage.clear();
-  });
 
   useHotkeys(
     'meta+shift+b',
@@ -134,55 +127,37 @@ const LoginOptions: React.FC<{
       </div>
 
       <div className="mt-6 mb-4 flex flex-col space-y-3">
-        <Button
-          prefix={<Google />}
-          size={'tall'}
-          type="button"
-          onClick={() => {
-            clearAllCookies();
-            onSignInWithGoogle();
-          }}
-          block={true}
+        <ButtonWithLastUsedMethod
+          isLastUsedMethod={lastUsedMethod === 'google'}
+          onClick={onSignInWithGoogle}
+          text="Continue with Google"
           loading={loading === 'google'}
+          icon={<Google />}
           tabIndex={0}
-        >
-          {!signUpFlow ? 'Continue with Google' : 'Sign up with Google'}
-        </Button>
-        <Button
-          prefix={<Github />}
-          size={'tall'}
-          type="button"
-          onClick={() => {
-            clearAllCookies();
-            onSignInWithGithub();
-          }}
-          block={true}
+        />
+        <ButtonWithLastUsedMethod
+          isLastUsedMethod={lastUsedMethod === 'github'}
+          onClick={onSignInWithGithub}
+          text="Continue with Github"
           loading={loading === 'github'}
+          icon={<Github />}
           tabIndex={-1}
-        >
-          {!signUpFlow ? 'Continue with Github' : 'Sign up with Github'}
-        </Button>
-        <Button
-          prefix={<Microsoft />}
-          size={'tall'}
-          type="button"
-          onClick={() => {
-            clearAllCookies();
-            onSignInWithAzure();
-          }}
-          block={true}
+        />
+
+        <ButtonWithLastUsedMethod
+          isLastUsedMethod={lastUsedMethod === 'azure'}
+          onClick={onSignInWithAzure}
+          text="Continue with Azure"
           loading={loading === 'azure'}
+          icon={<Microsoft />}
           tabIndex={-2}
-        >
-          {!signUpFlow ? 'Continue with Azure' : 'Sign up with Azure'}
-        </Button>
+        />
       </div>
 
       <form
         className="space-y-3"
         onSubmit={(v) => {
           v.preventDefault();
-          clearAllCookies();
           onSubmitClick({
             email,
             password,
@@ -250,16 +225,16 @@ const LoginOptions: React.FC<{
           ))}
         </div>
 
-        <Button
-          size={'tall'}
-          block={true}
-          type="submit"
+        <ButtonWithLastUsedMethod
+          isLastUsedMethod={lastUsedMethod === 'email'}
+          text={!signUpFlow ? 'Sign in' : 'Sign up'}
           loading={loading === 'email'}
-          variant="black"
+          tabIndex={-3}
           disabled={!signUpFlow ? false : disableSubmitButton}
-        >
-          {!signUpFlow ? 'Sign in' : 'Sign up'}
-        </Button>
+          variant="black"
+          icon={null}
+          type="submit"
+        />
       </form>
 
       <div className="mt-2 flex flex-col gap-y-2">
@@ -378,5 +353,82 @@ const ResetPasswordLink: React.FC<{ email: string; tabIndex?: number }> = ({ ema
         Reset password
       </Text>
     </Link>
+  );
+};
+
+const ButtonWithLastUsedMethod: React.FC<{
+  isLastUsedMethod: boolean;
+  onClick?: () => void;
+  text: string;
+  loading: boolean;
+  icon: React.ReactNode | null;
+  tabIndex: number;
+  disabled?: boolean;
+  variant?: 'default' | 'black';
+  type?: 'button' | 'submit';
+}> = ({
+  isLastUsedMethod,
+  variant,
+  onClick,
+  text,
+  loading,
+  icon,
+  tabIndex = 0,
+  disabled = false,
+  type = 'button',
+}) => {
+  const mounted = useMounted();
+
+  const content = (
+    <Button
+      prefix={icon}
+      variant={variant}
+      size={'tall'}
+      type={type}
+      disabled={disabled}
+      onClick={() => {
+        clearAllBrowserStorage();
+        onClick?.();
+      }}
+      block={true}
+      loading={loading}
+      tabIndex={tabIndex}
+    >
+      {text}
+    </Button>
+  );
+
+  if (!isLastUsedMethod || !mounted) {
+    return content;
+  }
+
+  return (
+    <div className="relative w-full">
+      {content}
+
+      <ClientOnly>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{
+            opacity: 1,
+          }}
+          whileHover={{
+            rotate: [-1.75, 1.75, -1.75, 0],
+            scale: 1,
+            transition: {
+              duration: 0.5,
+              ease: 'easeInOut',
+            },
+          }}
+          transition={{
+            duration: 0.25,
+          }}
+          className="rounded select-none px-1.5 py-0.5 absolute -right-3.5 text-[10px] shadow-lg flex items-center justify-center -top-2 bg-background border"
+          tabIndex={0}
+        >
+          Last used
+        </motion.div>
+      </ClientOnly>
+    </div>
   );
 };

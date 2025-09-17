@@ -4,10 +4,8 @@ import type { SignInTypes } from './useAuthMutations';
 export const useLastUsed = () => {
   const [lastUsedMethod, setLastUsedMethod] = useCookieState<SignInTypes>('lastUsedMethod', {
     defaultValue: null,
-    expirationTime: 120 * 24 * 60 * 60 * 1000, // 120 days
+    expirationTime: 90 * 24 * 60 * 60 * 1000, // 90 days
   });
-
-  console.log('lastUsedMethod', lastUsedMethod);
 
   return {
     lastUsedMethod,
