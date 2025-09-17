@@ -36,12 +36,10 @@ export const Route = createFileRoute('/app/_app/home')({
     console.time('home route loader');
     const user = await prefetchGetMyUserInfo(queryClient);
     if (user?.user?.id) {
-      console.log('prefetching shortcuts and prompts');
       await Promise.all([
         prefetchListShortcuts(queryClient),
         prefetchGetSuggestedPrompts(user.user.id, queryClient),
       ]);
-      console.log('finished prefetching shortcuts and prompts');
     }
     console.timeEnd('home route loader');
   },

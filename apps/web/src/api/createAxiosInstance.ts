@@ -62,15 +62,6 @@ export const createAxiosInstance = (baseURL = BASE_URL_V2) => {
 
 export const defaultAxiosRequestHandler = async (config: InternalAxiosRequestConfig<unknown>) => {
   try {
-    console.log('basic config', {
-      url: config.url,
-      method: config.method,
-      headers: config.headers,
-      data: config.data,
-      params: config.params,
-      baseURL: config.baseURL,
-      timeout: config.timeout,
-    });
     const session = await getSupabaseSession();
     const { accessToken: token } = session;
 

@@ -25,7 +25,6 @@ export const extractSimplifiedSupabaseSession = async (
 
 export const getSupabaseSessionServerFn = createServerFn({ method: 'GET' }).handler(async () => {
   try {
-    console.log('getSupabaseSessionServerFn');
     const supabase = getSupabaseServerClient();
     const { data, error } = await extractSimplifiedSupabaseSession(supabase);
     return {
