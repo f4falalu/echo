@@ -8,15 +8,21 @@ import {
   signInWithGoogle,
   signUpWithEmailAndPassword,
 } from '@/integrations/supabase/signIn';
+import { useLastUsed } from './useLastUsed';
+
+export type SignInTypes = 'google' | 'github' | 'azure' | 'email' | null;
 
 // Reusable OAuth mutation hook
 export const useOAuthMutation = (
-  mutationFn: () => Promise<{ success: boolean; url?: string; error?: string }>
+  mutationFn: () => Promise<{ success: boolean; url?: string; error?: string }>,
+  type: SignInTypes,
+  setLastUsedMethod: (method: SignInTypes) => void
 ) => {
   return useMutation({
     mutationFn,
     onSuccess: (data) => {
       if (data.success && data.url) {
+        setLastUsedMethod(type);
         window.location.href = data.url;
       }
     },
@@ -30,13 +36,13 @@ export const useCombinedMutationState = (
     isPending: boolean;
     error: unknown;
     reset: () => void;
-    name: string;
+    name: SignInTypes;
   }>
 ) => {
   const isLoading = mutations.some((m) => m.isPending);
 
-  const loadingType: 'google' | 'github' | 'azure' | 'email' | null =
-    (mutations.find((m) => m.isPending)?.name as 'google' | 'github' | 'azure' | 'email') || null;
+  const loadingType: SignInTypes =
+    (mutations.find((m) => m.isPending)?.name as SignInTypes) || null;
 
   const errorMessages = mutations
     .filter((m) => m.error)
@@ -58,11 +64,24 @@ export const createMutationHandler = (mutation: { mutate: () => void }) =>
 // Complete auth mutations hook
 export const useAuthMutations = (redirectTo?: string | null, onSignUpSuccess?: () => void) => {
   const navigate = useNavigate();
+  const { setLastUsedMethod } = useLastUsed();
 
   // OAuth Mutations
-  const googleSignInMutation = useOAuthMutation(() => signInWithGoogle({ data: { redirectTo } }));
-  const githubSignInMutation = useOAuthMutation(() => signInWithGithub({ data: { redirectTo } }));
-  const azureSignInMutation = useOAuthMutation(() => signInWithAzure({ data: { redirectTo } }));
+  const googleSignInMutation = useOAuthMutation(
+    () => signInWithGoogle({ data: { redirectTo } }),
+    'google',
+    setLastUsedMethod
+  );
+  const githubSignInMutation = useOAuthMutation(
+    () => signInWithGithub({ data: { redirectTo } }),
+    'github',
+    setLastUsedMethod
+  );
+  const azureSignInMutation = useOAuthMutation(
+    () => signInWithAzure({ data: { redirectTo } }),
+    'azure',
+    setLastUsedMethod
+  );
 
   // Email/Password Mutations
   const emailSignInMutation = useMutation({
@@ -70,6 +89,7 @@ export const useAuthMutations = (redirectTo?: string | null, onSignUpSuccess?: (
       signInWithEmailAndPassword({ data: { email, password, redirectUrl: redirectTo } }),
     onSuccess: async (data) => {
       if (!data.error) {
+        setLastUsedMethod('email');
         await navigate({ to: redirectTo || '/app/home' });
       }
       if (data.error) {
@@ -86,8 +106,11 @@ export const useAuthMutations = (redirectTo?: string | null, onSignUpSuccess?: (
       if (data.error) {
         throw new Error(data.error);
       }
-      if (data.success && onSignUpSuccess) {
-        onSignUpSuccess();
+      if (data.success) {
+        setLastUsedMethod('email');
+        if (onSignUpSuccess) {
+          onSignUpSuccess();
+        }
       }
     },
   });

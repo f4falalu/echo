@@ -1,7 +1,8 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
-import { signOut } from '@/integrations/supabase/signOut';
+import { signOutServerFn } from '@/integrations/supabase/signOut';
 
 export const Route = createFileRoute('/auth/logout')({
+  ssr: true,
   head: () => ({
     meta: [
       { title: 'Logout' },
@@ -12,7 +13,7 @@ export const Route = createFileRoute('/auth/logout')({
   }),
   preload: false,
   loader: async () => {
-    await signOut();
+    await signOutServerFn();
     throw redirect({ to: '/auth/login', statusCode: 307 });
   },
 });

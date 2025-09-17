@@ -1,8 +1,10 @@
 import { useNavigate } from '@tanstack/react-router';
 import { useCallback } from 'react';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { signOut } from '@/integrations/supabase/signOut';
+import { getBrowserClient } from '@/integrations/supabase/client';
 import { clearAllBrowserStorage } from '@/lib/storage';
+
+const supabase = getBrowserClient();
 
 export const useSignOut = () => {
   const { openErrorMessage } = useBusterNotifications();
@@ -10,8 +12,7 @@ export const useSignOut = () => {
   const handleSignOut = useCallback(async () => {
     try {
       // Then perform server-side sign out
-      await signOut();
-
+      await supabase.auth.signOut();
       try {
         // First clear all client-side storage
         clearAllBrowserStorage();
