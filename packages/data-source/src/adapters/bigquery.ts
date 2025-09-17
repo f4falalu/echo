@@ -49,9 +49,8 @@ export class BigQueryAdapter extends BaseAdapter {
         options.keyFilename = bigqueryCredentials.key_file_path;
       }
 
-      if (bigqueryCredentials.location) {
-        options.location = bigqueryCredentials.location;
-      }
+      // Set location - default to US if not specified
+      options.location = bigqueryCredentials.location || 'US';
 
       this.client = new BigQuery(options);
       this.credentials = credentials;
@@ -78,6 +77,13 @@ export class BigQueryAdapter extends BaseAdapter {
     try {
       // Fix SQL to ensure proper escaping of identifiers with special characters
       const fixedSql = fixBigQueryTableReferences(sql);
+
+      // Debug logging to verify the fix is applied
+      if (sql !== fixedSql) {
+        console.log('[BigQuery] SQL fixed for special characters:');
+        console.log('  Original:', sql);
+        console.log('  Fixed:   ', fixedSql);
+      }
 
       const options: Query = {
         query: fixedSql,
