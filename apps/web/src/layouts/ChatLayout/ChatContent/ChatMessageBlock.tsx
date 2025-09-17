@@ -18,8 +18,6 @@ export const ChatMessageBlock: React.FC<{
   const { data: requestMessage } = useGetChatMessage(messageId, { select: selectRequestMessage });
   const isStreamFinished = useGetChatMessageCompleted({ messageId });
 
-  console.log(messageId, isStreamFinished);
-
   if (!messageExists) return null;
 
   return (
