@@ -145,7 +145,7 @@ const TitleCell = React.memo<{ name: string; reportId: string }>(({ name, report
       <div className="mr-2 flex items-center" onClick={onFavoriteDivClick}>
         <FavoriteStar
           id={reportId}
-          type={'report'}
+          type={'report_file'}
           iconStyle="tertiary"
           title={name}
           className="opacity-0 group-hover:opacity-100"
