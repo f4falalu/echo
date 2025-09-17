@@ -53,8 +53,8 @@ export interface BigQueryCredentials {
   /** Google Cloud project ID */
   project_id: string;
 
-  /** Service account key JSON (as string) or path to key file */
-  service_account_key?: string;
+  /** Service account key - can be JSON string, parsed object, or path to key file */
+  service_account_key?: string | Record<string, unknown>;
 
   /** Path to service account key file */
   key_file_path?: string;
