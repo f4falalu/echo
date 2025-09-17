@@ -1,5 +1,5 @@
-import type { ChatMessageReasoningMessage, ChatMessageResponseMessage } from '@buster/database';
 import { z } from 'zod';
+import { AssetTypeSchema, BaseAssetTypeSchema } from '../assets/asset-types.types';
 import { PostProcessingMessageSchema } from '../message';
 
 // Re-create the schemas locally to avoid ESM/CommonJS issues
@@ -56,9 +56,7 @@ const ReasoningMessage_TextSchema = z.object({
 });
 
 const ReasoningFileTypeSchema = z.enum([
-  'metric_file',
-  'dashboard_file',
-  'report_file',
+  ...BaseAssetTypeSchema.options,
   'reasoning',
   'agent-action',
   'todo',
