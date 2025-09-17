@@ -6,7 +6,7 @@ import {
   useGetCollection,
 } from '@/api/buster_rest/collections';
 import { useSearch } from '@/api/buster_rest/search';
-import { ASSET_ICONS } from '@/components/features/icons/assetIcons';
+import { ASSET_ICONS, ASSET_TYPE_TO_ICON } from '@/components/features/icons/assetIcons';
 import { Button } from '@/components/ui/buttons';
 import type { BusterListRowItem } from '@/components/ui/list/BusterList';
 import {
@@ -48,27 +48,7 @@ export const AddToCollectionModal: React.FC<{
         title: 'Name',
         dataIndex: 'name',
         render: (name, data) => {
-          const getIcon = () => {
-            if (data.type === 'metric_file') {
-              return ASSET_ICONS.metrics;
-            }
-            if (data.type === 'dashboard_file') {
-              return ASSET_ICONS.dashboards;
-            }
-            if (data.type === 'report_file') {
-              return ASSET_ICONS.reports;
-            }
-            if (data.type === 'collection') {
-              return ASSET_ICONS.collections;
-            }
-            if (data.type === 'chat') {
-              return ASSET_ICONS.chats;
-            }
-            const _exhaustiveCheck: never = data.type;
-            return ASSET_ICONS.metrics;
-          };
-
-          const Icon = getIcon();
+          const Icon = ASSET_TYPE_TO_ICON[data.type] || ASSET_ICONS.metrics;
           return (
             <div className="flex items-center gap-1.5">
               <span className="text-icon-color">

@@ -1,4 +1,6 @@
+import type { AssetType } from '@buster/server-shared';
 import type { ShareAssetType } from '@buster/server-shared/share';
+import type { JSX } from 'react';
 import {
   FileContent,
   Folder5,
@@ -9,6 +11,7 @@ import {
   SquareChart,
   Table,
 } from '@/components/ui/icons';
+import type { iconProps } from '@/components/ui/icons/NucleoIconOutlined/iconProps';
 import SquareChartPlus from '@/components/ui/icons/NucleoIconOutlined/square-chart-plus';
 
 export const ASSET_ICONS = {
@@ -21,6 +24,17 @@ export const ASSET_ICONS = {
   collectionAdd: FolderPlus,
   table: Table,
   reports: FileContent,
+};
+
+export const ASSET_TYPE_TO_ICON: Record<
+  ShareAssetType | AssetType,
+  (props: iconProps) => JSX.Element
+> = {
+  metric_file: ASSET_ICONS.metrics,
+  dashboard_file: ASSET_ICONS.dashboards,
+  collection: ASSET_ICONS.collections,
+  chat: ASSET_ICONS.chats,
+  report_file: ASSET_ICONS.reports,
 };
 
 export const assetTypeToIcon = (assetType: ShareAssetType) => {
