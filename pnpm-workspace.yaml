@@ -1,6 +1,7 @@
 packages:
   - packages/*
   - apps/server
+  - apps/momentic
   - apps/electric-server
   - apps/trigger
   - apps/api
