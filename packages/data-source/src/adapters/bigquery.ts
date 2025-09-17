@@ -136,22 +136,23 @@ export class BigQueryAdapter extends BaseAdapter {
       // QueryResultsResponse is bigquery.IGetQueryResultsResponse | bigquery.IQueryResponse
       const apiResponse = queryResults.length > 2 ? queryResults[2] : null;
 
-      // Convert BigQuery rows to plain objects and normalize values
-      let resultRows: Record<string, unknown>[] = rows.map((row) => normalizeRowValues({ ...row }));
-
-      // Check if we have more rows than requested
-      if (maxRows && resultRows.length > maxRows) {
-        hasMoreRows = true;
-        // Remove the extra row we fetched to check for more
-        resultRows = resultRows.slice(0, maxRows);
-      }
-
-      // Extract field metadata from BigQuery schema
+      // Extract field metadata from BigQuery schema first (we need this for unwrapping)
       const fields: FieldMetadata[] = [];
+      const timestampFields = new Set<string>();
       if (apiResponse && 'schema' in apiResponse && apiResponse.schema) {
         const tableSchema = apiResponse.schema as bigquery.ITableSchema;
         if (tableSchema.fields && Array.isArray(tableSchema.fields)) {
           for (const field of tableSchema.fields) {
+            // Track which fields are timestamp/datetime types
+            if (
+              field.type === 'TIMESTAMP' ||
+              field.type === 'DATETIME' ||
+              field.type === 'DATE' ||
+              field.type === 'TIME'
+            ) {
+              timestampFields.add(field.name || '');
+            }
+
             const normalizedType = mapBigQueryType(field.type || 'STRING');
             fields.push({
               name: field.name || '',
@@ -163,6 +164,34 @@ export class BigQueryAdapter extends BaseAdapter {
             });
           }
         }
+      }
+
+      // Convert BigQuery rows to plain objects and normalize values
+      // Unwrap timestamp fields that BigQuery returns as objects
+      let resultRows: Record<string, unknown>[] = rows.map((row) => {
+        const processedRow: Record<string, unknown> = {};
+        for (const [key, value] of Object.entries(row)) {
+          // If this is a timestamp field and the value is an object with a 'value' property,
+          // extract the actual timestamp string
+          if (
+            timestampFields.has(key) &&
+            typeof value === 'object' &&
+            value !== null &&
+            'value' in value
+          ) {
+            processedRow[key] = (value as { value: unknown }).value;
+          } else {
+            processedRow[key] = value;
+          }
+        }
+        return normalizeRowValues(processedRow);
+      });
+
+      // Check if we have more rows than requested
+      if (maxRows && resultRows.length > maxRows) {
+        hasMoreRows = true;
+        // Remove the extra row we fetched to check for more
+        resultRows = resultRows.slice(0, maxRows);
       }
 
       return {
