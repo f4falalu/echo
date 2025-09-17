@@ -135,12 +135,12 @@ export async function generateAssetMessages(input: GenerateAssetMessagesInput): 
   }
 
   const timestamp = Math.floor(Date.now() / 1000);
-  const assetTypeStr =
-    validated.assetType === 'metric_file'
-      ? 'metric'
-      : validated.assetType === 'dashboard_file'
-        ? 'dashboard'
-        : 'report';
+  const translationRecord: Record<DatabaseAssetType, string> = {
+    metric_file: 'metric',
+    dashboard_file: 'dashboard',
+    report_file: 'report',
+  };
+  const assetTypeStr = translationRecord[validated.assetType];
 
   // Prepare asset data and fetch additional context files for dashboards
   interface AssetFileData {
