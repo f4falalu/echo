@@ -83,7 +83,20 @@ export const defaultAxiosRequestHandler = async (config: InternalAxiosRequestCon
     return config;
   } catch (error) {
     // Log the error but don't throw to prevent unhandled rejections
-    console.error('Error in axios request handler:', error);
+    console.error(
+      'Error in axios request handler:',
+      {
+        url: config.url,
+        method: config.method,
+        headers: config.headers,
+        data: config.data,
+        params: config.params,
+        baseURL: config.baseURL,
+        timeout: config.timeout,
+      },
+      error
+    );
+
     // Return config without auth header - let the backend handle unauthorized requests
     return config;
   }
