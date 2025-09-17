@@ -10,6 +10,7 @@ import { BigQueryIntrospector } from '../introspection/bigquery';
 import { type BigQueryCredentials, type Credentials, DataSourceType } from '../types/credentials';
 import type { QueryParameter } from '../types/query';
 import { type AdapterQueryResult, BaseAdapter, type FieldMetadata } from './base';
+import { fixBigQueryTableReferences } from './helpers/bigquery-sql-fixer';
 import { normalizeRowValues } from './helpers/normalize-values';
 import { getBigQuerySimpleType, mapBigQueryType } from './type-mappings/bigquery';
 
@@ -75,8 +76,11 @@ export class BigQueryAdapter extends BaseAdapter {
     }
 
     try {
+      // Fix SQL to ensure proper escaping of identifiers with special characters
+      const fixedSql = fixBigQueryTableReferences(sql);
+
       const options: Query = {
-        query: sql,
+        query: fixedSql,
         useLegacySql: false,
       };
 
@@ -97,12 +101,12 @@ export class BigQueryAdapter extends BaseAdapter {
       // Handle parameterized queries - BigQuery uses named parameters
       if (params && params.length > 0) {
         // Convert positional parameters to named parameters
-        let processedSql = sql;
+        let processedSql = fixedSql;
         const namedParams: Record<string, QueryParameter> = {};
 
         // Replace ? placeholders with @param0, @param1, etc.
         let paramIndex = 0;
-        processedSql = sql.replace(/\?/g, () => {
+        processedSql = fixedSql.replace(/\?/g, () => {
           const paramName = `param${paramIndex}`;
           const paramValue = params[paramIndex];
           if (paramValue !== undefined) {
