@@ -7,6 +7,7 @@ import {
 } from '../../../agents/think-and-prep-agent/think-and-prep-agent';
 import { MESSAGE_USER_CLARIFYING_QUESTION_TOOL_NAME } from '../../../tools/communication-tools/message-user-clarifying-question/message-user-clarifying-question';
 import { RESPOND_WITHOUT_ASSET_CREATION_TOOL_NAME } from '../../../tools/communication-tools/respond-without-asset-creation/respond-without-asset-creation-tool';
+import { withAgentRetry } from '../../../utils/with-agent-retry';
 
 export const RunThinkAndPrepAgentStepInputSchema = z.object({
   options: ThinkAndPrepAgentOptionsSchema,
@@ -33,7 +34,19 @@ export async function runThinkAndPrepAgentStep({
       messageCount: streamOptions.messages.length,
     });
 
-    const thinkAndPrepAgent = createThinkAndPrepAgent(options);
+    // Create the agent and wrap it with retry logic
+    const thinkAndPrepAgent = withAgentRetry(createThinkAndPrepAgent(options), {
+      messageId: options.messageId,
+      maxAttempts: 3,
+      baseDelayMs: 2000,
+      onRetry: (attempt, recoveredMessageCount) => {
+        console.info('Think and Prep Agent step retrying after overloaded error', {
+          messageId: options.messageId,
+          attempt,
+          recoveredMessageCount,
+        });
+      },
+    });
 
     const result = await thinkAndPrepAgent.stream(streamOptions);
 
