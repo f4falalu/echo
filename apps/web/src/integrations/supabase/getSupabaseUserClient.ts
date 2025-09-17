@@ -1,12 +1,9 @@
-import type { AuthError } from '@supabase/supabase-js';
-import { isTokenAlmostExpired } from '@/api/auth_helpers/expiration-helpers';
 import {
   extractSimplifiedSupabaseSession,
   getSupabaseSessionServerFn,
   getSupabaseUserServerFn,
 } from '@/api/server-functions/getSupabaseSession';
 import { isServer } from '@/lib/window';
-import { getSupabaseCookieClient } from '../../api/auth_helpers/cookie-helpers';
 import { getBrowserClient } from './client';
 
 const supabase = getBrowserClient();
@@ -19,6 +16,7 @@ export type SimplifiedSupabaseSession = {
 };
 
 export const getSupabaseSession = async (): Promise<SimplifiedSupabaseSession> => {
+  console.log('getSupabaseSession', isServer ? 'server' : 'client');
   const { data: sessionData, error: sessionError } = isServer
     ? await getSupabaseSessionServerFn()
     : await extractSimplifiedSupabaseSession(supabase);
