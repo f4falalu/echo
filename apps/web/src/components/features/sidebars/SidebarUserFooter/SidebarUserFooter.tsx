@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useGetUserBasicInfo } from '@/api/buster_rest/users/useGetUserInfo';
-import { useSignOut } from '@/components/features/auth/SignOutHandler';
+import { useSignOut } from '@/components/features/auth/useSignOut';
 import { AvatarUserButton } from '@/components/ui/avatar/AvatarUserButton';
 import { Button } from '@/components/ui/buttons';
 import { Dropdown, type DropdownProps } from '@/components/ui/dropdown/Dropdown';

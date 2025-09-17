@@ -25,9 +25,7 @@ export const LoginForm: React.FC<{
 }> = ({ redirectTo }) => {
   const lastUsedProps = useLastUsed();
 
-  const [signUpFlow, setSignUpFlow] = useState(
-    lastUsedProps.isAnonymousUser && !env.VITE_PUBLIC_USER
-  );
+  const [signUpFlow, setSignUpFlow] = useState(!env.VITE_PUBLIC_USER);
   const [signUpSuccess, setSignUpSuccess] = useState(false);
 
   // Use the centralized auth mutations hook
@@ -93,9 +91,7 @@ const LoginOptions: React.FC<{
   signUpFlow,
   lastUsedProps,
 }) => {
-  const [email, setEmail] = useState(
-    lastUsedProps.supabaseUser?.email || env.VITE_PUBLIC_USER || ''
-  );
+  const [email, setEmail] = useState(env.VITE_PUBLIC_USER || '');
   const [password, setPassword] = useState(env.VITE_PUBLIC_USER_PASSWORD || '');
   const [password2, setPassword2] = useState('');
   const [passwordCheck, setPasswordCheck] = useState(false);
@@ -134,7 +130,7 @@ const LoginOptions: React.FC<{
   return (
     <>
       <div className="flex flex-col items-center text-center">
-        <WelcomeText signUpFlow={signUpFlow} lastUsedProps={lastUsedProps} />
+        <WelcomeText signUpFlow={signUpFlow} />
       </div>
 
       <div className="mt-6 mb-4 flex flex-col space-y-3">
@@ -264,14 +260,6 @@ const LoginOptions: React.FC<{
         >
           {!signUpFlow ? 'Sign in' : 'Sign up'}
         </Button>
-
-        {lastUsedProps.isCurrentlySignedIn && !signUpFlow && (
-          <Link to="/app/home">
-            <Button size={'tall'} block={true} type="button" className="truncate" variant="black">
-              Continue with {truncateText(lastUsedProps.supabaseUser?.email || '', 35)}
-            </Button>
-          </Link>
-        )}
       </form>
 
       <div className="mt-2 flex flex-col gap-y-2">
@@ -280,7 +268,6 @@ const LoginOptions: React.FC<{
           setPassword2={setPassword2}
           setSignUpFlow={setSignUpFlow}
           signUpFlow={signUpFlow}
-          lastUsedProps={lastUsedProps}
         />
 
         {!signUpFlow && <ResetPasswordLink email={email} tabIndex={-7} />}
@@ -316,20 +303,14 @@ const SignUpSuccess: React.FC<{
 
 const WelcomeText: React.FC<{
   signUpFlow: boolean;
-  lastUsedProps: LastUsedReturnType;
-}> = ({ signUpFlow, lastUsedProps }) => {
+}> = ({ signUpFlow }) => {
   const text = !signUpFlow ? 'Sign in' : 'Sign up for free';
-  const { isCurrentlySignedIn, supabaseUser } = lastUsedProps;
 
   return (
     <div className="flex items-center justify-center gap-2">
-      <AppTooltip
-        title={isCurrentlySignedIn ? `Currently signed in as ${supabaseUser?.email}` : undefined}
-      >
-        <Title className="mb-0" as="h1">
-          {text}
-        </Title>
-      </AppTooltip>
+      <Title className="mb-0" as="h1">
+        {text}
+      </Title>
     </div>
   );
 };
@@ -349,10 +330,7 @@ const AlreadyHaveAccount: React.FC<{
   setPassword2: (value: string) => void;
   setSignUpFlow: (value: boolean) => void;
   signUpFlow: boolean;
-  lastUsedProps: LastUsedReturnType;
-}> = React.memo(({ setErrorMessages, setPassword2, setSignUpFlow, signUpFlow, lastUsedProps }) => {
-  const { isCurrentlySignedIn, supabaseUser } = lastUsedProps;
-
+}> = React.memo(({ setErrorMessages, setPassword2, setSignUpFlow, signUpFlow }) => {
   return (
     <div className="flex flex-col items-center justify-center gap-1.5">
       <div className="flex items-center justify-center gap-0.5">
