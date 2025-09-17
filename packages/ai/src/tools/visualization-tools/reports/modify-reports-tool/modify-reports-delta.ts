@@ -333,7 +333,7 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
                   {
                     id: state.reportId,
                     type: 'file' as const,
-                    file_type: 'report' as const,
+                    file_type: 'report_file' as const,
                     file_name: state.reportName || 'Untitled Report',
                     version_number: newVersion,
                     filter_version_id: null,

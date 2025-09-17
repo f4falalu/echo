@@ -11,7 +11,7 @@ export interface ChatWithSharing {
 
 export async function checkChatsContainingAsset(
   assetId: string,
-  _assetType: 'metric' | 'dashboard'
+  _assetType: 'metric_file' | 'dashboard_file'
 ): Promise<ChatWithSharing[]> {
   const result = await db
     .selectDistinct({

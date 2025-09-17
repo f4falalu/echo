@@ -902,7 +902,7 @@ pub async fn process_metric_file(
     };
 
     // Generate deterministic UUID
-    let id = match generate_deterministic_uuid(&tool_call_id, &file_name, "metric") {
+    let id = match generate_deterministic_uuid(&tool_call_id, &file_name, "metric_file") {
         Ok(id) => id,
         Err(e) => return Err(format!("Error generating file ID: {}", e)),
     };

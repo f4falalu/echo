@@ -73,7 +73,7 @@ describe('Done Tool Streaming Tests', () => {
                   {
                     id: 'file-123',
                     name: 'test.yml',
-                    file_type: 'metric',
+                    file_type: 'metric_file',
                     yml_content: 'test content',
                   },
                 ],

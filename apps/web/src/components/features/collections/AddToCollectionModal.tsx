@@ -33,7 +33,7 @@ export const AddToCollectionModal: React.FC<{
 
   const { data: searchResults } = useSearch({
     query: debouncedSearchTerm,
-    asset_types: ['metric', 'dashboard'],
+    asset_types: ['metric_file', 'dashboard_file'],
     num_results: 100,
   });
 
@@ -48,7 +48,7 @@ export const AddToCollectionModal: React.FC<{
         title: 'Name',
         dataIndex: 'name',
         render: (name, data) => {
-          const Icon = data.type === 'metric' ? ASSET_ICONS.metrics : ASSET_ICONS.dashboards;
+          const Icon = data.type === 'metric_file' ? ASSET_ICONS.metrics : ASSET_ICONS.dashboards;
           return (
             <div className="flex items-center gap-1.5">
               <span className="text-icon-color">

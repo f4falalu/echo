@@ -46,7 +46,7 @@ export const AddMetricModal: React.FC<{
     const { data: searchResults } = useSearch(
       {
         query: debouncedSearchTerm,
-        asset_types: ['metric'],
+        asset_types: ['metric_file'],
         num_results: 100,
       },
       { enabled: true }

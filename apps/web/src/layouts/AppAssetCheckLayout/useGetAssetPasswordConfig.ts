@@ -40,13 +40,13 @@ export const useGetAssetPasswordConfig = (
   const chosenVersionNumber = versionNumber || 'LATEST';
 
   const selectedQuery = useMemo(() => {
-    if (type === 'metric') {
+    if (type === 'metric_file') {
       return metricsQueryKeys.metricsGetMetric(assetId, chosenVersionNumber);
     }
-    if (type === 'dashboard') {
+    if (type === 'dashboard_file') {
       return dashboardQueryKeys.dashboardGetDashboard(assetId, chosenVersionNumber);
     }
-    if (type === 'report') {
+    if (type === 'report_file') {
       return reportsQueryKeys.reportsGetReport(assetId, chosenVersionNumber);
     }
     if (type === 'collection') {
@@ -56,7 +56,13 @@ export const useGetAssetPasswordConfig = (
       return chatQueryKeys.chatsGetChat(assetId);
     }
 
-    const _exhaustiveCheck: 'chat' = type;
+    const _exhaustiveCheck:
+      | 'chat'
+      | 'report_file'
+      | 'dashboard_file'
+      | 'metric_file'
+      | 'collection'
+      | 'reasoning' = type;
 
     return chatQueryKeys.chatsGetChat(assetId);
   }, [type, assetId, chosenVersionNumber]);

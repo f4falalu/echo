@@ -5,6 +5,24 @@ import type {
 } from '@/api/asset_interfaces/chat';
 import type { BusterChatMessageShape } from './shapes';
 
+// Helper to convert old file type enum to new one
+const convertFileType = (
+  fileType: 'report_file' | 'metric_file' | 'dashboard_file' | 'reasoning'
+): 'report_file' | 'metric_file' | 'dashboard_file' | 'reasoning' => {
+  switch (fileType) {
+    case 'metric_file':
+      return 'metric_file';
+    case 'dashboard_file':
+      return 'dashboard_file';
+    case 'report_file':
+      return 'report_file';
+    case 'reasoning':
+      return 'reasoning';
+    default:
+      return fileType;
+  }
+};
+
 export const updateMessageShapeToIChatMessage = (
   message: Partial<BusterChatMessageShape> & { id: string }
 ): Partial<BusterChatMessage> & { id: string } => {

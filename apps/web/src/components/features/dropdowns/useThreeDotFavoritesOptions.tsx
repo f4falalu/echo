@@ -34,14 +34,14 @@ export const useThreeDotFavoritesOptions = ({
   );
 
   const nameSearchArray = useMemo(() => {
-    if (assetType === 'metric' && metricList) {
+    if (assetType === 'metric_file' && metricList) {
       return metricList?.map((m) => ({
         id: m.id,
         name: m.name,
       }));
     }
 
-    if (assetType === 'dashboard' && dashboardList) {
+    if (assetType === 'dashboard_file' && dashboardList) {
       return dashboardList?.map((d) => ({
         id: d.id,
         name: d.name,

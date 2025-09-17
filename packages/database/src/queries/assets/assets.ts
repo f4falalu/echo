@@ -160,8 +160,8 @@ export async function generateAssetMessages(input: GenerateAssetMessagesInput): 
   const assetData = {
     id: validated.assetId,
     name: asset.name,
-    file_type: assetTypeStr,
-    asset_type: assetTypeStr,
+    file_type: validated.assetType,
+    asset_type: validated.assetType,
     yml_content: JSON.stringify(asset.content), // Using JSON since we don't have YAML serializer
     created_at: new Date().toISOString(),
     version_number: 1,
@@ -190,8 +190,8 @@ export async function generateAssetMessages(input: GenerateAssetMessagesInput): 
       additionalFiles = metrics.map((metric) => ({
         id: metric.id,
         name: metric.name,
-        file_type: 'metric',
-        asset_type: 'metric',
+        file_type: 'metric_file',
+        asset_type: 'metric_file',
         yml_content: JSON.stringify(metric.content),
         created_at: metric.createdAt,
         version_number: 1,
@@ -228,7 +228,7 @@ export async function generateAssetMessages(input: GenerateAssetMessagesInput): 
     {
       type: 'file',
       id: fileMessageId,
-      file_type: assetTypeStr,
+      file_type: validated.assetType,
       file_name: asset.name,
       version_number: 1,
       filter_version_id: null,

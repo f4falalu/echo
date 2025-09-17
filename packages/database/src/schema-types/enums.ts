@@ -1,22 +1,6 @@
 // Type definitions for database enums
 
-export type AssetType =
-  | 'dashboard'
-  | 'thread'
-  | 'chat'
-  | 'metric_file'
-  | 'dashboard_file'
-  | 'report_file'
-  | 'collection'
-  | 'data_source'
-  | 'metric'
-  | 'filter'
-  | 'dataset'
-  | 'tool'
-  | 'source'
-  | 'collection_file'
-  | 'dataset_permission'
-  | 'message';
+export type AssetType = 'chat' | 'metric_file' | 'dashboard_file' | 'report_file' | 'collection';
 
 export type AssetPermissionRole =
   | 'owner'

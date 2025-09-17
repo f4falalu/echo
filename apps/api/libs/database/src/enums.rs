@@ -234,11 +234,8 @@ pub enum AssetType {
     Thread,
     Collection,
     Chat,
-    #[serde(rename = "metric")]
     MetricFile,
-    #[serde(rename = "dashboard")]
     DashboardFile,
-    #[serde(rename = "report")]
     ReportFile,
 }
 
@@ -249,9 +246,9 @@ impl AssetType {
             AssetType::Thread => "thread",
             AssetType::Collection => "collection",
             AssetType::Chat => "chat",
-            AssetType::MetricFile => "metric",
-            AssetType::DashboardFile => "dashboard",
-            AssetType::ReportFile => "report",
+            AssetType::MetricFile => "metric_file",
+            AssetType::DashboardFile => "dashboard_file",
+            AssetType::ReportFile => "report_file",
         }
     }
 }

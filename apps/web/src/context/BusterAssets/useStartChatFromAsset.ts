@@ -22,7 +22,7 @@ export const useStartChatFromAsset = ({
     try {
       const result = await startChatFromAsset({ asset_id: assetId, asset_type: assetType, prompt });
 
-      if (assetType === 'metric') {
+      if (assetType === 'metric_file') {
         await navigate({
           to: '/app/chats/$chatId/metrics/$metricId/chart',
           params: {
@@ -30,7 +30,7 @@ export const useStartChatFromAsset = ({
             chatId: result.id,
           },
         });
-      } else if (assetType === 'dashboard') {
+      } else if (assetType === 'dashboard_file') {
         await navigate({
           to: '/app/chats/$chatId/dashboards/$dashboardId',
           params: {
@@ -38,7 +38,7 @@ export const useStartChatFromAsset = ({
             chatId: result.id,
           },
         });
-      } else if (assetType === 'report') {
+      } else if (assetType === 'report_file') {
         await navigate({
           to: '/app/chats/$chatId/reports/$reportId',
           params: {

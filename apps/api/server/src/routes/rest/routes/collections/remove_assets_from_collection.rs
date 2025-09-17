@@ -65,9 +65,9 @@ pub async fn remove_assets_from_collection(
     // Convert request assets to handler assets
     let assets: Vec<AssetToRemove> = request.assets.into_iter().filter_map(|asset| {
         match asset.type_.to_lowercase().as_str() {
-            "dashboard" => Some(AssetToRemove::Dashboard(asset.id)),
-            "metric" => Some(AssetToRemove::Metric(asset.id)),
-            "report" => Some(AssetToRemove::Report(asset.id)),
+            "dashboard_file" => Some(AssetToRemove::Dashboard(asset.id)),
+            "metric_file" => Some(AssetToRemove::Metric(asset.id)),
+            "report_file" => Some(AssetToRemove::Report(asset.id)),
             _ => None,
         }
     }).collect();
@@ -76,9 +76,9 @@ pub async fn remove_assets_from_collection(
         Ok(result) => {
             let failed_assets = result.failed_assets.into_iter().map(|(id, asset_type, error)| {
                 let type_str = match asset_type {
-                    AssetType::DashboardFile => "dashboard",
-                    AssetType::MetricFile => "metric",
-                    AssetType::ReportFile => "report",
+                    AssetType::DashboardFile => "dashboard_file",
+                    AssetType::MetricFile => "metric_file",
+                    AssetType::ReportFile => "report_file",
                     _ => "unknown",
                 };
                 

@@ -34,11 +34,11 @@ export const FollowUpWithAssetContent: React.FC<{
     const { mutateAsync: startChatFromAsset, isPending } = useStartChatFromAssetBase();
 
     const transformPrompt = useMemoizedFn((userPrompt: string): string => {
-      if (assetType === 'dashboard') {
+      if (assetType === 'dashboard_file') {
         return `Hey Buster. Please recreate this dashboard applying this filter to the metrics on the dashboard: ${userPrompt}`;
       }
 
-      if (assetType === 'metric') {
+      if (assetType === 'metric_file') {
         return `Hey Buster. Can you filter or drill down into this metric based on the following request: ${userPrompt}`;
       }
 

@@ -1,12 +1,12 @@
 import { z } from 'zod';
-
+import { AssetTypeSchema } from '../assets';
 // API Request schemas for access control operations
 
 // Asset Permission Requests
 
 export const CreateAssetPermissionRequestSchema = z.object({
   assetId: z.string().uuid(),
-  assetType: z.enum(['metric_file', 'dashboard_file', 'chat', 'collection']),
+  assetType: AssetTypeSchema,
   identityId: z.string().uuid(),
   identityType: z.enum(['user', 'team', 'organization']),
   role: z.enum(['owner', 'full_access', 'can_edit', 'can_filter', 'can_view']),
@@ -15,7 +15,7 @@ export type CreateAssetPermissionRequest = z.infer<typeof CreateAssetPermissionR
 
 export const CreateAssetPermissionByEmailRequestSchema = z.object({
   assetId: z.string().uuid(),
-  assetType: z.enum(['metric_file', 'dashboard_file', 'chat', 'collection']),
+  assetType: AssetTypeSchema,
   email: z.string().email(),
   role: z.enum(['owner', 'full_access', 'can_edit', 'can_filter', 'can_view']),
 });
@@ -25,14 +25,14 @@ export type CreateAssetPermissionByEmailRequest = z.infer<
 
 export const ListAssetPermissionsRequestSchema = z.object({
   assetId: z.string().uuid(),
-  assetType: z.enum(['metric_file', 'dashboard_file', 'chat', 'collection']),
+  assetType: AssetTypeSchema,
   identityType: z.enum(['user', 'team', 'organization']).optional(),
 });
 export type ListAssetPermissionsRequest = z.infer<typeof ListAssetPermissionsRequestSchema>;
 
 export const RemoveAssetPermissionRequestSchema = z.object({
   assetId: z.string().uuid(),
-  assetType: z.enum(['metric_file', 'dashboard_file', 'chat', 'collection']),
+  assetType: AssetTypeSchema,
   identityId: z.string().uuid(),
   identityType: z.enum(['user', 'team', 'organization']),
 });
@@ -40,7 +40,7 @@ export type RemoveAssetPermissionRequest = z.infer<typeof RemoveAssetPermissionR
 
 export const RemoveAssetPermissionByEmailRequestSchema = z.object({
   assetId: z.string().uuid(),
-  assetType: z.enum(['metric_file', 'dashboard_file', 'chat', 'collection']),
+  assetType: AssetTypeSchema,
   email: z.string().email(),
 });
 export type RemoveAssetPermissionByEmailRequest = z.infer<
@@ -49,7 +49,7 @@ export type RemoveAssetPermissionByEmailRequest = z.infer<
 
 export const CheckAssetPermissionRequestSchema = z.object({
   assetId: z.string().uuid(),
-  assetType: z.enum(['metric_file', 'dashboard_file', 'chat', 'collection']),
+  assetType: AssetTypeSchema,
   userId: z.string().uuid(),
   requiredRole: z.enum(['owner', 'full_access', 'can_edit', 'can_filter', 'can_view']),
 });

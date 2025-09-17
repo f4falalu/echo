@@ -35,7 +35,7 @@ const CheckPermissionParamsSchema = z.object({
   user: z.custom<User>().describe('User requesting access'),
   action: z.enum(['read', 'write', 'delete', 'admin']).describe('Action to perform'),
   resource: z.object({
-    type: z.enum(['dashboard', 'metric', 'datasource', 'chat', 'organization']),
+    type: z.enum(['dashboard_file', 'metric_file', 'datasource', 'chat', 'organization']),
     id: z.string().uuid(),
     organizationId: z.string().uuid()
   }).describe('Resource to access')
@@ -109,7 +109,7 @@ export async function canAccessResource(params: AccessParams): Promise<boolean> 
   
   // Check resource-specific permissions
   switch (resource.type) {
-    case 'dashboard':
+    case 'dashboard_file':
       return canAccessDashboard(user, resource.id);
     case 'datasource':
       return canAccessDataSource(user, resource.id);
@@ -137,7 +137,7 @@ async function canAccessDashboard(user: User, dashboardId: string): Promise<bool
     user,
     action: 'read',
     resource: {
-      type: 'dashboard',
+      type: 'dashboard_file',
       id: dashboardId,
       organizationId: dashboard.organizationId
     }
@@ -375,7 +375,7 @@ describe('checkPermission', () => {
     const result = await checkPermission({
       user: mockUser,
       action: 'delete',
-      resource: { type: 'dashboard', id: '123', organizationId: 'org1' }
+      resource: { type: 'dashboard_file', id: '123', organizationId: 'org1' }
     });
     
     expect(result).toBe(true);
@@ -387,7 +387,7 @@ describe('checkPermission', () => {
     const result = await checkPermission({
       user: mockUser,
       action: 'write',
-      resource: { type: 'dashboard', id: '123', organizationId: 'org1' }
+      resource: { type: 'dashboard_file', id: '123', organizationId: 'org1' }
     });
     
     expect(result).toBe(false);

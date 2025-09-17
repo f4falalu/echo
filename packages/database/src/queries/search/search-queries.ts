@@ -1,7 +1,7 @@
 import { and, count, eq, gte, inArray, isNull, lte, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
-import { textSearch } from '../../schema';
+import { assetTypeEnum, textSearch } from '../../schema';
 import {
   type PaginatedResponse,
   PaginationInputSchema,
@@ -17,14 +17,7 @@ export const TextSearchResultSchema = z.object({
 });
 
 // Asset type enum matching the database schema
-export const AssetTypeSchema = z.enum([
-  'collection',
-  'chat',
-  'metric_file',
-  'dashboard_file',
-  'report_file',
-  'message',
-]);
+export const AssetTypeSchema = z.enum(assetTypeEnum.enumValues);
 
 /**
  * Date range filter schema

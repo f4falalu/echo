@@ -37,22 +37,11 @@ export const assetPermissionRoleEnum = pgEnum('asset_permission_role_enum', [
   'can_view',
 ]);
 export const assetTypeEnum = pgEnum('asset_type_enum', [
-  'dashboard',
-  'thread',
-  'collection',
   'chat',
   'metric_file',
   'dashboard_file',
   'report_file',
-  'data_source',
-  'metric',
-  'filter',
-  'dataset',
-  'tool',
-  'source',
-  'collection_file',
-  'dataset_permission',
-  'message',
+  'collection',
 ]);
 // Asset type enum removed - now using text for all asset_type columns
 export const dataSourceOnboardingStatusEnum = pgEnum('data_source_onboarding_status_enum', [

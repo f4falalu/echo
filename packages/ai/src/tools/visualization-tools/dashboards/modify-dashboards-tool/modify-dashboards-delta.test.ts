@@ -62,7 +62,7 @@ describe('modify-dashboards-delta', () => {
     expect(state.files).toHaveLength(1);
     expect(state.files?.[0]).toMatchObject({
       id: 'dash-1',
-      file_type: 'dashboard',
+      file_type: 'dashboard_file',
       version_number: 1,
       status: 'loading',
     });
@@ -76,7 +76,7 @@ describe('modify-dashboards-delta', () => {
         {
           id: 'dash-1',
           file_name: 'Dashboard 1',
-          file_type: 'dashboard',
+          file_type: 'dashboard_file',
           version_number: 1,
           status: 'loading',
         },
@@ -205,7 +205,7 @@ describe('modify-dashboards-delta', () => {
     expect(state.files).toHaveLength(1);
     expect(state.files?.[0]).toMatchObject({
       id: 'dash-1',
-      file_type: 'dashboard',
+      file_type: 'dashboard_file',
       version_number: 1,
       status: 'loading',
     });
@@ -219,7 +219,7 @@ describe('modify-dashboards-delta', () => {
         {
           id: 'dash-1',
           file_name: 'My Dashboard',
-          file_type: 'dashboard',
+          file_type: 'dashboard_file',
           version_number: 3,
           status: 'loading',
         },
@@ -236,7 +236,7 @@ describe('modify-dashboards-delta', () => {
     expect(state.files?.[0]).toMatchObject({
       id: 'dash-1',
       file_name: 'My Dashboard', // Preserved
-      file_type: 'dashboard',
+      file_type: 'dashboard_file',
       version_number: 3, // Preserved
       status: 'loading',
     });

@@ -1,5 +1,6 @@
+import type { AssetType } from '@buster/database';
 import { LRUCache } from 'lru-cache';
-import type { AssetPermissionRole, AssetType } from '../types';
+import type { AssetPermissionRole } from '../types';
 import type { AssetPermissionResult } from './checks';
 
 // Cache key format: userId:assetId:assetType:requiredRole
@@ -254,7 +255,7 @@ function invalidateCascadingRelatedAssets(_assetId: string, assetType: AssetType
   }
 
   // When a dashboard permission changes, invalidate metric cascading caches
-  if (assetType === 'dashboard' || assetType === 'dashboard_file') {
+  if (assetType === 'dashboard_file') {
     for (const key of Array.from(cascadingCache.keys())) {
       if (key.includes(':metric') || key.includes(':metric_file')) {
         cascadingCache.delete(key);

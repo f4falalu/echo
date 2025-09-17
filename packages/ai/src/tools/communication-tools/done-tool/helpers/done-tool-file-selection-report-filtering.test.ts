@@ -52,7 +52,7 @@ describe('done-tool-file-selection - report filtering functionality', () => {
 
       // Reports should be filtered out completely
       expect(files).toHaveLength(0);
-      expect(files.find((f) => f.fileType === 'report')).toBeUndefined();
+      expect(files.find((f) => f.fileType === 'report_file')).toBeUndefined();
     });
 
     it('should filter metrics referenced in reports but keep other dashboards', () => {
@@ -512,7 +512,7 @@ describe('done-tool-file-selection - report filtering functionality', () => {
       const files = [
         {
           id: 'metric-1',
-          fileType: 'metric' as const,
+          fileType: 'metric_file' as const,
           fileName: 'Sales Metric',
           status: 'completed' as const,
           operation: 'created' as const,
@@ -520,7 +520,7 @@ describe('done-tool-file-selection - report filtering functionality', () => {
         },
         {
           id: 'dashboard-1',
-          fileType: 'dashboard' as const,
+          fileType: 'dashboard_file' as const,
           fileName: 'Sales Dashboard',
           status: 'completed' as const,
           operation: 'modified' as const,
@@ -535,7 +535,7 @@ describe('done-tool-file-selection - report filtering functionality', () => {
       expect(messages[0]).toMatchObject({
         id: 'metric-1',
         type: 'file',
-        file_type: 'metric',
+        file_type: 'metric_file',
         file_name: 'Sales Metric',
         version_number: 1,
         metadata: [
@@ -549,7 +549,7 @@ describe('done-tool-file-selection - report filtering functionality', () => {
       expect(messages[1]).toMatchObject({
         id: 'dashboard-1',
         type: 'file',
-        file_type: 'dashboard',
+        file_type: 'dashboard_file',
         file_name: 'Sales Dashboard',
         version_number: 2,
         metadata: [
@@ -567,7 +567,7 @@ describe('done-tool-file-selection - report filtering functionality', () => {
       const files = [
         {
           id: 'report-1',
-          fileType: 'report' as const,
+          fileType: 'report_file' as const,
           fileName: 'Test Report',
           status: 'completed' as const,
           operation: 'created' as const,
@@ -581,7 +581,7 @@ describe('done-tool-file-selection - report filtering functionality', () => {
       // but in practice, reports are filtered before this function
       expect(messages).toHaveLength(1);
       expect(messages[0] && 'file_type' in messages[0] ? messages[0].file_type : undefined).toBe(
-        'report'
+        'report_file'
       );
     });
   });

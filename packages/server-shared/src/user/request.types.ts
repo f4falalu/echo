@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AssetTypeSchema } from '../assets/asset-types.types';
+import { AssetTypeSchema } from '../assets';
 import { OrganizationStatusSchema } from '../organization';
 import { OrganizationRoleSchema } from '../organization/roles.types';
 import { createOptionalQueryArrayPreprocessor } from '../type-utilities';

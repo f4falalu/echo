@@ -69,7 +69,7 @@ export function createCreateMetricsDelta(context: CreateMetricsContext, state: C
               updatedFiles.push({
                 id: existingFile?.id || randomUUID(),
                 file_name: name,
-                file_type: 'metric',
+                file_type: 'metric_file',
                 version_number: existingFile?.version_number || 1,
                 file: ymlContent
                   ? {

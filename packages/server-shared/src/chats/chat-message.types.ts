@@ -22,7 +22,12 @@ const ResponseMessage_FileMetadataSchema = z.object({
   timestamp: z.number().optional(),
 });
 
-const ResponseMessageFileTypeSchema = z.enum(['metric', 'dashboard', 'reasoning', 'report']);
+const ResponseMessageFileTypeSchema = z.enum([
+  'metric_file',
+  'dashboard_file',
+  'reasoning',
+  'report_file',
+]);
 
 const ResponseMessage_FileSchema = z.object({
   id: z.string(),
@@ -51,9 +56,9 @@ const ReasoningMessage_TextSchema = z.object({
 });
 
 const ReasoningFileTypeSchema = z.enum([
-  'metric',
-  'dashboard',
-  'report',
+  'metric_file',
+  'dashboard_file',
+  'report_file',
   'reasoning',
   'agent-action',
   'todo',
@@ -82,8 +87,8 @@ const ReasoningMessage_FilesSchema = z.object({
 });
 
 const ReasoingMessage_ThoughtFileTypeSchema = z.enum([
-  'metric',
-  'dashboard',
+  'metric_file',
+  'dashboard_file',
   'collection',
   'dataset',
   'term',

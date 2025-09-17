@@ -131,7 +131,7 @@ export const useFavoriteDashboardSelectMenu = ({ dashboardId }: { dashboardId: s
   );
   const { isFavorited, onFavoriteClick } = useFavoriteStar({
     id: dashboardId,
-    type: 'dashboard',
+    type: 'dashboard_file',
     name: title || '',
   });
 
@@ -273,7 +273,7 @@ export const useShareMenuSelectMenu = ({ dashboardId }: { dashboardId: string })
                 key={dashboardId}
                 shareAssetConfig={dashboard}
                 assetId={dashboardId}
-                assetType={'dashboard'}
+                assetType={'dashboard_file'}
               />,
             ]
           : undefined,
@@ -288,7 +288,7 @@ export const useEditDashboardWithAI = ({ dashboardId }: { dashboardId: string })
 
   const { onCreateFileClick, loading } = useStartChatFromAsset({
     assetId: dashboardId,
-    assetType: 'dashboard',
+    assetType: 'dashboard_file',
   });
 
   return useMemo(
