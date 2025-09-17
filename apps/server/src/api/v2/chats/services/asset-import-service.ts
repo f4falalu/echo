@@ -6,7 +6,6 @@ import {
   createMessage,
   createMessageFileAssociation,
   db,
-  getAssetDetailsById,
 } from '@buster/database';
 import type {
   ChatAssetType,
@@ -66,13 +65,12 @@ export async function createAssetImportMessage(
   });
 
   // Update the chat with most recent file information and title (matching Rust behavior)
-  const fileType = assetType === 'metric' ? 'metric' : 'dashboard';
   await db
     .update(chats)
     .set({
       title: assetDetails.name, // Set chat title to asset name
       mostRecentFileId: assetId,
-      mostRecentFileType: fileType,
+      mostRecentFileType: assetType,
       mostRecentVersionNumber: assetDetails.versionNumber,
       updatedAt: new Date().toISOString(),
     })

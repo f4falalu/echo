@@ -49,9 +49,9 @@ interface ToolFileInfo {
 // File tracking type
 interface ExtractedFile {
   id: string;
-  fileType: 'metric' | 'dashboard' | 'report';
+  fileType: 'metric' | 'dashboard' | 'report'; //TODO: scope to actually be the enum file type
   fileName: string;
-  status: 'completed' | 'failed' | 'loading';
+  status: 'completed' | 'failed' | 'loading'; //TODO: use an enum from server shared
   operation?: 'created' | 'modified' | undefined;
   versionNumber?: number | undefined;
   metricIds?: string[] | undefined; // IDs of metrics that belong to this dashboard

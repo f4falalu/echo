@@ -466,7 +466,6 @@ export async function handleAssetChat(
     }
 
     // Update the chat with most recent file information and title (matching Rust behavior)
-    const fileType = chatAssetType === 'metric' ? 'metric' : 'dashboard';
 
     // Get the asset name from the first message
     const assetName = assetMessages[0]?.title || '';
@@ -476,7 +475,7 @@ export async function handleAssetChat(
       .set({
         title: assetName, // Set chat title to asset name
         mostRecentFileId: assetId,
-        mostRecentFileType: fileType,
+        mostRecentFileType: chatAssetType,
         mostRecentVersionNumber: 1, // Asset imports always start at version 1
         updatedAt: new Date().toISOString(),
       })
@@ -617,7 +616,6 @@ export async function handleAssetChatWithPrompt(
     }
 
     // Update the chat with most recent file information and title (matching handleAssetChat)
-    const fileType = chatAssetType === 'metric' ? 'metric' : 'dashboard';
     const assetName = assetMessages[0]?.title || '';
 
     await db
@@ -625,7 +623,7 @@ export async function handleAssetChatWithPrompt(
       .set({
         title: assetName, // Set chat title to asset name
         mostRecentFileId: assetId,
-        mostRecentFileType: fileType,
+        mostRecentFileType: chatAssetType,
         mostRecentVersionNumber: 1, // Asset imports always start at version 1
         updatedAt: new Date().toISOString(),
       })
