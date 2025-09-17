@@ -16,8 +16,7 @@ export const TextSearchResultSchema = z.object({
   searchableText: z.string(),
 });
 
-// Asset type enum matching the database schema
-export const AssetTypeSchema = z.enum(assetTypeEnum.enumValues);
+import { AssetTypeSchema } from '../../schema-types/enums';
 
 /**
  * Date range filter schema
