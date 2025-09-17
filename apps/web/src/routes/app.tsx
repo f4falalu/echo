@@ -31,12 +31,13 @@ export const Route = createFileRoute('/app')({
   loader: async ({ context }) => {
     const { queryClient, supabaseSession } = context;
     try {
-      await Promise.all([prefetchGetMyUserInfo(queryClient)]);
-
+      // Use the session from context instead of fetching again
       if (!supabaseSession?.accessToken) {
         console.error('Session not found - redirecting to login');
         throw redirect({ to: '/auth/login', replace: true, statusCode: 307 });
       }
+
+      await Promise.all([prefetchGetMyUserInfo(queryClient)]);
 
       return {
         supabaseSession,
