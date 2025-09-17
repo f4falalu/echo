@@ -4,3 +4,4 @@ export * from './chatConversationHistory';
 export * from './messageContext';
 export * from './update-message-entries';
 export * from './user-recent-messages';
+export { fetchMessageEntries } from './helpers/fetch-message-entries';
