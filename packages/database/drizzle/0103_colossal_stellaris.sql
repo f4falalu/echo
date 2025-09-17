@@ -6,6 +6,7 @@
 -- 'dashboard' -> 'dashboard_file' 
 -- And HARD DELETES any rows with asset types not in the current enum
 
+DROP TRIGGER IF EXISTS sync_messages_text_search ON messages;
 DO $$
 BEGIN
     -- Update user_favorites table
