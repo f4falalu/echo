@@ -29,7 +29,7 @@ export const TanstackDevtools: React.FC = React.memo(() => {
   }, []);
 
   useHotkeys(
-    'shift+a',
+    'shift+d+t', //shaft (T)anstack+(D)evtools
     () => {
       console.log('🐓 Setting useDevTools to true');
       setUseDevTools(true);
@@ -43,7 +43,7 @@ export const TanstackDevtools: React.FC = React.memo(() => {
 
   return (
     <ClientOnly>
-      <Suspense fallback={null}>
+      <Suspense fallback={<span className="hidden">...</span>}>
         <LazyTanstackDevtools />
       </Suspense>
     </ClientOnly>
