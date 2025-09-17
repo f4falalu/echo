@@ -9,6 +9,11 @@ import { ScrollToBottomButton } from '@/components/features/buttons/ScrollToBott
 import { FileIndeterminateLoader } from '@/components/features/loaders/FileIndeterminateLoader';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useGetBlackBoxMessage } from '@/context/BlackBox/blackbox-store';
+import {
+  useGetChatMessageCompleted,
+  useGetChatMessageFinalReasoningMessage,
+  useGetChatMessageReasoningMessageIds,
+} from '@/context/Chats/useGetChatMessage';
 import { useAutoScroll } from '@/hooks/useAutoScroll';
 import { cn } from '@/lib/utils';
 import { ReasoningMessageSelector } from './ReasoningMessages';
@@ -20,22 +25,13 @@ interface ReasoningControllerProps {
 }
 
 const stableHasChatSelector = (x: IBusterChat) => !!x.id;
-const stableReasoningMessageIdsSelector = (x: BusterChatMessage) => x?.reasoning_message_ids || [];
-const stableIsStreamFinishedSelector = (x: BusterChatMessage) => x?.is_completed;
-const stableFinalReasoningMessageSelector = (x: BusterChatMessage) => x?.final_reasoning_message;
 
 export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId, messageId }) => {
   const { data: hasChat } = useGetChat({ id: chatId || '' }, { select: stableHasChatSelector });
-  const { data: reasoning_message_ids = [] } = useGetChatMessage(messageId, {
-    select: stableReasoningMessageIdsSelector,
-  });
+  const reasoning_message_ids = useGetChatMessageReasoningMessageIds({ messageId });
   const reasoningMessageIds = useMemo(() => reasoning_message_ids, [reasoning_message_ids]);
-  const { data: isStreamFinished } = useGetChatMessage(messageId, {
-    select: stableIsStreamFinishedSelector,
-  });
-  const { data: finalReasoningMessage } = useGetChatMessage(messageId, {
-    select: stableFinalReasoningMessageSelector,
-  });
+  const isStreamFinished = useGetChatMessageCompleted({ messageId });
+  const finalReasoningMessage = useGetChatMessageFinalReasoningMessage({ messageId });
 
   const blackBoxMessage = useGetBlackBoxMessage(messageId);
 
