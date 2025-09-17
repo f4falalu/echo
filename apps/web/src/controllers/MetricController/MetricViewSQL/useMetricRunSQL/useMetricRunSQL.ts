@@ -40,7 +40,6 @@ export const useMetricRunSQL = () => {
     isPending: isRunningSQL,
   } = useRunSQLQuery();
   const { openSuccessNotification } = useBusterNotifications();
-  const getLatestMetricVersion = useGetLatestMetricVersionMemoized();
 
   const originalConfigs = useRef<{
     chartConfig: ChartConfigProps;

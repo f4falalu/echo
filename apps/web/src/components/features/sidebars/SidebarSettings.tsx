@@ -3,7 +3,9 @@ import { useIsUserAdmin, useIsUserRegistered } from '@/api/buster_rest/users/use
 import { BackButton } from '@/components/ui/buttons/BackButton';
 import ApartmentBuilding from '@/components/ui/icons/NucleoIconOutlined/apartment-building';
 import CircleUser from '@/components/ui/icons/NucleoIconOutlined/circle-user';
+import { COLLAPSED_HIDDEN, COLLAPSED_VISIBLE } from '@/components/ui/sidebar/config';
 import { createSidebarGroup } from '@/components/ui/sidebar/create-sidebar-item';
+import { AppTooltip } from '@/components/ui/tooltip';
 import LockCircle from '../../ui/icons/NucleoIconOutlined/lock-circle';
 import { type ISidebarGroup, Sidebar } from '../../ui/sidebar';
 import { ComponentErrorCard } from '../global/ComponentErrorCard';
@@ -96,7 +98,6 @@ const permissionAndSecurityItems: ISidebarGroup = createSidebarGroup({
 
 export const SidebarSettings = () => {
   const isAdmin = useIsUserAdmin();
-  const isUserRegistered = useIsUserRegistered();
 
   const sidebarItems = useMemo(() => {
     const items = [accountItems];
@@ -113,7 +114,7 @@ export const SidebarSettings = () => {
         content={sidebarItems}
         header={useMemo(() => <SidebarSettingsHeader />, [])}
         footer={useMemo(() => <SidebarUserFooter />, [])}
-        useCollapsible={isUserRegistered}
+        useCollapsible={false}
       />
     </ComponentErrorCard>
   );
@@ -124,6 +125,7 @@ SidebarSettings.displayName = 'SidebarSettings';
 const SidebarSettingsHeader = () => {
   return (
     <BackButton
+      className={COLLAPSED_HIDDEN}
       linkUrl={{
         to: '/app/home',
       }}

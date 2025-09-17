@@ -16,7 +16,7 @@ export const useReportEditor = ({
   readOnly,
   useFixedToolbarKit = false,
   initialElements,
-  containerRef,
+  scrollAreaRef,
 }: {
   value: string | undefined; //markdown
   initialElements?: Value | ReportElementWithId[];
@@ -24,7 +24,7 @@ export const useReportEditor = ({
   useFixedToolbarKit?: boolean;
   isStreaming: boolean;
   mode?: 'export' | 'default';
-  containerRef?: React.RefObject<HTMLDivElement | null>;
+  scrollAreaRef?: React.RefObject<HTMLDivElement | null>;
 }) => {
   const plugins = useMemo(() => {
     const filteredKeys: string[] = [];
@@ -33,7 +33,7 @@ export const useReportEditor = ({
     }
 
     return [
-      ...EditorKit({ containerRef }),
+      ...EditorKit({ scrollAreaRef }),
       GlobalVariablePlugin.configure({
         options: { mode },
       }),

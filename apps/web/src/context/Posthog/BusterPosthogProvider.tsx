@@ -52,9 +52,9 @@ const options: Partial<PostHogConfig> = {
 
 const PosthogWrapper: React.FC<PropsWithChildren> = ({ children }) => {
   const user = useGetUserBasicInfo();
-  const { data: userTeams } = useGetUserTeams({ userId: user?.id ?? '' });
   const userOrganizations = useGetUserOrganization();
-  const team = userTeams?.[0];
+  const userOrganizationId = userOrganizations?.id || '';
+  const userOrganizationName = userOrganizations?.name || '';
 
   const [posthogModules, setPosthogModules] = useState<{
     posthog: typeof import('posthog-js').default;
@@ -84,7 +84,7 @@ const PosthogWrapper: React.FC<PropsWithChildren> = ({ children }) => {
 
   // Initialize PostHog when modules are loaded and user data is available
   useEffect(() => {
-    if (POSTHOG_KEY && !isServer && user && posthogModules?.posthog && team) {
+    if (POSTHOG_KEY && !isServer && user && posthogModules?.posthog) {
       const { posthog } = posthogModules;
 
       if (posthog.__loaded) {
@@ -97,11 +97,10 @@ const PosthogWrapper: React.FC<PropsWithChildren> = ({ children }) => {
       posthog.identify(email, {
         user,
         organization: userOrganizations,
-        team,
       });
-      posthog.group(team?.id, team?.name);
+      posthog.group(userOrganizationId, userOrganizationName);
     }
-  }, [user?.id, team?.id, posthogModules]);
+  }, [user?.id, userOrganizationId, userOrganizationName, posthogModules]);
 
   // Show children while loading or if modules failed to load
   if (isLoading || !posthogModules) {

@@ -8,6 +8,8 @@ import { Route as AppHomeRoute } from './app/_app/home';
 const searchParamsSchema = z.object({
   code: z.string().optional(),
   code_challenge: z.string().optional(),
+  error: z.string().optional(),
+  error_description: z.string().optional(),
   next: z.string().optional(),
 });
 
@@ -23,65 +25,89 @@ export const ServerRoute = createServerFileRoute('/auth/callback').methods({
     const searchParams: SearchParams = {
       code: url.searchParams.get('code') || undefined,
       code_challenge: url.searchParams.get('code_challenge') || undefined,
+      error: url.searchParams.get('error') || undefined,
+      error_description: url.searchParams.get('error_description') || undefined,
       next: url.searchParams.get('next') || AppHomeRoute.to || '/app/home',
     };
 
     // Validate the parameters (optional - provides runtime validation)
     const validatedParams = searchParamsSchema.parse(searchParams);
 
-    const code = validatedParams.code_challenge || validatedParams.code;
+    const { code, code_challenge, error, error_description } = validatedParams;
     const next = validatedParams.next || AppHomeRoute.to || '/app/home';
 
-    if (!code) {
-      console.error('No exchange code found');
-      return new Response('Missing code exchange code', { status: 400 });
+    // Handle OAuth errors first
+    if (error) {
+      console.error('OAuth error received:', error, error_description);
+      const errorMessage = error_description || error;
+      return new Response(`Authentication failed: ${errorMessage}`, { status: 400 });
     }
 
-    if (!next) {
-      console.error('No next URL found');
+    // Use code first, fallback to code_challenge if code is not available
+    const authCode = code || code_challenge;
+
+    if (!authCode) {
+      console.error('No authorization code or code_challenge found in callback');
+      return new Response('Missing authorization code', { status: 400 });
     }
+
+    console.log('Using auth code:', code ? 'code' : 'code_challenge');
 
     try {
       const supabase = getSupabaseServerClient();
 
-      // Wrap the auth operation to catch any async errors
-      const { error } = await supabase.auth.exchangeCodeForSession(code).catch((authError) => {
-        // Handle headers already sent errors gracefully
-        if (authError instanceof Error && authError.message.includes('ERR_HTTP_HEADERS_SENT')) {
-          console.warn('Headers already sent during code exchange, proceeding with redirect');
-          return { error: null };
-        }
-        // Return error for other cases
-        return { error: authError };
-      });
+      // Exchange the authorization code for a session
+      console.log('Attempting to exchange authorization code for session');
+      const { data: sessionData, error: exchangeError } = await supabase.auth
+        .exchangeCodeForSession(authCode)
+        .catch((authError) => {
+          // Handle headers already sent errors gracefully
+          if (authError instanceof Error && authError.message.includes('ERR_HTTP_HEADERS_SENT')) {
+            console.warn('Headers already sent during code exchange, proceeding with redirect');
+            return { data: null, error: null };
+          }
+          // Return error for other cases
+          console.error('Unexpected error during code exchange:', authError);
+          return { data: null, error: authError };
+        });
 
-      if (error) {
-        console.error('Error exchanging code for session', error);
-        return new Response('Error exchanging code for session', { status: 500 });
+      if (exchangeError) {
+        console.error('Error exchanging code for session:', exchangeError);
+        return new Response(`Authentication failed: ${exchangeError.message}`, { status: 500 });
       }
 
+      if (sessionData?.session) {
+        console.log('Successfully exchanged code for session, user:', sessionData.user?.email);
+      } else {
+        console.warn('Code exchange succeeded but no session data received');
+      }
+
+      // Construct the redirect URL
       const forwardedHost = request.headers.get('x-forwarded-host');
       const origin = request.headers.get('origin') || env.VITE_PUBLIC_URL || '';
       const isLocalEnv = import.meta.env.DEV;
 
+      // Ensure the redirect path is safe and starts with '/'
+      const safePath = next?.startsWith('/') ? next : AppHomeRoute.to || '/app/home';
+
+      let redirectUrl: string;
+
       if (isLocalEnv) {
-        const redirectPath = next?.startsWith('/') ? next : AppHomeRoute.to || '/app/home';
-        return new Response(null, {
-          status: 302,
-          headers: { Location: `${origin}${redirectPath}` },
-        });
+        redirectUrl = `${origin}${safePath}`;
+      } else if (forwardedHost) {
+        redirectUrl = `https://${forwardedHost}${safePath}`;
+      } else {
+        redirectUrl = `${origin}${safePath}`;
       }
 
-      if (forwardedHost) {
-        return new Response(null, {
-          status: 302,
-          headers: { Location: `https://${forwardedHost}${next}` },
-        });
-      }
+      console.log('Redirecting to:', redirectUrl);
 
       return new Response(null, {
         status: 302,
-        headers: { Location: `${origin}${next}` },
+        headers: {
+          Location: redirectUrl,
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+        },
       });
     } catch (error) {
       // Final catch-all for any unhandled errors
@@ -89,13 +115,20 @@ export const ServerRoute = createServerFileRoute('/auth/callback').methods({
         console.warn('Headers already sent in auth callback, attempting redirect anyway');
         // Try to redirect anyway since the auth might have succeeded
         const origin = request.headers.get('origin') || env.VITE_PUBLIC_URL || '';
+        const safePath = next?.startsWith('/') ? next : AppHomeRoute.to || '/app/home';
         return new Response(null, {
           status: 302,
-          headers: { Location: `${origin}${next}` },
+          headers: {
+            Location: `${origin}${safePath}`,
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+          },
         });
       }
       console.error('Unexpected error in auth callback:', error);
-      return new Response('Internal server error', { status: 500 });
+      return new Response(
+        `Internal server error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        { status: 500 }
+      );
     }
   },
 });

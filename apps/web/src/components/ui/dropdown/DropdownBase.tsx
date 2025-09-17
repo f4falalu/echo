@@ -100,12 +100,19 @@ const DropdownMenuItem = React.forwardRef<
       'group',
       className
     )}
+    //some weird bug in a nested menu required this
     onMouseDown={(e) => {
       if (!closeOnSelect) {
         e.stopPropagation();
         e.preventDefault();
       }
       onClick?.(e);
+    }}
+    onClick={(e) => {
+      if (!closeOnSelect) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
     }}
     {...props}
   />

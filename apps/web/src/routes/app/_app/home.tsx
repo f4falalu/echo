@@ -1,4 +1,4 @@
-import { createFileRoute, getRouteApi } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
 import { prefetchListShortcuts } from '@/api/buster_rest/shortcuts/queryRequests';
 import {
@@ -7,7 +7,6 @@ import {
 } from '@/api/buster_rest/users/queryRequests';
 import { AppPageLayout } from '@/components/ui/layouts/AppPageLayout';
 import { HomePageController, HomePageHeader } from '@/controllers/HomePage';
-import { getSupabaseUser } from '@/integrations/supabase/getSupabaseUserClient';
 
 const searchParamsSchema = z.object({
   q: z.string().optional(),
@@ -20,8 +19,6 @@ const searchParamsSchema = z.object({
     }, z.boolean())
     .optional(),
 });
-
-const RouteRequest = getRouteApi('/app');
 
 export const Route = createFileRoute('/app/_app/home')({
   head: () => {

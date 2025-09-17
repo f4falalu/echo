@@ -1,6 +1,13 @@
 -- Custom SQL migration file, put your code below! --
 
+-- Add the 'message' value to asset_type_enum if it doesn't exist
+-- This needs to be done first and committed before it can be used
 -- Function for chats table
+
+-- Commit the current transaction so the enum value addition in migration 0098_blue_blacklash.sql is committed
+COMMIT;
+BEGIN;
+
 CREATE OR REPLACE FUNCTION sync_chats_to_text_search()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -117,7 +124,7 @@ BEGIN
     IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
         -- Get organization_id from the chats table
         SELECT organization_id INTO org_id
-        FROM chats 
+        FROM public.chats 
         WHERE id = NEW.chat_id;
         
         -- Only proceed if we found the organization_id
@@ -182,7 +189,7 @@ SELECT
     id, 'chat', COALESCE(title, ''),
     organization_id,
     created_at, updated_at, deleted_at
-FROM chats
+FROM public.chats
 WHERE deleted_at IS NULL AND title IS NOT NULL AND title != ''
 ON CONFLICT (asset_id, asset_type) DO NOTHING;
 
@@ -194,7 +201,7 @@ SELECT
     id, 'metric_file', COALESCE(name, ''),
     organization_id,
     created_at, updated_at, deleted_at
-FROM metric_files
+FROM public.metric_files
 WHERE deleted_at IS NULL AND name IS NOT NULL AND name != ''
 ON CONFLICT (asset_id, asset_type) DO NOTHING;
 
@@ -206,7 +213,7 @@ SELECT
     id, 'dashboard_file', COALESCE(name, ''),
     organization_id,
     created_at, updated_at, deleted_at
-FROM dashboard_files
+FROM public.dashboard_files
 WHERE deleted_at IS NULL AND name IS NOT NULL AND name != ''
 ON CONFLICT (asset_id, asset_type) DO NOTHING;
 
@@ -218,7 +225,7 @@ SELECT
     id, 'report_file', COALESCE(name, ''),
     organization_id,
     created_at, updated_at, deleted_at
-FROM report_files
+FROM public.report_files
 WHERE deleted_at IS NULL AND name IS NOT NULL AND name != ''
 ON CONFLICT (asset_id, asset_type) DO NOTHING;
 
@@ -230,7 +237,7 @@ SELECT
     m.id, 'message', COALESCE(m.request_message, ''),
     c.organization_id,
     m.created_at, m.updated_at, m.deleted_at
-FROM messages m
-JOIN chats c ON m.chat_id = c.id
+FROM public.messages m
+JOIN public.chats c ON m.chat_id = c.id
 WHERE m.deleted_at IS NULL AND m.request_message IS NOT NULL AND m.request_message != ''
 ON CONFLICT (asset_id, asset_type) DO NOTHING;

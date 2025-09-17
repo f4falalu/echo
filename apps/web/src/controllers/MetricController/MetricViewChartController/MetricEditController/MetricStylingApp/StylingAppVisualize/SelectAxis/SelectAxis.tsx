@@ -23,7 +23,7 @@ export const SelectAxis: React.FC<
     Required<CategoryAxisStyleConfig> &
     Required<Y2AxisConfig> &
     ISelectAxisContext
-> = React.memo(({ selectedChartType, columnMetadata, selectedAxis, ...props }) => {
+> = React.memo(({ selectedChartType, columnMetadata, selectedAxis, barLayout, ...props }) => {
   const { onUpdateMetricChartConfig } = useUpdateMetricChart({ metricId: props.metricId });
 
   const items: SelectAxisItem[] = useMemo(() => {
@@ -32,7 +32,7 @@ export const SelectAxis: React.FC<
 
   const dropZones: DropZone[] = useMemo(() => {
     if (!isEmpty(selectedAxis) && !isEmpty(items)) {
-      return getChartTypeDropZones({ chartType: selectedChartType, selectedAxis });
+      return getChartTypeDropZones({ chartType: selectedChartType, selectedAxis, barLayout });
     }
     return [];
   }, [selectedAxis, selectedChartType, items]);
@@ -77,6 +77,7 @@ export const SelectAxis: React.FC<
         selectedAxis={selectedAxis}
         selectedChartType={selectedChartType}
         columnMetadata={columnMetadata}
+        barLayout={barLayout}
       >
         <SelectAxisDropzones items={items} dropZones={dropZones} onChange={onChange} />
       </SelectAxisProvider>

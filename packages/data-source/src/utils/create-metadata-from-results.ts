@@ -1,5 +1,6 @@
 import type { ColumnMetaData, DataMetadata } from '@buster/server-shared/metrics';
 import type { FieldMetadata } from '../adapters/base';
+import { getGenericSimpleType } from '../adapters/type-mappings';
 
 /**
  * Creates DataMetadata from query results and optional column metadata from adapters
@@ -34,27 +35,70 @@ export function createMetadataFromResults(
     // Try to use adapter metadata if available
     const adapterColumn = columns?.find((col) => col.name === columnName);
     if (adapterColumn) {
-      // Map adapter types to our types (this is a simplified mapping)
-      const typeStr = adapterColumn.type.toLowerCase();
-      if (
-        typeStr.includes('int') ||
-        typeStr.includes('float') ||
-        typeStr.includes('numeric') ||
-        typeStr.includes('decimal') ||
-        typeStr.includes('number')
-      ) {
-        simpleType = 'number';
-        columnType = typeStr.includes('int') ? 'int4' : 'float8';
-      } else if (typeStr.includes('date') || typeStr.includes('time')) {
-        simpleType = 'date';
-        columnType = typeStr.includes('timestamp') ? 'timestamp' : 'date';
-      } else if (typeStr.includes('bool')) {
-        // Booleans map to text in simple_type since 'boolean' isn't valid
-        simpleType = 'text';
-        columnType = 'bool';
-      } else {
-        simpleType = 'text';
-        columnType = 'text';
+      // Use the normalized type from the adapter
+      const normalizedType = adapterColumn.type.toLowerCase();
+
+      // Use our type mapping utility to determine simple type
+      simpleType = getGenericSimpleType(normalizedType);
+
+      // Map to allowed ColumnMetaData types
+      switch (normalizedType) {
+        case 'integer':
+        case 'int':
+          columnType = 'int4';
+          break;
+        case 'bigint':
+          columnType = 'int8';
+          break;
+        case 'smallint':
+        case 'tinyint':
+          columnType = 'int2';
+          break;
+        case 'double':
+        case 'double precision':
+          columnType = 'float8';
+          break;
+        case 'real':
+        case 'float':
+          columnType = 'float4';
+          break;
+        case 'boolean':
+        case 'bool':
+          columnType = 'bool';
+          simpleType = 'text'; // Booleans map to text in simple_type
+          break;
+        case 'varchar':
+        case 'char':
+        case 'string':
+          columnType = 'text';
+          break;
+        case 'timestamp':
+        case 'datetime':
+          columnType = 'timestamp';
+          break;
+        case 'timestamptz':
+          columnType = 'timestamptz';
+          break;
+        case 'date':
+          columnType = 'date';
+          break;
+        case 'time':
+          columnType = 'time';
+          break;
+        case 'json':
+          columnType = 'json';
+          break;
+        case 'jsonb':
+          columnType = 'jsonb';
+          break;
+        case 'decimal':
+        case 'numeric':
+          columnType = 'numeric';
+          break;
+        default:
+          // Default to text for unknown types
+          columnType = 'text';
+          break;
       }
     } else if (values.length > 0) {
       // Fallback: infer from data
@@ -94,10 +138,23 @@ export function createMetadataFromResults(
     const uniqueValues = new Set(values);
 
     if (simpleType === 'number' && values.length > 0) {
-      const numericValues = values.filter((v): v is number => typeof v === 'number');
+      // Try to convert values to numbers for proper comparison
+      const numericValues = values
+        .map((v) => {
+          if (typeof v === 'number') return v;
+          if (typeof v === 'string' && !Number.isNaN(Number(v))) return Number(v);
+          return null;
+        })
+        .filter((v): v is number => v !== null);
+
       if (numericValues.length > 0) {
         minValue = Math.min(...numericValues);
         maxValue = Math.max(...numericValues);
+      } else {
+        // Fallback to string comparison if no valid numbers found
+        const sortedValues = [...values].sort();
+        minValue = String(sortedValues[0]);
+        maxValue = String(sortedValues[sortedValues.length - 1]);
       }
     } else if (simpleType === 'date' && values.length > 0) {
       const dateValues = values

@@ -68,7 +68,7 @@ export const defaultAxiosRequestHandler = async (config: InternalAxiosRequestCon
     if (isServer) {
       try {
         const sessionResponse = await getSupabaseSessionServerFn();
-        token = sessionResponse?.data?.session?.access_token;
+        token = sessionResponse?.data?.accessToken;
       } catch (supabaseError) {
         // Handle headers already sent error gracefully
         if (

@@ -71,7 +71,7 @@ export const DEFAULT_CHART_LAYOUT = {
   padding: {
     top: 14,
     bottom: 4,
-    left: 10,
+    left: 2,
     right: 10,
   },
 };

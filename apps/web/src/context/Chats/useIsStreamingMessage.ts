@@ -1,4 +1,5 @@
 import { useQueries } from '@tanstack/react-query';
+import { useCallback, useMemo } from 'react';
 import type { BusterChatMessage } from '@/api/asset_interfaces/chat';
 import { chatQueryKeys } from '@/api/query_keys/chat';
 import { useGetActiveChat } from './useGetActiveChat';
@@ -7,16 +8,23 @@ const stableIsCompleted = (data: BusterChatMessage | undefined) => data?.is_comp
 export const useIsStreamingMessage = () => {
   const chat = useGetActiveChat();
   const chatMessageIds = chat?.message_ids ?? [];
-  const isStreamingMessage = useQueries({
-    queries: chatMessageIds.map((messageId) => {
+  const stableQueries = useMemo(() => {
+    return chatMessageIds.map((messageId) => {
       const queryKey = chatQueryKeys.chatsMessages(messageId);
       return {
         ...queryKey,
         enabled: false,
         select: stableIsCompleted,
       };
-    }),
-    combine: (result) => result.some((res) => res.data === false),
+    });
+  }, [chatMessageIds]);
+
+  const isStreamingMessage = useQueries({
+    queries: stableQueries,
+    combine: useCallback(
+      (result: { data: boolean | undefined }[]) => result.some((res) => res.data === false),
+      []
+    ),
   });
   return isStreamingMessage;
 };

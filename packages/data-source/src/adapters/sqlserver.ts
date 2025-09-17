@@ -4,6 +4,7 @@ import { SQLServerIntrospector } from '../introspection/sqlserver';
 import { type Credentials, DataSourceType, type SQLServerCredentials } from '../types/credentials';
 import type { QueryParameter } from '../types/query';
 import { type AdapterQueryResult, BaseAdapter, type FieldMetadata } from './base';
+import { normalizeRowValues } from './helpers/normalize-values';
 
 // Internal types for mssql column metadata that aren't properly exported
 interface ColumnMetadata {
@@ -136,7 +137,7 @@ export class SQLServerAdapter extends BaseAdapter {
           : [];
 
         return {
-          rows: result.recordset || [],
+          rows: (result.recordset || []).map(normalizeRowValues),
           rowCount: result.recordset?.length || 0,
           fields,
           hasMoreRows: false,
@@ -172,7 +173,7 @@ export class SQLServerAdapter extends BaseAdapter {
         // Listen for each row
         request.on('row', (row: Record<string, unknown>) => {
           if (rowCount < maxRows) {
-            rows.push(row);
+            rows.push(normalizeRowValues(row));
             rowCount++;
           } else if (rowCount === maxRows) {
             hasMoreRows = true;

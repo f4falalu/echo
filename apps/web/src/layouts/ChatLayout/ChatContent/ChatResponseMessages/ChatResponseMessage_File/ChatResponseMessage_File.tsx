@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import type { BusterChatResponseMessage_file } from '@/api/asset_interfaces';
+import React, { useCallback, useMemo } from 'react';
+import type { BusterChatMessage, BusterChatResponseMessage_file } from '@/api/asset_interfaces';
 import { useGetChatMessage } from '@/api/buster_rest/chats';
 import { createChatAssetRoute } from '@/lib/routes/createSimpleAssetRoute';
 import type { ILinkProps } from '@/types/routes';
@@ -11,7 +11,11 @@ import { useGetIsSelectedFile } from './useGetIsSelectedFile';
 export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = React.memo(
   ({ isStreamFinished, chatId, responseMessageId, messageId }) => {
     const { data } = useGetChatMessage(messageId, {
-      select: (x) => x?.response_messages?.[responseMessageId],
+      select: useCallback(
+        (x: BusterChatMessage) => x?.response_messages?.[responseMessageId],
+        [responseMessageId]
+      ),
+      notifyOnChangeProps: ['data'],
     });
     const responseMessage = data as BusterChatResponseMessage_file;
     const { file_type } = responseMessage;

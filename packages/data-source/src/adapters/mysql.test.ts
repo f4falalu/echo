@@ -169,8 +169,8 @@ describe('MySQLAdapter', () => {
         rows: [{ id: 1, name: 'Test' }],
         rowCount: 1,
         fields: [
-          { name: 'id', type: 'mysql_type_LONG', nullable: true, length: 0, precision: 0 },
-          { name: 'name', type: 'mysql_type_VAR_STRING', nullable: true, length: 0, precision: 0 },
+          { name: 'id', type: 'integer', nullable: true, length: 0, precision: 0 },
+          { name: 'name', type: 'varchar', nullable: true, length: 0, precision: 0 },
         ],
         hasMoreRows: false,
       });

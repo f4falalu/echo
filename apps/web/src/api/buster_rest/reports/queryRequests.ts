@@ -1,4 +1,8 @@
-import type { GetReportResponse, UpdateReportResponse } from '@buster/server-shared/reports';
+import type {
+  GetReportResponse,
+  ReportResponse,
+  UpdateReportResponse,
+} from '@buster/server-shared/reports';
 import {
   type QueryClient,
   type UseQueryOptions,
@@ -7,6 +11,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { create } from 'mutative';
+import type { BusterMetric } from '@/api/asset_interfaces/metric';
 import { collectionQueryKeys } from '@/api/query_keys/collection';
 import { reportsQueryKeys } from '@/api/query_keys/reports';
 import type { RustApiError } from '../../errors';
@@ -226,16 +231,45 @@ export const useAddReportToCollection = () => {
 
   return useMutation({
     mutationFn: addReportToCollection,
-    onSuccess: (_, { collectionIds }) => {
+    onMutate: ({ reportIds, collectionIds }) => {
+      reportIds.forEach((id) => {
+        queryClient.setQueryData(
+          reportsQueryKeys.reportsGetReport(id, 'LATEST').queryKey,
+          (oldData) => {
+            if (!oldData) return oldData;
+            const newData: GetReportResponse = create(oldData, (draft) => {
+              // Add new collections, then deduplicate by collection id
+              const existingCollections = draft.collections || [];
+              const newCollections = collectionIds.map((id) => ({ id, name: '' }));
+              // Merge and deduplicate by id
+              const merged = [...existingCollections, ...newCollections];
+              const deduped = merged.filter(
+                (col, idx, arr) => arr.findIndex((c) => c.id === col.id) === idx
+              );
+
+              draft.collections = deduped;
+            });
+            return newData;
+          }
+        );
+      });
+    },
+    onSuccess: (_, { collectionIds, reportIds }) => {
       const collectionIsInFavorites = userFavorites.some((f) => {
         return collectionIds.includes(f.id);
       });
       if (collectionIsInFavorites) refreshFavoritesList();
-      queryClient.invalidateQueries({
-        queryKey: collectionIds.map(
-          (id) => collectionQueryKeys.collectionsGetCollection(id).queryKey
-        ),
-        refetchType: 'all',
+
+      collectionIds.forEach((id) => {
+        queryClient.invalidateQueries({
+          queryKey: collectionQueryKeys.collectionsGetCollection(id).queryKey,
+        });
+      });
+
+      reportIds.forEach((id) => {
+        queryClient.invalidateQueries({
+          queryKey: reportsQueryKeys.reportsGetReport(id, 'LATEST').queryKey,
+        });
       });
     },
   });
