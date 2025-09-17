@@ -208,7 +208,10 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
             const rawCode = getOptimisticValue<string>(editMap, TOOL_KEYS.code, '');
             // Unescape JSON string sequences, then normalize any double-escaped characters
             // Note: We preserve the code even if it's empty string, as that might be intentional
-            const code = rawCode !== undefined ? normalizeEscapedText(unescapeJsonString(rawCode || '')) : undefined;
+            const code =
+              rawCode !== undefined
+                ? normalizeEscapedText(unescapeJsonString(rawCode || ''))
+                : undefined;
 
             if (code !== undefined) {
               // Use explicit operation if provided, otherwise infer from code_to_replace

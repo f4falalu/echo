@@ -79,7 +79,10 @@ const ModifyReportsStateSchema = z.object({
   startTime: z.number().optional(),
   responseMessageCreated: z.boolean().optional(),
   snapshotContent: z.string().optional(),
-  lastSavedContent: z.string().optional().describe('Track the last content saved to DB to avoid redundant updates'),
+  lastSavedContent: z
+    .string()
+    .optional()
+    .describe('Track the last content saved to DB to avoid redundant updates'),
   reportsModifiedInMessage: z.set(z.string()).optional(),
   snapshotVersion: z.number().optional(),
   versionHistory: z

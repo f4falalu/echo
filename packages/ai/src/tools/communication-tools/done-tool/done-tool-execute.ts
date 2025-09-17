@@ -15,7 +15,7 @@ async function processDone(
   state: DoneToolState,
   toolCallId: string,
   messageId: string,
-  context: DoneToolContext
+  _context: DoneToolContext
 ): Promise<DoneToolOutput> {
   const output: DoneToolOutput = {
     success: true,
