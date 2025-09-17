@@ -51,6 +51,7 @@ describe('BigQueryAdapter', () => {
           private_key: 'test-key',
           client_email: 'test@test.iam.gserviceaccount.com',
         },
+        location: 'US',
       });
     });
 
@@ -67,6 +68,7 @@ describe('BigQueryAdapter', () => {
       expect(BigQuery).toHaveBeenCalledWith({
         projectId: 'test-project',
         keyFilename: '/path/to/key.json',
+        location: 'US',
       });
     });
 
@@ -103,6 +105,7 @@ describe('BigQueryAdapter', () => {
         expect.objectContaining({
           projectId: 'test-project',
           credentials: serviceAccountObject,
+          location: 'US',
         })
       );
     });
@@ -131,6 +134,7 @@ describe('BigQueryAdapter', () => {
       expect(BigQuery).toHaveBeenCalledWith(
         expect.objectContaining({
           projectId: 'test-project',
+          location: 'US',
         })
       );
     });
@@ -149,6 +153,7 @@ describe('BigQueryAdapter', () => {
       expect(BigQuery).toHaveBeenCalledWith(
         expect.objectContaining({
           projectId: 'test-project',
+          location: 'us-central1',
         })
       );
     });
