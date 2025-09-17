@@ -24,6 +24,7 @@ export interface ISelectAxisContext
   selectedChartType: ChartConfigProps['selectedChartType'];
   lineGroupType: ChartConfigProps['lineGroupType'];
   barGroupType: ChartConfigProps['barGroupType'];
+  barLayout: ChartConfigProps['barLayout'];
   showLegend: ChartConfigProps['showLegend'];
   showLegendHeadline: ChartConfigProps['showLegendHeadline'];
   gridLines: ChartConfigProps['gridLines'];

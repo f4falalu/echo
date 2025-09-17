@@ -5,6 +5,8 @@ import { PostgreSQLIntrospector } from '../introspection/postgresql';
 import { type Credentials, DataSourceType, type PostgreSQLCredentials } from '../types/credentials';
 import type { QueryParameter } from '../types/query';
 import { type AdapterQueryResult, BaseAdapter, type FieldMetadata } from './base';
+import { normalizeRowValues } from './helpers/normalize-values';
+import { mapPostgreSQLType } from './type-mappings/postgresql';
 
 // Internal types for pg-cursor that aren't exported
 interface CursorResult {
@@ -103,13 +105,13 @@ export class PostgreSQLAdapter extends BaseAdapter {
         const fields: FieldMetadata[] =
           result.fields?.map((field) => ({
             name: field.name,
-            type: `pg_type_${field.dataTypeID}`, // PostgreSQL type ID
+            type: mapPostgreSQLType(`pg_type_${field.dataTypeID}`), // Map OID to normalized type
             nullable: true, // PostgreSQL doesn't provide this info directly
             length: field.dataTypeSize > 0 ? field.dataTypeSize : 0,
           })) || [];
 
         return {
-          rows: result.rows,
+          rows: result.rows.map(normalizeRowValues),
           rowCount: result.rowCount || result.rows.length,
           fields,
           hasMoreRows: false,
@@ -148,7 +150,7 @@ export class PostgreSQLAdapter extends BaseAdapter {
         if (fields.length === 0 && cursor._result?.fields) {
           fields = cursor._result.fields.map((field) => ({
             name: field.name,
-            type: `pg_type_${field.dataTypeID}`,
+            type: mapPostgreSQLType(`pg_type_${field.dataTypeID}`), // Map OID to normalized type
             nullable: true,
             length: field.dataTypeSize > 0 ? field.dataTypeSize : 0,
           }));
@@ -157,11 +159,11 @@ export class PostgreSQLAdapter extends BaseAdapter {
         // Check if we have more rows than requested
         if (totalRead + batchRows.length > maxRows) {
           hasMoreRows = true;
-          rows.push(...batchRows.slice(0, maxRows - totalRead));
+          rows.push(...batchRows.slice(0, maxRows - totalRead).map(normalizeRowValues));
           break;
         }
 
-        rows.push(...batchRows);
+        rows.push(...batchRows.map(normalizeRowValues));
         totalRead += batchRows.length;
 
         // If we got fewer rows than requested, we've reached the end

@@ -3,7 +3,7 @@ import { useGetChatMessage } from '@/api/buster_rest/chats';
 
 const stableIsCompleted = (x: BusterChatMessage) => x?.is_completed;
 export const useGetChatMessageCompleted = ({ messageId }: { messageId: string }) => {
-  const { data: isStreamFinished = false } = useGetChatMessage(messageId, {
+  const { data: isStreamFinished = true } = useGetChatMessage(messageId, {
     select: stableIsCompleted,
     notifyOnChangeProps: ['data'],
   });
@@ -42,4 +42,37 @@ export const useGetChatMessageHasResponseFile = ({ messageId }: { messageId: str
   });
 
   return hasResponseFile;
+};
+
+const stableResponseMessageIds: BusterChatMessage['response_message_ids'] = [];
+const useGetRepsonseMessageIds = (x: BusterChatMessage): string[] =>
+  x?.response_message_ids || stableResponseMessageIds;
+export const useGetChatMessageResponseMessageIds = ({ messageId }: { messageId: string }) => {
+  const { data: responseMessageIds } = useGetChatMessage(messageId, {
+    select: useGetRepsonseMessageIds,
+    notifyOnChangeProps: ['data'],
+  });
+  return responseMessageIds;
+};
+
+const stableFinalReasoningMessage: (
+  x: BusterChatMessage
+) => BusterChatMessage['final_reasoning_message'] = (x) => x?.final_reasoning_message;
+export const useGetChatMessageFinalReasoningMessage = ({ messageId }: { messageId: string }) => {
+  const { data: finalReasoningMessage } = useGetChatMessage(messageId, {
+    select: stableFinalReasoningMessage,
+    notifyOnChangeProps: ['data'],
+  });
+  return finalReasoningMessage;
+};
+
+const stableReasoningMessageIds: BusterChatMessage['reasoning_message_ids'] = [];
+const stableReasoningMessageIdsSelector = (x: BusterChatMessage) =>
+  x?.reasoning_message_ids || stableReasoningMessageIds;
+export const useGetChatMessageReasoningMessageIds = ({ messageId }: { messageId: string }) => {
+  const { data: reasoningMessageIds } = useGetChatMessage(messageId, {
+    select: stableReasoningMessageIdsSelector,
+    notifyOnChangeProps: ['data'],
+  });
+  return reasoningMessageIds;
 };

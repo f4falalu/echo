@@ -6,9 +6,9 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { BlockDraggable } from '../elements/BlockDraggable';
 
 export const DndKit = ({
-  containerRef,
+  scrollAreaRef,
 }: {
-  containerRef?: React.RefObject<HTMLDivElement | null>;
+  scrollAreaRef?: React.RefObject<HTMLDivElement | null>;
 }) => {
   return [
     DndPlugin.configure({
@@ -22,7 +22,7 @@ export const DndKit = ({
         scrollerProps: {
           enabled: true,
           // Container to scroll (defaults to window)
-          containerRef: containerRef, // React.RefObject<any>
+          containerRef: scrollAreaRef, // React.RefObject<any>
 
           // Height of the scroll trigger zones at top/bottom
           height: 200, // pixels - try increasing for easier triggering

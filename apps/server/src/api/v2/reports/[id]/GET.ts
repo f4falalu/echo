@@ -1,4 +1,4 @@
-import { hasAssetPermission } from '@buster/access-controls';
+import { checkPermission } from '@buster/access-controls';
 import { getReport, getReportMetadata } from '@buster/database';
 import type { GetReportResponse } from '@buster/server-shared/reports';
 import { Hono } from 'hono';
@@ -23,7 +23,7 @@ export async function getReportHandler(
   }
 
   // Check access using existing asset permission system
-  const hasAccess = await hasAssetPermission({
+  const assetPermissionResult = await checkPermission({
     userId: user.id,
     assetId: reportId,
     assetType: 'report_file',
@@ -32,12 +32,16 @@ export async function getReportHandler(
     workspaceSharing: reportData.workspaceSharing,
   });
 
-  if (!hasAccess) {
+  if (!assetPermissionResult.hasAccess) {
     throw new HTTPException(403, { message: 'You do not have access to this report' });
   }
 
   // If access is granted, get the full report data
-  const report = await getReport({ reportId, userId: user.id });
+  const report = await getReport({
+    reportId,
+    userId: user.id,
+    permissionRole: assetPermissionResult.effectiveRole,
+  });
 
   const response: GetReportResponse = report;
 

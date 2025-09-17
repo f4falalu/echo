@@ -243,8 +243,8 @@ describe('PostgreSQLAdapter', () => {
         rows: [{ id: 1, name: 'Test' }],
         rowCount: 1,
         fields: [
-          { name: 'id', type: 'pg_type_23', nullable: true, length: 4 },
-          { name: 'name', type: 'pg_type_25', nullable: true, length: 0 },
+          { name: 'id', type: 'integer', nullable: true, length: 4 },
+          { name: 'name', type: 'text', nullable: true, length: 0 },
         ],
         hasMoreRows: false,
       });

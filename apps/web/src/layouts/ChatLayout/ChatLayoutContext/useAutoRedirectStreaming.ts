@@ -27,7 +27,6 @@ export const useAutoRedirectStreaming = ({
   const isFinishedReasoning = useGetChatMessageIsFinishedReasoning({ messageId: lastMessageId });
   const hasResponseFile = useGetChatMessageHasResponseFile({ messageId: lastMessageId });
 
-  const previousLastMessageId = useRef<string | null>(null);
   const previousIsCompletedStream = useRef<boolean>(isStreamFinished);
 
   const hasLoadedChat = useHasLoadedChat({ chatId: chatId || '' });
@@ -70,7 +69,6 @@ export const useAutoRedirectStreaming = ({
 
     //this will trigger when the chat is streaming and is has not completed yet (new chat)
     else if (!isStreamFinished && !isFinishedReasoning && hasReasoning && chatId) {
-      previousLastMessageId.current = lastMessageId;
       navigate({
         to: '/app/chats/$chatId/reasoning/$messageId',
         params: {
@@ -93,5 +91,5 @@ export const useAutoRedirectStreaming = ({
         replace: true,
       });
     }
-  }, [isStreamFinished, hasReasoning, hasResponseFile, chatId, lastMessageId]); //only use these values to trigger the useEffect
+  }, [isStreamFinished, hasReasoning, hasResponseFile, chatId, lastMessageId, isFinishedReasoning]); //only use these values to trigger the useEffect
 };

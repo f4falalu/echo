@@ -39,9 +39,9 @@ import { TocKit } from './plugins/toc-kit';
 import { ToggleKit } from './plugins/toggle-kit';
 
 export const EditorKit = ({
-  containerRef,
+  scrollAreaRef,
 }: {
-  containerRef?: React.RefObject<HTMLDivElement | null>;
+  scrollAreaRef?: React.RefObject<HTMLDivElement | null>;
 }) => [
   // Editing
   ...SlashKit,
@@ -97,5 +97,5 @@ export const EditorKit = ({
   ...FloatingToolbarKit,
 
   // Dnd
-  ...DndKit({ containerRef }),
+  ...DndKit({ scrollAreaRef }),
 ];

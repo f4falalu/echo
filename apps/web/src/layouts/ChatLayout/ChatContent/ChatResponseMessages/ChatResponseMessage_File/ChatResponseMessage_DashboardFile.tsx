@@ -1,8 +1,7 @@
 import { type ChartType, DEFAULT_CHART_CONFIG } from '@buster/server-shared/metrics';
 import { Link, type RegisteredRouter } from '@tanstack/react-router';
 import { AnimatePresence, type MotionProps, motion } from 'framer-motion';
-import React, { useMemo } from 'react';
-import type { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat/chatMessageInterfaces';
+import React, { useCallback, useMemo } from 'react';
 import type { BusterDashboardResponse } from '@/api/asset_interfaces/dashboard';
 import { useGetDashboard, usePrefetchGetDashboardClient } from '@/api/buster_rest/dashboards';
 import { useGetMetricMemoized } from '@/api/buster_rest/metrics/metricQueryHelpers';
@@ -40,7 +39,12 @@ export const ChatResponseMessage_DashboardFile: React.FC<ResponseMessageFileProp
       isLoading,
     } = useGetDashboard(
       { id, versionNumber: version_number },
-      { select: ({ dashboard, metrics }) => ({ dashboard, metrics }) }
+      {
+        select: useCallback(
+          ({ dashboard, metrics }: BusterDashboardResponse) => ({ dashboard, metrics }),
+          []
+        ),
+      }
     );
 
     const hasMetrics = Object.keys(dashboardResponse?.metrics || {}).length > 0;

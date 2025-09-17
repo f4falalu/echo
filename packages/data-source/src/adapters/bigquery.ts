@@ -1,9 +1,17 @@
-import { BigQuery, type BigQueryOptions, type Query } from '@google-cloud/bigquery';
+import {
+  BigQuery,
+  type BigQueryOptions,
+  type Query,
+  type QueryRowsResponse,
+} from '@google-cloud/bigquery';
+import type bigquery from '@google-cloud/bigquery/build/src/types';
 import type { DataSourceIntrospector } from '../introspection/base';
 import { BigQueryIntrospector } from '../introspection/bigquery';
 import { type BigQueryCredentials, type Credentials, DataSourceType } from '../types/credentials';
 import type { QueryParameter } from '../types/query';
 import { type AdapterQueryResult, BaseAdapter, type FieldMetadata } from './base';
+import { normalizeRowValues } from './helpers/normalize-values';
+import { getBigQuerySimpleType, mapBigQueryType } from './type-mappings/bigquery';
 
 /**
  * BigQuery database adapter
@@ -104,10 +112,17 @@ export class BigQueryAdapter extends BaseAdapter {
       }
 
       const [job] = await this.client.createQueryJob(options);
-      const [rows] = await job.getQueryResults();
+      const queryResults: QueryRowsResponse = await job.getQueryResults();
 
-      // Convert BigQuery rows to plain objects
-      let resultRows: Record<string, unknown>[] = rows.map((row) => ({ ...row }));
+      // QueryRowsResponse is [RowMetadata[]] or [RowMetadata[], Query | null, QueryResultsResponse]
+      const rows = queryResults[0];
+
+      // The third element contains the API response with schema when present
+      // QueryResultsResponse is bigquery.IGetQueryResultsResponse | bigquery.IQueryResponse
+      const apiResponse = queryResults.length > 2 ? queryResults[2] : null;
+
+      // Convert BigQuery rows to plain objects and normalize values
+      let resultRows: Record<string, unknown>[] = rows.map((row) => normalizeRowValues({ ...row }));
 
       // Check if we have more rows than requested
       if (maxRows && resultRows.length > maxRows) {
@@ -116,8 +131,24 @@ export class BigQueryAdapter extends BaseAdapter {
         resultRows = resultRows.slice(0, maxRows);
       }
 
-      // BigQuery doesn't provide detailed field metadata in the same way as other databases
+      // Extract field metadata from BigQuery schema
       const fields: FieldMetadata[] = [];
+      if (apiResponse && 'schema' in apiResponse && apiResponse.schema) {
+        const tableSchema = apiResponse.schema as bigquery.ITableSchema;
+        if (tableSchema.fields && Array.isArray(tableSchema.fields)) {
+          for (const field of tableSchema.fields) {
+            const normalizedType = mapBigQueryType(field.type || 'STRING');
+            fields.push({
+              name: field.name || '',
+              type: normalizedType,
+              nullable: field.mode !== 'REQUIRED',
+              // BigQuery doesn't provide length/precision in standard schema
+              length: 0,
+              precision: 0,
+            });
+          }
+        }
+      }
 
       return {
         rows: resultRows,

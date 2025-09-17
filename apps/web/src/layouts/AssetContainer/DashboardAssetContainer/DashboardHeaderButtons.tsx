@@ -7,7 +7,7 @@ import { ClosePageButton } from '@/components/features/chat/ClosePageButton';
 import { DashboardThreeDotMenu } from '@/components/features/dashboard/DashboardThreeDotMenu';
 import { useIsChatMode, useIsFileMode } from '@/context/Chats/useMode';
 import { useIsDashboardReadOnly } from '@/context/Dashboards/useIsDashboardReadOnly';
-import { getIsEffectiveOwner } from '@/lib/share';
+import { canEdit, getIsEffectiveOwner } from '@/lib/share';
 import { FileButtonContainer } from '../FileButtonContainer';
 import { HideButtonContainer } from '../HideButtonContainer';
 
@@ -26,6 +26,7 @@ export const DashboardContainerHeaderButtons: React.FC<{
   );
 
   const isEffectiveOwner = getIsEffectiveOwner(permission);
+  const isEditor = canEdit(permission);
 
   return (
     <FileButtonContainer>
@@ -37,7 +38,7 @@ export const DashboardContainerHeaderButtons: React.FC<{
         isViewingOldVersion={isViewingOldVersion}
         dashboardVersionNumber={dashboardVersionNumber}
       />
-      <HideButtonContainer show={isFileMode}>
+      <HideButtonContainer show={isFileMode && isEditor}>
         <CreateChatButton assetId={dashboardId} assetType="dashboard" />
       </HideButtonContainer>
       {isChatMode && <ClosePageButton />}

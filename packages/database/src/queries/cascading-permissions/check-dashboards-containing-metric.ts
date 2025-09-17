@@ -1,11 +1,22 @@
 import { and, eq, isNull } from 'drizzle-orm';
 import { db } from '../../connection';
 import { dashboardFiles, metricFilesToDashboardFiles } from '../../schema';
+import type { WorkspaceSharing } from '../../schema-types';
 
-export async function checkDashboardsContainingMetric(metricId: string): Promise<{ id: string }[]> {
+export interface DashboardWithSharing {
+  id: string;
+  organizationId: string;
+  workspaceSharing: WorkspaceSharing | null;
+}
+
+export async function checkDashboardsContainingMetric(
+  metricId: string
+): Promise<DashboardWithSharing[]> {
   const result = await db
     .select({
       id: dashboardFiles.id,
+      organizationId: dashboardFiles.organizationId,
+      workspaceSharing: dashboardFiles.workspaceSharing,
     })
     .from(metricFilesToDashboardFiles)
     .innerJoin(dashboardFiles, eq(dashboardFiles.id, metricFilesToDashboardFiles.dashboardFileId))
