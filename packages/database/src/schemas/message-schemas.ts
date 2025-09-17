@@ -81,7 +81,7 @@ const ReasoningMessage_FilesSchema = z.object({
   files: z.record(z.string(), ReasoningFileSchema),
 });
 
-const ReasoingMessage_ThoughtFileTypeSchema = z.enum([
+const ReasoningMessage_ThoughtFileTypeSchema = z.enum([
   'metric_file',
   'dashboard_file',
   'collection',
@@ -94,7 +94,7 @@ const ReasoingMessage_ThoughtFileTypeSchema = z.enum([
 
 const ReasoningMessage_PillSchema = z.object({
   text: z.string(),
-  type: ReasoingMessage_ThoughtFileTypeSchema,
+  type: ReasoningMessage_ThoughtFileTypeSchema,
   id: z.string(),
 });
 
@@ -143,7 +143,9 @@ export type ChatMessageResponseMessage_Text = z.infer<typeof ResponseMessage_Tex
 export type ChatMessageResponseMessage_File = z.infer<typeof ResponseMessage_FileSchema>;
 export type ReasoningFileType = z.infer<typeof ReasoningFileTypeSchema>;
 export type ResponseMessageFileType = z.infer<typeof ResponseMessageFileTypeSchema>;
-export type ReasoingMessage_ThoughtFileType = z.infer<typeof ReasoingMessage_ThoughtFileTypeSchema>;
+export type ReasoingMessage_ThoughtFileType = z.infer<
+  typeof ReasoningMessage_ThoughtFileTypeSchema
+>;
 
 // Message metadata schema
 export const MessageMetadataSchema = z.object({
