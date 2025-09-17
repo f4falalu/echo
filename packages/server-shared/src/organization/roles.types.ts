@@ -1,21 +1,6 @@
-import type { userOrganizationRoleEnum } from '@buster/database'; //we import as type to avoid postgres dependency in the frontend ☹️
-import { z } from 'zod';
+import { UserOrganizationRoleSchema } from '@buster/database/schema-types'; //we import as type to avoid postgres dependency in the frontend ☹️
+import type { z } from 'zod';
 
-type OrganizationRoleBase = (typeof userOrganizationRoleEnum.enumValues)[number];
+export { UserOrganizationRoleSchema };
 
-//We need this to avoid postgres dependency in the frontend ☹️
-export const OrganizationRoleEnum: Record<OrganizationRoleBase, OrganizationRoleBase> =
-  Object.freeze({
-    // Got rid of none becauase it's not a valid role.
-    viewer: 'viewer',
-    workspace_admin: 'workspace_admin',
-    data_admin: 'data_admin',
-    querier: 'querier',
-    restricted_querier: 'restricted_querier',
-  });
-
-export const OrganizationRoleSchema = z.enum(
-  Object.values(OrganizationRoleEnum) as [OrganizationRoleBase, ...OrganizationRoleBase[]]
-);
-
-export type OrganizationRole = z.infer<typeof OrganizationRoleSchema>;
+export type UserOrganizationRole = z.infer<typeof UserOrganizationRoleSchema>;

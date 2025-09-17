@@ -1,12 +1,6 @@
 import type { User } from '@buster/database';
 import type { Shortcut } from '@buster/server-shared/shortcuts';
-
-export type UserOrganizationRole =
-  | 'workspace_admin'
-  | 'data_admin'
-  | 'querier'
-  | 'restricted_querier'
-  | 'viewer';
+import type { UserOrganizationRole } from '@buster/server-shared/user';
 
 export interface UserOrganization {
   organizationId: string;

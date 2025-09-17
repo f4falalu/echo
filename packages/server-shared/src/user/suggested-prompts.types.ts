@@ -1,4 +1,4 @@
-import type { UserSuggestedPromptsType } from '@buster/database';
+import type { UserSuggestedPromptsType } from '@buster/database/schema-types';
 
 import { z } from 'zod';
 

@@ -1,5 +1,5 @@
 import type { UpdateUserResponse, UserInfoByIdResponse } from '@buster/database';
-import { UserPersonalizationConfigSchema } from '@buster/database';
+import { UserPersonalizationConfigSchema } from '@buster/database/schema-types';
 import { z } from 'zod';
 import type { UserFavorite } from './favorites.types';
 import type { UserOrganizationRole } from './roles.types';

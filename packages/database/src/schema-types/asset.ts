@@ -19,4 +19,5 @@ export const AssetPermissionRoleSchema = z.enum([
   'can_edit',
   'full_access',
 ]);
+
 export type AssetPermissionRole = z.infer<typeof AssetPermissionRoleSchema>;
