@@ -108,7 +108,7 @@ export const addAssetToCollection = async ({
 }: {
   id: string;
   assets: {
-    type: Exclude<ShareAssetType, 'collection'>;
+    type: ShareAssetType;
     id: string;
   }[];
 }) => {
