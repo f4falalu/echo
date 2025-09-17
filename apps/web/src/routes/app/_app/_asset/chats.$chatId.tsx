@@ -39,15 +39,8 @@ export const Route = createFileRoute('/app/_app/_asset/chats/$chatId')({
   },
   loader: async ({ params, context }) => {
     const chatId = params.chatId;
-
-    const [title] = await Promise.all([
-      context.getAssetTitle({
-        assetId: params.chatId,
-        assetType: 'chat',
-      }),
-      prefetchGetChat({ id: chatId }, context.queryClient),
-    ]);
-
+    const [chat] = await Promise.all([prefetchGetChat({ id: chatId }, context.queryClient)]);
+    const title = chat?.title;
     return {
       title,
     };

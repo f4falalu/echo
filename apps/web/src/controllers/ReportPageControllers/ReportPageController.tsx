@@ -85,7 +85,7 @@ export const ReportPageController: React.FC<{
     useTrackAndUpdateReportChanges({ reportId, subscribe: isStreamingMessage });
 
     const nodeRef = useRef<HTMLDivElement>(null);
-    const scrollAreaRef = useGetScrollAreaRef({ nodeRef });
+    const { scrollAreaRef } = useGetScrollAreaRef({ nodeRef });
 
     return (
       <div

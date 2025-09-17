@@ -249,26 +249,16 @@ const SelectDashboardButtonAndText: React.FC<{
   dashboardId: string;
   fileName: string;
   versionNumber: number;
-}> = React.memo(({ fileName, dashboardId, chatId, versionNumber }) => {
+}> = React.memo(({ fileName }) => {
   return (
     <div className="flex w-full items-center justify-between space-x-1.5 overflow-hidden">
       <Text size={'base'} truncate>
         {fileName}
       </Text>
-      <Link
-        to="/app/chats/$chatId/dashboards/$dashboardId"
-        params={{
-          chatId,
-          dashboardId,
-        }}
-        search={{
-          dashboard_version_number: versionNumber,
-        }}
-      >
-        <Button size={'small'} variant={'default'} className="min-w-fit">
-          View dashboard
-        </Button>
-      </Link>
+
+      <Button size={'small'} variant={'default'} className="min-w-fit">
+        View dashboard
+      </Button>
     </div>
   );
 });
