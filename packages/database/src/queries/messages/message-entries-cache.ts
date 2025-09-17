@@ -3,7 +3,7 @@ import { LRUCache } from 'lru-cache';
 import type {
   ChatMessageReasoningMessage,
   ChatMessageResponseMessage,
-} from '../../schemas/message-schemas';
+} from '../../schema-types/message-schemas';
 
 export interface MessageEntriesCacheValue {
   responseMessages: ChatMessageResponseMessage[];

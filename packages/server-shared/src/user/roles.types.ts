@@ -1,4 +1,4 @@
-import type { userOrganizationRoleEnum } from '@buster/database'; //we import as type to avoid postgres dependency in the frontend ☹️
+import type { userOrganizationRoleEnum } from '@buster/database/schema-types'; //we import as type to avoid postgres dependency in the frontend ☹️
 import { z } from 'zod';
 
 type UserOrganizationRoleBase = (typeof userOrganizationRoleEnum.enumValues)[number];

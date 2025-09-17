@@ -16,7 +16,7 @@ export const TextSearchResultSchema = z.object({
   searchableText: z.string(),
 });
 
-import { AssetTypeSchema } from '../../schema-types/enums';
+import { AssetTypeSchema } from '../../schema-types/asset';
 
 /**
  * Date range filter schema

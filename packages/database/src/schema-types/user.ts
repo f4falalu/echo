@@ -1,5 +1,23 @@
 import { z } from 'zod';
 
+// User organization role enum
+export const UserOrganizationRoleSchema = z.enum([
+  'workspace_admin',
+  'data_admin',
+  'querier',
+  'restricted_querier',
+  'viewer',
+]);
+export type UserOrganizationRole = z.infer<typeof UserOrganizationRoleSchema>;
+
+// User organization status enum
+export const UserOrganizationStatusSchema = z.enum(['active', 'inactive', 'pending', 'guest']);
+export type UserOrganizationStatus = z.infer<typeof UserOrganizationStatusSchema>;
+
+// Team role enum
+export const TeamRoleSchema = z.enum(['manager', 'member']);
+export type TeamRole = z.infer<typeof TeamRoleSchema>;
+
 export const UserSuggestedPromptsSchema = z.object({
   suggestedPrompts: z.object({
     report: z.array(z.string()),
