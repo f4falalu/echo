@@ -1,5 +1,5 @@
 import type { ModelMessage } from 'ai';
-import { and, eq, isNull } from 'drizzle-orm';
+import { and, eq, isNull, lte } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
 import { messages } from '../../schema';
@@ -244,13 +244,14 @@ function convertToolResultPart(part: unknown): unknown | unknown[] | null {
   return part;
 }
 
-// Helper function to get chatId from messageId
-async function getChatIdFromMessage(messageId: string): Promise<string> {
-  let messageResult: Array<{ chatId: string }>;
+// Helper function to get chatId and createdAt from messageId
+async function getMessageInfo(messageId: string): Promise<{ chatId: string; createdAt: string }> {
+  let messageResult: Array<{ chatId: string; createdAt: string }>;
   try {
     messageResult = await db
       .select({
         chatId: messages.chatId,
+        createdAt: messages.createdAt,
       })
       .from(messages)
       .where(and(eq(messages.id, messageId), isNull(messages.deletedAt)))
@@ -266,11 +267,14 @@ async function getChatIdFromMessage(messageId: string): Promise<string> {
     throw new Error('Message not found or has been deleted');
   }
 
-  return messageRow.chatId;
+  return messageRow;
 }
 
-// Helper function to get all messages for a chat
-async function getAllMessagesForChat(chatId: string): Promise<
+// Helper function to get messages for a chat up to a specific timestamp
+async function getMessagesUpToTimestamp(
+  chatId: string,
+  upToTimestamp: string
+): Promise<
   Array<{
     id: string;
     rawLlmMessages: unknown;
@@ -293,7 +297,13 @@ async function getAllMessagesForChat(chatId: string): Promise<
         isCompleted: messages.isCompleted,
       })
       .from(messages)
-      .where(and(eq(messages.chatId, chatId), isNull(messages.deletedAt)))
+      .where(
+        and(
+          eq(messages.chatId, chatId),
+          isNull(messages.deletedAt),
+          lte(messages.createdAt, upToTimestamp)
+        )
+      )
       .orderBy(messages.createdAt);
   } catch (dbError) {
     throw new Error(
@@ -315,9 +325,9 @@ export type ChatConversationHistoryInput = z.infer<typeof ChatConversationHistor
 export type ChatConversationHistoryOutput = z.infer<typeof ChatConversationHistoryOutputSchema>;
 
 /**
- * Get complete conversation history for a chat from any message in that chat
+ * Get conversation history for a chat up to and including a specific message
  * Finds the chat from the given messageId, then merges and deduplicates all rawLlmMessages
- * from all messages in the chat to create a complete conversation history
+ * from messages up to and including the specified message to create the conversation history
  */
 export async function getChatConversationHistory(
   input: ChatConversationHistoryInput
@@ -326,11 +336,11 @@ export async function getChatConversationHistory(
     // Validate input
     const validatedInput = ChatConversationHistoryInputSchema.parse(input);
 
-    // Get chatId from messageId
-    const chatId = await getChatIdFromMessage(validatedInput.messageId);
+    // Get chatId and timestamp from messageId
+    const { chatId, createdAt } = await getMessageInfo(validatedInput.messageId);
 
-    // Get all messages for this chat
-    const chatMessages = await getAllMessagesForChat(chatId);
+    // Get all messages for this chat up to and including the current message
+    const chatMessages = await getMessagesUpToTimestamp(chatId, createdAt);
 
     // Collect all rawLlmMessages from all messages
     const allRawMessages: unknown[] = [];

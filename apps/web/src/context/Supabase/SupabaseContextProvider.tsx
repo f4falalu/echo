@@ -17,7 +17,7 @@ const useSupabaseContextInternal = ({ supabaseSession }: SupabaseContextType) =>
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const busterUser = useGetUserBasicInfo();
   const [supabaseUser, setSupabaseUser] = useState<null | User>(null);
-  const [accessToken, setAccessToken] = useState(supabaseSession?.accessToken);
+  const [accessToken, setAccessToken] = useState(supabaseSession?.accessToken || '');
 
   const isAnonymousUser: boolean = !busterUser?.id || supabaseUser?.is_anonymous === true;
 
