@@ -81,6 +81,32 @@ describe('BigQueryAdapter', () => {
       await expect(adapter.initialize(credentials)).resolves.not.toThrow();
     });
 
+    it('should handle service account key as parsed object', async () => {
+      const serviceAccountObject = {
+        type: 'service_account',
+        project_id: 'test-project',
+        private_key_id: 'key123',
+        private_key: '-----BEGIN PRIVATE KEY-----\ntest\n-----END PRIVATE KEY-----',
+        client_email: 'test@test-project.iam.gserviceaccount.com',
+      };
+
+      const credentials: BigQueryCredentials = {
+        type: DataSourceType.BigQuery,
+        project_id: 'test-project',
+        service_account_key: serviceAccountObject,
+      };
+
+      await adapter.initialize(credentials);
+
+      const { BigQuery } = await import('@google-cloud/bigquery');
+      expect(BigQuery).toHaveBeenCalledWith(
+        expect.objectContaining({
+          projectId: 'test-project',
+          credentials: serviceAccountObject,
+        })
+      );
+    });
+
     it('should allow initialization without credentials (uses ADC)', async () => {
       const credentials: BigQueryCredentials = {
         type: DataSourceType.BigQuery,

@@ -31,13 +31,18 @@ export class BigQueryAdapter extends BaseAdapter {
 
       // Handle service account authentication
       if (bigqueryCredentials.service_account_key) {
-        try {
-          // Try to parse as JSON string
-          const keyData = JSON.parse(bigqueryCredentials.service_account_key);
-          options.credentials = keyData;
-        } catch {
-          // If parsing fails, treat as file path
-          options.keyFilename = bigqueryCredentials.service_account_key;
+        // Check if it's already an object
+        if (typeof bigqueryCredentials.service_account_key === 'object') {
+          options.credentials = bigqueryCredentials.service_account_key;
+        } else if (typeof bigqueryCredentials.service_account_key === 'string') {
+          try {
+            // Try to parse as JSON string
+            const keyData = JSON.parse(bigqueryCredentials.service_account_key);
+            options.credentials = keyData;
+          } catch {
+            // If parsing fails, treat as file path
+            options.keyFilename = bigqueryCredentials.service_account_key;
+          }
         }
       } else if (bigqueryCredentials.key_file_path) {
         options.keyFilename = bigqueryCredentials.key_file_path;
