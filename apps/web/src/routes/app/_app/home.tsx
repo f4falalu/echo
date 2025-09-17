@@ -34,11 +34,17 @@ export const Route = createFileRoute('/app/_app/home')({
   validateSearch: searchParamsSchema,
   loader: async ({ context }) => {
     const { queryClient } = context;
+    console.time('home route loader');
     const user = await prefetchGetMyUserInfo(queryClient);
     if (user?.user?.id) {
-      prefetchListShortcuts(queryClient);
-      prefetchGetSuggestedPrompts(user.user.id, queryClient);
+      console.log('prefetching shortcuts and prompts');
+      await Promise.all([
+        prefetchListShortcuts(queryClient),
+        prefetchGetSuggestedPrompts(user.user.id, queryClient),
+      ]);
+      console.log('finished prefetching shortcuts and prompts');
     }
+    console.timeEnd('home route loader');
   },
   component: RouteComponent,
 });
