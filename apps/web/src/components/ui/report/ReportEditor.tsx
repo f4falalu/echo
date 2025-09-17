@@ -30,7 +30,7 @@ export interface ReportEditorProps {
   mode?: 'export' | 'default';
   preEditorChildren?: React.ReactNode;
   postEditorChildren?: React.ReactNode;
-  containerRef?: React.RefObject<HTMLDivElement | null>; //used for the scroll areas
+  scrollAreaRef?: React.RefObject<HTMLDivElement | null>; //used for the scroll areas
 }
 
 export type IReportEditor = TPlateEditor<Value, AnyPluginConfig>;
@@ -61,16 +61,15 @@ export const ReportEditor = React.memo(
         isStreaming = false,
         preEditorChildren,
         postEditorChildren,
-        containerRef,
+        scrollAreaRef,
       },
       ref
     ) => {
       // Initialize the editor instance using the custom useEditor hook
       const isReady = useRef(false);
-      const editorContainerRef = useRef<HTMLDivElement>(null);
 
       const { isAutoScrollEnabled, enableAutoScroll, disableAutoScroll, scrollToBottom } =
-        useAutoScroll(editorContainerRef, {
+        useAutoScroll(scrollAreaRef, {
           enabled: isStreaming,
           bottomThreshold: 50,
           observeSubTree: true,
@@ -83,7 +82,7 @@ export const ReportEditor = React.memo(
         value,
         initialElements,
         useFixedToolbarKit,
-        containerRef,
+        scrollAreaRef,
       });
 
       const onReset = useMemoizedFn(() => {
@@ -141,7 +140,6 @@ export const ReportEditor = React.memo(
       return (
         <Plate editor={editor} onValueChange={onValueChangeDebounced}>
           <EditorContainer
-            ref={editorContainerRef}
             variant={variant}
             readOnly={readOnly}
             className={cn('editor-container relative', containerClassName)}

@@ -69,7 +69,7 @@ const isAtBottom = (element: HTMLElement, threshold = 30): boolean => {
  * is re–enabled.
  */
 export const useAutoScroll = (
-  containerRef: React.RefObject<HTMLElement | null>,
+  containerRef: React.RefObject<HTMLElement | null> | undefined,
   options: UseAutoScrollOptions = {}
 ): UseAutoScrollReturn => {
   const {
@@ -91,7 +91,7 @@ export const useAutoScroll = (
 
   // Function to handle smooth scrolling with requestAnimationFrame
   const animateScroll = useCallback(() => {
-    const container = containerRef.current;
+    const container = containerRef?.current;
     if (!container || !isAutoScrollEnabled) {
       isAnimatingRef.current = false;
       return;
@@ -155,7 +155,7 @@ export const useAutoScroll = (
 
   // Set up the mutation observer
   useEffect(() => {
-    const container = containerRef.current;
+    const container = containerRef?.current;
 
     if (!container || !isAutoScrollEnabled) return;
 
@@ -216,7 +216,7 @@ export const useAutoScroll = (
 
   // Listen for user–initiated events. Only disable auto–scroll if the container isn't near the bottom.
   useEffect(() => {
-    const container = containerRef.current;
+    const container = containerRef?.current;
     if (!container || !isAutoScrollEnabled) return;
 
     const disableAutoScrollHandler = () => {
@@ -248,7 +248,7 @@ export const useAutoScroll = (
 
   // Listen for scroll events. If the user scrolls back close to the bottom, re-enable auto–scroll.
   useEffect(() => {
-    const container = containerRef.current;
+    const container = containerRef?.current;
     if (!container) return;
 
     const onScroll = () => {
@@ -267,14 +267,14 @@ export const useAutoScroll = (
 
   // Immediately scroll to bottom and enable auto–scroll.
   const scrollToBottom = useCallback(() => {
-    if (!containerRef.current) return;
+    if (!containerRef?.current) return;
     setIsAutoScrollEnabled(true);
     containerRef.current.scrollTop = containerRef.current.scrollHeight;
   }, [containerRef]);
 
   // Scroll to top and disable auto–scroll.
   const scrollToTop = useCallback(() => {
-    if (!containerRef.current) return;
+    if (!containerRef?.current) return;
     setIsAutoScrollEnabled(false);
     containerRef.current.scrollTop = 0;
   }, [containerRef]);
@@ -282,7 +282,7 @@ export const useAutoScroll = (
   // Scroll to a specific node and disable auto–scroll.
   const scrollToNode = useCallback(
     (node: HTMLElement) => {
-      if (!containerRef.current || !node) return;
+      if (!containerRef?.current || !node) return;
       setIsAutoScrollEnabled(false);
       const container = containerRef.current;
       const containerRect = container.getBoundingClientRect();

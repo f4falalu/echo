@@ -1,14 +1,16 @@
-import { useQuery } from '@tanstack/react-query';
-import { ClientOnly } from '@tanstack/react-router';
-import isEmpty from 'lodash/isEmpty';
 import type React from 'react';
 import { useEffect, useMemo, useRef } from 'react';
-import type { BusterChatMessage, IBusterChat } from '@/api/asset_interfaces/chat';
-import { useGetChat, useGetChatMessage } from '@/api/buster_rest/chats';
+import type { IBusterChat } from '@/api/asset_interfaces/chat';
+import { useGetChat } from '@/api/buster_rest/chats';
 import { ScrollToBottomButton } from '@/components/features/buttons/ScrollToBottomButton';
 import { FileIndeterminateLoader } from '@/components/features/loaders/FileIndeterminateLoader';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { useGetScrollAreaRef } from '@/components/ui/scroll-area/useGetScrollAreaRef';
 import { useGetBlackBoxMessage } from '@/context/BlackBox/blackbox-store';
+import {
+  useGetChatMessageCompleted,
+  useGetChatMessageFinalReasoningMessage,
+  useGetChatMessageReasoningMessageIds,
+} from '@/context/Chats/useGetChatMessage';
 import { useAutoScroll } from '@/hooks/useAutoScroll';
 import { cn } from '@/lib/utils';
 import { ReasoningMessageSelector } from './ReasoningMessages';
@@ -20,44 +22,37 @@ interface ReasoningControllerProps {
 }
 
 const stableHasChatSelector = (x: IBusterChat) => !!x.id;
-const stableReasoningMessageIdsSelector = (x: BusterChatMessage) => x?.reasoning_message_ids || [];
-const stableIsStreamFinishedSelector = (x: BusterChatMessage) => x?.is_completed;
-const stableFinalReasoningMessageSelector = (x: BusterChatMessage) => x?.final_reasoning_message;
 
 export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId, messageId }) => {
   const { data: hasChat } = useGetChat({ id: chatId || '' }, { select: stableHasChatSelector });
-  const { data: reasoning_message_ids = [] } = useGetChatMessage(messageId, {
-    select: stableReasoningMessageIdsSelector,
-  });
+  const reasoning_message_ids = useGetChatMessageReasoningMessageIds({ messageId });
   const reasoningMessageIds = useMemo(() => reasoning_message_ids, [reasoning_message_ids]);
-  const { data: isStreamFinished } = useGetChatMessage(messageId, {
-    select: stableIsStreamFinishedSelector,
-  });
-  const { data: finalReasoningMessage } = useGetChatMessage(messageId, {
-    select: stableFinalReasoningMessageSelector,
-  });
+  const isStreamFinished = useGetChatMessageCompleted({ messageId });
+  const finalReasoningMessage = useGetChatMessageFinalReasoningMessage({ messageId });
 
   const blackBoxMessage = useGetBlackBoxMessage(messageId);
+  const showReasoningController = !!hasChat && !!reasoningMessageIds?.length;
 
-  const viewportRef = useRef<HTMLDivElement | null>(null);
+  const nodeRef = useRef<HTMLDivElement | null>(null);
+  const scrollAreaRef = useGetScrollAreaRef({ nodeRef, enabled: showReasoningController });
 
   const { isAutoScrollEnabled, isMountedAutoScrollObserver, scrollToBottom, enableAutoScroll } =
-    useAutoScroll(viewportRef, {
+    useAutoScroll(scrollAreaRef, {
       observeSubTree: true,
       enabled: !isStreamFinished,
     });
 
   useEffect(() => {
-    if (hasChat && reasoningMessageIds) {
+    if (showReasoningController) {
       enableAutoScroll();
     }
-  }, [hasChat, isEmpty(reasoningMessageIds)]);
-
-  if (!hasChat || !reasoningMessageIds) return <FileIndeterminateLoader />;
+  }, [showReasoningController]);
 
   return (
-    <ClientOnly>
+    <>
+      {!showReasoningController && <FileIndeterminateLoader ref={nodeRef} />}
       <div
+        ref={nodeRef}
         className={cn(
           'h-full flex-col space-y-0.5 p-5',
           !isMountedAutoScrollObserver && 'invisible'
@@ -74,19 +69,21 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
           />
         ))}
 
-        <BlackBoxMessage
-          blackBoxMessage={blackBoxMessage}
-          finalReasoningMessage={finalReasoningMessage}
-          isStreamFinished={isStreamFinished ?? true}
-        />
+        {showReasoningController && (
+          <BlackBoxMessage
+            blackBoxMessage={blackBoxMessage}
+            finalReasoningMessage={finalReasoningMessage}
+            isStreamFinished={isStreamFinished ?? true}
+          />
+        )}
       </div>
 
-      {viewportRef.current && (
+      {scrollAreaRef.current && showReasoningController && (
         <ScrollToBottomButton
           isAutoScrollEnabled={isAutoScrollEnabled}
           scrollToBottom={scrollToBottom}
         />
       )}
-    </ClientOnly>
+    </>
   );
 };
