@@ -3,14 +3,8 @@ import { prefetchGetMyUserInfo } from '@/api/buster_rest/users/queryRequests';
 import { getAppLayout } from '@/api/server-functions/getAppLayout';
 import { AppProviders } from '@/context/Providers';
 import { getSupabaseSession } from '@/integrations/supabase/getSupabaseUserClient';
-import { preventBrowserCacheHeaders } from '@/middleware/shared-headers';
 
 export const Route = createFileRoute('/app')({
-  head: () => {
-    return {
-      meta: [...preventBrowserCacheHeaders],
-    };
-  },
   context: ({ context }) => ({ ...context, getAppLayout }),
   beforeLoad: async () => {
     try {
