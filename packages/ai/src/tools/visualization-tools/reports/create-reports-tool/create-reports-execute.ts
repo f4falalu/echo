@@ -191,10 +191,12 @@ export function createCreateReportsExecute(
             if (context.messageId) {
               await trackFileAssociations({
                 messageId: context.messageId,
-                files: {
-                  id: reportId,
-                  version: versionHistory['1'].version_number,
-                },
+                files: [
+                  {
+                    id: reportId,
+                    version: versionHistory['1'].version_number,
+                  },
+                ],
               });
             }
 

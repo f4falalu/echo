@@ -11,7 +11,6 @@ export function modifyReportsStart(context: ModifyReportsContext, state: ModifyR
     state.reportId = undefined;
     state.reportName = undefined;
     state.edits = [];
-    state.currentContent = undefined;
     state.finalContent = undefined;
     state.version_number = undefined;
     state.startTime = Date.now();

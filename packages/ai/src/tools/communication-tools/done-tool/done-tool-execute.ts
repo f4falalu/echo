@@ -1,4 +1,4 @@
-import { updateMessageEntries } from '@buster/database';
+import { updateMessage, updateMessageEntries } from '@buster/database';
 import { wrapTraced } from 'braintrust';
 import { createRawToolResultEntry } from '../../shared/create-raw-llm-tool-result-entry';
 import {
@@ -14,7 +14,8 @@ import { createDoneToolRawLlmMessageEntry } from './helpers/done-tool-transform-
 async function processDone(
   state: DoneToolState,
   toolCallId: string,
-  messageId: string
+  messageId: string,
+  _context: DoneToolContext
 ): Promise<DoneToolOutput> {
   const output: DoneToolOutput = {
     success: true,
@@ -34,6 +35,11 @@ async function processDone(
       messageId,
       rawLlmMessages,
     });
+
+    // Mark the message as completed
+    await updateMessage(messageId, {
+      isCompleted: true,
+    });
   } catch (error) {
     console.error('[done-tool] Error updating message entries:', error);
   }
@@ -49,7 +55,7 @@ export function createDoneToolExecute(context: DoneToolContext, state: DoneToolS
         throw new Error('Tool call ID is required');
       }
 
-      return processDone(state, state.toolCallId, context.messageId);
+      return processDone(state, state.toolCallId, context.messageId, context);
     },
     { name: 'Done Tool' }
   );

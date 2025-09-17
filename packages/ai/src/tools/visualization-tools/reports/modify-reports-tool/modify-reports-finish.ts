@@ -17,6 +17,9 @@ export function createModifyReportsFinish(
   return async (options: { input: ModifyReportsInput } & ToolCallOptions) => {
     const input = options.input;
 
+    // Set isComplete to prevent further delta processing (same as sequential thinking)
+    state.isComplete = true;
+
     // Process final input
     if (input) {
       const { id, name, edits } = input;

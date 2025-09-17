@@ -7,6 +7,7 @@ import { type Credentials, DataSourceType, type SnowflakeCredentials } from '../
 import type { QueryParameter } from '../types/query';
 import { type AdapterQueryResult, BaseAdapter, type FieldMetadata } from './base';
 import { normalizeRowValues } from './helpers/normalize-values';
+import { mapSnowflakeType } from './type-mappings/snowflake';
 
 // Use Snowflake SDK types directly
 type SnowflakeError = snowflake.SnowflakeError;
@@ -273,7 +274,7 @@ export class SnowflakeAdapter extends BaseAdapter {
       const fields: FieldMetadata[] =
         result.statement?.getColumns?.()?.map((col) => ({
           name: col.getName().toLowerCase(),
-          type: col.getType(),
+          type: mapSnowflakeType(col.getType()),
           nullable: col.isNullable(),
           scale: col.getScale() > 0 ? col.getScale() : 0,
           precision: col.getPrecision() > 0 ? col.getPrecision() : 0,

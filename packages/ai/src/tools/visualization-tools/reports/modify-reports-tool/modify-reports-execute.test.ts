@@ -17,10 +17,15 @@ vi.mock('@buster/database', () => ({
   batchUpdateReport: vi.fn().mockResolvedValue({ success: true }),
   updateMetricsToReports: vi.fn().mockResolvedValue({ created: 0, updated: 0, deleted: 0 }),
   db: {
-    select: () => ({
-      from: () => ({
-        where: () => ({
-          limit: mockDbLimit,
+    select: vi.fn().mockReturnValue({
+      from: vi.fn().mockReturnValue({
+        where: vi.fn().mockReturnValue({
+          limit: vi.fn().mockResolvedValue([
+            {
+              content: '# Original Report\nSome content here.',
+              versionHistory: null,
+            },
+          ]),
         }),
       }),
     }),
@@ -59,6 +64,16 @@ vi.mock('../../../shared/create-raw-llm-tool-result-entry', () => ({
     type: 'tool-result',
     content: 'result content',
   }),
+}));
+
+vi.mock('../helpers/metric-extraction', () => ({
+  extractAndCacheMetricsWithUserContext: vi.fn().mockResolvedValue(undefined),
+  extractMetricIds: vi.fn().mockReturnValue([]),
+}));
+
+vi.mock('../report-snapshot-cache', () => ({
+  getCachedSnapshot: vi.fn().mockReturnValue(null),
+  updateCachedSnapshot: vi.fn().mockResolvedValue(undefined),
 }));
 
 import { db, updateMessageEntries } from '@buster/database';
@@ -353,10 +368,20 @@ Updated content with metrics.`;
     });
 
     it('should handle report not found in database', async () => {
+      // Override the database mock for this specific test to return empty array
+      const mockDbSelect = vi.fn().mockReturnValue({
+        from: vi.fn().mockReturnValue({
+          where: vi.fn().mockReturnValue({
+            limit: vi.fn().mockResolvedValue([]),
+          }),
+        }),
+      });
+
+      (db.select as ReturnType<typeof vi.fn>) = mockDbSelect;
+
       // Mock no report found - snapshot will be undefined since report doesn't exist
       // This should trigger the fallback to fetch from DB
       state.snapshotContent = undefined;
-      mockDbLimit.mockResolvedValue([]);
 
       const input: ModifyReportsInput = {
         id: 'non-existent-report',

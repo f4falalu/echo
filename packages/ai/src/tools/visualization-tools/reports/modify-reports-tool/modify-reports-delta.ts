@@ -35,6 +35,11 @@ const TOOL_KEYS = {
 
 export function createModifyReportsDelta(context: ModifyReportsContext, state: ModifyReportsState) {
   return async (options: { inputTextDelta: string } & ToolCallOptions) => {
+    // Skip delta updates if already complete (same pattern as sequential thinking)
+    if (state.isComplete) {
+      return;
+    }
+
     // Handle string deltas (accumulate JSON text)
     state.argsText = (state.argsText || '') + options.inputTextDelta;
 
@@ -70,6 +75,7 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
           if (cached) {
             // Use cached snapshot
             state.snapshotContent = cached.content;
+            state.lastSavedContent = cached.content; // Initialize with current content
 
             type VersionHistoryEntry = {
               content: string;
@@ -110,6 +116,7 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
 
             if (existingReport.length > 0 && existingReport[0]) {
               state.snapshotContent = existingReport[0].content;
+              state.lastSavedContent = existingReport[0].content; // Initialize with current content
 
               type VersionHistoryEntry = {
                 content: string;
@@ -200,7 +207,11 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
             );
             const rawCode = getOptimisticValue<string>(editMap, TOOL_KEYS.code, '');
             // Unescape JSON string sequences, then normalize any double-escaped characters
-            const code = rawCode ? normalizeEscapedText(unescapeJsonString(rawCode)) : '';
+            // Note: We preserve the code even if it's empty string, as that might be intentional
+            const code =
+              rawCode !== undefined
+                ? normalizeEscapedText(unescapeJsonString(rawCode || ''))
+                : undefined;
 
             if (code !== undefined) {
               // Use explicit operation if provided, otherwise infer from code_to_replace
@@ -229,133 +240,130 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
                 }
               }
 
-              // Apply the edit to a COPY of the snapshot and update database in real-time
-              // Only process the first edit for now (multiple edits would need careful handling)
-              if (index === 0) {
-                // IMPORTANT: Work with a copy, never mutate the original snapshot
-                let newContent = state.snapshotContent;
+              // Don't process individual edits here - we'll apply all edits at once below
+            }
+          }
+        }
 
-                if (operation === 'append') {
-                  // For append, add the streaming code to the end of the snapshot copy
-                  newContent = state.snapshotContent + code;
-                } else if (operation === 'replace' && codeToReplace) {
-                  // First, count occurrences of code_to_replace in the original snapshot
-                  const matches = state.snapshotContent.split(codeToReplace).length - 1;
+        // Apply ALL edits sequentially starting from the immutable snapshot
+        // This happens on every delta update to ensure we have the complete result
+        if (state.edits && state.edits.length > 0 && state.snapshotContent !== undefined) {
+          // Start fresh from snapshot every time
+          let currentContent = state.snapshotContent;
 
-                  if (matches === 0) {
-                    // Pattern not found, skip update
-                    console.warn('[modify-reports-delta] Pattern not found in snapshot', {
-                      codeToReplace: codeToReplace.substring(0, 50),
-                      reportId: state.reportId,
-                    });
-                    continue;
-                  }
-                  if (matches > 1) {
-                    // Multiple matches found, skip update to avoid ambiguity
-                    console.warn(
-                      '[modify-reports-delta] Multiple matches found, skipping replace',
-                      {
-                        codeToReplace: codeToReplace.substring(0, 50),
-                        matchCount: matches,
-                        reportId: state.reportId,
-                      }
-                    );
-                    continue;
-                  }
-                  // Exactly one match found, now check if code has changed
-                  if (code === codeToReplace) {
-                    // Code hasn't changed yet, skip the database update
-                    continue;
-                  }
-                  // Code has diverged, perform the replacement on a copy
-                  newContent = state.snapshotContent.replace(codeToReplace, code);
-                }
+          // Apply each edit in sequence
+          for (const edit of state.edits) {
+            // Skip if edit is null/undefined, but allow empty strings for code
+            if (!edit || edit.code === undefined || edit.code === null) continue;
 
-                // Check if we should increment version (not if report was created in current turn)
-                const incrementVersion = await shouldIncrementVersion(
-                  state.reportId,
-                  context.messageId
-                );
+            const operation = edit.operation;
+            const codeToReplace = edit.code_to_replace || '';
+            const code = edit.code;
 
-                // Calculate new version
-                const currentVersion = state.snapshotVersion || 1;
-                const newVersion = incrementVersion ? currentVersion + 1 : currentVersion;
-                state.version_number = newVersion;
+            if (operation === 'append') {
+              currentContent = currentContent + code;
+            } else if (operation === 'replace' && codeToReplace) {
+              // Check if the pattern exists
+              if (!currentContent.includes(codeToReplace)) {
+                console.warn('[modify-reports-delta] Pattern not found during final apply', {
+                  codeToReplace: codeToReplace.substring(0, 50),
+                  reportId: state.reportId,
+                });
+                edit.status = 'failed';
+                edit.error = 'Pattern not found';
+                continue;
+              }
+              // Apply the replacement
+              currentContent = currentContent.replace(codeToReplace, code);
+            }
 
-                // Track this modification for this tool invocation
-                if (!state.reportsModifiedInMessage) {
-                  state.reportsModifiedInMessage = new Set();
-                }
-                state.reportsModifiedInMessage.add(state.reportId);
+            edit.status = 'completed';
+          }
 
-                // Update version history
-                const now = new Date().toISOString();
-                const versionHistory = {
-                  ...(state.versionHistory || {}),
-                  [newVersion.toString()]: {
-                    content: newContent,
-                    updated_at: now,
+          // Only update if content actually changed from what we last saved
+          if (currentContent !== state.lastSavedContent) {
+            // Check if we should increment version (not if report was created in current turn)
+            const incrementVersion = await shouldIncrementVersion(
+              state.reportId,
+              context.messageId
+            );
+
+            // Calculate new version
+            const currentVersion = state.snapshotVersion || 1;
+            const newVersion = incrementVersion ? currentVersion + 1 : currentVersion;
+            state.version_number = newVersion;
+
+            // Track this modification for this tool invocation
+            if (!state.reportsModifiedInMessage) {
+              state.reportsModifiedInMessage = new Set();
+            }
+            state.reportsModifiedInMessage.add(state.reportId);
+
+            // Update version history with the final content after all edits
+            const now = new Date().toISOString();
+            const versionHistory = {
+              ...(state.versionHistory || {}),
+              [newVersion.toString()]: {
+                content: currentContent,
+                updated_at: now,
+                version_number: newVersion,
+              },
+            };
+
+            // Update the database with the result of all edits
+            try {
+              await batchUpdateReport({
+                reportId: state.reportId,
+                content: currentContent,
+                name: state.reportName || undefined,
+                versionHistory,
+              });
+
+              // No cache update during delta - execute will handle write-through
+
+              // Update state with the final content (but keep snapshot immutable)
+              state.finalContent = currentContent;
+              state.lastSavedContent = currentContent; // Track what we just saved
+              state.versionHistory = versionHistory;
+              // DO NOT update state.snapshotContent - it must remain immutable
+
+              // Create response message if not already created
+              if (!state.responseMessageCreated && context.messageId) {
+                const responseMessages: ChatMessageResponseMessage[] = [
+                  {
+                    id: state.reportId,
+                    type: 'file' as const,
+                    file_type: 'report' as const,
+                    file_name: state.reportName || 'Untitled Report',
                     version_number: newVersion,
-                  },
-                };
-
-                // Update the database with the new content and version
-                try {
-                  await batchUpdateReport({
-                    reportId: state.reportId,
-                    content: newContent,
-                    name: state.reportName || undefined,
-                    versionHistory,
-                  });
-
-                  // Update cache with the new content for subsequent modifications
-                  updateCachedSnapshot(state.reportId, newContent, versionHistory);
-
-                  // Update state with the final content (but keep snapshot immutable)
-                  state.finalContent = newContent;
-                  state.versionHistory = versionHistory;
-                  // DO NOT update state.snapshotContent - it must remain immutable
-
-                  // Create response message if not already created
-                  if (!state.responseMessageCreated && context.messageId) {
-                    const responseMessages: ChatMessageResponseMessage[] = [
+                    filter_version_id: null,
+                    metadata: [
                       {
-                        id: state.reportId,
-                        type: 'file' as const,
-                        file_type: 'report' as const,
-                        file_name: state.reportName || 'Untitled Report',
-                        version_number: newVersion,
-                        filter_version_id: null,
-                        metadata: [
-                          {
-                            status: 'completed' as const,
-                            message: 'Report modified successfully',
-                            timestamp: Date.now(),
-                          },
-                        ],
+                        status: 'completed' as const,
+                        message: 'Report modified successfully',
+                        timestamp: Date.now(),
                       },
-                    ];
+                    ],
+                  },
+                ];
 
-                    await updateMessageEntries({
-                      messageId: context.messageId,
-                      responseMessages,
-                    });
+                await updateMessageEntries({
+                  messageId: context.messageId,
+                  responseMessages,
+                });
 
-                    state.responseMessageCreated = true;
-                    console.info(
-                      '[modify-reports-delta] Created response message during streaming'
-                    );
+                state.responseMessageCreated = true;
+                console.info('[modify-reports-delta] Created response message during streaming');
+              }
+            } catch (error) {
+              console.error('[modify-reports-delta] Error updating report content:', error);
+              if (state.edits) {
+                state.edits.forEach((edit) => {
+                  if (edit) {
+                    edit.status = 'failed';
+                    edit.error = error instanceof Error ? error.message : 'Update failed';
                   }
-                } catch (error) {
-                  console.error('[modify-reports-delta] Error updating report content:', error);
-                  if (state.edits) {
-                    const edit = state.edits[index];
-                    if (edit) {
-                      edit.status = 'failed';
-                      edit.error = error instanceof Error ? error.message : 'Update failed';
-                    }
-                  }
-                }
+                });
               }
             }
           }
