@@ -42,7 +42,7 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
   const { isAutoScrollEnabled, isMountedAutoScrollObserver, scrollToBottom, enableAutoScroll } =
     useAutoScroll(scrollAreaRef, {
       observeSubTree: true,
-      enabled: !isStreamFinished,
+      enabled: true,
     });
 
   useEffect(() => {

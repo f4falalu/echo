@@ -12,7 +12,7 @@ export const useGetScrollAreaRef = ({
   const [foundScrollArea, setFoundScrollArea] = useState(false);
   useEffect(() => {
     if (!enabled) return;
-    requestAnimationFrame(() => {
+    setTimeout(() => {
       const matchClass = SCROLL_AREA_VIEWPORT_CLASS;
       const closestMatch = nodeRef.current?.closest(`.${matchClass}`);
 
@@ -20,7 +20,7 @@ export const useGetScrollAreaRef = ({
         scrollAreaRef.current = closestMatch as HTMLDivElement;
         setFoundScrollArea(true);
       }
-    });
+    }, 150);
   }, [enabled]);
 
   return { scrollAreaRef, foundScrollArea };
