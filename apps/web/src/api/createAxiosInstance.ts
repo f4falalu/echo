@@ -33,23 +33,9 @@ export const createAxiosInstance = (baseURL = BASE_URL_V2) => {
 
       // Handle 401 Unauthorized - token might be expired
       if (errorCode === 401 && !isServer) {
-        // Only retry once to avoid infinite loops
-        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
-        if (originalRequest && !originalRequest._retry) {
-          originalRequest._retry = true;
-
-          try {
-            // Force token refresh and retry the request
-            console.info('401 error detected, attempting to refresh token and retry request');
-
-            // The request interceptor will handle getting the new token
-            return apiInstance(originalRequest);
-          } catch (refreshError) {
-            console.error('Failed to refresh token and retry request:', refreshError);
-            // If refresh fails, redirect to login or show error
-            window.location.href = AuthRoute.to;
-          }
-        }
+        console.info(
+          '401 error detected, you are not authorized to access this resource. Wamp wamp 🎺 '
+        );
       }
 
       return Promise.reject(rustErrorHandler(error));

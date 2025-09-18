@@ -13,6 +13,7 @@ import { createServerRootRoute } from '@tanstack/react-start/server'
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as HealthcheckRouteImport } from './routes/healthcheck'
+import { Route as EmbedRouteImport } from './routes/embed'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
@@ -22,9 +23,9 @@ import { Route as AuthLogoutRouteImport } from './routes/auth.logout'
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as AppSettingsRouteImport } from './routes/app/_settings'
 import { Route as AppAppRouteImport } from './routes/app/_app'
-import { Route as EmbedReportReportIdRouteImport } from './routes/embed.report.$reportId'
-import { Route as EmbedMetricMetricIdRouteImport } from './routes/embed.metric.$metricId'
-import { Route as EmbedDashboardDashboardIdRouteImport } from './routes/embed.dashboard.$dashboardId'
+import { Route as EmbedReportReportIdRouteImport } from './routes/embed/report.$reportId'
+import { Route as EmbedMetricMetricIdRouteImport } from './routes/embed/metric.$metricId'
+import { Route as EmbedDashboardDashboardIdRouteImport } from './routes/embed/dashboard.$dashboardId'
 import { Route as AppSettingsRestricted_layoutRouteImport } from './routes/app/_settings/_restricted_layout'
 import { Route as AppSettingsPermissionsRouteImport } from './routes/app/_settings/_permissions'
 import { Route as AppAppHomeRouteImport } from './routes/app/_app/home'
@@ -165,6 +166,11 @@ const HealthcheckRoute = HealthcheckRouteImport.update({
   path: '/healthcheck',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EmbedRoute = EmbedRouteImport.update({
+  id: '/embed',
+  path: '/embed',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -209,20 +215,20 @@ const AppAppRoute = AppAppRouteImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 const EmbedReportReportIdRoute = EmbedReportReportIdRouteImport.update({
-  id: '/embed/report/$reportId',
-  path: '/embed/report/$reportId',
-  getParentRoute: () => rootRouteImport,
+  id: '/report/$reportId',
+  path: '/report/$reportId',
+  getParentRoute: () => EmbedRoute,
 } as any)
 const EmbedMetricMetricIdRoute = EmbedMetricMetricIdRouteImport.update({
-  id: '/embed/metric/$metricId',
-  path: '/embed/metric/$metricId',
-  getParentRoute: () => rootRouteImport,
+  id: '/metric/$metricId',
+  path: '/metric/$metricId',
+  getParentRoute: () => EmbedRoute,
 } as any)
 const EmbedDashboardDashboardIdRoute =
   EmbedDashboardDashboardIdRouteImport.update({
-    id: '/embed/dashboard/$dashboardId',
-    path: '/embed/dashboard/$dashboardId',
-    getParentRoute: () => rootRouteImport,
+    id: '/dashboard/$dashboardId',
+    path: '/dashboard/$dashboardId',
+    getParentRoute: () => EmbedRoute,
   } as any)
 const AppSettingsRestricted_layoutRoute =
   AppSettingsRestricted_layoutRouteImport.update({
@@ -925,6 +931,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppSettingsRestricted_layoutAdmin_onlyRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
+  '/embed': typeof EmbedRouteWithChildren
   '/healthcheck': typeof HealthcheckRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
@@ -1031,6 +1038,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteWithChildren
+  '/embed': typeof EmbedRouteWithChildren
   '/healthcheck': typeof HealthcheckRoute
   '/app': typeof AppSettingsRestricted_layoutAdmin_onlyRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
@@ -1122,6 +1130,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
+  '/embed': typeof EmbedRouteWithChildren
   '/healthcheck': typeof HealthcheckRoute
   '/app/_app': typeof AppAppRouteWithChildren
   '/app/_settings': typeof AppSettingsRouteWithChildren
@@ -1247,6 +1256,7 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/auth'
+    | '/embed'
     | '/healthcheck'
     | '/auth/login'
     | '/auth/logout'
@@ -1353,6 +1363,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/embed'
     | '/healthcheck'
     | '/app'
     | '/auth/login'
@@ -1443,6 +1454,7 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/auth'
+    | '/embed'
     | '/healthcheck'
     | '/app/_app'
     | '/app/_settings'
@@ -1567,10 +1579,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
   AuthRoute: typeof AuthRouteWithChildren
+  EmbedRoute: typeof EmbedRouteWithChildren
   HealthcheckRoute: typeof HealthcheckRoute
-  EmbedDashboardDashboardIdRoute: typeof EmbedDashboardDashboardIdRoute
-  EmbedMetricMetricIdRoute: typeof EmbedMetricMetricIdRoute
-  EmbedReportReportIdRoute: typeof EmbedReportReportIdRoute
 }
 export interface FileServerRoutesByFullPath {
   '/auth/callback': typeof AuthCallbackServerRoute
@@ -1601,6 +1611,13 @@ declare module '@tanstack/react-router' {
       path: '/healthcheck'
       fullPath: '/healthcheck'
       preLoaderRoute: typeof HealthcheckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/embed': {
+      id: '/embed'
+      path: '/embed'
+      fullPath: '/embed'
+      preLoaderRoute: typeof EmbedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -1668,24 +1685,24 @@ declare module '@tanstack/react-router' {
     }
     '/embed/report/$reportId': {
       id: '/embed/report/$reportId'
-      path: '/embed/report/$reportId'
+      path: '/report/$reportId'
       fullPath: '/embed/report/$reportId'
       preLoaderRoute: typeof EmbedReportReportIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof EmbedRoute
     }
     '/embed/metric/$metricId': {
       id: '/embed/metric/$metricId'
-      path: '/embed/metric/$metricId'
+      path: '/metric/$metricId'
       fullPath: '/embed/metric/$metricId'
       preLoaderRoute: typeof EmbedMetricMetricIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof EmbedRoute
     }
     '/embed/dashboard/$dashboardId': {
       id: '/embed/dashboard/$dashboardId'
-      path: '/embed/dashboard/$dashboardId'
+      path: '/dashboard/$dashboardId'
       fullPath: '/embed/dashboard/$dashboardId'
       preLoaderRoute: typeof EmbedDashboardDashboardIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof EmbedRoute
     }
     '/app/_settings/_restricted_layout': {
       id: '/app/_settings/_restricted_layout'
@@ -3203,14 +3220,26 @@ const AuthRouteChildren: AuthRouteChildren = {
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
+interface EmbedRouteChildren {
+  EmbedDashboardDashboardIdRoute: typeof EmbedDashboardDashboardIdRoute
+  EmbedMetricMetricIdRoute: typeof EmbedMetricMetricIdRoute
+  EmbedReportReportIdRoute: typeof EmbedReportReportIdRoute
+}
+
+const EmbedRouteChildren: EmbedRouteChildren = {
+  EmbedDashboardDashboardIdRoute: EmbedDashboardDashboardIdRoute,
+  EmbedMetricMetricIdRoute: EmbedMetricMetricIdRoute,
+  EmbedReportReportIdRoute: EmbedReportReportIdRoute,
+}
+
+const EmbedRouteWithChildren = EmbedRoute._addFileChildren(EmbedRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
   AuthRoute: AuthRouteWithChildren,
+  EmbedRoute: EmbedRouteWithChildren,
   HealthcheckRoute: HealthcheckRoute,
-  EmbedDashboardDashboardIdRoute: EmbedDashboardDashboardIdRoute,
-  EmbedMetricMetricIdRoute: EmbedMetricMetricIdRoute,
-  EmbedReportReportIdRoute: EmbedReportReportIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

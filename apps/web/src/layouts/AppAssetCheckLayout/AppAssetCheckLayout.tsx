@@ -20,9 +20,7 @@ export const AppAssetCheckLayout: React.FC<
 > = ({ children, assetType }) => {
   const params = useParams({ strict: false });
   const search = useSearch({ strict: false });
-
   const { assetId, versionNumber } = getAssetIdAndVersionNumber(assetType, params, search);
-
   const { hasAccess, isPublic, passwordRequired } = useGetAssetPasswordConfig(
     assetId,
     assetType,
