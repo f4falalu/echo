@@ -46,10 +46,10 @@ export const useTrackAndUpdateMessageChanges = (
 
   const subscribe = !!chatId && !!messageId && messageId !== 'undefined';
 
-  const shape = useMemo(
-    () => messageShape({ chatId: chatId || '', messageId }),
-    [chatId, messageId]
-  );
+  const shape = useMemo(() => {
+    console.log('new shape stream for message', chatId, messageId);
+    return messageShape({ chatId: chatId || '', messageId });
+  }, [chatId, messageId]);
 
   return useShapeStream(
     shape,
@@ -165,7 +165,10 @@ export const useTrackAndUpdateNewMessages = ({ chatId }: { chatId: string | unde
 
   const subscribe = !!chatId;
 
-  const shape = useMemo(() => messagesShape({ chatId: chatId || '', columns: ['id'] }), [chatId]);
+  const shape = useMemo(() => {
+    console.log('new shape stream for new messages', chatId);
+    return messagesShape({ chatId: chatId || '', columns: ['id'] });
+  }, [chatId]);
 
   return useShapeStream(
     shape,

@@ -55,6 +55,8 @@ export const useAutoRedirectStreaming = ({
         | BusterChatResponseMessage_file
         | undefined;
 
+      console.log('this will trigger if it is streaming and has a file in the response', firstFile);
+
       if (firstFile) {
         const linkProps = assetParamsToRoute({
           assetId: firstFile.id,
@@ -62,6 +64,7 @@ export const useAutoRedirectStreaming = ({
           chatId,
           versionNumber: firstFile.version_number,
         });
+        console.log('this is navigated to the file', linkProps);
 
         navigate(linkProps);
       }
@@ -69,6 +72,9 @@ export const useAutoRedirectStreaming = ({
 
     //this will trigger when the chat is streaming and is has not completed yet (new chat)
     else if (!isStreamFinished && !isFinishedReasoning && hasReasoning && chatId) {
+      console.log(
+        'this will trigger when the chat is streaming and is has not completed yet (new chat)'
+      );
       navigate({
         to: '/app/chats/$chatId/reasoning/$messageId',
         params: {
@@ -82,6 +88,7 @@ export const useAutoRedirectStreaming = ({
     //this happen will when the chat is completed and it WAS streaming
     else if (isStreamFinished && previousIsCompletedStream.current === false && !firstFileId) {
       //no file is found, so we need to collapse the chat
+      console.log('this will trigger when the chat is completed and it WAS streaming');
 
       navigate({
         to: '/app/chats/$chatId',
