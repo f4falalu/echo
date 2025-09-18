@@ -19,11 +19,11 @@ catalogs:
       specifier: ^2.57.4
       version: 2.57.4
     '@trigger.dev/build':
-      specifier: ^4.0.2
-      version: 4.0.2
+      specifier: ^4.0.3
+      version: 4.0.3
     '@trigger.dev/sdk':
-      specifier: ^4.0.2
-      version: 4.0.2
+      specifier: ^4.0.3
+      version: 4.0.3
     '@types/js-yaml':
       specifier: ^4.0.9
       version: 4.0.9
@@ -293,7 +293,7 @@ importers:
         version: 2.57.4
       '@trigger.dev/sdk':
         specifier: 'catalog:'
-        version: 4.0.2(ai@5.0.44(zod@3.25.76))(zod@3.25.76)
+        version: 4.0.3(ai@5.0.44(zod@3.25.76))(zod@3.25.76)
       ai:
         specifier: 'catalog:'
         version: 5.0.44(zod@3.25.76)
@@ -375,7 +375,7 @@ importers:
         version: 1.3.2-alpha.26
       '@trigger.dev/sdk':
         specifier: 'catalog:'
-        version: 4.0.2(ai@5.0.44(zod@3.25.76))(zod@3.25.76)
+        version: 4.0.3(ai@5.0.44(zod@3.25.76))(zod@3.25.76)
       '@types/js-yaml':
         specifier: 'catalog:'
         version: 4.0.9
@@ -400,7 +400,7 @@ importers:
     devDependencies:
       '@trigger.dev/build':
         specifier: 'catalog:'
-        version: 4.0.2(typescript@5.9.2)
+        version: 4.0.3(typescript@5.9.2)
 
   apps/web:
     dependencies:
@@ -6251,16 +6251,16 @@ packages:
     resolution: {integrity: sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==}
     engines: {node: '>= 10'}
 
-  '@trigger.dev/build@4.0.2':
-    resolution: {integrity: sha512-GOqjGIUXWEEIfWqY2o+xr//4KTHYoRQIML8cCoP/L8x1wPb45qFJWTwNaECgYp9i+9vPMI4/G3Jm/jvWp9xznQ==}
+  '@trigger.dev/build@4.0.3':
+    resolution: {integrity: sha512-zGkoqB7UB6TluhqDPgMAf5cBCXTrrg8L3Ml1LF9msugIGiHdFwEJ2QdevleT2o+bqzVfbqu1kFLKWiGtrAMc+w==}
     engines: {node: '>=18.20.0'}
 
-  '@trigger.dev/core@4.0.2':
-    resolution: {integrity: sha512-hc/alfT7iVdJNZ5YSMbGR9FirLjURqdZ7tCBX4btKas0GDg6M5onwcQsJ3oom5TDp/Nrt+dHaviNMhFxhKCu3g==}
+  '@trigger.dev/core@4.0.3':
+    resolution: {integrity: sha512-kmiNCJpnVwqGsukEDSqMdyJa4pXCPB80MmaXPj8w8889KrZgEx/J784cUc1h7ogIRaGNPqujWHjSYkKsxWwmnA==}
     engines: {node: '>=18.20.0'}
 
-  '@trigger.dev/sdk@4.0.2':
-    resolution: {integrity: sha512-ulhWJRSHPXOHz0bMvkhAKThkW63x7lnjAb87LPi6dUps1YwwoOL8Nkr15xLXa73UrldPFT+9Y/GvQ9qpzU478w==}
+  '@trigger.dev/sdk@4.0.3':
+    resolution: {integrity: sha512-IVFWG2Wl36kS5f2obXM+ef7zYky6ZC5L5vz6GQ/ZuyYxOxxlci1+GUmFQirLc7toJfIvF/8Gx5PixAZ7o2sjkA==}
     engines: {node: '>=18.20.0'}
     peerDependencies:
       ai: ^4.2.0 || ^5.0.0
@@ -19269,9 +19269,9 @@ snapshots:
 
   '@tootallnate/once@2.0.0': {}
 
-  '@trigger.dev/build@4.0.2(typescript@5.9.2)':
+  '@trigger.dev/build@4.0.3(typescript@5.9.2)':
     dependencies:
-      '@trigger.dev/core': 4.0.2
+      '@trigger.dev/core': 4.0.3
       pkg-types: 1.3.1
       tinyglobby: 0.2.14
       tsconfck: 3.1.3(typescript@5.9.2)
@@ -19281,7 +19281,7 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@trigger.dev/core@4.0.2':
+  '@trigger.dev/core@4.0.3':
     dependencies:
       '@bugsnag/cuid': 3.2.1
       '@electric-sql/client': 1.0.0-beta.1
@@ -19320,11 +19320,11 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@trigger.dev/sdk@4.0.2(ai@5.0.44(zod@3.25.76))(zod@3.25.76)':
+  '@trigger.dev/sdk@4.0.3(ai@5.0.44(zod@3.25.76))(zod@3.25.76)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/semantic-conventions': 1.36.0
-      '@trigger.dev/core': 4.0.2
+      '@trigger.dev/core': 4.0.3
       chalk: 5.6.0
       cronstrue: 2.59.0
       debug: 4.4.1
@@ -19718,7 +19718,7 @@ snapshots:
       magic-string: 0.30.17
       sirv: 3.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@edge-runtime/vm@3.2.0)(@types/debug@4.1.12)(@types/node@24.3.1)(@vitest/browser@3.2.4)(@vitest/ui@3.2.4)(jiti@2.5.1)(jsdom@26.1.0)(lightningcss@1.30.1)(msw@2.11.2(@types/node@24.3.1)(typescript@5.9.2))(sass@1.92.1)(terser@5.43.1)(tsx@4.20.5)(yaml@2.8.1)
+      vitest: 3.2.4(@edge-runtime/vm@3.2.0)(@types/debug@4.1.12)(@types/node@24.3.1)(@vitest/browser@3.2.4)(@vitest/ui@3.2.4)(jiti@2.5.1)(jsdom@27.0.0(postcss@8.5.6))(lightningcss@1.30.1)(msw@2.11.2(@types/node@24.3.1)(typescript@5.9.2))(sass@1.92.1)(terser@5.43.1)(tsx@4.20.5)(yaml@2.8.1)
       ws: 8.18.3
     optionalDependencies:
       playwright: 1.55.0
@@ -19743,7 +19743,7 @@ snapshots:
       std-env: 3.9.0
       test-exclude: 7.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@edge-runtime/vm@3.2.0)(@types/debug@4.1.12)(@types/node@24.3.1)(@vitest/browser@3.2.4)(@vitest/ui@3.2.4)(jiti@2.5.1)(jsdom@26.1.0)(lightningcss@1.30.1)(msw@2.11.2(@types/node@24.3.1)(typescript@5.9.2))(sass@1.92.1)(terser@5.43.1)(tsx@4.20.5)(yaml@2.8.1)
+      vitest: 3.2.4(@edge-runtime/vm@3.2.0)(@types/debug@4.1.12)(@types/node@24.3.1)(@vitest/browser@3.2.4)(@vitest/ui@3.2.4)(jiti@2.5.1)(jsdom@27.0.0(postcss@8.5.6))(lightningcss@1.30.1)(msw@2.11.2(@types/node@24.3.1)(typescript@5.9.2))(sass@1.92.1)(terser@5.43.1)(tsx@4.20.5)(yaml@2.8.1)
     optionalDependencies:
       '@vitest/browser': 3.2.4(msw@2.11.2(@types/node@24.3.1)(typescript@5.9.2))(playwright@1.55.0)(vite@7.1.4(@types/node@24.3.1)(jiti@2.5.1)(lightningcss@1.30.1)(sass@1.92.1)(terser@5.43.1)(tsx@4.20.5)(yaml@2.8.1))(vitest@3.2.4)
     transitivePeerDependencies:
