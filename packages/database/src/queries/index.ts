@@ -21,3 +21,4 @@ export * from './github-integrations';
 export * from './shortcuts';
 export * from './search';
 export * from './metrics-to-reports';
+export * from './vault';

@@ -1,4 +1,4 @@
-import { updateMessageFields } from '@buster/database';
+import { updateMessageFields } from '@buster/database/queries';
 import { materialize } from '@buster/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ModifyMetricsContext, ModifyMetricsInput } from './modify-metrics-tool';

@@ -1,4 +1,4 @@
-import type { AssetType } from '@buster/database';
+import type { AssetType } from '@buster/database/schema-types';
 import { LRUCache } from 'lru-cache';
 import type { AssetPermissionRole } from '../types';
 import type { AssetPermissionResult } from './checks';

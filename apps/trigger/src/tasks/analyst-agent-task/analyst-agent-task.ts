@@ -12,7 +12,7 @@ import {
   getOrganizationDataSource,
   getOrganizationDocs,
   getUserPersonalization,
-} from '@buster/database';
+} from '@buster/database/queries';
 
 // Access control imports
 import { type PermissionedDataset, getPermissionedDatasets } from '@buster/access-controls';

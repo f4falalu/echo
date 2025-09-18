@@ -1,18 +1,13 @@
+import { and, count, eq, getDb, inArray, isNull } from '@buster/database/connection';
 import {
-  and,
-  count,
   datasetPermissions,
   datasets,
   datasetsToPermissionGroups,
-  eq,
-  getDb,
-  inArray,
-  isNull,
   permissionGroups,
   permissionGroupsToIdentities,
   teamsToUsers,
   usersToOrganizations,
-} from '@buster/database';
+} from '@buster/database/schema';
 import { z } from 'zod';
 import { type AccessControlOptions, AccessControlsError } from './types';
 

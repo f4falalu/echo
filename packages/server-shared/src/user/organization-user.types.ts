@@ -1,13 +1,13 @@
 import { z } from 'zod';
-import { OrganizationRoleSchema, OrganizationStatusSchema } from '../organization';
+import { UserOrganizationRoleSchema, UserOrganizationStatusSchema } from '../organization';
 
 export const OrganizationUserSchema = z.object({
   email: z.string(),
   id: z.string(),
   name: z.string().nullable(),
-  role: OrganizationRoleSchema.nullable(),
+  role: UserOrganizationRoleSchema.nullable(),
   avatarUrl: z.string().nullable(),
-  status: OrganizationStatusSchema,
+  status: UserOrganizationStatusSchema,
 });
 
 export type OrganizationUser = z.infer<typeof OrganizationUserSchema>;

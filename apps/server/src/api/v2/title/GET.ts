@@ -5,7 +5,7 @@ import {
   getMetricTitle,
   getReportTitle,
   getUserOrganizationId,
-} from '@buster/database';
+} from '@buster/database/queries';
 import { GetTitleRequestSchema, type GetTitleResponse } from '@buster/server-shared/title';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';

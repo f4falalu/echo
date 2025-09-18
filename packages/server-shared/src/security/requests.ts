@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { OrganizationRoleSchema } from '../organization';
+import { UserOrganizationRoleSchema } from '../organization';
 
 export const UpdateInviteLinkRequestSchema = z.object({
   enabled: z.boolean().optional(),
@@ -41,7 +41,7 @@ export type RemoveApprovedDomainRequest = z.infer<typeof RemoveApprovedDomainReq
 
 export const UpdateWorkspaceSettingsRequestSchema = z.object({
   restrict_new_user_invitations: z.boolean().optional(),
-  default_role: OrganizationRoleSchema.optional(),
+  default_role: UserOrganizationRoleSchema.optional(),
   // this can either be a uuid or "all"
   default_datasets_ids: z.array(z.union([z.string(), z.literal('all')])).optional(),
 });

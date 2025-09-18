@@ -6,7 +6,6 @@ const statusRecordText: Record<VerificationStatus, string> = {
   requested: 'Requested',
   inReview: 'In review',
   backlogged: 'Backlogged',
-  notVerified: 'Not verified',
   notRequested: 'Not requested',
 };
 

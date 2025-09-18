@@ -2,10 +2,10 @@
 
 import type { PermissionedDataset } from '@buster/access-controls';
 import {
+  MessageAnalysisModeSchema,
   UserPersonalizationConfigSchema,
   type UserPersonalizationConfigType,
-  messageAnalysisModeEnum,
-} from '@buster/database';
+} from '@buster/database/schema-types';
 import type { ModelMessage } from 'ai';
 import { z } from 'zod';
 import {
@@ -39,7 +39,7 @@ import {
 const AnalystWorkflowInputSchema = z.object({
   messages: z.array(z.custom<ModelMessage>()),
   messageId: z.string().uuid(),
-  messageAnalysisMode: z.enum(messageAnalysisModeEnum.enumValues).optional(),
+  messageAnalysisMode: MessageAnalysisModeSchema.optional(),
   chatId: z.string().uuid(),
   userId: z.string().uuid(),
   organizationId: z.string().uuid(),
@@ -243,7 +243,7 @@ const AnalystPrepStepSchema = z.object({
   dataSourceId: z.string().uuid(),
   chatId: z.string().uuid(),
   messageId: z.string().uuid(),
-  messageAnalysisMode: z.enum(messageAnalysisModeEnum.enumValues).optional(),
+  messageAnalysisMode: MessageAnalysisModeSchema.optional(),
   userPersonalizationConfig: UserPersonalizationConfigSchema.optional(),
 });
 

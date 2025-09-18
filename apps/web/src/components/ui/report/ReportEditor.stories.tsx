@@ -1,4 +1,3 @@
-import type { ReportElementWithId } from '@buster/server-shared/reports';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { Value } from 'platejs';
 import { ReportEditor } from './ReportEditor';
@@ -400,7 +399,7 @@ export const WithCustomKit: Story = {
     ].map((element, index) => ({
       ...element,
       id: `id-${index}`,
-    })) as ReportElementWithId[],
+    })),
     useFixedToolbarKit: true,
   },
 };

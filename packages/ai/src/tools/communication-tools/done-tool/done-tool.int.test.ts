@@ -1,7 +1,8 @@
 import { randomUUID } from 'node:crypto';
-import { db, messages, updateMessageEntries } from '@buster/database';
+import { db } from '@buster/database/connection';
+import { updateMessageEntries } from '@buster/database/queries';
+import { messages } from '@buster/database/schema';
 import { createTestChat, createTestMessage } from '@buster/test-utils';
-import type { ModelMessage, ToolCallOptions } from 'ai';
 import { and, eq, isNull } from 'drizzle-orm';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import type { DoneToolContext, DoneToolInput, DoneToolState } from './done-tool';

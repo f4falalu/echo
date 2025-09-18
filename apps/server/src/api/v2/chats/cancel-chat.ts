@@ -1,7 +1,8 @@
 import { canUserAccessChatCached } from '@buster/access-controls';
-import type { User } from '@buster/database';
-import { and, eq, isNotNull, updateMessageFields } from '@buster/database';
-import { db, messages } from '@buster/database';
+import { and, eq, isNotNull } from '@buster/database/connection';
+import { db } from '@buster/database/connection';
+import { type User, updateMessageFields } from '@buster/database/queries';
+import { messages } from '@buster/database/schema';
 import type {
   ChatMessageReasoningMessage,
   ChatMessageResponseMessage,

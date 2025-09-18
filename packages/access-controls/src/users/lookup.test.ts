@@ -3,7 +3,7 @@ import { AccessControlError } from '../types/errors';
 import { findUserByEmail, findUsersByEmails, searchUsers } from './lookup';
 
 // Mock database functions
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   findUserByEmail: vi.fn(),
   findUsersByEmails: vi.fn(),
   searchUsers: vi.fn(),
@@ -20,7 +20,7 @@ describe('User Lookup Utilities', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
 
-    const db = await import('@buster/database');
+    const db = await import('@buster/database/queries');
     mockDbFindUserByEmail = vi.mocked(db.findUserByEmail);
     mockDbFindUsersByEmails = vi.mocked(db.findUsersByEmails);
     mockDbSearchUsers = vi.mocked(db.searchUsers);

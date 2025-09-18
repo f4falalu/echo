@@ -1,4 +1,5 @@
-import { db, eq, messages } from '@buster/database';
+import { db, eq } from '@buster/database/connection';
+import { messages } from '@buster/database/schema';
 import { createTestChat, createTestMessage } from '@buster/test-utils';
 import { runs, tasks } from '@trigger.dev/sdk';
 import { initLogger, wrapTraced } from 'braintrust';

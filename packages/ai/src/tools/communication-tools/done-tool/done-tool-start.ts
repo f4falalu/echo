@@ -1,4 +1,4 @@
-import { updateChat, updateMessage, updateMessageEntries } from '@buster/database';
+import { updateChat, updateMessage, updateMessageEntries } from '@buster/database/queries';
 import type { ToolCallOptions } from 'ai';
 import type { UpdateMessageEntriesParams } from '../../../../../database/src/queries/messages/update-message-entries';
 import { createRawToolResultEntry } from '../../shared/create-raw-llm-tool-result-entry';

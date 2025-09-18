@@ -1,4 +1,3 @@
-import type { ReportElementsWithIds, ReportElementWithId } from '@buster/server-shared/reports';
 import type { AnyPluginConfig, Value } from 'platejs';
 import { Plate, type TPlateEditor } from 'platejs/react';
 import React, { useEffect, useImperativeHandle, useRef } from 'react';
@@ -15,7 +14,7 @@ import { useReportEditor } from './useReportEditor';
 export interface ReportEditorProps {
   // We accept the generic Value type but recommend using ReportTypes.Value for type safety
   value?: string; //markdown
-  initialElements?: Value | ReportElementWithId[];
+  initialElements?: Value;
   placeholder?: string;
   readOnly?: boolean;
   isStreaming?: boolean; //if true, the editor will be updated with the value prop when it is changed, everything will be readonly
@@ -108,7 +107,7 @@ export const ReportEditor = React.memo(
         editor: TPlateEditor<Value, AnyPluginConfig>;
       }) => {
         if (isReady.current && !readOnly && onValueChange && !isStreaming) {
-          platejsToMarkdown(editor, value as ReportElementsWithIds)
+          platejsToMarkdown(editor, value)
             .then((markdown) => {
               onValueChange(markdown);
             })

@@ -1,4 +1,3 @@
-import type { ReportElements } from '@buster/server-shared/reports';
 import type { Value } from 'platejs';
 import { describe, expect, it } from 'vitest';
 import { markdownToPlatejs, platejsToMarkdown } from './platejs-conversions';
@@ -285,7 +284,7 @@ Here's an unordered list:
 describe('platejsToMarkdown', () => {
   it('should convert platejs to markdown', async () => {
     const markdown = `This is a simple paragraph.\n`;
-    const elements: ReportElements = [
+    const elements: Value = [
       {
         type: 'p',
         children: [
@@ -300,7 +299,7 @@ describe('platejsToMarkdown', () => {
   });
 
   it('should convert callout platejs element to markdown', async () => {
-    const elements: ReportElements = [
+    const elements: Value = [
       {
         type: 'h1',
         children: [
@@ -331,7 +330,7 @@ describe('platejsToMarkdown', () => {
   });
 
   it('should convert callout platejs element to markdown', async () => {
-    const elements: ReportElements = [
+    const elements: Value = [
       {
         type: 'callout',
         icon: '⚠️',
@@ -356,7 +355,7 @@ describe('platejsToMarkdown', () => {
   });
 
   it('should convert callout platejs element to markdown', async () => {
-    const elements: ReportElements = [
+    const elements: Value = [
       {
         children: [
           {
@@ -750,7 +749,7 @@ describe('platejsToMarkdown', () => {
   });
 
   it('should convert real world example 2', async () => {
-    const elements: ReportElements = [
+    const elements: Value = [
       {
         children: [
           {
@@ -1300,7 +1299,7 @@ describe('platejsToMarkdown', () => {
   });
 
   it('basic caption', async () => {
-    const elements: ReportElements = [
+    const elements: Value = [
       {
         type: 'img',
         children: [
@@ -1325,7 +1324,7 @@ describe('platejsToMarkdown', () => {
   });
 
   it('basic metric caption', async () => {
-    const elements: ReportElements = [
+    const elements: Value = [
       {
         type: 'metric',
         children: [
@@ -1351,22 +1350,18 @@ describe('platejsToMarkdown', () => {
 });
 
 describe('platejs to markdown and back to platejs', () => {
-  const stripIds = (els: ReportElements | Value): ReportElements =>
-    JSON.parse(
-      JSON.stringify(els, (key, value) => (key === 'id' ? undefined : value))
-    ) as ReportElements;
+  const stripIds = (els: Value | Value): Value =>
+    JSON.parse(JSON.stringify(els, (key, value) => (key === 'id' ? undefined : value))) as Value;
 
   it('should convert a simple list', async () => {
-    const elements: ReportElements = [
-      { id: 'id-0', type: 'h1', children: [{ text: 'Hello World' }] },
-    ];
+    const elements: Value = [{ id: 'id-0', type: 'h1', children: [{ text: 'Hello World' }] }];
     const markdown = await platejsToMarkdown(editor, elements);
     const elementsFromMarkdown = await markdownToPlatejs(editor, markdown);
     expect(elementsFromMarkdown).toEqual(elements);
   });
 
   it('should convert a simply report', async () => {
-    const elements: ReportElements = [
+    const elements: Value = [
       {
         type: 'h1',
         children: [
@@ -1424,7 +1419,7 @@ describe('platejs to markdown and back to platejs', () => {
   });
 
   it('should conver a list', async () => {
-    const elements: ReportElements = [
+    const elements: Value = [
       {
         type: 'p',
         children: [

@@ -1,4 +1,4 @@
-import { updateMessageEntries } from '@buster/database';
+import { updateMessageEntries } from '@buster/database/queries';
 import { wrapTraced } from 'braintrust';
 import { createRawToolResultEntry } from '../../shared/create-raw-llm-tool-result-entry';
 import { createMessageUserClarifyingQuestionRawLlmMessageEntry } from './helpers/message-user-clarifying-question-transform-helper';

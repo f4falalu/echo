@@ -1,9 +1,8 @@
 import {
-  type GetPermissionedDatasetsParams,
   getPermissionedDatasets as getDbPermissionedDatasets,
   hasAllDatasetsAccess as hasDbAllDatasetsAccess,
   hasDatasetAccess as hasDbDatasetAccess,
-} from '@buster/database';
+} from '@buster/database/queries';
 import type { DatasetAccessPath, PermissionedDataset } from '../types/dataset-permissions';
 import { AccessControlError } from '../types/errors';
 import {

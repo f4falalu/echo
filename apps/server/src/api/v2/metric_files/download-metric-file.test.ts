@@ -1,5 +1,5 @@
 import { checkPermission } from '@buster/access-controls';
-import { getUserOrganizationId } from '@buster/database';
+import { getUserOrganizationId } from '@buster/database/queries';
 import { tasks } from '@trigger.dev/sdk';
 import { HTTPException } from 'hono/http-exception';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -7,7 +7,9 @@ import { downloadMetricFileHandler } from './download-metric-file';
 
 // Mock all external dependencies
 vi.mock('@buster/access-controls');
-vi.mock('@buster/database');
+vi.mock('@buster/database/queries');
+vi.mock('@buster/database/schema');
+vi.mock('@buster/database/connection');
 vi.mock('@trigger.dev/sdk', () => ({
   tasks: {
     trigger: vi.fn(),

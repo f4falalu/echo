@@ -1,4 +1,4 @@
-import { ReasoningMessageSchema, ResponseMessageSchema } from '@buster/database';
+import { ReasoningMessageSchema, ResponseMessageSchema } from '@buster/database/schema-types';
 import { describe, expect, it } from 'vitest';
 import { ChatMessageSchema } from './chat-message.types';
 

@@ -1,10 +1,11 @@
-import type { AssetType, User } from '@buster/database';
 import {
   checkChatsContainingAsset,
   checkCollectionsContainingAsset,
   checkDashboardsContainingMetric,
   checkReportsContainingMetric,
-} from '@buster/database';
+} from '@buster/database/queries';
+import type { User } from '@buster/database/queries';
+import type { AssetType } from '@buster/database/schema-types';
 import type { AssetPermissionRole, WorkspaceSharing } from '../types/asset-permissions';
 import { AccessControlError } from '../types/errors';
 import { getCachedCascadingPermission, setCachedCascadingPermission } from './cache';

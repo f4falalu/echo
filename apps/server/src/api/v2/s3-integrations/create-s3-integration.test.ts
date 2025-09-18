@@ -1,13 +1,16 @@
 import { testStorageCredentials } from '@buster/data-source';
-import type { User } from '@buster/database';
-import { createS3Integration, createSecret, getUserOrganizationId } from '@buster/database';
+import type { User } from '@buster/database/queries';
+import { createS3Integration, getUserOrganizationId } from '@buster/database/queries';
+import { createSecret } from '@buster/database/queries';
 import type { CreateS3IntegrationRequest } from '@buster/server-shared';
 import { tasks } from '@trigger.dev/sdk/v3';
 import { HTTPException } from 'hono/http-exception';
 import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createS3IntegrationHandler } from './create-s3-integration';
 
-vi.mock('@buster/database');
+vi.mock('@buster/database/queries');
+vi.mock('@buster/database/schema');
+vi.mock('@buster/database/connection');
 vi.mock('@buster/data-source');
 vi.mock('@trigger.dev/sdk/v3', () => ({
   tasks: {

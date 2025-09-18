@@ -2,7 +2,7 @@ import type { ModelMessage } from 'ai';
 import type {
   ChatMessageReasoningMessage,
   ChatMessageResponseMessage,
-} from '../../../schemas/message-schemas';
+} from '../../../schema-types/message-schemas';
 
 /**
  * Merges response messages by 'id' field, preserving order

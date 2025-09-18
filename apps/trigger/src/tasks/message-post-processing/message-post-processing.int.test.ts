@@ -1,11 +1,6 @@
-import { eq, getDb, messages } from '@buster/database';
-import {
-  cleanupTestChats,
-  cleanupTestMessages,
-  createTestChat,
-  createTestMessage,
-  createTestUser,
-} from '@buster/test-utils';
+import { eq, getDb } from '@buster/database/connection';
+import { messages } from '@buster/database/schema';
+import { cleanupTestChats, createTestChat, createTestMessage } from '@buster/test-utils';
 import { runs, tasks } from '@trigger.dev/sdk';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { messagePostProcessingTask } from './message-post-processing';

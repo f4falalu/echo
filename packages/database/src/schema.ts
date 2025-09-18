@@ -20,114 +20,96 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core';
 import {
+  AssetPermissionRoleSchema,
   AssetTypeSchema,
+  DataSourceOnboardingStatusSchema,
+  DatasetTypeSchema,
+  DocsTypeSchema,
+  GithubIntegrationStatusSchema,
+  IdentityTypeSchema,
+  MessageAnalysisModeSchema,
+  MessageFeedbackSchema,
+  type MessageMetadata,
   type OrganizationColorPalettes,
+  SharingSettingSchema,
+  SlackChatAuthorizationSchema,
+  SlackIntegrationStatusSchema,
+  SlackSharingPermissionSchema,
+  StorageProviderSchema,
+  StoredValuesStatusSchema,
+  TableTypeSchema,
+  TeamRoleSchema,
+  UserOrganizationRoleSchema,
+  UserOrganizationStatusSchema,
   type UserPersonalizationConfigType,
   type UserShortcutTrackingType,
   type UserSuggestedPromptsType,
+  VerificationSchema,
+  WorkspaceSharingSchema,
 } from './schema-types';
 import { DEFAULT_USER_SUGGESTED_PROMPTS } from './schema-types/user';
-import type { MessageMetadata } from './schemas/message-schemas';
 
-export const assetPermissionRoleEnum = pgEnum('asset_permission_role_enum', [
-  'owner',
-  'viewer',
-  'full_access',
-  'can_edit',
-  'can_filter',
-  'can_view',
-]);
+export const assetPermissionRoleEnum = pgEnum(
+  'asset_permission_role_enum',
+  AssetPermissionRoleSchema.options
+);
 export const assetTypeEnum = pgEnum('asset_type_enum', AssetTypeSchema.options);
 // Asset type enum removed - now using text for all asset_type columns
-export const dataSourceOnboardingStatusEnum = pgEnum('data_source_onboarding_status_enum', [
-  'notStarted',
-  'inProgress',
-  'completed',
-  'failed',
-]);
-export const datasetTypeEnum = pgEnum('dataset_type_enum', ['table', 'view', 'materializedView']);
-export const identityTypeEnum = pgEnum('identity_type_enum', ['user', 'team', 'organization']);
-export const messageFeedbackEnum = pgEnum('message_feedback_enum', ['positive', 'negative']);
-export const sharingSettingEnum = pgEnum('sharing_setting_enum', [
-  'none',
-  'team',
-  'organization',
-  'public',
-]);
-export const storedValuesStatusEnum = pgEnum('stored_values_status_enum', [
-  'syncing',
-  'success',
-  'failed',
-]);
-export const teamRoleEnum = pgEnum('team_role_enum', ['manager', 'member']);
-export const userOrganizationRoleEnum = pgEnum('user_organization_role_enum', [
-  'workspace_admin',
-  'data_admin',
-  'querier',
-  'restricted_querier',
-  'viewer',
-]);
-export const userOrganizationStatusEnum = pgEnum('user_organization_status_enum', [
-  'active',
-  'inactive',
-  'pending',
-  'guest',
-]);
-export const verificationEnum = pgEnum('verification_enum', [
-  'verified',
-  'backlogged',
-  'inReview',
-  'requested',
-  'notRequested',
-]);
-export const storageProviderEnum = pgEnum('storage_provider_enum', ['s3', 'r2', 'gcs']);
-export const tableTypeEnum = pgEnum('table_type_enum', [
-  'TABLE',
-  'VIEW',
-  'MATERIALIZED_VIEW',
-  'EXTERNAL_TABLE',
-  'TEMPORARY_TABLE',
-]);
-export const slackIntegrationStatusEnum = pgEnum('slack_integration_status_enum', [
-  'pending',
-  'active',
-  'failed',
-  'revoked',
-]);
+export const dataSourceOnboardingStatusEnum = pgEnum(
+  'data_source_onboarding_status_enum',
+  DataSourceOnboardingStatusSchema.options
+);
+export const datasetTypeEnum = pgEnum('dataset_type_enum', DatasetTypeSchema.options);
+export const identityTypeEnum = pgEnum('identity_type_enum', IdentityTypeSchema.options);
+export const messageFeedbackEnum = pgEnum('message_feedback_enum', MessageFeedbackSchema.options);
+export const sharingSettingEnum = pgEnum('sharing_setting_enum', SharingSettingSchema.options);
+export const storedValuesStatusEnum = pgEnum(
+  'stored_values_status_enum',
+  StoredValuesStatusSchema.options
+);
+export const teamRoleEnum = pgEnum('team_role_enum', TeamRoleSchema.options);
+export const userOrganizationRoleEnum = pgEnum(
+  'user_organization_role_enum',
+  UserOrganizationRoleSchema.options
+);
+export const userOrganizationStatusEnum = pgEnum(
+  'user_organization_status_enum',
+  UserOrganizationStatusSchema.options
+);
+export const verificationEnum = pgEnum('verification_enum', VerificationSchema.options);
+export const storageProviderEnum = pgEnum('storage_provider_enum', StorageProviderSchema.options);
+export const tableTypeEnum = pgEnum('table_type_enum', TableTypeSchema.options);
+export const slackIntegrationStatusEnum = pgEnum(
+  'slack_integration_status_enum',
+  SlackIntegrationStatusSchema.options
+);
 
-export const slackChatAuthorizationEnum = pgEnum('slack_chat_authorization_enum', [
-  'unauthorized',
-  'authorized',
-  'auto_added',
-]);
+export const slackChatAuthorizationEnum = pgEnum(
+  'slack_chat_authorization_enum',
+  SlackChatAuthorizationSchema.options
+);
 
-export const slackSharingPermissionEnum = pgEnum('slack_sharing_permission_enum', [
-  'shareWithWorkspace',
-  'shareWithChannel',
-  'noSharing',
-]);
+export const slackSharingPermissionEnum = pgEnum(
+  'slack_sharing_permission_enum',
+  SlackSharingPermissionSchema.options
+);
 
-export const githubIntegrationStatusEnum = pgEnum('github_integration_status_enum', [
-  'pending',
-  'active',
-  'suspended',
-  'revoked',
-]);
+export const githubIntegrationStatusEnum = pgEnum(
+  'github_integration_status_enum',
+  GithubIntegrationStatusSchema.options
+);
 
-export const workspaceSharingEnum = pgEnum('workspace_sharing_enum', [
-  'none',
-  'can_view',
-  'can_edit',
-  'full_access',
-]);
+export const workspaceSharingEnum = pgEnum(
+  'workspace_sharing_enum',
+  WorkspaceSharingSchema.options
+);
 
-export const docsTypeEnum = pgEnum('docs_type_enum', ['analyst', 'normal']);
+export const docsTypeEnum = pgEnum('docs_type_enum', DocsTypeSchema.options);
 
-export const messageAnalysisModeEnum = pgEnum('message_analysis_mode_enum', [
-  'auto',
-  'standard',
-  'investigation',
-]);
+export const messageAnalysisModeEnum = pgEnum(
+  'message_analysis_mode_enum',
+  MessageAnalysisModeSchema.options
+);
 
 export const apiKeys = pgTable(
   'api_keys',

@@ -1,13 +1,9 @@
-import {
-  type User,
-  db,
-  slackIntegrations,
-  type slackSharingPermissionEnum,
-  users,
-} from '@buster/database';
+import { db } from '@buster/database/connection';
+import type { User } from '@buster/database/queries';
+import { slackIntegrations, users } from '@buster/database/schema';
+import type { SlackSharingPermission } from '@buster/database/schema-types';
 import type { InferSelectModel } from 'drizzle-orm';
 import { and, eq, gt, isNull, lt } from 'drizzle-orm';
-import type { z } from 'zod';
 import { tokenStorage } from './token-storage';
 
 export type SlackIntegration = InferSelectModel<typeof slackIntegrations>;
@@ -446,7 +442,7 @@ export async function updateDefaultChannel(
  */
 export async function updateDefaultSharingPermissions(
   integrationId: string,
-  defaultSharingPermissions: (typeof slackSharingPermissionEnum.enumValues)[number]
+  defaultSharingPermissions: SlackSharingPermission
 ): Promise<void> {
   try {
     await db

@@ -1,4 +1,6 @@
-import { batchUpdateReport, db, reportFiles, updateMessageEntries } from '@buster/database';
+import { db } from '@buster/database/connection';
+import { batchUpdateReport, updateMessageEntries } from '@buster/database/queries';
+import { reportFiles } from '@buster/database/schema';
 import type { ChatMessageResponseMessage } from '@buster/server-shared/chats';
 import type { ToolCallOptions } from 'ai';
 import { and, eq, isNull } from 'drizzle-orm';

@@ -1,4 +1,4 @@
-import { getUserOrganizationId } from '@buster/database';
+import { getUserOrganizationId } from '@buster/database/queries';
 import { SlackError } from '@buster/server-shared/slack';
 import { HTTPException } from 'hono/http-exception';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -18,7 +18,7 @@ vi.mock('./services/slack-oauth-service', () => ({
 }));
 
 // Mock getUserOrganizationId from database
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   getUserOrganizationId: vi.fn(),
 }));
 

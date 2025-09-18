@@ -1,4 +1,4 @@
-import { updateMessageEntries } from '@buster/database';
+import { updateMessageEntries } from '@buster/database/queries';
 import type { ToolCallOptions } from 'ai';
 import { createModifyReportsReasoningEntry } from './helpers/modify-reports-transform-helper';
 import type { ModifyReportsContext, ModifyReportsState } from './modify-reports-tool';

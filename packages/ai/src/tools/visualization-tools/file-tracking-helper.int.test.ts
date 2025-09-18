@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { dataSources, db, eq, messagesToFiles, metricFiles } from '@buster/database';
+import { db, eq } from '@buster/database/connection';
+import { dataSources, messagesToFiles, metricFiles } from '@buster/database/schema';
 import {
   cleanupTestChats,
   cleanupTestEnvironment,

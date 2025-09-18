@@ -9,7 +9,7 @@ import type {
   RespondWithoutAssetCreationState,
 } from './respond-without-asset-creation-tool';
 
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   updateMessageEntries: vi.fn().mockResolvedValue({ success: true }),
   updateMessage: vi.fn().mockResolvedValue({ success: true }),
 }));

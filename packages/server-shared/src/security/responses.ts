@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { OrganizationRoleSchema } from '../organization';
+import { UserOrganizationRoleSchema } from '../organization';
 
 export const GetInviteLinkResponseSchema = z.object({
   link: z.string(),
@@ -20,7 +20,7 @@ export const RemoveApprovedDomainsResponseSchema = GetApprovedDomainsResponseSch
 
 export const GetWorkspaceSettingsResponseSchema = z.object({
   restrict_new_user_invitations: z.boolean(),
-  default_role: OrganizationRoleSchema,
+  default_role: UserOrganizationRoleSchema,
   default_datasets: z.array(
     z.object({
       id: z.string(),

@@ -67,8 +67,6 @@ export const CancelChatParamsSchema = z.object({
   chat_id: z.string().uuid(),
 });
 
-// Infer types from schemas
-export type AssetPermissionRole = z.infer<typeof AssetPermissionRoleSchema>;
 export type ChatWithMessages = z.infer<typeof ChatWithMessagesSchema>;
 export type ChatCreateRequest = z.infer<typeof ChatCreateRequestSchema>;
 export type ChatCreateHandlerRequest = z.infer<typeof ChatCreateHandlerRequestSchema>;

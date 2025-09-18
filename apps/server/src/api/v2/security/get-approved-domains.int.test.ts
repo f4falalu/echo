@@ -1,6 +1,8 @@
-import { db, eq, organizations } from '@buster/database';
-import type { User } from '@buster/database';
-import type { Organization, OrganizationRole } from '@buster/server-shared/organization';
+import type { UserOrganizationRole } from '@buster/access-controls';
+import { db, eq } from '@buster/database/connection';
+import type { User } from '@buster/database/queries';
+import { organizations } from '@buster/database/schema';
+import type { Organization } from '@buster/server-shared/organization';
 import { HTTPException } from 'hono/http-exception';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { getApprovedDomainsHandler } from './get-approved-domains';
@@ -69,7 +71,7 @@ describe('getApprovedDomainsHandler (integration)', () => {
     });
 
     it('should work for users with different roles', async () => {
-      const roles: OrganizationRole[] = ['querier', 'data_admin', 'workspace_admin'];
+      const roles: UserOrganizationRole[] = ['querier', 'data_admin', 'workspace_admin'];
 
       for (const role of roles) {
         let roleUser: User | undefined;

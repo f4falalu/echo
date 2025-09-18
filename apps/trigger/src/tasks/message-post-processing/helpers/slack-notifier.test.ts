@@ -11,7 +11,7 @@ vi.mock('@buster/slack', () => ({
 }));
 
 // Mock the database
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/connection', () => ({
   getDb: vi.fn(() => ({
     select: vi.fn(() => ({
       from: vi.fn(() => ({
@@ -26,10 +26,16 @@ vi.mock('@buster/database', () => ({
     })),
     transaction: vi.fn(),
   })),
-  getSecretByName: vi.fn(() => Promise.resolve({ secret: 'xoxb-test-token' })),
   eq: vi.fn(),
   and: vi.fn(),
   isNull: vi.fn(),
+}));
+
+vi.mock('@buster/database/queries', () => ({
+  getSecretByName: vi.fn(() => Promise.resolve({ secret: 'xoxb-test-token' })),
+}));
+
+vi.mock('@buster/database/schema', () => ({
   messages: {},
   messagesToSlackMessages: {},
   slackIntegrations: {},

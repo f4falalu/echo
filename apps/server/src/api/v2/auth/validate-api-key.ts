@@ -1,4 +1,4 @@
-import { validateApiKey } from '@buster/database';
+import { validateApiKey } from '@buster/database/queries';
 import type { ValidateApiKeyRequest, ValidateApiKeyResponse } from '@buster/server-shared';
 
 /**

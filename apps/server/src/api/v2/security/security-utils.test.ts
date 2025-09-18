@@ -12,8 +12,7 @@ import {
 import { createTestOrganization } from './test-fixtures';
 
 // Mock dependencies
-vi.mock('@buster/database', () => ({
-  getUserOrganizationId: vi.fn(),
+vi.mock('@buster/database/connection', () => ({
   db: {
     select: vi.fn(),
     from: vi.fn(),
@@ -23,16 +22,25 @@ vi.mock('@buster/database', () => ({
     update: vi.fn(),
     transaction: vi.fn(),
   },
-  organizations: {},
-  datasets: {},
-  datasetsToPermissionGroups: {},
-  permissionGroups: {},
+  getUserOrganizationId: vi.fn(),
   eq: vi.fn(),
   and: vi.fn(),
   isNull: vi.fn(),
 }));
 
-import { and, db, eq, getUserOrganizationId, isNull } from '@buster/database';
+vi.mock('@buster/database/queries', () => ({
+  getUserOrganizationId: vi.fn(),
+}));
+
+vi.mock('@buster/database/schema', () => ({
+  organizations: {},
+  datasets: {},
+  datasetsToPermissionGroups: {},
+  permissionGroups: {},
+}));
+
+import { and, db, eq, isNull } from '@buster/database/connection';
+import { getUserOrganizationId } from '@buster/database/queries';
 
 describe('security-utils', () => {
   beforeEach(() => {

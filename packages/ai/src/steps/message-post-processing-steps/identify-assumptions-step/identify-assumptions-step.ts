@@ -1,5 +1,5 @@
 import type { PermissionedDataset } from '@buster/access-controls';
-import { UserPersonalizationConfigSchema } from '@buster/database';
+import { UserPersonalizationConfigSchema } from '@buster/database/schema-types';
 import { generateObject } from 'ai';
 import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';

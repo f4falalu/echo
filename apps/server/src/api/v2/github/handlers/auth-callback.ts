@@ -1,4 +1,4 @@
-import { getUserOrganizationId } from '@buster/database';
+import { getUserOrganizationId } from '@buster/database/queries';
 import { handleInstallationCallback } from '../services/handle-installation-callback';
 import { retrieveInstallationState } from '../services/installation-state';
 

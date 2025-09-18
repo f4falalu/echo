@@ -1,4 +1,4 @@
-import type { User } from '@buster/database';
+import type { User } from '@buster/database/queries';
 import type { GetS3IntegrationResponse } from '@buster/server-shared';
 import { Hono } from 'hono';
 import { getS3IntegrationHandler } from './get-s3-integration';
