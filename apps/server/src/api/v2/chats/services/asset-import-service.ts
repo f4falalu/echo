@@ -6,7 +6,6 @@ import {
   createMessage,
   createMessageFileAssociation,
   db,
-  getAssetDetailsById,
 } from '@buster/database';
 import type {
   ChatAssetType,

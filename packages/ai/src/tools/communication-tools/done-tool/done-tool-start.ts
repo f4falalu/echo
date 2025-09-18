@@ -94,10 +94,7 @@ export function createDoneToolStart(context: DoneToolContext, doneToolState: Don
           try {
             await updateChat(context.chatId, {
               mostRecentFileId: mostRecentFile.id,
-              mostRecentFileType: mostRecentFile.fileType as
-                | 'metric_file'
-                | 'dashboard_file'
-                | 'report_file',
+              mostRecentFileType: mostRecentFile.fileType,
               mostRecentVersionNumber: mostRecentFile.versionNumber || 1,
             });
           } catch (error) {
