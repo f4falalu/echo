@@ -16,14 +16,13 @@ const useMetricAssetContext = () => {
   const toggleEditMode = useMemoizedFn(
     async (v?: boolean, params?: { metricId?: string; metricVersionNumber?: number }) => {
       const isChartPage = pathname.includes('/chart');
-      const searchParams = { metric_version_number: params?.metricVersionNumber };
 
       if (!isChartPage) {
         await navigate({
           unsafeRelative: 'path',
           to: '../chart' as '/app/metrics/$metricId/chart',
           params: (prev) => ({ ...prev, metricId, ...params }),
-          search: (prev) => ({ ...prev, ...searchParams }),
+          search: (prev) => ({ ...prev }),
         });
       }
 
@@ -41,15 +40,15 @@ const useMetricAssetContext = () => {
           unsafeRelative: 'path',
           to: '../chart' as '/app/metrics/$metricId/chart',
           params: (prev) => ({ ...prev, metricId, ...params }),
-          search: (prev) => ({ ...prev, ...searchParams }),
+          search: (prev) => ({ ...prev }),
         });
       } else {
         splitterRef.current?.animateWidth('300px', 'right', 300);
         await navigate({
           unsafeRelative: 'path',
           to: '../chart' as '/app/metrics/$metricId/chart',
-          params: (prev) => ({ ...prev, metricId, ...params }),
-          search: (prev) => ({ ...prev, ...searchParams }),
+          params: (prev) => ({ ...prev, ...params, metricId }),
+          search: (prev) => ({ ...prev }),
         });
       }
     }
