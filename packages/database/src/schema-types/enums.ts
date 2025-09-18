@@ -10,13 +10,16 @@ export const AssetTypeSchema = z.enum([
 ]);
 export type AssetType = z.infer<typeof AssetTypeSchema>;
 
-export type AssetPermissionRole =
-  | 'owner'
-  | 'viewer'
-  | 'can_view'
-  | 'can_filter'
-  | 'can_edit'
-  | 'full_access';
+export const AssetPermissionRoleSchema = z.enum([
+  'owner',
+  'viewer',
+  'can_view',
+  'can_filter',
+  'can_edit',
+  'full_access',
+]);
+
+export type AssetPermissionRole = z.infer<typeof AssetPermissionRoleSchema>;
 
 export type IdentityType = 'user' | 'team' | 'organization';
 

@@ -16,7 +16,7 @@ const createMockMetric = (overrides?: Partial<BusterMetric>): BusterMetric =>
     file: 'test.yaml',
     // Add other required properties with default values
     // These won't affect the tests for getChangedTopLevelMessageValues
-    type: 'metric',
+    type: 'metric_file',
     version_number: 1,
     description: null,
     file_name: 'test.yaml',
@@ -107,7 +107,6 @@ describe('getChangedTopLevelMessageValues', () => {
     const newMetric = createMockMetric({
       name: 'Updated Name',
       description: 'Updated description', // Not in tracked properties
-      dataset_name: 'New Dataset', // Not in tracked properties
     });
 
     const result = getChangedTopLevelMessageValues(newMetric, oldMetric);

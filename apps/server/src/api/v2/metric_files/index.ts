@@ -8,12 +8,16 @@ import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { requireAuth } from '../../../middleware/auth';
 import '../../../types/hono.types';
+import metricByIdRoutes from './[id]';
 import { downloadMetricFileHandler } from './download-metric-file';
 import { getMetricDataHandler } from './get-metric-data';
 
 const app = new Hono()
   // Apply authentication middleware to all routes
   .use('*', requireAuth)
+
+  // GET /metric_files/:id - Get metric details
+  .route('/:id', metricByIdRoutes)
 
   // GET /metric_files/:id/data - Get metric data with pagination
   .get(

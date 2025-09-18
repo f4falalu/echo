@@ -6,15 +6,13 @@ describe('MetricSchema', () => {
   it('should parse a valid metric with all required fields', () => {
     const validMetric = {
       id: 'metric-123',
-      type: 'metric',
+      type: 'metric_file',
       name: 'Revenue Analysis',
       version_number: 1,
       description: 'Monthly revenue breakdown',
       file_name: 'revenue_analysis.yaml',
       time_frame: 'monthly',
-      dataset_id: 'dataset-456',
       data_source_id: 'source-789',
-      dataset_name: 'Sales Data',
       error: null,
       data_metadata: {
         row_count: 1000,
@@ -63,7 +61,7 @@ describe('MetricSchema', () => {
 
     if (result.success) {
       expect(result.data.id).toBe('metric-123');
-      expect(result.data.type).toBe('metric');
+      expect(result.data.type).toBe('metric_file');
       expect(result.data.name).toBe('Revenue Analysis');
     }
   });
@@ -71,7 +69,7 @@ describe('MetricSchema', () => {
   it('should apply default chart_config when not provided', () => {
     const metricWithoutChartConfig = {
       id: 'metric-123',
-      type: 'metric',
+      type: 'metric_file',
       name: 'Test Metric',
       version_number: 1,
       description: null,
@@ -151,7 +149,7 @@ describe('MetricSchema', () => {
 
     const metricWithCustomConfig = {
       id: 'metric-123',
-      type: 'metric',
+      type: 'metric_file',
       name: 'Custom Chart Metric',
       version_number: 1,
       description: null,
@@ -236,7 +234,7 @@ describe('MetricSchema', () => {
 
     const metricWithPartialConfig = {
       id: 'metric-456',
-      type: 'metric',
+      type: 'metric_file',
       name: 'Partial Config Metric',
       version_number: 2,
       description: 'Testing partial config',
@@ -323,7 +321,7 @@ describe('MetricSchema', () => {
   it('should handle nullable fields correctly', () => {
     const metricWithNulls = {
       id: 'metric-null',
-      type: 'metric',
+      type: 'metric_file',
       name: 'Null Fields Metric',
       version_number: 1,
       description: null, // nullable
@@ -366,7 +364,6 @@ describe('MetricSchema', () => {
 
     if (result.success) {
       expect(result.data.description).toBeNull();
-      expect(result.data.dataset_name).toBeNull();
       expect(result.data.error).toBeNull();
       expect(result.data.sent_by_avatar_url).toBeNull();
       expect(result.data.sql).toBeNull();
