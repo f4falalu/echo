@@ -379,7 +379,7 @@ export const useShareMenuSelectMenu = ({ metricId }: { metricId: string }) => {
                 key={metricId}
                 shareAssetConfig={shareAssetConfig}
                 assetId={metricId}
-                assetType={'metric'}
+                assetType={'metric_file'}
               />,
             ]
           : undefined,

@@ -21,7 +21,7 @@ export const useIsMetricReadOnly = ({
   metricId: string;
   readOnly?: boolean;
 }) => {
-  const isVersionHistoryMode = useChatIsVersionHistoryMode({ type: 'metric' });
+  const isVersionHistoryMode = useChatIsVersionHistoryMode({ type: 'metric_file' });
   const { metricVersionNumber } = useGetMetricParams();
   const {
     data: metricData,

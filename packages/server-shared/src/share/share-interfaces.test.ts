@@ -40,7 +40,7 @@ describe('ShareRoleSchema', () => {
 
 describe('ShareAssetTypeSchema', () => {
   it('should accept valid asset type values', () => {
-    const validTypes = ['metric', 'dashboard', 'collection', 'chat'];
+    const validTypes = ['metric_file', 'dashboard_file', 'report_file', 'collection', 'chat'];
 
     for (const type of validTypes) {
       const result = ShareAssetTypeSchema.safeParse(type);

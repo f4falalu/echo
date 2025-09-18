@@ -34,7 +34,10 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
   const showReasoningController = !!hasChat && !!reasoningMessageIds?.length;
 
   const nodeRef = useRef<HTMLDivElement | null>(null);
-  const scrollAreaRef = useGetScrollAreaRef({ nodeRef, enabled: showReasoningController });
+  const { scrollAreaRef, foundScrollArea } = useGetScrollAreaRef({
+    nodeRef,
+    enabled: showReasoningController,
+  });
 
   const { isAutoScrollEnabled, isMountedAutoScrollObserver, scrollToBottom, enableAutoScroll } =
     useAutoScroll(scrollAreaRef, {
@@ -43,10 +46,10 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
     });
 
   useEffect(() => {
-    if (showReasoningController) {
+    if (showReasoningController && foundScrollArea) {
       enableAutoScroll();
     }
-  }, [showReasoningController]);
+  }, [showReasoningController, foundScrollArea]);
 
   return (
     <>

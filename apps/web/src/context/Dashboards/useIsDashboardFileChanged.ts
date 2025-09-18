@@ -18,7 +18,7 @@ export const useIsDashboardFileChanged = ({
     isFileChanged,
     onResetToOriginal: onResetToOriginal,
     enableBlocker: isFileChanged && enabled,
-    assetType: 'dashboard',
+    assetType: 'dashboard_file',
   });
 
   return useMemo(() => ({ isFileChanged, onResetToOriginal }), [isFileChanged, onResetToOriginal]);

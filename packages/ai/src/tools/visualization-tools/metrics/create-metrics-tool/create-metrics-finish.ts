@@ -24,7 +24,7 @@ export function createCreateMetricsFinish(
         return {
           id: existingFile?.id || randomUUID(),
           file_name: file.name,
-          file_type: 'metric',
+          file_type: 'metric_file',
           version_number: existingFile?.version_number || 1,
           file: {
             text: file.yml_content,

@@ -27,7 +27,7 @@ const columns: BusterListColumn<BusterDashboardListItem>[] = [
           <Text truncate>{name}</Text>
           <FavoriteStar
             id={id}
-            type={'dashboard'}
+            type={'dashboard_file'}
             iconStyle="tertiary"
             title={name}
             className="opacity-0 group-hover:opacity-100"

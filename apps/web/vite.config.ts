@@ -31,9 +31,7 @@ const config = defineConfig(({ command, mode }) => {
           })
         : undefined,
     ],
-    worker: {
-      format: 'es',
-    },
+    worker: { format: 'es' },
     build: {
       chunkSizeWarningLimit: 1250,
       minify: isProduction ? 'esbuild' : false,

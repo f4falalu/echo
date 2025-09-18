@@ -40,13 +40,13 @@ export const useGetAssetPasswordConfig = (
   const chosenVersionNumber = versionNumber || 'LATEST';
 
   const selectedQuery = useMemo(() => {
-    if (type === 'metric') {
+    if (type === 'metric_file') {
       return metricsQueryKeys.metricsGetMetric(assetId, chosenVersionNumber);
     }
-    if (type === 'dashboard') {
+    if (type === 'dashboard_file') {
       return dashboardQueryKeys.dashboardGetDashboard(assetId, chosenVersionNumber);
     }
-    if (type === 'report') {
+    if (type === 'report_file') {
       return reportsQueryKeys.reportsGetReport(assetId, chosenVersionNumber);
     }
     if (type === 'collection') {

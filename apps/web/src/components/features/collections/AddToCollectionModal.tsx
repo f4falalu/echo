@@ -6,7 +6,7 @@ import {
   useGetCollection,
 } from '@/api/buster_rest/collections';
 import { useSearch } from '@/api/buster_rest/search';
-import { ASSET_ICONS } from '@/components/features/icons/assetIcons';
+import { ASSET_ICONS, assetTypeToIcon } from '@/components/features/icons/assetIcons';
 import { Button } from '@/components/ui/buttons';
 import type { BusterListRowItem } from '@/components/ui/list/BusterList';
 import {
@@ -17,6 +17,8 @@ import { Text } from '@/components/ui/typography';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { formatDate } from '@/lib/date';
+
+type SelectedAsset = { id: string; type: ShareAssetType };
 
 export const AddToCollectionModal: React.FC<{
   open: boolean;
@@ -31,11 +33,14 @@ export const AddToCollectionModal: React.FC<{
 
   const { data: searchResults } = useSearch({
     query: debouncedSearchTerm,
-    asset_types: ['metric', 'dashboard'],
+    asset_types: ['metric_file', 'dashboard_file'],
     num_results: 100,
   });
 
-  const [selectedAssets, setSelectedAssets] = useState<string[]>([]);
+  const [selectedAssets, setSelectedAssets] = useState<SelectedAsset[]>([]);
+  const selectedAssetIds = useMemo(() => {
+    return selectedAssets.map((asset) => asset.id);
+  }, [selectedAssets]);
 
   const columns = useMemo<InputSelectModalProps<BusterSearchResult>['columns']>(
     () => [
@@ -43,7 +48,7 @@ export const AddToCollectionModal: React.FC<{
         title: 'Name',
         dataIndex: 'name',
         render: (name, data) => {
-          const Icon = data.type === 'metric' ? ASSET_ICONS.metrics : ASSET_ICONS.dashboards;
+          const Icon = assetTypeToIcon(data.type) || ASSET_ICONS.metrics;
           return (
             <div className="flex items-center gap-1.5">
               <span className="text-icon-color">
@@ -78,28 +83,30 @@ export const AddToCollectionModal: React.FC<{
     );
   }, [searchResults]);
 
-  const handleAddAndRemoveMetrics = useMemoizedFn(async () => {
-    const keyedAssets = rows.reduce<
-      Record<string, { type: Exclude<ShareAssetType, 'collection'>; id: string }>
-    >((acc, asset) => {
-      if (asset.data?.type && asset.data?.type !== 'collection') {
-        acc[asset.id] = { type: asset.data?.type, id: asset.id };
-      }
-      return acc;
-    }, {});
+  const createKeySearchResultMap = useMemoizedFn(() => {
+    const map = new Map<string, SelectedAsset>();
+    rows.forEach((asset) => {
+      if (asset.data?.type) map.set(asset.id, { type: asset.data?.type, id: asset.id });
+    });
+    return map;
+  });
 
-    const assets = selectedAssets.map<{
-      type: Exclude<ShareAssetType, 'collection'>;
-      id: string;
-    }>((asset) => ({
-      id: asset,
-      type: keyedAssets[asset].type,
-    }));
+  const handleAddAndRemoveMetrics = useMemoizedFn(async () => {
     await addAndRemoveAssetsFromCollection({
       collectionId,
-      assets,
+      assets: selectedAssets,
     });
     onClose();
+  });
+
+  const handleSelectChange = useMemoizedFn((assets: string[]) => {
+    const selectedAssets: SelectedAsset[] = [];
+    const keySearchResultMap = createKeySearchResultMap();
+    assets.forEach((assetId) => {
+      const asset = keySearchResultMap.get(assetId);
+      if (asset) selectedAssets.push({ id: assetId, type: asset.type });
+    });
+    setSelectedAssets(selectedAssets);
   });
 
   const originalIds = useMemo(() => {
@@ -107,17 +114,17 @@ export const AddToCollectionModal: React.FC<{
   }, [collection?.assets]);
 
   const isSelectedChanged = useMemo(() => {
-    const newIds = selectedAssets;
+    const newIds = selectedAssetIds;
     return originalIds.length !== newIds.length || originalIds.some((id) => !newIds.includes(id));
-  }, [originalIds, selectedAssets]);
+  }, [originalIds, selectedAssetIds]);
 
   const removedAssetCount = useMemo(() => {
-    return originalIds.filter((id) => !selectedAssets.includes(id)).length;
-  }, [originalIds, selectedAssets]);
+    return originalIds.filter((id) => !selectedAssetIds.includes(id)).length;
+  }, [originalIds, selectedAssetIds]);
 
   const addedAssetCount = useMemo(() => {
-    return selectedAssets.filter((id) => !originalIds.includes(id)).length;
-  }, [originalIds, selectedAssets]);
+    return selectedAssetIds.filter((id) => !originalIds.includes(id)).length;
+  }, [originalIds, selectedAssetIds]);
 
   const primaryButtonText = useMemo(() => {
     if (!isFetchedCollection) {
@@ -202,8 +209,11 @@ export const AddToCollectionModal: React.FC<{
 
   useLayoutEffect(() => {
     if (isFetchedCollection) {
-      const assets = collection?.assets?.map((asset) => asset.id) || [];
-      setSelectedAssets(assets);
+      const assets = collection?.assets?.map((asset) => ({
+        id: asset.id,
+        type: asset.asset_type,
+      }));
+      setSelectedAssets(assets || []);
     }
   }, [isFetchedCollection, collection?.assets]);
 
@@ -214,8 +224,8 @@ export const AddToCollectionModal: React.FC<{
       onClose={onClose}
       columns={columns}
       rows={rows}
-      onSelectChange={setSelectedAssets}
-      selectedRowKeys={selectedAssets}
+      onSelectChange={handleSelectChange}
+      selectedRowKeys={selectedAssetIds}
       footer={footer}
       emptyState={emptyState}
       searchText={searchTerm}

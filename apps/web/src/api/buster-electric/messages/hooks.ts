@@ -83,7 +83,8 @@ export const useTrackAndUpdateMessageChanges = (
               const reasoningMessage = iChatMessage.response_messages?.[id];
               return (
                 reasoningMessage &&
-                (reasoningMessage as ChatMessageResponseMessage_File)?.file_type === 'dashboard'
+                (reasoningMessage as ChatMessageResponseMessage_File)?.file_type ===
+                  'dashboard_file'
               );
             });
             if (hasFiles) {
@@ -114,14 +115,14 @@ const useCheckIfWeHaveAFollowupDashboard = (messageId: string) => {
   const method = (message: Partial<BusterChatMessage>) => {
     if (!hasSeenFileByMessageId.current[messageId]) {
       const allFiles = Object.values(message.response_messages || {}).filter(
-        (x) => (x as ChatMessageResponseMessage_File).file_type === 'dashboard'
+        (x) => (x as ChatMessageResponseMessage_File).file_type === 'dashboard_file'
       ) as ChatMessageResponseMessage_File[];
       if (allFiles.length > 0) {
         hasSeenFileByMessageId.current[messageId] = true;
 
         for (const file of allFiles) {
           const fileType = (file as ChatMessageResponseMessage_File).file_type;
-          if (fileType === 'dashboard') {
+          if (fileType === 'dashboard_file') {
             const queryKey = dashboardQueryKeys
               .dashboardGetDashboard(file.id, file.version_number)
               .queryKey.slice(0, 3);
@@ -129,7 +130,7 @@ const useCheckIfWeHaveAFollowupDashboard = (messageId: string) => {
               exact: false,
               queryKey,
             });
-          } else if (fileType === 'metric') {
+          } else if (fileType === 'metric_file') {
             const queryKey = metricsQueryKeys
               .metricsGetMetric(file.id, file.version_number)
               .queryKey.slice(0, 3);
@@ -137,7 +138,7 @@ const useCheckIfWeHaveAFollowupDashboard = (messageId: string) => {
               exact: false,
               queryKey,
             });
-          } else if (fileType === 'report') {
+          } else if (fileType === 'report_file') {
             const queryKey = reportsQueryKeys
               .reportsGetReport(file.id, file.version_number)
               .queryKey.slice(0, 3);

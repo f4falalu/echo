@@ -67,13 +67,13 @@ describe('createModifyMetricsFinish', () => {
     expect(state.files?.[0]).toMatchObject({
       id: 'metric-1',
       yml_content: 'content1',
-      file_type: 'metric',
+      file_type: 'metric_file',
       status: 'loading',
     });
     expect(state.files?.[1]).toMatchObject({
       id: 'metric-2',
       yml_content: 'content2',
-      file_type: 'metric',
+      file_type: 'metric_file',
       status: 'loading',
     });
   });

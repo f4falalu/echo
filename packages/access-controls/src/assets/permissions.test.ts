@@ -101,21 +101,6 @@ describe('Asset Permissions', () => {
       );
     });
 
-    it('should reject deprecated asset types', async () => {
-      await expect(
-        createPermission({
-          assetId: 'asset123',
-          assetType: 'dashboard', // deprecated
-          identityId: 'user123',
-          identityType: 'user',
-          role: 'can_edit',
-          createdBy: 'admin123',
-        })
-      ).rejects.toThrow(AccessControlError);
-
-      expect(mockCreateAssetPermission).not.toHaveBeenCalled();
-    });
-
     it('should handle database errors', async () => {
       mockCreateAssetPermission.mockRejectedValue(new Error('DB Error'));
 

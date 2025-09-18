@@ -44,8 +44,8 @@ export const Breadcrumb = React.memo(
             <BreadcrumbItemSelector
               key={`${item.label ?? 'ellipsis'}-${index}`}
               item={item}
-              isActive={chosenIndex === index}
               isLast={index === lastItemIndex}
+              isActive={chosenIndex === index}
             />
           ))}
         </BreadcrumbList>

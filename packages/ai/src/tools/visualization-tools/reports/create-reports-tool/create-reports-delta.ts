@@ -121,7 +121,7 @@ export function createCreateReportsDelta(context: CreateReportsContext, state: C
               updatedFiles.push({
                 id: reportId,
                 file_name: name,
-                file_type: 'report',
+                file_type: 'report_file',
                 version_number: 1,
                 file: content
                   ? {

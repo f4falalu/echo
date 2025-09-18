@@ -23,7 +23,7 @@ const stableSelect = (v: GetDashboardResponse | GetMetricResponse | GetReportRes
 export const useChatIsVersionHistoryMode = ({
   type,
 }: {
-  type: Extract<AssetType, 'dashboard' | 'report' | 'metric'>;
+  type: Extract<AssetType, 'dashboard_file' | 'report_file' | 'metric_file'>;
 }) => {
   const { metricId, metricVersionNumber } = useGetMetricParams();
   const { dashboardId, dashboardVersionNumber } = useGetDashboardParams();
@@ -31,14 +31,14 @@ export const useChatIsVersionHistoryMode = ({
 
   const query = useMemo(() => {
     switch (type) {
-      case 'dashboard':
+      case 'dashboard_file':
         return dashboardQueryKeys.dashboardGetDashboard(
           dashboardId,
           dashboardVersionNumber || 'LATEST'
         );
-      case 'report':
+      case 'report_file':
         return reportsQueryKeys.reportsGetReport(reportId, reportVersionNumber || 'LATEST');
-      case 'metric':
+      case 'metric_file':
         return metricsQueryKeys.metricsGetMetric(metricId, metricVersionNumber || 'LATEST');
     }
   }, [

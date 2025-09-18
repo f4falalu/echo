@@ -430,7 +430,7 @@ export function createModifyReportsExecute(
               responseMessages.push({
                 id: input.id,
                 type: 'file' as const,
-                file_type: 'report' as const,
+                file_type: 'report_file' as const,
                 file_name: input.name,
                 version_number: versionNumber,
                 filter_version_id: null,

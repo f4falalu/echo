@@ -29,7 +29,7 @@ export function createCreateMetricsReasoningEntry(
     fileIds.push(id);
     filesRecord[id] = {
       id,
-      file_type: 'metric',
+      file_type: 'metric_file',
       file_name: f.file_name,
       version_number: f.version_number,
       status: f.status,
@@ -55,10 +55,10 @@ export function createCreateMetricsReasoningEntry(
   const isComplete = completedFiles + failedFiles === totalFiles && totalFiles > 0;
   if (isComplete) {
     if (failedFiles === 0) {
-      title = `Created ${completedFiles} ${completedFiles === 1 ? 'metric' : 'metrics'}`;
+      title = `Created ${completedFiles} ${completedFiles === 1 ? 'metric_file' : 'metrics'}`;
       status = 'completed';
     } else if (completedFiles === 0) {
-      title = `Failed to create ${failedFiles} ${failedFiles === 1 ? 'metric' : 'metrics'}`;
+      title = `Failed to create ${failedFiles} ${failedFiles === 1 ? 'metric_file' : 'metrics'}`;
       status = 'failed';
     } else {
       title = `Created ${completedFiles} of ${totalFiles} metrics`;

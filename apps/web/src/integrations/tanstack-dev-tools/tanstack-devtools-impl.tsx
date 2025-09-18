@@ -74,18 +74,19 @@ const TanstackDevtoolsImpl: React.FC = React.memo(() => {
 
   return (
     <ClientOnly>
-      <Suspense fallback={null}>
+      <Suspense fallback={<span className="hidden">...</span>}>
         <TanstackDevtools
           config={{
             position: 'bottom-left',
             hideUntilHover: true,
             defaultOpen: false,
+            openHotkey: ['Shift', 'D', 'T'],
           }}
           plugins={[
             {
               name: 'Tanstack Query',
               render: (
-                <Suspense fallback={null}>
+                <Suspense fallback={<span className="hidden">...</span>}>
                   <ReactQueryDevtoolsPanel />
                 </Suspense>
               ),
@@ -93,7 +94,7 @@ const TanstackDevtoolsImpl: React.FC = React.memo(() => {
             {
               name: 'Tanstack Router',
               render: (
-                <Suspense fallback={null}>
+                <Suspense fallback={<span className="hidden">...</span>}>
                   <LazyTanStackRouterDevtoolsPanel />
                 </Suspense>
               ),
@@ -101,7 +102,7 @@ const TanstackDevtoolsImpl: React.FC = React.memo(() => {
             {
               name: 'Metric Original Store',
               render: (
-                <Suspense fallback={null}>
+                <Suspense fallback={<span className="hidden">...</span>}>
                   <LazyMetricStoreDevtools />
                 </Suspense>
               ),

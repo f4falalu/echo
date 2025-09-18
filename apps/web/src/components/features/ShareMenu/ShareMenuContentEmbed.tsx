@@ -20,7 +20,7 @@ export const ShareMenuContentEmbed: React.FC<ShareMenuContentBodyProps> = React.
     const { openSuccessMessage } = useBusterNotifications();
 
     const embedURL = useMemo(() => {
-      if (assetType === 'metric') {
+      if (assetType === 'metric_file') {
         return createFullURL(
           buildLocation({
             to: '/embed/metric/$metricId',
@@ -31,7 +31,7 @@ export const ShareMenuContentEmbed: React.FC<ShareMenuContentBodyProps> = React.
         );
       }
 
-      if (assetType === 'dashboard') {
+      if (assetType === 'dashboard_file') {
         return createFullURL(
           buildLocation({
             to: '/embed/dashboard/$dashboardId',
@@ -42,7 +42,7 @@ export const ShareMenuContentEmbed: React.FC<ShareMenuContentBodyProps> = React.
         );
       }
 
-      if (assetType === 'report') {
+      if (assetType === 'report_file') {
         return createFullURL(
           buildLocation({
             to: '/embed/report/$reportId',
@@ -107,9 +107,9 @@ export const ShareMenuContentEmbedFooter = ({
         publicly_accessible: true,
       },
     };
-    if (assetType === 'metric') {
+    if (assetType === 'metric_file') {
       await onShareMetric(payload);
-    } else if (assetType === 'dashboard') {
+    } else if (assetType === 'dashboard_file') {
       await onShareDashboard(payload);
     } else if (assetType === 'collection') {
       await onShareCollection(payload);

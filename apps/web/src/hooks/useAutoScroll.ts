@@ -249,7 +249,7 @@ export const useAutoScroll = (
   // Listen for scroll events. If the user scrolls back close to the bottom, re-enable auto–scroll.
   useEffect(() => {
     const container = containerRef?.current;
-    if (!container) return;
+    if (!container || !enabled) return;
 
     const onScroll = () => {
       if (isAtBottom(container, bottomThreshold)) {
@@ -261,7 +261,7 @@ export const useAutoScroll = (
     return () => {
       container.removeEventListener('scroll', onScroll);
     };
-  }, [containerRef, isAutoScrollEnabled, bottomThreshold]);
+  }, [containerRef, isAutoScrollEnabled, bottomThreshold, enabled]);
 
   // Exposed functions.
 

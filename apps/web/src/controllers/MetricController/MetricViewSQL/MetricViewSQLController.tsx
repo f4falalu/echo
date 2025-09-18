@@ -20,7 +20,7 @@ export const MetricViewSQLController: React.FC<{
 
   const autoSaveId = `view-sql-${metricId}`;
 
-  const isVersionHistoryMode = useChatIsVersionHistoryMode({ type: 'metric' });
+  const isVersionHistoryMode = useChatIsVersionHistoryMode({ type: 'metric_file' });
 
   const {
     runSQL,

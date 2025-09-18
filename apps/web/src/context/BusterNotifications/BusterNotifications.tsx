@@ -136,7 +136,7 @@ export const BusterNotificationsProvider: React.FC<PropsWithChildren> = ({ child
     <BusterNotifications.Provider value={{ ...value, openConfirmModal }}>
       {children}
       <Toaster />
-      <Suspense fallback={null}>
+      <Suspense fallback={<span className="hidden">...</span>}>
         <ConfirmModal {...confirmModalProps} />
       </Suspense>
     </BusterNotifications.Provider>

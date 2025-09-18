@@ -49,7 +49,7 @@ describe('createCreateDashboardsFinish', () => {
     expect(state.files).toHaveLength(2);
     expect(state.files![0]).toMatchObject({
       file_name: 'Dashboard 1',
-      file_type: 'dashboard',
+      file_type: 'dashboard_file',
       version_number: 1,
       file: {
         text: 'content1',
@@ -115,7 +115,7 @@ describe('createCreateDashboardsFinish', () => {
     expect(state.files).toHaveLength(1);
     expect(state.files![0]).toMatchObject({
       file_name: 'Dashboard 1',
-      file_type: 'dashboard',
+      file_type: 'dashboard_file',
     });
   });
 

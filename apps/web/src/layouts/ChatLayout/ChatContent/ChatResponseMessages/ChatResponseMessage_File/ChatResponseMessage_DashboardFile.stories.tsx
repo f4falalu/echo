@@ -8,7 +8,7 @@ import { ChatResponseMessage_DashboardFile } from './ChatResponseMessage_Dashboa
 const mockResponseMessage: BusterChatResponseMessage_file = {
   id: 'dashboard-response-1',
   type: 'file',
-  file_type: 'dashboard',
+  file_type: 'dashboard_file',
   file_name: 'Sales Dashboard',
   version_number: 1,
   filter_version_id: null,

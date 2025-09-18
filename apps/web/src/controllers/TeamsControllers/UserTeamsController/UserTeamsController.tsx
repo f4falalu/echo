@@ -49,7 +49,7 @@ export const UserTeamsController: React.FC<{ userId: string }> = ({ userId }) =>
         <UserTeamsListContainer filteredTeams={filteredItems} userId={userId} />
       </PermissionSearchAndListWrapper>
 
-      <Suspense fallback={null}>
+      <Suspense fallback={<span className="hidden">...</span>}>
         <NewTeamModal isOpen={isNewTeamModalOpen} onClose={onCloseNewTeamModal} />
       </Suspense>
     </>

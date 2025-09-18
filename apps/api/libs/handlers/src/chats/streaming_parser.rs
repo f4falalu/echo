@@ -82,7 +82,7 @@ impl StreamingParser {
         self.buffer.push_str(chunk);
 
         // Process the buffer with metric file type
-        self.process_file_data(id.clone(), "metric".to_string())
+        self.process_file_data(id.clone(), "metric_file".to_string())
     }
 
     // Process chunks meant for dashboard files

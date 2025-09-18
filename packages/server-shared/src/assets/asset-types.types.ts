@@ -1,5 +1,11 @@
-import { z } from 'zod';
+import { AssetTypeSchema } from '@buster/database/schema-types';
+import type { AssetType } from '@buster/database/schema-types';
+import type { z } from 'zod';
 
-export const AssetTypeSchema = z.enum(['metric', 'dashboard', 'collection', 'chat', 'report']);
+export const BaseAssetTypeSchema = AssetTypeSchema.exclude(['chat', 'collection']);
 
-export type AssetType = z.infer<typeof AssetTypeSchema>;
+export type BaseAssetType = z.infer<typeof BaseAssetTypeSchema>;
+
+export { AssetTypeSchema };
+
+export type { AssetType };

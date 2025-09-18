@@ -30,7 +30,7 @@ describe('Chat API Requests', () => {
           created_by_avatar: 'avatar-url',
           last_edited: '2024-03-20T00:00:00Z',
           latest_file_id: 'file-1',
-          latest_file_type: 'dashboard',
+          latest_file_type: 'dashboard_file',
           latest_version_number: 1,
           latest_file_name: 'Test File',
           is_shared: false,

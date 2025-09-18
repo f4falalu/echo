@@ -223,7 +223,7 @@ export const useAddReportToCollection = () => {
       collectionIds.map((collectionId) =>
         addAssetToCollection({
           id: collectionId,
-          assets: reportIds.map((reportId) => ({ id: reportId, type: 'report' })),
+          assets: reportIds.map((reportId) => ({ id: reportId, type: 'report_file' })),
         })
       )
     );
@@ -291,7 +291,7 @@ export const useRemoveReportFromCollection = () => {
       collectionIds.map((collectionId) =>
         removeAssetFromCollection({
           id: collectionId,
-          assets: reportIds.map((reportId) => ({ id: reportId, type: 'report' })),
+          assets: reportIds.map((reportId) => ({ id: reportId, type: 'report_file' })),
         })
       )
     );

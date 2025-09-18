@@ -99,7 +99,7 @@ describe('createMetricsDelta', () => {
       expect(filesAfterComplete).toHaveLength(1);
       expect(filesAfterComplete[0]).toMatchObject({
         file_name: 'Metric 1',
-        file_type: 'metric',
+        file_type: 'metric_file',
         status: 'loading',
       });
     });
@@ -138,12 +138,12 @@ describe('createMetricsDelta', () => {
       expect(state.files).toHaveLength(2);
       expect(state.files?.[0]).toMatchObject({
         file_name: 'Metric 1',
-        file_type: 'metric',
+        file_type: 'metric_file',
         status: 'loading',
       });
       expect(state.files?.[1]).toMatchObject({
         file_name: 'Metric 2',
-        file_type: 'metric',
+        file_type: 'metric_file',
         status: 'loading',
       });
     });
@@ -315,7 +315,7 @@ describe('createMetricsDelta', () => {
       expect(state.files!).toHaveLength(2);
       expect(state.files![0]).toMatchObject({
         file_name: 'metric1',
-        file_type: 'metric',
+        file_type: 'metric_file',
         status: 'loading',
       });
     });

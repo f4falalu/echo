@@ -16,7 +16,7 @@ import type { Ancestor, AssetAncestors } from '@buster/server-shared';
 /**
  * Traces the ancestors of an asset through its relationships
  * @param assetId - The ID of the asset to trace
- * @param assetType - The type of asset ('message', 'dashboard', 'metric', 'report')
+ * @param assetType - The type of asset ('message', 'dashboard_file', 'metric_file', 'report_file')
  * @param userId - The user ID making the request
  * @param organizationId - The organization ID for scoping
  * @returns Promise<AssetAncestors> - The complete ancestors tree for the asset

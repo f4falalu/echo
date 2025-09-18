@@ -220,7 +220,7 @@ async function processDashboardFile(file: { id: string; yml_content: string }): 
   const dashboardFile: FileWithId = {
     id: file.id,
     name: dashboard.name,
-    file_type: 'dashboard',
+    file_type: 'dashboard_file',
     created_at: existingFile.createdAt,
     updated_at: new Date().toISOString(),
     version_number: latestVersion,

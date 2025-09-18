@@ -52,7 +52,7 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
     }, [publicExpirationDate]);
 
     const linkUrl: string = useMemo(() => {
-      if (assetType === 'metric') {
+      if (assetType === 'metric_file') {
         return createFullURL(
           buildLocation({
             to: '/app/metrics/$metricId/chart',
@@ -61,7 +61,7 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
             },
           })
         );
-      } else if (assetType === 'dashboard') {
+      } else if (assetType === 'dashboard_file') {
         return createFullURL(
           buildLocation({
             to: '/app/dashboards/$dashboardId',
@@ -79,7 +79,7 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
             },
           })
         );
-      } else if (assetType === 'report') {
+      } else if (assetType === 'report_file') {
         return createFullURL(
           buildLocation({
             to: '/app/reports/$reportId',
@@ -113,13 +113,13 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
           public_expiry_date: linkExp || undefined,
         },
       };
-      if (assetType === 'metric') {
+      if (assetType === 'metric_file') {
         await onShareMetric(payload);
-      } else if (assetType === 'dashboard') {
+      } else if (assetType === 'dashboard_file') {
         await onShareDashboard(payload);
       } else if (assetType === 'collection') {
         await onShareCollection(payload);
-      } else if (assetType === 'report') {
+      } else if (assetType === 'report_file') {
         await onShareReport(payload);
       } else if (assetType === 'chat') {
         await onShareChat(payload);
@@ -141,13 +141,13 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
         },
       };
 
-      if (assetType === 'metric') {
+      if (assetType === 'metric_file') {
         await onShareMetric(payload);
-      } else if (assetType === 'dashboard') {
+      } else if (assetType === 'dashboard_file') {
         await onShareDashboard(payload);
       } else if (assetType === 'collection') {
         await onShareCollection(payload);
-      } else if (assetType === 'report') {
+      } else if (assetType === 'report_file') {
         await onShareReport(payload);
       } else if (assetType === 'chat') {
         await onShareChat(payload);
@@ -168,13 +168,13 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
         },
       };
 
-      if (assetType === 'metric') {
+      if (assetType === 'metric_file') {
         await onShareMetric(payload);
-      } else if (assetType === 'dashboard') {
+      } else if (assetType === 'dashboard_file') {
         await onShareDashboard(payload);
       } else if (assetType === 'collection') {
         await onShareCollection(payload);
-      } else if (assetType === 'report') {
+      } else if (assetType === 'report_file') {
         await onShareReport(payload);
       } else if (assetType === 'chat') {
         await onShareChat(payload);

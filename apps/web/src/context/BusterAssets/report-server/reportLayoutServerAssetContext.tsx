@@ -26,7 +26,7 @@ export const loader = async ({
 };
 
 export const staticData = {
-  assetType: 'report' as AssetType,
+  assetType: 'report_file' as AssetType,
 };
 
 export const head = ({ loaderData }: { loaderData?: { title: string | undefined } } = {}) => ({

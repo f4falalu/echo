@@ -13,7 +13,7 @@ export const useIsReportReadOnly = ({
   reportId: string;
   readOnly?: boolean;
 }) => {
-  const isVersionHistoryMode = useChatIsVersionHistoryMode({ type: 'report' });
+  const isVersionHistoryMode = useChatIsVersionHistoryMode({ type: 'report_file' });
   const { reportVersionNumber } = useGetReportParams();
   const {
     data: reportData,

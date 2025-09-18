@@ -205,32 +205,33 @@ export function getReportInheritedPermissionedAssets(userId: string, organizatio
 /**
  * Get messages with permissions inherited from their parent chats
  */
-export function getMessagePermissionedAssets(userId: string, organizationId: string) {
-  return db
-    .selectDistinct({
-      assetId: textSearch.assetId,
-    })
-    .from(textSearch)
-    .innerJoin(messages, eq(messages.id, textSearch.assetId))
-    .innerJoin(
-      assetPermissions,
-      and(eq(assetPermissions.assetId, messages.chatId), eq(assetPermissions.assetType, 'chat'))
-    )
-    .where(
-      and(
-        or(
-          and(eq(assetPermissions.identityType, 'user'), eq(assetPermissions.identityId, userId)),
-          and(
-            eq(assetPermissions.identityType, 'organization'),
-            eq(assetPermissions.identityId, organizationId)
-          )
-        ),
-        isNull(assetPermissions.deletedAt),
-        isNull(textSearch.deletedAt),
-        eq(textSearch.assetType, 'message')
-      )
-    );
-}
+// TODO: FIGURE OUT IF SEARCH and ADD this back
+// export function getMessagePermissionedAssets(userId: string, organizationId: string) {
+//   return db
+//     .selectDistinct({
+//       assetId: textSearch.assetId,
+//     })
+//     .from(textSearch)
+//     .innerJoin(messages, eq(messages.id, textSearch.assetId))
+//     .innerJoin(
+//       assetPermissions,
+//       and(eq(assetPermissions.assetId, messages.chatId), eq(assetPermissions.assetType, 'chat'))
+//     )
+//     .where(
+//       and(
+//         or(
+//           and(eq(assetPermissions.identityType, 'user'), eq(assetPermissions.identityId, userId)),
+//           and(
+//             eq(assetPermissions.identityType, 'organization'),
+//             eq(assetPermissions.identityId, organizationId)
+//           )
+//         ),
+//         isNull(assetPermissions.deletedAt),
+//         isNull(textSearch.deletedAt),
+//         eq(textSearch.assetType, 'message')
+//       )
+//     );
+// }
 
 /**
  * Union all permission sources to get all assets a user has access to
@@ -240,15 +241,17 @@ export function getAllUserAccessibleAssets(userId: string, organizationId: strin
   const chatInherited = getChatInheritedPermissionedAssets(userId, organizationId);
   const collectionInherited = getCollectionInheritedPermissionedAssets(userId, organizationId);
   const dashboardInherited = getDashboardInheritedPermissionedAssets(userId, organizationId);
-  const messagePermissions = getMessagePermissionedAssets(userId, organizationId);
+  // const messagePermissions = getMessagePermissionedAssets(userId, organizationId);
   const reportInherited = getReportInheritedPermissionedAssets(userId, organizationId);
 
-  return directPermissions
-    .union(chatInherited)
-    .union(collectionInherited)
-    .union(dashboardInherited)
-    .union(messagePermissions)
-    .union(reportInherited);
+  return (
+    directPermissions
+      .union(chatInherited)
+      .union(collectionInherited)
+      .union(dashboardInherited)
+      // .union(messagePermissions)
+      .union(reportInherited)
+  );
 }
 
 /**
