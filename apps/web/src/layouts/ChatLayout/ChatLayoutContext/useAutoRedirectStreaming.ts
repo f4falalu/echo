@@ -1,4 +1,4 @@
-import { useNavigate } from '@tanstack/react-router';
+import { useLocation, useNavigate } from '@tanstack/react-router';
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import type { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat';
 import { useGetChatMessageMemoized } from '@/api/buster_rest/chats';
@@ -21,6 +21,7 @@ export const useAutoRedirectStreaming = ({
 }) => {
   const navigate = useNavigate();
   const getChatMessageMemoized = useGetChatMessageMemoized();
+  const location = useLocation();
   const isStreamFinished = useGetChatMessageCompleted({ messageId: lastMessageId });
   const lastReasoningMessageId = useGetChatMessageLastReasoningMessageId({
     messageId: lastMessageId,
@@ -37,15 +38,6 @@ export const useAutoRedirectStreaming = ({
   useLayoutEffect(() => {
     previousIsCompletedStream.current = isStreamFinished;
   }, [hasLoadedChat]);
-
-  useWhyDidYouUpdate('useAutoRedirectStreaming', {
-    isStreamFinished,
-    hasReasoning,
-    hasResponseFile,
-    chatId,
-    lastMessageId,
-    isFinishedReasoning,
-  });
 
   //streaming logic to redirect
   useEffect(() => {
@@ -72,7 +64,9 @@ export const useAutoRedirectStreaming = ({
           chatId,
           versionNumber: firstFile.version_number,
         });
-        console.log('this is navigated to the file', linkProps);
+
+        const isAlreadyNavigated = linkProps.to === window.location.pathname;
+        console.log('this is navigated to the file', linkProps, location);
 
         navigate({ ...linkProps, replace: true });
       }
