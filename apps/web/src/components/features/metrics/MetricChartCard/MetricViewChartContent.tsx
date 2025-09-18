@@ -18,6 +18,7 @@ type MetricViewChartContentProps = {
   fetchedMetric: boolean;
   animate: boolean;
   name: string;
+  disableTooltip?: boolean;
 };
 
 export const MetricViewChartContent: React.FC<MetricViewChartContentProps> = React.memo(
@@ -32,6 +33,7 @@ export const MetricViewChartContent: React.FC<MetricViewChartContentProps> = Rea
     readOnly,
     fetchedMetric,
     animate = true,
+    disableTooltip,
   }) => {
     const columnMetadata = dataMetadata?.column_metadata;
     const isTable = chartConfig?.selectedChartType === 'table';
@@ -55,6 +57,7 @@ export const MetricViewChartContent: React.FC<MetricViewChartContentProps> = Rea
             animate={animate}
             animateLegend={animate}
             {...chartConfig}
+            disableTooltip={disableTooltip ?? chartConfig.disableTooltip}
           />
         ) : (
           <PreparingYourRequestLoader text="Processing your request..." />
