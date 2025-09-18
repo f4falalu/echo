@@ -1,5 +1,4 @@
-import { db } from '@buster/database/connection';
-import { eq } from '@buster/database/methods';
+import { db, eq } from '@buster/database/connection';
 import { chats } from '@buster/database/schema';
 
 /**
