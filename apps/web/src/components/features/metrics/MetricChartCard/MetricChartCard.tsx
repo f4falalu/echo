@@ -23,6 +23,7 @@ export type MetricChartCardProps = {
   useHeaderLink?: boolean;
   animate?: boolean;
   renderChartContent?: boolean; // we do this to avoid expensive rendering if off screen
+  disableTooltip?: boolean;
 };
 
 const stableMetricSelect = ({
@@ -58,6 +59,7 @@ export const MetricChartCard = React.memo(
         listeners,
         animate = true,
         renderChartContent = true,
+        disableTooltip,
       },
       ref
     ) => {
@@ -125,6 +127,7 @@ export const MetricChartCard = React.memo(
               readOnly={readOnly}
               animate={animate}
               name={name || 'MetricViewChartContent'}
+              disableTooltip={disableTooltip}
             />
           )}
         </MetricViewChartCardContainer>
