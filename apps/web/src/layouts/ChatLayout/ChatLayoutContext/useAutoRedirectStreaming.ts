@@ -9,6 +9,7 @@ import {
   useGetChatMessageIsFinishedReasoning,
   useGetChatMessageLastReasoningMessageId,
 } from '@/context/Chats/useGetChatMessage';
+import { useWhyDidYouUpdate } from '@/hooks/useWhyDidYouUpdate';
 import { assetParamsToRoute } from '@/lib/assets/assetParamsToRoute';
 
 export const useAutoRedirectStreaming = ({
@@ -37,6 +38,15 @@ export const useAutoRedirectStreaming = ({
     previousIsCompletedStream.current = isStreamFinished;
   }, [hasLoadedChat]);
 
+  useWhyDidYouUpdate('useAutoRedirectStreaming', {
+    isStreamFinished,
+    hasReasoning,
+    hasResponseFile,
+    chatId,
+    lastMessageId,
+    isFinishedReasoning,
+  });
+
   //streaming logic to redirect
   useEffect(() => {
     if (!hasLoadedChat || !chatId || isStreamFinished) {
@@ -55,8 +65,6 @@ export const useAutoRedirectStreaming = ({
         | BusterChatResponseMessage_file
         | undefined;
 
-      console.log('this will trigger if it is streaming and has a file in the response', firstFile);
-
       if (firstFile) {
         const linkProps = assetParamsToRoute({
           assetId: firstFile.id,
@@ -66,7 +74,7 @@ export const useAutoRedirectStreaming = ({
         });
         console.log('this is navigated to the file', linkProps);
 
-        navigate(linkProps);
+        navigate({ ...linkProps, replace: true });
       }
     }
 

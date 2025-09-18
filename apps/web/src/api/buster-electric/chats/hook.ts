@@ -21,7 +21,6 @@ export const useTrackAndUpdateChatChanges = (
 ) => {
   const { onUpdateChat } = useChatUpdate();
   const shape = useMemo(() => {
-    console.log('new shape stream for chat', chatId);
     return chatShape({ chatId: chatId || '' });
   }, [chatId]);
   const subscribe = !!chatId;

@@ -166,7 +166,6 @@ export const useTrackAndUpdateNewMessages = ({ chatId }: { chatId: string | unde
   const subscribe = !!chatId;
 
   const shape = useMemo(() => {
-    console.log('new shape stream for new messages', chatId);
     return messagesShape({ chatId: chatId || '', columns: ['id'] });
   }, [chatId]);
 
