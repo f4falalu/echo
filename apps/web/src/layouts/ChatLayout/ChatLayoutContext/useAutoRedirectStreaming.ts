@@ -9,7 +9,6 @@ import {
   useGetChatMessageIsFinishedReasoning,
   useGetChatMessageLastReasoningMessageId,
 } from '@/context/Chats/useGetChatMessage';
-import { useWhyDidYouUpdate } from '@/hooks/useWhyDidYouUpdate';
 import { assetParamsToRoute } from '@/lib/assets/assetParamsToRoute';
 
 export const useAutoRedirectStreaming = ({
@@ -65,18 +64,12 @@ export const useAutoRedirectStreaming = ({
           versionNumber: firstFile.version_number,
         });
 
-        const isAlreadyNavigated = linkProps.to === window.location.pathname;
-        console.log('this is navigated to the file', linkProps, location);
-
         navigate({ ...linkProps, replace: true });
       }
     }
 
     //this will trigger when the chat is streaming and is has not completed yet (new chat)
     else if (!isStreamFinished && !isFinishedReasoning && hasReasoning && chatId) {
-      console.log(
-        'this will trigger when the chat is streaming and is has not completed yet (new chat)'
-      );
       navigate({
         to: '/app/chats/$chatId/reasoning/$messageId',
         params: {
@@ -90,7 +83,6 @@ export const useAutoRedirectStreaming = ({
     //this happen will when the chat is completed and it WAS streaming
     else if (isStreamFinished && previousIsCompletedStream.current === false && !firstFileId) {
       //no file is found, so we need to collapse the chat
-      console.log('this will trigger when the chat is completed and it WAS streaming');
 
       navigate({
         to: '/app/chats/$chatId',

@@ -6,6 +6,7 @@ import { useMemo, useRef } from 'react';
 import { useGetChatMemoized, useGetChatMessageMemoized } from '@/api/buster_rest/chats';
 import { reportsQueryKeys } from '@/api/query_keys/reports';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { useUnmount } from '@/hooks/useUnmount';
 import type { BusterChatMessage } from '../../asset_interfaces/chat';
 import { useChatUpdate } from '../../buster_rest/chats/useChatUpdate';
 import { chatQueryKeys } from '../../query_keys/chat';
@@ -47,7 +48,6 @@ export const useTrackAndUpdateMessageChanges = (
   const subscribe = !!chatId && !!messageId && messageId !== 'undefined';
 
   const shape = useMemo(() => {
-    console.log('new shape stream for message', chatId, messageId);
     return messageShape({ chatId: chatId || '', messageId });
   }, [chatId, messageId]);
 

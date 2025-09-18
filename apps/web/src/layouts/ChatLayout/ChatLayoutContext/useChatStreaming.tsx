@@ -134,10 +134,6 @@ export const useChatStreaming = ({
     }
   });
 
-  useMount(() => {
-    console.log('useChatStreaming mounted', chatId, messageId, isStreamingMessage);
-  });
-
   useEffect(() => {
     if (isStreamingMessage) {
       const message = getChatMessageMemoized(messageId);

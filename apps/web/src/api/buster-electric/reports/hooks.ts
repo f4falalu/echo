@@ -16,7 +16,6 @@ export const useTrackAndUpdateReportChanges = ({
   const queryClient = useQueryClient();
 
   const shape = useMemo(() => {
-    console.log('new shape stream for report', reportId);
     return reportShape({ reportId });
   }, [reportId]);
 
