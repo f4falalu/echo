@@ -11,11 +11,13 @@ import {
 } from './user-organizations';
 
 // Mock the database module
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/connection', () => ({
   getDb: vi.fn(),
   and: vi.fn((...args) => ({ _and: args })),
   eq: vi.fn((a, b) => ({ _eq: [a, b] })),
   isNull: vi.fn((a) => ({ _isNull: a })),
+}));
+vi.mock('@buster/database/schema', () => ({
   organizations: {
     id: 'organizations.id',
     domains: 'organizations.domains',

@@ -10,7 +10,7 @@ import {
 } from './permissions';
 
 // Mock database functions
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   createAssetPermission: vi.fn(),
   bulkCreateAssetPermissions: vi.fn(),
   listAssetPermissions: vi.fn(),
@@ -44,7 +44,7 @@ describe('Asset Permissions', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
 
-    const db = await import('@buster/database');
+    const db = await import('@buster/database/queries');
     mockCreateAssetPermission = vi.mocked(db.createAssetPermission);
     mockListAssetPermissions = vi.mocked(db.listAssetPermissions);
     mockRemoveAssetPermission = vi.mocked(db.removeAssetPermission);

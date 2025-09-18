@@ -19,7 +19,7 @@ import {
 } from './with-agent-retry';
 
 // Mock fetchMessageEntries
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   fetchMessageEntries: vi.fn(),
 }));
 

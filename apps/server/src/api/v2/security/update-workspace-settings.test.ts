@@ -14,12 +14,19 @@ vi.mock('./workspace-settings-service', () => {
   WorkspaceSettingsService.prototype.formatWorkspaceSettingsResponse = vi.fn();
   return { WorkspaceSettingsService };
 });
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/connection', () => ({
   db: {
     update: vi.fn(),
     set: vi.fn(),
     where: vi.fn(),
   },
+  organizations: {},
+  eq: vi.fn(),
+  and: vi.fn(),
+  isNull: vi.fn(),
+}));
+
+vi.mock('@buster/database/schema', () => ({
   organizations: {},
   eq: vi.fn(),
   and: vi.fn(),

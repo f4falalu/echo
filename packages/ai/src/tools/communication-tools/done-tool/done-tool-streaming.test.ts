@@ -5,7 +5,7 @@ import { createDoneToolDelta } from './done-tool-delta';
 import { createDoneToolFinish } from './done-tool-finish';
 import { createDoneToolStart } from './done-tool-start';
 
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   updateMessageEntries: vi.fn().mockResolvedValue({ success: true }),
   updateMessage: vi.fn().mockResolvedValue({ success: true }),
   updateChat: vi.fn().mockResolvedValue({ success: true }),

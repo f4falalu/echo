@@ -5,7 +5,7 @@ import { createCreateMetricsFinish } from './create-metrics-finish';
 import type { CreateMetricsInput, CreateMetricsState } from './create-metrics-tool';
 
 // Mock the database module
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   updateMessageEntries: vi.fn(),
 }));
 

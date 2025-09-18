@@ -6,7 +6,7 @@ import type {
   CreateDashboardsState,
 } from './create-dashboards-tool';
 
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   insertMessageReasoning: vi.fn(),
   updateMessageEntries: vi.fn(),
 }));

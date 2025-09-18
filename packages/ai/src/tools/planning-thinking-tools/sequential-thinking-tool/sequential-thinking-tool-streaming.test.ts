@@ -9,7 +9,7 @@ import { createSequentialThinkingDelta } from './sequential-thinking-tool-delta'
 import { createSequentialThinkingFinish } from './sequential-thinking-tool-finish';
 import { createSequentialThinkingStart } from './sequential-thinking-tool-start';
 
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   updateMessageEntries: vi.fn().mockResolvedValue({ success: true }),
 }));
 

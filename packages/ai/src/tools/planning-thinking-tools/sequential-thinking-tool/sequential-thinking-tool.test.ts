@@ -9,7 +9,7 @@ vi.mock('braintrust', () => ({
   wrapTraced: vi.fn((fn: unknown) => fn),
 }));
 
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   updateMessageEntries: vi.fn().mockResolvedValue({ success: true }),
 }));
 

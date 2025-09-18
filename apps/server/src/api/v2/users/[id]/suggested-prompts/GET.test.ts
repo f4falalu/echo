@@ -16,7 +16,9 @@ import app from './GET';
 
 // Mock all external dependencies
 vi.mock('@buster/ai');
-vi.mock('@buster/database');
+vi.mock('@buster/database/connection');
+vi.mock('@buster/database/queries');
+vi.mock('@buster/database/schema');
 
 describe('GET /api/v2/users/:id/suggested-prompts', () => {
   const mockUser: User = {

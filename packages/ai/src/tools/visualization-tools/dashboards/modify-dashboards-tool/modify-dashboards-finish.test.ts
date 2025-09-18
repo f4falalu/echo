@@ -8,7 +8,7 @@ import type {
   ModifyDashboardsState,
 } from './modify-dashboards-tool';
 
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   updateMessageEntries: vi.fn(),
 }));
 

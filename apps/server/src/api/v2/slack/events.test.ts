@@ -2,11 +2,14 @@ import { db } from '@buster/database/connection';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { findOrCreateSlackChat } from './events';
 
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/connection', () => ({
   db: {
     select: vi.fn(),
     insert: vi.fn(),
   },
+}));
+
+vi.mock('@buster/database/schema', () => ({
   chats: {},
   slackIntegrations: {},
 }));

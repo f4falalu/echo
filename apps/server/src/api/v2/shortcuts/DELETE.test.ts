@@ -9,7 +9,7 @@ import {
 } from './services/shortcut-errors';
 
 // Mock database functions
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   getUserOrganizationId: vi.fn(),
   getShortcutById: vi.fn(),
   deleteShortcut: vi.fn(),

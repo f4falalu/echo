@@ -8,7 +8,9 @@ import { HTTPException } from 'hono/http-exception';
 import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createS3IntegrationHandler } from './create-s3-integration';
 
-vi.mock('@buster/database');
+vi.mock('@buster/database/queries');
+vi.mock('@buster/database/schema');
+vi.mock('@buster/database/connection');
 vi.mock('@buster/data-source');
 vi.mock('@trigger.dev/sdk/v3', () => ({
   tasks: {

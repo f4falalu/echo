@@ -4,7 +4,9 @@ import { HTTPException } from 'hono/http-exception';
 import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getDocHandler } from './GET';
 
-vi.mock('@buster/database');
+vi.mock('@buster/database/queries');
+vi.mock('@buster/database/schema');
+vi.mock('@buster/database/connection');
 
 describe('getDocHandler', () => {
   const mockUser: User = {

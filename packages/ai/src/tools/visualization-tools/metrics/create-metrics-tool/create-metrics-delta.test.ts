@@ -6,7 +6,7 @@ import type {
   CreateMetricsState,
 } from './create-metrics-tool';
 
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   updateMessageEntries: vi.fn(),
 }));
 

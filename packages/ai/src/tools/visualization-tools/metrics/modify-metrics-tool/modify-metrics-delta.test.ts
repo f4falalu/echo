@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createModifyMetricsDelta } from './modify-metrics-delta';
 import type { ModifyMetricsInput, ModifyMetricsState } from './modify-metrics-tool';
 
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   updateMessageEntries: vi.fn(),
 }));
 

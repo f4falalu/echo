@@ -15,7 +15,7 @@ vi.mock('@buster/data-source', () => ({
   getDefaultProvider: vi.fn(),
 }));
 
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   getDataSourceCredentials: vi.fn(),
 }));
 

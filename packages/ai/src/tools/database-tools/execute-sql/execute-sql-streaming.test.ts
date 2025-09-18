@@ -6,7 +6,7 @@ import { createExecuteSqlFinish } from './execute-sql-finish';
 import { createExecuteSqlStart } from './execute-sql-start';
 
 // Mock the database update function
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   updateMessageEntries: vi.fn(),
 }));
 

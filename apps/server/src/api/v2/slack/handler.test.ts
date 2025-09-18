@@ -18,7 +18,7 @@ vi.mock('./services/slack-oauth-service', () => ({
 }));
 
 // Mock getUserOrganizationId from database
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   getUserOrganizationId: vi.fn(),
 }));
 

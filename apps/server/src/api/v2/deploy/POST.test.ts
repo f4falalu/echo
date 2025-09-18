@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { deployHandler } from './POST';
 
 // Mock all database functions
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   getUserOrganizationId: vi.fn(),
   getDataSourceByName: vi.fn(),
   upsertDataset: vi.fn(),

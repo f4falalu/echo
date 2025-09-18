@@ -13,16 +13,23 @@ vi.mock('./domain-service', () => {
   DomainService.prototype.formatDomainsResponse = vi.fn();
   return { DomainService };
 });
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/connection', () => ({
   db: {
     update: vi.fn(),
     set: vi.fn(),
     where: vi.fn(),
   },
-  organizations: {},
   eq: vi.fn(),
   and: vi.fn(),
   isNull: vi.fn(),
+}));
+
+vi.mock('@buster/database/queries', () => ({
+  getUserOrganizationId: vi.fn(),
+}));
+
+vi.mock('@buster/database/schema', () => ({
+  organizations: {},
 }));
 
 describe('addApprovedDomainsHandler', () => {

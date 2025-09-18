@@ -4,13 +4,16 @@ import { DataFetchError } from '../types';
 import { fetchPreviousPostProcessingMessages } from './message-fetchers';
 
 // Mock the database module
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/connection', () => ({
   getDb: vi.fn(),
   and: vi.fn((...args) => ({ type: 'and', args })),
   eq: vi.fn((a, b) => ({ type: 'eq', a, b })),
   lte: vi.fn((a, b) => ({ type: 'lte', a, b })),
   isNull: vi.fn((a) => ({ type: 'isNull', a })),
   isNotNull: vi.fn((a) => ({ type: 'isNotNull', a })),
+}));
+
+vi.mock('@buster/database/schema', () => ({
   messages: {
     chatId: 'messages.chatId',
     createdAt: 'messages.createdAt',

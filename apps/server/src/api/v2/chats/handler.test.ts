@@ -18,15 +18,7 @@ vi.mock('./services/chat-helpers', () => ({
   handleAssetChatWithPrompt: vi.fn(),
 }));
 
-vi.mock('@buster/database', () => ({
-  getUserOrganizationId: vi.fn(),
-  updateUserLastUsedShortcuts: vi.fn(),
-  createChat: vi.fn(),
-  getChatWithDetails: vi.fn(),
-  createMessage: vi.fn(),
-  generateAssetMessages: vi.fn(),
-  getMessagesForChat: vi.fn(),
-  updateMessage: vi.fn(),
+vi.mock('@buster/database/connection', () => ({
   db: {
     transaction: vi.fn().mockImplementation((callback: any) =>
       callback({
@@ -36,8 +28,22 @@ vi.mock('@buster/database', () => ({
       })
     ),
   },
+}));
+
+vi.mock('@buster/database/schema', () => ({
   chats: {},
   messages: {},
+}));
+
+vi.mock('@buster/database/queries', () => ({
+  getUserOrganizationId: vi.fn(),
+  updateUserLastUsedShortcuts: vi.fn(),
+  createChat: vi.fn(),
+  getChatWithDetails: vi.fn(),
+  createMessage: vi.fn(),
+  generateAssetMessages: vi.fn(),
+  getMessagesForChat: vi.fn(),
+  updateMessage: vi.fn(),
 }));
 
 import {
