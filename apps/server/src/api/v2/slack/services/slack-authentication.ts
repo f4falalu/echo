@@ -1,11 +1,11 @@
 import {
-  type UserOrganizationInfo,
   checkEmailDomainForOrganization,
   checkUserInOrganization,
   createUserInOrganization,
   getOrganizationWithDefaults,
 } from '@buster/access-controls';
-import type { User, organizations } from '@buster/database';
+import type { User } from '@buster/database/queries';
+import type { organizations } from '@buster/database/schema';
 import { type SlackUser, SlackUserService } from '@buster/slack';
 import { SlackHelpers } from './slack-helpers';
 

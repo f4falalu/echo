@@ -33,3 +33,5 @@ export * from './slack';
 
 // Export github-related types
 export * from './github';
+
+export * from './search';

@@ -34,7 +34,7 @@ vi.mock('../../../shared/create-raw-llm-tool-result-entry', () => ({
   }),
 }));
 
-import { updateMessageEntries } from '@buster/database';
+import { updateMessageEntries } from '@buster/database/queries';
 
 describe('create-reports-execute', () => {
   let context: CreateReportsContext;

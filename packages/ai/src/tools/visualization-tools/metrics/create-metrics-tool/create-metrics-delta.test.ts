@@ -27,7 +27,7 @@ describe('createMetricsDelta', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
 
-    const database = await import('@buster/database');
+    const database = await import('@buster/database/queries');
     updateMessageEntriesSpy = vi.mocked(database.updateMessageEntries);
 
     const streaming = await import('../../../../utils/streaming/optimistic-json-parser');

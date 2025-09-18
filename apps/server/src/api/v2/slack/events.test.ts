@@ -1,4 +1,4 @@
-import { db } from '@buster/database';
+import { db } from '@buster/database/connection';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { findOrCreateSlackChat } from './events';
 

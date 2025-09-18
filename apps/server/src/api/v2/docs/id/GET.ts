@@ -1,5 +1,5 @@
-import type { User } from '@buster/database';
-import { getDoc, getUserOrganizationId } from '@buster/database';
+import type { User } from '@buster/database/queries';
+import { getDoc, getUserOrganizationId } from '@buster/database/queries';
 import type { GetDocResponse } from '@buster/server-shared/docs';
 import { HTTPException } from 'hono/http-exception';
 

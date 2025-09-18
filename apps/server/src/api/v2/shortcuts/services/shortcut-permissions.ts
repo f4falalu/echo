@@ -1,6 +1,6 @@
-import type { User } from '@buster/database';
+import type { User } from '@buster/database/queries';
+import type { UserOrganizationRole } from '@buster/server-shared/organization';
 import type { Shortcut } from '@buster/server-shared/shortcuts';
-import type { UserOrganizationRole } from '@buster/server-shared/user';
 
 export interface UserOrganization {
   organizationId: string;

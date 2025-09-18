@@ -76,7 +76,8 @@ vi.mock('../report-snapshot-cache', () => ({
   updateCachedSnapshot: vi.fn().mockResolvedValue(undefined),
 }));
 
-import { db, updateMessageEntries } from '@buster/database';
+import { db } from '@buster/database/connection';
+import { updateMessageEntries } from '@buster/database/queries';
 
 describe('modify-reports-execute', () => {
   let context: ModifyReportsContext;

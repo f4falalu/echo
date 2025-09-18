@@ -1,4 +1,4 @@
-import { getUserToOrganization } from '@buster/database';
+import { getUserToOrganization } from '@buster/database/queries';
 import {
   GetUserToOrganizationRequestSchema,
   type GetUserToOrganizationResponse,

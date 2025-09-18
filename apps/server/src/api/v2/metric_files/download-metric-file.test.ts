@@ -1,5 +1,5 @@
 import { checkPermission } from '@buster/access-controls';
-import { getUserOrganizationId } from '@buster/database';
+import { getUserOrganizationId } from '@buster/database/queries';
 import { tasks } from '@trigger.dev/sdk';
 import { HTTPException } from 'hono/http-exception';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';

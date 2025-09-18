@@ -1,10 +1,11 @@
 import { randomUUID } from 'node:crypto';
-import { db, organizations, users, usersToOrganizations } from '@buster/database';
-import type { User } from '@buster/database';
-import type { UserOrganizationRole } from '@buster/server-shared/user';
+import { db } from '@buster/database/connection';
+import type { User } from '@buster/database/queries';
+import { organizations, users, usersToOrganizations } from '@buster/database/schema';
 import type { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 
 type Organization = InferSelectModel<typeof organizations>;
+import type { UserOrganizationRole } from '@buster/access-controls';
 import { and, eq, isNull } from 'drizzle-orm';
 
 export async function createTestUserInDb(userData: Partial<User> = {}): Promise<User> {
@@ -136,7 +137,7 @@ export async function cleanupTestUser(userId: string): Promise<void> {
 
 export async function cleanupTestOrganization(orgId: string): Promise<void> {
   // Import the necessary tables for cleanup
-  const { permissionGroups, datasetsToPermissionGroups } = await import('@buster/database');
+  const { permissionGroups, datasetsToPermissionGroups } = await import('@buster/database/schema');
 
   // Delete dataset associations for default permission group
   const defaultPermissionGroupName = `default:${orgId}`;

@@ -1,5 +1,5 @@
-import type { User } from '@buster/database';
-import * as dbQueries from '@buster/database';
+import type { User } from '@buster/database/queries';
+import * as dbQueries from '@buster/database/queries';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { deleteShortcutHandler } from './[id]/DELETE';
 import {

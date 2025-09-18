@@ -2,20 +2,20 @@ import { and, eq, isNull } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
 import {
-  assetPermissionRoleEnum,
   assetPermissions,
   collections,
   collectionsToAssets,
   reportFiles,
   users,
 } from '../../schema';
+import { AssetPermissionRoleSchema } from '../../schema-types';
 import { getAssetPermission } from '../assets';
 import { getOrganizationMemberCount, getUserOrganizationId } from '../organizations';
 
 export const GetReportInputSchema = z.object({
   reportId: z.string().uuid('Report ID must be a valid UUID'),
   userId: z.string().uuid('User ID must be a valid UUID'),
-  permissionRole: z.enum(assetPermissionRoleEnum.enumValues).optional(),
+  permissionRole: AssetPermissionRoleSchema.optional(),
 });
 
 type GetReportInput = z.infer<typeof GetReportInputSchema>;

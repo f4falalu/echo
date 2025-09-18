@@ -1,4 +1,4 @@
-import * as database from '@buster/database';
+import * as database from '@buster/database/connection';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DataFetchError } from '../types';
 import { fetchPreviousPostProcessingMessages } from './message-fetchers';

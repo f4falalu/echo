@@ -44,7 +44,7 @@ describe('createCreateDashboardsStart', () => {
   });
 
   it('should not create initial reasoning entry when no files exist', async () => {
-    const { updateMessageEntries } = await import('@buster/database');
+    const { updateMessageEntries } = await import('@buster/database/queries');
     const updateMock = vi.mocked(updateMessageEntries);
 
     const handler = createDashboardsStart(context, state);
@@ -56,7 +56,7 @@ describe('createCreateDashboardsStart', () => {
   });
 
   it('should not create reasoning entry when messageId is undefined', async () => {
-    const { updateMessageEntries } = await import('@buster/database');
+    const { updateMessageEntries } = await import('@buster/database/queries');
     const updateMock = vi.mocked(updateMessageEntries);
     const contextWithoutMessageId = { ...context, messageId: undefined };
 
@@ -67,7 +67,7 @@ describe('createCreateDashboardsStart', () => {
   });
 
   it('should handle database errors gracefully', async () => {
-    const { updateMessageEntries } = await import('@buster/database');
+    const { updateMessageEntries } = await import('@buster/database/queries');
     const updateMock = vi.mocked(updateMessageEntries);
     updateMock.mockRejectedValue(new Error('Database error'));
 
@@ -81,7 +81,7 @@ describe('createCreateDashboardsStart', () => {
   });
 
   it('should handle empty files array', async () => {
-    const { updateMessageEntries } = await import('@buster/database');
+    const { updateMessageEntries } = await import('@buster/database/queries');
     const updateMock = vi.mocked(updateMessageEntries);
 
     const handler = createDashboardsStart(context, state);
@@ -93,7 +93,7 @@ describe('createCreateDashboardsStart', () => {
   });
 
   it('should handle multiple files', async () => {
-    const { updateMessageEntries } = await import('@buster/database');
+    const { updateMessageEntries } = await import('@buster/database/queries');
     const updateMock = vi.mocked(updateMessageEntries);
 
     const handler = createDashboardsStart(context, state);

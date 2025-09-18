@@ -1,4 +1,6 @@
-import { db, eq, messages } from '@buster/database';
+import { db } from '@buster/database/connection';
+import { eq } from '@buster/database/methods';
+import { messages } from '@buster/database/schema';
 
 /**
  * Cleans up test message records from the database

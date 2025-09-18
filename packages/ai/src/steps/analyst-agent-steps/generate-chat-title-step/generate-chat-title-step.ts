@@ -1,4 +1,4 @@
-import { updateChat, updateMessage } from '@buster/database';
+import { updateChat, updateMessage } from '@buster/database/queries';
 import { generateObject } from 'ai';
 import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';

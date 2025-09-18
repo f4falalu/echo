@@ -1,13 +1,13 @@
+import { db } from '@buster/database/connection';
+import type { User } from '@buster/database/queries';
 import {
   chats,
   dataSources,
-  db,
   messages,
   organizations,
   users,
   usersToOrganizations,
-} from '@buster/database';
-import type { User } from '@buster/database';
+} from '@buster/database/schema';
 import { and, eq, gte, isNotNull, isNull } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { softDeleteMessagesFromPoint } from './chat-helpers';

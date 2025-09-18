@@ -17,7 +17,9 @@ describe('createCreateDashboardsFinish', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    updateMessageEntries = vi.mocked((await import('@buster/database')).updateMessageEntries);
+    updateMessageEntries = vi.mocked(
+      (await import('@buster/database/queries')).updateMessageEntries
+    );
 
     context = {
       userId: 'user-1',

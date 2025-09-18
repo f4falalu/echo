@@ -1,4 +1,4 @@
-import { getClient } from '@buster/database';
+import { getClient } from '@buster/database/connection';
 import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   type SearchTarget,
@@ -12,7 +12,7 @@ import {
 } from './search';
 
 // Mock dependencies
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/connection', () => ({
   getClient: vi.fn(),
 }));
 

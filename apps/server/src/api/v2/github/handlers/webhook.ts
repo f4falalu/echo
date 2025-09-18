@@ -1,4 +1,4 @@
-import type { githubIntegrations } from '@buster/database';
+import type { githubIntegrations } from '@buster/database/schema';
 import { GitHubErrorCode, type InstallationCallbackRequest } from '@buster/github';
 import type { InferSelectModel } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';

@@ -1,16 +1,15 @@
+import { and, db, eq, isNull } from '@buster/database/connection';
 import {
   chats,
   collections,
   collectionsToAssets,
   dashboardFiles,
-  db,
   messages,
   messagesToFiles,
   metricFilesToDashboardFiles,
   metricFilesToReportFiles,
   reportFiles,
-} from '@buster/database';
-import { and, eq, isNull } from '@buster/database';
+} from '@buster/database/schema';
 import type { Ancestor, AssetAncestors } from '@buster/server-shared';
 
 /**

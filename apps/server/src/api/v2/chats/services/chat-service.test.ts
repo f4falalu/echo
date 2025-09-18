@@ -1,4 +1,4 @@
-import type { Chat, Message } from '@buster/database';
+import type { Chat, Message } from '@buster/database/queries';
 import { ChatError, ChatErrorCode } from '@buster/server-shared/chats';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { initializeChat } from './chat-service';
@@ -10,7 +10,7 @@ import {
   generateAssetMessages,
   getChatWithDetails,
   getMessagesForChat,
-} from '@buster/database';
+} from '@buster/database/queries';
 
 const mockUser = {
   id: '550e8400-e29b-41d4-a716-446655440001',

@@ -1,12 +1,12 @@
 import { createPermissionErrorMessage, validateSqlPermissions } from '@buster/access-controls';
 import { executeMetricQuery } from '@buster/data-source';
 import type { Credentials } from '@buster/data-source';
-import type { User } from '@buster/database';
+import type { User } from '@buster/database/queries';
 import {
   getDataSourceById,
   getDataSourceCredentials,
   getUserOrganizationId,
-} from '@buster/database';
+} from '@buster/database/queries';
 import type { RunSqlRequest, RunSqlResponse } from '@buster/server-shared';
 import { HTTPException } from 'hono/http-exception';
 

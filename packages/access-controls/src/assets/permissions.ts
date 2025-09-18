@@ -1,17 +1,14 @@
 import {
-  type AssetType,
-  type CreateAssetPermissionParams,
   type ListAssetPermissionsParams,
   type RemoveAssetPermissionParams,
   bulkCreateAssetPermissions,
   createAssetPermission,
   findUserByEmail,
-  getUserAssetPermission,
   listAssetPermissions,
   removeAssetPermission,
-} from '@buster/database';
+} from '@buster/database/queries';
+import type { AssetType } from '@buster/database/schema-types';
 // TODO: Import createUser when implemented in database package
-// import { createUser } from '@buster/database';
 import type {
   AssetPermission,
   AssetPermissionRole,

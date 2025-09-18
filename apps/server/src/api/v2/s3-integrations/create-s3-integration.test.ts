@@ -1,6 +1,7 @@
 import { testStorageCredentials } from '@buster/data-source';
-import type { User } from '@buster/database';
-import { createS3Integration, createSecret, getUserOrganizationId } from '@buster/database';
+import type { User } from '@buster/database/queries';
+import { createS3Integration, getUserOrganizationId } from '@buster/database/queries';
+import { createSecret } from '@buster/database/queries';
 import type { CreateS3IntegrationRequest } from '@buster/server-shared';
 import { tasks } from '@trigger.dev/sdk/v3';
 import { HTTPException } from 'hono/http-exception';

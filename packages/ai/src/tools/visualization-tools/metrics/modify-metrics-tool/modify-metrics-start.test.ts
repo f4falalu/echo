@@ -1,4 +1,4 @@
-import { updateMessageEntries } from '@buster/database';
+import { updateMessageEntries } from '@buster/database/queries';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createModifyMetricsStart } from './modify-metrics-start';
 import type { ModifyMetricsInput, ModifyMetricsState } from './modify-metrics-tool';

@@ -1,4 +1,4 @@
-import type { Chat, Message, User } from '@buster/database';
+import type { Chat, Message, User } from '@buster/database/queries';
 import type { ChatAssetType, ChatWithMessages } from '@buster/server-shared/chats';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -39,7 +39,8 @@ vi.mock('@buster/access-controls', () => ({
   canUserAccessChatCached: vi.fn(),
 }));
 
-import { createMessage, db, generateAssetMessages } from '@buster/database';
+import { db } from '@buster/database/connection';
+import { createMessage, generateAssetMessages } from '@buster/database/queries';
 import { handleAssetChat, handleAssetChatWithPrompt } from './chat-helpers';
 
 describe('chat-helpers', () => {

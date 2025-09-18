@@ -32,7 +32,8 @@ vi.mock('@buster/database', () => ({
   isNull: vi.fn(),
 }));
 
-import { and, db, eq, getUserOrganizationId, isNull } from '@buster/database';
+import { and, db, eq, isNull } from '@buster/database/connection';
+import { getUserOrganizationId } from '@buster/database/queries';
 
 describe('security-utils', () => {
   beforeEach(() => {

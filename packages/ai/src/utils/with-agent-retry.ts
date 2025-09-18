@@ -1,4 +1,4 @@
-import { fetchMessageEntries } from '@buster/database';
+import { fetchMessageEntries } from '@buster/database/queries';
 import type { ModelMessage } from 'ai';
 import { z } from 'zod';
 

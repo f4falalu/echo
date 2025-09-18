@@ -1,4 +1,4 @@
-import type { User } from '@buster/database';
+import type { User } from '@buster/database/queries';
 import { HTTPException } from 'hono/http-exception';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { updateShortcutHandler } from './PUT';
@@ -16,7 +16,7 @@ import {
   getShortcutById,
   getUserOrganizationId,
   updateShortcut,
-} from '@buster/database';
+} from '@buster/database/queries';
 
 describe('updateShortcutHandler', () => {
   const mockUser: User = {

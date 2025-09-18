@@ -44,7 +44,7 @@ import {
   getUserOrganizationId,
   updateMessage,
   updateUserLastUsedShortcuts,
-} from '@buster/database';
+} from '@buster/database/queries';
 import { tasks } from '@trigger.dev/sdk/v3';
 import { createChatHandler } from './handler';
 import { handleAssetChat, handleAssetChatWithPrompt } from './services/chat-helpers';

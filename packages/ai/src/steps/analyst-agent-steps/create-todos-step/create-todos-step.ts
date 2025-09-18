@@ -52,7 +52,6 @@ export type CreateTodosContext = z.infer<typeof createTodosContextSchema>;
 export type CreateTodosState = z.infer<typeof createTodosStateSchema>;
 export type CreateTodosInput = z.infer<typeof llmOutputSchema>;
 
-import { UserPersonalizationConfigSchema } from '@buster/database';
 import { createTodosStepDelta } from './create-todos-step-delta';
 import { createTodosStepFinish } from './create-todos-step-finish';
 import { createTodosStepStart } from './create-todos-step-start';

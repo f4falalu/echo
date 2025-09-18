@@ -1,14 +1,15 @@
 import { and, eq, isNull } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
-import { chats, messageAnalysisModeEnum, messages } from '../../schema';
+import { chats, messages } from '../../schema';
+import { MessageAnalysisModeSchema } from '../../schema-types';
 
 // Zod schemas for validation
 export const MessageContextInputSchema = z.object({
   messageId: z.string().uuid('Message ID must be a valid UUID'),
 });
 
-const MessageAnalysisModeEnumSchema = z.enum(messageAnalysisModeEnum.enumValues).optional();
+const MessageAnalysisModeEnumSchema = MessageAnalysisModeSchema.optional();
 
 export const MessageContextOutputSchema = z.object({
   messageId: z.string(),

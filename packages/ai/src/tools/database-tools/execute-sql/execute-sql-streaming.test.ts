@@ -1,4 +1,4 @@
-import { updateMessageEntries } from '@buster/database';
+import { updateMessageEntries } from '@buster/database/queries';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ExecuteSqlContext, ExecuteSqlState } from './execute-sql';
 import { createExecuteSqlDelta } from './execute-sql-delta';

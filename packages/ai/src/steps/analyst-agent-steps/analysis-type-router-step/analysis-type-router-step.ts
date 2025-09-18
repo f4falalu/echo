@@ -1,4 +1,4 @@
-import { messageAnalysisModeEnum } from '@buster/database';
+import { MessageAnalysisModeSchema } from '@buster/database/schema-types';
 import { generateObject } from 'ai';
 import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
@@ -10,7 +10,7 @@ import { formatAnalysisTypeRouterPrompt } from './format-analysis-type-router-pr
 // Zod schemas first - following Zod-first approach
 export const analysisTypeRouterParamsSchema = z.object({
   messages: z.array(z.custom<ModelMessage>()).describe('The conversation history'),
-  messageAnalysisMode: z.enum(messageAnalysisModeEnum.enumValues).optional(),
+  messageAnalysisMode: MessageAnalysisModeSchema.optional(),
 });
 
 export const analysisTypeRouterResultSchema = z.object({

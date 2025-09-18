@@ -1,4 +1,4 @@
-import { getUserOrganizationId } from '@buster/database';
+import { getUserOrganizationId } from '@buster/database/queries';
 import { SlackError } from '@buster/server-shared/slack';
 import { HTTPException } from 'hono/http-exception';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

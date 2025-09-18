@@ -1,10 +1,4 @@
-import {
-  convertChildrenDeserialize,
-  deserializeMd,
-  type MdNodeParser,
-  parseAttributes,
-  serializeMd,
-} from '@platejs/markdown';
+import { deserializeMd, type MdNodeParser, parseAttributes, serializeMd } from '@platejs/markdown';
 
 export const calloutSerializer: MdNodeParser<'callout'> = {
   serialize: (node, options) => {

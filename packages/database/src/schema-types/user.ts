@@ -15,7 +15,7 @@ export const UserOrganizationStatusSchema = z.enum(['active', 'inactive', 'pendi
 export type UserOrganizationStatus = z.infer<typeof UserOrganizationStatusSchema>;
 
 // Team role enum
-export const TeamRoleSchema = z.enum(['manager', 'member']);
+export const TeamRoleSchema = z.enum(['manager', 'member', 'none']);
 export type TeamRole = z.infer<typeof TeamRoleSchema>;
 
 export const UserSuggestedPromptsSchema = z.object({

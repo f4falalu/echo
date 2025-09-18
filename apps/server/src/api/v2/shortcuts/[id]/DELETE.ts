@@ -1,5 +1,5 @@
-import type { User } from '@buster/database';
-import { deleteShortcut, getShortcutById, getUserOrganizationId } from '@buster/database';
+import type { User } from '@buster/database/queries';
+import { deleteShortcut, getShortcutById, getUserOrganizationId } from '@buster/database/queries';
 import {
   OrganizationRequiredError,
   ShortcutNotFoundError,

@@ -1,5 +1,5 @@
-import type { User } from '@buster/database';
-import { getDoc, getUserOrganizationId } from '@buster/database';
+import type { User } from '@buster/database/queries';
+import { getDoc, getUserOrganizationId } from '@buster/database/queries';
 import { HTTPException } from 'hono/http-exception';
 import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getDocHandler } from './GET';

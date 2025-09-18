@@ -1,15 +1,16 @@
 import { generateSuggestedMessages } from '@buster/ai';
 import {
-  DEFAULT_USER_SUGGESTED_PROMPTS,
   type User,
-  type UserSuggestedPromptsType,
   getPermissionedDatasets,
   getUserRecentMessages,
   getUserSuggestedPrompts,
   updateUserSuggestedPrompts,
-} from '@buster/database';
+} from '@buster/database/queries';
+import {
+  DEFAULT_USER_SUGGESTED_PROMPTS,
+  type UserSuggestedPromptsType,
+} from '@buster/database/schema-types';
 import { Hono } from 'hono';
-import { HTTPException } from 'hono/http-exception';
 import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 import app from './GET';
 

@@ -1,8 +1,8 @@
-import type { UpdateUserResponse, UserInfoByIdResponse } from '@buster/database';
+import type { UpdateUserResponse, UserInfoByIdResponse } from '@buster/database/queries';
 import { UserPersonalizationConfigSchema } from '@buster/database/schema-types';
 import { z } from 'zod';
+import type { UserOrganizationRole } from '../organization';
 import type { UserFavorite } from './favorites.types';
-import type { UserOrganizationRole } from './roles.types';
 
 export const UserSchema = z.object({
   attributes: z.object({
