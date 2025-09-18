@@ -23,6 +23,7 @@ export default defineConfig({
   },
   build: {
     external: [
+      'effect',
       'lz4',
       'xxhash',
       '@duckdb/node-api',
