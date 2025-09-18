@@ -5,6 +5,7 @@ import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { GPT5Mini } from '../../../llm/gpt-5-mini';
 import { DEFAULT_OPENAI_OPTIONS } from '../../../llm/providers/gateway';
+import { isOverloadedError } from '../../../utils/with-agent-retry';
 import { formatAnalysisTypeRouterPrompt } from './format-analysis-type-router-prompt';
 
 // Zod schemas first - following Zod-first approach
@@ -83,6 +84,12 @@ async function generateAnalysisTypeWithLLM(messages: ModelMessage[]): Promise<{
       reasoning: result.reasoning,
     };
   } catch (llmError) {
+    // Re-throw overloaded errors so they can be retried
+    if (isOverloadedError(llmError)) {
+      console.info('[AnalysisTypeRouter] Overloaded error detected, re-throwing for retry');
+      throw llmError;
+    }
+
     console.warn('[AnalysisTypeRouter] LLM failed to generate valid response:', {
       error: llmError instanceof Error ? llmError.message : 'Unknown error',
       errorType: llmError instanceof Error ? llmError.name : 'Unknown',

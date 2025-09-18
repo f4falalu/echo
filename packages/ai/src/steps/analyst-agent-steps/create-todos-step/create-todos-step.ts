@@ -4,6 +4,7 @@ import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { DEFAULT_ANTHROPIC_OPTIONS } from '../../../llm/providers/gateway';
 import { Sonnet4 } from '../../../llm/sonnet-4';
+import { isOverloadedError } from '../../../utils/with-agent-retry';
 import { getCreateTodosSystemMessage } from './get-create-todos-system-message';
 
 // Zod schemas first - following Zod-first approach
@@ -130,6 +131,12 @@ async function generateTodosWithLLM(
     const result = await tracedTodosGeneration();
     return result.todos ?? '';
   } catch (llmError) {
+    // Re-throw overloaded errors so they can be retried
+    if (isOverloadedError(llmError)) {
+      console.info('[CreateTodos] Overloaded error detected, re-throwing for retry');
+      throw llmError;
+    }
+
     console.warn('[CreateTodos] LLM failed to generate valid response:', {
       error: llmError instanceof Error ? llmError.message : 'Unknown error',
       errorType: llmError instanceof Error ? llmError.name : 'Unknown',
@@ -191,6 +198,17 @@ export async function runCreateTodosStep(params: CreateTodosParams): Promise<Cre
       messages: resultMessages,
     };
   } catch (error) {
+    // Re-throw overloaded errors for retry logic
+    if (
+      error &&
+      typeof error === 'object' &&
+      'type' in error &&
+      error.type === 'overloaded_error'
+    ) {
+      console.info('[create-todos-step] Overloaded error detected, re-throwing for retry');
+      throw error;
+    }
+
     console.error('[create-todos-step] Unexpected error:', error);
     throw new Error(
       'Unable to create the analysis plan. Please try again or rephrase your request.'
