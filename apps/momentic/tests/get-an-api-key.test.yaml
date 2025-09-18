@@ -1,0 +1,49 @@
+fileType: momentic/test
+id: 991f84d2-5a09-4efd-95ea-9887b5224a85
+name: get-an-api-key
+description: a user should be able to log in and go to settings to get an api key
+schemaVersion: 1.0.21
+advanced:
+  viewport:
+    width: 1920
+    height: 1080
+  browserType: Chromium
+retries: 0
+envs:
+  - name: development
+    default: true
+steps:
+  - id: 93b58d53-d12a-47a9-9370-0b604ccbacb2
+    type: MODULE
+    moduleId: defc36e9-b0a7-4bfe-940f-7901493d5e5e
+  - id: 9f7438cb-de54-4ecd-8232-98f9f0b8459a
+    type: PRESET_ACTION
+    command:
+      id: 3f1a2f55-5435-4676-ad09-cc2082b597e7
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: settings profile button with circle icon
+  - id: 4911b93f-ef66-4b14-bf5d-55833568f1c4
+    type: PRESET_ACTION
+    command:
+      id: 186a70e5-4709-44d2-a83e-eab8df852d38
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: API Keys link in the sidebar
+  - id: aaf15cb4-e51c-4c70-880c-5689da8061b2
+    type: PRESET_ACTION
+    command:
+      id: fed23c5a-0ea0-4971-a45c-ed33b280f316
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: Create New API Key button
+  - id: ef060429-67e6-456e-a3bb-c50b10b859cc
+    type: PRESET_ACTION
+    command:
+      id: aef1d103-fbc6-44af-88bc-3def678ce871
+      type: AI_ASSERTION
+      assertion: A dialog appears showing 'New API key created' and displays an API
+        key that starts with 'eyJ'

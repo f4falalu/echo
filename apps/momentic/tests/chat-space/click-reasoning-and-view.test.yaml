@@ -1,0 +1,71 @@
+fileType: momentic/test
+id: e2760bb0-15ae-45fa-ba98-15c9b7769fa7
+name: click-reasoning-and-view
+description: a user should be able to click reasoning and view it, scroll, etc.
+schemaVersion: 1.0.21
+advanced:
+  viewport:
+    width: 1920
+    height: 1080
+  browserType: Chromium
+retries: 0
+envs:
+  - name: development
+    default: true
+steps:
+  - id: 856db5d5-432f-4022-816f-615ae1cc617e
+    type: MODULE
+    moduleId: defc36e9-b0a7-4bfe-940f-7901493d5e5e
+  - id: c775dfd2-7d24-47c4-8dbc-d67e4c3fbe11
+    type: PRESET_ACTION
+    command:
+      id: 6c3a4174-7ba0-4a81-b047-39fad1b09d36
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the chat history link in the sidebar
+  - id: 82d0093d-445f-4cee-ae50-8bfeab9d2839
+    type: PRESET_ACTION
+    command:
+      id: e0ebae5b-6e63-474a-8dec-76469cd00e6c
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the div with text 'split customers by active status'
+  - id: 65a93bf7-1ee7-48ae-883b-52feeb64de76
+    type: PRESET_ACTION
+    command:
+      id: fe1fe369-a60c-4044-9243-42299d1f6173
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the span with text 'reasoned for 1 minutes'
+  - id: 5f5f3f0a-b465-49fd-a318-cb9e3d8f9b6f
+    type: PRESET_ACTION
+    command:
+      id: 1c339591-e45c-4e6c-b0f2-b14086163c5a
+      type: SCROLL_UP
+      deltaY: 5761
+  - id: 6b2a9605-e8e1-4636-ae1b-e59448b75d9a
+    type: PRESET_ACTION
+    command:
+      id: ab7e8d16-edee-4769-aac5-88d8b00100f6
+      type: AI_ASSERTION
+      assertion: There should be reasoning, the first being 'Broke down your request'
+        which should be followed by a code block with markdown todos. Then we
+        should be able to see any series of thoughts like "thought for a few
+        seconds" or "ran validation queries" or "created metric file" and more.
+  - id: 0efbb5f9-d7df-430d-a7e9-47af0d9190b1
+    type: PRESET_ACTION
+    command:
+      id: 431046ab-8745-4d66-8773-01a18c0b4d2c
+      type: SCROLL_DOWN
+      deltaY: 6884
+  - id: ac5b870d-f124-4615-9af0-515e62b848c1
+    type: PRESET_ACTION
+    command:
+      id: ac7e4a43-5b6a-4eea-8698-8d462d5471a4
+      type: AI_ASSERTION
+      assertion: Confirm that there is a reasoned for 1 minute or some sort of
+        concluding node of the dots and lines that you see along the left side
+        of the reasoning.
