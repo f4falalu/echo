@@ -4,6 +4,7 @@ import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { DEFAULT_ANTHROPIC_OPTIONS } from '../../../llm/providers/gateway';
 import { Sonnet4 } from '../../../llm/sonnet-4';
+import { isOverloadedError } from '../../../utils/with-agent-retry';
 import { getCreateTodosSystemMessage } from './get-create-todos-system-message';
 
 // Zod schemas first - following Zod-first approach
@@ -131,12 +132,7 @@ async function generateTodosWithLLM(
     return result.todos ?? '';
   } catch (llmError) {
     // Re-throw overloaded errors so they can be retried
-    if (
-      llmError &&
-      typeof llmError === 'object' &&
-      'type' in llmError &&
-      llmError.type === 'overloaded_error'
-    ) {
+    if (isOverloadedError(llmError)) {
       console.info('[CreateTodos] Overloaded error detected, re-throwing for retry');
       throw llmError;
     }

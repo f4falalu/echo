@@ -8,11 +8,8 @@ import { calculateBackoffDelay, sleep } from './with-agent-retry';
  */
 const StepRetryOptionsSchema = z.object({
   stepName: z.string().describe('Name of the step for logging'),
-  maxAttempts: z.number().default(3).describe('Maximum number of retry attempts'),
-  baseDelayMs: z
-    .number()
-    .default(2000)
-    .describe('Base delay in milliseconds for exponential backoff'),
+  maxAttempts: z.number().optional().describe('Maximum number of retry attempts'),
+  baseDelayMs: z.number().optional().describe('Base delay in milliseconds for exponential backoff'),
   onRetry: z
     .function()
     .args(z.number(), z.unknown())
@@ -70,7 +67,8 @@ export async function withStepRetry<T>(
     }
   }
 
-  // This should never be reached, but for completeness
+  // This should never be reached because the loop always returns or throws
+  // But TypeScript needs this for completeness
   throw lastError;
 }
 
@@ -107,5 +105,5 @@ export async function runStepsWithRetry<T extends readonly unknown[]>(
   }
 ): Promise<T> {
   const promises = steps.map((step) => withStepRetry(step.stepFn, step.options));
-  return Promise.all(promises) as unknown as Promise<T>;
+  return Promise.all(promises) as Promise<{ [K in keyof T]: T[K] }>;
 }

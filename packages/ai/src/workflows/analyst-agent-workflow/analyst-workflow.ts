@@ -26,6 +26,7 @@ import { MODIFY_METRICS_TOOL_NAME } from '../../tools/visualization-tools/metric
 import { CREATE_REPORTS_TOOL_NAME } from '../../tools/visualization-tools/reports/create-reports-tool/create-reports-tool';
 import { MODIFY_REPORTS_TOOL_NAME } from '../../tools/visualization-tools/reports/modify-reports-tool/modify-reports-tool';
 import { withStepRetry } from '../../utils/with-step-retry';
+import type { StepRetryOptions } from '../../utils/with-step-retry';
 import {
   type AnalystWorkflowOutput,
   type ChartInfo,
@@ -248,6 +249,12 @@ const AnalystPrepStepSchema = z.object({
 
 type AnalystPrepStepInput = z.infer<typeof AnalystPrepStepSchema>;
 
+// Default retry configuration for pre-agent preparation steps
+const DEFAULT_PREP_STEP_RETRY_CONFIG: Omit<StepRetryOptions, 'stepName'> = {
+  maxAttempts: 3,
+  baseDelayMs: 2000,
+};
+
 async function runAnalystPrepSteps({
   messages,
   dataSourceId,
@@ -270,9 +277,8 @@ async function runAnalystPrepSteps({
           shouldInjectUserPersonalizationTodo,
         }),
       {
+        ...DEFAULT_PREP_STEP_RETRY_CONFIG,
         stepName: 'create-todos',
-        maxAttempts: 3,
-        baseDelayMs: 2000,
         onRetry: (attempt, error) => {
           console.info('[create-todos] Retrying after error', {
             messageId,
@@ -289,9 +295,8 @@ async function runAnalystPrepSteps({
           dataSourceId,
         }),
       {
+        ...DEFAULT_PREP_STEP_RETRY_CONFIG,
         stepName: 'extract-values',
-        maxAttempts: 3,
-        baseDelayMs: 2000,
         onRetry: (attempt, error) => {
           console.info('[extract-values] Retrying after error', {
             messageId,
@@ -309,9 +314,8 @@ async function runAnalystPrepSteps({
           messageId,
         }),
       {
+        ...DEFAULT_PREP_STEP_RETRY_CONFIG,
         stepName: 'generate-chat-title',
-        maxAttempts: 3,
-        baseDelayMs: 2000,
         onRetry: (attempt, error) => {
           console.info('[generate-chat-title] Retrying after error', {
             messageId,
@@ -328,9 +332,8 @@ async function runAnalystPrepSteps({
           messageAnalysisMode,
         }),
       {
+        ...DEFAULT_PREP_STEP_RETRY_CONFIG,
         stepName: 'analysis-type-router',
-        maxAttempts: 3,
-        baseDelayMs: 2000,
         onRetry: (attempt, error) => {
           console.info('[analysis-type-router] Retrying after error', {
             messageId,
