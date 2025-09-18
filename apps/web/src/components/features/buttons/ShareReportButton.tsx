@@ -11,7 +11,11 @@ export const ShareReportButton = React.memo(({ reportId }: { reportId: string })
   );
 
   return (
-    <ShareMenu shareAssetConfig={shareAssetConfig || null} assetId={reportId} assetType={'report'}>
+    <ShareMenu
+      shareAssetConfig={shareAssetConfig || null}
+      assetId={reportId}
+      assetType={'report_file'}
+    >
       <ShareButton />
     </ShareMenu>
   );

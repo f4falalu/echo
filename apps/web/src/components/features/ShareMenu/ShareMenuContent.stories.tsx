@@ -41,7 +41,7 @@ const mockShareConfig: ShareConfig = {
 export const MetricShare: Story = {
   args: {
     assetId: 'metric-123',
-    assetType: 'metric',
+    assetType: 'metric_file',
     shareAssetConfig: mockShareConfig,
   },
 };
@@ -49,7 +49,7 @@ export const MetricShare: Story = {
 export const DashboardShare: Story = {
   args: {
     assetId: 'dashboard-456',
-    assetType: 'dashboard',
+    assetType: 'dashboard_file',
     shareAssetConfig: mockShareConfig,
   },
 };
@@ -65,7 +65,7 @@ export const CollectionShare: Story = {
 export const PubliclyAccessible: Story = {
   args: {
     assetId: 'metric-123',
-    assetType: 'metric',
+    assetType: 'metric_file',
     shareAssetConfig: {
       ...mockShareConfig,
       publicly_accessible: true,
@@ -76,7 +76,7 @@ export const PubliclyAccessible: Story = {
 export const ViewerPermission: Story = {
   args: {
     assetId: 'metric-123',
-    assetType: 'metric',
+    assetType: 'metric_file',
     shareAssetConfig: {
       ...mockShareConfig,
       permission: 'can_view',
@@ -87,7 +87,7 @@ export const ViewerPermission: Story = {
 export const PublishedMetric: Story = {
   args: {
     assetId: 'metric-123',
-    assetType: 'metric',
+    assetType: 'metric_file',
     shareAssetConfig: {
       ...mockShareConfig,
       publicly_accessible: true,

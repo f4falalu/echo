@@ -15,7 +15,7 @@ export const useIsMetricFileChanged = ({
     isFileChanged,
     onResetToOriginal,
     enableBlocker: isFileChanged && enabled,
-    assetType: 'metric',
+    assetType: 'metric_file',
   });
 
   return useMemo(() => ({ isFileChanged, onResetToOriginal }), [isFileChanged, onResetToOriginal]);

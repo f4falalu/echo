@@ -100,7 +100,7 @@ describe('ResponseMessageSchema', () => {
     const fileMessage = {
       id: 'resp-456',
       type: 'file',
-      file_type: 'metric',
+      file_type: 'metric_file',
       file_name: 'revenue_analysis.yaml',
       version_number: 1,
       filter_version_id: 'filter-123',
@@ -118,7 +118,7 @@ describe('ResponseMessageSchema', () => {
     if (result.success) {
       expect(result.data.type).toBe('file');
       if (result.data.type === 'file') {
-        expect(result.data.file_type).toBe('metric');
+        expect(result.data.file_type).toBe('metric_file');
         expect(result.data.metadata).toHaveLength(1);
       }
     }
@@ -128,7 +128,7 @@ describe('ResponseMessageSchema', () => {
     const fileMessageWithoutOptionals = {
       id: 'resp-456',
       type: 'file',
-      file_type: 'dashboard',
+      file_type: 'dashboard_file',
       file_name: 'sales_dashboard.yaml',
       version_number: 2,
     };
@@ -138,7 +138,7 @@ describe('ResponseMessageSchema', () => {
     if (result.success) {
       expect(result.data.type).toBe('file');
       if (result.data.type === 'file') {
-        expect(result.data.file_type).toBe('dashboard');
+        expect(result.data.file_type).toBe('dashboard_file');
         expect(result.data.metadata).toBeUndefined();
         expect(result.data.filter_version_id).toBeUndefined();
       }
@@ -174,7 +174,7 @@ describe('ReasoningMessageSchema', () => {
       files: {
         'file-1': {
           id: 'file-1',
-          file_type: 'metric',
+          file_type: 'metric_file',
           file_name: 'revenue.yaml',
           version_number: 1,
           status: 'completed',
@@ -188,7 +188,7 @@ describe('ReasoningMessageSchema', () => {
         },
         'file-2': {
           id: 'file-2',
-          file_type: 'dashboard',
+          file_type: 'dashboard_file',
           file_name: 'dashboard.yaml',
           status: 'loading',
           file: {
@@ -204,7 +204,7 @@ describe('ReasoningMessageSchema', () => {
       expect(result.data.type).toBe('files');
       if (result.data.type === 'files') {
         expect(result.data.file_ids).toHaveLength(2);
-        expect(result.data.files['file-1']?.file_type).toBe('metric');
+        expect(result.data.files['file-1']?.file_type).toBe('metric_file');
         expect(result.data.files['file-1']?.file?.modified).toEqual([
           [0, 10],
           [20, 30],
@@ -226,12 +226,12 @@ describe('ReasoningMessageSchema', () => {
           pills: [
             {
               text: 'Revenue',
-              type: 'metric',
+              type: 'metric_file',
               id: 'metric-1',
             },
             {
               text: 'Profit',
-              type: 'metric',
+              type: 'metric_file',
               id: 'metric-2',
             },
           ],
@@ -241,7 +241,7 @@ describe('ReasoningMessageSchema', () => {
           pills: [
             {
               text: 'Sales Overview',
-              type: 'dashboard',
+              type: 'dashboard_file',
               id: 'dashboard-1',
             },
           ],
@@ -256,7 +256,7 @@ describe('ReasoningMessageSchema', () => {
       if (result.data.type === 'pills') {
         expect(result.data.pill_containers).toHaveLength(2);
         expect(result.data.pill_containers?.[0]?.pills).toHaveLength(2);
-        expect(result.data.pill_containers?.[0]?.pills?.[0]?.type).toBe('metric');
+        expect(result.data.pill_containers?.[0]?.pills?.[0]?.type).toBe('metric_file');
         expect(result.data.pill_containers?.[1]?.pills?.[0]?.text).toBe('Sales Overview');
       }
     }

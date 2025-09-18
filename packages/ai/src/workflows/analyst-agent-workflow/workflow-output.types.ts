@@ -42,7 +42,7 @@ export type DataSnapshot = z.infer<typeof DataSnapshotSchema>;
 export const ChartInfoSchema = z.object({
   id: z.string(),
   name: z.string(),
-  type: z.enum(['metric', 'dashboard', 'report']),
+  type: z.enum(['metric_file', 'dashboard_file', 'report_file']),
   chartType: z.string().optional(), // from selectedChartType
   chartConfig: z.custom<ChartConfigProps>().optional(),
   sql: z.string().optional(),
@@ -201,7 +201,7 @@ export function extractChartInfo(toolCall: ToolCallInfo, toolResult: unknown): C
       charts.push({
         id: String(file.id || ''),
         name: String(file.name || ''),
-        type: 'metric',
+        type: 'metric_file',
         chartType,
         chartConfig,
         sql,
@@ -233,7 +233,7 @@ export function extractChartInfo(toolCall: ToolCallInfo, toolResult: unknown): C
       charts.push({
         id: String(file.id || ''),
         name: String(file.name || ''),
-        type: 'dashboard',
+        type: 'dashboard_file',
         ymlContent,
         createdAt: Date.now(),
         toolCallId: toolCall.toolCallId,
@@ -263,7 +263,7 @@ export function extractChartInfo(toolCall: ToolCallInfo, toolResult: unknown): C
       charts.push({
         id: String(file.id || ''),
         name: String(file.name || ''),
-        type: 'report',
+        type: 'report_file',
         ymlContent,
         createdAt: Date.now(),
         toolCallId: toolCall.toolCallId,

@@ -23,7 +23,7 @@ export const ReasoningFileCode: React.FC<
   const { text = '', modified } = file;
 
   const fileInfo: React.ReactNode = useMemo(() => {
-    if (file_type === 'dashboard' || file_type === 'metric') {
+    if (file_type === 'dashboard_file' || file_type === 'metric_file') {
       return <TextAndVersionPill fileName={file_name} versionNumber={version_number} />;
     }
 

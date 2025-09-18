@@ -31,7 +31,7 @@ export function createCreateReportsFinish(
         return {
           id: existingFile?.id || randomUUID(),
           file_name: file.name,
-          file_type: 'report',
+          file_type: 'report_file',
           version_number: existingFile?.version_number || 1,
           file: {
             text: file.content,

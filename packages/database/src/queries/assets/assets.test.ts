@@ -316,7 +316,7 @@ describe('Asset Queries', () => {
               },
               {
                 type: 'file',
-                file_type: 'report', // This should be 'report', not 'dashboard' or 'metric'
+                file_type: 'report_file', // This should be 'report_file', not 'dashboard_file' or 'metric_file'
               },
             ],
           },
@@ -341,7 +341,7 @@ describe('Asset Queries', () => {
         expect.arrayContaining([
           expect.objectContaining({
             type: 'file',
-            file_type: 'report',
+            file_type: 'report_file',
           }),
         ])
       );

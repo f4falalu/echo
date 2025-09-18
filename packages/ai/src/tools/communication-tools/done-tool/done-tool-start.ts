@@ -78,7 +78,7 @@ export function createDoneToolStart(context: DoneToolContext, doneToolState: Don
         });
 
         // Prefer reports over other file types for the chat's most recent file
-        const reportFile = sortedFiles.find((f) => f.fileType === 'report');
+        const reportFile = sortedFiles.find((f) => f.fileType === 'report_file');
         const mostRecentFile = reportFile || sortedFiles[0];
 
         if (mostRecentFile) {
@@ -88,13 +88,16 @@ export function createDoneToolStart(context: DoneToolContext, doneToolState: Don
             fileType: mostRecentFile.fileType,
             fileName: mostRecentFile.fileName,
             versionNumber: mostRecentFile.versionNumber,
-            isReport: mostRecentFile.fileType === 'report',
+            isReport: mostRecentFile.fileType === 'report_file',
           });
 
           try {
             await updateChat(context.chatId, {
               mostRecentFileId: mostRecentFile.id,
-              mostRecentFileType: mostRecentFile.fileType as 'metric' | 'dashboard' | 'report',
+              mostRecentFileType: mostRecentFile.fileType as
+                | 'metric_file'
+                | 'dashboard_file'
+                | 'report_file',
               mostRecentVersionNumber: mostRecentFile.versionNumber || 1,
             });
           } catch (error) {

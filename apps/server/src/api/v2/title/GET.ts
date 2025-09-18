@@ -28,16 +28,16 @@ const app = new Hono()
         case 'chat':
           title = await getChatTitle({ assetId, organizationId: userOrg?.organizationId });
           break;
-        case 'metric':
+        case 'metric_file':
           title = await getMetricTitle({ assetId, organizationId: userOrg?.organizationId });
           break;
         case 'collection':
           title = await getCollectionTitle({ assetId, organizationId: userOrg?.organizationId });
           break;
-        case 'dashboard':
+        case 'dashboard_file':
           title = await getDashboardTitle({ assetId, organizationId: userOrg?.organizationId });
           break;
-        case 'report':
+        case 'report_file':
           title = await getReportTitle({ assetId, organizationId: userOrg?.organizationId });
           break;
         default: {

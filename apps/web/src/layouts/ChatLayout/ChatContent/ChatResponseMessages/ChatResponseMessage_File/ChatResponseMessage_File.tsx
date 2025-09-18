@@ -29,13 +29,13 @@ export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = Reac
     }) as unknown as ILinkProps;
 
     const SelectedComponent = useMemo(() => {
-      if (file_type === 'dashboard') {
+      if (file_type === 'dashboard_file') {
         return ChatResponseMessage_DashboardFile;
       }
-      if (file_type === 'report') {
+      if (file_type === 'report_file') {
         return ChatResponseMessage_StandardFile;
       }
-      if (file_type === 'metric') {
+      if (file_type === 'metric_file') {
         return ChatResponseMessage_StandardFile;
       }
       if (file_type === 'reasoning') {

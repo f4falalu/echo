@@ -15,9 +15,9 @@ export const useShowLoader = (
       versionNumber: versionNumber,
     },
     {
-      enabled: type === 'metric',
+      enabled: type === 'metric_file',
       select: useCallback(
-        (x: BusterMetricDataExtended) => !x.data_metadata && type === 'metric',
+        (x: BusterMetricDataExtended) => !x.data_metadata && type === 'metric_file',
         [type]
       ),
     }

@@ -91,13 +91,14 @@ export const useGetMetric = <TData = BusterMetric>(
       }
       return false;
     },
+    enabled: (params?.enabled ?? true) && !!id,
     select: undefined,
     ...params,
   });
 
   return useQuery({
     ...metricsQueryKeys.metricsGetMetric(id || '', selectedVersionNumber),
-    enabled: !!latestVersionNumber && isFetchedInitial && !isErrorInitial,
+    enabled: !!id && !!latestVersionNumber && isFetchedInitial && !isErrorInitial,
     queryFn: () => getMetricQueryFn({ id, version: selectedVersionNumber, password, queryClient }),
     select: params?.select,
   });
@@ -120,7 +121,7 @@ export const prefetchGetMetric = async (
   const queryKey = metricsQueryKeys.metricsGetMetric(id, version_number || 'LATEST')?.queryKey;
   const existingData = queryClient.getQueryData(queryKey);
 
-  if (!existingData) {
+  if (!existingData && id) {
     await queryClient.prefetchQuery({
       ...metricsQueryKeys.metricsGetMetric(id, version_number || 'LATEST'),
       queryFn: () =>
@@ -208,7 +209,7 @@ export const prefetchGetMetricDataClient = async (
 ) => {
   const options = metricsQueryKeys.metricsGetData(id, version_number);
   const existingData = queryClient.getQueryData(options.queryKey);
-  if (!existingData) {
+  if (!existingData && id) {
     await queryClient.prefetchQuery({
       ...options,
       queryFn: () => getMetricData({ id, version_number }),

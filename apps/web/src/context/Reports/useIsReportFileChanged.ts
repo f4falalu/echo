@@ -15,7 +15,7 @@ export const useIsReportFileChanged = ({
     isFileChanged,
     onResetToOriginal,
     enableBlocker: enabled,
-    assetType: 'report',
+    assetType: 'report_file',
   });
 
   return useMemo(() => ({ isFileChanged, onResetToOriginal }), [isFileChanged, onResetToOriginal]);

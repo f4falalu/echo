@@ -46,7 +46,7 @@ export const ReportPageController: React.FC<{
       // Check if the current report ID matches any file being generated
       const responseMessages = Object.values(currentMessage.response_messages || {});
       return responseMessages.some(
-        (msg) => msg.type === 'file' && msg.file_type === 'report' && msg.id === reportId
+        (msg) => msg.type === 'file' && msg.file_type === 'report_file' && msg.id === reportId
       );
     }, [currentMessage, isStreamingMessage, messageId, reportId]);
 

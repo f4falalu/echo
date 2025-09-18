@@ -81,14 +81,14 @@ const yourStuff = (selectedAssetType?: AssetType): ISidebarGroup =>
       [
         {
           label: 'Metrics',
-          assetType: 'metric' satisfies AssetType,
+          assetType: 'metric_file' satisfies AssetType,
           icon: <ASSET_ICONS.metrics />,
           link: { to: '/app/metrics' },
           id: '/app/metrics',
         },
         {
           label: 'Dashboards',
-          assetType: 'dashboard' satisfies AssetType,
+          assetType: 'dashboard_file' satisfies AssetType,
           icon: <ASSET_ICONS.dashboards />,
           link: { to: '/app/dashboards' },
           id: '/app/dashboards/',
@@ -102,7 +102,7 @@ const yourStuff = (selectedAssetType?: AssetType): ISidebarGroup =>
         },
         {
           label: 'Reports',
-          assetType: 'report' satisfies AssetType,
+          assetType: 'report_file' satisfies AssetType,
           icon: <ASSET_ICONS.reports />,
           link: { to: '/app/reports' },
           id: '/app/reports/',

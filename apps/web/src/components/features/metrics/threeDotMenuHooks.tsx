@@ -79,7 +79,7 @@ export const useFavoriteMetricSelectMenu = ({ metricId }: { metricId: string }) 
   const { data: name } = useGetMetric({ id: metricId }, { select: (x) => x.name });
   const { isFavorited, onFavoriteClick } = useFavoriteStar({
     id: metricId,
-    type: 'metric',
+    type: 'metric_file',
     name: name || '',
   });
 
@@ -106,7 +106,7 @@ export const useMetricDrilldownItem = ({ metricId }: { metricId: string }): IDro
       items: [
         <FollowUpWithAssetContent
           key="drilldown-and-filter"
-          assetType="metric"
+          assetType="metric_file"
           assetId={metricId}
           placeholder="Describe how you want to drill down or filter..."
           buttonText="Submit request"
@@ -385,7 +385,7 @@ export const useEditMetricWithAI = ({ metricId }: { metricId: string }): IDropdo
 
   const { onCreateFileClick, loading } = useStartChatFromAsset({
     assetId: metricId,
-    assetType: 'metric',
+    assetType: 'metric_file',
   });
 
   return useMemo(

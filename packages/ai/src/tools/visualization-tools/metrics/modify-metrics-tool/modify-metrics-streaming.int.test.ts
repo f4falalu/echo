@@ -80,7 +80,7 @@ describe('modify-metrics-tool streaming integration', () => {
         {
           id: 'metric-1',
           name: 'Test Metric',
-          file_type: 'metric',
+          file_type: 'metric_file',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           version_number: 2,
@@ -134,7 +134,7 @@ describe('modify-metrics-tool streaming integration', () => {
         {
           id: 'metric-1',
           name: 'Metric 1',
-          file_type: 'metric',
+          file_type: 'metric_file',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           version_number: 1,
@@ -210,7 +210,7 @@ describe('modify-metrics-tool streaming integration', () => {
         {
           id: 'm1',
           name: 'Metric 1',
-          file_type: 'metric',
+          file_type: 'metric_file',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           version_number: 1,
@@ -218,7 +218,7 @@ describe('modify-metrics-tool streaming integration', () => {
         {
           id: 'm3',
           name: 'Metric 3',
-          file_type: 'metric',
+          file_type: 'metric_file',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           version_number: 1,
@@ -291,7 +291,7 @@ describe('modify-metrics-tool streaming integration', () => {
         {
           id: 'm1',
           name: 'Metric 1',
-          file_type: 'metric',
+          file_type: 'metric_file',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           version_number: 1,

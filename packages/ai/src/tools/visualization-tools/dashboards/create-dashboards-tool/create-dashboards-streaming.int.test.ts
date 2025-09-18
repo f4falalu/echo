@@ -53,7 +53,7 @@ describe('create-dashboards-tool streaming integration', () => {
           {
             id: 'dashboard-1',
             name: 'Test Dashboard',
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             created_at: '2024-01-01T00:00:00Z',
             updated_at: '2024-01-01T00:00:00Z',
             version_number: 1,
@@ -130,7 +130,7 @@ describe('create-dashboards-tool streaming integration', () => {
           {
             id: 'dashboard-1',
             name: 'Test Dashboard',
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             created_at: '2024-01-01T00:00:00Z',
             updated_at: '2024-01-01T00:00:00Z',
             version_number: 1,
@@ -176,7 +176,7 @@ describe('create-dashboards-tool streaming integration', () => {
           {
             id: 'dashboard-1',
             name: 'Dashboard 1',
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             created_at: '2024-01-01T00:00:00Z',
             updated_at: '2024-01-01T00:00:00Z',
             version_number: 1,
@@ -258,7 +258,7 @@ describe('create-dashboards-tool streaming integration', () => {
           {
             id: 'dashboard-1',
             name: 'Test Dashboard',
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             created_at: '2024-01-01T00:00:00Z',
             updated_at: '2024-01-01T00:00:00Z',
             version_number: 1,
@@ -355,7 +355,7 @@ describe('create-dashboards-tool streaming integration', () => {
         files: largeInput.files.map((f, i) => ({
           id: `dashboard-${i + 1}`,
           name: f.name,
-          file_type: 'dashboard',
+          file_type: 'dashboard_file',
           created_at: '2024-01-01T00:00:00Z',
           updated_at: '2024-01-01T00:00:00Z',
           version_number: 1,

@@ -1,4 +1,5 @@
 import {
+  type AssetType,
   type CreateAssetPermissionParams,
   type ListAssetPermissionsParams,
   type RemoveAssetPermissionParams,
@@ -15,7 +16,6 @@ import type {
   AssetPermission,
   AssetPermissionRole,
   AssetPermissionWithUser,
-  AssetType,
   IdentityType,
   WorkspaceSharing,
 } from '../types/asset-permissions';
@@ -33,14 +33,6 @@ export async function createPermission(params: {
   role: AssetPermissionRole;
   createdBy: string;
 }): Promise<AssetPermission> {
-  // Validate asset type is not deprecated
-  if (params.assetType === 'dashboard' || params.assetType === 'thread') {
-    throw new AccessControlError(
-      'deprecated_asset_type',
-      `Asset type ${params.assetType} is deprecated`
-    );
-  }
-
   try {
     const permission = await createAssetPermission({
       identityId: params.identityId,
@@ -189,15 +181,7 @@ export async function bulkCreatePermissions(params: {
 }): Promise<AssetPermission[]> {
   const { permissions, createdBy } = params;
 
-  // Validate all asset types
-  for (const perm of permissions) {
-    if (perm.assetType === 'dashboard' || perm.assetType === 'thread') {
-      throw new AccessControlError(
-        'deprecated_asset_type',
-        `Asset type ${perm.assetType} is deprecated`
-      );
-    }
-  }
+  // All remaining asset types are valid
 
   try {
     const created = await bulkCreateAssetPermissions({

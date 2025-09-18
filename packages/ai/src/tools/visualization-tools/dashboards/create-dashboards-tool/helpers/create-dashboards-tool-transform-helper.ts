@@ -29,7 +29,7 @@ export function createCreateDashboardsReasoningEntry(
     fileIds.push(id);
     filesRecord[id] = {
       id,
-      file_type: 'dashboard',
+      file_type: 'dashboard_file',
       file_name: f.file_name,
       version_number: f.version_number,
       status: f.status,
@@ -55,10 +55,10 @@ export function createCreateDashboardsReasoningEntry(
   const isComplete = completedFiles + failedFiles === totalFiles && totalFiles > 0;
   if (isComplete) {
     if (failedFiles === 0) {
-      title = `Created ${completedFiles} ${completedFiles === 1 ? 'dashboard' : 'dashboards'}`;
+      title = `Created ${completedFiles} ${completedFiles === 1 ? 'dashboard_file' : 'dashboards'}`;
       status = 'completed';
     } else if (completedFiles === 0) {
-      title = `Failed to create ${failedFiles} ${failedFiles === 1 ? 'dashboard' : 'dashboards'}`;
+      title = `Failed to create ${failedFiles} ${failedFiles === 1 ? 'dashboard_file' : 'dashboards'}`;
       status = 'failed';
     } else {
       title = `Created ${completedFiles} of ${totalFiles} dashboards`;

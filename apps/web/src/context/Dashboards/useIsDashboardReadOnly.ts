@@ -13,7 +13,7 @@ export const useIsDashboardReadOnly = ({
   dashboardId: string;
   readOnly?: boolean;
 }) => {
-  const isVersionHistoryMode = useChatIsVersionHistoryMode({ type: 'dashboard' });
+  const isVersionHistoryMode = useChatIsVersionHistoryMode({ type: 'dashboard_file' });
   const { dashboardVersionNumber } = useGetDashboardParams();
   const {
     data: dashboardData,

@@ -12,7 +12,7 @@ export const ChatListItemSchema = z.object({
   created_by_avatar: z.string().nullable(),
   last_edited: z.string(),
   latest_file_id: z.string().nullable(),
-  latest_file_type: z.enum(['metric', 'dashboard']),
+  latest_file_type: z.enum(['metric_file', 'dashboard_file', 'report_file']),
   latest_version_number: z.number().optional(),
   latest_file_name: z.string().nullable(),
   is_shared: z.boolean(),
