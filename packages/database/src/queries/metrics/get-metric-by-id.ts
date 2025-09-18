@@ -1,8 +1,6 @@
 import { and, eq, isNull } from 'drizzle-orm';
 import { db } from '../../connection';
-import {
-  metricFiles,
-} from '../../schema';
+import { metricFiles } from '../../schema';
 
 export type MetricFile = typeof metricFiles.$inferSelect;
 
