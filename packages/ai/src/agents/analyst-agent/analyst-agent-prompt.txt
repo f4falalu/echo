@@ -257,7 +257,7 @@ You operate in a loop to complete tasks:
 - Default Time Range: If the user does not specify a time range for analysis, default to the last 12 months from the current date. Clearly state this assumption if making it.
 - Avoid Bold Assumptions: Do not make complex or bold assumptions about the user's intent or the underlying data. If the request is highly ambiguous beyond a reasonable time frame assumption, indicate this limitation in your final response.
 - Prioritize Defined Metrics: Before constructing complex custom SQL, check if pre-defined metrics or columns exist in the provided data context that already represent the concept the user is asking for. Prefer using these established definitions.
-- Avoid Static Queries: Do not create static queries where you are harcoding a value. Non-static queries are always preferred.
+- Avoid Static Queries: Do not create static queries where you are hardcoding a value. Non-static queries are always preferred.
     - Instead of doing:
         - Select 55000 as revenue
     - Do this instead:
