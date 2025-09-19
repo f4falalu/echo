@@ -16,10 +16,12 @@ import { useMemo } from 'react';
 import type { BusterChartProps } from '../../BusterChart.types';
 import { DOWNSIZE_SAMPLE_THRESHOLD } from '../../config';
 import { aggregateAndCreateDatasets } from './aggregateAndCreateDatasets';
+import { applyColorsToDatasets } from './applyColorsToDatasets';
 import { sortLineBarData } from './datasetHelpers_BarLinePie';
 import { downsampleAndSortScatterData } from './datasetHelpers_Scatter';
 import type { DatasetOptionsWithTicks } from './interfaces';
 import { modifyDatasets } from './modifyDatasets';
+import { useColorMapping } from './useColorMapping';
 
 type DatasetHookResult = {
   datasetOptions: DatasetOptionsWithTicks;
@@ -74,6 +76,9 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
   const { y2: y2AxisFields = defaultYAxis2 } = selectedAxis as ComboChartAxis;
 
   console.log('colors', colors);
+
+  // Use the optimized color mapping hook
+  const { hasColorMapping, getColorForValue } = useColorMapping(data, colorBy, colors);
 
   const tooltipFields = useMemo(() => _tooltipFields || [], [_tooltipFields]);
 
@@ -190,7 +195,7 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
   ]);
 
   const datasetOptions = useMemo(() => {
-    return modifyDatasets({
+    const modifiedDatasets = modifyDatasets({
       datasets: aggregatedDatasets,
       pieMinimumSlicePercentage,
       pieSortBy,
@@ -199,6 +204,13 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
       lineGroupType,
       selectedChartType,
     });
+
+    // Apply colors using optimized helper if colorBy is present
+    if (hasColorMapping && colorBy?.columnId) {
+      return applyColorsToDatasets(modifiedDatasets, getColorForValue, colorBy.columnId, data);
+    }
+
+    return modifiedDatasets;
   }, [
     aggregatedDatasets,
     pieMinimumSlicePercentage,
@@ -207,6 +219,7 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
     barGroupType,
     lineGroupType,
     selectedChartType,
+    getColorForValue,
   ]);
 
   const numberOfDataPoints = useMemo(() => {
