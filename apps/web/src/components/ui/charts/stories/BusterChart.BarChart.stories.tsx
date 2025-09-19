@@ -63,6 +63,7 @@ export const Default: Story = {
       y: ['sales', 'units', 'returns'],
       category: [],
       tooltip: null,
+      colorBy: null,
     },
     columnLabelFormats: {
       sales: {
@@ -70,7 +71,7 @@ export const Default: Story = {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
-        displayName: 'SALES',
+        displayName: 'Sales',
       } as ColumnLabelFormat,
       units: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
@@ -109,6 +110,7 @@ export const MultipleYAxis: Story = {
       y: ['sales', 'units'],
       category: [],
       tooltip: null,
+      colorBy: null,
     } satisfies BarAndLineAxis,
     columnLabelFormats: {
       category: {
@@ -174,6 +176,7 @@ export const WithCategory: Story = {
       y: ['sales'],
       category: ['product'],
       tooltip: null,
+      colorBy: null,
     },
     columnLabelFormats: {
       region: {
@@ -219,6 +222,7 @@ export const WithCategoryAndMultipleYAxis: Story = {
       y: ['sales', 'units'],
       category: ['product'],
       tooltip: null,
+      colorBy: null,
     },
     columnLabelFormats: {
       region: {
@@ -267,6 +271,7 @@ export const DateXAxis: Story = {
       y: ['sales', 'units'],
       category: [],
       tooltip: null,
+      colorBy: null,
     },
     columnLabelFormats: {
       date: {
@@ -305,6 +310,7 @@ export const HorizontalBar: Story = {
       y: ['sales'],
       category: [],
       tooltip: null,
+      colorBy: null,
     },
     columnLabelFormats: {
       category: {
@@ -348,6 +354,7 @@ export const WithDataLabels: Story = {
       y: ['sales', 'units'],
       category: [],
       tooltip: null,
+      colorBy: null,
     },
     columnSettings: {
       sales: {
@@ -401,6 +408,7 @@ export const WithDataLabelsAndStackTotal: Story = {
       y: ['units', 'sales'],
       category: [],
       tooltip: null,
+      colorBy: null,
     },
     barGroupType: 'stack',
     barShowTotalAtTop: true,
@@ -503,6 +511,7 @@ export const LargeDataset: Story = {
       y: ['sales', 'units', 'returns'],
       category: [],
       tooltip: null,
+      colorBy: null,
     },
     columnLabelFormats: {
       category: {
@@ -543,6 +552,7 @@ export const LargeDatasetWithDualYAxis: Story = {
       y2: ['units'],
       category: [],
       tooltip: null,
+      colorBy: null,
     },
     columnLabelFormats: {
       category: {
@@ -583,6 +593,7 @@ export const WithSorting: Story = {
       y: ['sales'],
       category: [],
       tooltip: null,
+      colorBy: null,
     },
     barSortBy: ['asc'],
   },
@@ -600,6 +611,7 @@ export const WithDatesInXAxis: Story = {
       y: ['sales'],
       category: [],
       tooltip: null,
+      colorBy: null,
     },
     columnLabelFormats: {
       date: {
@@ -628,6 +640,7 @@ export const WithDatesInXAxisAndSorting: Story = {
       y: ['sales'],
       category: [],
       tooltip: null,
+      colorBy: null,
     },
     barSortBy: ['asc'],
     columnLabelFormats: {
@@ -658,6 +671,7 @@ export const HorizontalBarWithGoalLine: Story = {
       y: ['sales'],
       category: [],
       tooltip: null,
+      colorBy: null,
     },
     columnLabelFormats: {
       category: {
@@ -724,6 +738,7 @@ export const GroupedBar: Story = {
       y: ['sales'],
       category: ['product'],
       tooltip: null,
+      colorBy: null,
     },
     barGroupType: 'group',
     columnLabelFormats: {
@@ -785,6 +800,7 @@ export const PercentageStackedBar: Story = {
       y: ['sales'],
       category: ['product'],
       tooltip: null,
+      colorBy: null,
     },
     barGroupType: 'percentage-stack',
     columnSettings: {
@@ -846,6 +862,7 @@ export const ExtraLargeDataset: Story = {
       y: ['sales'],
       category: [],
       tooltip: null,
+      colorBy: null,
     },
     columnLabelFormats: {
       category: {
@@ -888,6 +905,7 @@ export const ExtraLargeDatasetWithCategory: Story = {
       y: ['sales'],
       category: [],
       tooltip: null,
+      colorBy: null,
     },
     columnLabelFormats: {
       category: {
@@ -934,6 +952,7 @@ export const ManyUnPlottedTooltipItems: Story = {
       y: ['sales'],
       category: [],
       tooltip: ['sales', 'customerRating', 'stockLevel', 'returnRate'],
+      colorBy: null,
     },
     columnSettings: {
       sales: {
@@ -1053,6 +1072,7 @@ export const WithMultipleXAxis: Story = {
       y: ['sales'],
       category: [],
       tooltip: null,
+      colorBy: null,
     } satisfies BarAndLineAxis,
   },
 };
@@ -1156,6 +1176,7 @@ export const ProblematicBarChart: Story = {
       y: ['customer_name'],
       category: [],
       tooltip: null,
+      colorBy: null,
     },
     columnLabelFormats: {
       customer_name: {
@@ -1241,6 +1262,38 @@ export const WithYearInXAxis: Story = {
         style: 'currency',
         currency: 'USD',
       } as ColumnLabelFormat,
+    },
+  },
+};
+
+export const WithColorBy: Story = {
+  args: {
+    ...Default.args,
+    data: [
+      {
+        sales: 1000,
+        type: 'Type 1',
+        level: 'Level 1',
+      },
+      {
+        sales: 2000,
+        type: 'Type 2',
+        level: 'Level 2',
+      },
+      {
+        sales: 1200,
+        type: 'Type 3',
+        level: 'Level 1',
+      },
+    ],
+    barAndLineAxis: {
+      x: ['type'],
+      y: ['sales'],
+      category: [],
+      tooltip: null,
+      colorBy: {
+        columnId: 'level',
+      },
     },
   },
 };

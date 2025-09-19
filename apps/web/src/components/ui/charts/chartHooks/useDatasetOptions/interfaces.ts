@@ -51,6 +51,10 @@ export type DatasetOption = {
    * Optional key to determine the size of data points (used in scatter/bubble charts)
    */
   sizeDataKey?: string;
+  /**
+   * Optional color by value
+   */
+  colors?: string[]; //if the color is overridden
 };
 
 export type DatasetOptionsWithTicks = {

@@ -44,6 +44,7 @@ type DatasetHookParams = {
   lineGroupType: BusterChartProps['lineGroupType'];
   trendlines: Trendline[] | undefined;
   columnMetadata: NonNullable<BusterChartProps['columnMetadata']>;
+  colors: string[];
 };
 
 const defaultYAxis2 = [] as string[];
@@ -60,6 +61,7 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
     lineGroupType,
     pieSortBy,
     columnMetadata,
+    colors,
   } = params;
   const {
     x: xFields,
@@ -67,8 +69,11 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
     size: sizeField,
     tooltip: _tooltipFields = null,
     category: categoryFields = [],
+    colorBy,
   } = selectedAxis as ScatterAxis;
   const { y2: y2AxisFields = defaultYAxis2 } = selectedAxis as ComboChartAxis;
+
+  console.log('colors', colors);
 
   const tooltipFields = useMemo(() => _tooltipFields || [], [_tooltipFields]);
 
@@ -207,6 +212,8 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
   const numberOfDataPoints = useMemo(() => {
     return datasetOptions.datasets.reduce((acc, dataset) => acc + dataset.data.length, 0);
   }, [datasetOptions]);
+
+  console.log('top level datasetOptions', datasetOptions);
 
   return {
     numberOfDataPoints,

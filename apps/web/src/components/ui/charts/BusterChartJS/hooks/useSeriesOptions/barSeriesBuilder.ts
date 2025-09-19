@@ -74,6 +74,8 @@ export const barSeriesBuilder = ({
     } as NonNullable<Options['labels']>['stackTotal'];
   }
 
+  console.log('datasetOptions', datasetOptions);
+
   return datasetOptions.datasets.map<ChartProps<'bar'>['data']['datasets'][number]>(
     (dataset, index) => {
       return barBuilder({
@@ -150,7 +152,17 @@ export const barBuilder = ({
     order,
     yAxisKey: yKey,
     data: dataset.data,
-    backgroundColor: color,
+    backgroundColor: (x) => {
+      console.log('__dataset', dataset);
+      console.log('xchart', x.chart);
+      console.log('x', x);
+      console.log('xmeta', x.dataIndex, x.datasetIndex, x.dataset);
+      if (x.dataIndex === 0) {
+        return 'red';
+      }
+
+      return color;
+    },
     borderRadius: (columnSetting?.barRoundness || 0) / 2,
     tooltipData: dataset.tooltipData,
     xAxisKeys,
