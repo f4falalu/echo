@@ -34,9 +34,10 @@ Each ticket must include:
 
 1. **Test Specifications (FIRST)**
    - Define test cases that verify successful implementation
-   - Include both unit test (`*.test.ts`) and integration test (`*.int.test.ts`) requirements
+   - Include both unit test (`*.test.ts`) and integration test (`*.int.test.ts`) requirements. We prefer unit tests over integration tests and code should be written to be testable by abstracting integrations so those can be mocked and tested appropriately.
    - Specify test data and expected outcomes
    - Use descriptive test names that explain the assertion and situation
+   - The queries in database are always integration tests bc they should just be querying the database and have relatively little logic.
 
 2. **Type Definitions**
    - Define all Zod schemas with descriptions
