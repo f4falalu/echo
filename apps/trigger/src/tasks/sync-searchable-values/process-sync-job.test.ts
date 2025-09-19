@@ -68,6 +68,7 @@ describe('processSyncJob', () => {
     executeBulk: vi.fn(),
     getMetadata: vi.fn(),
     isConnected: vi.fn(),
+    getDataSourceType: vi.fn().mockReturnValue('postgres'),
   };
 
   beforeEach(() => {
