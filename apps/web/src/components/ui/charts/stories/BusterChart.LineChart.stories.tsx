@@ -725,6 +725,7 @@ export const WithCategory: Story = {
       y: ['sales'],
       category: ['region'],
       tooltip: null,
+      colorBy: null,
     },
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
@@ -811,6 +812,7 @@ export const MultipleYAxesWithCategory: Story = {
       y: ['revenue', 'satisfaction'],
       category: ['product'],
       tooltip: null,
+      colorBy: null,
     },
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
@@ -1279,6 +1281,7 @@ export const HasNullValuesWithCategoryMultiLine: Story = {
       y: ['revenue'],
       category: ['category'],
       tooltip: null,
+      colorBy: null,
     },
     columnSettings: {
       revenue: {
@@ -2020,6 +2023,7 @@ export const With2ThousandPoints: Story = {
       y: ['revenue'],
       category: ['category'],
       tooltip: null,
+      colorBy: null,
     },
     columnLabelFormats: {
       date: {
@@ -2041,6 +2045,7 @@ export const With5ThousandPoints: Story = {
       y: ['revenue'],
       category: ['category'],
       tooltip: null,
+      colorBy: null,
     },
     columnLabelFormats: {
       date: {
@@ -2275,6 +2280,7 @@ const chartConfigForBrokenChart: Partial<ChartConfigProps> = {
     y: ['cumulative_sales'],
     category: [],
     tooltip: ['monthly_sales', 'cumulative_sales'],
+    colorBy: null,
   },
   barLayout: 'vertical',
   barSortBy: [],

@@ -468,6 +468,7 @@ export const MultipleY2Axes: Story = {
       y: ['sales'],
       y2: ['stockLevel'], // 'returnRate', 'customerRating'
       tooltip: ['sales', 'customerRating', 'stockLevel', 'returnRate'],
+      colorBy: null,
     },
     columnSettings: {
       sales: {
@@ -588,6 +589,7 @@ export const ProblematicData: Story = {
       y: ['metric_discountimpact', 'orders_with_discount'],
       y2: [],
       tooltip: null,
+      colorBy: null,
     },
     columnMetadata: [
       {

@@ -28,6 +28,7 @@ export const Default: Story = {
       x: ['segment'],
       y: ['value'],
       tooltip: null,
+      colorBy: null,
     },
     columnLabelFormats: {
       segment: {
@@ -59,6 +60,7 @@ export const MultipleValues: Story = {
       x: ['segment'],
       y: ['value1', 'value2'],
       tooltip: null,
+      colorBy: null,
     },
     columnLabelFormats: {
       segment: {
@@ -90,6 +92,7 @@ export const Donut: Story = {
       x: ['segment'],
       y: ['value'],
       tooltip: null,
+      colorBy: null,
     },
     columnLabelFormats: {
       segment: {
@@ -120,6 +123,7 @@ export const DonutMultipleValues: Story = {
       x: ['segment'],
       y: ['value1', 'value2'],
       tooltip: null,
+      colorBy: null,
     },
     columnLabelFormats: {
       segment: {
@@ -156,6 +160,7 @@ export const ResizableContainer: Story = {
       x: ['segment'],
       y: ['value'],
       tooltip: null,
+      colorBy: null,
     },
     columnLabelFormats: {
       segment: {
@@ -210,6 +215,7 @@ export const WithSortingByKey: Story = {
       x: ['segment'],
       y: ['value'],
       tooltip: null,
+      colorBy: null,
     },
     pieSortBy: 'key',
     columnMetadata: [
@@ -244,6 +250,7 @@ export const WithSortingByKeyWithDates: Story = {
       x: ['date'],
       y: ['value'],
       tooltip: null,
+      colorBy: null,
     },
     pieSortBy: 'key',
     columnLabelFormats: {
@@ -298,6 +305,7 @@ export const ShowLabelAsPercent: Story = {
       x: ['segment'],
       y: ['value', 'value2'],
       tooltip: null,
+      colorBy: null,
     },
     columnLabelFormats: {
       segment: {
@@ -349,6 +357,7 @@ export const ManyValuesWithDataLabels: Story = {
       x: ['segment'],
       y: ['value'],
       tooltip: null,
+      colorBy: null,
     },
     pieDisplayLabelAs: 'number',
     pieLabelPosition: 'inside',
@@ -367,6 +376,7 @@ export const DataLabelsOutside: Story = {
       x: ['segment'],
       y: ['value'],
       tooltip: null,
+      colorBy: null,
     },
     columnLabelFormats: {
       segment: {
@@ -406,6 +416,7 @@ export const MinimumSlicePercentage: Story = {
       x: ['segment'],
       y: ['sales'],
       tooltip: null,
+      colorBy: null,
     },
     columnLabelFormats: {
       segment: {

@@ -47,6 +47,7 @@ const keySpecificHandlers: Partial<
       y: barAndLineAxis.y || DEFAULT_CHART_CONFIG.barAndLineAxis.y,
       tooltip: barAndLineAxis.tooltip || DEFAULT_CHART_CONFIG.barAndLineAxis.tooltip,
       category: barAndLineAxis.category || DEFAULT_CHART_CONFIG.barAndLineAxis.category,
+      colorBy: barAndLineAxis.colorBy || DEFAULT_CHART_CONFIG.barAndLineAxis.colorBy,
     };
   },
   pieChartAxis: (value: unknown, dataMetadata) => {
@@ -56,6 +57,7 @@ const keySpecificHandlers: Partial<
       x: pieChartAxis.x || DEFAULT_CHART_CONFIG.pieChartAxis.x,
       y: pieChartAxis.y || DEFAULT_CHART_CONFIG.pieChartAxis.y,
       tooltip: pieChartAxis.tooltip || DEFAULT_CHART_CONFIG.pieChartAxis.tooltip,
+      colorBy: pieChartAxis.colorBy || DEFAULT_CHART_CONFIG.pieChartAxis.colorBy,
     };
   },
   scatterAxis: (value: unknown, dataMetadata) => {
@@ -67,6 +69,7 @@ const keySpecificHandlers: Partial<
       size: scatterAxis.size || DEFAULT_CHART_CONFIG.scatterAxis.size,
       tooltip: scatterAxis.tooltip || DEFAULT_CHART_CONFIG.scatterAxis.tooltip,
       category: scatterAxis.category || DEFAULT_CHART_CONFIG.scatterAxis.category,
+      colorBy: scatterAxis.colorBy || DEFAULT_CHART_CONFIG.scatterAxis.colorBy,
     };
   },
   comboChartAxis: (value: unknown, dataMetadata) => {
@@ -78,6 +81,7 @@ const keySpecificHandlers: Partial<
       y2: comboChartAxis.y2 || DEFAULT_CHART_CONFIG.comboChartAxis.y2,
       tooltip: comboChartAxis.tooltip || DEFAULT_CHART_CONFIG.comboChartAxis.tooltip,
       category: comboChartAxis.category || DEFAULT_CHART_CONFIG.comboChartAxis.category,
+      colorBy: comboChartAxis.colorBy || DEFAULT_CHART_CONFIG.comboChartAxis.colorBy,
     };
   },
   metricColumnId: (value: unknown, dataMetadata) => {

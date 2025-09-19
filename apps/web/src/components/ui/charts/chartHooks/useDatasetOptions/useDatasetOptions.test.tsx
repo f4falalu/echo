@@ -77,7 +77,7 @@ describe('useDatasetOptions', () => {
     expect(result.current.hasMismatchedTooltipsAndMeasures).toBe(false);
   });
 
-  it('should apply colors when colorBy is present', () => {
+  it('should create separate datasets when colorBy is present', () => {
     const mockDataWithCategories = [
       { month: 'Jan', sales: 100, level: 'Level 1' },
       { month: 'Feb', sales: 200, level: 'Level 2' },
@@ -108,15 +108,21 @@ describe('useDatasetOptions', () => {
     );
 
     const datasets = result.current.datasetOptions.datasets;
-    expect(datasets).toHaveLength(1);
+    expect(datasets).toHaveLength(2); // One dataset for each unique level value
 
-    const dataset = datasets[0];
-    expect(dataset?.colors).toBeDefined();
-    expect(dataset?.colors).toHaveLength(3); // One color for each data point
+    // Check first dataset (Level 1)
+    const level1Dataset = datasets.find((d) => d.label[0]?.value === 'Level 1');
+    expect(level1Dataset).toBeDefined();
+    expect(level1Dataset?.data).toEqual([100, null, 300]); // Jan=100, Feb=null, Mar=300
+    expect(level1Dataset?.colors).toEqual('#FF0000'); // Single color string
+    expect(level1Dataset?.id).toEqual('sales1');
 
-    // Level 1 items (Jan, Mar) should have the same color, Level 2 (Feb) should have different color
-    expect(dataset?.colors?.[0]).toEqual(dataset?.colors?.[2]); // Jan and Mar should be same color
-    expect(dataset?.colors?.[1]).not.toEqual(dataset?.colors?.[0]); // Feb should be different color
+    // Check second dataset (Level 2)
+    const level2Dataset = datasets.find((d) => d.label[0]?.value === 'Level 2');
+    expect(level2Dataset).toBeDefined();
+    expect(level2Dataset?.data).toEqual([null, 200, null]); // Jan=null, Feb=200, Mar=null
+    expect(level2Dataset?.colors).toEqual('#00FF00'); // Single color string
+    expect(level2Dataset?.id).toEqual('sales2');
   });
 
   it('should not apply colors when colorBy is null', () => {

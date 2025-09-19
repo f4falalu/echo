@@ -2,7 +2,6 @@ import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import type { Chart, ChartTypeRegistry, CommonElementOptions, TooltipItem } from 'chart.js';
 import { formatLabel } from '@/lib/columnFormatter';
 import type { ITooltipItem } from '../../../../BusterChartTooltip/interfaces';
-import { getTooltipColor } from './get-tooltip-color';
 import { getPercentage } from './helpers';
 
 export const barAndLineTooltipHelper = (

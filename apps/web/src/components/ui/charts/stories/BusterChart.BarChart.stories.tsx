@@ -1286,21 +1286,6 @@ export const WithColorByXAxis: Story = {
         type: 'Type 3',
         level: 'Level 1',
       },
-      {
-        sales: 1500,
-        type: 'Type 4',
-        level: 'Level 1',
-      },
-      {
-        sales: 1500,
-        type: 'Type 5',
-        level: 'Level 3',
-      },
-      {
-        sales: 900,
-        type: 'Type 6',
-        level: 'Level 4',
-      },
     ],
     barAndLineAxis: {
       x: ['type'],
@@ -1308,7 +1293,7 @@ export const WithColorByXAxis: Story = {
       category: [],
       tooltip: null,
       colorBy: {
-        columnId: 'type',
+        columnId: 'level',
       },
     },
   },

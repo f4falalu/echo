@@ -152,7 +152,7 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
   }, [y2AxisFieldsString, isComboChart]);
 
   const tooltipKeys = useMemo(() => {
-    if (isEmpty(tooltipFields)) return [...measureFields];
+    if (isEmpty(tooltipFields)) return measureFields;
 
     return tooltipFields;
   }, [tooltipFieldsString, measureFields]);

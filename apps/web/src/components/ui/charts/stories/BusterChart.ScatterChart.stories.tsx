@@ -224,6 +224,7 @@ export const WithSize: Story = {
       tooltip: null,
       category: [],
       size: ['size'],
+      colorBy: null,
     },
     columnMetadata: [
       {
