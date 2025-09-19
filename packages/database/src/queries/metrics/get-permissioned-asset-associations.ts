@@ -7,7 +7,7 @@ import {
   dashboardFiles,
   metricFilesToDashboardFiles,
 } from '../../schema';
-import type { AssetType, IdentityType } from '../../schema-types/enums';
+import type { AssetType, IdentityType } from '../../schema-types';
 
 export interface AssociatedAsset {
   id: string;

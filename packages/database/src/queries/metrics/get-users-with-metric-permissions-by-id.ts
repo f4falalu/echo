@@ -2,11 +2,7 @@ import { and, eq, isNull } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
 import { assetPermissions, users } from '../../schema';
-import {
-  AssetPermissionRoleSchema,
-  type AssetType,
-  type IdentityType,
-} from '../../schema-types/enums';
+import { AssetPermissionRoleSchema, type AssetType, type IdentityType } from '../../schema-types';
 
 export const GetUsersWithMetricPermissionsInputSchema = z.object({
   metricId: z.string().uuid(),
