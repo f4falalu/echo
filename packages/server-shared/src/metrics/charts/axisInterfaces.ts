@@ -13,6 +13,7 @@ export const ColorBySchema = z
       .optional(),
   })
   .nullable()
+  .optional()
   .default(null);
 
 export const BarAndLineAxisSchema = z

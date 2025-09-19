@@ -153,10 +153,10 @@ export const barBuilder = ({
     yAxisKey: yKey,
     data: dataset.data,
     backgroundColor: (x) => {
-      console.log('__dataset', dataset);
-      console.log('xchart', x.chart);
-      console.log('x', x);
-      console.log('xmeta', x.dataIndex, x.datasetIndex, x.dataset);
+      // console.log('__dataset', dataset);
+      // console.log('xchart', x.chart);
+      // console.log('x', x);
+      // console.log('xmeta', x.dataIndex, x.datasetIndex, x.dataset);
       if (x.dataIndex === 0) {
         return 'red';
       }

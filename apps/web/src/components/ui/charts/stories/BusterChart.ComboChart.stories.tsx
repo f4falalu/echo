@@ -75,6 +75,7 @@ export const DualAxisCombo: Story = {
       y2: ['averageOrderValue'],
       tooltip: ['revenue', 'averageOrderValue'],
       category: [],
+      colorBy: null,
     },
     columnSettings: {
       revenue: {
@@ -131,6 +132,7 @@ export const RevenueAndOrders: Story = {
       y2: ['orders'],
       tooltip: ['revenue', 'orders'],
       category: [],
+      colorBy: null,
     },
     columnSettings: {
       revenue: {
@@ -186,6 +188,7 @@ export const DualLineChart: Story = {
       y: ['revenue'],
       y2: ['averageOrderValue'],
       tooltip: ['revenue', 'averageOrderValue'],
+      colorBy: null,
     },
     columnSettings: {
       revenue: {
@@ -243,6 +246,7 @@ export const DualBarChart: Story = {
       y: ['revenue'],
       y2: ['orders'],
       tooltip: ['revenue', 'orders'],
+      colorBy: null,
     },
     columnSettings: {
       revenue: {
@@ -296,6 +300,7 @@ export const CompactView: Story = {
       y: ['revenue'],
       y2: ['averageOrderValue'],
       tooltip: ['revenue', 'averageOrderValue'],
+      colorBy: null,
     },
     columnSettings: {
       revenue: {
@@ -351,6 +356,7 @@ export const NoLegendNoGrid: Story = {
       y: ['revenue'],
       y2: ['averageOrderValue'],
       tooltip: ['revenue', 'averageOrderValue'],
+      colorBy: null,
     },
     columnSettings: {
       revenue: {
@@ -406,6 +412,7 @@ export const LargeDataset: Story = {
       y: ['revenue'],
       y2: ['averageOrderValue'],
       tooltip: ['revenue', 'averageOrderValue'],
+      colorBy: null,
     },
     columnSettings: {
       revenue: {
@@ -1118,6 +1125,7 @@ export const ComboChartWithNegativeNumbers: Story = {
       y2: ['non_revenue'],
       category: [],
       tooltip: null,
+      colorBy: null,
     },
     columnSettings: {},
     disableTooltip: false,

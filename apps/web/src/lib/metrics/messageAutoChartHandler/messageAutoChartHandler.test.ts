@@ -52,10 +52,10 @@ describe('createDefaultChartConfig', () => {
       trendlines: [],
       showLegendHeadline: false,
       disableTooltip: false,
-      barAndLineAxis: { x: [], y: [], tooltip: null, category: [] },
-      scatterAxis: { x: [], y: [], size: [], tooltip: null, category: [] },
-      comboChartAxis: { x: [], y: [], y2: [], tooltip: null, category: [] },
-      pieChartAxis: { x: [], y: [], tooltip: null },
+      barAndLineAxis: { x: [], y: [], tooltip: null, category: [], colorBy: null },
+      scatterAxis: { x: [], y: [], size: [], tooltip: null, category: [], colorBy: null },
+      comboChartAxis: { x: [], y: [], y2: [], tooltip: null, category: [], colorBy: null },
+      pieChartAxis: { x: [], y: [], tooltip: null, colorBy: null },
       lineGroupType: null,
       scatterDotSize: [3, 15],
       barSortBy: [],
@@ -123,7 +123,7 @@ describe('createDefaultChartConfig', () => {
     const message = {
       chart_config: {
         ...DEFAULT_CHART_CONFIG,
-        comboChartAxis: { x: [], y: [], y2: undefined as any, tooltip: null, category: [] },
+        comboChartAxis: { x: [], y: [], y2: undefined as any, tooltip: null, category: [], colorBy: null },
       },
       data_metadata: TEST_DATA_METADATA,
     } as Parameters<typeof createDefaultChartConfig>[0];
@@ -137,7 +137,7 @@ describe('createDefaultChartConfig', () => {
     const message = {
       chart_config: {
         ...DEFAULT_CHART_CONFIG,
-        comboChartAxis: { x: [], y: [], y2: [], tooltip: null, category: [] },
+        comboChartAxis: { x: [], y: [], y2: [], tooltip: null, category: [], colorBy: null },
       },
       data_metadata: TEST_DATA_METADATA,
     } as Parameters<typeof createDefaultChartConfig>[0];
@@ -151,7 +151,7 @@ describe('createDefaultChartConfig', () => {
     const message = {
       chart_config: {
         ...DEFAULT_CHART_CONFIG,
-        comboChartAxis: { x: [], y: [], y2: null, tooltip: null, category: [] },
+        comboChartAxis: { x: [], y: [], y2: null, tooltip: null, category: [], colorBy: null },
       },
       data_metadata: TEST_DATA_METADATA,
     } as any;
@@ -165,7 +165,7 @@ describe('createDefaultChartConfig', () => {
     const message = {
       chart_config: {
         ...DEFAULT_CHART_CONFIG,
-        comboChartAxis: { x: [], y: [], y2: ['test-y2'], tooltip: null, category: [] },
+        comboChartAxis: { x: [], y: [], y2: ['test-y2'], tooltip: null, category: [], colorBy: null },
       },
       data_metadata: TEST_DATA_METADATA,
     } as Parameters<typeof createDefaultChartConfig>[0];

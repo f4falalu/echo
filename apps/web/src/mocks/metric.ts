@@ -68,11 +68,13 @@ const createMockChartConfig = (id: string): ChartConfigProps => {
       y: ['sales'],
       category: [],
       tooltip: null,
+      colorBy: null,
     },
     pieChartAxis: {
       x: ['product'],
       y: ['sales'],
       tooltip: null,
+      colorBy: null,
     },
     scatterAxis: {
       x: ['date'],
@@ -80,6 +82,7 @@ const createMockChartConfig = (id: string): ChartConfigProps => {
       category: [],
       size: [],
       tooltip: null,
+      colorBy: null,
     },
     metricColumnId: 'sales',
     metricHeader: {

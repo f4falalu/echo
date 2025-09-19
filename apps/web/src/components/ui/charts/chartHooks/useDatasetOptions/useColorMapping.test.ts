@@ -11,41 +11,32 @@ describe('useColorMapping', () => {
 
   it('should create color mapping when colorBy is present', () => {
     const { result } = renderHook(() =>
-      useColorMapping(
-        mockData,
-        { columnId: 'level' },
-        ['#FF0000', '#00FF00', '#0000FF']
-      )
+      useColorMapping(mockData, { columnId: 'level' }, ['#FF0000', '#00FF00', '#0000FF'])
     );
 
     expect(result.current.hasColorMapping).toBe(true);
     expect(result.current.colorMapping.size).toBe(2); // 'Level 1' and 'Level 2'
     expect(result.current.getColorForValue('Level 1')).toBe('#FF0000');
     expect(result.current.getColorForValue('Level 2')).toBe('#00FF00');
+    expect(result.current.colorConfig).toEqual({
+      field: 'level',
+      mapping: result.current.colorMapping,
+    });
   });
 
   it('should not create color mapping when colorBy is null', () => {
     const { result } = renderHook(() =>
-      useColorMapping(
-        mockData,
-        null,
-        ['#FF0000', '#00FF00', '#0000FF']
-      )
+      useColorMapping(mockData, null, ['#FF0000', '#00FF00', '#0000FF'])
     );
 
     expect(result.current.hasColorMapping).toBe(false);
     expect(result.current.colorMapping.size).toBe(0);
     expect(result.current.getColorForValue('Level 1')).toBeUndefined();
+    expect(result.current.colorConfig).toBeUndefined();
   });
 
   it('should not create color mapping when colors array is empty', () => {
-    const { result } = renderHook(() =>
-      useColorMapping(
-        mockData,
-        { columnId: 'level' },
-        []
-      )
-    );
+    const { result } = renderHook(() => useColorMapping(mockData, { columnId: 'level' }, []));
 
     expect(result.current.hasColorMapping).toBe(false);
     expect(result.current.colorMapping.size).toBe(0);
@@ -53,11 +44,7 @@ describe('useColorMapping', () => {
 
   it('should handle undefined colors gracefully', () => {
     const { result } = renderHook(() =>
-      useColorMapping(
-        mockData,
-        { columnId: 'level' },
-        undefined as any
-      )
+      useColorMapping(mockData, { columnId: 'level' }, undefined as any)
     );
 
     expect(result.current.hasColorMapping).toBe(false);
@@ -66,11 +53,7 @@ describe('useColorMapping', () => {
 
   it('should return undefined for values not found', () => {
     const { result } = renderHook(() =>
-      useColorMapping(
-        mockData,
-        { columnId: 'level' },
-        ['#FF0000', '#00FF00']
-      )
+      useColorMapping(mockData, { columnId: 'level' }, ['#FF0000', '#00FF00'])
     );
 
     expect(result.current.getColorForValue('NonExistent')).toBeUndefined();

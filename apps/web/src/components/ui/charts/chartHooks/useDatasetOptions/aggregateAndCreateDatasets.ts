@@ -16,7 +16,11 @@ export function aggregateAndCreateDatasets<
     category?: (keyof T)[];
   },
   columnLabelFormats: Record<string, ColumnLabelFormatBase | undefined>,
-  isScatterPlot = false
+  isScatterPlot = false,
+  colorConfig?: {
+    field: string;
+    mapping: Map<string, string>;
+  }
 ): DatasetOptionsWithTicks {
   // Normalize axis keys to strings
   const xKeys = axis.x.map(String);
@@ -387,11 +391,52 @@ export function aggregateAndCreateDatasets<
     });
   });
 
+  // Apply colors if colorConfig is provided
+  let finalDatasets = datasets;
+  if (colorConfig) {
+    finalDatasets = applyColorsToDatasets(datasets, data, colorConfig);
+  }
+
   return {
-    datasets,
+    datasets: finalDatasets,
     ticksKey,
     ticks,
   };
+}
+
+/**
+ * Applies colors to datasets during the aggregation phase for efficiency
+ */
+function applyColorsToDatasets<T extends Record<string, string | number | null | Date | undefined>>(
+  datasets: DatasetOption[],
+  originalData: T[],
+  colorConfig: { field: string; mapping: Map<string, string> }
+): DatasetOption[] {
+  const { field: colorByField, mapping: colorMapping } = colorConfig;
+
+  // Create a color array based on the original data order
+  const dataPointColors: string[] = originalData
+    .map((row) => {
+      const colorValue = row[colorByField];
+      if (colorValue !== null && colorValue !== undefined) {
+        const color = colorMapping.get(String(colorValue));
+        return color || '';
+      }
+      return '';
+    })
+    .filter((color) => color !== ''); // Remove empty colors
+
+  // Apply colors to each dataset
+  return datasets.map((dataset) => {
+    // For most chart types, the dataset data corresponds to the original data points
+    // The dataset.data array should have the same length as the original data
+    const datasetColors = dataPointColors.slice(0, dataset.data.length);
+
+    return {
+      ...dataset,
+      colors: datasetColors.length > 0 ? datasetColors : undefined,
+    };
+  });
 }
 
 /**

@@ -37,6 +37,7 @@ export const Default: Story = {
       y: ['y'],
       tooltip: null,
       size: [],
+      colorBy: null,
       category: [],
     },
     columnLabelFormats: {
@@ -78,6 +79,7 @@ export const WithCategory: Story = {
       y: ['y'],
       size: [],
       tooltip: null,
+      colorBy: null,
       category: ['category'],
     },
   },
@@ -150,6 +152,7 @@ export const LargeDatasetWithCategory: Story = {
       y: ['y'],
       size: [],
       tooltip: null,
+      colorBy: null,
       category: ['category'],
     },
   },
@@ -259,6 +262,7 @@ export const ScatterWithTrendline_NumericalXAxisPolynomialRegression: Story = {
       y: ['revenue'],
       tooltip: null,
       size: [],
+      colorBy: null,
       category: [],
     },
     className: 'w-[800px] h-[400px]',
@@ -379,6 +383,7 @@ export const ScatterWithTrendline_NumericalXAxisPolynomialRegression_CategoryAxi
       category: ['category'],
       tooltip: null,
       size: [],
+      colorBy: null,
     },
   },
 };
@@ -408,6 +413,7 @@ export const ScatterWithTrendline_DateXAxisPolynomialRegression: Story = {
       category: [],
       tooltip: null,
       size: [],
+      colorBy: null,
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -453,6 +459,7 @@ export const ScatterWithTrendline_DateXAxisPolynomialRegression_CategoryAxis: St
       category: ['category'],
       tooltip: null,
       size: [],
+      colorBy: null,
     },
   },
 };
@@ -482,6 +489,7 @@ export const ScatterWithTrendline_NumericalXAxisLinearRegression: Story = {
       category: [],
       tooltip: null,
       size: [],
+      colorBy: null,
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -526,6 +534,7 @@ export const ScatterWithTrendline_NumericalXAxisLinearRegression_CategoryAxis: S
       category: ['category'],
       tooltip: null,
       size: [],
+      colorBy: null,
     },
   },
 };
@@ -555,6 +564,7 @@ export const ScatterWithTrendline_DateXAxisLinearRegression: Story = {
       category: [],
       tooltip: null,
       size: [],
+      colorBy: null,
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -600,6 +610,7 @@ export const ScatterWithTrendline_DateXAxisLinearRegression_CategoryAxis: Story 
       category: ['category'],
       tooltip: null,
       size: [],
+      colorBy: null,
     },
   },
 };
@@ -629,6 +640,7 @@ export const ScatterWithTrendline_NumericalXAxisLogarithmicRegression: Story = {
       category: [],
       tooltip: null,
       size: [],
+      colorBy: null,
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -673,6 +685,7 @@ export const ScatterWithTrendline_NumericalXAxisLogarithmicRegression_CategoryAx
       category: ['category'],
       tooltip: null,
       size: [],
+      colorBy: null,
     },
   },
 };
@@ -702,6 +715,7 @@ export const ScatterWithTrendline_DateXAxisLogarithmicRegression: Story = {
       category: [],
       tooltip: null,
       size: [],
+      colorBy: null,
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -747,6 +761,7 @@ export const ScatterWithTrendline_DateXAxisLogarithmicRegression_CategoryAxis: S
       category: ['category'],
       tooltip: null,
       size: [],
+      colorBy: null,
     },
   },
 };
@@ -876,6 +891,7 @@ export const ProblematicDatasetWithLinearRegression: Story = {
       category: [],
       tooltip: null,
       size: [],
+      colorBy: null,
     },
     scatterDotSize: [3, 15],
     data: [

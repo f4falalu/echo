@@ -51,10 +51,23 @@ export function useColorMapping(
     return mapping;
   }, [uniqueColorValues, colors, colorBy?.columnId]);
 
+  // Create colorConfig for dataset aggregation
+  const colorConfig = useMemo(() => {
+    if (!colorBy?.columnId || !colors || colors.length === 0 || colorMapping.size === 0) {
+      return undefined;
+    }
+    return {
+      field: colorBy.columnId,
+      mapping: colorMapping,
+    };
+  }, [colorBy?.columnId, colors?.length, colorMapping]);
+
   // Return the mapping and helper functions
   return useMemo(
     () => ({
       hasColorMapping: colorMapping.size > 0,
+      colorMapping,
+      colorConfig,
       getColorForValue: (value: string | number | null | undefined): string | undefined => {
         if (!colorMapping.size || value === null || value === undefined) {
           return undefined;
@@ -62,6 +75,6 @@ export function useColorMapping(
         return colorMapping.get(String(value));
       },
     }),
-    [colorMapping, colors]
+    [colorMapping, colors, colorConfig]
   );
 }

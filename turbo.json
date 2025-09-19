@@ -4,32 +4,18 @@
   "concurrency": "20",
   "tasks": {
     "build": {
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [
-        "dist/**",
-        ".next/**"
-      ]
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".next/**"]
     },
     "build:dry-run": {
-      "dependsOn": [
-        "^build:dry-run"
-      ],
-      "outputs": [
-        "dist/**",
-        ".next/**"
-      ],
-      "env": [
-        "SKIP_ENV_CHECK"
-      ]
+      "dependsOn": ["^build:dry-run"],
+      "outputs": ["dist/**", ".next/**"],
+      "env": ["SKIP_ENV_CHECK"]
     },
     "dev": {
       "cache": false,
       "persistent": true,
-      "dependsOn": [
-        "@buster/database#dev"
-      ]
+      "dependsOn": ["@buster/database#dev"]
     },
     "momentic": {
       "cache": false,
@@ -38,34 +24,22 @@
     "dev:fast": {
       "cache": false,
       "persistent": true,
-      "dependsOn": [
-        "@buster/database#dev"
-      ]
+      "dependsOn": ["@buster/database#dev"]
     },
     "lint": {
-      "dependsOn": [
-        "^lint"
-      ]
+      "dependsOn": ["^lint"]
     },
     "typecheck": {
-      "dependsOn": [
-        "^build"
-      ]
+      "dependsOn": ["^build"]
     },
     "test": {
-      "dependsOn": [
-        "^build"
-      ]
+      "dependsOn": ["^build"]
     },
     "test:unit": {
-      "dependsOn": [
-        "^test:unit"
-      ]
+      "dependsOn": ["^test:unit"]
     },
     "test:integration": {
-      "dependsOn": [
-        "^build"
-      ]
+      "dependsOn": ["^build"]
     },
     "test:watch": {
       "cache": false,
@@ -80,26 +54,18 @@
       "persistent": true
     },
     "test:coverage": {
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [
-        "coverage/**"
-      ]
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**"]
     },
     "build:commonjs": {
       "cache": false,
       "persistent": false,
-      "outputs": [
-        "dist/**"
-      ]
+      "outputs": ["dist/**"]
     },
     "build:commonjs:watch": {
       "cache": false,
       "persistent": true,
-      "dependsOn": [
-        "build:commonjs"
-      ]
+      "dependsOn": ["build:commonjs"]
     }
   },
   "globalEnv": [
