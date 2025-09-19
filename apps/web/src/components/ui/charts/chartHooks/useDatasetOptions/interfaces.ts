@@ -54,7 +54,7 @@ export type DatasetOption = {
   /**
    * Optional color by value
    */
-  colors?: string[]; //if the color is overridden
+  colors?: string[] | string; //if the color is overridden, if its an array each color is a color for a data point
 };
 
 export type DatasetOptionsWithTicks = {
