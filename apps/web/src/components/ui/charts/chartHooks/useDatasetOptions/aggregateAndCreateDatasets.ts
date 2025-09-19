@@ -455,7 +455,7 @@ function createSeparateDatasetsByColor<
   for (const originalDataset of datasets) {
     for (let i = 0; i < uniqueColorValues.length; i++) {
       const colorValue = uniqueColorValues[i];
-      const color = colorMapping.get(colorValue)!; // Safe to use ! since we filtered above
+      const color = colorMapping.get(colorValue); // Safe to use ! since we filtered above
 
       // Create new data array with nulls where the color value doesn't match
       const newData: (number | null)[] = [];

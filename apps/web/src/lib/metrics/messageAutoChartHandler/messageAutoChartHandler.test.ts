@@ -123,7 +123,14 @@ describe('createDefaultChartConfig', () => {
     const message = {
       chart_config: {
         ...DEFAULT_CHART_CONFIG,
-        comboChartAxis: { x: [], y: [], y2: undefined as any, tooltip: null, category: [], colorBy: null },
+        comboChartAxis: {
+          x: [],
+          y: [],
+          y2: undefined as any,
+          tooltip: null,
+          category: [],
+          colorBy: null,
+        },
       },
       data_metadata: TEST_DATA_METADATA,
     } as Parameters<typeof createDefaultChartConfig>[0];
@@ -165,7 +172,14 @@ describe('createDefaultChartConfig', () => {
     const message = {
       chart_config: {
         ...DEFAULT_CHART_CONFIG,
-        comboChartAxis: { x: [], y: [], y2: ['test-y2'], tooltip: null, category: [], colorBy: null },
+        comboChartAxis: {
+          x: [],
+          y: [],
+          y2: ['test-y2'],
+          tooltip: null,
+          category: [],
+          colorBy: null,
+        },
       },
       data_metadata: TEST_DATA_METADATA,
     } as Parameters<typeof createDefaultChartConfig>[0];

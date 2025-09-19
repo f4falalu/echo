@@ -288,7 +288,7 @@ export function modifyDatasets({
   if (!datasets.datasets.length) return datasets;
 
   // Only clone when we actually need to modify something
-  let needsModification = false;
+  let needsModification: boolean = false;
 
   // Check if we need to modify for pie charts
   const isPie = selectedChartType === 'pie';
@@ -301,9 +301,10 @@ export function modifyDatasets({
     (selectedChartType === 'line' && lineGroupType === 'percentage-stack');
 
   // Check if we need to modify for bar sorting
-  const needsBarSort = selectedChartType === 'bar' && barSortBy && barSortBy.some((o) => o !== 'none');
+  const needsBarSort =
+    selectedChartType === 'bar' && barSortBy && barSortBy.some((o) => o !== 'none');
 
-  needsModification = needsPieThreshold || needsPieSort || needsPercentageStack || needsBarSort;
+  needsModification = needsPieThreshold || !!needsPieSort || needsPercentageStack || !!needsBarSort;
 
   // If no modifications needed, return original
   if (!needsModification) {
@@ -323,14 +324,15 @@ export function modifyDatasets({
 
     // Apply minimum threshold if needed
     if (needsPieThreshold) {
-      modifiedDatasets = handlePieThreshold(modifiedDatasets, pieMinimumSlicePercentage!);
+      modifiedDatasets = handlePieThreshold(modifiedDatasets, pieMinimumSlicePercentage);
     }
 
     // Apply sorting if needed
     if (needsPieSort) {
       // Only clone ticks if we need to sort
-      const ticksToSort = modifiedDatasets !== datasets.datasets ? result.ticks : cloneDeep(result.ticks);
-      const sortResult = sortPie(modifiedDatasets, pieSortBy!, ticksToSort);
+      const ticksToSort =
+        modifiedDatasets !== datasets.datasets ? result.ticks : cloneDeep(result.ticks);
+      const sortResult = sortPie(modifiedDatasets, pieSortBy, ticksToSort);
       modifiedDatasets = sortResult.datasets;
       result.ticks = sortResult.ticks;
     }
@@ -347,7 +349,8 @@ export function modifyDatasets({
 
   // Bar sorting
   if (needsBarSort) {
-    const sortKey = barSortBy!.find((o) => o !== 'none')!;
+    const sortKey = barSortBy.find((o) => o !== 'none');
+    if (!sortKey) return result;
     const sortResult = sortBar(datasets.datasets, sortKey, cloneDeep(result.ticks));
     result.datasets = sortResult.datasets;
     result.ticks = sortResult.ticks;

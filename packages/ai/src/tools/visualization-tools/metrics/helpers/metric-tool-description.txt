@@ -484,12 +484,31 @@ definitions:
                 type: array
                 items:
                   type: string
-                description: LOWERCASE column name from SQL for category grouping.
+                description: |
+                  LOWERCASE column name from SQL for category grouping.
+                  
+                  Category vs ColorBy:
+                  - Use CATEGORY: When you want to create multiple series/lines (one per category value). Creates separate data points and enables legend.
+                  - Use COLORBY: When you want to apply colors to bars/points based on a column value, but keep them as a single series.
+                  
+                  Example: Sales by month
+                  - With category=['region']: Creates separate lines/bars for each region (North, South, East, West)
+                  - With colorBy.columnId='region': Colors bars by region but keeps them as one series
               tooltip:
                 type: [array, 'null']
                 items:
                   type: string
                 description: Column names for tooltip. If null, y axis is used. Default: null
+              colorBy:
+                type: [object, 'null']
+                description: |
+                  Optional color configuration to apply colors based on a column's values.
+                  Use this when you want visual differentiation without creating separate series.
+                  Perfect for: Status indicators (red/yellow/green), priority levels, or any categorical color coding.
+                properties:
+                  columnId:
+                    type: [string, 'null']
+                    description: LOWERCASE column name whose values will determine colors
             required:
               - x
               - y
@@ -545,6 +564,9 @@ definitions:
                 type: array
                 items:
                   type: string
+                description: |
+                  LOWERCASE column name from SQL for category grouping.
+                  Creates separate colored series of points for each category value.
               size:
                 type: array
                 items:
@@ -555,6 +577,15 @@ definitions:
                 items:
                   type: string
                 description: Column names for tooltip. If null, y axis is used. Default: null
+              colorBy:
+                type: [object, 'null']
+                description: |
+                  Optional color configuration to apply colors to scatter points based on a column's values.
+                  Use when you want all points in one series with color-coded differentiation.
+                properties:
+                  columnId:
+                    type: [string, 'null']
+                    description: LOWERCASE column name whose values will determine point colors
             required:
               - x
               - y
@@ -586,6 +617,15 @@ definitions:
                 items:
                   type: string
                 description: Column names for tooltip. If null, y axis is used. Default: null
+              colorBy:
+                type: [object, 'null']
+                description: |
+                  Optional color configuration for pie slices based on x-axis values.
+                  Allows custom color mapping for specific slice categories.
+                properties:
+                  columnId:
+                    type: [string, 'null']
+                    description: LOWERCASE column name whose values will determine slice colors
             required:
               - x
               - y
@@ -620,12 +660,23 @@ definitions:
                 type: array
                 items:
                   type: string
-                description: LOWERCASE column name from SQL for category grouping.
+                description: |
+                  LOWERCASE column name from SQL for category grouping.
+                  Creates separate series for each category value in combo chart.
               tooltip:
                 type: [array, 'null']
                 items:
                   type: string
                 description: Column names for tooltip. If null, y axis is used. Default: null
+              colorBy:
+                type: [object, 'null']
+                description: |
+                  Optional color configuration to apply colors based on a column's values in combo chart.
+                  Useful for color-coding bars while lines remain as separate series.
+                properties:
+                  columnId:
+                    type: [string, 'null']
+                    description: LOWERCASE column name whose values will determine colors
             required:
               - x
               - y
