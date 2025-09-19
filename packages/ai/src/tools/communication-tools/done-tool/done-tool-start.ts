@@ -4,6 +4,7 @@ import type { UpdateMessageEntriesParams } from '../../../../../database/src/que
 import { createRawToolResultEntry } from '../../shared/create-raw-llm-tool-result-entry';
 import { DONE_TOOL_NAME, type DoneToolContext, type DoneToolState } from './done-tool';
 import {
+  type ExtractedFile,
   createFileResponseMessages,
   extractAllFilesForChatUpdate,
   extractFilesFromToolCalls,
@@ -68,12 +69,25 @@ export function createDoneToolStart(context: DoneToolContext, doneToolState: Don
         }
       }
 
-      // Update the chat with the most recent file using the full set that includes reports
-      // Do not rely on the filtered response list since it excludes report files
+      // Update the chat with the most recent file
+      // Priority: Reports (already in responses) > First extracted file > Any file
       if (context.chatId && allFilesForChatUpdate.length > 0) {
-        const mostRecentFile =
-          allFilesForChatUpdate.find((f) => f.fileType === 'report_file') ||
-          allFilesForChatUpdate[0];
+        let mostRecentFile: ExtractedFile | undefined;
+
+        // Priority 1: Report files (they're already in response messages)
+        const reportFile = allFilesForChatUpdate.find((f) => f.fileType === 'report_file');
+        if (reportFile) {
+          mostRecentFile = reportFile;
+        }
+        // Priority 2: First file from extractedFiles (metrics/dashboards being added as responses)
+        else if (extractedFiles.length > 0) {
+          mostRecentFile = extractedFiles[0];
+        }
+        // Priority 3: Fallback to any file from allFilesForChatUpdate
+        else {
+          mostRecentFile = allFilesForChatUpdate[0];
+        }
+
         if (mostRecentFile) {
           console.info('[done-tool-start] Updating chat with most recent file', {
             chatId: context.chatId,
@@ -81,6 +95,8 @@ export function createDoneToolStart(context: DoneToolContext, doneToolState: Don
             fileType: mostRecentFile.fileType,
             fileName: mostRecentFile.fileName,
             versionNumber: mostRecentFile.versionNumber,
+            wasFromExtracted: extractedFiles.some((f) => f.id === mostRecentFile.id),
+            wasReport: mostRecentFile.fileType === 'report_file',
           });
 
           try {
