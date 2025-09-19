@@ -60,7 +60,7 @@ async function getMetricHandler(
 
   // Use shared helper to fetch and process metric data
   const processedData = await fetchAndProcessMetricData(metricId, user, {
-    publicAccessPreviouslyVerfified: false,
+    publicAccessPreviouslyVerified: false,
     password,
     versionNumber,
   });

@@ -15,18 +15,14 @@ import {
   type GetMetricResponse,
   type MetricYml,
 } from '@buster/server-shared/metrics';
-import {
-  type AssetPermissionRole,
-  AssetPermissionRoleSchema,
-  type VerificationStatus,
-} from '@buster/server-shared/share';
+import type { AssetPermissionRole, VerificationStatus } from '@buster/server-shared/share';
 import { HTTPException } from 'hono/http-exception';
 import yaml from 'js-yaml';
 import { z } from 'zod';
 
 export const MetricAccessOptionsSchema = z.object({
   /** If public access has been verified by a parent resource set to true */
-  publicAccessPreviouslyVerfified: z.boolean().default(false),
+  publicAccessPreviouslyVerified: z.boolean().default(false),
   /** Password for public access validation */
   password: z.string().optional(),
   /** Version number to fetch */
@@ -57,7 +53,7 @@ export async function fetchAndProcessMetricData(
   user: User,
   options: MetricAccessOptions
 ): Promise<ProcessedMetricData> {
-  const { publicAccessPreviouslyVerfified = false, password, versionNumber } = options;
+  const { publicAccessPreviouslyVerified = false, password, versionNumber } = options;
 
   // Fetch metric details
   const metricFile = await getMetricFileById(metricId);
@@ -69,7 +65,7 @@ export async function fetchAndProcessMetricData(
     });
   }
 
-  let effectiveRole: AssetPermissionRole | undefined = publicAccessPreviouslyVerfified
+  let effectiveRole: AssetPermissionRole | undefined = publicAccessPreviouslyVerified
     ? 'can_view'
     : undefined;
 

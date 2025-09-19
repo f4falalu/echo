@@ -270,7 +270,7 @@ async function getMetricsFromDashboardMetricIds(
   // Process all metrics concurrently
   const promises = metricIds.map(async (metricId) => {
     const processedData = await fetchAndProcessMetricData(metricId, user, {
-      publicAccessPreviouslyVerfified: true, // Access is inherited from dashboard access at a minimum
+      publicAccessPreviouslyVerified: true, // Access is inherited from dashboard access at a minimum
     });
 
     // Build the metric response
