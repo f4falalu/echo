@@ -92,10 +92,10 @@ describe('with-agent-retry', () => {
         expect(result.error).toEqual(overloadedError);
       });
 
-      it('should correctly identify non-retryable errors', () => {
+      it('should treat all errors as retryable', () => {
         const regularError = new Error('Regular error');
         const result = analyzeError(regularError);
-        expect(result.isRetryable).toBe(false);
+        expect(result.isRetryable).toBe(true);
         expect(result.error).toEqual(regularError);
       });
     });
@@ -200,8 +200,15 @@ describe('with-agent-retry', () => {
         expect(onRetry).toHaveBeenCalledWith(1, 1);
       });
 
-      it('should not retry on non-overloaded error', async () => {
+      it('should retry on any error (including non-overloaded)', async () => {
         const currentMessages: ModelMessage[] = [{ role: 'user', content: 'test' }];
+        const recoveredMessages: ModelMessage[] = [{ role: 'user', content: 'recovered' }];
+
+        mockFetchMessageEntries.mockResolvedValue({
+          rawLlmMessages: recoveredMessages,
+          responseMessages: [],
+          reasoning: [],
+        });
 
         const result = await handleFailedAttempt(
           new Error('Regular error'),
@@ -212,9 +219,9 @@ describe('with-agent-retry', () => {
           1000
         );
 
-        expect(result.shouldRetry).toBe(false);
-        expect(result.nextMessages).toEqual(currentMessages);
-        expect(mockFetchMessageEntries).not.toHaveBeenCalled();
+        expect(result.shouldRetry).toBe(true);
+        expect(result.nextMessages).toEqual(recoveredMessages);
+        expect(mockFetchMessageEntries).toHaveBeenCalledWith('test-id');
       });
 
       it('should not retry when max attempts reached', async () => {
@@ -259,14 +266,14 @@ describe('with-agent-retry', () => {
         expect(result).toEqual(mockResult);
       });
 
-      it('should retry and succeed after overloaded error', async () => {
+      it('should retry and succeed after any error', async () => {
         const mockResult = { response: Promise.resolve('success') };
         let callCount = 0;
 
         const agent = createMockAgent(async () => {
           callCount++;
           if (callCount === 1) {
-            throw createOverloadedError();
+            throw new Error('Random provider error');
           }
           return mockResult;
         });
@@ -286,9 +293,43 @@ describe('with-agent-retry', () => {
         expect(callCount).toBe(2);
       });
 
+      it('should retry on various error types', async () => {
+        const errors = [
+          new Error('Internal Server Error'),
+          new Error('Service Unavailable'),
+          new Error('Too Many Requests'),
+          createOverloadedError(),
+        ];
+
+        let callCount = 0;
+        const mockResult = { response: Promise.resolve('success') };
+        const agent = createMockAgent(async () => {
+          if (callCount < errors.length) {
+            throw errors[callCount++];
+          }
+          callCount++;
+          return mockResult;
+        });
+
+        mockFetchMessageEntries.mockResolvedValue({
+          rawLlmMessages: [],
+          responseMessages: [],
+          reasoning: [],
+        });
+
+        const result = await retryStream(agent, [], {
+          messageId: 'test-id',
+          maxAttempts: 5,
+          baseDelayMs: 10,
+        });
+
+        expect(result).toEqual(mockResult);
+        expect(callCount).toBe(5);
+      });
+
       it('should throw after max attempts', async () => {
         const agent = createMockAgent(async () => {
-          throw createOverloadedError();
+          throw new Error('Persistent error');
         });
 
         mockFetchMessageEntries.mockResolvedValue({
@@ -303,7 +344,7 @@ describe('with-agent-retry', () => {
             maxAttempts: 2,
             baseDelayMs: 10,
           })
-        ).rejects.toEqual(createOverloadedError());
+        ).rejects.toThrow('Persistent error');
       });
 
       it('should call onRetry callback', async () => {
@@ -313,7 +354,7 @@ describe('with-agent-retry', () => {
         const agent = createMockAgent(async () => {
           callCount++;
           if (callCount <= 2) {
-            throw createOverloadedError();
+            throw new Error('Temporary error');
           }
           return { response: Promise.resolve('success') };
         });
@@ -519,14 +560,13 @@ describe('with-agent-retry', () => {
         reasoning: [],
       });
 
-      await expect(
-        retryStream(agent, [], {
-          messageId: 'test-id',
-          baseDelayMs: 10,
-        })
-      ).rejects.toThrow('Different error');
+      const result = await retryStream(agent, [], {
+        messageId: 'test-id',
+        baseDelayMs: 10,
+      });
 
-      expect(callCount).toBe(2);
+      expect(result).toEqual({ response: Promise.resolve('success') });
+      expect(callCount).toBe(3);
     });
 
     it('should maintain message state across retries', async () => {
