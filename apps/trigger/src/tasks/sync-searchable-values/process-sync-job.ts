@@ -194,7 +194,7 @@ export const processSyncJob: ReturnType<
       // Process batches with controlled concurrency
       for (let i = 0; i < embeddingBatches.length; i += EMBEDDING_CONCURRENCY) {
         const concurrentBatches = embeddingBatches.slice(i, i + EMBEDDING_CONCURRENCY);
-        
+
         logger.info('Processing concurrent embedding batch group', {
           [identifierType]: identifier,
           groupStart: i,
@@ -254,7 +254,7 @@ export const processSyncJob: ReturnType<
 
         // Wait for all concurrent batches to complete
         const results = await Promise.all(embeddingPromises);
-        
+
         // Flatten and add to results
         for (const batchResult of results) {
           allValuesWithEmbeddings.push(...batchResult);
@@ -330,7 +330,7 @@ export const processSyncJob: ReturnType<
                 errorsInBatch: batchResult.errors.length,
                 errors: batchResult.errors,
               });
-              
+
               upsertErrors.push(...batchResult.errors);
             }
 
@@ -483,7 +483,7 @@ async function queryDistinctColumnValues({
 }): Promise<string[]> {
   // Get the data source type to determine proper identifier quoting
   const dataSourceType = adapter.getDataSourceType();
-  
+
   // Determine the appropriate quote character based on data source type
   let quoteChar = '';
   switch (dataSourceType) {
@@ -525,11 +525,11 @@ async function queryDistinctColumnValues({
     FROM ${fullyQualifiedTable}
     WHERE ${columnRef} IS NOT NULL
       AND TRIM(${columnRef}) != ''${
-      limit
-        ? `
+        limit
+          ? `
     LIMIT ${limit}`
-        : ''
-    }
+          : ''
+      }
   `;
 
   logger.info('Executing distinct values query', {

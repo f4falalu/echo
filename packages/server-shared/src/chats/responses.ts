@@ -1,5 +1,6 @@
+import { ChatListItemSchema } from '@buster/database/schema-types';
 import { z } from 'zod';
-import { ChatListItemSchema } from './chat-list.types';
+import { PaginatedResponseSchema } from '../type-utilities';
 import { ChatWithMessagesSchema } from './chat.types';
 
 // Response for getting a single chat
@@ -9,6 +10,10 @@ export type GetChatResponse = z.infer<typeof GetChatResponseSchema>;
 // Response for getting a list of chats
 export const GetChatsListResponseSchema = z.array(ChatListItemSchema);
 export type GetChatsListResponse = z.infer<typeof GetChatsListResponseSchema>;
+
+// Response for getting a list of chats v2
+export const GetChatsListResponseSchemaV2 = PaginatedResponseSchema(ChatListItemSchema);
+export type GetChatsListResponseV2 = z.infer<typeof GetChatsListResponseSchemaV2>;
 
 // Response for getting logs list (same as chats list)
 export const GetLogsListResponseSchema = GetChatsListResponseSchema;

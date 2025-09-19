@@ -35,3 +35,5 @@ export * from './slack';
 export * from './github';
 
 export * from './search';
+
+export * from './chat';
