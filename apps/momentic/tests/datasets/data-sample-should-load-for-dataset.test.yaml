@@ -1,0 +1,57 @@
+fileType: momentic/test
+id: 8f5490f0-7983-448e-b99f-1072b807d0c5
+name: data-sample-should-load-for-dataset
+description: A user should be able to go to datasets and it should load with the
+  sample data.
+schemaVersion: 1.0.21
+advanced:
+  viewport:
+    width: 1920
+    height: 1080
+  browserType: Chromium
+retries: 0
+envs:
+  - name: development
+    default: true
+steps:
+  - id: e9beb574-c536-46a6-9783-70175a0b38c2
+    type: MODULE
+    moduleId: defc36e9-b0a7-4bfe-940f-7901493d5e5e
+  - id: ce215d34-af17-4f01-a9e3-f431b930ac99
+    type: PRESET_ACTION
+    command:
+      id: a2cbaba0-c7f1-4bcf-95ce-30ba045aa304
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: datasets on the left sidebar
+  - id: 7da0de90-4d19-44d8-9ceb-1cde075b04e8
+    type: PRESET_ACTION
+    command:
+      id: 26a025c2-5100-4a3f-bb60-c2ec12a8b65d
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: any dataset contained in the list just choose the first one.
+  - id: 39554d6d-a59b-438a-bb54-d9de7392bdf9
+    type: PRESET_ACTION
+    command:
+      id: 96deec23-518e-4eda-8456-5d75c4130567
+      type: WAIT_FOR_URL
+      matcher:
+        type: SUBSTRING
+        url: /overview
+      timeout: 5
+  - id: d28eb999-1960-4c2e-bf0d-fe6f21b1cef1
+    type: PRESET_ACTION
+    command:
+      id: 22d11efe-23d3-4048-8aa6-6d12414017ee
+      type: WAIT
+      delay: 5
+  - id: b699ffd1-74df-41a5-89d9-34815e05e972
+    type: PRESET_ACTION
+    command:
+      id: bf2552ce-ba6b-4bb7-8286-c18a3188ff61
+      type: AI_ASSERTION
+      assertion: You should see a table with the data and no errors. the table should
+        look clean without values overflowing rows being cut off werid, etc.
