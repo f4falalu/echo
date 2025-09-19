@@ -21,6 +21,8 @@ export {
   checkMetricChatAccess,
   checkMetricCollectionAccess,
   checkMetricReportAccess,
+  checkDashboardChatAccess,
+  checkDashboardCollectionAccess,
 } from './assets';
 
 // Export dataset permissions
