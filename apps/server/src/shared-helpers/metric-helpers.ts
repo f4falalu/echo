@@ -1,0 +1,310 @@
+import { checkPermission } from '@buster/access-controls';
+import {
+  type MetricFile,
+  type User,
+  getAssetsAssociatedWithMetric,
+  getMetricFileById,
+  getOrganizationMemberCount,
+  getUser,
+  getUsersWithMetricPermissions,
+} from '@buster/database/queries';
+import {
+  type ChartConfigProps,
+  DEFAULT_CHART_THEME,
+  type DataMetadata,
+  type GetMetricResponse,
+  type MetricYml,
+} from '@buster/server-shared/metrics';
+import type { AssetPermissionRole, VerificationStatus } from '@buster/server-shared/share';
+import { HTTPException } from 'hono/http-exception';
+import yaml from 'js-yaml';
+import { z } from 'zod';
+
+export const MetricAccessOptionsSchema = z.object({
+  /** If public access has been verified by a parent resource set to true */
+  publicAccessPreviouslyVerified: z.boolean().default(false),
+  /** Password for public access validation */
+  password: z.string().optional(),
+  /** Version number to fetch */
+  versionNumber: z.number().int().optional(),
+});
+
+export type MetricAccessOptions = z.infer<typeof MetricAccessOptionsSchema>;
+
+export interface ProcessedMetricData {
+  metricFile: MetricFile;
+  resolvedContent: MetricYml;
+  resolvedName: string;
+  resolvedDescription: string | null;
+  resolvedTimeFrame: string;
+  resolvedChartConfig: ChartConfigProps;
+  resolvedSql: string;
+  resolvedUpdatedAt: string;
+  resolvedVersionNum: number;
+  effectiveRole: AssetPermissionRole;
+  versions: Array<{ version_number: number; updated_at: string }>;
+}
+
+/**
+ * Shared helper function to fetch and process metric data with flexible access control
+ */
+export async function fetchAndProcessMetricData(
+  metricId: string,
+  user: User,
+  options: MetricAccessOptions
+): Promise<ProcessedMetricData> {
+  const { publicAccessPreviouslyVerified = false, password, versionNumber } = options;
+
+  // Fetch metric details
+  const metricFile = await getMetricFileById(metricId);
+
+  if (!metricFile) {
+    console.warn(`Metric file not found: ${metricId}`);
+    throw new HTTPException(404, {
+      message: 'Metric file not found',
+    });
+  }
+
+  let effectiveRole: AssetPermissionRole | undefined = publicAccessPreviouslyVerified
+    ? 'can_view'
+    : undefined;
+
+  const permissionResult = await checkPermission({
+    userId: user.id,
+    assetId: metricId,
+    assetType: 'metric_file',
+    requiredRole: 'can_view',
+    organizationId: metricFile.organizationId,
+    workspaceSharing: metricFile.workspaceSharing || 'none',
+  });
+
+  effectiveRole = permissionResult.effectiveRole ? permissionResult.effectiveRole : effectiveRole;
+
+  // Check public access if needed
+  if (!effectiveRole) {
+    if (!metricFile.publiclyAccessible) {
+      console.warn(`Permission denied for user ${user.id} to metric ${metricId}`);
+      throw new HTTPException(403, {
+        message: "You don't have permission to view this metric",
+      });
+    }
+
+    // Check if public access has expired
+    const today = new Date();
+    if (metricFile.publicExpiryDate && new Date(metricFile.publicExpiryDate) < today) {
+      console.warn(`Public access expired for metric ${metricId}`);
+      throw new HTTPException(403, {
+        message: 'Public access to this metric has expired',
+      });
+    }
+
+    // Check password if required
+    if (metricFile.publicPassword) {
+      if (!password) {
+        console.warn(`Public password required for metric ${metricId}`);
+        throw new HTTPException(418, {
+          message: 'Password required for public access',
+        });
+      }
+
+      if (password !== metricFile.publicPassword) {
+        console.warn(`Incorrect public password for metric ${metricId}`);
+        throw new HTTPException(403, {
+          message: 'Incorrect password for public access',
+        });
+      }
+    }
+
+    effectiveRole = 'can_view';
+  }
+
+  // Shouldn't ever be hit because we throw errors above if public access is not verified
+  if (!effectiveRole) {
+    console.warn(`Permission denied for user ${user.id} to metric ${metricId}`);
+    throw new HTTPException(403, {
+      message: "You don't have permission to view this metric",
+    });
+  }
+
+  // Parse version history
+  const versionHistory = metricFile.versionHistory;
+  const versions: Array<{ version_number: number; updated_at: string }> = [];
+
+  Object.values(versionHistory).forEach((version) => {
+    versions.push({
+      version_number: version.version_number,
+      updated_at: version.updated_at,
+    });
+  });
+  versions.sort((a, b) => a.version_number - b.version_number);
+
+  // Resolve version-specific data
+  let resolvedContent: MetricYml;
+  let resolvedName: string;
+  let resolvedDescription: string | null;
+  let resolvedTimeFrame: string;
+  let resolvedChartConfig: ChartConfigProps;
+  let resolvedSql: string;
+  let resolvedUpdatedAt: string;
+  let resolvedVersionNum: number;
+
+  // Get requested version if included in the request
+  if (versionNumber) {
+    const requestedVersionNumToString = versionNumber.toString();
+
+    if (versionHistory[requestedVersionNumToString]) {
+      const version = versionHistory[requestedVersionNumToString];
+
+      if (!version || !version.content) {
+        throw new HTTPException(404, {
+          message: `Version ${versionNumber} not found`,
+        });
+      }
+
+      const versionContent = version.content as MetricYml;
+      resolvedContent = versionContent;
+      resolvedName = versionContent.name;
+      resolvedDescription = versionContent.description;
+      resolvedTimeFrame = versionContent.timeFrame;
+      resolvedChartConfig = versionContent.chartConfig;
+      resolvedSql = versionContent.sql;
+      resolvedUpdatedAt = version.updated_at;
+      resolvedVersionNum = version.version_number;
+    } else {
+      throw new HTTPException(404, {
+        message: `Version ${versionNumber} not found`,
+      });
+    }
+  } else {
+    // Use current/latest version
+    const currentContent = metricFile.content as MetricYml;
+    resolvedContent = currentContent;
+    resolvedName = metricFile.name;
+    resolvedDescription = currentContent.description;
+    resolvedTimeFrame = currentContent.timeFrame;
+    resolvedChartConfig = currentContent.chartConfig;
+    resolvedSql = currentContent.sql;
+    resolvedUpdatedAt = metricFile.updatedAt;
+
+    // Determine latest version number
+    const maxVersion = Math.max(...versions.map((v) => v.version_number), 1);
+    resolvedVersionNum = maxVersion;
+  }
+
+  // Color fallback from v1 api logic
+  if (!resolvedChartConfig.colors) {
+    resolvedChartConfig.colors = DEFAULT_CHART_THEME;
+  }
+
+  return {
+    metricFile,
+    resolvedContent,
+    resolvedName,
+    resolvedDescription,
+    resolvedTimeFrame,
+    resolvedChartConfig,
+    resolvedSql,
+    resolvedUpdatedAt,
+    resolvedVersionNum,
+    effectiveRole,
+    versions,
+  };
+}
+
+/**
+ * Build a complete metric response from processed metric data
+ */
+export async function buildMetricResponse(
+  processedData: ProcessedMetricData,
+  userId: string
+): Promise<GetMetricResponse> {
+  const {
+    metricFile,
+    resolvedContent,
+    resolvedName,
+    resolvedDescription,
+    resolvedTimeFrame,
+    resolvedChartConfig,
+    resolvedSql,
+    resolvedUpdatedAt,
+    resolvedVersionNum,
+    effectiveRole,
+    versions,
+  } = processedData;
+
+  const fileYaml = yaml.dump(resolvedContent);
+
+  // Get the extra metric info concurrently
+  const [individualPermissions, workspaceMemberCount, associatedAssets, publicEnabledBy] =
+    await Promise.all([
+      getUsersWithMetricPermissions({ metricId: metricFile.id }),
+      getOrganizationMemberCount(metricFile.organizationId),
+      getAssetsAssociatedWithMetric(metricFile.id, userId),
+      getPubliclyEnabledByUser(metricFile.publiclyEnabledBy),
+    ]);
+
+  const { dashboards, collections } = associatedAssets;
+
+  // Not used but still exists in frontend code so including it here
+  const evaluationScore = (() => {
+    if (!metricFile.evaluationScore) {
+      return 'Low';
+    }
+    if (metricFile.evaluationScore > 0.8) {
+      return 'High';
+    }
+    if (metricFile.evaluationScore > 0.5) {
+      return 'Moderate';
+    }
+    return 'Low';
+  })() as 'High' | 'Moderate' | 'Low';
+
+  // Build the response
+  const response: GetMetricResponse = {
+    id: metricFile.id,
+    type: 'metric_file',
+    name: resolvedName,
+    version_number: resolvedVersionNum,
+    error: null,
+    description: resolvedDescription,
+    file_name: metricFile.fileName,
+    time_frame: resolvedTimeFrame,
+    data_source_id: metricFile.dataSourceId,
+    chart_config: resolvedChartConfig,
+    data_metadata: metricFile.dataMetadata as DataMetadata,
+    status: metricFile.verification as VerificationStatus,
+    file: fileYaml,
+    created_at: metricFile.createdAt,
+    updated_at: resolvedUpdatedAt,
+    sent_by_id: metricFile.createdBy,
+    sent_by_name: '',
+    sent_by_avatar_url: null,
+    sql: resolvedSql,
+    dashboards,
+    collections,
+    versions,
+    evaluation_score: evaluationScore,
+    evaluation_summary: metricFile.evaluationSummary || '',
+    permission: effectiveRole,
+    individual_permissions: individualPermissions,
+    publicly_accessible: metricFile.publiclyAccessible,
+    public_expiry_date: metricFile.publicExpiryDate,
+    public_enabled_by: publicEnabledBy,
+    public_password: metricFile.publicPassword,
+    workspace_sharing: metricFile.workspaceSharing,
+    workspace_member_count: workspaceMemberCount,
+  };
+
+  return response;
+}
+
+/**
+ * Helper to get publicly enabled by user email
+ */
+export async function getPubliclyEnabledByUser(enabledById: string | null): Promise<string | null> {
+  if (enabledById) {
+    const publicEnabledByUser = await getUser({ id: enabledById });
+    return publicEnabledByUser.email;
+  }
+  return null;
+}
