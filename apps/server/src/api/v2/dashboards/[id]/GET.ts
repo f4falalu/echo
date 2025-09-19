@@ -267,18 +267,25 @@ async function getMetricsFromDashboardMetricIds(
 ): Promise<Record<string, Metric>> {
   const metricsObj: Record<string, Metric> = {};
 
-  // Process all metrics concurrently
-  const promises = metricIds.map(async (metricId) => {
-    const processedData = await fetchAndProcessMetricData(metricId, user, {
-      publicAccessPreviouslyVerified: true, // Access is inherited from dashboard access at a minimum
+  // Process metrics in chunks of 4 to manage concurrency
+  const results = [];
+  const chunkSize = 4;
+
+  for (let i = 0; i < metricIds.length; i += chunkSize) {
+    const chunk = metricIds.slice(i, i + chunkSize);
+    const chunkPromises = chunk.map(async (metricId) => {
+      const processedData = await fetchAndProcessMetricData(metricId, user, {
+        publicAccessPreviouslyVerified: true, // Access is inherited from dashboard access at a minimum
+      });
+
+      // Build the metric response
+      const metric = await buildMetricResponse(processedData, user.id);
+      return { metricId, metric };
     });
 
-    // Build the metric response
-    const metric = await buildMetricResponse(processedData, user.id);
-    return { metricId, metric };
-  });
-
-  const results = await Promise.all(promises);
+    const chunkResults = await Promise.all(chunkPromises);
+    results.push(...chunkResults);
+  }
 
   // Filter out failed metrics and build the response object
   for (const result of results) {
