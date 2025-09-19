@@ -364,17 +364,50 @@ async function queryDistinctColumnValues({
   columnName: string;
   limit?: number; // Optional - when not provided, query all distinct values
 }): Promise<string[]> {
+  // Get the data source type to determine proper identifier quoting
+  const dataSourceType = adapter.getDataSourceType();
+  
+  // Determine the appropriate quote character based on data source type
+  let quoteChar = '';
+  switch (dataSourceType) {
+    case 'postgres':
+    case 'redshift':
+      quoteChar = '"';
+      break;
+    case 'mysql':
+    case 'bigquery':
+      quoteChar = '`';
+      break;
+    case 'sqlserver':
+      // SQL Server uses square brackets, but we'll handle it differently
+      break;
+    case 'snowflake':
+      // Snowflake doesn't need quotes unless identifiers have special chars or are case-sensitive
+      // For safety, we'll omit quotes for Snowflake
+      break;
+    default:
+      // Default to no quotes
+      break;
+  }
+
   // Build the fully qualified table name
   const fullyQualifiedTable = `${databaseName}.${schemaName}.${tableName}`;
 
+  // Build the column reference with appropriate quoting
+  let columnRef = columnName;
+  if (dataSourceType === 'sqlserver') {
+    columnRef = `[${columnName}]`;
+  } else if (quoteChar) {
+    columnRef = `${quoteChar}${columnName}${quoteChar}`;
+  }
+
   // Build the query to get distinct non-null values
-  // Using parameterized identifiers for safety
+  // Removed ORDER BY since we're joining with cached datasets
   const query = `
-    SELECT DISTINCT "${columnName}" AS value
+    SELECT DISTINCT ${columnRef} AS value
     FROM ${fullyQualifiedTable}
-    WHERE "${columnName}" IS NOT NULL
-      AND TRIM("${columnName}") != ''
-    ORDER BY "${columnName}"${
+    WHERE ${columnRef} IS NOT NULL
+      AND TRIM(${columnRef}) != ''${
       limit
         ? `
     LIMIT ${limit}`
@@ -385,6 +418,7 @@ async function queryDistinctColumnValues({
   logger.info('Executing distinct values query', {
     table: fullyQualifiedTable,
     column: columnName,
+    dataSourceType,
     limit: limit || 'no limit',
   });
 
@@ -410,6 +444,7 @@ async function queryDistinctColumnValues({
     logger.error('Failed to query distinct values', {
       table: fullyQualifiedTable,
       column: columnName,
+      dataSourceType,
       error: error instanceof Error ? error.message : 'Unknown error',
     });
     throw new Error(
