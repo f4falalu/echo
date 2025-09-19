@@ -9,3 +9,21 @@ export {
   GetDashboardTitleInputSchema,
   type GetDashboardTitleInput,
 } from './get-dashboard-title';
+
+export {
+  getDashboardById,
+  GetDashboardByIdInputSchema,
+  type GetDashboardByIdInput,
+} from './get-dashboard-by-id';
+
+export {
+  getUsersWithDashboardPermissions,
+  GetUsersWithDashboardPermissionsInputSchema,
+  type GetUsersWithDashboardPermissionsInput,
+  type GetUsersWithDashboardPermissionsResult,
+} from './get-users-with-dashboard-permissions-by-id';
+
+export {
+  getCollectionsAssociatedWithDashboard,
+  type AssociatedCollection,
+} from './get-collections-associated-with-dashboard';
