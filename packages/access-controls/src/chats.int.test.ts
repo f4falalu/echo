@@ -1,17 +1,14 @@
 import { randomUUID } from 'node:crypto';
+import { and, eq, getDb, isNull } from '@buster/database/connection';
 import {
-  and,
   assetPermissions,
   chats,
   collections,
   collectionsToAssets,
-  eq,
-  getDb,
-  isNull,
   organizations,
   users,
   usersToOrganizations,
-} from '@buster/database';
+} from '@buster/database/schema';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { canUserAccessChat } from './chats';
 

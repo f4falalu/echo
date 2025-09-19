@@ -3,8 +3,8 @@ import {
   findUsersByEmails,
   getReport,
   removeAssetPermission,
-} from '@buster/database';
-import type { User } from '@buster/database';
+} from '@buster/database/queries';
+import type { User } from '@buster/database/queries';
 import type { ShareDeleteResponse } from '@buster/server-shared/reports';
 import type { ShareDeleteRequest } from '@buster/server-shared/share';
 import { ShareDeleteRequestSchema } from '@buster/server-shared/share';

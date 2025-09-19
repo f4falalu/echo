@@ -2,6 +2,15 @@ import { z } from 'zod';
 import { ShareRoleSchema, VerificationStatusSchema } from '../share';
 import { ChartConfigPropsSchema } from './charts';
 
+export const GetMetricParamsSchema = z.object({
+  id: z.string().uuid('Metric ID must be a valid UUID'),
+});
+
+export const GetMetricQuerySchema = z.object({
+  password: z.string().optional(),
+  version_number: z.coerce.number().optional(),
+});
+
 export const GetMetricRequestSchema = z.object({
   id: z.string(),
   password: z.string().optional(),
@@ -56,6 +65,8 @@ export const BulkUpdateMetricVerificationStatusRequestSchema = z.array(
   })
 );
 
+export type GetMetricParams = z.infer<typeof GetMetricParamsSchema>;
+export type GetMetricQuery = z.infer<typeof GetMetricQuerySchema>;
 export type GetMetricDataRequest = z.infer<typeof GetMetricDataRequestSchema>;
 export type GetMetricRequest = z.infer<typeof GetMetricRequestSchema>;
 export type GetMetricListRequest = z.infer<typeof GetMetricListRequestSchema>;

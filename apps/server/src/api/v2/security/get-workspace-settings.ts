@@ -1,4 +1,4 @@
-import type { User } from '@buster/database';
+import type { User } from '@buster/database/queries';
 import type { GetWorkspaceSettingsResponse } from '@buster/server-shared/security';
 import { HTTPException } from 'hono/http-exception';
 import {

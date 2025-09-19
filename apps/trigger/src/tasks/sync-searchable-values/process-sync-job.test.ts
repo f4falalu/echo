@@ -15,7 +15,7 @@ vi.mock('@buster/data-source', () => ({
   getDefaultProvider: vi.fn(),
 }));
 
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   getDataSourceCredentials: vi.fn(),
 }));
 
@@ -45,15 +45,8 @@ vi.mock('@trigger.dev/sdk', () => ({
 // Import mocked modules
 import { generateSearchableValueEmbeddings } from '@buster/ai';
 import { createAdapter, getDefaultProvider } from '@buster/data-source';
-import { getDataSourceCredentials } from '@buster/database';
-import {
-  deduplicateValues,
-  generateNamespace,
-  processWithCache,
-  queryExistingKeys,
-  updateCache,
-  upsertSearchableValues,
-} from '@buster/search';
+import { getDataSourceCredentials } from '@buster/database/queries';
+import { processWithCache, updateCache, upsertSearchableValues } from '@buster/search';
 
 describe('processSyncJob', () => {
   const mockPayload: SyncJobPayload = {

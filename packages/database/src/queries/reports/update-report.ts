@@ -2,14 +2,13 @@ import { and, eq, isNull } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
 import { reportFiles, workspaceSharingEnum } from '../../schema';
+import { WorkspaceSharingSchema } from '../../schema-types';
 
 // Type for updating reportFiles - excludes read-only fields
 type UpdateReportData = Partial<
   Omit<typeof reportFiles.$inferInsert, 'id' | 'createdBy' | 'createdAt' | 'deletedAt'>
 >;
 type VersionHistoryItem = (typeof reportFiles.$inferSelect)['versionHistory']['string'];
-
-const WorkspaceSharingSchema = z.enum(workspaceSharingEnum.enumValues);
 
 // Input validation schema for updating a report
 const UpdateReportInputSchema = z.object({

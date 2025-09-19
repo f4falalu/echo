@@ -1,4 +1,4 @@
-import { fetchMessageEntries } from '@buster/database';
+import { fetchMessageEntries } from '@buster/database/queries';
 import type { ModelMessage } from 'ai';
 import { z } from 'zod';
 
@@ -70,7 +70,11 @@ export const isOverloadedError = (error: unknown): boolean => {
   // Check error message
   if ('message' in error && typeof error.message === 'string') {
     const lowerMessage = error.message.toLowerCase();
-    return lowerMessage.includes('overloaded') || lowerMessage.includes('overloaded_error');
+    return (
+      lowerMessage.includes('overloaded') ||
+      lowerMessage.includes('overloaded_error') ||
+      lowerMessage.includes('terminated')
+    );
   }
 
   return false;

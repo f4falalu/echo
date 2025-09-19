@@ -1,4 +1,4 @@
-import { updateChat, updateMessage, updateMessageEntries } from '@buster/database';
+import { updateChat, updateMessage, updateMessageEntries } from '@buster/database/queries';
 import type { ToolCallOptions } from 'ai';
 import type { UpdateMessageEntriesParams } from '../../../../../database/src/queries/messages/update-message-entries';
 import { createRawToolResultEntry } from '../../shared/create-raw-llm-tool-result-entry';
@@ -68,19 +68,12 @@ export function createDoneToolStart(context: DoneToolContext, doneToolState: Don
         }
       }
 
-      // Update the chat with the most recent file (using same files shown in response messages)
-      if (context.chatId && extractedFiles.length > 0) {
-        // Sort files by version number (descending) to get the most recent
-        const sortedFiles = extractedFiles.sort((a, b) => {
-          const versionA = a.versionNumber || 1;
-          const versionB = b.versionNumber || 1;
-          return versionB - versionA;
-        });
-
-        // Prefer reports over other file types for the chat's most recent file
-        const reportFile = sortedFiles.find((f) => f.fileType === 'report_file');
-        const mostRecentFile = reportFile || sortedFiles[0];
-
+      // Update the chat with the most recent file using the full set that includes reports
+      // Do not rely on the filtered response list since it excludes report files
+      if (context.chatId && allFilesForChatUpdate.length > 0) {
+        const mostRecentFile =
+          allFilesForChatUpdate.find((f) => f.fileType === 'report_file') ||
+          allFilesForChatUpdate[0];
         if (mostRecentFile) {
           console.info('[done-tool-start] Updating chat with most recent file', {
             chatId: context.chatId,
@@ -88,7 +81,6 @@ export function createDoneToolStart(context: DoneToolContext, doneToolState: Don
             fileType: mostRecentFile.fileType,
             fileName: mostRecentFile.fileName,
             versionNumber: mostRecentFile.versionNumber,
-            isReport: mostRecentFile.fileType === 'report_file',
           });
 
           try {

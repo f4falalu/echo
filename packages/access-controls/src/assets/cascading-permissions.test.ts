@@ -12,7 +12,7 @@ import {
 } from './cascading-permissions';
 
 // Mock database queries
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   checkCollectionsContainingAsset: vi.fn(),
   checkDashboardsContainingMetric: vi.fn(),
   checkChatsContainingAsset: vi.fn(),
@@ -45,7 +45,7 @@ describe('Cascading Permissions', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
 
-    const db = await import('@buster/database');
+    const db = await import('@buster/database/queries');
     mockCheckDashboardsContainingMetric = vi.mocked(db.checkDashboardsContainingMetric);
     mockCheckChatsContainingAsset = vi.mocked(db.checkChatsContainingAsset);
     mockCheckCollectionsContainingAsset = vi.mocked(db.checkCollectionsContainingAsset);

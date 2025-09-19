@@ -1,7 +1,6 @@
-import { getClient } from '@buster/database';
+import { getClient } from '@buster/database/connection';
 import {
   type EmbeddingOptions,
-  EmbeddingOptionsSchema,
   EmbeddingSchema,
   ParallelSearchInputSchema,
   type SearchOptions,

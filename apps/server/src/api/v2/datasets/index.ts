@@ -1,9 +1,9 @@
+import { db } from '@buster/database/connection';
 import {
   type User,
-  db,
   getOrganizationDatasets,
   getUserOrganizationsByUserId,
-} from '@buster/database';
+} from '@buster/database/queries';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { requireAuth } from '../../../middleware/auth';

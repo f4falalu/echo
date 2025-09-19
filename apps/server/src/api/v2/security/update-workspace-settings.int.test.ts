@@ -1,5 +1,6 @@
-import type { User, organizations } from '@buster/database';
-import type { OrganizationRole } from '@buster/server-shared/organization';
+import type { User } from '@buster/database/queries';
+import type { organizations } from '@buster/database/schema';
+import type { UserOrganizationRole } from '@buster/server-shared/organization';
 import type { InferSelectModel } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -124,7 +125,12 @@ describe('updateWorkspaceSettingsHandler (integration)', () => {
 
   describe('Error Cases', () => {
     it('should return 403 for non-workspace-admin users', async () => {
-      const roles: OrganizationRole[] = ['querier', 'restricted_querier', 'data_admin', 'viewer'];
+      const roles: UserOrganizationRole[] = [
+        'querier',
+        'restricted_querier',
+        'data_admin',
+        'viewer',
+      ];
 
       for (const role of roles) {
         // Create a fresh organization for each role test to avoid conflicts

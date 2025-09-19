@@ -1,12 +1,12 @@
-import type { User } from '@buster/database';
+import { db } from '@buster/database/connection';
 import {
   type AssetDetailsResult,
   type Message,
-  chats,
+  type User,
   createMessage,
   createMessageFileAssociation,
-  db,
-} from '@buster/database';
+} from '@buster/database/queries';
+import { chats } from '@buster/database/schema';
 import type {
   ChatAssetType,
   ChatMessage,
@@ -38,7 +38,7 @@ export async function createAssetImportMessage(
   });
 
   // Update the message to include response and mark as completed
-  const { updateMessage } = await import('@buster/database');
+  const { updateMessage } = await import('@buster/database/queries');
   await updateMessage(messageId, {
     isCompleted: true,
     responseMessages: [

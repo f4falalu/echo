@@ -524,7 +524,6 @@ export const assetParamsToRoute = (params: AssetParamsToRoute): ILinkProps => {
     }
 
     default:
-      console.warn(`Unknown asset type: ${(params as AssetParamsToRoute).assetType}`, params);
       throw new Error(`Unknown asset type: ${(params as AssetParamsToRoute).assetType}`, params);
   }
 };

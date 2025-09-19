@@ -1,5 +1,5 @@
-import { getUserOrganizationId, updateUserLastUsedShortcuts } from '@buster/database';
-import type { User } from '@buster/database';
+import { getUserOrganizationId, updateUserLastUsedShortcuts } from '@buster/database/queries';
+import type { User } from '@buster/database/queries';
 import {
   type ChatCreateHandlerRequest,
   ChatError,
@@ -157,7 +157,7 @@ export async function createChatHandler(
         }
 
         // Update the message with the trigger run ID
-        const { updateMessage } = await import('@buster/database');
+        const { updateMessage } = await import('@buster/database/queries');
         await updateMessage(actualMessageId, {
           triggerRunId: taskHandle.id,
         });

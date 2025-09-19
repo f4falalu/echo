@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { updateMessageEntries } from '@buster/database';
+import { updateMessageEntries } from '@buster/database/queries';
 import type { ToolCallOptions } from 'ai';
 import {
   OptimisticJsonParser,

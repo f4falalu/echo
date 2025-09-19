@@ -1,4 +1,4 @@
-import { updateMessageEntries } from '@buster/database';
+import { updateMessageEntries } from '@buster/database/queries';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ExecuteSqlContext, ExecuteSqlState } from './execute-sql';
 import { createExecuteSqlDelta } from './execute-sql-delta';
@@ -6,7 +6,7 @@ import { createExecuteSqlFinish } from './execute-sql-finish';
 import { createExecuteSqlStart } from './execute-sql-start';
 
 // Mock the database update function
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   updateMessageEntries: vi.fn(),
 }));
 

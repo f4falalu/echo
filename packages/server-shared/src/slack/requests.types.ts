@@ -1,14 +1,5 @@
-import type { slackSharingPermissionEnum } from '@buster/database'; //we import as type to avoid postgres dependency in the frontend ☹️
+import { SlackSharingPermissionSchema } from '@buster/database/schema-types'; //we import as type to avoid postgres dependency in the frontend ☹️
 import { z } from 'zod';
-
-type SlackSharingPermissionBase = (typeof slackSharingPermissionEnum.enumValues)[number];
-
-const SlackSharingPermissionEnum: Record<SlackSharingPermissionBase, SlackSharingPermissionBase> =
-  Object.freeze({
-    shareWithWorkspace: 'shareWithWorkspace',
-    shareWithChannel: 'shareWithChannel',
-    noSharing: 'noSharing',
-  });
 
 // POST /api/v2/slack/auth/init
 export const InitiateOAuthSchema = z
@@ -41,14 +32,7 @@ export const UpdateIntegrationSchema = z.object({
       id: z.string().min(1),
     })
     .optional(),
-  default_sharing_permissions: z
-    .enum(
-      Object.values(SlackSharingPermissionEnum) as [
-        SlackSharingPermissionBase,
-        ...SlackSharingPermissionBase[],
-      ]
-    )
-    .optional(),
+  default_sharing_permissions: SlackSharingPermissionSchema.optional(),
 });
 
 export type UpdateIntegrationRequest = z.infer<typeof UpdateIntegrationSchema>;

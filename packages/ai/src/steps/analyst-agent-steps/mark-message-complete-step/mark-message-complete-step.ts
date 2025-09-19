@@ -1,4 +1,4 @@
-import { updateChat, updateMessage } from '@buster/database';
+import { updateChat, updateMessage } from '@buster/database/queries';
 import { z } from 'zod';
 
 // Input schema with all necessary parameters

@@ -2,14 +2,10 @@ import { randomBytes } from 'node:crypto';
 import { type AssetPermissionCheck, checkPermission } from '@buster/access-controls';
 import { createAdapter, getProviderForOrganization } from '@buster/data-source';
 import type { Credentials } from '@buster/data-source';
-import { getDataSourceCredentials, getMetricForExport } from '@buster/database';
+import { getDataSourceCredentials, getMetricForExport } from '@buster/database/queries';
 import { logger, schemaTask } from '@trigger.dev/sdk';
-import { convertToCSV, estimateCSVSize } from './csv-helpers';
-import {
-  type ExportMetricDataInput,
-  ExportMetricDataInputSchema,
-  type ExportMetricDataOutput,
-} from './interfaces';
+import { convertToCSV } from './csv-helpers';
+import { ExportMetricDataInputSchema, type ExportMetricDataOutput } from './interfaces';
 const MAX_ROWS = 1000000; // 1 million row limit for safety
 const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB max file size
 

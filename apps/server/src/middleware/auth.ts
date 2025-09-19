@@ -1,4 +1,4 @@
-import { getUser, getUserOrganizationId } from '@buster/database';
+import { getUser, getUserOrganizationId } from '@buster/database/queries';
 import type { Context, Next } from 'hono';
 import { bearerAuth } from 'hono/bearer-auth';
 import { isOrganizationAdmin } from '../utils/admin';

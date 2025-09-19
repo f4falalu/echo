@@ -1,4 +1,4 @@
-import { updateMessageEntries } from '@buster/database';
+import { updateMessageEntries } from '@buster/database/queries';
 import type { ToolCallOptions } from 'ai';
 import type { CreateMetricsContext, CreateMetricsState } from './create-metrics-tool';
 import {

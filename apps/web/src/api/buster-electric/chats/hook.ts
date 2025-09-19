@@ -20,7 +20,9 @@ export const useTrackAndUpdateChatChanges = (
   callback?: (chat: BusterChatWithoutMessages) => void
 ) => {
   const { onUpdateChat } = useChatUpdate();
-  const shape = useMemo(() => chatShape({ chatId: chatId || '' }), [chatId]);
+  const shape = useMemo(() => {
+    return chatShape({ chatId: chatId || '' });
+  }, [chatId]);
   const subscribe = !!chatId;
 
   return useShapeStream(

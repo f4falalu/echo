@@ -42,7 +42,7 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
   const { isAutoScrollEnabled, isMountedAutoScrollObserver, scrollToBottom, enableAutoScroll } =
     useAutoScroll(scrollAreaRef, {
       observeSubTree: true,
-      enabled: !isStreamFinished,
+      enabled: foundScrollArea && showReasoningController,
     });
 
   useEffect(() => {
@@ -81,7 +81,7 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
         )}
       </div>
 
-      {scrollAreaRef.current && showReasoningController && (
+      {foundScrollArea && showReasoningController && (
         <ScrollToBottomButton
           isAutoScrollEnabled={isAutoScrollEnabled}
           scrollToBottom={scrollToBottom}

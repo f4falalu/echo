@@ -1,5 +1,7 @@
-import { type User, and, db, eq, isNull, organizations } from '@buster/database';
-import type { OrganizationRole } from '@buster/server-shared/organization';
+import { and, db, eq, isNull } from '@buster/database/connection';
+import type { User } from '@buster/database/queries';
+import { organizations } from '@buster/database/schema';
+import type { UserOrganizationRole } from '@buster/server-shared/organization';
 import type {
   UpdateWorkspaceSettingsRequest,
   UpdateWorkspaceSettingsResponse,
@@ -97,14 +99,14 @@ async function updateOrganizationSettings(
   updateData: {
     updatedAt: string;
     restrictNewUserInvitations?: boolean;
-    defaultRole?: OrganizationRole;
+    defaultRole?: UserOrganizationRole;
   }
 ): Promise<void> {
   try {
     const dbUpdateData: {
       updatedAt: string;
       restrictNewUserInvitations?: boolean;
-      defaultRole?: Exclude<OrganizationRole, 'none'>;
+      defaultRole?: Exclude<UserOrganizationRole, 'none'>;
     } = {
       updatedAt: updateData.updatedAt,
       ...(updateData.restrictNewUserInvitations !== undefined && {

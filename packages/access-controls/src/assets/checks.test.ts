@@ -3,7 +3,7 @@ import { checkPermission, computeEffectivePermission, hasAnyAccess } from './che
 import type { AssetPermissionResult } from './checks';
 
 // Mock database queries
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   checkAssetPermission: vi.fn(),
   getUserOrganizationsByUserId: vi.fn(),
 }));
@@ -29,7 +29,7 @@ describe('Asset Permission Checks', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
 
-    const db = await import('@buster/database');
+    const db = await import('@buster/database/queries');
     mockCheckAssetPermission = vi.mocked(db.checkAssetPermission);
     mockGetUserOrganizationsByUserId = vi.mocked(db.getUserOrganizationsByUserId);
 

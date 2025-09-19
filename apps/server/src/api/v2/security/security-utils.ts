@@ -1,11 +1,11 @@
+import { db } from '@buster/database/connection';
+import { getUserOrganizationId } from '@buster/database/queries';
 import {
   datasets,
   datasetsToPermissionGroups,
-  db,
-  getUserOrganizationId,
   organizations,
   permissionGroups,
-} from '@buster/database';
+} from '@buster/database/schema';
 import { and, eq, isNull } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';
 

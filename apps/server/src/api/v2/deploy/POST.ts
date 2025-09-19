@@ -1,11 +1,11 @@
+import { db } from '@buster/database/connection';
 import {
   getDataSourceByName,
   getUserOrganizationId,
   upsertDataset,
   upsertDoc,
-} from '@buster/database';
-import type { User } from '@buster/database';
-import { db } from '@buster/database/connection';
+} from '@buster/database/queries';
+import type { User } from '@buster/database/queries';
 import type { deploy } from '@buster/server-shared';
 import { HTTPException } from 'hono/http-exception';
 

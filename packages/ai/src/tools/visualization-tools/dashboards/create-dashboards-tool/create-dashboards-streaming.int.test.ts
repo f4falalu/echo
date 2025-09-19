@@ -25,7 +25,7 @@ describe('create-dashboards-tool streaming integration', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
 
-    const database = await import('@buster/database');
+    const database = await import('@buster/database/queries');
     updateMessageEntries = vi.mocked(database.updateMessageEntries);
 
     const executeModule = await import('./create-dashboards-execute');

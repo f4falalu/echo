@@ -1,4 +1,6 @@
-import { chats, db, getSecretByName, slackIntegrations } from '@buster/database';
+import { db } from '@buster/database/connection';
+import { getSecretByName } from '@buster/database/queries';
+import { chats, slackIntegrations } from '@buster/database/schema';
 import type { SlackEventsResponse } from '@buster/server-shared/slack';
 import {
   type SlackWebhookPayload,

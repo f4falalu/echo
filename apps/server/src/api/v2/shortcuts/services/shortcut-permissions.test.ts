@@ -1,4 +1,4 @@
-import type { User } from '@buster/database';
+import type { User } from '@buster/database/queries';
 import type { Shortcut } from '@buster/server-shared/shortcuts';
 import { describe, expect, it } from 'vitest';
 import {

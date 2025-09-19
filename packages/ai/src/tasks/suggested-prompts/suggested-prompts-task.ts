@@ -1,4 +1,4 @@
-import { DEFAULT_USER_SUGGESTED_PROMPTS } from '@buster/database';
+import { DEFAULT_USER_SUGGESTED_PROMPTS } from '@buster/database/schema-types';
 import { generateObject } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';

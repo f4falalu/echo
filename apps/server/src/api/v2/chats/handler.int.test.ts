@@ -1,4 +1,5 @@
-import { asc, chats, db, eq, messages, usersToOrganizations } from '@buster/database';
+import { asc, db, eq } from '@buster/database/connection';
+import { chats, messages, usersToOrganizations } from '@buster/database/schema';
 import {
   ChatCreateRequestSchema,
   ChatError,

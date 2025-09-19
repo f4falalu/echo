@@ -1,10 +1,10 @@
-import { updateMessageEntries } from '@buster/database';
+import { updateMessageEntries } from '@buster/database/queries';
 import type { ToolCallOptions } from 'ai';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createModifyDashboardsStart } from './modify-dashboards-start';
 import type { ModifyDashboardsContext, ModifyDashboardsState } from './modify-dashboards-tool';
 
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   updateMessageEntries: vi.fn(),
 }));
 

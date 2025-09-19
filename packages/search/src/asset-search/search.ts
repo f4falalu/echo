@@ -1,4 +1,4 @@
-import { type SearchFilters, getUserOrganizationId, searchText } from '@buster/database';
+import { type SearchFilters, getUserOrganizationId, searchText } from '@buster/database/queries';
 import type { SearchTextData, SearchTextRequest, SearchTextResponse } from '@buster/server-shared';
 import { getAssetAncestors } from './get-search-result-ancestors';
 

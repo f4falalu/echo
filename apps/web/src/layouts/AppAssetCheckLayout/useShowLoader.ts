@@ -10,10 +10,7 @@ export const useShowLoader = (
   versionNumber: number | undefined
 ) => {
   const { data: showLoader } = useGetMetricData(
-    {
-      id: assetId,
-      versionNumber: versionNumber,
-    },
+    { id: assetId, versionNumber: versionNumber },
     {
       enabled: type === 'metric_file',
       select: useCallback(
@@ -23,5 +20,5 @@ export const useShowLoader = (
     }
   );
 
-  return showLoader;
+  return showLoader && type === 'metric_file';
 };

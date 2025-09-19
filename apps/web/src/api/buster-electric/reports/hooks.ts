@@ -15,7 +15,9 @@ export const useTrackAndUpdateReportChanges = ({
 }) => {
   const queryClient = useQueryClient();
 
-  const shape = useMemo(() => reportShape({ reportId }), [reportId]);
+  const shape = useMemo(() => {
+    return reportShape({ reportId });
+  }, [reportId]);
 
   const subscribe = !!reportId && reportId !== 'undefined' && subscribeProp;
 

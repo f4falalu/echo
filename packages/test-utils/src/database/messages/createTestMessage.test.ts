@@ -2,23 +2,27 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { cleanupTestEnvironment, setupTestEnvironment } from '../../envHelpers/env-helpers';
 import { type CreateTestMessageOptions, createTestMessage } from './createTestMessage';
 
-vi.mock('@buster/database', () => {
+// Mock the database connection
+vi.mock('@buster/database/connection', () => {
   const mockValues = vi.fn().mockResolvedValue(undefined);
   const mockInsert = vi.fn().mockReturnValue({
     values: mockValues,
   });
-  const mockMessages = {};
 
   return {
     db: {
       insert: mockInsert,
     },
-    messages: mockMessages,
+    // Export these for test access
     mockValues,
     mockInsert,
-    mockMessages,
   };
 });
+
+// Mock the database schema
+vi.mock('@buster/database/schema', () => ({
+  messages: {},
+}));
 
 describe('createTestMessage', () => {
   let mockValues: any;
@@ -29,10 +33,13 @@ describe('createTestMessage', () => {
     await setupTestEnvironment();
     vi.clearAllMocks();
 
-    const dbMock = (await vi.importMock('@buster/database')) as any;
+    // Get the mock functions from the mocked modules
+    const dbMock = (await vi.importMock('@buster/database/connection')) as any;
+    const schemaMock = (await vi.importMock('@buster/database/schema')) as any;
+
     mockValues = dbMock.mockValues;
     mockInsert = dbMock.mockInsert;
-    mockMessages = dbMock.mockMessages;
+    mockMessages = schemaMock.messages;
 
     mockValues.mockResolvedValue(undefined);
   });

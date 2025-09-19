@@ -1,6 +1,6 @@
 import { createPermissionErrorMessage, validateSqlPermissions } from '@buster/access-controls';
 import { type DataSource, withRateLimit } from '@buster/data-source';
-import { updateMessageEntries } from '@buster/database';
+import { updateMessageEntries } from '@buster/database/queries';
 import { wrapTraced } from 'braintrust';
 import { getDataSource } from '../../../utils/get-data-source';
 import { createRawToolResultEntry } from '../../shared/create-raw-llm-tool-result-entry';

@@ -1,4 +1,3 @@
-import type { ReportElementWithId } from '@buster/server-shared/reports';
 import type { Value } from 'platejs';
 import { type TPlateEditor, useEditorRef, usePlateEditor } from 'platejs/react';
 import { useEffect, useMemo, useRef } from 'react';
@@ -19,7 +18,7 @@ export const useReportEditor = ({
   scrollAreaRef,
 }: {
   value: string | undefined; //markdown
-  initialElements?: Value | ReportElementWithId[];
+  initialElements?: Value;
   readOnly: boolean | undefined;
   useFixedToolbarKit?: boolean;
   isStreaming: boolean;

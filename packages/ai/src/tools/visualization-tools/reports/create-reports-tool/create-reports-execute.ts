@@ -1,4 +1,8 @@
-import { batchUpdateReport, updateMessageEntries, updateMetricsToReports } from '@buster/database';
+import {
+  batchUpdateReport,
+  updateMessageEntries,
+  updateMetricsToReports,
+} from '@buster/database/queries';
 import type { ChatMessageResponseMessage } from '@buster/server-shared/chats';
 import { wrapTraced } from 'braintrust';
 import { createRawToolResultEntry } from '../../../shared/create-raw-llm-tool-result-entry';

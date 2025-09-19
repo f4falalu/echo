@@ -1,6 +1,6 @@
 import { type AssetPermissionCheck, checkPermission } from '@buster/access-controls';
-import type { User } from '@buster/database';
-import { getUserOrganizationId } from '@buster/database';
+import type { User } from '@buster/database/queries';
+import { getUserOrganizationId } from '@buster/database/queries';
 import type { ExportMetricDataOutput, MetricDownloadResponse } from '@buster/server-shared/metrics';
 import { runs, tasks } from '@trigger.dev/sdk';
 import { HTTPException } from 'hono/http-exception';

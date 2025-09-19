@@ -19,7 +19,7 @@ steps:
   - id: 292ed32d-c649-4321-bd7b-29516169fb74
     type: PRESET_ACTION
     command:
-      id: 9a4c8481-9833-4eec-a016-96e8499e620e
+      id: b2d94baa-b0ba-4555-8846-f0d87c47b237
       type: CLICK
       target:
         type: description

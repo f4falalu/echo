@@ -1,4 +1,5 @@
-import { db, slackIntegrations } from '@buster/database';
+import { db } from '@buster/database/connection';
+import { slackIntegrations } from '@buster/database/schema';
 import { and, eq } from 'drizzle-orm';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanupTestOrgAndUser, createTestOrgAndUser } from '../test-helpers';

@@ -1,4 +1,4 @@
-import type { User } from '@buster/database';
+import type { User } from '@buster/database/queries';
 import { PublicChatError, PublicChatErrorCode } from '@buster/server-shared';
 import type { ChatCreateHandlerRequest, ChatWithMessages } from '@buster/server-shared/chats';
 import { createChatHandler } from '../../../chats/handler';

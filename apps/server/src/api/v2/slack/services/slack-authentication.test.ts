@@ -1,6 +1,5 @@
 // Mock database before any imports that might use it
-vi.mock('@buster/database', () => ({
-  getUserOrganizationId: vi.fn(),
+vi.mock('@buster/database/connection', () => ({
   db: {
     select: vi.fn(),
     from: vi.fn(),
@@ -10,12 +9,6 @@ vi.mock('@buster/database', () => ({
     update: vi.fn(),
     transaction: vi.fn(),
   },
-  organizations: {},
-  datasets: {},
-  datasetsToPermissionGroups: {},
-  permissionGroups: {},
-  users: {},
-  slackIntegrations: {},
   eq: vi.fn(),
   and: vi.fn(),
   isNull: vi.fn(),
@@ -23,6 +16,19 @@ vi.mock('@buster/database', () => ({
   createSecret: vi.fn(),
   updateSecret: vi.fn(),
   deleteSecret: vi.fn(),
+}));
+
+vi.mock('@buster/database/queries', () => ({
+  getUserOrganizationId: vi.fn(),
+}));
+
+vi.mock('@buster/database/schema', () => ({
+  organizations: {},
+  datasets: {},
+  datasetsToPermissionGroups: {},
+  permissionGroups: {},
+  users: {},
+  slackIntegrations: {},
 }));
 
 import * as accessControls from '@buster/access-controls';

@@ -1,4 +1,5 @@
-import { db, slackIntegrations } from '@buster/database';
+import { db } from '@buster/database/connection';
+import { slackIntegrations } from '@buster/database/schema';
 import type { GetChannelsResponse, SlackErrorResponse } from '@buster/server-shared/slack';
 import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
@@ -132,7 +133,7 @@ describe.skipIf(skipIfNoEnv)('Slack Channels Integration Tests', () => {
 
       // If we have a real token, store it in the vault
       if (process.env.SLACK_TEST_ACCESS_TOKEN) {
-        const { createSecret } = await import('@buster/database');
+        const { createSecret } = await import('@buster/database/queries');
         await createSecret({
           secret: process.env.SLACK_TEST_ACCESS_TOKEN,
           name: tokenVaultKey,
@@ -177,7 +178,7 @@ describe.skipIf(skipIfNoEnv)('Slack Channels Integration Tests', () => {
 
       // Clean up the secret if we created one
       if (process.env.SLACK_TEST_ACCESS_TOKEN) {
-        const { deleteSecret, getSecretByName } = await import('@buster/database');
+        const { deleteSecret, getSecretByName } = await import('@buster/database/queries');
         const secret = await getSecretByName(tokenVaultKey);
         if (secret) {
           await deleteSecret(secret.id);
