@@ -88,6 +88,7 @@ export const lineBuilder = (
 
   const colorLength = colors.length;
   const color = colors[index % colorLength] || '';
+  const datasetColor = dataset.colors;
 
   // Pre-calculate point dimensions
   const hoverRadius = lineSymbolSize * HOVER_RADIUS_MULTIPLIER;

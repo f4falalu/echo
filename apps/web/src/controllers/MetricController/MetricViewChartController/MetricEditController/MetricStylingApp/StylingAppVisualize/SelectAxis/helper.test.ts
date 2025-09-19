@@ -89,6 +89,7 @@ describe('getChartTypeDropZones', () => {
         y: [],
         category: [],
         tooltip: ['hover_info', 'extra_data'],
+        colorBy: null,
       };
 
       const result = getChartTypeDropZones({

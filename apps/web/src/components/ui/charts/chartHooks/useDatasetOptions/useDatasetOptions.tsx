@@ -213,8 +213,6 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
     selectedChartType,
   ]);
 
-  console.log('datasetOptions', datasetOptions);
-
   const numberOfDataPoints = useMemo(() => {
     return datasetOptions.datasets.reduce((acc, dataset) => acc + dataset.data.length, 0);
   }, [datasetOptions]);

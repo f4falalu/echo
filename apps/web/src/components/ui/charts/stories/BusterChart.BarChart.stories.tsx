@@ -1269,6 +1269,7 @@ export const WithYearInXAxis: Story = {
 export const WithColorBy: Story = {
   args: {
     ...Default.args,
+    showLegend: true,
     data: [
       {
         sales: 1000,
@@ -1284,6 +1285,21 @@ export const WithColorBy: Story = {
         sales: 1200,
         type: 'Type 3',
         level: 'Level 1',
+      },
+      {
+        sales: 1500,
+        type: 'Type 4',
+        level: 'Level 1',
+      },
+      {
+        sales: 1500,
+        type: 'Type 5',
+        level: 'Level 3',
+      },
+      {
+        sales: 900,
+        type: 'Type 6',
+        level: 'Level 4',
       },
     ],
     barAndLineAxis: {
