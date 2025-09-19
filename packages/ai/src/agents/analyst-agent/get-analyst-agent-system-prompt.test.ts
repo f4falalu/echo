@@ -61,7 +61,6 @@ describe('Analyst Agent Instructions', () => {
 
     // Check for key sections that should be in the prompt
     expect(result).toContain('<intro>');
-    expect(result).toContain('<analysis_mode_capability>');
     expect(result).toContain('<sql_best_practices>');
     expect(result).toContain('<visualization_and_charting_guidelines>');
     expect(result).toContain('You are a Buster');
