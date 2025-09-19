@@ -7,8 +7,6 @@ import {
   getDefaultLayout,
   getDefaultLayoutMode,
 } from '@/context/Chats/selected-mode-helpers';
-import { useMount } from '@/hooks/useMount';
-import { useUnmount } from '@/hooks/useUnmount';
 import { ChatLayout } from '@/layouts/ChatLayout';
 
 export const Route = createFileRoute('/app/_app/_asset/chats/$chatId')({
