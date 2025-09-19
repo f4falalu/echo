@@ -68,27 +68,30 @@ export function createDoneToolStart(context: DoneToolContext, doneToolState: Don
         }
       }
 
-      // Update the chat with the most recent file - simply use the first file from extractedFiles
-      // No filtering or sorting - just use whatever was selected for response messages
-      if (context.chatId && extractedFiles.length > 0) {
-        const mostRecentFile = extractedFiles[0];
-
-        console.info('[done-tool-start] Updating chat with most recent file', {
-          chatId: context.chatId,
-          fileId: mostRecentFile.id,
-          fileType: mostRecentFile.fileType,
-          fileName: mostRecentFile.fileName,
-          versionNumber: mostRecentFile.versionNumber,
-        });
-
-        try {
-          await updateChat(context.chatId, {
-            mostRecentFileId: mostRecentFile.id,
-            mostRecentFileType: mostRecentFile.fileType,
-            mostRecentVersionNumber: mostRecentFile.versionNumber || 1,
+      // Update the chat with the most recent file using the full set that includes reports
+      // Do not rely on the filtered response list since it excludes report files
+      if (context.chatId && allFilesForChatUpdate.length > 0) {
+        const mostRecentFile =
+          allFilesForChatUpdate.find((f) => f.fileType === 'report_file') ||
+          allFilesForChatUpdate[0];
+        if (mostRecentFile) {
+          console.info('[done-tool-start] Updating chat with most recent file', {
+            chatId: context.chatId,
+            fileId: mostRecentFile.id,
+            fileType: mostRecentFile.fileType,
+            fileName: mostRecentFile.fileName,
+            versionNumber: mostRecentFile.versionNumber,
           });
-        } catch (error) {
-          console.error('[done-tool] Failed to update chat with most recent file:', error);
+
+          try {
+            await updateChat(context.chatId, {
+              mostRecentFileId: mostRecentFile.id,
+              mostRecentFileType: mostRecentFile.fileType,
+              mostRecentVersionNumber: mostRecentFile.versionNumber || 1,
+            });
+          } catch (error) {
+            console.error('[done-tool] Failed to update chat with most recent file:', error);
+          }
         }
       }
     }

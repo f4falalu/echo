@@ -71,7 +71,7 @@ export const isOverloadedError = (error: unknown): boolean => {
   if ('message' in error && typeof error.message === 'string') {
     const lowerMessage = error.message.toLowerCase();
     return (
-      lowerMessage.includes('overloaded') || 
+      lowerMessage.includes('overloaded') ||
       lowerMessage.includes('overloaded_error') ||
       lowerMessage.includes('terminated')
     );
