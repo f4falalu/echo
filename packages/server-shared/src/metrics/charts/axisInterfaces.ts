@@ -95,7 +95,7 @@ export const ScatterAxisSchema = z
      * Unlike 'category', this keeps all data in a single series with color differentiation.
      * Perfect for status indicators, priority levels, or categorical color coding.
      */
-    colorBy: ColorBySchema,
+    colorBy: z.null().optional().default(null),
   })
   .default({
     x: [],
@@ -159,7 +159,7 @@ export const PieChartAxisSchema = z
      * Unlike 'category', this keeps all data in a single series with color differentiation.
      * Perfect for status indicators, priority levels, or categorical color coding.
      */
-    colorBy: ColorBySchema,
+    colorBy: z.null().optional().default(null),
   })
   .default({
     x: [],
