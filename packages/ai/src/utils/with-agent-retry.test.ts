@@ -259,14 +259,14 @@ describe('with-agent-retry', () => {
         expect(result).toEqual(mockResult);
       });
 
-      it('should retry and succeed after overloaded error', async () => {
+      it('should retry and succeed after any error', async () => {
         const mockResult = { response: Promise.resolve('success') };
         let callCount = 0;
 
         const agent = createMockAgent(async () => {
           callCount++;
           if (callCount === 1) {
-            throw createOverloadedError();
+            throw new Error('Random provider error');
           }
           return mockResult;
         });
@@ -286,9 +286,43 @@ describe('with-agent-retry', () => {
         expect(callCount).toBe(2);
       });
 
+      it('should retry on various error types', async () => {
+        const errors = [
+          new Error('Internal Server Error'),
+          new Error('Service Unavailable'),
+          new Error('Too Many Requests'),
+          createOverloadedError(),
+        ];
+
+        let callCount = 0;
+        const mockResult = { response: Promise.resolve('success') };
+        const agent = createMockAgent(async () => {
+          if (callCount < errors.length) {
+            throw errors[callCount++];
+          }
+          callCount++;
+          return mockResult;
+        });
+
+        mockFetchMessageEntries.mockResolvedValue({
+          rawLlmMessages: [],
+          responseMessages: [],
+          reasoning: [],
+        });
+
+        const result = await retryStream(agent, [], {
+          messageId: 'test-id',
+          maxAttempts: 5,
+          baseDelayMs: 10,
+        });
+
+        expect(result).toEqual(mockResult);
+        expect(callCount).toBe(5);
+      });
+
       it('should throw after max attempts', async () => {
         const agent = createMockAgent(async () => {
-          throw createOverloadedError();
+          throw new Error('Persistent error');
         });
 
         mockFetchMessageEntries.mockResolvedValue({
@@ -303,7 +337,7 @@ describe('with-agent-retry', () => {
             maxAttempts: 2,
             baseDelayMs: 10,
           })
-        ).rejects.toEqual(createOverloadedError());
+        ).rejects.toThrow('Persistent error');
       });
 
       it('should call onRetry callback', async () => {
@@ -313,7 +347,7 @@ describe('with-agent-retry', () => {
         const agent = createMockAgent(async () => {
           callCount++;
           if (callCount <= 2) {
-            throw createOverloadedError();
+            throw new Error('Temporary error');
           }
           return { response: Promise.resolve('success') };
         });
