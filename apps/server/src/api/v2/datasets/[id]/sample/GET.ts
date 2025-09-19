@@ -1,4 +1,4 @@
-import type { User } from '@buster/database';
+import type { User } from '@buster/database/queries';
 import { GetDatasetSampleParamsSchema } from '@buster/server-shared';
 import type { GetDatasetSampleResponse } from '@buster/server-shared';
 import { zValidator } from '@hono/zod-validator';

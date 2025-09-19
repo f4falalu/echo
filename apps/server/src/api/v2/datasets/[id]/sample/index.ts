@@ -1,4 +1,4 @@
-import type { User } from '@buster/database';
+import type { User } from '@buster/database/queries';
 import { Hono } from 'hono';
 import { requireAuth } from '../../../../../middleware/auth';
 import { GET } from './GET';

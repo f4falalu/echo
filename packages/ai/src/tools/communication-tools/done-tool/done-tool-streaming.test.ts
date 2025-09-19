@@ -201,11 +201,12 @@ describe('Done Tool Streaming Tests', () => {
       // No file response messages should be created for report-only case
       const fileResponseCallWithFiles = (
         queries.updateMessageEntries as unknown as { mock: { calls: [Record<string, any>][] } }
-      ).mock.calls.find((c) =>
-        Array.isArray((c[0] as { responseMessages?: unknown[] }).responseMessages) &&
-        ((c[0] as { responseMessages?: { type?: string }[] }).responseMessages || []).some(
-          (m) => m?.type === 'file'
-        )
+      ).mock.calls.find(
+        (c) =>
+          Array.isArray((c[0] as { responseMessages?: unknown[] }).responseMessages) &&
+          ((c[0] as { responseMessages?: { type?: string }[] }).responseMessages || []).some(
+            (m) => m?.type === 'file'
+          )
       );
       expect(fileResponseCallWithFiles).toBeUndefined();
     });
@@ -297,16 +298,18 @@ describe('Done Tool Streaming Tests', () => {
       // Response messages should include the metric file
       const fileResponseCall = (
         queries.updateMessageEntries as unknown as { mock: { calls: [Record<string, any>][] } }
-      ).mock.calls.find((c) =>
-        Array.isArray((c[0] as { responseMessages?: unknown[] }).responseMessages) &&
-        ((c[0] as { responseMessages?: { type?: string }[] }).responseMessages || []).some(
-          (m) => m?.type === 'file'
-        )
+      ).mock.calls.find(
+        (c) =>
+          Array.isArray((c[0] as { responseMessages?: unknown[] }).responseMessages) &&
+          ((c[0] as { responseMessages?: { type?: string }[] }).responseMessages || []).some(
+            (m) => m?.type === 'file'
+          )
       );
 
       expect(fileResponseCall).toBeDefined();
-      const responseMessages = (fileResponseCall?.[0] as { responseMessages?: Record<string, any>[] })
-        ?.responseMessages as Record<string, any>[];
+      const responseMessages = (
+        fileResponseCall?.[0] as { responseMessages?: Record<string, any>[] }
+      )?.responseMessages as Record<string, any>[];
       const metricResponse = responseMessages?.find((m) => m.id === metricId);
       expect(metricResponse).toBeDefined();
       expect(metricResponse?.file_type).toBe('metric_file');
