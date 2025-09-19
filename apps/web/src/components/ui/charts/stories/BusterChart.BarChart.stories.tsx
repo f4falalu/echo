@@ -1266,6 +1266,54 @@ export const WithYearInXAxis: Story = {
   },
 };
 
+export const WithColorByXAxis: Story = {
+  args: {
+    ...Default.args,
+    showLegend: true,
+    data: [
+      {
+        sales: 1000,
+        type: 'Type 1',
+        level: 'Level 1',
+      },
+      {
+        sales: 2000,
+        type: 'Type 2',
+        level: 'Level 2',
+      },
+      {
+        sales: 1200,
+        type: 'Type 3',
+        level: 'Level 1',
+      },
+      {
+        sales: 1500,
+        type: 'Type 4',
+        level: 'Level 1',
+      },
+      {
+        sales: 1500,
+        type: 'Type 5',
+        level: 'Level 3',
+      },
+      {
+        sales: 900,
+        type: 'Type 6',
+        level: 'Level 4',
+      },
+    ],
+    barAndLineAxis: {
+      x: ['type'],
+      y: ['sales'],
+      category: [],
+      tooltip: null,
+      colorBy: {
+        columnId: 'type',
+      },
+    },
+  },
+};
+
 export const WithColorBy: Story = {
   args: {
     ...Default.args,
