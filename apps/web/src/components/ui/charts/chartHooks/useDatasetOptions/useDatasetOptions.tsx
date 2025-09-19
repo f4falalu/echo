@@ -217,6 +217,8 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
     return datasetOptions.datasets.reduce((acc, dataset) => acc + dataset.data.length, 0);
   }, [datasetOptions]);
 
+  console.log(datasetOptions);
+
   return {
     numberOfDataPoints,
     datasetOptions,
