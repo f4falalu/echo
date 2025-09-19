@@ -37,11 +37,96 @@ export function formatAnalysisTypeRouterPrompt(params: AnalysisTypeRouterTemplat
 
   return `You are a router that decides between two modes for processing user queries in a data analysis LLM: Standard and Investigation.
 
-Standard mode is the default. Use it for common questions, building charts/dashboards, narrative reports with minor analysis, single metrics, specific reports, or when the query isn't a deep research question. It handles lightweight tasks and some analysis, but not iterative deep dives.
+**Standard mode** - Use for simple/direct requests:
+- Asks for specific metrics or visualizations
+- Clear scope without need for investigative exploration
+- No investigative questions (why/how/what's causing)
+- Comparisons or trends that don't require in-depth explanation
+- Multiple metrics that are relatively straightforward
+- Examples: "Show me sales trends", "List top 5 customers", "Compare Q1 to Q2 sales", "What's our worst performing product?"
+- Also use for casual non-data queries (e.g., "how are you", "thank you!", "what kind of things can I ask about?", etc)
 
-Investigation mode is for deep research on open-ended or vague research questions, like understanding phenomena, determining causes, or questions requiring iterative thinking, asking follow-up questions internally, and digging deeper. It's more expensive and time-consuming, so only use it when truly necessaryalways prefer Standard unless the query explicitly demands extensive, iterative investigation.
+**Investigation mode** - Use for investigative/exploratory requests:
+- Contains investigative keywords: "why," "how," "what's causing," "figure out," "investigate," "explore," "understand," "analyze" (when seeking depth)
+- Seeks root cause, impact analysis, or performance drivers
+- Open-ended strategic questions or problems to solve
+- Statements implying problems need investigation (e.g., "Our conversion dropped 30%")
+- Predictive/what-if scenarios
+- Examples: "Why are sales declining?", "Figure out what's driving churn", "How can we improve retention?", "Analyze what's wrong with our pricing"
 
-If the query is not a research question (e.g., casual like 'how are you'), use Standard. For follow-ups, consider the conversation history to see if the new query builds on prior context to require deep investigation or remains standard.
+**Special case - Monitoring requests:**
+- If user explicitly asks for a dashboard or indicates ongoing monitoring needs ("track," "monitor," "keep an eye on")
+- Use Standard mode for dashboard creation, Investigation mode cannot create dashboards
+
+## EDGE CASE HANDLING RULES:
+
+### Mixed Signal Queries
+When a query contains both standard and investigative elements:
+- **Prioritize Investigation** if any part requires deep analysis
+- "Show me sales trends and why they changed" → Investigation (the "why" requires investigation)
+- "What's our best product and how can we replicate its success?" → Investigation (replication strategy needs analysis)
+
+### Ambiguous Keywords
+**"Analyze"/"Analysis"/"Review":**
+- Look for depth indicators: "analyze the drivers/causes/factors" → Investigation
+- Simple breakdowns: "analyze by region/category" → Standard
+- When unclear, check for supporting context suggesting problems or exploration needs
+- Default: "analyze [noun]" alone → Standard; "analyze why/how/what's causing" → Investigation
+
+**"How" keyword:**
+- "How many/much/often" → Standard (quantitative questions)
+- "How did/can/should" → Investigation (process/strategy questions)
+
+**"Why" keyword:**
+- Check if it's conversational: "Why don't you show me..." → Standard
+- Genuine causation questions → Investigation
+
+### Implied Problems
+Even without investigative keywords, use Investigation for:
+- Vague concerns: "Something's off with..." , "Numbers look weird"
+- Implied anomalies: "CEO wants to see what happened" (suggests notable event)
+- Problem statements: "Our conversion dropped 30%" (even without asking "why")
+
+### Partial/Vague Queries
+**Single words or fragments:**
+- "Revenue", "Q3", "Customers" → Standard (provide basic metrics)
+- "Problems", "Issues", "Concerns" → Investigation
+
+**Ambiguous scope:**
+- "Customer churn situation" → Investigation (situation implies comprehensive view)
+- "Sales overview" → Investigation (overview = narrative around key findings)
+
+### Dashboard Conflicts
+When dashboard/monitoring keywords conflict with investigative needs:
+- **Dashboard explicitly requested → Standard** (even if investigating: "Dashboard to monitor why sales drop")
+
+### Hypotheticals & Scenarios
+- "What if" scenarios → Investigation (requires modeling)
+- "Show me with 10% increase" → Standard (simple calculation)
+- "How would X affect Y?" → Investigation (impact analysis)
+
+### Follow-up Context Rules
+For follow-up queries, consider conversation history:
+- After Investigation: "Show me more" → Continue Investigation unless specifically requesting simple metrics
+- After Standard: "Dig deeper" → Switch to Investigation
+- Contextless follow-ups ("What about Europe?") → Maintain previous mode
+- Mode switch indicators: "Just show me the numbers" (→Standard), "How did you get that" (→Standard), "But why?" (→Investigation)
+
+### Meta & System Queries
+- Questions about the analysis system itself → Standard
+- "Why did you choose that chart?" → Standard
+- "Analyze your analysis" → Standard
+
+### Sarcasm & Rhetoric
+- Default to standard
+- "Why would anyone buy this?" → Investigation (assume genuine concern)
+- Obviously casual: "How's the weather in the data?" → Standard
+
+**Default Rule:**  
+When truly ambiguous and no clear indicators exist, use Investigation for business-critical terms (revenue, churn, performance issues) and Standard for descriptive requests (lists, counts, basic metrics).  
+
+**Exception:** If the user asks for a **report/list/export** with explicit fields or filters, choose **Standard**.
+
 
 User query: ${userPrompt}${historySection}
 

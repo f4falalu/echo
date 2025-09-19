@@ -1,5 +1,10 @@
-import type { BarAndLineAxis, PieChartAxis, ScatterAxis } from '@buster/server-shared/metrics';
-import { type ColumnMetaData, DEFAULT_CHART_CONFIG } from '@buster/server-shared/metrics';
+import {
+  type BarAndLineAxis,
+  type ColumnMetaData,
+  DEFAULT_CHART_CONFIG,
+  type PieChartAxis,
+  type ScatterAxis,
+} from '@buster/server-shared/metrics';
 
 export const createDefaultBarAndLineAxis = (
   columnsMetaData: ColumnMetaData[] | undefined

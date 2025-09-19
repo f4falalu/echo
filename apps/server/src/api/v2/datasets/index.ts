@@ -7,6 +7,7 @@ import {
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { requireAuth } from '../../../middleware/auth';
+import { datasetById } from './[id]';
 
 // Create Hono app for datasets routes
 const app = new Hono<{
@@ -46,5 +47,8 @@ app.get('/', async (c) => {
     });
   }
 });
+
+// Mount dataset by ID routes at /:id
+app.route('/:id', datasetById);
 
 export default app;

@@ -1,3 +1,4 @@
+import React from 'react';
 import ChartStackedBar from '@/components/ui/icons/NucleoIconFilled/chart-line-2';
 import { cn } from '@/lib/classMerge';
 
@@ -78,15 +79,15 @@ export function ReportEditorSkeleton({
       {/* Content area */}
       <div className="px-0 pb-12">
         <div className="border-border animate-pulse space-y-6 rounded-lg bg-transparent">
-          {elements.map((item) => {
-            if (item === 'header') return <HeaderSkeleton />;
-            if (item === 'image') return <ImageSkeleton />;
-            if (item === 'chart') return <ChartSkeleton />;
-            if (item === 'paragraphs') return <ParagraphsSkeleton />;
-            if (item === 'additionalContent') return <AdditionalContentSkeleton />;
-            const _exhaustiveCheck: never = item;
-            return null;
-          })}
+          {elements.map((item, index) => (
+            <React.Fragment key={`${item}-${index}`}>
+              {item === 'header' && <HeaderSkeleton />}
+              {item === 'image' && <ImageSkeleton />}
+              {item === 'chart' && <ChartSkeleton />}
+              {item === 'paragraphs' && <ParagraphsSkeleton />}
+              {item === 'additionalContent' && <AdditionalContentSkeleton />}
+            </React.Fragment>
+          ))}
         </div>
       </div>
     </div>

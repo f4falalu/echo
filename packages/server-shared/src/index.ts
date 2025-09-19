@@ -3,6 +3,9 @@
 // Export access controls with specific namespace to avoid conflicts
 export * as AccessControls from './access-controls';
 
+// Export common types as namespace to avoid conflicts with metrics re-exports
+export * as common from './common';
+
 // Export other modules
 export * from './assets';
 export * from './auth';
