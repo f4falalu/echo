@@ -9,7 +9,7 @@ import {
   users,
   usersToOrganizations,
 } from '../../schema';
-import { type AssetType, ChatListItem } from '../../schema-types';
+import type { ChatListItem } from '../../schema-types';
 import {
   type PaginatedResponse,
   PaginationInputSchema,
