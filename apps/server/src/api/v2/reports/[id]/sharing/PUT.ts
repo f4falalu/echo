@@ -5,8 +5,8 @@ import {
   getReport,
   getUserOrganizationId,
   updateReport,
-} from '@buster/database';
-import type { User } from '@buster/database';
+} from '@buster/database/queries';
+import type { User } from '@buster/database/queries';
 import type { ShareUpdateResponse, UpdateReportResponse } from '@buster/server-shared/reports';
 import { type ShareUpdateRequest, ShareUpdateRequestSchema } from '@buster/server-shared/share';
 import { zValidator } from '@hono/zod-validator';

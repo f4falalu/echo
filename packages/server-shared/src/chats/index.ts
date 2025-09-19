@@ -25,5 +25,5 @@ export {
   type ChatMessageResponseMessage_File,
   type ReasoningFileType,
   type ResponseMessageFileType,
-  type ReasoingMessage_ThoughtFileType,
-} from '@buster/database/types';
+  type ReasoningMessage_ThoughtFileType,
+} from '@buster/database/schema-types';

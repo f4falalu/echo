@@ -1,20 +1,26 @@
-import type { User } from '@buster/database';
+import { type User, getUserOrganizationId, getUserShortcuts } from '@buster/database/queries';
 import { HTTPException } from 'hono/http-exception';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { listShortcutsHandler } from './GET';
 
 // Mock database functions
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   getUserOrganizationId: vi.fn(),
   getUserShortcuts: vi.fn(),
+}));
+
+vi.mock('@buster/database/schema', () => ({
+  users: {},
+}));
+
+vi.mock('@buster/database/connection', () => ({
   db: {
     select: vi.fn(),
   },
-  users: {},
   eq: vi.fn(),
 }));
 
-import { db, getUserOrganizationId, getUserShortcuts } from '@buster/database';
+import { db } from '@buster/database/connection';
 
 describe('listShortcutsHandler', () => {
   const mockUser: User = {

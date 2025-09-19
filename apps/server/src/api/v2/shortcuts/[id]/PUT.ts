@@ -1,10 +1,10 @@
-import type { User } from '@buster/database';
+import type { User } from '@buster/database/queries';
 import {
   checkDuplicateName,
   getShortcutById,
   getUserOrganizationId,
   updateShortcut,
-} from '@buster/database';
+} from '@buster/database/queries';
 import type { Shortcut, UpdateShortcutRequest } from '@buster/server-shared/shortcuts';
 import { HTTPException } from 'hono/http-exception';
 

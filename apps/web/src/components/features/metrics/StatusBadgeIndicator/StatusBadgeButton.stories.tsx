@@ -84,12 +84,6 @@ export const Backlogged: Story = {
   },
 };
 
-export const NotVerified: Story = {
-  args: {
-    status: 'notVerified',
-  },
-};
-
 // Admin user can change all statuses
 export const AdminUser: Story = {
   args: {

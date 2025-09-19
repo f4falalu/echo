@@ -1,4 +1,4 @@
-import { getDatasetsWithYml } from '@buster/database';
+import { getDatasetsWithYml } from '@buster/database/queries';
 import { logger, schedules } from '@trigger.dev/sdk';
 import { isValidFieldName, parseSearchableFields } from './parse-searchable-fields';
 import { processSyncJob } from './process-sync-job';

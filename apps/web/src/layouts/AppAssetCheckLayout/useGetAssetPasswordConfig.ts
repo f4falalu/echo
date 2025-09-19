@@ -1,7 +1,7 @@
 import type { AssetType } from '@buster/server-shared/assets';
 import type { ResponseMessageFileType } from '@buster/server-shared/chats';
 import { useQuery } from '@tanstack/react-query';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import type { RustApiError } from '@/api/errors';
 import { chatQueryKeys } from '@/api/query_keys/chat';
 import { collectionQueryKeys } from '@/api/query_keys/collection';
@@ -14,22 +14,49 @@ interface AssetAccess {
   passwordRequired: boolean;
   isPublic: boolean;
   isDeleted: boolean;
+  isFetched: boolean;
 }
 
-const getAssetAccess = (error: RustApiError | null): AssetAccess => {
+const getAssetAccess = (error: RustApiError | null, isFetched: boolean): AssetAccess => {
   if (!error) {
-    return { hasAccess: true, passwordRequired: false, isPublic: false, isDeleted: false };
+    return {
+      hasAccess: true,
+      passwordRequired: false,
+      isPublic: false,
+      isDeleted: false,
+      isFetched,
+    };
   }
 
+  // 418 is password required
   if (error.status === 418) {
-    return { hasAccess: false, passwordRequired: true, isPublic: true, isDeleted: false };
+    return {
+      hasAccess: false,
+      passwordRequired: true,
+      isPublic: true,
+      isDeleted: false,
+      isFetched,
+    };
   }
 
+  // 410 is deleted
   if (error.status === 410) {
-    return { hasAccess: false, passwordRequired: false, isPublic: false, isDeleted: true };
+    return {
+      hasAccess: false,
+      passwordRequired: false,
+      isPublic: false,
+      isDeleted: true,
+      isFetched,
+    };
   }
 
-  return { hasAccess: false, passwordRequired: false, isPublic: false, isDeleted: false };
+  return {
+    hasAccess: false,
+    passwordRequired: false,
+    isPublic: false,
+    isDeleted: false,
+    isFetched,
+  };
 };
 
 export const useGetAssetPasswordConfig = (
@@ -61,11 +88,12 @@ export const useGetAssetPasswordConfig = (
     return chatQueryKeys.chatsGetChat(assetId);
   }, [type, assetId, chosenVersionNumber]);
 
-  const { error } = useQuery({
+  const { error, isFetched } = useQuery({
     queryKey: selectedQuery.queryKey,
-    enabled: false,
-    notifyOnChangeProps: ['error'],
+    enabled: true,
+    select: useCallback((v: unknown) => !!v, []),
+    notifyOnChangeProps: ['error', 'isFetched'],
   });
 
-  return getAssetAccess(error);
+  return getAssetAccess(error, isFetched);
 };

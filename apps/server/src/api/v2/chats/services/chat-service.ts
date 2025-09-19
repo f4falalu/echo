@@ -1,5 +1,6 @@
-import { db, messages } from '@buster/database';
-import type { User } from '@buster/database';
+import { db } from '@buster/database/connection';
+import type { User } from '@buster/database/queries';
+import { messages } from '@buster/database/schema';
 import type { ChatCreateHandlerRequest, ChatWithMessages } from '@buster/server-shared/chats';
 import { ChatError, ChatErrorCode } from '@buster/server-shared/chats';
 import { eq } from 'drizzle-orm';

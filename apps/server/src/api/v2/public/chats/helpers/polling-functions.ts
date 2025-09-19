@@ -1,4 +1,5 @@
-import { chats, db, eq, messages } from '@buster/database';
+import { db, eq } from '@buster/database/connection';
+import { chats, messages } from '@buster/database/schema';
 import { PublicChatError, PublicChatErrorCode } from '@buster/server-shared';
 import type { ChatMessage } from '@buster/server-shared/chats';
 import { runs } from '@trigger.dev/sdk';

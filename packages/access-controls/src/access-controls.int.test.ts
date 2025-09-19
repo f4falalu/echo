@@ -1,13 +1,9 @@
+import { and, eq, getDb, inArray, isNull } from '@buster/database/connection';
 import {
-  and,
   dataSources,
   datasetPermissions,
   datasets,
   datasetsToPermissionGroups,
-  eq,
-  getDb,
-  inArray,
-  isNull,
   organizations,
   permissionGroups,
   permissionGroupsToIdentities,
@@ -15,9 +11,9 @@ import {
   teamsToUsers,
   users,
   usersToOrganizations,
-} from '@buster/database';
+} from '@buster/database/schema';
 import { v4 as uuidv4 } from 'uuid';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { getPermissionedDatasets, hasAllDatasetsAccess, hasDatasetAccess } from './access-controls';
 
 describe('Access Controls Integration Tests - Organization Default Permission Group', () => {

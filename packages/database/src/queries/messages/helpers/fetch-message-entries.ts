@@ -5,7 +5,7 @@ import { messages } from '../../../schema';
 import type {
   ChatMessageReasoningMessage,
   ChatMessageResponseMessage,
-} from '../../../schemas/message-schemas';
+} from '../../../schema-types/message-schemas';
 import { type MessageEntriesCacheValue, messageEntriesCache } from '../message-entries-cache';
 
 /**

@@ -22,7 +22,7 @@ export const MetricStylingApp: React.FC<{
     MetricStylingAppSegments.VISUALIZE
   );
   const { data: chartConfig } = useGetMetric({ id: metricId }, { select: (x) => x.chart_config });
-  const { data: metricData } = useGetMetricData({ id: metricId }, { enabled: false });
+  const { data: metricData } = useGetMetricData({ id: metricId }, { enabled: true });
   const colors = useSelectedColorPalette(chartConfig?.colors);
 
   if (!chartConfig) return null;

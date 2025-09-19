@@ -1,7 +1,7 @@
-import type { OrganizationRole } from '@buster/server-shared/organization';
+import type { UserOrganizationRole } from '@buster/server-shared/organization';
 
 export const OrganizationUserRoleText: Record<
-  OrganizationRole,
+  UserOrganizationRole,
   {
     title: string;
     description: string;

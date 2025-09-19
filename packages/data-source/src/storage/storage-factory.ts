@@ -1,4 +1,4 @@
-import { getS3IntegrationByOrganizationId, getSecretByName } from '@buster/database';
+import { getS3IntegrationByOrganizationId, getSecretByName } from '@buster/database/queries';
 import type { CreateS3IntegrationRequest } from '@buster/server-shared';
 import { createGCSProvider } from './providers/gcs-provider';
 import { createR2Provider } from './providers/r2-provider';

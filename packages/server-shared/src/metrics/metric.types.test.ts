@@ -259,7 +259,7 @@ describe('MetricSchema', () => {
           },
         ],
       },
-      status: 'notVerified',
+      status: 'notRequested',
       evaluation_score: 'Low',
       evaluation_summary: 'Needs improvement',
       file: 'partial config content',
@@ -286,6 +286,7 @@ describe('MetricSchema', () => {
     };
 
     const result = MetricSchema.safeParse(metricWithPartialConfig);
+
     expect(result.success).toBe(true);
 
     if (result.success) {

@@ -1,9 +1,9 @@
-import type { Chat, Message, User } from '@buster/database';
+import type { Chat, Message, User } from '@buster/database/queries';
 import type { ChatAssetType, ChatWithMessages } from '@buster/server-shared/chats';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock dependencies
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/connection', () => ({
   db: {
     update: vi.fn().mockReturnThis(),
     insert: vi.fn().mockReturnThis(),
@@ -16,6 +16,24 @@ vi.mock('@buster/database', () => ({
     limit: vi.fn().mockReturnThis(),
     transaction: vi.fn(),
   },
+}));
+
+vi.mock('@buster/database/queries', () => ({
+  generateAssetMessages: vi.fn(),
+  createMessage: vi.fn(),
+  getChatWithDetails: vi.fn(),
+  getMessagesForChat: vi.fn(),
+  createAssetPermission: vi.fn(),
+}));
+
+vi.mock('drizzle-orm', () => ({
+  and: vi.fn(),
+  eq: vi.fn(),
+  gte: vi.fn(),
+  isNull: vi.fn(),
+}));
+
+vi.mock('@buster/database/schema', () => ({
   chats: {},
   messages: {},
   messagesToFiles: {},
@@ -24,22 +42,14 @@ vi.mock('@buster/database', () => ({
   assetTypeEnum: {
     enumValues: ['chat', 'metric_file', 'dashboard_file', 'report_file', 'collection'],
   },
-  eq: vi.fn(),
-  and: vi.fn(),
-  isNull: vi.fn(),
-  inArray: vi.fn(),
-  generateAssetMessages: vi.fn(),
-  createMessage: vi.fn(),
-  getChatWithDetails: vi.fn(),
-  getMessagesForChat: vi.fn(),
-  createMessageFileAssociation: vi.fn(),
 }));
 
 vi.mock('@buster/access-controls', () => ({
   canUserAccessChatCached: vi.fn(),
 }));
 
-import { createMessage, db, generateAssetMessages } from '@buster/database';
+import { db } from '@buster/database/connection';
+import { createMessage, generateAssetMessages } from '@buster/database/queries';
 import { handleAssetChat, handleAssetChatWithPrompt } from './chat-helpers';
 
 describe('chat-helpers', () => {

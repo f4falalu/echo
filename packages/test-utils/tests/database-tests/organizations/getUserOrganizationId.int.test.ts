@@ -1,6 +1,6 @@
-import { getUserOrganizationId } from '@buster/database';
+import { getUserOrganizationId } from '@buster/database/queries';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
-import { cleanupTestEnvironment, setupTestEnvironment } from '../helpers';
+import { cleanupTestEnvironment, setupTestEnvironment } from '../../../src';
 
 describe('getUserOrganizationId Integration Tests', () => {
   beforeEach(async () => {

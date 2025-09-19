@@ -1,6 +1,7 @@
 packages:
   - packages/*
   - apps/server
+  - apps/momentic
   - apps/electric-server
   - apps/trigger
   - apps/api
@@ -12,9 +13,13 @@ catalog:
   '@aws-sdk/s3-request-presigner': ^3.888.0
   '@electric-sql/client': ^1.0.10
   '@supabase/supabase-js': ^2.57.4
+<<<<<<< HEAD
   '@trigger.dev/build': ^4.0.2
   '@trigger.dev/sdk': ^4.0.2
   '@types/js-yaml': 4.0.9
+=======
+  '@types/js-yaml': ^4.0.9
+>>>>>>> 657eb1917793b50cd410ab7abb7bf6b27d450b3f
   '@types/react': ^19.1.13
   '@types/react-dom': ^19.1.9
   ai: ^5.0.44

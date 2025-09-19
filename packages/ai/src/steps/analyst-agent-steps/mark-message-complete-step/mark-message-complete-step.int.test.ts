@@ -1,4 +1,5 @@
-import { chats, db, messages } from '@buster/database';
+import { db } from '@buster/database/connection';
+import { chats, messages } from '@buster/database/schema';
 import { createTestChat, createTestMessage } from '@buster/test-utils';
 import { eq } from 'drizzle-orm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';

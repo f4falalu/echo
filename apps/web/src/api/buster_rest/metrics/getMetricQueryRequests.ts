@@ -172,15 +172,13 @@ export const useGetMetricData = <TData = BusterMetricDataExtended>(
       password,
       report_file_id: reportFileId,
     });
-    const isLatest = versionNumberProp === 'LATEST' || !versionNumberProp;
+    const latestVersionNumber = getLatestMetricVersion(id);
+    const isLatest =
+      versionNumberProp === 'LATEST' ||
+      !versionNumberProp ||
+      latestVersionNumber === chosenVersionNumber;
     if (isLatest) {
-      const latestVersionNumber = getLatestMetricVersion(id);
-      if (latestVersionNumber) {
-        queryClient.setQueryData(
-          metricsQueryKeys.metricsGetData(id, latestVersionNumber).queryKey,
-          result
-        );
-      }
+      queryClient.setQueryData(metricsQueryKeys.metricsGetData(id, 'LATEST').queryKey, result);
     }
     return result;
   };

@@ -1,17 +1,8 @@
-import type { sharingSettingEnum } from '@buster/database'; //we import as type to avoid postgres dependency in the frontend ☹️
+import { SharingSettingSchema as SharingSettingSchemaDatabase } from '@buster/database/schema-types'; //we import as type to avoid postgres dependency in the frontend ☹️
 import { z } from 'zod';
 
-type SharingSettingBase = (typeof sharingSettingEnum.enumValues)[number] | 'none';
+const SharingSettingSchema = z.union([SharingSettingSchemaDatabase, z.literal('none')]);
 
-const SharingSettingEnums: Record<SharingSettingBase, SharingSettingBase> = Object.freeze({
-  none: 'none',
-  public: 'public',
-  team: 'team',
-  organization: 'organization',
-});
-
-const test = Object.values(SharingSettingEnums) as [SharingSettingBase, ...SharingSettingBase[]];
-
-export const SharingSettingSchema = z.enum(test);
+export { SharingSettingSchema };
 
 export type SharingSetting = z.infer<typeof SharingSettingSchema>;

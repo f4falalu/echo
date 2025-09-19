@@ -1,17 +1,16 @@
 import { canUserAccessChatCached } from '@buster/access-controls';
 import type { ModelMessage } from '@buster/ai';
+import { db } from '@buster/database/connection';
 import {
   type User,
-  chats,
   createAssetPermission,
   createMessage,
-  db,
   generateAssetMessages,
   getChatWithDetails,
   getMessagesForChat,
-  messages,
-} from '@buster/database';
-import type { Chat, Message } from '@buster/database';
+} from '@buster/database/queries';
+import type { Chat, Message } from '@buster/database/queries';
+import { chats, messages } from '@buster/database/schema';
 import type {
   ChatAssetType,
   ChatMessage,

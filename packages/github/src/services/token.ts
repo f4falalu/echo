@@ -1,12 +1,10 @@
 import {
-  createSecret,
-  deleteSecret,
   getActiveGithubIntegration,
   getGithubIntegrationByInstallationId,
   getSecretByName,
   updateGithubIntegration,
-  updateSecret,
-} from '@buster/database';
+} from '@buster/database/queries';
+import { createSecret, deleteSecret, updateSecret } from '@buster/database/queries';
 import type { InstallationTokenResponse } from '@buster/server-shared/github';
 import { GitHubErrorCode } from '@buster/server-shared/github';
 import { createGitHubApp } from '../client/app';

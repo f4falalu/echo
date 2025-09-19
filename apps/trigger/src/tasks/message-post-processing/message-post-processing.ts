@@ -2,20 +2,17 @@ import { getPermissionedDatasets } from '@buster/access-controls';
 import postProcessingWorkflow, {
   type PostProcessingWorkflowOutput,
 } from '@buster/ai/workflows/message-post-processing-workflow/message-post-processing-workflow';
+import { db, eq, getDb } from '@buster/database/connection';
 import {
-  eq,
   getBraintrustMetadata,
   getChatConversationHistory,
-  getDb,
   getMessageContext,
   getOrganizationAnalystDoc,
   getOrganizationDataSource,
   getOrganizationDocs,
   getUserPersonalization,
-  messages,
-  slackIntegrations,
-  users,
-} from '@buster/database';
+} from '@buster/database/queries';
+import { messages, slackIntegrations, users } from '@buster/database/schema';
 import type {
   AssumptionClassification,
   AssumptionLabel,

@@ -2,10 +2,7 @@ import {
   findUserByEmail as dbFindUserByEmail,
   findUsersByEmails as dbFindUsersByEmails,
   searchUsers as dbSearchUsers,
-} from '@buster/database';
-// TODO: Import createUser when implemented in database package
-// import { createUser } from '@buster/database';
-import type { User } from '@buster/database';
+} from '@buster/database/queries';
 import type { UserInfo } from '../types/asset-permissions';
 import { AccessControlError } from '../types/errors';
 

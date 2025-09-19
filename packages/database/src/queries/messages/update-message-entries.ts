@@ -3,7 +3,7 @@ import { and, eq, isNull } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
 import { messages } from '../../schema';
-import { ReasoningMessageSchema, ResponseMessageSchema } from '../../schemas/message-schemas';
+import { ReasoningMessageSchema, ResponseMessageSchema } from '../../schema-types/message-schemas';
 import { fetchMessageEntries } from './helpers/fetch-message-entries';
 import {
   mergeRawLlmMessages,

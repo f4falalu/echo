@@ -1,4 +1,4 @@
-import { updateChat, updateMessage, updateMessageEntries } from '@buster/database';
+import { updateChat, updateMessage, updateMessageEntries } from '@buster/database/queries';
 import type { ToolCallOptions } from 'ai';
 import type { UpdateMessageEntriesParams } from '../../../../../database/src/queries/messages/update-message-entries';
 import { createRawToolResultEntry } from '../../shared/create-raw-llm-tool-result-entry';
@@ -68,41 +68,27 @@ export function createDoneToolStart(context: DoneToolContext, doneToolState: Don
         }
       }
 
-      // Update the chat with the most recent file (using same files shown in response messages)
+      // Update the chat with the most recent file - simply use the first file from extractedFiles
+      // No filtering or sorting - just use whatever was selected for response messages
       if (context.chatId && extractedFiles.length > 0) {
-        // Sort files by version number (descending) to get the most recent
-        const sortedFiles = extractedFiles.sort((a, b) => {
-          const versionA = a.versionNumber || 1;
-          const versionB = b.versionNumber || 1;
-          return versionB - versionA;
+        const mostRecentFile = extractedFiles[0];
+
+        console.info('[done-tool-start] Updating chat with most recent file', {
+          chatId: context.chatId,
+          fileId: mostRecentFile.id,
+          fileType: mostRecentFile.fileType,
+          fileName: mostRecentFile.fileName,
+          versionNumber: mostRecentFile.versionNumber,
         });
 
-        // Prefer reports over other file types for the chat's most recent file
-        const reportFile = sortedFiles.find((f) => f.fileType === 'report_file');
-        const mostRecentFile = reportFile || sortedFiles[0];
-
-        if (mostRecentFile) {
-          console.info('[done-tool-start] Updating chat with most recent file', {
-            chatId: context.chatId,
-            fileId: mostRecentFile.id,
-            fileType: mostRecentFile.fileType,
-            fileName: mostRecentFile.fileName,
-            versionNumber: mostRecentFile.versionNumber,
-            isReport: mostRecentFile.fileType === 'report_file',
+        try {
+          await updateChat(context.chatId, {
+            mostRecentFileId: mostRecentFile.id,
+            mostRecentFileType: mostRecentFile.fileType,
+            mostRecentVersionNumber: mostRecentFile.versionNumber || 1,
           });
-
-          try {
-            await updateChat(context.chatId, {
-              mostRecentFileId: mostRecentFile.id,
-              mostRecentFileType: mostRecentFile.fileType as
-                | 'metric_file'
-                | 'dashboard_file'
-                | 'report_file',
-              mostRecentVersionNumber: mostRecentFile.versionNumber || 1,
-            });
-          } catch (error) {
-            console.error('[done-tool] Failed to update chat with most recent file:', error);
-          }
+        } catch (error) {
+          console.error('[done-tool] Failed to update chat with most recent file:', error);
         }
       }
     }

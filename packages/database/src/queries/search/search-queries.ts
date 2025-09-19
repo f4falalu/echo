@@ -9,14 +9,8 @@ import {
 } from '../shared-types';
 import { createPermissionedAssetsSubquery } from './access-control-helpers';
 
-// Type inference from schema
-export const TextSearchResultSchema = z.object({
-  assetId: z.string().uuid(),
-  assetType: z.string(),
-  searchableText: z.string(),
-});
-
-import { AssetTypeSchema } from '../../schema-types/enums';
+import { AssetTypeSchema } from '../../schema-types/asset';
+import type { TextSearchResultSchema } from '../../schema-types/search';
 
 /**
  * Date range filter schema

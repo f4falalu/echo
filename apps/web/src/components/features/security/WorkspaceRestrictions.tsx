@@ -1,4 +1,4 @@
-import type { OrganizationRole } from '@buster/server-shared/organization';
+import type { UserOrganizationRole } from '@buster/server-shared/organization';
 import type {
   GetWorkspaceSettingsResponse,
   UpdateWorkspaceSettingsRequest,
@@ -30,7 +30,7 @@ export const WorkspaceRestrictions = React.memo(() => {
       />,
       <DefaultRole
         key="default-role"
-        default_role={workspaceSettings?.default_role ?? ('viewer' as OrganizationRole)}
+        default_role={workspaceSettings?.default_role ?? ('viewer' satisfies UserOrganizationRole)}
         updateWorkspaceSettings={updateWorkspaceSettings}
       />,
       <DefaultDatasets

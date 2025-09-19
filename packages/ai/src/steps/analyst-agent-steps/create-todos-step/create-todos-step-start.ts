@@ -1,4 +1,4 @@
-import { updateMessageEntries } from '@buster/database';
+import { updateMessageEntries } from '@buster/database/queries';
 import type { CreateTodosContext, CreateTodosState } from './create-todos-step';
 import {
   createTodosRawLlmMessageEntry,

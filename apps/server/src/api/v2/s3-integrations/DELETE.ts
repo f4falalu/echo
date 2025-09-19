@@ -1,4 +1,4 @@
-import type { User } from '@buster/database';
+import type { User } from '@buster/database/queries';
 import type { DeleteS3IntegrationResponse } from '@buster/server-shared';
 import { Hono } from 'hono';
 import { deleteS3IntegrationHandler } from './delete-s3-integration';

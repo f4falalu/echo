@@ -1,6 +1,6 @@
 import { and, desc, eq, isNull } from 'drizzle-orm';
 import { z } from 'zod';
-import { db } from '../../index';
+import { db } from '../../connection';
 import { messages } from '../../schema';
 
 // Schema for the return type

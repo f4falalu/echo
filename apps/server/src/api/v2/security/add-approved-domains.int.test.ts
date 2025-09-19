@@ -1,5 +1,5 @@
-import type { User } from '@buster/database';
-import type { Organization, OrganizationRole } from '@buster/server-shared/organization';
+import type { User } from '@buster/database/queries';
+import type { Organization } from '@buster/server-shared/organization';
 import { HTTPException } from 'hono/http-exception';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { addApprovedDomainsHandler } from './add-approved-domains';

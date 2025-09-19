@@ -1,4 +1,4 @@
-import { useNavigate } from '@tanstack/react-router';
+import { useLocation, useNavigate } from '@tanstack/react-router';
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import type { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat';
 import { useGetChatMessageMemoized } from '@/api/buster_rest/chats';
@@ -20,6 +20,7 @@ export const useAutoRedirectStreaming = ({
 }) => {
   const navigate = useNavigate();
   const getChatMessageMemoized = useGetChatMessageMemoized();
+  const location = useLocation();
   const isStreamFinished = useGetChatMessageCompleted({ messageId: lastMessageId });
   const lastReasoningMessageId = useGetChatMessageLastReasoningMessageId({
     messageId: lastMessageId,
@@ -63,7 +64,7 @@ export const useAutoRedirectStreaming = ({
           versionNumber: firstFile.version_number,
         });
 
-        navigate(linkProps);
+        navigate({ ...linkProps, replace: true });
       }
     }
 

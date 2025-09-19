@@ -1,17 +1,27 @@
 import type { AssetType } from '@buster/server-shared/assets';
 import type { ResponseMessageFileType } from '@buster/server-shared/chats';
-import { Link, type LinkProps } from '@tanstack/react-router';
+import { Link, type LinkProps, useLocation } from '@tanstack/react-router';
 import React, { useMemo } from 'react';
 import { BusterLogo } from '@/assets/svg/BusterLogo';
 import { Button } from '@/components/ui/buttons';
 import { Title } from '@/components/ui/typography';
 import { useIsAnonymousSupabaseUser } from '@/context/Supabase';
 
+const translationRecord: Record<AssetType | ResponseMessageFileType, string> = {
+  metric_file: 'metric',
+  chat: 'chat',
+  report_file: 'report',
+  dashboard_file: 'dashboard',
+  collection: 'collection',
+  reasoning: 'reasoning',
+};
+
 export const AppNoPageAccess: React.FC<{
   assetId: string;
   type: AssetType | ResponseMessageFileType;
 }> = React.memo(({ type }) => {
   const isAnonymousUser = useIsAnonymousSupabaseUser();
+  const location = useLocation();
 
   const { buttonText, link } = useMemo(() => {
     const isEmbedPage = window?.location.pathname.startsWith('/embed');
@@ -19,9 +29,7 @@ export const AppNoPageAccess: React.FC<{
     const shouldShowLogin = isAnonymousUser || isEmbedPage;
 
     if (shouldShowLogin) {
-      const currentUrl =
-        typeof window !== 'undefined' ? `${window.location.pathname}${window.location.search}` : '';
-
+      const currentUrl = typeof window !== 'undefined' ? `${location.href}` : '';
       return {
         buttonText: 'Login to view asset',
         link: {
@@ -47,12 +55,12 @@ export const AppNoPageAccess: React.FC<{
 
       <div className="max-w-[550px] text-center">
         <Title as="h2" className="text-center">
-          {`It looks like you don't have access to this ${type}...`}
+          {`It looks like you don't have access to this ${translationRecord[type] || 'file'}...`}
         </Title>
       </div>
 
       <div className="flex space-x-2">
-        <Link {...link} preload="viewport" preloadDelay={650}>
+        <Link {...link}>
           <Button>{buttonText}</Button>
         </Link>
       </div>

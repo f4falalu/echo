@@ -1,12 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { canUserAccessChat } from './chats';
 
-// Mock the database module
-vi.mock('@buster/database', () => ({
+// Mock the database connection module
+vi.mock('@buster/database/connection', () => ({
   getDb: vi.fn(),
   and: vi.fn((...args) => ({ _and: args })),
   eq: vi.fn((a, b) => ({ _eq: [a, b] })),
   isNull: vi.fn((a) => ({ _isNull: a })),
+}));
+
+// Mock the database schema module
+vi.mock('@buster/database/schema', () => ({
   assetPermissions: {
     assetId: 'assetId',
     assetType: 'assetType',
@@ -42,7 +46,7 @@ describe('canUserAccessChat', () => {
     vi.clearAllMocks();
 
     // Get the mocked module
-    const dbModule = await import('@buster/database');
+    const dbModule = await import('@buster/database/connection');
     getDb = vi.mocked(dbModule.getDb);
 
     // Create a fresh mock database object for each test

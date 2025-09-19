@@ -1,4 +1,4 @@
-import type { OrganizationRole } from '@buster/server-shared/organization';
+import type { UserOrganizationRole } from '@buster/server-shared/organization';
 import { Link } from '@tanstack/react-router';
 import React from 'react';
 import { Button } from '@/components/ui/buttons';
@@ -8,7 +8,7 @@ import { cn } from '@/lib/classMerge';
 import { OrganizationUserRoleText } from '@/lib/organization/translations';
 import type { useNewChatWarning } from './useNewChatWarning';
 
-const translateRole = (role: OrganizationRole): string => {
+const translateRole = (role: UserOrganizationRole): string => {
   return OrganizationUserRoleText[role].title;
 };
 
@@ -160,7 +160,7 @@ const SetupItem = ({ number, status, title, description, link, linkText }: Setup
 };
 
 interface ContactAdminCardProps {
-  userRole?: OrganizationRole;
+  userRole?: UserOrganizationRole;
 }
 
 const ContactAdminCard = ({ userRole }: ContactAdminCardProps) => {

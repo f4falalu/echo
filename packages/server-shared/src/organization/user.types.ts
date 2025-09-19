@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { OrganizationRoleSchema } from './roles.types';
+import { UserOrganizationRoleSchema } from './roles.types';
 
 export const LineageUserItemTypeSchema = z.enum(['user', 'datasets', 'permissionGroups']);
 
@@ -25,7 +25,7 @@ export const OrganizationUserSchema = z.object({
   name: z.string(),
   avatar_url: z.string().nullable(),
   status: z.enum(['active', 'inactive']),
-  role: OrganizationRoleSchema,
+  role: UserOrganizationRoleSchema,
   datasets: z.array(OrganizationUserDatasetSchema),
 });
 

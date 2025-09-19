@@ -5,7 +5,7 @@ import {
   getDataSourceCredentials,
   getMetricWithDataSource,
   getUserOrganizationId,
-} from '@buster/database';
+} from '@buster/database/queries';
 import type { MetricDataResponse } from '@buster/server-shared/metrics';
 
 /**

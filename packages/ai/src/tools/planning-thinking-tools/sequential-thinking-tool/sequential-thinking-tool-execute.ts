@@ -1,6 +1,5 @@
-import { type UpdateMessageEntriesParams, updateMessageEntries } from '@buster/database';
+import { type UpdateMessageEntriesParams, updateMessageEntries } from '@buster/database/queries';
 import { wrapTraced } from 'braintrust';
-import { normalizeEscapedText } from '../../../utils/streaming/escape-normalizer';
 import { createRawToolResultEntry } from '../../shared/create-raw-llm-tool-result-entry';
 import {
   createSequentialThinkingRawLlmMessageEntry,

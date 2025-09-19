@@ -1,4 +1,4 @@
-import type { DEFAULT_COLOR_PALETTE_ID as DEFAULT_COLOR_PALETTE_ID_DATABASE } from '@buster/database';
+import type { DEFAULT_COLOR_PALETTE_ID as DEFAULT_COLOR_PALETTE_ID_DATABASE } from '@buster/database/queries';
 import { DEFAULT_CHART_THEME } from '@buster/server-shared/metrics';
 
 import type { ColorPalette } from '@buster/server-shared/organization';

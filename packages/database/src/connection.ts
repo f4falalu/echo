@@ -105,3 +105,5 @@ export async function dbPing(): Promise<boolean> {
 
 // Export the default database instance
 export const db = getDb();
+
+export * from './methods';

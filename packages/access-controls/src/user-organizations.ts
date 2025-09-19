@@ -1,13 +1,6 @@
-import {
-  type User,
-  and,
-  eq,
-  getDb,
-  isNull,
-  organizations,
-  users,
-  usersToOrganizations,
-} from '@buster/database';
+import { and, eq, getDb, isNull } from '@buster/database/connection';
+import type { User } from '@buster/database/queries';
+import { organizations, users, usersToOrganizations } from '@buster/database/schema';
 import type { InferSelectModel } from 'drizzle-orm';
 import { z } from 'zod';
 

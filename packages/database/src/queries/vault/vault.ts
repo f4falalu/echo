@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { getClient } from './connection';
+import { getClient } from '../../connection';
 
 // Vault secret schema
 export const VaultSecretSchema = z.object({

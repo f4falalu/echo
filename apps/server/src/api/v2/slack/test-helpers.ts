@@ -1,11 +1,11 @@
 import { randomUUID } from 'node:crypto';
+import { db } from '@buster/database/connection';
 import {
-  db,
   organizations,
   slackIntegrations,
   users,
   usersToOrganizations,
-} from '@buster/database';
+} from '@buster/database/schema';
 import { eq } from 'drizzle-orm';
 
 /**

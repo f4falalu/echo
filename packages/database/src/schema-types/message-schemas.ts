@@ -3,6 +3,18 @@ import { z } from 'zod';
 // Status schema for messages
 export const StatusSchema = z.enum(['loading', 'completed', 'failed']);
 
+// Message feedback enum
+export const MessageFeedbackSchema = z.enum(['positive', 'negative']);
+export type MessageFeedback = z.infer<typeof MessageFeedbackSchema>;
+
+// Message analysis mode enum
+export const MessageAnalysisModeSchema = z.enum(['auto', 'standard', 'investigation']);
+export type MessageAnalysisMode = z.infer<typeof MessageAnalysisModeSchema>;
+
+// Docs type enum
+export const DocsTypeSchema = z.enum(['analyst', 'normal']);
+export type DocsType = z.infer<typeof DocsTypeSchema>;
+
 // Response message schemas
 const ResponseMessage_TextSchema = z.object({
   id: z.string(),
@@ -143,7 +155,7 @@ export type ChatMessageResponseMessage_Text = z.infer<typeof ResponseMessage_Tex
 export type ChatMessageResponseMessage_File = z.infer<typeof ResponseMessage_FileSchema>;
 export type ReasoningFileType = z.infer<typeof ReasoningFileTypeSchema>;
 export type ResponseMessageFileType = z.infer<typeof ResponseMessageFileTypeSchema>;
-export type ReasoingMessage_ThoughtFileType = z.infer<
+export type ReasoningMessage_ThoughtFileType = z.infer<
   typeof ReasoningMessage_ThoughtFileTypeSchema
 >;
 

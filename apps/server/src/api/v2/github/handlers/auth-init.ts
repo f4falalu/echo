@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto';
-import { type User, getUserOrganizationId } from '@buster/database';
+import { type User, getUserOrganizationId } from '@buster/database/queries';
 import { HTTPException } from 'hono/http-exception';
 import { storeInstallationState } from '../services/installation-state';
 

@@ -1,13 +1,13 @@
 import { hasAssetPermission } from '@buster/access-controls';
 import { executeMetricQuery, getCachedMetricData, setCachedMetricData } from '@buster/data-source';
 import type { Credentials } from '@buster/data-source';
-import type { User } from '@buster/database';
+import type { User } from '@buster/database/queries';
 import {
   extractSqlFromMetricContent,
   getDataSourceCredentials,
   getMetricWithDataSource,
   getUserOrganizationId,
-} from '@buster/database';
+} from '@buster/database/queries';
 import type { MetricDataResponse } from '@buster/server-shared/metrics';
 import { HTTPException } from 'hono/http-exception';
 

@@ -1,4 +1,5 @@
-import { createSecret, deleteSecret, getSecretByName, updateSecret } from '@buster/database';
+import { getSecretByName } from '@buster/database/queries';
+import { createSecret, deleteSecret, updateSecret } from '@buster/database/queries';
 
 interface InstallationState {
   userId: string;

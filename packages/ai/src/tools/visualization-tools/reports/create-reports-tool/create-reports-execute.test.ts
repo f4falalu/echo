@@ -7,7 +7,7 @@ import type {
 } from './create-reports-tool';
 
 // Mock dependencies
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   updateMessageEntries: vi.fn().mockResolvedValue({ success: true }),
   batchUpdateReport: vi.fn().mockResolvedValue({ success: true }),
   updateMetricsToReports: vi.fn().mockResolvedValue({ created: 0, updated: 0, deleted: 0 }),
@@ -34,7 +34,7 @@ vi.mock('../../../shared/create-raw-llm-tool-result-entry', () => ({
   }),
 }));
 
-import { updateMessageEntries } from '@buster/database';
+import { updateMessageEntries } from '@buster/database/queries';
 
 describe('create-reports-execute', () => {
   let context: CreateReportsContext;

@@ -1,8 +1,8 @@
-import type { OrganizationRole } from '@buster/server-shared/organization';
+import type { UserOrganizationRole } from '@buster/server-shared/organization';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { NewChatWarning } from './NewChatWarning';
 
-const OrganizationRoleSchema: Record<OrganizationRole, OrganizationRole> = {
+const OrganizationRoleSchema: Record<UserOrganizationRole, UserOrganizationRole> = {
   data_admin: 'data_admin',
   workspace_admin: 'workspace_admin',
   querier: 'querier',

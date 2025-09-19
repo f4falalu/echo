@@ -1,4 +1,7 @@
-import { getActiveGithubIntegration, getGithubIntegrationByInstallationId } from '@buster/database';
+import {
+  getActiveGithubIntegration,
+  getGithubIntegrationByInstallationId,
+} from '@buster/database/queries';
 import type { InstallationTokenResponse } from '@buster/server-shared/github';
 import { GitHubErrorCode } from '@buster/server-shared/github';
 

@@ -1,0 +1,28 @@
+fileType: momentic/test
+id: 0558c1d8-ab43-40c2-b630-744e9901d7ae
+name: login-then-logout-no-cookies
+description: a user should log in then log out and there should be no cookies there.
+schemaVersion: 1.0.21
+advanced:
+  viewport:
+    width: 1920
+    height: 1080
+  browserType: Chromium
+retries: 0
+envs:
+  - name: development
+    default: true
+steps:
+  - id: 93f4fc64-166c-4be7-85c3-80a87dc53759
+    type: MODULE
+    moduleId: defc36e9-b0a7-4bfe-940f-7901493d5e5e
+  - id: 6d950ded-f974-4b27-9908-d87a20f053b3
+    type: MODULE
+    moduleId: d5944b6b-f9c3-4952-8f0e-bec9bc31da95
+  - id: cdaa5062-117d-43d3-a18f-e38f42500ea5
+    type: PRESET_ACTION
+    command:
+      id: ac2e59c2-ebe3-47b1-8152-b9133c9a0c78
+      type: AI_ASSERTION
+      assertion: There should be no authentication cookies or session cookies stored
+        in the browser

@@ -19,11 +19,11 @@ import {
 } from './with-agent-retry';
 
 // Mock fetchMessageEntries
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   fetchMessageEntries: vi.fn(),
 }));
 
-import { fetchMessageEntries } from '@buster/database';
+import { fetchMessageEntries } from '@buster/database/queries';
 const mockFetchMessageEntries = vi.mocked(fetchMessageEntries);
 
 describe('with-agent-retry', () => {

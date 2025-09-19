@@ -32,6 +32,8 @@
     "format": "biome format ${1:-.}",
     "format:fix": "biome format --write ${1:-.}",
     "lint": "turbo lint",
+    "momentic": "pnpm --filter @buster-app/momentic run momentic",
+    "momentic:run": "pnpm --filter @buster-app/momentic run momentic:run",
     "new:package": "tsx scripts/new-package.ts",
     "setup": "bash scripts/setup.sh",
     "test": "dotenv -e .env -- turbo test",
@@ -66,7 +68,9 @@
   "packageManager": "pnpm@10.15.1",
   "pnpm": {
     "peerDependencyRules": {
-      "ignoreMissing": ["shiki"],
+      "ignoreMissing": [
+        "shiki"
+      ],
       "allowedVersions": {
         "shiki": "3"
       }

@@ -1,0 +1,23 @@
+fileType: momentic/module
+moduleId: d5944b6b-f9c3-4952-8f0e-bec9bc31da95
+name: logout
+description: click the log out
+enabled: true
+schemaVersion: 1.0.21
+steps:
+  - id: 7c25cc79-ed6a-47a7-8847-976decbec506
+    type: PRESET_ACTION
+    command:
+      id: 645db1ca-0b54-49a8-9a77-9ef176319c67
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the div with email 'chad@buster.so' in the sidebar
+  - id: 1175c55c-1529-4a2f-bd9f-01073ec825c0
+    type: PRESET_ACTION
+    command:
+      id: 90d69ef4-37ce-417a-95c3-ae38b88dbe8d
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: click the logout button.

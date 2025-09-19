@@ -12,6 +12,7 @@ import { chatQueryKeys } from '@/api/query_keys/chat';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
 import { useBlackboxMessage } from '@/context/BlackBox/useBlackboxMessage';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { useMount } from '@/hooks/useMount';
 import { updateChatToIChat } from '@/lib/chat';
 
 export const useChatStreaming = ({

@@ -35,7 +35,7 @@ export const ReasoningMessage_File: React.FC<ReasoningMessageFileProps> = React.
     const buttons = useMemo(() => {
       if (!file || !status || !file_type || !id) return null;
 
-      return !isStreamFinished ? (
+      return !isStreamFinished || status === 'failed' ? (
         <StreamingMessageStatus status={status} fileType={file_type} />
       ) : (
         <ReasoningFileButtons
