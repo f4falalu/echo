@@ -11,12 +11,14 @@ import { requireAuth } from '../../../middleware/auth';
 import '../../../types/hono.types'; //I added this to fix intermitent type errors. Could probably be removed.
 import { HTTPException } from 'hono/http-exception';
 import { z } from 'zod';
+import GET from './GET';
 import { cancelChatHandler } from './cancel-chat';
 import { createChatHandler } from './handler';
 
 const app = new Hono()
   // Apply authentication middleware
   .use('*', requireAuth)
+  .route('/', GET)
   // POST /chats - Create a new chat
   .post('/', zValidator('json', ChatCreateRequestSchema), async (c) => {
     const request = c.req.valid('json');
