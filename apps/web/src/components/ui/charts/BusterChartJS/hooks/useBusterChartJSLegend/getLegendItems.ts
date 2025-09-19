@@ -77,12 +77,12 @@ const getType = (
 };
 
 const getColor = (dataset: ChartDataset, colors: string[], index: number) => {
-  if (
-    dataset.backgroundColor &&
-    Array.isArray(dataset.backgroundColor) &&
-    dataset.backgroundColor.length > 0
-  ) {
-    return dataset.backgroundColor;
+  if (dataset.backgroundColor) {
+    if (Array.isArray(dataset.backgroundColor) && dataset.backgroundColor.length > 0) {
+      return dataset.backgroundColor;
+    } else if (typeof dataset.backgroundColor === 'string') {
+      return dataset.backgroundColor;
+    }
   }
 
   return colors[index % colors.length];

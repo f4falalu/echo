@@ -155,4 +155,63 @@ describe('useDatasetOptions', () => {
     const dataset = datasets[0];
     expect(dataset?.colors).toBeUndefined();
   });
+
+  it('should include metric key in labels when both colorBy and y2 are present', () => {
+    const mockComboData = [
+      { month: 'Jan', sales: 100, profit: 50, type: 'Home' },
+      { month: 'Feb', sales: 200, profit: 80, type: 'Away' },
+      { month: 'Mar', sales: 300, profit: 120, type: 'Home' },
+    ];
+
+    const mockComboColumnLabelFormats: Record<string, ColumnLabelFormat> = {
+      ...mockColumnLabelFormats,
+      type: { ...DEFAULT_COLUMN_LABEL_FORMAT, columnType: 'text', style: 'string' },
+    };
+
+    const { result } = renderHook(() =>
+      useDatasetOptions({
+        data: mockComboData,
+        selectedAxis: {
+          x: ['month'],
+          y: ['sales'],
+          y2: ['profit'],
+          tooltip: ['type'],
+          colorBy: { columnId: 'type' },
+        },
+        selectedChartType: 'combo' as ChartType,
+        columnLabelFormats: mockComboColumnLabelFormats,
+        pieMinimumSlicePercentage: 5,
+        columnMetadata: [],
+        barGroupType: undefined,
+        lineGroupType: null,
+        trendlines: undefined,
+        barSortBy: undefined,
+        pieSortBy: undefined,
+        groupByMethod: undefined,
+        colors: ['#FF0000', '#00FF00'],
+      } as unknown as any)
+    );
+
+    const datasets = result.current.datasetOptions.datasets;
+    expect(datasets).toHaveLength(4); // 2 colors × 2 metrics (sales, profit)
+
+    // Check that y-axis datasets include metric key when there are multiple y-axes
+    const salesHomeDataset = datasets.find(
+      (d) => d.dataKey === 'sales' && d.label.some((l) => l.value === 'Home')
+    );
+    expect(salesHomeDataset).toBeDefined();
+    expect(salesHomeDataset?.label).toEqual([
+      { key: 'sales', value: '' },
+      { key: 'type', value: 'Home' },
+    ]);
+
+    const profitAwayDataset = datasets.find(
+      (d) => d.dataKey === 'profit' && d.label.some((l) => l.value === 'Away')
+    );
+    expect(profitAwayDataset).toBeDefined();
+    expect(profitAwayDataset?.label).toEqual([
+      { key: 'profit', value: '' },
+      { key: 'type', value: 'Away' },
+    ]);
+  });
 });

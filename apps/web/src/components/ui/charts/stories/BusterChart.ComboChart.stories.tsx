@@ -1282,7 +1282,7 @@ export const ComboChartWithNegativeNumbers: Story = {
   },
 };
 
-export const WithColorBy: Story = {
+export const WithColorByNoY2: Story = {
   args: {
     selectedChartType: 'combo',
     showLegend: true,
@@ -1318,7 +1318,7 @@ export const WithColorBy: Story = {
     columnLabelFormats: {
       month: {
         columnType: 'date',
-        style: 'date',
+        style: 'string',
         displayName: '',
       } as ColumnLabelFormat,
       sales: {
@@ -1335,7 +1335,71 @@ export const WithColorBy: Story = {
     comboChartAxis: {
       x: ['month'],
       y: ['sales'],
+      y2: [],
+      category: [],
+      tooltip: null,
+      colorBy: { columnId: 'type' },
+    },
+  },
+};
+
+export const WithColorByWithY2: Story = {
+  args: {
+    selectedChartType: 'combo',
+    showLegend: true,
+    data: ['Basketball'].flatMap((sport, lineIndex) => {
+      const months = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
+      return months.flatMap((month, index) => {
+        const types = ['Home', 'Away'];
+        return types.map((type, typeIndex) => {
+          const test = typeIndex === 1 ? -1.5 : typeIndex * 1.25;
+          return {
+            month,
+            sales: 420 + (+index + lineIndex * 12 + typeIndex * 7.5) * test,
+            points: 100 + (+index + lineIndex * 12 + typeIndex * 7.5),
+            category: sport,
+            type,
+          };
+        });
+      });
+    }),
+    columnLabelFormats: {
+      month: {
+        columnType: 'date',
+        style: 'string',
+        displayName: '',
+      } as ColumnLabelFormat,
+      sales: {
+        columnType: 'number',
+        style: 'currency',
+        displayName: 'Sales',
+      } as ColumnLabelFormat,
+      points: {
+        columnType: 'number',
+        style: 'number',
+        displayName: 'Points',
+      } as ColumnLabelFormat,
+    },
+    comboChartAxis: {
+      x: ['month'],
+      y: ['sales'],
+
+      //  y2: [],
       y2: ['points'],
+      //  category: ['type'],
       category: [],
       tooltip: null,
       colorBy: { columnId: 'type' },

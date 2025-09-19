@@ -524,7 +524,16 @@ function createDatasetsByColorThenAggregate<
     if (colorData.length === 0) {
       for (const { key: metric, axisType } of seriesMeta) {
         const id = `${metric}${colorIndex + 1}`;
-        const label = [{ key: colorByField, value: colorValue }];
+        // Generate labels like the regular flow, but include color
+        const label: KV[] = [];
+
+        // If there are multiple y-axes (y and y2), include the metric
+        if (yKeys.length + y2Keys.length > 1) {
+          label.push({ key: metric, value: '' });
+        }
+
+        // Always include the color value
+        label.push({ key: colorByField, value: colorValue });
         const nullData = new Array(allXGroups.length).fill(null);
         const nullTooltipData = new Array(allXGroups.length).fill([]);
 
@@ -575,7 +584,26 @@ function createDatasetsByColorThenAggregate<
             return sawNull ? null : sum;
           });
 
-          const labelArr = [{ key: colorByField, value: colorValue }];
+          // Generate labels like the regular flow, but include color
+          const labelArr: KV[] = [];
+
+          // If there are multiple y-axes (y and y2), include the metric
+          if (yKeys.length + y2Keys.length > 1) {
+            labelArr.push({ key: metric, value: '' });
+          }
+
+          // Always include the color value
+          labelArr.push({ key: colorByField, value: colorValue });
+
+          // If there are categories, add them
+          if (catKeys.length > 0) {
+            for (const catKey of catKeys) {
+              labelArr.push({ key: catKey, value: catRec[catKey] ?? '' });
+            }
+          } else if (yKeys.length + y2Keys.length === 1) {
+            // If no categories and only one y-axis, we already have the color, so we're good
+            // (the metric key would be redundant)
+          }
 
           const tooltipArr = tooltipKeys.length
             ? allXGroups.map(({ id }) => {
@@ -644,7 +672,19 @@ function createDatasetsByColorThenAggregate<
           return sawNull ? null : sum;
         });
 
-        const labelArr = [{ key: colorByField, value: colorValue }];
+        // Generate labels like the regular flow, but include color
+        const labelArr: KV[] = [];
+
+        // If there are multiple y-axes (y and y2), include the metric
+        if (yKeys.length + y2Keys.length > 1) {
+          labelArr.push({ key: metric, value: '' });
+        }
+
+        // Always include the color value
+        labelArr.push({ key: colorByField, value: colorValue });
+
+        // If no categories and only one y-axis, we already have the color, so we're good
+        // (the metric key would be redundant in single-axis case)
 
         const tooltipArr = tooltipKeys.length
           ? allXGroups.map(({ id }) => {
