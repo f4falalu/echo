@@ -92,10 +92,10 @@ describe('with-agent-retry', () => {
         expect(result.error).toEqual(overloadedError);
       });
 
-      it('should correctly identify non-retryable errors', () => {
+      it('should treat all errors as retryable', () => {
         const regularError = new Error('Regular error');
         const result = analyzeError(regularError);
-        expect(result.isRetryable).toBe(false);
+        expect(result.isRetryable).toBe(true);
         expect(result.error).toEqual(regularError);
       });
     });
@@ -200,8 +200,15 @@ describe('with-agent-retry', () => {
         expect(onRetry).toHaveBeenCalledWith(1, 1);
       });
 
-      it('should not retry on non-overloaded error', async () => {
+      it('should retry on any error (including non-overloaded)', async () => {
         const currentMessages: ModelMessage[] = [{ role: 'user', content: 'test' }];
+        const recoveredMessages: ModelMessage[] = [{ role: 'user', content: 'recovered' }];
+
+        mockFetchMessageEntries.mockResolvedValue({
+          rawLlmMessages: recoveredMessages,
+          responseMessages: [],
+          reasoning: [],
+        });
 
         const result = await handleFailedAttempt(
           new Error('Regular error'),
@@ -212,9 +219,9 @@ describe('with-agent-retry', () => {
           1000
         );
 
-        expect(result.shouldRetry).toBe(false);
-        expect(result.nextMessages).toEqual(currentMessages);
-        expect(mockFetchMessageEntries).not.toHaveBeenCalled();
+        expect(result.shouldRetry).toBe(true);
+        expect(result.nextMessages).toEqual(recoveredMessages);
+        expect(mockFetchMessageEntries).toHaveBeenCalledWith('test-id');
       });
 
       it('should not retry when max attempts reached', async () => {
@@ -553,14 +560,13 @@ describe('with-agent-retry', () => {
         reasoning: [],
       });
 
-      await expect(
-        retryStream(agent, [], {
-          messageId: 'test-id',
-          baseDelayMs: 10,
-        })
-      ).rejects.toThrow('Different error');
+      const result = await retryStream(agent, [], {
+        messageId: 'test-id',
+        baseDelayMs: 10,
+      });
 
-      expect(callCount).toBe(2);
+      expect(result).toEqual({ response: Promise.resolve('success') });
+      expect(callCount).toBe(3);
     });
 
     it('should maintain message state across retries', async () => {
