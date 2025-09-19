@@ -1,14 +1,10 @@
 import { checkPermission } from '@buster/access-controls';
 import {
   type User,
-  getAssetsAssociatedWithMetric,
   getCollectionsAssociatedWithDashboard,
   getDashboardById,
-  getMetricFileById,
   getOrganizationMemberCount,
-  getUser,
   getUsersWithDashboardPermissions,
-  getUsersWithMetricPermissions,
 } from '@buster/database/queries';
 import {
   GetDashboardParamsSchema,
@@ -16,18 +12,17 @@ import {
   type GetDashboardResponse,
 } from '@buster/server-shared/dashboards';
 import type { DashboardYml } from '@buster/server-shared/dashboards';
-import {
-  DEFAULT_CHART_THEME,
-  type DataMetadata,
-  type GetMetricResponse,
-  type Metric,
-  type MetricYml,
-} from '@buster/server-shared/metrics';
+import type { Metric } from '@buster/server-shared/metrics';
 import type { VerificationStatus } from '@buster/server-shared/share';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import yaml from 'js-yaml';
+import {
+  buildMetricResponse,
+  fetchAndProcessMetricData,
+  getPubliclyEnabledByUser,
+} from '../../../../shared-helpers/metric-helpers';
 
 interface GetDashboardHandlerParams {
   dashboardId: string;
@@ -201,7 +196,7 @@ async function getDashboardHandler(
   // Extract metric IDs from dashboard config
   const metricIds = extractMetricIds(resolvedContent);
 
-  const metrics = await getMetricsFromDashboardMetricIds(metricIds, user.id);
+  const metrics = await getMetricsFromDashboardMetricIds(metricIds, user);
 
   // Get the extra dashboard info concurrently
   const [individualPermissions, workspaceMemberCount, collections, publicEnabledBy] =
@@ -266,140 +261,31 @@ function extractMetricIds(content: DashboardYml): string[] {
   }
 }
 
-async function getPubliclyEnabledByUser(enabledById: string | null): Promise<string | null> {
-  if (enabledById) {
-    const publicEnabledByUser = await getUser({ id: enabledById });
-    return publicEnabledByUser.email;
-  }
-  return null;
-}
-
 async function getMetricsFromDashboardMetricIds(
   metricIds: string[],
-  userId: string
+  user: User
 ): Promise<Record<string, Metric>> {
   const metricsObj: Record<string, Metric> = {};
-  const promises: Promise<Metric>[] = metricIds.map((metricId) =>
-    getMetricFileForDashboard(metricId, userId)
-  );
-  const metrics = await Promise.all(promises);
-  for (const metric of metrics) {
-    metricsObj[metric.id] = metric;
+
+  // Process all metrics concurrently
+  const promises = metricIds.map(async (metricId) => {
+    const processedData = await fetchAndProcessMetricData(metricId, user, {
+      publicAccessPreviouslyVerfified: true, // Access is inherited from dashboard access at a minimum
+    });
+
+    // Build the metric response
+    const metric = await buildMetricResponse(processedData, user.id);
+    return { metricId, metric };
+  });
+
+  const results = await Promise.all(promises);
+
+  // Filter out failed metrics and build the response object
+  for (const result of results) {
+    if (result) {
+      metricsObj[result.metricId] = result.metric;
+    }
   }
+
   return metricsObj;
-}
-
-async function getMetricFileForDashboard(metricId: string, userId: string): Promise<Metric> {
-  // Fetch metric details with permissions
-  const metricFile = await getMetricFileById(metricId);
-
-  if (!metricFile) {
-    console.warn(`Metric file not found: ${metricId}`);
-    throw new HTTPException(404, {
-      message: 'Metric file not found',
-    });
-  }
-
-  let { effectiveRole } = await checkPermission({
-    userId: userId,
-    assetId: metricId,
-    assetType: 'metric_file',
-    requiredRole: 'can_view',
-    organizationId: metricFile.organizationId,
-    workspaceSharing: metricFile.workspaceSharing || 'none',
-  });
-
-  // If user has no access, grant can_view because we have already checked dashboard public access
-  effectiveRole = effectiveRole || 'can_view';
-
-  // Parse version history
-  const versionHistory = metricFile.versionHistory;
-  const versions: Array<{ version_number: number; updated_at: string }> = [];
-
-  Object.values(versionHistory).forEach((version) => {
-    versions.push({
-      version_number: version.version_number,
-      updated_at: version.updated_at,
-    });
-  });
-  versions.sort((a, b) => a.version_number - b.version_number);
-
-  // Use current/latest version
-  const content = metricFile.content as MetricYml;
-  const description = content.description;
-  const timeFrame = content.timeFrame;
-  const chartConfig = content.chartConfig;
-  const sql = content.sql;
-  const updatedAt = metricFile.updatedAt;
-  const versionNum = Math.max(...versions.map((v) => v.version_number), 1);
-
-  // Color fallback was apart of v1 api logic
-  if (!chartConfig.colors) {
-    chartConfig.colors = DEFAULT_CHART_THEME;
-  }
-
-  const fileYaml = yaml.dump(content);
-
-  // Get the extra metric info concurrently
-  const [individualPermissions, workspaceMemberCount, associatedAssets, publicEnabledBy] =
-    await Promise.all([
-      getUsersWithMetricPermissions({ metricId }),
-      getOrganizationMemberCount(metricFile.organizationId),
-      getAssetsAssociatedWithMetric(metricFile.id, userId),
-      getPubliclyEnabledByUser(metricFile.publiclyEnabledBy),
-    ]);
-
-  const { dashboards, collections } = associatedAssets;
-
-  // Not used but still exists in frontend code so including it here
-  const evaluationScore = (() => {
-    if (!metricFile.evaluationScore) {
-      return 'Low';
-    }
-    if (metricFile.evaluationScore > 0.8) {
-      return 'High';
-    }
-    if (metricFile.evaluationScore > 0.5) {
-      return 'Moderate';
-    }
-    return 'Low';
-  })();
-
-  // Build the response
-  const response: GetMetricResponse = {
-    id: metricFile.id,
-    type: 'metric_file',
-    name: metricFile.name,
-    version_number: versionNum,
-    error: null,
-    description,
-    file_name: metricFile.fileName,
-    time_frame: timeFrame,
-    data_source_id: metricFile.dataSourceId,
-    chart_config: chartConfig,
-    data_metadata: metricFile.dataMetadata as DataMetadata,
-    status: metricFile.verification as VerificationStatus,
-    file: fileYaml,
-    created_at: metricFile.createdAt,
-    updated_at: updatedAt,
-    sent_by_id: metricFile.createdBy,
-    sent_by_name: '',
-    sent_by_avatar_url: null,
-    sql,
-    dashboards,
-    collections,
-    versions,
-    evaluation_score: evaluationScore,
-    evaluation_summary: metricFile.evaluationSummary || '',
-    permission: effectiveRole,
-    individual_permissions: individualPermissions,
-    publicly_accessible: metricFile.publiclyAccessible,
-    public_expiry_date: metricFile.publicExpiryDate,
-    public_enabled_by: publicEnabledBy,
-    public_password: metricFile.publicPassword,
-    workspace_sharing: metricFile.workspaceSharing,
-    workspace_member_count: workspaceMemberCount,
-  };
-
-  return response;
 }
