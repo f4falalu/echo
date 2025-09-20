@@ -48,6 +48,7 @@ export const EditDecimals: React.FC<{
       <div className="flex w-full items-center space-x-2" data-testid="edit-decimals-input">
         <InputNumber
           min={0}
+          max={7}
           prefix="Min"
           defaultValue={min}
           className="w-full!"
@@ -55,7 +56,8 @@ export const EditDecimals: React.FC<{
         />
         <InputNumber
           prefix="Max"
-          max={10}
+          min={0}
+          max={7}
           defaultValue={max}
           className="w-full!"
           onChange={(value) => handleMaxChange(value)}
