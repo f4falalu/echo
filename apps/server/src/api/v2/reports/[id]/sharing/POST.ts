@@ -3,6 +3,7 @@ import {
   checkAssetPermission,
   findUsersByEmails,
   getReportFileById,
+  getReportWorkspaceSharing,
 } from '@buster/database/queries';
 import type { User } from '@buster/database/queries';
 import type { SharePostResponse } from '@buster/server-shared/reports';
@@ -11,6 +12,7 @@ import { SharePostRequestSchema } from '@buster/server-shared/share';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
+import { checkIfAssetIsEditable } from '../../../../../shared-helpers/asset-public-access';
 
 export async function createReportSharingHandler(
   reportId: string,

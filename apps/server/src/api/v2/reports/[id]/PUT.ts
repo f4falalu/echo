@@ -22,21 +22,12 @@ async function updateReportHandler(
     throw new HTTPException(404, { message: 'Report not found' });
   }
 
-  // Get user's organization ID
-  const userOrg = await getUserOrganizationId(user.id);
-
-  if (!userOrg) {
-    throw new HTTPException(403, { message: 'User is not associated with an organization' });
-  }
-
-  const workspaceSharing = await getReportWorkspaceSharing(reportId);
-
   checkIfAssetIsEditable({
     user,
     assetId: reportId,
     assetType: 'report_file',
-    organizationId: userOrg.organizationId,
-    workspaceSharing,
+    workspaceSharing: getReportWorkspaceSharing,
+    requiredRole: 'full_access',
   });
 
   const { name, content, update_version = false } = request;
