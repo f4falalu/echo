@@ -7,6 +7,12 @@ on:
       - 'packages/database/drizzle/**'
       - 'packages/database/drizzle.config.ts'
       - '.github/workflows/database-migrations.yml'
+      - 'packages/database/package.json'
+  pull_request:
+    types: [closed]
+    branches: [main, staging]
+    paths:
+      - 'packages/database/drizzle/**'
   workflow_dispatch:
     inputs:
       environment:
@@ -24,8 +30,51 @@ concurrency:
   cancel-in-progress: false  # Never cancel migrations
 
 jobs:
+  detect-changes:
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    if: github.event_name != 'workflow_dispatch'
+    outputs:
+      migrations-changed: ${{ steps.check.outputs.migrations }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Check for migration changes
+        id: check
+        run: |
+          echo "Checking for migration changes..."
+          
+          # For PR merges, compare with base branch
+          if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.event.pull_request.merged }}" = "true" ]; then
+            BASE_REF="${{ github.base_ref }}"
+            echo "PR merged - comparing with $BASE_REF"
+            CHANGED_FILES=$(git diff --name-only origin/$BASE_REF...HEAD)
+          # For direct pushes, compare with previous commit
+          else
+            echo "Direct push - comparing with previous commit"
+            CHANGED_FILES=$(git diff --name-only HEAD^ HEAD 2>/dev/null || git diff --name-only HEAD~1 HEAD)
+          fi
+          
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+          
+          if echo "$CHANGED_FILES" | grep -q "packages/database/drizzle/.*\.sql$"; then
+            echo "migrations=true" >> $GITHUB_OUTPUT
+            echo "✅ Migration files changed - will run migrations"
+          else
+            echo "migrations=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No migration files changed"
+          fi
+
   migrate:
     runs-on: blacksmith-2vcpu-ubuntu-2404
+    needs: [detect-changes]
+    if: |
+      always() && (
+        github.event_name == 'workflow_dispatch' || 
+        needs.detect-changes.outputs.migrations-changed == 'true'
+      )
     environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || github.ref_name }}
     steps:
       - uses: actions/checkout@v4
@@ -48,12 +97,6 @@ jobs:
             sudo chown -R $(whoami):$(whoami) "$STORE_PATH" || true
             chmod -R u+rw "$STORE_PATH" || true
           fi
-      
-      - name: Mount Turbo cache sticky disk
-        uses: useblacksmith/stickydisk@v1
-        with:
-          key: ${{ github.repository }}-turbo-cache
-          path: ./.turbo
           
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --prefer-offline

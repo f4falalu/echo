@@ -21,8 +21,7 @@
     },
     "db:migrate": {
       "cache": false,
-      "persistent": false,
-      "dependsOn": ["db:reset"]
+      "persistent": false
     },
     "db:seed": {
       "cache": false,
