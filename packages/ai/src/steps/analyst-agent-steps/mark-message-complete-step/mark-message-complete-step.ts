@@ -1,4 +1,4 @@
-import { updateChat, updateMessage } from '@buster/database';
+import { updateChat, updateMessage } from '@buster/database/queries';
 import { z } from 'zod';
 
 // Input schema with all necessary parameters
@@ -55,7 +55,7 @@ export async function markMessageComplete(
     if (input.selectedFile?.fileId && input.chatId) {
       await updateChat(input.chatId, {
         mostRecentFileId: input.selectedFile.fileId,
-        mostRecentFileType: input.selectedFile.fileType,
+        mostRecentFileType: input.selectedFile.fileType, //TODO: scope to actually be the enum file type
         mostRecentVersionNumber: input.selectedFile.versionNumber,
       });
     }

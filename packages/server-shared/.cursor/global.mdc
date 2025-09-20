@@ -61,32 +61,7 @@ organization/
 └── user.types.ts
 ```
 
-### Enum Pattern for Database Parity
 
-When creating enums that mirror database enums, use frozen objects to maintain type safety:
-
-```typescript
-import type { userOrganizationRoleEnum } from '@buster/database';
-
-type OrganizationRoleBase = (typeof userOrganizationRoleEnum.enumValues)[number];
-
-// Create a frozen object that mirrors the database enum
-export const OrganizationRoleEnum: Record<OrganizationRoleBase, OrganizationRoleBase> = 
-  Object.freeze({
-    viewer: 'viewer',
-    workspace_admin: 'workspace_admin',
-    data_admin: 'data_admin',
-    querier: 'querier',
-    restricted_querier: 'restricted_querier',
-  });
-
-// Create Zod schema from the enum
-export const OrganizationRoleSchema = z.enum(
-  Object.values(OrganizationRoleEnum) as [OrganizationRoleBase, ...OrganizationRoleBase[]]
-);
-
-export type OrganizationRole = z.infer<typeof OrganizationRoleSchema>;
-```
 
 ### Database Type Parity
 

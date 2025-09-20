@@ -7,7 +7,6 @@ import {
 } from '@/components/ui/layouts/AppSplitter';
 import { useGetCurrentMessageId, useIsStreamingMessage } from '@/context/Chats';
 import { useGetChatId } from '@/context/Chats/useGetChatId';
-import { useMount } from '@/hooks/useMount';
 import type { LayoutMode } from '@/layouts/ChatLayout/config';
 import { useSelectedAssetId } from '../../context/BusterAssets/useSelectedAssetType';
 import { ChatContainer } from './ChatContainer';

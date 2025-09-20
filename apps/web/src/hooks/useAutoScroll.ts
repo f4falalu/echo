@@ -244,12 +244,12 @@ export const useAutoScroll = (
       container.removeEventListener('touchstart', disableAutoScrollHandler);
       container.removeEventListener('mousedown', disableAutoScrollHandler);
     };
-  }, [containerRef, bottomThreshold, isAutoScrollEnabled]);
+  }, [containerRef, bottomThreshold, isAutoScrollEnabled, isMountedAutoScrollObserver]);
 
   // Listen for scroll events. If the user scrolls back close to the bottom, re-enable auto–scroll.
   useEffect(() => {
     const container = containerRef?.current;
-    if (!container) return;
+    if (!container || !enabled || !isMountedAutoScrollObserver) return;
 
     const onScroll = () => {
       if (isAtBottom(container, bottomThreshold)) {
@@ -261,7 +261,7 @@ export const useAutoScroll = (
     return () => {
       container.removeEventListener('scroll', onScroll);
     };
-  }, [containerRef, isAutoScrollEnabled, bottomThreshold]);
+  }, [containerRef, isAutoScrollEnabled, bottomThreshold, enabled, isMountedAutoScrollObserver]);
 
   // Exposed functions.
 

@@ -43,18 +43,17 @@ const CollectionDeleteButton: React.FC<{
     if (collection) {
       await removeAssetFromCollection({
         id: collectionId,
-        assets: (collection.assets || [])?.reduce<{ type: 'metric' | 'dashboard'; id: string }[]>(
-          (result, asset) => {
-            if (selectedRowKeys.includes(asset.id)) {
-              result.push({
-                type: asset.asset_type as 'metric' | 'dashboard',
-                id: asset.id,
-              });
-            }
-            return result;
-          },
-          []
-        ),
+        assets: (collection.assets || [])?.reduce<
+          { type: 'metric_file' | 'dashboard_file'; id: string }[]
+        >((result, asset) => {
+          if (selectedRowKeys.includes(asset.id)) {
+            result.push({
+              type: asset.asset_type as 'metric_file' | 'dashboard_file',
+              id: asset.id,
+            });
+          }
+          return result;
+        }, []),
       });
     }
   });

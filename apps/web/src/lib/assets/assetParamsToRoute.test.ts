@@ -142,7 +142,7 @@ describe('assetParamsToRoute', () => {
     it('should handle metric asset type correctly', () => {
       // Metric only
       const metricRoute = assetParamsToRoute({
-        assetType: 'metric',
+        assetType: 'metric_file',
         assetId: 'metric-123',
       });
       expect(metricRoute).toEqual({
@@ -154,7 +154,7 @@ describe('assetParamsToRoute', () => {
 
       // Metric with chat
       const metricChatRoute = assetParamsToRoute({
-        assetType: 'metric',
+        assetType: 'metric_file',
         assetId: 'metric-123',
         chatId: 'chat-456',
       });
@@ -168,7 +168,7 @@ describe('assetParamsToRoute', () => {
 
       // Metric with chat and dashboard
       const metricChatDashRoute = assetParamsToRoute({
-        assetType: 'metric',
+        assetType: 'metric_file',
         assetId: 'metric-123',
         chatId: 'chat-456',
         dashboardId: 'dash-789',
@@ -186,7 +186,7 @@ describe('assetParamsToRoute', () => {
     it('should handle dashboard asset type correctly', () => {
       // Dashboard only
       const dashRoute = assetParamsToRoute({
-        assetType: 'dashboard',
+        assetType: 'dashboard_file',
         assetId: 'dash-123',
       });
       expect(dashRoute).toEqual({
@@ -198,7 +198,7 @@ describe('assetParamsToRoute', () => {
 
       // Dashboard with chat
       const dashChatRoute = assetParamsToRoute({
-        assetType: 'dashboard',
+        assetType: 'dashboard_file',
         assetId: 'dash-123',
         chatId: 'chat-456',
       });
@@ -212,7 +212,7 @@ describe('assetParamsToRoute', () => {
 
       // Dashboard with chat and metric
       const dashChatMetricRoute = assetParamsToRoute({
-        assetType: 'dashboard',
+        assetType: 'dashboard_file',
         assetId: 'dash-123',
         chatId: 'chat-456',
         metricId: 'metric-789',
@@ -230,7 +230,7 @@ describe('assetParamsToRoute', () => {
     it('should handle report asset type correctly', () => {
       // Report only
       const reportRoute = assetParamsToRoute({
-        assetType: 'report',
+        assetType: 'report_file',
         assetId: 'report-123',
       });
       expect(reportRoute).toEqual({
@@ -242,7 +242,7 @@ describe('assetParamsToRoute', () => {
 
       // Report with chat
       const reportChatRoute = assetParamsToRoute({
-        assetType: 'report',
+        assetType: 'report_file',
         assetId: 'report-123',
         chatId: 'chat-456',
       });
@@ -274,7 +274,7 @@ describe('assetParamsToRoute', () => {
     it('should handle single asset with version number correctly', () => {
       // Metric with version number
       const metricWithVersion = assetParamsToRoute({
-        assetType: 'metric',
+        assetType: 'metric_file',
         assetId: 'metric-123',
         versionNumber: 5,
       });
@@ -290,7 +290,7 @@ describe('assetParamsToRoute', () => {
 
       // Dashboard with version number
       const dashboardWithVersion = assetParamsToRoute({
-        assetType: 'dashboard',
+        assetType: 'dashboard_file',
         assetId: 'dashboard-456',
         versionNumber: 3,
       });
@@ -306,7 +306,7 @@ describe('assetParamsToRoute', () => {
 
       // Report with version number
       const reportWithVersion = assetParamsToRoute({
-        assetType: 'report',
+        assetType: 'report_file',
         assetId: 'report-789',
         versionNumber: 2,
       });
@@ -324,7 +324,7 @@ describe('assetParamsToRoute', () => {
     it('should handle dashboard with metric and multiple version numbers', () => {
       // Dashboard with metric only includes metric when there's a chat context
       const dashboardWithMetricAndVersions = assetParamsToRoute({
-        assetType: 'dashboard',
+        assetType: 'dashboard_file',
         assetId: 'dashboard-123',
         metricId: 'metric-456',
         versionNumber: 4,
@@ -368,7 +368,7 @@ describe('assetParamsToRoute', () => {
 
     it('should handle report with chat and metric version numbers', () => {
       const reportWithChatAndMetricVersions = assetParamsToRoute({
-        assetType: 'report',
+        assetType: 'report_file',
         assetId: 'report-xyz',
         metricId: 'metric-def',
         versionNumber: 8,
@@ -431,7 +431,7 @@ describe('assetParamsToRoute', () => {
     it('should handle zero version numbers correctly', () => {
       // Version number 0 should be treated as valid (not falsy)
       const metricWithZeroVersion = assetParamsToRoute({
-        assetType: 'metric',
+        assetType: 'metric_file',
         assetId: 'metric-zero',
         versionNumber: 0,
       });

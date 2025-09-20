@@ -30,7 +30,7 @@ export async function runAnalystAgentStep({
       maxAttempts: 3,
       baseDelayMs: 2000,
       onRetry: (attempt, recoveredMessageCount) => {
-        console.info('Analyst Agent step retrying after overloaded error', {
+        console.info('Analyst Agent step retrying after error', {
           messageId: options.messageId,
           attempt,
           recoveredMessageCount,

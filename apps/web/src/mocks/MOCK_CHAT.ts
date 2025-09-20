@@ -28,7 +28,7 @@ const MOCK_MESSAGE_RESPONSE = (
   return {
     id: generateId('response', index),
     type: 'file',
-    file_type: index % 2 === 0 ? 'metric' : 'dashboard',
+    file_type: index % 2 === 0 ? 'metric_file' : 'dashboard_file',
     file_name: `sample-file-${index}.txt`,
     version_number: (index % 5) + 1,
     filter_version_id: generateId('filter', index),
@@ -63,7 +63,7 @@ const MOCK_MESSAGE_REASONING = (
     const MOCK_FILE = (fileIndex: number): BusterChatMessageReasoning_file => {
       return {
         id: generateId('file', fileIndex),
-        file_type: fileIndex % 2 === 0 ? 'metric' : 'dashboard',
+        file_type: fileIndex % 2 === 0 ? 'metric_file' : 'dashboard_file',
         file_name: `file-${fileIndex}.txt`,
         version_number: (fileIndex % 5) + 1,
         status: 'loading',

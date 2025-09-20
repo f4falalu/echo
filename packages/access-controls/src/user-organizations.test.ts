@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import * as db from '@buster/database';
+import * as db from '@buster/database/connection';
+import { users } from '@buster/database/schema';
 import { describe, expect, it, vi } from 'vitest';
 import {
   checkEmailDomainForOrganization,
@@ -10,11 +11,13 @@ import {
 } from './user-organizations';
 
 // Mock the database module
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/connection', () => ({
   getDb: vi.fn(),
   and: vi.fn((...args) => ({ _and: args })),
   eq: vi.fn((a, b) => ({ _eq: [a, b] })),
   isNull: vi.fn((a) => ({ _isNull: a })),
+}));
+vi.mock('@buster/database/schema', () => ({
   organizations: {
     id: 'organizations.id',
     domains: 'organizations.domains',
@@ -297,7 +300,7 @@ describe('user-organizations', () => {
         limit: vi.fn().mockImplementation(() => {
           // Check if we're querying users or organizations
           const lastCall = mockDb.from.mock.lastCall;
-          if (lastCall && lastCall[0] === db.users) return Promise.resolve([]);
+          if (lastCall && lastCall[0] === users) return Promise.resolve([]);
           return Promise.resolve([mockOrg]);
         }),
         insert: vi.fn().mockReturnThis(),
@@ -349,7 +352,7 @@ describe('user-organizations', () => {
         limit: vi.fn().mockImplementation(() => {
           // Check if we're querying users or organizations
           const lastCall = mockDb.from.mock.lastCall;
-          if (lastCall && lastCall[0] === db.users) return Promise.resolve([mockExistingUser]);
+          if (lastCall && lastCall[0] === users) return Promise.resolve([mockExistingUser]);
           return Promise.resolve([mockOrg]);
         }),
         insert: vi.fn().mockReturnThis(),
@@ -405,7 +408,7 @@ describe('user-organizations', () => {
         limit: vi.fn().mockImplementation(() => {
           // Check if we're querying users or organizations
           const lastCall = mockDb.from.mock.lastCall;
-          if (lastCall && lastCall[0] === db.users) return Promise.resolve([]);
+          if (lastCall && lastCall[0] === users) return Promise.resolve([]);
           return Promise.resolve([mockOrg]);
         }),
         insert: vi.fn().mockReturnThis(),

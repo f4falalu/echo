@@ -1,4 +1,6 @@
-import { batchUpdateReport, db, reportFiles, updateMessageEntries } from '@buster/database';
+import { db } from '@buster/database/connection';
+import { batchUpdateReport, updateMessageEntries } from '@buster/database/queries';
+import { reportFiles } from '@buster/database/schema';
 import type { ChatMessageResponseMessage } from '@buster/server-shared/chats';
 import type { ToolCallOptions } from 'ai';
 import { and, eq, isNull } from 'drizzle-orm';
@@ -333,7 +335,7 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
                   {
                     id: state.reportId,
                     type: 'file' as const,
-                    file_type: 'report' as const,
+                    file_type: 'report_file' as const,
                     file_name: state.reportName || 'Untitled Report',
                     version_number: newVersion,
                     filter_version_id: null,

@@ -12,10 +12,15 @@ const mockDbWhere = vi.fn();
 const mockDbFrom = vi.fn();
 const mockDbSelect = vi.fn();
 
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   updateMessageEntries: vi.fn().mockResolvedValue({ success: true }),
   batchUpdateReport: vi.fn().mockResolvedValue({ success: true }),
   updateMetricsToReports: vi.fn().mockResolvedValue({ created: 0, updated: 0, deleted: 0 }),
+}));
+vi.mock('@buster/database/schema', () => ({
+  reportFiles: {},
+}));
+vi.mock('@buster/database/connection', () => ({
   db: {
     select: vi.fn().mockReturnValue({
       from: vi.fn().mockReturnValue({
@@ -30,7 +35,6 @@ vi.mock('@buster/database', () => ({
       }),
     }),
   },
-  reportFiles: {},
 }));
 
 vi.mock('../helpers/report-version-helper', () => ({
@@ -76,7 +80,8 @@ vi.mock('../report-snapshot-cache', () => ({
   updateCachedSnapshot: vi.fn().mockResolvedValue(undefined),
 }));
 
-import { db, updateMessageEntries } from '@buster/database';
+import { db } from '@buster/database/connection';
+import { updateMessageEntries } from '@buster/database/queries';
 
 describe('modify-reports-execute', () => {
   let context: ModifyReportsContext;
@@ -161,7 +166,7 @@ Updated content with metrics.`;
       expect(updateCall.responseMessages[0]).toMatchObject({
         id: 'report-123',
         type: 'file',
-        file_type: 'report',
+        file_type: 'report_file',
         file_name: 'Modified Sales Report',
       });
     });
@@ -214,7 +219,7 @@ Updated content with metrics.`;
       expect(updateCall.responseMessages?.[0]).toMatchObject({
         id: 'report-123',
         type: 'file',
-        file_type: 'report',
+        file_type: 'report_file',
         file_name: 'Modified Report',
         version_number: 2,
       });

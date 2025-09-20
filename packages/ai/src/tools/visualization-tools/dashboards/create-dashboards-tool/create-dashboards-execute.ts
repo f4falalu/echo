@@ -1,11 +1,12 @@
 import { randomUUID } from 'node:crypto';
-import { db, updateMessageEntries } from '@buster/database';
+import { db } from '@buster/database/connection';
+import { updateMessageEntries } from '@buster/database/queries';
 import {
   assetPermissions,
   dashboardFiles,
   metricFiles,
   metricFilesToDashboardFiles,
-} from '@buster/database';
+} from '@buster/database/schema';
 import { wrapTraced } from 'braintrust';
 import { inArray } from 'drizzle-orm';
 import * as yaml from 'yaml';
@@ -184,7 +185,7 @@ async function processDashboardFile(
   const dashboardFile: FileWithId = {
     id,
     name: dashboard.name,
-    file_type: 'dashboard',
+    file_type: 'dashboard_file',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     version_number: 1,

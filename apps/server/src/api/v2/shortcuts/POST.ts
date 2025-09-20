@@ -1,5 +1,5 @@
-import type { User } from '@buster/database';
-import { createShortcut, getUserOrganizationId } from '@buster/database';
+import type { User } from '@buster/database/queries';
+import { createShortcut, getUserOrganizationId } from '@buster/database/queries';
 import type { CreateShortcutRequest, Shortcut } from '@buster/server-shared/shortcuts';
 import {
   DuplicateShortcutError,

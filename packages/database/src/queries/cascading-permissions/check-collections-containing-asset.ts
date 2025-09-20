@@ -11,7 +11,7 @@ export interface CollectionWithSharing {
 
 export async function checkCollectionsContainingAsset(
   assetId: string,
-  assetType: 'metric' | 'dashboard' | 'chat'
+  assetType: 'metric_file' | 'dashboard_file' | 'chat'
 ): Promise<CollectionWithSharing[]> {
   // Map our asset type strings to the enum values expected by the database
   const assetTypeMap: Record<string, AssetType> = {

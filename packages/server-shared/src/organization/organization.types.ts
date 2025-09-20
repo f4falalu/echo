@@ -1,7 +1,5 @@
-import type { organizations } from '@buster/database';
 import { z } from 'zod';
-import type { Equal, Expect } from '../type-utilities';
-import { OrganizationRoleSchema } from './roles.types';
+import { UserOrganizationRoleSchema } from './roles.types';
 
 // Hex color validation schema for 3 or 6 digit hex codes
 const HexColorSchema = z
@@ -33,12 +31,10 @@ export const OrganizationSchema = z.object({
   paymentRequired: z.boolean(),
   domains: z.array(z.string()).nullable(),
   restrictNewUserInvitations: z.boolean(),
-  defaultRole: OrganizationRoleSchema,
+  defaultRole: UserOrganizationRoleSchema,
   organizationColorPalettes: OrganizationColorPaletteSchema,
 });
 
 export type Organization = z.infer<typeof OrganizationSchema>;
 export type OrganizationColorPalette = z.infer<typeof OrganizationColorPaletteSchema>;
 export type ColorPalette = z.infer<typeof ColorPalettesSchema>;
-
-type _OrganizationEqualityCheck = Expect<Equal<Organization, typeof organizations.$inferSelect>>;

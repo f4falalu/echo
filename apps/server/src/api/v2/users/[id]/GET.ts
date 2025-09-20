@@ -1,4 +1,4 @@
-import { getUserInformation } from '@buster/database';
+import { getUserInformation } from '@buster/database/queries';
 import { GetUserByIdRequestSchema, type GetUserByIdResponse } from '@buster/server-shared/user';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';

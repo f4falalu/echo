@@ -1,4 +1,4 @@
-import { ClientOnly, createFileRoute } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
 import { LoginForm } from '@/components/features/auth/LoginForm';
 
@@ -27,7 +27,6 @@ export const Route = createFileRoute('/auth/login')({
 
 function LoginComp() {
   const { next } = Route.useSearch();
-  const cxt = Route.useRouteContext();
 
   return <LoginForm redirectTo={next} />;
 }

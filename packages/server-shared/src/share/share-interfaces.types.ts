@@ -1,42 +1,15 @@
-import type { assetPermissionRoleEnum, workspaceSharingEnum } from '@buster/database';
+import { AssetPermissionRoleSchema, WorkspaceSharingSchema } from '@buster/database/schema-types';
 import { z } from 'zod';
 import { AssetTypeSchema } from '../assets/asset-types.types';
 
-type ShareRoleBase = (typeof assetPermissionRoleEnum.enumValues)[number];
-export const ShareRoleEnumsConversions: Record<ShareRoleBase, ShareRoleBase> = Object.freeze({
-  owner: 'owner',
-  full_access: 'full_access',
-  can_edit: 'can_edit',
-  can_view: 'can_view',
-  viewer: 'viewer',
-  can_filter: 'can_filter',
-});
-
-export const ShareRoleSchema = z.enum(
-  Object.values(ShareRoleEnumsConversions) as [ShareRoleBase, ...ShareRoleBase[]]
-);
-
-//type TeamRoleBase = (typeof teamRoleEnum.enumValues)[number] | 'none';
-type WorkspaceShareRoleBase = (typeof workspaceSharingEnum.enumValues)[number];
-const WorkspaceShareRoleEnumsConversions: Record<WorkspaceShareRoleBase, WorkspaceShareRoleBase> =
-  Object.freeze({
-    full_access: 'full_access',
-    can_edit: 'can_edit',
-    can_view: 'can_view',
-    none: 'none',
-  });
-
-export const WorkspaceShareRoleSchema = z.enum(
-  Object.values(WorkspaceShareRoleEnumsConversions) as [
-    WorkspaceShareRoleBase,
-    ...WorkspaceShareRoleBase[],
-  ]
-);
+export { AssetPermissionRoleSchema, WorkspaceSharingSchema };
+export const ShareRoleSchema = AssetPermissionRoleSchema;
+export const WorkspaceShareRoleSchema = WorkspaceSharingSchema;
 export const ShareAssetTypeSchema = AssetTypeSchema;
 
 export const ShareIndividualSchema = z.object({
   email: z.string(),
-  role: ShareRoleSchema,
+  role: AssetPermissionRoleSchema,
   name: z.string().nullable().optional(),
   avatar_url: z.string().nullable().optional(),
 });
@@ -47,8 +20,8 @@ export const ShareConfigSchema = z.object({
   public_enabled_by: z.string().nullable(),
   publicly_accessible: z.boolean(),
   public_password: z.string().nullable(),
-  permission: ShareRoleSchema, //this is the permission the user has to the metric, dashboard or collection
-  workspace_sharing: WorkspaceShareRoleSchema.nullable(),
+  permission: AssetPermissionRoleSchema, //this is the permission the user has to the metric, dashboard or collection
+  workspace_sharing: WorkspaceSharingSchema.nullable(),
   workspace_member_count: z.number().nullable(),
 });
 

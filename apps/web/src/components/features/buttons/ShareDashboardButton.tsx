@@ -13,7 +13,7 @@ export const ShareDashboardButton = React.memo(({ dashboardId }: { dashboardId: 
     <ShareMenu
       shareAssetConfig={dashboardResponse || null}
       assetId={dashboardId}
-      assetType={'dashboard'}
+      assetType={'dashboard_file'}
     >
       <ShareButton />
     </ShareMenu>

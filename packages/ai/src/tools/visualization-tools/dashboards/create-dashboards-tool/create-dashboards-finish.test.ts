@@ -6,7 +6,7 @@ import type {
   CreateDashboardsState,
 } from './create-dashboards-tool';
 
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   updateMessageEntries: vi.fn(),
 }));
 
@@ -17,7 +17,9 @@ describe('createCreateDashboardsFinish', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    updateMessageEntries = vi.mocked((await import('@buster/database')).updateMessageEntries);
+    updateMessageEntries = vi.mocked(
+      (await import('@buster/database/queries')).updateMessageEntries
+    );
 
     context = {
       userId: 'user-1',
@@ -49,7 +51,7 @@ describe('createCreateDashboardsFinish', () => {
     expect(state.files).toHaveLength(2);
     expect(state.files![0]).toMatchObject({
       file_name: 'Dashboard 1',
-      file_type: 'dashboard',
+      file_type: 'dashboard_file',
       version_number: 1,
       file: {
         text: 'content1',
@@ -115,7 +117,7 @@ describe('createCreateDashboardsFinish', () => {
     expect(state.files).toHaveLength(1);
     expect(state.files![0]).toMatchObject({
       file_name: 'Dashboard 1',
-      file_type: 'dashboard',
+      file_type: 'dashboard_file',
     });
   });
 

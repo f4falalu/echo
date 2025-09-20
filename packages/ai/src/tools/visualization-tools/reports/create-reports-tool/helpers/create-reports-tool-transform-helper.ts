@@ -36,7 +36,7 @@ export function createCreateReportsReasoningEntry(
     fileIds.push(id);
     filesRecord[id] = {
       id,
-      file_type: 'report',
+      file_type: 'report_file',
       file_name: file.file_name ?? '',
       version_number: file.version_number,
       status: file.status,
@@ -62,10 +62,10 @@ export function createCreateReportsReasoningEntry(
   const isComplete = completedFiles + failedFiles === totalFiles && totalFiles > 0;
   if (isComplete) {
     if (failedFiles === 0) {
-      title = `Created ${completedFiles} ${completedFiles === 1 ? 'report' : 'reports'}`;
+      title = `Created ${completedFiles} ${completedFiles === 1 ? 'report_file' : 'reports'}`;
       status = 'completed';
     } else if (completedFiles === 0) {
-      title = `Failed to create ${failedFiles} ${failedFiles === 1 ? 'report' : 'reports'}`;
+      title = `Failed to create ${failedFiles} ${failedFiles === 1 ? 'report_file' : 'reports'}`;
       status = 'failed';
     } else {
       title = `Created ${completedFiles} of ${totalFiles} reports`;

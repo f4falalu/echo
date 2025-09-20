@@ -25,3 +25,24 @@ export {
   type MetricContent,
   type VersionHistoryEntry,
 } from './get-metric-with-data-source';
+
+export {
+  getMetricFileById,
+  type MetricFile,
+} from './get-metric-by-id';
+
+export {
+  getDashboardsAssociatedWithMetric,
+  getCollectionsAssociatedWithMetric,
+  getAssetsAssociatedWithMetric,
+  type AssociatedAsset,
+  type AssetsAssociatedWithMetric,
+} from './get-permissioned-asset-associations';
+
+export {
+  getUsersWithMetricPermissions,
+  GetUsersWithMetricPermissionsInputSchema,
+  GetUsersWithMetricPermissionsResultSchema,
+  type GetUsersWithMetricPermissionsInput,
+  type GetUsersWithMetricPermissionsResult,
+} from './get-users-with-metric-permissions-by-id';

@@ -1,15 +1,10 @@
+import { and, eq, getDb, isNull } from '@buster/database/connection';
 import {
-  and,
   assetPermissions,
-  assetTypeEnum,
   chats,
   collectionsToAssets,
-  eq,
-  getDb,
-  identityTypeEnum,
-  isNull,
   usersToOrganizations,
-} from '@buster/database';
+} from '@buster/database/schema';
 import { z } from 'zod';
 
 // Input validation schema

@@ -1,4 +1,4 @@
-import { type UpdateMessageEntriesParams, updateMessageEntries } from '@buster/database';
+import { type UpdateMessageEntriesParams, updateMessageEntries } from '@buster/database/queries';
 import type { ToolCallOptions } from 'ai';
 import type { DoneToolContext, DoneToolInput, DoneToolState } from './done-tool';
 import {

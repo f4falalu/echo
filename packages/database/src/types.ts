@@ -19,8 +19,8 @@ export type {
   ChatMessageResponseMessage_File,
   ReasoningFileType,
   ResponseMessageFileType,
-  ReasoingMessage_ThoughtFileType,
-} from './schemas/message-schemas';
+  ReasoningMessage_ThoughtFileType,
+} from './schema-types/message-schemas';
 
 // Export schema-types to use across the codebase
 export type { UserSuggestedPromptsType, UserPersonalizationConfigType } from './schema-types';
@@ -33,4 +33,6 @@ export {
   StatusSchema,
   ResponseMessageSchema,
   ReasoningMessageSchema,
-} from './schemas/message-schemas';
+} from './schema-types/message-schemas';
+
+export type { ChatListItem } from './schema-types/chat';

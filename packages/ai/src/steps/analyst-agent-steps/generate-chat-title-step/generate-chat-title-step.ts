@@ -1,4 +1,4 @@
-import { updateChat, updateMessage } from '@buster/database';
+import { updateChat, updateMessage } from '@buster/database/queries';
 import { generateObject } from 'ai';
 import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
@@ -21,10 +21,23 @@ const llmOutputSchema = z.object({
 });
 
 const generateChatTitleInstructions = `
-I am a chat title generator that is responsible for generating a title for the chat.
+You are a chat title generator. Your job is to create short, clear titles (3–8 words) that summarize the user’s request or the main task of the conversation.
 
-The title should be 3-8 words, capturing the main topic or intent of the conversation. 
-With an emphasis on the user's question and most recent converstaion topic.
+Guidelines:
+- Use simple, natural language that closely matches the user’s phrasing.
+- Focus on the core action or subject (not generic report-like phrases).
+- Avoid jargon, academic, or overly formal wording.
+- Prefer plain, direct titles over abstract ones.
+
+Examples:
+User: “build me a small report about sales over time, only one metric please.”
+Title: “Sales Over Time” (NOT “Sales Performance Trend Analysis”)
+
+User: “Look at the documentation and return 12 data requests that push schema assumptions.”
+Title: “Challenging Data Request Examples” (NOT “Challenging JSON Schema Inference Scenarios”)
+
+User: "can you build a report that shows me churn rate by customer segment.”
+Title: “Churn Rate by Segment”
 `;
 
 /**

@@ -1,4 +1,4 @@
-import { getUserOrganizationId } from '@buster/database';
+import { getUserOrganizationId } from '@buster/database/queries';
 import {
   type GetChannelsResponse,
   type GetIntegrationResponse,

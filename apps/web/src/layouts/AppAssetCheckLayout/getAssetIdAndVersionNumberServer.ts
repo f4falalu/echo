@@ -20,13 +20,13 @@ export const getAssetIdAndVersionNumber = (
   if (assetType === 'chat') {
     return { assetId: params.chatId ?? '', versionNumber: undefined };
   }
-  if (assetType === 'dashboard') {
+  if (assetType === 'dashboard_file') {
     return { assetId: params.dashboardId ?? '', versionNumber: search.dashboard_version_number };
   }
-  if (assetType === 'metric') {
+  if (assetType === 'metric_file') {
     return { assetId: params.metricId ?? '', versionNumber: search.metric_version_number };
   }
-  if (assetType === 'report') {
+  if (assetType === 'report_file') {
     return { assetId: params.reportId ?? '', versionNumber: search.report_version_number };
   }
   if (assetType === 'collection') {

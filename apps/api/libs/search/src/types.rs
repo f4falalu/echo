@@ -41,16 +41,24 @@ pub enum SearchObject {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(rename_all = "snake_case")]
 pub enum SearchObjectType {
+    #[serde(rename = "thread")]
     Thread,
+    #[serde(rename = "collection")]
     Collection,
+    #[serde(rename = "dashboard_file")]
     Dashboard,
+    #[serde(rename = "data_source")]
     DataSource,
+    #[serde(rename = "dataset")]
     Dataset,
+    #[serde(rename = "permission_group")]
     PermissionGroup,
+    #[serde(rename = "team")]
     Team,
+    #[serde(rename = "term")]
     Term,
+    #[serde(rename = "metric_file")]
     Metric,
 }
 
@@ -59,13 +67,13 @@ impl ToString for SearchObjectType {
         match self {
             SearchObjectType::Thread => "thread".to_string(),
             SearchObjectType::Collection => "collection".to_string(),
-            SearchObjectType::Dashboard => "dashboard".to_string(),
+            SearchObjectType::Dashboard => "dashboard_file".to_string(),
             SearchObjectType::DataSource => "data_source".to_string(),
             SearchObjectType::Dataset => "dataset".to_string(),
             SearchObjectType::PermissionGroup => "permission_group".to_string(),
             SearchObjectType::Team => "team".to_string(),
             SearchObjectType::Term => "term".to_string(),
-            SearchObjectType::Metric => "metric".to_string(),
+            SearchObjectType::Metric => "metric_file".to_string(),
         }
     }
 }
@@ -100,7 +108,7 @@ impl SearchOptions {
     pub fn asset_types_to_string(&self) -> String {
         if self.asset_types.is_empty() {
             // If no asset types specified, include all types
-            return "'collection', 'dashboard', 'metric'".to_string();
+            return "'collection', 'dashboard_file', 'metric_file'".to_string();
         }
         
         self.asset_types

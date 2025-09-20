@@ -1,11 +1,6 @@
-import {
-  chats,
-  checkForDuplicateMessages,
-  db,
-  eq,
-  messages,
-  updateMessage,
-} from '@buster/database';
+import { db, eq } from '@buster/database/connection';
+import { checkForDuplicateMessages, updateMessage } from '@buster/database/queries';
+import { chats, messages } from '@buster/database/schema';
 import {
   SlackMessagingService,
   addReaction,

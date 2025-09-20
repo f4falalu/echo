@@ -9,7 +9,7 @@ import { createSequentialThinkingDelta } from './sequential-thinking-tool-delta'
 import { createSequentialThinkingFinish } from './sequential-thinking-tool-finish';
 import { createSequentialThinkingStart } from './sequential-thinking-tool-start';
 
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   updateMessageEntries: vi.fn().mockResolvedValue({ success: true }),
 }));
 
@@ -183,7 +183,7 @@ describe('Sequential Thinking Tool Streaming Tests', () => {
     });
 
     test('should not update database when state does not change', async () => {
-      const { updateMessageEntries } = await import('@buster/database');
+      const { updateMessageEntries } = await import('@buster/database/queries');
       vi.mocked(updateMessageEntries).mockClear();
 
       const state: SequentialThinkingState = {
@@ -263,7 +263,7 @@ describe('Sequential Thinking Tool Streaming Tests', () => {
     });
 
     test('should update database with completed status on finish', async () => {
-      const { updateMessageEntries } = await import('@buster/database');
+      const { updateMessageEntries } = await import('@buster/database/queries');
       vi.mocked(updateMessageEntries).mockClear();
 
       const state: SequentialThinkingState = {

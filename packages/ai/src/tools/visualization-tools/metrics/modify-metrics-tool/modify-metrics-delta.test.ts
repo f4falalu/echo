@@ -1,9 +1,9 @@
-import { updateMessageEntries } from '@buster/database';
+import { updateMessageEntries } from '@buster/database/queries';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createModifyMetricsDelta } from './modify-metrics-delta';
 import type { ModifyMetricsInput, ModifyMetricsState } from './modify-metrics-tool';
 
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   updateMessageEntries: vi.fn(),
 }));
 
@@ -100,14 +100,14 @@ describe('createModifyMetricsDelta', () => {
         id: 'metric-1',
         yml_content: 'content1',
         status: 'loading',
-        file_type: 'metric',
+        file_type: 'metric_file',
         version_number: 1,
       });
       expect(state.files![1]).toMatchObject({
         id: 'metric-2',
         yml_content: 'content2',
         status: 'loading',
-        file_type: 'metric',
+        file_type: 'metric_file',
         version_number: 1,
       });
     });
@@ -123,7 +123,7 @@ describe('createModifyMetricsDelta', () => {
           id: 'metric-1',
           yml_content: '',
           status: 'loading',
-          file_type: 'metric',
+          file_type: 'metric_file',
           version_number: 1,
         },
       ];
@@ -144,7 +144,7 @@ describe('createModifyMetricsDelta', () => {
         id: 'metric-1',
         yml_content: 'updated content',
         status: 'loading',
-        file_type: 'metric',
+        file_type: 'metric_file',
         version_number: 1,
       });
     });
@@ -165,7 +165,7 @@ describe('createModifyMetricsDelta', () => {
       expect(state.files![0]).toMatchObject({
         id: 'metric-1',
         status: 'loading',
-        file_type: 'metric',
+        file_type: 'metric_file',
         version_number: 1,
       });
     });
@@ -213,7 +213,7 @@ describe('createModifyMetricsDelta', () => {
           id: 'metric-1',
           yml_content: 'content',
           file: { text: 'content' },
-          file_type: 'metric',
+          file_type: 'metric_file',
           version_number: 1,
           status: 'loading',
         },
@@ -222,7 +222,7 @@ describe('createModifyMetricsDelta', () => {
           id: 'metric-2',
           yml_content: 'content2',
           file: { text: 'content2' },
-          file_type: 'metric',
+          file_type: 'metric_file',
           version_number: 1,
           status: 'loading',
         },
@@ -307,7 +307,7 @@ describe('createModifyMetricsDelta', () => {
         id: 'metric-1',
         yml_content: 'content1',
         status: 'loading',
-        file_type: 'metric',
+        file_type: 'metric_file',
         version_number: 1,
       });
     });

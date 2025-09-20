@@ -1,12 +1,7 @@
 import { randomUUID } from 'node:crypto';
-import {
-  assetPermissions,
-  db,
-  reportFiles,
-  updateMessageEntries,
-  updateReportContent,
-} from '@buster/database';
-import type { ChatMessageResponseMessage } from '@buster/server-shared/chats';
+import { db } from '@buster/database/connection';
+import { updateMessageEntries, updateReportContent } from '@buster/database/queries';
+import { assetPermissions, reportFiles } from '@buster/database/schema';
 import type { ToolCallOptions } from 'ai';
 import {
   normalizeEscapedText,
@@ -121,7 +116,7 @@ export function createCreateReportsDelta(context: CreateReportsContext, state: C
               updatedFiles.push({
                 id: reportId,
                 file_name: name,
-                file_type: 'report',
+                file_type: 'report_file',
                 version_number: 1,
                 file: content
                   ? {

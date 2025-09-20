@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { PaginatedRequestSchema } from '../type-utilities';
 
 // Pagination parameters for chat list
 export const GetChatsListRequestSchema = z.object({
@@ -7,6 +8,9 @@ export const GetChatsListRequestSchema = z.object({
 });
 
 export type GetChatsListRequest = z.infer<typeof GetChatsListRequestSchema>;
+
+export const GetChatsRequestSchemaV2 = PaginatedRequestSchema;
+export type GetChatsRequestV2 = z.infer<typeof GetChatsRequestSchemaV2>;
 
 // Request for getting a single chat
 export const GetChatRequestSchema = z.object({

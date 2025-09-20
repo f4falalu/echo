@@ -273,7 +273,7 @@ describe('ChatCreateRequestSchema', () => {
       chat_id: 'chat-123',
       message_id: 'msg-456',
       asset_id: 'asset-789',
-      asset_type: 'metric',
+      asset_type: 'metric_file',
       metric_id: 'legacy-metric-123',
       dashboard_id: 'legacy-dashboard-456',
     };
@@ -284,7 +284,7 @@ describe('ChatCreateRequestSchema', () => {
     if (result.success) {
       expect(result.data.prompt).toBe('Analyze revenue trends');
       expect(result.data.asset_id).toBe('asset-789');
-      expect(result.data.asset_type).toBe('metric');
+      expect(result.data.asset_type).toBe('metric_file');
     }
   });
 
@@ -329,7 +329,7 @@ describe('ChatCreateRequestSchema', () => {
   it('should allow asset_type without asset_id', () => {
     const requestWithTypeButNoId = {
       prompt: 'Test prompt',
-      asset_type: 'dashboard',
+      asset_type: 'dashboard_file',
       // asset_id is missing - should be fine
     };
 
@@ -337,7 +337,7 @@ describe('ChatCreateRequestSchema', () => {
     expect(result.success).toBe(true);
 
     if (result.success) {
-      expect(result.data.asset_type).toBe('dashboard');
+      expect(result.data.asset_type).toBe('dashboard_file');
       expect(result.data.asset_id).toBeUndefined();
     }
   });
@@ -366,7 +366,7 @@ describe('ChatCreateHandlerRequestSchema', () => {
       chat_id: 'chat-handler-123',
       message_id: 'msg-handler-456',
       asset_id: 'asset-handler-789',
-      asset_type: 'metric',
+      asset_type: 'metric_file',
     };
 
     const result = ChatCreateHandlerRequestSchema.safeParse(validHandlerRequest);
@@ -375,7 +375,7 @@ describe('ChatCreateHandlerRequestSchema', () => {
     if (result.success) {
       expect(result.data.prompt).toBe('Handler test prompt');
       expect(result.data.asset_id).toBe('asset-handler-789');
-      expect(result.data.asset_type).toBe('metric');
+      expect(result.data.asset_type).toBe('metric_file');
     }
   });
 
@@ -409,7 +409,7 @@ describe('ChatCreateHandlerRequestSchema', () => {
   });
 
   it('should validate asset_type enum values for handler', () => {
-    const validAssetTypes = ['metric', 'dashboard'];
+    const validAssetTypes = ['metric_file', 'dashboard_file'];
 
     for (const assetType of validAssetTypes) {
       const request = {

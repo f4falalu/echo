@@ -1,6 +1,8 @@
 import type { ModelMessage } from '@buster/ai';
-import { chats, db, getSecretByName, messages, slackIntegrations } from '@buster/database';
-import type { Chat, Message } from '@buster/database';
+import { db } from '@buster/database/connection';
+import type { Chat, Message } from '@buster/database/queries';
+import { getSecretByName } from '@buster/database/queries';
+import { chats, messages, slackIntegrations } from '@buster/database/schema';
 import { and, eq, isNull } from 'drizzle-orm';
 
 /**

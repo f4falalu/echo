@@ -1,4 +1,5 @@
-import { chats, db, messages } from '@buster/database';
+import { db } from '@buster/database/connection';
+import { chats, messages } from '@buster/database/schema';
 import { createTestChat, createTestMessage } from '@buster/test-utils';
 import { eq } from 'drizzle-orm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -49,7 +50,7 @@ describe('markMessageComplete integration test', () => {
   it('should update chat with selected file information', async () => {
     const selectedFile = {
       fileId: '123e4567-e89b-12d3-a456-426614174000',
-      fileType: 'dashboard',
+      fileType: 'dashboard_file',
       versionNumber: 1,
     };
 
@@ -108,7 +109,7 @@ describe('markMessageComplete integration test', () => {
   it('should not update chat when chatId is missing', async () => {
     const selectedFile = {
       fileId: '123e4567-e89b-12d3-a456-426614174000',
-      fileType: 'metric',
+      fileType: 'metric_file',
       versionNumber: 2,
     };
 

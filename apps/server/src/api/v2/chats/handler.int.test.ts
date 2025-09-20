@@ -1,4 +1,5 @@
-import { asc, chats, db, eq, messages, usersToOrganizations } from '@buster/database';
+import { asc, db, eq } from '@buster/database/connection';
+import { chats, messages, usersToOrganizations } from '@buster/database/schema';
 import {
   ChatCreateRequestSchema,
   ChatError,
@@ -460,7 +461,7 @@ describe('Chat Handler Integration Tests', () => {
       // Test that report is a valid asset type
       const response = await makeRequest({
         asset_id: '123e4567-e89b-12d3-a456-426614174000',
-        asset_type: 'report',
+        asset_type: 'report_file',
       });
 
       // Since we don't have real report assets in test, this may fail with 404 or 500
@@ -481,7 +482,7 @@ describe('Chat Handler Integration Tests', () => {
       // Test the refresh report scenario
       const response = await makeRequest({
         asset_id: '123e4567-e89b-12d3-a456-426614174000',
-        asset_type: 'report',
+        asset_type: 'report_file',
         prompt: 'Please refresh this report with the most up-to-date data.',
       });
 
@@ -524,10 +525,10 @@ describe('Chat Handler Integration Tests', () => {
     it('should handle metric asset type for backwards compatibility', async () => {
       const response = await makeRequest({
         asset_id: '123e4567-e89b-12d3-a456-426614174000',
-        asset_type: 'metric',
+        asset_type: 'metric_file',
       });
 
-      // Should accept 'metric' as valid asset type (may fail with 500 in test env)
+      // Should accept 'metric_file' as valid asset type (may fail with 500 in test env)
       expect([200, 404, 400, 500]).toContain(response.status);
 
       if (response.status === 400) {
@@ -543,10 +544,10 @@ describe('Chat Handler Integration Tests', () => {
     it('should handle dashboard asset type for backwards compatibility', async () => {
       const response = await makeRequest({
         asset_id: '123e4567-e89b-12d3-a456-426614174000',
-        asset_type: 'dashboard',
+        asset_type: 'dashboard_file',
       });
 
-      // Should accept 'dashboard' as valid asset type (may fail with 500 in test env)
+      // Should accept 'dashboard_file' as valid asset type (may fail with 500 in test env)
       expect([200, 404, 400, 500]).toContain(response.status);
 
       if (response.status === 400) {

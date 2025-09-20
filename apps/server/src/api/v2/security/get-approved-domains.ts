@@ -1,4 +1,4 @@
-import type { User } from '@buster/database';
+import type { User } from '@buster/database/queries';
 import type { GetApprovedDomainsResponse } from '@buster/server-shared/security';
 import { DomainService } from './domain-service';
 import { fetchOrganization, validateUserOrganization } from './security-utils';

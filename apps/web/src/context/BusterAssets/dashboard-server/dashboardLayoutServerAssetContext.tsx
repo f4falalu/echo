@@ -11,17 +11,21 @@ export const validateSearch = z.object({
 });
 
 export const staticData = {
-  assetType: 'dashboard' as AssetType,
+  assetType: 'dashboard_file' as AssetType,
+};
+
+export const beforeLoad = ({ search }: { search: { dashboard_version_number?: number } }) => {
+  return {
+    dashboard_version_number: search.dashboard_version_number,
+  };
 };
 
 export const loader = async ({
   params: { dashboardId },
-  context: { queryClient },
-  deps: { dashboard_version_number },
+  context: { queryClient, dashboard_version_number },
 }: {
   params: { dashboardId: string; chatId?: string };
-  deps: { dashboard_version_number?: number };
-  context: { queryClient: QueryClient };
+  context: { queryClient: QueryClient; dashboard_version_number?: number };
 }): Promise<{ title: string | undefined }> => {
   const data = await prefetchGetDashboard({
     queryClient,

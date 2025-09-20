@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { updateMessageEntries } from '@buster/database';
+import { updateMessageEntries } from '@buster/database/queries';
 import type { ToolCallOptions } from 'ai';
 import type {
   CreateReportsContext,
@@ -31,7 +31,7 @@ export function createCreateReportsFinish(
         return {
           id: existingFile?.id || randomUUID(),
           file_name: file.name,
-          file_type: 'report',
+          file_type: 'report_file',
           version_number: existingFile?.version_number || 1,
           file: {
             text: file.content,

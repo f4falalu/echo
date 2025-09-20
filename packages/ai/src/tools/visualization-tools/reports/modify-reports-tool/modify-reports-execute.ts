@@ -1,10 +1,7 @@
-import {
-  batchUpdateReport,
-  db,
-  reportFiles,
-  updateMessageEntries,
-  updateMetricsToReports,
-} from '@buster/database';
+import { db } from '@buster/database/connection';
+import { updateMessageEntries, updateMetricsToReports } from '@buster/database/queries';
+import { batchUpdateReport } from '@buster/database/queries';
+import { reportFiles } from '@buster/database/schema';
 import type { ChatMessageResponseMessage } from '@buster/server-shared/chats';
 import { wrapTraced } from 'braintrust';
 import { and, eq, isNull } from 'drizzle-orm';
@@ -430,7 +427,7 @@ export function createModifyReportsExecute(
               responseMessages.push({
                 id: input.id,
                 type: 'file' as const,
-                file_type: 'report' as const,
+                file_type: 'report_file' as const,
                 file_name: input.name,
                 version_number: versionNumber,
                 filter_version_id: null,

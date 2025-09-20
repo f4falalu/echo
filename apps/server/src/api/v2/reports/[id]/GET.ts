@@ -1,5 +1,5 @@
 import { checkPermission } from '@buster/access-controls';
-import { getReport, getReportMetadata } from '@buster/database';
+import { getReport, getReportMetadata } from '@buster/database/queries';
 import type { GetReportResponse } from '@buster/server-shared/reports';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';

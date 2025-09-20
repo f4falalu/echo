@@ -310,7 +310,7 @@ export const useAddAndRemoveAssetsFromCollection = () => {
   const addAndRemoveAssetsToCollection = async (variables: {
     collectionId: string;
     assets: {
-      type: Exclude<ShareAssetType, 'collection'>;
+      type: ShareAssetType;
       id: string;
     }[];
   }) => {

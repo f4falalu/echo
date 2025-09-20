@@ -1,11 +1,14 @@
 import type { ModelMessage, ToolCallOptions } from 'ai';
 import { describe, expect, test, vi } from 'vitest';
+import { CREATE_DASHBOARDS_TOOL_NAME } from '../../visualization-tools/dashboards/create-dashboards-tool/create-dashboards-tool';
+import { CREATE_METRICS_TOOL_NAME } from '../../visualization-tools/metrics/create-metrics-tool/create-metrics-tool';
+import { CREATE_REPORTS_TOOL_NAME } from '../../visualization-tools/reports/create-reports-tool/create-reports-tool';
 import type { DoneToolContext, DoneToolInput, DoneToolState } from './done-tool';
 import { createDoneToolDelta } from './done-tool-delta';
 import { createDoneToolFinish } from './done-tool-finish';
 import { createDoneToolStart } from './done-tool-start';
 
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   updateMessageEntries: vi.fn().mockResolvedValue({ success: true }),
   updateMessage: vi.fn().mockResolvedValue({ success: true }),
   updateChat: vi.fn().mockResolvedValue({ success: true }),
@@ -73,7 +76,7 @@ describe('Done Tool Streaming Tests', () => {
                   {
                     id: 'file-123',
                     name: 'test.yml',
-                    file_type: 'metric',
+                    file_type: 'metric_file',
                     yml_content: 'test content',
                   },
                 ],
@@ -131,6 +134,259 @@ describe('Done Tool Streaming Tests', () => {
 
       await expect(startHandler(options)).resolves.not.toThrow();
       expect(state.toolCallId).toBe('tool-call-789');
+    });
+
+    test('should prefer report_file for mostRecent and not create report file responses', async () => {
+      vi.clearAllMocks();
+
+      const state: DoneToolState = {
+        toolCallId: undefined,
+        args: undefined,
+        finalResponse: undefined,
+      };
+
+      const startHandler = createDoneToolStart(mockContext, state);
+
+      const reportId = 'report-1';
+      const messages: ModelMessage[] = [
+        {
+          role: 'assistant',
+          content: [
+            {
+              type: 'tool-call' as const,
+              toolCallId: 'tc-report',
+              toolName: CREATE_REPORTS_TOOL_NAME,
+              input: { files: [{ content: 'report content' }] },
+            },
+          ],
+        },
+        {
+          role: 'tool',
+          content: [
+            {
+              type: 'tool-result',
+              toolCallId: 'tc-report',
+              toolName: CREATE_REPORTS_TOOL_NAME,
+              output: {
+                type: 'json',
+                value: JSON.stringify({
+                  files: [
+                    {
+                      id: reportId,
+                      name: 'Quarterly Report',
+                      version_number: 1,
+                    },
+                  ],
+                }),
+              },
+            },
+          ],
+        },
+      ];
+
+      await startHandler({ toolCallId: 'call-1', messages });
+
+      const queries = await import('@buster/database/queries');
+
+      // mostRecent should be set to the report
+      expect(queries.updateChat).toHaveBeenCalled();
+      const updateArgs = ((queries.updateChat as unknown as { mock: { calls: unknown[][] } }).mock
+        .calls?.[0]?.[1] || {}) as Record<string, unknown>;
+      expect(updateArgs).toMatchObject({
+        mostRecentFileId: reportId,
+        mostRecentFileType: 'report_file',
+        mostRecentVersionNumber: 1,
+      });
+
+      // No file response messages should be created for report-only case
+      const fileResponseCallWithFiles = (
+        queries.updateMessageEntries as unknown as { mock: { calls: [Record<string, any>][] } }
+      ).mock.calls.find(
+        (c) =>
+          Array.isArray((c[0] as { responseMessages?: unknown[] }).responseMessages) &&
+          ((c[0] as { responseMessages?: { type?: string }[] }).responseMessages || []).some(
+            (m) => m?.type === 'file'
+          )
+      );
+      expect(fileResponseCallWithFiles).toBeUndefined();
+    });
+
+    test('should create non-report file responses but set mostRecent to report when both exist', async () => {
+      vi.clearAllMocks();
+
+      const state: DoneToolState = {
+        toolCallId: undefined,
+        args: undefined,
+        finalResponse: undefined,
+      };
+
+      const startHandler = createDoneToolStart(mockContext, state);
+
+      const reportId = 'report-2';
+      const metricId = 'metric-1';
+
+      const messages: ModelMessage[] = [
+        {
+          role: 'assistant',
+          content: [
+            {
+              type: 'tool-call' as const,
+              toolCallId: 'tc-report',
+              toolName: CREATE_REPORTS_TOOL_NAME,
+              input: { files: [{ content: 'report content' }] },
+            },
+          ],
+        },
+        {
+          role: 'tool',
+          content: [
+            {
+              type: 'tool-result',
+              toolCallId: 'tc-report',
+              toolName: CREATE_REPORTS_TOOL_NAME,
+              output: {
+                type: 'json',
+                value: JSON.stringify({
+                  files: [
+                    {
+                      id: reportId,
+                      name: 'Key Metrics Report',
+                      version_number: 1,
+                    },
+                  ],
+                }),
+              },
+            },
+          ],
+        },
+        {
+          role: 'tool',
+          content: [
+            {
+              type: 'tool-result',
+              toolCallId: 'tc-metric',
+              toolName: CREATE_METRICS_TOOL_NAME,
+              output: {
+                type: 'json',
+                value: JSON.stringify({
+                  files: [
+                    {
+                      id: metricId,
+                      name: 'Revenue',
+                      version_number: 1,
+                    },
+                  ],
+                }),
+              },
+            },
+          ],
+        },
+      ];
+
+      await startHandler({ toolCallId: 'call-2', messages });
+
+      const queries = await import('@buster/database/queries');
+
+      // mostRecent should prefer the report
+      const updateArgs = ((queries.updateChat as unknown as { mock: { calls: unknown[][] } }).mock
+        .calls?.[0]?.[1] || {}) as Record<string, unknown>;
+      expect(updateArgs).toMatchObject({
+        mostRecentFileId: reportId,
+        mostRecentFileType: 'report_file',
+      });
+
+      // Response messages should include the metric file
+      const fileResponseCall = (
+        queries.updateMessageEntries as unknown as { mock: { calls: [Record<string, any>][] } }
+      ).mock.calls.find(
+        (c) =>
+          Array.isArray((c[0] as { responseMessages?: unknown[] }).responseMessages) &&
+          ((c[0] as { responseMessages?: { type?: string }[] }).responseMessages || []).some(
+            (m) => m?.type === 'file'
+          )
+      );
+
+      expect(fileResponseCall).toBeDefined();
+      const responseMessages = (
+        fileResponseCall?.[0] as { responseMessages?: Record<string, any>[] }
+      )?.responseMessages as Record<string, any>[];
+      const metricResponse = responseMessages?.find((m) => m.id === metricId);
+      expect(metricResponse).toBeDefined();
+      expect(metricResponse?.file_type).toBe('metric_file');
+    });
+
+    test('should fall back to first non-report file when no report exists', async () => {
+      vi.clearAllMocks();
+
+      const state: DoneToolState = {
+        toolCallId: undefined,
+        args: undefined,
+        finalResponse: undefined,
+      };
+
+      const startHandler = createDoneToolStart(mockContext, state);
+
+      const dashboardId = 'dash-1';
+      const metricId = 'metric-2';
+
+      const messages: ModelMessage[] = [
+        {
+          role: 'tool',
+          content: [
+            {
+              type: 'tool-result',
+              toolCallId: 'tc-dash',
+              toolName: CREATE_DASHBOARDS_TOOL_NAME,
+              output: {
+                type: 'json',
+                value: JSON.stringify({
+                  files: [
+                    {
+                      id: dashboardId,
+                      name: 'Sales Dashboard',
+                      version_number: 1,
+                    },
+                  ],
+                }),
+              },
+            },
+          ],
+        },
+        {
+          role: 'tool',
+          content: [
+            {
+              type: 'tool-result',
+              toolCallId: 'tc-metric2',
+              toolName: CREATE_METRICS_TOOL_NAME,
+              output: {
+                type: 'json',
+                value: JSON.stringify({
+                  files: [
+                    {
+                      id: metricId,
+                      name: 'Margin',
+                      version_number: 1,
+                    },
+                  ],
+                }),
+              },
+            },
+          ],
+        },
+      ];
+
+      await startHandler({ toolCallId: 'call-3', messages });
+
+      const queries = await import('@buster/database/queries');
+      const updateArgs = ((queries.updateChat as unknown as { mock: { calls: unknown[][] } }).mock
+        .calls[0]?.[1] || {}) as Record<string, unknown>;
+
+      // Should fall back to the first available (dashboard here)
+      expect(updateArgs).toMatchObject({
+        mostRecentFileId: dashboardId,
+        mostRecentFileType: 'dashboard_file',
+      });
     });
   });
 

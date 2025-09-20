@@ -1,4 +1,6 @@
-import { type User, and, db, eq, isNull, organizations } from '@buster/database';
+import { and, db, eq, isNull } from '@buster/database/connection';
+import type { User } from '@buster/database/queries';
+import { organizations } from '@buster/database/schema';
 import type {
   AddApprovedDomainRequest,
   AddApprovedDomainsResponse,

@@ -1,5 +1,5 @@
-import { getS3IntegrationByOrganizationId, getSecretByName } from '@buster/database';
-import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest';
+import { getS3IntegrationByOrganizationId, getSecretByName } from '@buster/database/queries';
+import { type Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createGCSProvider } from './providers/gcs-provider';
 import { createR2Provider } from './providers/r2-provider';
 import { createS3Provider } from './providers/s3-provider';
@@ -11,7 +11,8 @@ import {
 } from './storage-factory';
 import type { StorageConfig } from './types';
 
-vi.mock('@buster/database');
+vi.mock('@buster/database/connection');
+vi.mock('@buster/database/queries');
 vi.mock('./providers/s3-provider');
 vi.mock('./providers/r2-provider');
 vi.mock('./providers/gcs-provider');

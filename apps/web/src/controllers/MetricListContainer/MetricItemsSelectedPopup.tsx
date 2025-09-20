@@ -247,7 +247,7 @@ const ThreeDotButton: React.FC<{
 }> = React.memo(({ selectedRowKeys, onSelectChange }) => {
   const dropdownOptions = useThreeDotFavoritesOptions({
     itemIds: selectedRowKeys,
-    assetType: 'metric',
+    assetType: 'metric_file',
     onFinish: () => onSelectChange([]),
   });
 

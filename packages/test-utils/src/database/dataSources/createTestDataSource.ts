@@ -1,4 +1,5 @@
-import { dataSources, db } from '@buster/database';
+import { db } from '@buster/database/connection';
+import { dataSources } from '@buster/database/schema';
 import { v4 as uuidv4 } from 'uuid';
 import { createTestOrganization } from '../organizations/createTestOrganization';
 import { createTestUser } from '../users/createTestUser';

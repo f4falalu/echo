@@ -1,7 +1,6 @@
 export * from './chat.types';
 export * from './chat-errors.types';
 export * from './chat-message.types';
-export * from './chat-list.types';
 export * from './requests';
 export * from './responses';
 
@@ -25,5 +24,6 @@ export {
   type ChatMessageResponseMessage_File,
   type ReasoningFileType,
   type ResponseMessageFileType,
-  type ReasoingMessage_ThoughtFileType,
-} from '@buster/database/types';
+  type ReasoningMessage_ThoughtFileType,
+  type ChatListItem,
+} from '@buster/database/schema-types';

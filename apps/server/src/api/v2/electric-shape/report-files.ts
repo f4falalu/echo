@@ -1,6 +1,5 @@
 import { hasAssetPermission } from '@buster/access-controls';
-import { getReportMetadata, type reportFiles } from '@buster/database';
-import type { GetReportResponse } from '@buster/server-shared/reports';
+import { getReportMetadata } from '@buster/database/queries';
 import type { Context } from 'hono';
 import { z } from 'zod';
 import { errorResponse } from '../../../utils/response';

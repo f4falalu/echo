@@ -51,6 +51,7 @@ export const DashboardMetricItem: React.FC<DashboardMetricItemBaseProps> = React
         animate={animate}
         useHeaderLink={!readOnly}
         renderChartContent={hasBeenInViewport}
+        disableTooltip={isDragOverlay}
         headerSecondaryContent={
           !isDragOverlay &&
           !readOnly && (

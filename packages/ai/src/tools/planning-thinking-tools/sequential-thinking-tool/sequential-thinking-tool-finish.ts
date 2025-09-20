@@ -1,4 +1,4 @@
-import { updateMessageEntries } from '@buster/database';
+import { updateMessageEntries } from '@buster/database/queries';
 import type { ToolCallOptions } from 'ai';
 import { normalizeEscapedText } from '../../../utils/streaming/escape-normalizer';
 import { createSequentialThinkingReasoningMessage } from './helpers/sequential-thinking-tool-transform-helper';

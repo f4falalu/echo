@@ -12,7 +12,7 @@ import {
 } from './cascading-permissions';
 
 // Mock database queries
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   checkCollectionsContainingAsset: vi.fn(),
   checkDashboardsContainingMetric: vi.fn(),
   checkChatsContainingAsset: vi.fn(),
@@ -45,7 +45,7 @@ describe('Cascading Permissions', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
 
-    const db = await import('@buster/database');
+    const db = await import('@buster/database/queries');
     mockCheckDashboardsContainingMetric = vi.mocked(db.checkDashboardsContainingMetric);
     mockCheckChatsContainingAsset = vi.mocked(db.checkChatsContainingAsset);
     mockCheckCollectionsContainingAsset = vi.mocked(db.checkCollectionsContainingAsset);
@@ -231,7 +231,7 @@ describe('Cascading Permissions', () => {
       const result = await checkMetricChatAccess('metric123', mockUser as any);
 
       expect(result).toBe(true);
-      expect(mockCheckChatsContainingAsset).toHaveBeenCalledWith('metric123', 'metric');
+      expect(mockCheckChatsContainingAsset).toHaveBeenCalledWith('metric123', 'metric_file');
       expect(mockHasAssetPermission).toHaveBeenCalledTimes(1); // Stops on first match
       expect(mockHasAssetPermission).toHaveBeenCalledWith({
         assetId: 'chat1',
@@ -255,7 +255,7 @@ describe('Cascading Permissions', () => {
       const result = await checkMetricCollectionAccess('metric123', mockUser as any);
 
       expect(result).toBe(true);
-      expect(mockCheckCollectionsContainingAsset).toHaveBeenCalledWith('metric123', 'metric');
+      expect(mockCheckCollectionsContainingAsset).toHaveBeenCalledWith('metric123', 'metric_file');
       expect(mockHasAssetPermission).toHaveBeenCalledWith({
         assetId: 'coll1',
         assetType: 'collection',
@@ -278,7 +278,7 @@ describe('Cascading Permissions', () => {
       const result = await checkDashboardCollectionAccess('dash123', mockUser as any);
 
       expect(result).toBe(true);
-      expect(mockCheckCollectionsContainingAsset).toHaveBeenCalledWith('dash123', 'dashboard');
+      expect(mockCheckCollectionsContainingAsset).toHaveBeenCalledWith('dash123', 'dashboard_file');
       expect(mockHasAssetPermission).toHaveBeenCalledWith({
         assetId: 'coll1',
         assetType: 'collection',
@@ -299,13 +299,13 @@ describe('Cascading Permissions', () => {
     it('should use cached result if available', async () => {
       mockGetCachedCascadingPermission.mockReturnValue(true);
 
-      const result = await checkCascadingPermissions('asset123', 'metric', mockUser as any);
+      const result = await checkCascadingPermissions('asset123', 'metric_file', mockUser as any);
 
       expect(result).toBe(true);
       expect(mockGetCachedCascadingPermission).toHaveBeenCalledWith(
         'user123',
         'asset123',
-        'metric'
+        'metric_file'
       );
       // Should not call any check functions
       expect(mockCheckDashboardsContainingMetric).not.toHaveBeenCalled();
@@ -324,14 +324,14 @@ describe('Cascading Permissions', () => {
       ]);
       mockHasAssetPermission.mockResolvedValue(true);
 
-      const result = await checkCascadingPermissions('metric123', 'metric', mockUser as any);
+      const result = await checkCascadingPermissions('metric123', 'metric_file', mockUser as any);
 
       expect(result).toBe(true);
       expect(mockCheckReportsContainingMetric).toHaveBeenCalledWith('metric123');
       expect(mockSetCachedCascadingPermission).toHaveBeenCalledWith(
         'user123',
         'metric123',
-        'metric',
+        'metric_file',
         true
       );
     });
@@ -356,10 +356,10 @@ describe('Cascading Permissions', () => {
       ]);
       mockHasAssetPermission.mockResolvedValue(true);
 
-      const result = await checkCascadingPermissions('dash123', 'dashboard', mockUser as any);
+      const result = await checkCascadingPermissions('dash123', 'dashboard_file', mockUser as any);
 
       expect(result).toBe(true);
-      expect(mockCheckChatsContainingAsset).toHaveBeenCalledWith('dash123', 'dashboard');
+      expect(mockCheckChatsContainingAsset).toHaveBeenCalledWith('dash123', 'dashboard_file');
     });
 
     it('should check dashboard_file type same as dashboard', async () => {
@@ -374,8 +374,8 @@ describe('Cascading Permissions', () => {
       const result = await checkCascadingPermissions('dash123', 'dashboard_file', mockUser as any);
 
       expect(result).toBe(true);
-      expect(mockCheckChatsContainingAsset).toHaveBeenCalledWith('dash123', 'dashboard');
-      expect(mockCheckCollectionsContainingAsset).toHaveBeenCalledWith('dash123', 'dashboard');
+      expect(mockCheckChatsContainingAsset).toHaveBeenCalledWith('dash123', 'dashboard_file');
+      expect(mockCheckCollectionsContainingAsset).toHaveBeenCalledWith('dash123', 'dashboard_file');
     });
 
     it('should check chat cascading paths', async () => {
@@ -425,13 +425,13 @@ describe('Cascading Permissions', () => {
       mockCheckCollectionsContainingAsset.mockResolvedValue([]);
       mockCheckReportsContainingMetric.mockResolvedValue([]);
 
-      const result = await checkCascadingPermissions('metric123', 'metric', mockUser as any);
+      const result = await checkCascadingPermissions('metric123', 'metric_file', mockUser as any);
 
       expect(result).toBe(false);
       expect(mockSetCachedCascadingPermission).toHaveBeenCalledWith(
         'user123',
         'metric123',
-        'metric',
+        'metric_file',
         false
       );
     });
@@ -440,7 +440,7 @@ describe('Cascading Permissions', () => {
       mockCheckDashboardsContainingMetric.mockRejectedValue(new Error('DB Error'));
 
       await expect(
-        checkCascadingPermissions('metric123', 'metric', mockUser as any)
+        checkCascadingPermissions('metric123', 'metric_file', mockUser as any)
       ).rejects.toThrow(AccessControlError);
 
       expect(mockSetCachedCascadingPermission).not.toHaveBeenCalled();
@@ -453,7 +453,7 @@ describe('Cascading Permissions', () => {
       ]);
       mockHasAssetPermission.mockResolvedValue(true);
 
-      const result = await checkCascadingPermissions('metric123', 'metric', mockUser as any);
+      const result = await checkCascadingPermissions('metric123', 'metric_file', mockUser as any);
 
       expect(result).toBe(true);
       // Should not check other paths

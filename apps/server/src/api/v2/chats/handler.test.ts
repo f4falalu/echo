@@ -18,15 +18,7 @@ vi.mock('./services/chat-helpers', () => ({
   handleAssetChatWithPrompt: vi.fn(),
 }));
 
-vi.mock('@buster/database', () => ({
-  getUserOrganizationId: vi.fn(),
-  updateUserLastUsedShortcuts: vi.fn(),
-  createChat: vi.fn(),
-  getChatWithDetails: vi.fn(),
-  createMessage: vi.fn(),
-  generateAssetMessages: vi.fn(),
-  getMessagesForChat: vi.fn(),
-  updateMessage: vi.fn(),
+vi.mock('@buster/database/connection', () => ({
   db: {
     transaction: vi.fn().mockImplementation((callback: any) =>
       callback({
@@ -36,15 +28,29 @@ vi.mock('@buster/database', () => ({
       })
     ),
   },
+}));
+
+vi.mock('@buster/database/schema', () => ({
   chats: {},
   messages: {},
+}));
+
+vi.mock('@buster/database/queries', () => ({
+  getUserOrganizationId: vi.fn(),
+  updateUserLastUsedShortcuts: vi.fn(),
+  createChat: vi.fn(),
+  getChatWithDetails: vi.fn(),
+  createMessage: vi.fn(),
+  generateAssetMessages: vi.fn(),
+  getMessagesForChat: vi.fn(),
+  updateMessage: vi.fn(),
 }));
 
 import {
   getUserOrganizationId,
   updateMessage,
   updateUserLastUsedShortcuts,
-} from '@buster/database';
+} from '@buster/database/queries';
 import { tasks } from '@trigger.dev/sdk/v3';
 import { createChatHandler } from './handler';
 import { handleAssetChat, handleAssetChatWithPrompt } from './services/chat-helpers';
@@ -156,7 +162,7 @@ describe('createChatHandler', () => {
             'asset-123': {
               type: 'file' as const,
               id: 'asset-123',
-              file_type: 'metric' as const,
+              file_type: 'metric_file' as const,
               file_name: 'Test Metric',
               version_number: 1,
               filter_version_id: null,
@@ -181,7 +187,7 @@ describe('createChatHandler', () => {
     vi.mocked(handleAssetChat).mockResolvedValue(assetChat);
 
     const result = await createChatHandler(
-      { asset_id: 'asset-123', asset_type: 'metric' },
+      { asset_id: 'asset-123', asset_type: 'metric_file' },
       mockUser
     );
 
@@ -189,7 +195,7 @@ describe('createChatHandler', () => {
       'chat-123',
       'msg-123',
       'asset-123',
-      'metric',
+      'metric_file',
       mockUser,
       mockChat
     );
@@ -263,7 +269,7 @@ describe('createChatHandler', () => {
     vi.mocked(handleAssetChatWithPrompt).mockResolvedValueOnce(chatWithPrompt);
 
     const result = await createChatHandler(
-      { prompt: 'Hello', asset_id: 'asset-123', asset_type: 'metric' },
+      { prompt: 'Hello', asset_id: 'asset-123', asset_type: 'metric_file' },
       mockUser
     );
 
@@ -273,7 +279,7 @@ describe('createChatHandler', () => {
         prompt: undefined,
         message_analysis_mode: undefined,
         asset_id: 'asset-123',
-        asset_type: 'metric',
+        asset_type: 'metric_file',
       },
       mockUser,
       '550e8400-e29b-41d4-a716-446655440000'
@@ -284,7 +290,7 @@ describe('createChatHandler', () => {
       'chat-123',
       'msg-123',
       'asset-123',
-      'metric',
+      'metric_file',
       'Hello',
       'auto',
       mockUser,
@@ -316,7 +322,7 @@ describe('createChatHandler', () => {
             'asset-123': {
               type: 'file' as const,
               id: 'asset-123',
-              file_type: 'metric' as const,
+              file_type: 'metric_file' as const,
               file_name: 'Test Metric',
               version_number: 1,
             },
@@ -357,7 +363,7 @@ describe('createChatHandler', () => {
     vi.mocked(handleAssetChatWithPrompt).mockResolvedValueOnce(chatWithMessages);
 
     const result = await createChatHandler(
-      { prompt: 'What is this metric?', asset_id: 'asset-123', asset_type: 'metric' },
+      { prompt: 'What is this metric?', asset_id: 'asset-123', asset_type: 'metric_file' },
       mockUser
     );
 

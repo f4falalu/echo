@@ -1,4 +1,8 @@
-import { type User, getActiveGithubIntegration, getUserOrganizationId } from '@buster/database';
+import {
+  type User,
+  getActiveGithubIntegration,
+  getUserOrganizationId,
+} from '@buster/database/queries';
 import { HTTPException } from 'hono/http-exception';
 
 interface GetIntegrationResponse {

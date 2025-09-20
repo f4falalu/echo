@@ -126,10 +126,7 @@ class UserService {  // Never do this
 - Follow patterns in `apps/server` for new API development
 
 ## Agent Workflows
-- Use `monorepo-task-planner` agent for new tasks or requirement changes
-- Use `qa-test-engineer` agent for comprehensive testing before PRs
-- Use `docs-sync-maintainer` agent after implementation to update documentation
-- Use `pr-code-reviewer` agent before merging to production
+- Use `planner` agent for spec, plan, ticket, research development workflows. 
 
 ## Important Reminders
 - Do only what has been asked; nothing more, nothing less

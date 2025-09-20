@@ -1,8 +1,9 @@
-import type { Chat, Message } from '@buster/database';
+import type { Chat, Message } from '@buster/database/queries';
 import { ChatError, ChatErrorCode } from '@buster/server-shared/chats';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { initializeChat } from './chat-service';
 
+import { canUserAccessChatCached } from '@buster/access-controls';
 // Import mocked functions
 import {
   createChat,
@@ -10,7 +11,7 @@ import {
   generateAssetMessages,
   getChatWithDetails,
   getMessagesForChat,
-} from '@buster/database';
+} from '@buster/database/queries';
 
 const mockUser = {
   id: '550e8400-e29b-41d4-a716-446655440001',
@@ -63,7 +64,7 @@ const mockMessage: Message = {
 };
 
 // Mock database functions
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/connection', () => ({
   db: {
     transaction: vi.fn().mockImplementation(async (callback) => {
       return callback({
@@ -77,8 +78,14 @@ vi.mock('@buster/database', () => ({
     where: vi.fn().mockReturnThis(),
     limit: vi.fn().mockResolvedValue([{ chatId: 'chat-123' }]),
   },
+}));
+
+vi.mock('@buster/database/schema', () => ({
   chats: {},
   messages: {},
+}));
+
+vi.mock('@buster/database/queries', () => ({
   createChat: vi.fn(),
   getChatWithDetails: vi.fn(),
   createMessage: vi.fn(),
@@ -91,8 +98,6 @@ vi.mock('@buster/database', () => ({
 vi.mock('@buster/access-controls', () => ({
   canUserAccessChatCached: vi.fn(),
 }));
-
-import { canUserAccessChatCached } from '@buster/access-controls';
 
 describe('chat-service', () => {
   beforeEach(() => {

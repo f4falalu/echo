@@ -1,4 +1,4 @@
-import { dbPing } from '@buster/database';
+import { dbPing } from '@buster/database/connection';
 import type { HealthCheckResponse } from '@buster/server-shared/healthcheck';
 import { Hono } from 'hono';
 import type { Context } from 'hono';

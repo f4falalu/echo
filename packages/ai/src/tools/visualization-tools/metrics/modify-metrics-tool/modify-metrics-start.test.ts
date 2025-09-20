@@ -1,9 +1,9 @@
-import { updateMessageEntries } from '@buster/database';
+import { updateMessageEntries } from '@buster/database/queries';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createModifyMetricsStart } from './modify-metrics-start';
 import type { ModifyMetricsInput, ModifyMetricsState } from './modify-metrics-tool';
 
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   updateMessageEntries: vi.fn(),
 }));
 
@@ -54,7 +54,7 @@ describe('createModifyMetricsStart', () => {
     state.files = [
       {
         id: 'metric-1',
-        file_type: 'metric',
+        file_type: 'metric_file',
         version_number: 1,
         status: 'loading',
         file: { text: 'content' },
@@ -89,7 +89,7 @@ describe('createModifyMetricsStart', () => {
     state.files = [
       {
         id: 'metric-1',
-        file_type: 'metric',
+        file_type: 'metric_file',
         version_number: 1,
         status: 'loading',
         file: { text: 'content' },
@@ -148,7 +148,7 @@ describe('createModifyMetricsStart', () => {
       files: [
         {
           id: 'metric-1',
-          file_type: 'metric',
+          file_type: 'metric_file',
           version_number: 1,
           status: 'loading',
           file: { text: 'content' },

@@ -1,10 +1,10 @@
-import type { User } from '@buster/database';
+import { db } from '@buster/database/connection';
+import type { User } from '@buster/database/queries';
 import {
   addUserToOrganization,
   createUser,
-  db,
   findUserByEmailInOrganization,
-} from '@buster/database';
+} from '@buster/database/queries';
 import { PublicChatError, PublicChatErrorCode } from '@buster/server-shared';
 
 /**

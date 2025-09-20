@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { AssetTypeSchema } from '../assets/asset-types.types';
-import { OrganizationStatusSchema } from '../organization';
-import { OrganizationRoleSchema } from '../organization/roles.types';
+import { AssetTypeSchema } from '../assets';
+import { UserOrganizationStatusSchema } from '../organization';
+import { UserOrganizationRoleSchema } from '../organization/roles.types';
 import { createOptionalQueryArrayPreprocessor } from '../type-utilities';
 
 export const UserRequestSchema = z.object({
@@ -13,7 +13,7 @@ export type UserRequest = z.infer<typeof UserRequestSchema>;
 export const UserUpdateRequestSchema = z.object({
   user_id: z.string(),
   name: z.string().optional(),
-  role: OrganizationRoleSchema.optional(),
+  role: UserOrganizationRoleSchema.optional(),
 });
 
 export type UserUpdateRequest = z.infer<typeof UserUpdateRequestSchema>;
@@ -56,9 +56,9 @@ export const GetUserToOrganizationRequestSchema = z.object({
   user_name: z.string().optional(),
   email: z.string().optional(),
   //We need this because the frontend sends the roles as a comma-separated string in the query params
-  role: createOptionalQueryArrayPreprocessor(OrganizationRoleSchema).optional(),
+  role: createOptionalQueryArrayPreprocessor(UserOrganizationRoleSchema).optional(),
   //We need this because the frontend sends the status as a comma-separated string in the query params
-  status: createOptionalQueryArrayPreprocessor(OrganizationStatusSchema)
+  status: createOptionalQueryArrayPreprocessor(UserOrganizationStatusSchema)
     .default(['active'])
     .optional(),
 });

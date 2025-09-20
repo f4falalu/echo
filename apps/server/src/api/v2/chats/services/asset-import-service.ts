@@ -1,20 +1,18 @@
-import type { User } from '@buster/database';
+import { db } from '@buster/database/connection';
 import {
   type AssetDetailsResult,
   type Message,
-  chats,
+  type User,
   createMessage,
   createMessageFileAssociation,
-  db,
-  getAssetDetailsById,
-} from '@buster/database';
+} from '@buster/database/queries';
+import { chats } from '@buster/database/schema';
 import type {
   ChatAssetType,
   ChatMessage,
   ChatMessageResponseMessage,
 } from '@buster/server-shared/chats';
 import { eq } from 'drizzle-orm';
-import { convertChatAssetTypeToDatabaseAssetType } from './server-asset-conversion';
 
 /**
  * Creates an import message for an asset
@@ -29,9 +27,7 @@ export async function createAssetImportMessage(
   user: User
 ): Promise<Message> {
   // Create the import message content
-  const importContent = `Imported ${assetType === 'metric' ? 'metric' : 'dashboard'} "${
-    assetDetails.name
-  }"`;
+  const importContent = `Imported ${assetType} "${assetDetails.name}"`;
 
   // Create the message in the database
   const message = await createMessage({
@@ -42,14 +38,14 @@ export async function createAssetImportMessage(
   });
 
   // Update the message to include response and mark as completed
-  const { updateMessage } = await import('@buster/database');
+  const { updateMessage } = await import('@buster/database/queries');
   await updateMessage(messageId, {
     isCompleted: true,
     responseMessages: [
       {
         id: assetId,
         type: 'file',
-        file_type: assetType === 'metric' ? 'metric' : 'dashboard',
+        file_type: assetType,
         file_name: assetDetails.name,
         version_number: assetDetails.versionNumber,
       },
@@ -57,22 +53,19 @@ export async function createAssetImportMessage(
   });
 
   // Create the file association
-  const dbAssetType = convertChatAssetTypeToDatabaseAssetType(assetType);
   await createMessageFileAssociation({
     messageId,
     fileId: assetId,
-    fileType: dbAssetType,
+    fileType: assetType,
     version: assetDetails.versionNumber,
   });
 
-  // Update the chat with most recent file information and title (matching Rust behavior)
-  const fileType = assetType === 'metric' ? 'metric' : 'dashboard';
   await db
     .update(chats)
     .set({
       title: assetDetails.name, // Set chat title to asset name
       mostRecentFileId: assetId,
-      mostRecentFileType: fileType,
+      mostRecentFileType: assetType,
       mostRecentVersionNumber: assetDetails.versionNumber,
       updatedAt: new Date().toISOString(),
     })
@@ -86,7 +79,7 @@ export async function createAssetImportMessage(
       {
         id: assetId,
         type: 'file',
-        file_type: assetType === 'metric' ? 'metric' : 'dashboard',
+        file_type: assetType,
         file_name: assetDetails.name,
         version_number: assetDetails.versionNumber,
       },

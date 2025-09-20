@@ -4,7 +4,7 @@ import {
   extractSqlFromMetricContent,
   getDataSourceCredentials,
   getMetricWithDataSource,
-} from '@buster/database';
+} from '@buster/database/queries';
 import type { MetricDataResponse } from '@buster/server-shared/metrics';
 import { logger, schemaTask } from '@trigger.dev/sdk/v3';
 import { CacheReportMetricsInputSchema, type CacheReportMetricsOutput } from './interfaces';

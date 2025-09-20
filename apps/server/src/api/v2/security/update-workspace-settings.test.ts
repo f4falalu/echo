@@ -1,5 +1,5 @@
-import { db } from '@buster/database';
-import type { OrganizationRole } from '@buster/server-shared/organization';
+import { db } from '@buster/database/connection';
+import type { UserOrganizationRole } from '@buster/database/schema-types';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as securityUtils from './security-utils';
 import { createTestOrganization, createTestUser } from './test-fixtures';
@@ -14,12 +14,19 @@ vi.mock('./workspace-settings-service', () => {
   WorkspaceSettingsService.prototype.formatWorkspaceSettingsResponse = vi.fn();
   return { WorkspaceSettingsService };
 });
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/connection', () => ({
   db: {
     update: vi.fn(),
     set: vi.fn(),
     where: vi.fn(),
   },
+  organizations: {},
+  eq: vi.fn(),
+  and: vi.fn(),
+  isNull: vi.fn(),
+}));
+
+vi.mock('@buster/database/schema', () => ({
   organizations: {},
   eq: vi.fn(),
   and: vi.fn(),
@@ -72,17 +79,17 @@ describe('updateWorkspaceSettingsHandler', () => {
   it('should update all settings fields', async () => {
     const request = {
       restrict_new_user_invitations: true,
-      default_role: 'data_admin' as OrganizationRole,
+      default_role: 'data_admin' as UserOrganizationRole,
     };
 
     vi.mocked(WorkspaceSettingsService.prototype.buildUpdateData).mockReturnValue({
       updatedAt: '2024-01-01T00:00:00Z',
       restrictNewUserInvitations: true,
-      defaultRole: 'data_admin' as OrganizationRole,
+      defaultRole: 'data_admin' as UserOrganizationRole,
     });
     vi.mocked(WorkspaceSettingsService.prototype.formatWorkspaceSettingsResponse).mockReturnValue({
       restrict_new_user_invitations: true,
-      default_role: 'data_admin' as OrganizationRole,
+      default_role: 'data_admin' as UserOrganizationRole,
       default_datasets: mockDefaultDatasets,
     });
 
@@ -114,7 +121,7 @@ describe('updateWorkspaceSettingsHandler', () => {
   });
 
   it('should update database with new settings', async () => {
-    const request = { default_role: 'data_admin' as OrganizationRole };
+    const request = { default_role: 'data_admin' as UserOrganizationRole };
     const mockDbChain = {
       update: vi.fn().mockReturnThis(),
       set: vi.fn().mockReturnThis(),
@@ -124,11 +131,11 @@ describe('updateWorkspaceSettingsHandler', () => {
 
     vi.mocked(WorkspaceSettingsService.prototype.buildUpdateData).mockReturnValue({
       updatedAt: '2024-01-01T00:00:00Z',
-      defaultRole: 'data_admin' as OrganizationRole,
+      defaultRole: 'data_admin' as UserOrganizationRole,
     });
     vi.mocked(WorkspaceSettingsService.prototype.formatWorkspaceSettingsResponse).mockReturnValue({
       restrict_new_user_invitations: false,
-      default_role: 'data_admin' as OrganizationRole,
+      default_role: 'data_admin' as UserOrganizationRole,
       default_datasets: mockDefaultDatasets,
     });
 
@@ -137,7 +144,7 @@ describe('updateWorkspaceSettingsHandler', () => {
     expect(db.update).toHaveBeenCalled();
     expect(mockDbChain.set).toHaveBeenCalledWith({
       updatedAt: '2024-01-01T00:00:00Z',
-      defaultRole: 'data_admin' as OrganizationRole,
+      defaultRole: 'data_admin' satisfies UserOrganizationRole,
     });
   });
 

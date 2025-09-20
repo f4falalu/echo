@@ -1,21 +1,24 @@
 import { generateSuggestedMessages } from '@buster/ai';
 import {
-  DEFAULT_USER_SUGGESTED_PROMPTS,
   type User,
-  type UserSuggestedPromptsType,
   getPermissionedDatasets,
   getUserRecentMessages,
   getUserSuggestedPrompts,
   updateUserSuggestedPrompts,
-} from '@buster/database';
+} from '@buster/database/queries';
+import {
+  DEFAULT_USER_SUGGESTED_PROMPTS,
+  type UserSuggestedPromptsType,
+} from '@buster/database/schema-types';
 import { Hono } from 'hono';
-import { HTTPException } from 'hono/http-exception';
 import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 import app from './GET';
 
 // Mock all external dependencies
 vi.mock('@buster/ai');
-vi.mock('@buster/database');
+vi.mock('@buster/database/connection');
+vi.mock('@buster/database/queries');
+vi.mock('@buster/database/schema');
 
 describe('GET /api/v2/users/:id/suggested-prompts', () => {
   const mockUser: User = {

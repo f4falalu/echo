@@ -1,6 +1,6 @@
 import type { PermissionedDataset } from '@buster/access-controls';
 import type { PostProcessingWorkflowInput } from '@buster/ai/workflows/message-post-processing-workflow/message-post-processing-workflow';
-import type { UserPersonalizationConfigType } from '@buster/database';
+import type { UserPersonalizationConfigType } from '@buster/database/schema-types';
 import type { CoreMessage } from 'ai';
 import type { PostProcessingResult } from '../types';
 

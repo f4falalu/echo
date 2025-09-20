@@ -1,10 +1,10 @@
+import { db } from '@buster/database/connection';
 import {
-  db,
   organizations,
   slackIntegrations,
   users,
   usersToOrganizations,
-} from '@buster/database';
+} from '@buster/database/schema';
 import { and, eq, isNull } from 'drizzle-orm';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as slackHelpers from './slack-helpers';

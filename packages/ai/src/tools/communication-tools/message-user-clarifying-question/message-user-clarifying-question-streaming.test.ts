@@ -9,7 +9,7 @@ import { createMessageUserClarifyingQuestionFinish } from './message-user-clarif
 import { createMessageUserClarifyingQuestionStart } from './message-user-clarifying-question-start';
 
 // Mock the database update function
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   updateMessageEntries: vi.fn().mockResolvedValue(undefined),
   updateMessage: vi.fn().mockResolvedValue(undefined),
 }));

@@ -39,7 +39,7 @@ export const DashboardContainerHeaderButtons: React.FC<{
         dashboardVersionNumber={dashboardVersionNumber}
       />
       <HideButtonContainer show={isFileMode && isEditor}>
-        <CreateChatButton assetId={dashboardId} assetType="dashboard" />
+        <CreateChatButton assetId={dashboardId} assetType="dashboard_file" />
       </HideButtonContainer>
       {isChatMode && <ClosePageButton />}
     </FileButtonContainer>

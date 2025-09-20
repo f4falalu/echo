@@ -12,6 +12,7 @@ import { chatQueryKeys } from '@/api/query_keys/chat';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
 import { useBlackboxMessage } from '@/context/BlackBox/useBlackboxMessage';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { useMount } from '@/hooks/useMount';
 import { updateChatToIChat } from '@/lib/chat';
 
 export const useChatStreaming = ({
@@ -35,7 +36,7 @@ export const useChatStreaming = ({
     const lastMessage = iChatMessages[lastMessageId];
     if (lastMessage?.response_message_ids) {
       for (const responseMessage of Object.values(lastMessage.response_messages)) {
-        if (responseMessage.type === 'file' && responseMessage.file_type === 'metric') {
+        if (responseMessage.type === 'file' && responseMessage.file_type === 'metric_file') {
           prefetchGetMetricDataClient(
             { id: responseMessage.id, version_number: responseMessage.version_number },
             queryClient
@@ -68,7 +69,10 @@ export const useChatStreaming = ({
     ) => {
       const lastResponseMessageId = d.response_message_ids[d.response_message_ids.length - 1];
       const lastResponseMessage = d.response_messages[lastResponseMessageId];
-      if (lastResponseMessage?.type === 'file' && lastResponseMessage?.file_type === 'metric') {
+      if (
+        lastResponseMessage?.type === 'file' &&
+        lastResponseMessage?.file_type === 'metric_file'
+      ) {
         prefetchGetMetricDataClient(
           { id: lastResponseMessage.id, version_number: lastResponseMessage.version_number },
           queryClient

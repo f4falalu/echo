@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { deleteSecret, getSecretByName } from '@buster/database';
+import { getSecretByName } from '@buster/database/queries';
+import { deleteSecret } from '@buster/database/queries';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
   deleteInstallationToken,
@@ -213,4 +214,4 @@ describe('token-storage integration tests', () => {
 });
 
 // Import updateSecret for the test that manually updates metadata
-import { updateSecret } from '@buster/database';
+import { updateSecret } from '@buster/database/queries';

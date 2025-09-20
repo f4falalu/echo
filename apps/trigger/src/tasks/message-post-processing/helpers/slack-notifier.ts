@@ -1,14 +1,11 @@
+import { and, eq, getDb, isNull } from '@buster/database/connection';
+import { getSecretByName } from '@buster/database/queries';
 import {
-  and,
-  eq,
-  getDb,
-  getSecretByName,
-  isNull,
   messages,
   messagesToSlackMessages,
   slackIntegrations,
   slackMessageTracking,
-} from '@buster/database';
+} from '@buster/database/schema';
 import { SlackMessageSource, convertMarkdownToSlack } from '@buster/slack';
 import { logger } from '@trigger.dev/sdk/v3';
 

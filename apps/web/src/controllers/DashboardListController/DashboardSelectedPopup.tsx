@@ -115,7 +115,7 @@ const ThreeDotButton: React.FC<{
 }> = ({ selectedRowKeys, onSelectChange }) => {
   const dropdownOptions = useThreeDotFavoritesOptions({
     itemIds: selectedRowKeys,
-    assetType: 'dashboard',
+    assetType: 'dashboard_file',
     onFinish: () => onSelectChange([]),
   });
 

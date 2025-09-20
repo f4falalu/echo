@@ -1,7 +1,4 @@
 import type { User } from '@supabase/supabase-js';
-import { createServerFn } from '@tanstack/react-start';
-import { getSupabaseServerClient } from './server';
-import { signInWithAnonymousUser } from './signIn';
 
 // Serializable subset of Supabase User compatible with server function constraints
 export type AuthUserDTO = {

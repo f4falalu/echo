@@ -96,7 +96,7 @@ pub async fn fetch_asset_details(asset_id: Uuid, asset_type: AssetType) -> Resul
             Ok(AssetDetails {
                 id: metric.id,
                 name: metric.name,
-                file_type: "metric".to_string(),
+                file_type: "metric_file".to_string(),
                 version_number: metric.version_history.get_version_number(),
             })
         }
@@ -132,7 +132,7 @@ pub struct AssetDetails {
     pub id: Uuid,
     /// The name or title of the asset
     pub name: String,
-    /// The file type of the asset (e.g., "metric", "dashboard")
+    /// The file type of the asset (e.g., "metric_file", "dashboard_file")
     pub file_type: String,
     /// The version number of the asset
     pub version_number: i32,

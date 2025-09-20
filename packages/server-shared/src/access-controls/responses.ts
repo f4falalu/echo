@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { AssetTypeSchema } from '../assets';
 
 // API Response schemas for access control operations
 
@@ -16,7 +17,7 @@ export const AssetPermissionResponseSchema = z.object({
   identityId: z.string().uuid(),
   identityType: z.enum(['user', 'team', 'organization']),
   assetId: z.string().uuid(),
-  assetType: z.enum(['metric_file', 'dashboard_file', 'chat', 'collection']),
+  assetType: AssetTypeSchema,
   role: z.enum(['owner', 'full_access', 'can_edit', 'can_filter', 'can_view']),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),

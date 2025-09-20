@@ -1,4 +1,4 @@
-import { updateMessageEntries } from '@buster/database';
+import { updateMessageEntries } from '@buster/database/queries';
 import type { ToolCallOptions } from 'ai';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createModifyDashboardsFinish } from './modify-dashboards-finish';
@@ -8,7 +8,7 @@ import type {
   ModifyDashboardsState,
 } from './modify-dashboards-tool';
 
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   updateMessageEntries: vi.fn(),
 }));
 
@@ -53,14 +53,14 @@ describe('modify-dashboards-finish', () => {
     expect(state.files).toHaveLength(2);
     expect(state.files?.[0]).toMatchObject({
       id: 'dash-1',
-      file_type: 'dashboard',
+      file_type: 'dashboard_file',
       version_number: 1,
       file: { text: 'content1' },
       status: 'loading',
     });
     expect(state.files?.[1]).toMatchObject({
       id: 'dash-2',
-      file_type: 'dashboard',
+      file_type: 'dashboard_file',
       version_number: 1,
       file: { text: 'content2' },
       status: 'loading',
@@ -74,14 +74,14 @@ describe('modify-dashboards-finish', () => {
         {
           id: 'dash-1',
           file_name: 'Sales Dashboard',
-          file_type: 'dashboard',
+          file_type: 'dashboard_file',
           version_number: 3,
           status: 'loading',
         },
         {
           id: 'dash-2',
           file_name: 'Marketing Dashboard',
-          file_type: 'dashboard',
+          file_type: 'dashboard_file',
           version_number: 2,
           status: 'loading',
         },
@@ -94,7 +94,7 @@ describe('modify-dashboards-finish', () => {
     expect(state.files?.[0]).toMatchObject({
       id: 'dash-1',
       file_name: 'Sales Dashboard', // Preserved
-      file_type: 'dashboard',
+      file_type: 'dashboard_file',
       version_number: 3, // Preserved
       file: { text: 'content1' },
       status: 'loading',
@@ -102,7 +102,7 @@ describe('modify-dashboards-finish', () => {
     expect(state.files?.[1]).toMatchObject({
       id: 'dash-2',
       file_name: 'Marketing Dashboard', // Preserved
-      file_type: 'dashboard',
+      file_type: 'dashboard_file',
       version_number: 2, // Preserved
       file: { text: 'content2' },
       status: 'loading',
@@ -235,7 +235,7 @@ describe('modify-dashboards-finish', () => {
       files: [
         {
           id: 'existing-1',
-          file_type: 'dashboard',
+          file_type: 'dashboard_file',
           version_number: 1,
           status: 'loading',
         },

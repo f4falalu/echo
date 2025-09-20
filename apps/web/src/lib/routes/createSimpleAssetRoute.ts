@@ -19,14 +19,14 @@ export const createSimpleAssetRoute = <
     });
   }
 
-  if (asset.asset_type === 'metric') {
+  if (asset.asset_type === 'metric_file') {
     return defineLink({
       to: '/app/metrics/$metricId',
       params: { metricId: asset.id },
     });
   }
 
-  if (asset.asset_type === 'dashboard') {
+  if (asset.asset_type === 'dashboard_file') {
     return defineLink({
       to: '/app/dashboards/$dashboardId',
       params: { dashboardId: asset.id },
@@ -40,7 +40,7 @@ export const createSimpleAssetRoute = <
     });
   }
 
-  if (asset.asset_type === 'report') {
+  if (asset.asset_type === 'report_file') {
     return defineLink({
       to: '/app/reports/$reportId',
       params: { reportId: asset.id },
@@ -74,14 +74,14 @@ export const createChatAssetRoute = (asset: {
     });
   }
 
-  if (asset.asset_type === 'metric') {
+  if (asset.asset_type === 'metric_file') {
     return defineLink({
       to: '/app/chats/$chatId/metrics/$metricId',
       params: { metricId: asset.id || '', chatId: asset.chatId },
     });
   }
 
-  if (asset.asset_type === 'dashboard') {
+  if (asset.asset_type === 'dashboard_file') {
     return defineLink({
       to: '/app/chats/$chatId/dashboards/$dashboardId',
       params: { dashboardId: asset.id || '', chatId: asset.chatId },
@@ -95,7 +95,7 @@ export const createChatAssetRoute = (asset: {
     });
   }
 
-  if (asset.asset_type === 'report') {
+  if (asset.asset_type === 'report_file') {
     return defineLink({
       to: '/app/chats/$chatId/reports/$reportId',
       params: { reportId: asset.id || '', chatId: asset.chatId },

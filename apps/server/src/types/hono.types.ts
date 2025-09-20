@@ -1,7 +1,7 @@
-import type { User as BusterUser } from '@buster/database';
+import type { User as BusterUser } from '@buster/database/queries';
 import type { ApiKeyContext } from '@buster/server-shared';
 import type { InstallationCallbackRequest } from '@buster/server-shared/github';
-import type { OrganizationRole } from '@buster/server-shared/organization';
+import type { UserOrganizationRole } from '@buster/server-shared/organization';
 import type { User } from '@supabase/supabase-js';
 
 declare module 'hono' {
@@ -21,7 +21,7 @@ declare module 'hono' {
      */
     readonly userOrganizationInfo: {
       readonly organizationId: string;
-      readonly role: OrganizationRole;
+      readonly role: UserOrganizationRole;
     };
     /**
      * GitHub webhook payload. Set by the githubWebhookValidator middleware.

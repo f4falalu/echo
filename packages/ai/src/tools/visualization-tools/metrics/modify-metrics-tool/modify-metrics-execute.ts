@@ -1,7 +1,9 @@
 import { createPermissionErrorMessage, validateSqlPermissions } from '@buster/access-controls';
 import type { Credentials } from '@buster/data-source';
 import { createMetadataFromResults, executeMetricQuery } from '@buster/data-source';
-import { db, metricFiles, updateMessageEntries } from '@buster/database';
+import { db } from '@buster/database/connection';
+import { updateMessageEntries } from '@buster/database/queries';
+import { metricFiles } from '@buster/database/schema';
 import {
   type ChartConfigProps,
   type DataMetadata,
@@ -218,7 +220,7 @@ async function processMetricFile(
       const metricFile: FileWithId = {
         id: existingFile.id,
         name: finalMetricYml.name,
-        file_type: 'metric',
+        file_type: 'metric_file',
         result_message: 'SQL unchanged, validation skipped',
         results: [],
         created_at: existingFile.createdAt,
@@ -254,7 +256,7 @@ async function processMetricFile(
     const metricFile: FileWithId = {
       id: existingFile.id,
       name: finalMetricYml.name,
-      file_type: 'metric',
+      file_type: 'metric_file',
       result_message: sqlValidationResult.message || '',
       results: sqlValidationResult.results || [],
       created_at: existingFile.createdAt,

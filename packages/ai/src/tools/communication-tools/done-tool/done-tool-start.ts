@@ -1,9 +1,10 @@
-import { updateChat, updateMessage, updateMessageEntries } from '@buster/database';
+import { updateChat, updateMessage, updateMessageEntries } from '@buster/database/queries';
 import type { ToolCallOptions } from 'ai';
 import type { UpdateMessageEntriesParams } from '../../../../../database/src/queries/messages/update-message-entries';
 import { createRawToolResultEntry } from '../../shared/create-raw-llm-tool-result-entry';
 import { DONE_TOOL_NAME, type DoneToolContext, type DoneToolState } from './done-tool';
 import {
+  type ExtractedFile,
   createFileResponseMessages,
   extractAllFilesForChatUpdate,
   extractFilesFromToolCalls,
@@ -68,18 +69,24 @@ export function createDoneToolStart(context: DoneToolContext, doneToolState: Don
         }
       }
 
-      // Update the chat with the most recent file (using same files shown in response messages)
-      if (context.chatId && extractedFiles.length > 0) {
-        // Sort files by version number (descending) to get the most recent
-        const sortedFiles = extractedFiles.sort((a, b) => {
-          const versionA = a.versionNumber || 1;
-          const versionB = b.versionNumber || 1;
-          return versionB - versionA;
-        });
+      // Update the chat with the most recent file
+      // Priority: Reports (already in responses) > First extracted file > Any file
+      if (context.chatId && allFilesForChatUpdate.length > 0) {
+        let mostRecentFile: ExtractedFile | undefined;
 
-        // Prefer reports over other file types for the chat's most recent file
-        const reportFile = sortedFiles.find((f) => f.fileType === 'report');
-        const mostRecentFile = reportFile || sortedFiles[0];
+        // Priority 1: Report files (they're already in response messages)
+        const reportFile = allFilesForChatUpdate.find((f) => f.fileType === 'report_file');
+        if (reportFile) {
+          mostRecentFile = reportFile;
+        }
+        // Priority 2: First file from extractedFiles (metrics/dashboards being added as responses)
+        else if (extractedFiles.length > 0) {
+          mostRecentFile = extractedFiles[0];
+        }
+        // Priority 3: Fallback to any file from allFilesForChatUpdate
+        else {
+          mostRecentFile = allFilesForChatUpdate[0];
+        }
 
         if (mostRecentFile) {
           console.info('[done-tool-start] Updating chat with most recent file', {
@@ -88,13 +95,14 @@ export function createDoneToolStart(context: DoneToolContext, doneToolState: Don
             fileType: mostRecentFile.fileType,
             fileName: mostRecentFile.fileName,
             versionNumber: mostRecentFile.versionNumber,
-            isReport: mostRecentFile.fileType === 'report',
+            wasFromExtracted: extractedFiles.some((f) => f.id === mostRecentFile.id),
+            wasReport: mostRecentFile.fileType === 'report_file',
           });
 
           try {
             await updateChat(context.chatId, {
               mostRecentFileId: mostRecentFile.id,
-              mostRecentFileType: mostRecentFile.fileType as 'metric' | 'dashboard' | 'report',
+              mostRecentFileType: mostRecentFile.fileType,
               mostRecentVersionNumber: mostRecentFile.versionNumber || 1,
             });
           } catch (error) {

@@ -26,7 +26,7 @@ describe('create-dashboards-tool-transform-helper', () => {
         files: [
           {
             id: 'file-1',
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             version_number: 1,
             status: 'loading',
             // No file_name, so should be skipped
@@ -34,7 +34,7 @@ describe('create-dashboards-tool-transform-helper', () => {
           {
             id: 'file-2',
             file_name: 'Dashboard 2',
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             version_number: 1,
             file: { text: 'content2' },
             status: 'loading',
@@ -65,7 +65,7 @@ describe('create-dashboards-tool-transform-helper', () => {
           {
             id: 'file-1',
             file_name: 'Dashboard 1',
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             version_number: 1,
             file: { text: 'content1' },
             status: 'completed',
@@ -73,7 +73,7 @@ describe('create-dashboards-tool-transform-helper', () => {
           {
             id: 'file-2',
             file_name: 'Dashboard 2',
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             version_number: 1,
             file: { text: 'content2' },
             status: 'completed',
@@ -95,7 +95,7 @@ describe('create-dashboards-tool-transform-helper', () => {
       if (result?.type === 'files') {
         expect(result.files['file-1']).toMatchObject({
           id: 'file-1',
-          file_type: 'dashboard',
+          file_type: 'dashboard_file',
           file_name: 'Dashboard 1',
           version_number: 1,
           status: 'completed',
@@ -110,7 +110,7 @@ describe('create-dashboards-tool-transform-helper', () => {
           {
             id: 'file-1',
             file_name: 'Dashboard 1',
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             version_number: 1,
             file: { text: 'content1' },
             status: 'loading',
@@ -133,7 +133,7 @@ describe('create-dashboards-tool-transform-helper', () => {
       state.files = [
         {
           id: 'file-1',
-          file_type: 'dashboard',
+          file_type: 'dashboard_file',
           version_number: 1,
           status: 'loading',
           // No file_name yet
@@ -148,7 +148,7 @@ describe('create-dashboards-tool-transform-helper', () => {
         {
           id: 'file-1',
           file_name: 'Dashboard 1',
-          file_type: 'dashboard',
+          file_type: 'dashboard_file',
           version_number: 1,
           status: 'loading',
           // Now has file_name but no file content yet
@@ -166,7 +166,7 @@ describe('create-dashboards-tool-transform-helper', () => {
         {
           id: 'file-1',
           file_name: 'Dashboard 1',
-          file_type: 'dashboard',
+          file_type: 'dashboard_file',
           version_number: 1,
           file: { text: 'complete content' },
           status: 'loading',
@@ -185,7 +185,7 @@ describe('create-dashboards-tool-transform-helper', () => {
           {
             id: 'file-1',
             file_name: 'Dashboard 1',
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             version_number: 1,
             file: { text: 'content1' },
             status: 'loading',
@@ -193,14 +193,14 @@ describe('create-dashboards-tool-transform-helper', () => {
           {
             id: 'file-2',
             // This one doesn't have file_name yet, should be skipped
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             version_number: 1,
             status: 'loading',
           },
           {
             id: 'file-3',
             file_name: 'Dashboard 3',
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             version_number: 1,
             // This one has name but no content yet
             status: 'loading',
@@ -224,14 +224,14 @@ describe('create-dashboards-tool-transform-helper', () => {
           {
             id: 'file-1',
             // No file_name
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             version_number: 1,
             status: 'loading',
           },
           {
             id: 'file-2',
             // No file_name either
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             version_number: 1,
             status: 'loading',
           },
@@ -266,7 +266,7 @@ describe('create-dashboards-tool-transform-helper', () => {
           {
             id: 'file-1',
             file_name: 'Dashboard 1',
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             version_number: 1,
             file: { text: 'content1' },
             status: 'loading',
@@ -274,7 +274,7 @@ describe('create-dashboards-tool-transform-helper', () => {
           {
             id: 'file-2',
             file_name: 'Dashboard 2',
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             version_number: 1,
             file: { text: 'content2' },
             status: 'loading',
@@ -308,7 +308,7 @@ describe('create-dashboards-tool-transform-helper', () => {
           {
             id: 'file-1',
             file_name: 'Dashboard 1',
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             version_number: 1,
             file: { text: 'content1' },
             status: 'loading',
@@ -316,7 +316,7 @@ describe('create-dashboards-tool-transform-helper', () => {
           {
             id: 'file-2',
             // Missing file_name
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             version_number: 1,
             file: { text: 'content2' },
             status: 'loading',
@@ -324,7 +324,7 @@ describe('create-dashboards-tool-transform-helper', () => {
           {
             id: 'file-3',
             file_name: 'Dashboard 3',
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             version_number: 1,
             // Missing file content
             status: 'loading',
@@ -356,7 +356,7 @@ describe('create-dashboards-tool-transform-helper', () => {
       state.files = [
         {
           id: 'file-1',
-          file_type: 'dashboard',
+          file_type: 'dashboard_file',
           version_number: 1,
           status: 'loading',
         },

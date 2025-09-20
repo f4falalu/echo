@@ -1,5 +1,6 @@
-import { db, updateMessageEntries } from '@buster/database';
-import { dashboardFiles, metricFiles, metricFilesToDashboardFiles } from '@buster/database';
+import { db } from '@buster/database/connection';
+import { updateMessageEntries } from '@buster/database/queries';
+import { dashboardFiles, metricFiles, metricFilesToDashboardFiles } from '@buster/database/schema';
 import { wrapTraced } from 'braintrust';
 import { and, eq, inArray, isNull } from 'drizzle-orm';
 import * as yaml from 'yaml';
@@ -220,7 +221,7 @@ async function processDashboardFile(file: { id: string; yml_content: string }): 
   const dashboardFile: FileWithId = {
     id: file.id,
     name: dashboard.name,
-    file_type: 'dashboard',
+    file_type: 'dashboard_file',
     created_at: existingFile.createdAt,
     updated_at: new Date().toISOString(),
     version_number: latestVersion,

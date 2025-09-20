@@ -1,10 +1,12 @@
-import type { User } from '@buster/database';
-import { deleteDoc, getUserOrganizationId } from '@buster/database';
+import type { User } from '@buster/database/queries';
+import { deleteDoc, getUserOrganizationId } from '@buster/database/queries';
 import { HTTPException } from 'hono/http-exception';
 import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 import { deleteDocHandler } from './DELETE';
 
-vi.mock('@buster/database');
+vi.mock('@buster/database/queries');
+vi.mock('@buster/database/schema');
+vi.mock('@buster/database/connection');
 
 describe('deleteDocHandler', () => {
   const mockUser: User = {

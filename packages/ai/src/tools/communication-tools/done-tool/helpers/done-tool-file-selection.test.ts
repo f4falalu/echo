@@ -44,7 +44,7 @@ describe('done-tool-file-selection', () => {
       expect(extractedFiles).toHaveLength(1);
       expect(extractedFiles[0]).toMatchObject({
         id: fileId,
-        fileType: 'metric',
+        fileType: 'metric_file',
         fileName: 'Revenue Analysis',
         status: 'completed',
         operation: 'created',
@@ -85,7 +85,7 @@ describe('done-tool-file-selection', () => {
       expect(extractedFiles).toHaveLength(1);
       expect(extractedFiles[0]).toMatchObject({
         id: fileId,
-        fileType: 'dashboard',
+        fileType: 'dashboard_file',
         fileName: 'Sales Dashboard',
         status: 'completed',
         operation: 'created',
@@ -160,7 +160,7 @@ describe('done-tool-file-selection', () => {
       expect(extractedFiles).toHaveLength(1);
       expect(extractedFiles[0]).toMatchObject({
         id: fileId,
-        fileType: 'metric',
+        fileType: 'metric_file',
         fileName: 'Updated Metric',
         status: 'completed',
         operation: 'modified',
@@ -201,7 +201,7 @@ describe('done-tool-file-selection', () => {
       expect(extractedFiles).toHaveLength(1);
       expect(extractedFiles[0]).toMatchObject({
         id: fileId,
-        fileType: 'dashboard',
+        fileType: 'dashboard_file',
         fileName: 'Updated Dashboard',
         status: 'completed',
         operation: 'modified',
@@ -470,12 +470,12 @@ describe('done-tool-file-selection', () => {
       const extractedFiles = extractFilesFromToolCalls(mockMessages);
 
       // Reports should be filtered out
-      expect(extractedFiles.find((f) => f.fileType === 'report')).toBeUndefined();
+      expect(extractedFiles.find((f) => f.fileType === 'report_file')).toBeUndefined();
       // Standalone metrics should remain
       expect(extractedFiles).toHaveLength(1);
       expect(extractedFiles[0]).toMatchObject({
         id: metricId,
-        fileType: 'metric',
+        fileType: 'metric_file',
         fileName: 'Standalone Metric',
       });
     });
@@ -546,7 +546,7 @@ describe('done-tool-file-selection', () => {
       expect(extractedFiles).toHaveLength(1);
       expect(extractedFiles[0]).toMatchObject({
         id: standaloneMetricId,
-        fileType: 'metric',
+        fileType: 'metric_file',
         fileName: 'Standalone Metric',
       });
     });

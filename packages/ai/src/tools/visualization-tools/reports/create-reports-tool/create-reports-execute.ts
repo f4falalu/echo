@@ -1,4 +1,8 @@
-import { batchUpdateReport, updateMessageEntries, updateMetricsToReports } from '@buster/database';
+import {
+  batchUpdateReport,
+  updateMessageEntries,
+  updateMetricsToReports,
+} from '@buster/database/queries';
 import type { ChatMessageResponseMessage } from '@buster/server-shared/chats';
 import { wrapTraced } from 'braintrust';
 import { createRawToolResultEntry } from '../../../shared/create-raw-llm-tool-result-entry';
@@ -143,7 +147,7 @@ export function createCreateReportsExecute(
             state.files[i] = {
               id: '',
               file_name: name,
-              file_type: 'report',
+              file_type: 'report_file',
               version_number: 1,
               status: 'failed',
               error: 'Report creation failed during streaming',
@@ -220,7 +224,7 @@ export function createCreateReportsExecute(
               state.files[i] = {
                 id: reportId,
                 file_name: name,
-                file_type: 'report',
+                file_type: 'report_file',
                 version_number: 1,
                 status: 'completed',
               };
@@ -252,7 +256,7 @@ export function createCreateReportsExecute(
               state.files[i] = {
                 id: reportId,
                 file_name: name,
-                file_type: 'report',
+                file_type: 'report_file',
                 version_number: 1,
                 status: 'failed',
                 error: errorMessage,
@@ -319,7 +323,7 @@ export function createCreateReportsExecute(
                     responseMessages.push({
                       id: stateFile.id,
                       type: 'file' as const,
-                      file_type: 'report' as const,
+                      file_type: 'report_file' as const,
                       file_name: stateFile.file_name || resultFile.name,
                       version_number: stateFile.version_number || 1,
                       filter_version_id: null,

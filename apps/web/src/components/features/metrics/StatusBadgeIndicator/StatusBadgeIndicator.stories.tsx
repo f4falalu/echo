@@ -71,12 +71,6 @@ export const Backlogged: Story = {
   },
 };
 
-export const NotVerified: Story = {
-  args: {
-    status: 'notVerified',
-  },
-};
-
 // Size variations
 export const LargeSize: Story = {
   args: {

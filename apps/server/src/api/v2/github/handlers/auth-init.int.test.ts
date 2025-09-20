@@ -1,15 +1,14 @@
 import { randomUUID } from 'node:crypto';
+import { db } from '@buster/database/connection';
+import { createGithubIntegration, getSecretByName } from '@buster/database/queries';
+import type { User } from '@buster/database/queries';
+import { deleteSecret } from '@buster/database/queries';
 import {
-  createGithubIntegration,
-  db,
-  deleteSecret,
-  getSecretByName,
   githubIntegrations,
   organizations,
   users,
   usersToOrganizations,
-} from '@buster/database';
-import type { User } from '@buster/database';
+} from '@buster/database/schema';
 import { eq } from 'drizzle-orm';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { generateTestId, skipIfNoGitHubCredentials } from '../test-helpers/github-test-setup';

@@ -1,5 +1,6 @@
-import { AssetTypeSchema, TextSearchResultSchema } from '@buster/database';
+import { TextSearchResultSchema } from '@buster/database/schema-types';
 import { z } from 'zod';
+import { AssetTypeSchema } from '../assets';
 import { PaginatedRequestSchema, PaginatedResponseSchema } from '../type-utilities/pagination';
 
 const AncestorSchema = z.object({

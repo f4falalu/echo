@@ -1,0 +1,131 @@
+fileType: momentic/test
+id: f7b5d41e-5c3d-4210-b2d8-70d294b26d85
+name: metric-chart-initial-message-chat
+description: The user should be able to ask in a chat, "How many customers do we
+  have" as an initial message and it should return a metric.
+schemaVersion: 1.0.21
+advanced:
+  viewport:
+    width: 1920
+    height: 1080
+  browserType: Chromium
+retries: 0
+envs:
+  - name: development
+    default: true
+steps:
+  - id: c1154b43-80b7-4e1b-8f90-0e928090fb10
+    type: MODULE
+    moduleId: defc36e9-b0a7-4bfe-940f-7901493d5e5e
+  - id: c2b6db5c-42ae-45a5-b72f-c805b2b70fd0
+    type: PRESET_ACTION
+    command:
+      id: d454af80-5b80-47cd-8857-b421ee3ee438
+      type: NAVIGATE
+      url: "{{env.BASE_URL}}/app/home"
+  - id: 9e48a383-f07c-4595-9b25-b8446b8711da
+    type: PRESET_ACTION
+    command:
+      id: ccea3b2b-045d-4a38-891d-a1b9e599943e
+      clearContent: true
+      type: TYPE
+      target:
+        type: description
+        elementDescriptor: the textbox with placeholder 'Ask Buster a question...'
+      value: How many customers do we have?
+  - id: 85c6ef6b-8b90-4941-9893-cfaf145ce06a
+    type: PRESET_ACTION
+    command:
+      id: e6c56d88-9b7e-4af8-896b-dbc21ddaec0d
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the button to submit the question
+  - id: 28b81b35-790a-4607-a52c-9ca6b21ea3e2
+    type: PRESET_ACTION
+    command:
+      id: 536ab9af-cb4c-49e7-b3f1-17792fd0e20a
+      type: WAIT_FOR_URL
+      matcher:
+        type: SUBSTRING
+        url: /chat
+      timeout: 20
+  - id: fb27aeaf-9ea4-4fa8-97f4-578ea713ad1a
+    type: PRESET_ACTION
+    command:
+      id: 55867723-1a4b-4f73-a13c-57e6e2079e34
+      type: AI_ASSERTION
+      assertion: In the center of the page you shoul check to see if the user message
+        is there and there is a reasoning loading state beneath it.
+      disableCache: false
+      contextChoice: MULTIMODAL
+  - id: 4b02984f-34c9-40a4-bbcc-83f912a0966a
+    type: PRESET_ACTION
+    command:
+      id: 49e34cd3-157b-45bc-8014-8091ae52f20e
+      type: WAIT_FOR_URL
+      matcher:
+        type: SUBSTRING
+        url: /reasoning
+      timeout: 20
+  - id: fb6d92a2-1d54-4a9a-83fd-3464e01eb7fd
+    type: PRESET_ACTION
+    command:
+      id: c8b04fbb-5082-4201-802c-6be241a5a1aa
+      type: WAIT
+      delay: 5
+  - id: ab0b1a5e-5290-4198-b104-f68102ad8102
+    type: PRESET_ACTION
+    command:
+      id: a5ea8fbe-c632-4e63-a77d-026e9b009417
+      type: AI_ASSERTION
+      assertion: We must confirm that on the right side there is a stream of
+        "reasoning messages" these may look like text, code blocks, sql
+        statements, etc. I want to verify that they are there and that there is
+        content.
+      contextChoice: MULTIMODAL
+  - id: 756ae9e9-0a17-4ada-a06c-698985dae83a
+    type: PRESET_ACTION
+    command:
+      id: 1683f46a-f466-4926-b7a5-5bccc4411e0b
+      type: WAIT
+      delay: 5
+  - id: 38b99b80-7a76-4bed-aca9-81cf36b0d6e4
+    type: PRESET_ACTION
+    command:
+      id: f4c8d8e4-e065-4326-940a-973755b3c832
+      type: AI_ASSERTION
+      assertion: We must confirm that on the right side there is a stream of
+        "reasoning messages" these may look like text, code blocks, sql
+        statements, etc. I want to verify that they are there and that there is
+        content.
+      contextChoice: MULTIMODAL
+  - id: 8dfb8e9d-4695-4889-8b09-3333e2071c2e
+    type: PRESET_ACTION
+    command:
+      id: 77500843-3e24-45b3-b46a-af27fef0168c
+      type: WAIT_FOR_URL
+      matcher:
+        type: SUBSTRING
+        url: /metrics
+      timeout: 120
+  - id: b4cc8e79-75a9-422c-9e5b-096d842f7546
+    type: PRESET_ACTION
+    command:
+      id: aa413191-cc2e-420f-b84b-e5b41864186e
+      type: AI_ASSERTION
+      assertion: Confirm that a metric has been delivered, it should be on the right
+        side of the page.  It should have the chart, results, sql up top, it
+        shoul dhave the title, the time frame description, and a question
+        looking description.  In the center of that div, we should see some text
+        that says total customers, then an actual number of the customers.  the
+        number should be the largest.
+      contextChoice: VISION_ONLY
+  - id: 6f4efd1c-938b-4375-9a33-81f114827723
+    type: PRESET_ACTION
+    command:
+      id: 690aedde-6103-4330-b9c3-3688511fde5d
+      type: AI_ASSERTION
+      assertion: On the left side, we should see a "reasoned for x minutes|seconds"
+        and then we should see normal formatted text under that with a pill
+        containing the title of the metric that we are evaluating.

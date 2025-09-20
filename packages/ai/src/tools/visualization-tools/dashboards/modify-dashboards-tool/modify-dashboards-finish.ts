@@ -1,4 +1,4 @@
-import { updateMessageEntries } from '@buster/database';
+import { updateMessageEntries } from '@buster/database/queries';
 import type { ToolCallOptions } from 'ai';
 import {
   createModifyDashboardsRawLlmMessageEntry,
@@ -23,7 +23,7 @@ export function createModifyDashboardsFinish(
         return {
           id: file.id,
           file_name: existingFile?.file_name,
-          file_type: 'dashboard',
+          file_type: 'dashboard_file',
           version_number: existingFile?.version_number || 1,
           file: {
             text: file.yml_content,
