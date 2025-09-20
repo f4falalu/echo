@@ -59,8 +59,26 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --prefer-offline
       
+      - name: Download SSL Certificate from S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          CERT_S3_URL: ${{ secrets.CERT_S3_URL }}
+        run: |
+          # Create certs directory
+          mkdir -p /tmp/certs
+          
+          # Download the certificate from S3
+          aws s3 cp "$CERT_S3_URL" /tmp/certs/db-cert.pem
+          
+          # Set proper permissions
+          chmod 600 /tmp/certs/db-cert.pem
+          
+          echo "Certificate downloaded successfully"
+      
       - name: Run migrations
         run: pnpm run db:migrate
         env:
           DATABASE_URL: ${{ secrets.DB_URL }}
-          NODE_TLS_REJECT_UNAUTHORIZED: '0'
+          DATABASE_SSL_CERT: /tmp/certs/db-cert.pem
