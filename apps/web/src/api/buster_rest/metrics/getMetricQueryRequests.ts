@@ -186,6 +186,8 @@ export const useGetMetricData = <TData = BusterMetricDataExtended>(
   return useQuery({
     ...metricsQueryKeys.metricsGetData(id || '', versionNumberProp || 'LATEST'),
     queryFn,
+    select: params?.select,
+    ...params,
     enabled: () => {
       return (
         !!id &&
@@ -193,11 +195,10 @@ export const useGetMetricData = <TData = BusterMetricDataExtended>(
         !isErrorMetric &&
         !!metricId &&
         !!dataUpdatedAt &&
-        !!selectedVersionNumber
+        !!selectedVersionNumber &&
+        params?.enabled !== false
       );
     },
-    select: params?.select,
-    ...params,
   });
 };
 

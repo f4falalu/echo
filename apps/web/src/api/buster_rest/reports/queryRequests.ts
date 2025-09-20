@@ -9,6 +9,7 @@ import {
 import { create } from 'mutative';
 import { collectionQueryKeys } from '@/api/query_keys/collection';
 import { reportsQueryKeys } from '@/api/query_keys/reports';
+import { silenceAssetErrors } from '@/api/repsonse-helpers/silenece-asset-errors';
 import type { RustApiError } from '../../errors';
 import {
   useAddAssetToCollection,
@@ -72,7 +73,6 @@ export const prefetchGetReport = async (
   report_version_number: number | undefined
 ) => {
   const version_number = report_version_number || 'LATEST';
-
   const queryKey = reportsQueryKeys.reportsGetReport(reportId, version_number)?.queryKey;
   const existingData = queryClient.getQueryData(queryKey);
   if (!existingData) {
@@ -83,6 +83,7 @@ export const prefetchGetReport = async (
           id: reportId,
           version_number: typeof version_number === 'number' ? version_number : undefined,
         }),
+      retry: silenceAssetErrors,
     });
   }
 
@@ -116,6 +117,7 @@ export const useGetReport = <T = GetReportResponse>(
     enabled: !!id,
     select: options?.select,
     ...options,
+    retry: silenceAssetErrors,
   });
 };
 

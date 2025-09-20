@@ -59,6 +59,16 @@ const getAssetAccess = (
     };
   }
 
+  if (typeof error?.status === 'number') {
+    return {
+      hasAccess: false,
+      passwordRequired: false,
+      isPublic: false,
+      isDeleted: false,
+      isFetched,
+    };
+  }
+
   return {
     hasAccess: true,
     passwordRequired: false,
