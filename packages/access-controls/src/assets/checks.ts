@@ -6,7 +6,10 @@ import {
 import type { User } from '@buster/database/queries';
 import type { AssetType } from '@buster/database/schema-types';
 import type { AssetPermissionRole, OrganizationMembership, WorkspaceSharing } from '../types';
-import { getHighestPermission, isPermissionSufficient } from '../types/asset-permissions';
+import {
+  getHighestPermission,
+  isPermissionSufficientForAny,
+} from '../types/asset-permissions';
 import { getCachedPermission, setCachedPermission } from './cache';
 import { checkCascadingPermissions } from './cascading-permissions';
 
@@ -14,7 +17,7 @@ export interface AssetPermissionCheck {
   userId: string;
   assetId: string;
   assetType: AssetType;
-  requiredRole: AssetPermissionRole;
+  requiredRole: AssetPermissionRole | AssetPermissionRole[];
   organizationId?: string;
   workspaceSharing?: WorkspaceSharing;
 }
@@ -31,10 +34,12 @@ export interface AssetPermissionResult {
 export async function checkPermission(check: AssetPermissionCheck): Promise<AssetPermissionResult> {
   const { userId, assetId, assetType, requiredRole, organizationId, workspaceSharing } = check;
 
-  // Check cache first
-  const cached = getCachedPermission(userId, assetId, assetType, requiredRole);
-  if (cached !== undefined) {
-    return cached;
+  // Check cache first (only for single role checks)
+  if (!Array.isArray(requiredRole)) {
+    const cached = getCachedPermission(userId, assetId, assetType, requiredRole);
+    if (cached !== undefined) {
+      return cached;
+    }
   }
 
   // Get user's organization memberships
@@ -57,7 +62,7 @@ export async function checkPermission(check: AssetPermissionCheck): Promise<Asse
 
   if (dbResult.hasAccess && dbResult.role) {
     // Check if the role is sufficient
-    if (isPermissionSufficient(dbResult.role, requiredRole)) {
+    if (isPermissionSufficientForAny(dbResult.role, requiredRole)) {
       const result: AssetPermissionResult = {
         hasAccess: true,
         effectiveRole: dbResult.role,
@@ -65,7 +70,10 @@ export async function checkPermission(check: AssetPermissionCheck): Promise<Asse
       if (dbResult.accessPath !== undefined) {
         result.accessPath = dbResult.accessPath;
       }
-      setCachedPermission(userId, assetId, assetType, requiredRole, result);
+      // Only cache single role checks
+      if (!Array.isArray(requiredRole)) {
+        setCachedPermission(userId, assetId, assetType, requiredRole, result);
+      }
       return result;
     }
   }
@@ -76,20 +84,24 @@ export async function checkPermission(check: AssetPermissionCheck): Promise<Asse
 
     if (isOrgMember) {
       const workspaceRole = mapWorkspaceSharingToRole(workspaceSharing);
-      if (workspaceRole && isPermissionSufficient(workspaceRole, requiredRole)) {
+      if (workspaceRole && isPermissionSufficientForAny(workspaceRole, requiredRole)) {
         const result = {
           hasAccess: true,
           effectiveRole: workspaceRole,
           accessPath: 'workspace_sharing' as const,
         };
-        setCachedPermission(userId, assetId, assetType, requiredRole, result);
+        // Only cache single role checks
+        if (!Array.isArray(requiredRole)) {
+          setCachedPermission(userId, assetId, assetType, requiredRole, result);
+        }
         return result;
       }
     }
   }
 
   // Check cascading permissions for specific asset types
-  if (requiredRole === 'can_view') {
+  const requiredRoles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
+  if (requiredRoles.includes('can_view')) {
     // Create a user object for cascading permissions check
     const user: Pick<User, 'id'> = { id: userId };
     const hasCascadingAccess = await checkCascadingPermissions(assetId, assetType, user as User);
@@ -99,13 +111,19 @@ export async function checkPermission(check: AssetPermissionCheck): Promise<Asse
         effectiveRole: 'can_view' as AssetPermissionRole,
         accessPath: 'cascading' as const,
       };
-      setCachedPermission(userId, assetId, assetType, requiredRole, result);
+      // Only cache single role checks
+      if (!Array.isArray(requiredRole)) {
+        setCachedPermission(userId, assetId, assetType, requiredRole, result);
+      }
       return result;
     }
   }
 
   const result = { hasAccess: false };
-  setCachedPermission(userId, assetId, assetType, requiredRole, result);
+  // Only cache single role checks
+  if (!Array.isArray(requiredRole)) {
+    setCachedPermission(userId, assetId, assetType, requiredRole, result);
+  }
   return result;
 }
 

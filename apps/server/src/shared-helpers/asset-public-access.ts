@@ -3,6 +3,7 @@ import {
   type WorkspaceSharing,
   checkPermission,
 } from '@buster/access-controls';
+import { getUserOrganizationId } from '@buster/database/queries';
 import type { AssetType } from '@buster/server-shared/assets';
 import type { ShareUpdateRequest } from '@buster/server-shared/share';
 import { HTTPException } from 'hono/http-exception';
@@ -77,17 +78,28 @@ export const checkIfAssetIsEditable = async ({
   };
   assetId: string;
   assetType: AssetType;
-  organizationId: string;
-  workspaceSharing: WorkspaceSharing;
-  requiredRole?: AssetPermissionRole;
+  organizationId?: string;
+  workspaceSharing: WorkspaceSharing | ((id: string) => Promise<WorkspaceSharing>);
+  requiredRole?: AssetPermissionRole | AssetPermissionRole[];
 }) => {
+  const workspaceSharingResult =
+    typeof workspaceSharing === 'function' ? await workspaceSharing(assetId) : workspaceSharing;
+
+  // Get user's organization ID
+  const userOrgId =
+    organizationId || (await getUserOrganizationId(user.id).then((res) => res?.organizationId));
+
+  if (!userOrgId) {
+    throw new HTTPException(403, { message: 'User is not associated with an organization' });
+  }
+
   const assetPermissionResult = await checkPermission({
     userId: user.id,
     assetId,
     assetType,
     requiredRole,
-    organizationId,
-    workspaceSharing,
+    organizationId: userOrgId,
+    workspaceSharing: workspaceSharingResult,
   });
 
   if (!assetPermissionResult.hasAccess) {

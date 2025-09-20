@@ -1,7 +1,7 @@
 import {
-  checkAssetPermission,
   findUsersByEmails,
   getReportFileById,
+  getReportWorkspaceSharing,
   removeAssetPermission,
 } from '@buster/database/queries';
 import type { User } from '@buster/database/queries';
@@ -11,28 +11,20 @@ import { ShareDeleteRequestSchema } from '@buster/server-shared/share';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
+import { checkIfAssetIsEditable } from '../../../../../shared-helpers/asset-public-access';
 
 export async function deleteReportSharingHandler(
   reportId: string,
   emails: ShareDeleteRequest,
   user: User
 ): Promise<ShareDeleteResponse> {
-  // Check if user has permission to modify sharing for the report
-  const permissionCheck = await checkAssetPermission({
+  await checkIfAssetIsEditable({
+    user,
     assetId: reportId,
     assetType: 'report_file',
-    userId: user.id,
+    workspaceSharing: getReportWorkspaceSharing,
+    requiredRole: ['full_access', 'owner'],
   });
-
-  // Check if user has at least full_access permission
-  if (
-    !permissionCheck.hasAccess ||
-    (permissionCheck.role !== 'full_access' && permissionCheck.role !== 'owner')
-  ) {
-    throw new HTTPException(403, {
-      message: 'You do not have permission to modify sharing for this report',
-    });
-  }
 
   // Get the report to verify it exists and get owner info
   const report = await getReportFileById({ reportId, userId: user.id });
