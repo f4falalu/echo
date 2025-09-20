@@ -16,7 +16,9 @@ export default defineConfig({
   dialect: 'postgresql',
   dbCredentials: {
     url: connectionString || '',
-    ssl: 'require', // Add SSL configuration for pg driver
+    ssl: {
+      rejectUnauthorized: false, // Allow self-signed certificates
+    },
   },
   verbose: true,
   strict: true,
