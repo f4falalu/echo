@@ -33,11 +33,9 @@ export function getPermissionCacheKey(
   userId: string,
   assetId: string,
   assetType: AssetType,
-  requiredRole: AssetPermissionRole | AssetPermissionRole[]
+  requiredRole: AssetPermissionRole
 ): CacheKey {
-  // Normalize and sort roles for consistent cache keys
-  const roles = Array.isArray(requiredRole) ? [...requiredRole].sort() : [requiredRole];
-  return `${userId}:${assetId}:${assetType}:${roles.join(',')}`;
+  return `${userId}:${assetId}:${assetType}:${requiredRole}`;
 }
 
 /**
@@ -47,7 +45,7 @@ export function getCachedPermission(
   userId: string,
   assetId: string,
   assetType: AssetType,
-  requiredRole: AssetPermissionRole | AssetPermissionRole[]
+  requiredRole: AssetPermissionRole
 ): AssetPermissionResult | undefined {
   const key = getPermissionCacheKey(userId, assetId, assetType, requiredRole);
   const cached = permissionCache.get(key);
@@ -68,7 +66,7 @@ export function setCachedPermission(
   userId: string,
   assetId: string,
   assetType: AssetType,
-  requiredRole: AssetPermissionRole | AssetPermissionRole[],
+  requiredRole: AssetPermissionRole,
   result: AssetPermissionResult
 ): void {
   const key = getPermissionCacheKey(userId, assetId, assetType, requiredRole);
@@ -198,13 +196,18 @@ export function invalidateUser(userId: string) {
  * Invalidate all cached entries for a user-asset combination
  */
 export function invalidateUserAsset(userId: string, assetId: string, assetType: AssetType) {
-  // Invalidate all permission cache entries for this user-asset combination
-  // Since we now support arrays, we need to invalidate all possible combinations
-  // The simplest approach is to invalidate all entries containing the user-asset-type pattern
-  for (const key of Array.from(permissionCache.keys())) {
-    if (key.startsWith(`${userId}:${assetId}:${assetType}:`)) {
-      permissionCache.delete(key);
-    }
+  // Invalidate all permission levels for this user-asset combination
+  const permissionRoles: AssetPermissionRole[] = [
+    'owner',
+    'full_access',
+    'can_edit',
+    'can_filter',
+    'can_view',
+  ];
+
+  for (const role of permissionRoles) {
+    const key = getPermissionCacheKey(userId, assetId, assetType, role);
+    permissionCache.delete(key);
   }
 
   // Invalidate cascading cache

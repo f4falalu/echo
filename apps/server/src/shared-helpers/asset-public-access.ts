@@ -79,7 +79,7 @@ export const checkIfAssetIsEditable = async ({
   assetType: AssetType;
   organizationId: string;
   workspaceSharing: WorkspaceSharing;
-  requiredRole?: AssetPermissionRole | AssetPermissionRole[];
+  requiredRole?: AssetPermissionRole;
 }) => {
   const assetPermissionResult = await checkPermission({
     userId: user.id,

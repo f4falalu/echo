@@ -205,7 +205,7 @@ describe('Asset Permission Checks', () => {
         'user123',
         'asset123',
         'dashboard_file',
-        ['can_view'],
+        'can_view',
         { hasAccess: false }
       );
     });
