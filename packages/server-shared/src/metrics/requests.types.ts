@@ -13,6 +13,7 @@ export const GetMetricQuerySchema = z.object({
 
 export const GetMetricDataRequestSchema = GetMetricQuerySchema.extend({
   limit: z.number().min(1).max(5000).default(5000).optional(),
+  report_file_id: z.string().uuid('Report file ID must be a valid UUID').optional(),
 });
 
 export const GetMetricListRequestSchema = z.object({

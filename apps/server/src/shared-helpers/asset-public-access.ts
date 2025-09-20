@@ -55,9 +55,42 @@ export const checkAssetPublicAccess = async <T extends PublicAccessAsset>({
       if (asset.public_password && asset.public_password !== password) {
         throw new HTTPException(403, { message: 'Password required for public access' });
       }
+      // If we get here, public access is valid
+      return asset;
     }
     throw new HTTPException(403, { message: 'You do not have permission to view this report' });
   }
 
   return asset;
+};
+
+export const checkIfAssetIsEditable = async ({
+  user,
+  assetId,
+  assetType,
+  organizationId,
+  workspaceSharing,
+  requiredRole = 'can_edit',
+}: {
+  user: {
+    id: string;
+  };
+  assetId: string;
+  assetType: AssetType;
+  organizationId: string;
+  workspaceSharing: WorkspaceSharing;
+  requiredRole?: AssetPermissionRole | AssetPermissionRole[];
+}) => {
+  const assetPermissionResult = await checkPermission({
+    userId: user.id,
+    assetId,
+    assetType,
+    requiredRole,
+    organizationId,
+    workspaceSharing,
+  });
+
+  if (!assetPermissionResult.hasAccess) {
+    throw new HTTPException(403, { message: 'You do not have permission to edit this asset' });
+  }
 };
