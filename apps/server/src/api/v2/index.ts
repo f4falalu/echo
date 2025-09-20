@@ -3,6 +3,7 @@ import { Hono } from 'hono';
 import healthcheckRoutes from '../healthcheck';
 import authRoutes from './auth';
 import chatsRoutes from './chats';
+import dashboardRoutes from './dashboards';
 import datasetsRoutes from './datasets';
 import deployRoutes from './deploy';
 import dictionariesRoutes from './dictionaries';
@@ -45,6 +46,7 @@ const app = new Hono()
   .route('/reports', reportsRoutes)
   .route('/s3-integrations', s3IntegrationsRoutes)
   .route('/search', searchRoutes)
-  .route('/public', publicRoutes);
+  .route('/public', publicRoutes)
+  .route('/dashboards', dashboardRoutes);
 
 export default app;

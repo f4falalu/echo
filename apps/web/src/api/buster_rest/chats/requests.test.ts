@@ -23,7 +23,6 @@ describe('Chat API Requests', () => {
           name: 'Test Chat 1',
           created_at: '2024-03-20T00:00:00Z',
           updated_at: '2024-03-20T00:00:00Z',
-          is_favorited: false,
           created_by: 'test-user',
           created_by_id: 'test-user-id',
           created_by_name: 'Test User',
@@ -32,7 +31,6 @@ describe('Chat API Requests', () => {
           latest_file_id: 'file-1',
           latest_file_type: 'dashboard_file',
           latest_version_number: 1,
-          latest_file_name: 'Test File',
           is_shared: false,
         },
       ];

@@ -5,7 +5,7 @@ import type {
   ShareUpdateRequest,
 } from '@buster/server-shared/share';
 import type { BusterDashboardListItem } from '@/api/asset_interfaces/dashboard';
-import mainApi from '@/api/buster_rest/instances';
+import { mainApi, mainApiV2 } from '@/api/buster_rest/instances';
 
 export const dashboardsGetList = async (params: {
   /** The page number to fetch */
@@ -32,7 +32,7 @@ export const getDashboardById = async ({
   /** The version number of the dashboard */
   version_number?: number;
 }) => {
-  return await mainApi
+  return await mainApiV2
     .get<GetDashboardResponse>(`/dashboards/${id}`, {
       params: { password, version_number },
     })

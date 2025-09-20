@@ -11,19 +11,9 @@ export interface CollectionWithSharing {
 
 export async function checkCollectionsContainingAsset(
   assetId: string,
-  assetType: 'metric_file' | 'dashboard_file' | 'chat'
+  assetType: Extract<AssetType, 'metric_file' | 'dashboard_file' | 'chat' | 'report_file'>
 ): Promise<CollectionWithSharing[]> {
-  // Map our asset type strings to the enum values expected by the database
-  const assetTypeMap: Record<string, AssetType> = {
-    metric: 'metric_file',
-    dashboard: 'dashboard_file',
-    chat: 'chat',
-  };
-
-  const dbAssetType = assetTypeMap[assetType];
-  if (!dbAssetType) {
-    throw new Error(`Invalid asset type: ${assetType}`);
-  }
+  // The asset type parameter already matches the AssetType enum values
 
   const result = await db
     .select({
@@ -36,7 +26,7 @@ export async function checkCollectionsContainingAsset(
     .where(
       and(
         eq(collectionsToAssets.assetId, assetId),
-        eq(collectionsToAssets.assetType, dbAssetType),
+        eq(collectionsToAssets.assetType, assetType),
         isNull(collectionsToAssets.deletedAt),
         isNull(collections.deletedAt)
       )

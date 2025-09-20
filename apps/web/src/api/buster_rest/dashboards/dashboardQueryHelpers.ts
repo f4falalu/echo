@@ -3,7 +3,6 @@ import { type QueryClient, useQueryClient } from '@tanstack/react-query';
 import last from 'lodash/last';
 import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
-import { getProtectedAssetPassword } from '@/context/BusterAssets/useProtectedAssetStore';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { setOriginalDashboard } from '@/context/Dashboards/useOriginalDashboardStore';
 import { setOriginalMetric } from '@/context/Metrics/useOriginalMetricStore';
@@ -20,24 +19,31 @@ export const useEnsureDashboardConfig = (params?: { prefetchData?: boolean }) =>
   });
   const { openErrorMessage } = useBusterNotifications();
 
-  const method = useMemoizedFn(async (dashboardId: string, initializeMetrics = true) => {
-    const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId, 'LATEST');
-    let dashboardResponse = queryClient.getQueryData(options.queryKey);
-    if (!dashboardResponse) {
-      const res = await prefetchDashboard(dashboardId, 'LATEST', initializeMetrics).catch(() => {
-        openErrorMessage('Failed to save metrics to dashboard. Dashboard not found');
-      });
-      if (res) {
-        queryClient.setQueryData(
-          dashboardQueryKeys.dashboardGetDashboard(res.dashboard.id, 'LATEST').queryKey,
-          res
-        );
-        dashboardResponse = res;
+  const method = useMemoizedFn(
+    async (dashboardId: string, initializeMetrics = true, password?: string) => {
+      const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId, 'LATEST');
+      let dashboardResponse = queryClient.getQueryData(options.queryKey);
+      if (!dashboardResponse) {
+        const res = await prefetchDashboard({
+          id: dashboardId,
+          version_number: 'LATEST',
+          shouldInitializeMetrics: initializeMetrics,
+          password,
+        }).catch(() => {
+          openErrorMessage('Failed to save metrics to dashboard. Dashboard not found');
+        });
+        if (res) {
+          queryClient.setQueryData(
+            dashboardQueryKeys.dashboardGetDashboard(res.dashboard.id, 'LATEST').queryKey,
+            res
+          );
+          dashboardResponse = res;
+        }
       }
-    }
 
-    return dashboardResponse;
-  });
+      return dashboardResponse;
+    }
+  );
 
   return method;
 };
@@ -75,8 +81,17 @@ export const useGetDashboardAndInitializeMetrics = (params?: { prefetchData?: bo
   const queryClient = useQueryClient();
 
   return useMemoizedFn(
-    async (id: string, version_number: number | 'LATEST', shouldInitializeMetrics = true) => {
-      const password = getProtectedAssetPassword?.(id);
+    async ({
+      id,
+      version_number,
+      shouldInitializeMetrics = true,
+      password,
+    }: {
+      id: string;
+      version_number: number | 'LATEST';
+      shouldInitializeMetrics?: boolean;
+      password: string | undefined;
+    }) => {
       return getDashboardAndInitializeMetrics({
         id,
         version_number,

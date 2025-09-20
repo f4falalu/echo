@@ -1,9 +1,9 @@
 import { z } from 'zod';
+import { AssetTypeSchema } from './asset';
 
 export const ChatListItemSchema = z.object({
   id: z.string(),
   name: z.string(),
-  is_favorited: z.boolean(),
   updated_at: z.string(),
   created_at: z.string(),
   created_by: z.string(),
@@ -12,9 +12,8 @@ export const ChatListItemSchema = z.object({
   created_by_avatar: z.string().nullable(),
   last_edited: z.string(),
   latest_file_id: z.string().nullable(),
-  latest_file_type: z.enum(['metric_file', 'dashboard_file', 'report_file']),
+  latest_file_type: AssetTypeSchema.exclude(['chat', 'collection']),
   latest_version_number: z.number().optional(),
-  latest_file_name: z.string().nullable(),
   is_shared: z.boolean(),
 });
 

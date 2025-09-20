@@ -34,3 +34,5 @@ export {
   ResponseMessageSchema,
   ReasoningMessageSchema,
 } from './schema-types/message-schemas';
+
+export type { ChatListItem } from './schema-types/chat';

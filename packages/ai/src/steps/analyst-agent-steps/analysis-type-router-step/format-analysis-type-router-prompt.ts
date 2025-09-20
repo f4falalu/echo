@@ -43,8 +43,9 @@ export function formatAnalysisTypeRouterPrompt(params: AnalysisTypeRouterTemplat
 - No investigative questions (why/how/what's causing)
 - Comparisons or trends that don't require in-depth explanation
 - Multiple metrics that are relatively straightforward
-- Examples: "Show me sales trends", "List top 5 customers", "Compare Q1 to Q2 sales", "What's our worst performing product?"
+- Follow-up coverage/confirmation checks that are binary or scope checks (e.g., "did you look at customer relationships?", "did you include Europe?", "did you control for seasonality?", "what did you already check?")
 - Also use for casual non-data queries (e.g., "how are you", "thank you!", "what kind of things can I ask about?", etc)
+- Examples: "Show me sales trends", "List top 5 customers", "Compare Q1 to Q2 sales", "What's our worst performing product?", **"Did you analyze channel effects?" (as a yes/no coverage check)**
 
 **Investigation mode** - Use for investigative/exploratory requests:
 - Contains investigative keywords: "why," "how," "what's causing," "figure out," "investigate," "explore," "understand," "analyze" (when seeking depth)
@@ -62,9 +63,11 @@ export function formatAnalysisTypeRouterPrompt(params: AnalysisTypeRouterTemplat
 
 ### Mixed Signal Queries
 When a query contains both standard and investigative elements:
-- **Prioritize Investigation** if any part requires deep analysis
+- **Prioritize Investigation** only if the user explicitly requests causal/depth analysis
+- **Do not infer** investigation from passive or past-tense coverage checks ("did you look at X", "did you include Y") — these stay Standard
 - "Show me sales trends and why they changed" → Investigation (the "why" requires investigation)
 - "What's our best product and how can we replicate its success?" → Investigation (replication strategy needs analysis)
+- "Did you consider seasonality?" (following an investigation) → **Standard** (quick confirmation; offer to investigate if they want)
 
 ### Ambiguous Keywords
 **"Analyze"/"Analysis"/"Review":**
@@ -125,8 +128,7 @@ For follow-up queries, consider conversation history:
 **Default Rule:**  
 When truly ambiguous and no clear indicators exist, use Investigation for business-critical terms (revenue, churn, performance issues) and Standard for descriptive requests (lists, counts, basic metrics).  
 
-**Exception:** If the user asks for a **report/list/export** with explicit fields or filters, choose **Standard**.
-
+**Exception:** If the user asks for a "report", but they obviously are asking for a **list/table/export** (e.g. they ask for a "report" with explicit fields or filters), choose **Standard**.
 
 User query: ${userPrompt}${historySection}
 

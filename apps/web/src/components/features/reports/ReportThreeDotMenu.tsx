@@ -80,10 +80,8 @@ export const ReportThreeDotMenu = React.memo(
         isEffectiveOwner && !isViewingOldVersion && shareMenu,
         saveToLibrary,
         favoriteItem,
-        { type: 'divider' },
-        ...undoRedo,
-        { type: 'divider' },
-        versionHistory,
+        ...(isEditor ? [{ type: 'divider' }, ...undoRedo] : []),
+        ...(isEditor ? [{ type: 'divider' }, versionHistory] : []),
         // verificationItem, // Hidden - not supported yet
         { type: 'divider' },
         isEditor && refreshReportItem,

@@ -7,6 +7,16 @@ on:
       - 'packages/database/drizzle/**'
       - 'packages/database/drizzle.config.ts'
       - '.github/workflows/database-migrations.yml'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to run migrations against'
+        required: true
+        type: choice
+        options:
+          - main
+          - staging
+        default: staging
 
 # Only one migration per environment at a time
 concurrency:
@@ -16,7 +26,7 @@ concurrency:
 jobs:
   migrate:
     runs-on: blacksmith-2vcpu-ubuntu-2404
-    environment: ${{ github.ref_name }}
+    environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || github.ref_name }}
     steps:
       - uses: actions/checkout@v4
       

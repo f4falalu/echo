@@ -101,7 +101,10 @@ async function buildNewSuggestedPrompts(userId: string): Promise<UserSuggestedPr
 
     return updatedPrompts;
   } catch (error) {
-    console.error('[GET SuggestedPrompts] Error building new suggested prompts:', error);
+    console.warn(
+      '[GET SuggestedPrompts] Error building new suggested prompts. Returning current prompts or defaults. Error:',
+      error
+    );
     throw error;
   }
 }
@@ -136,7 +139,7 @@ async function getDatabaseContext(userId: string): Promise<string> {
 
     return datasetsWithYaml;
   } catch (error) {
-    console.error('[GET SuggestedPrompts] Error fetching database context:', error);
+    console.warn('[GET SuggestedPrompts] Error fetching database context:', error);
     return '';
   }
 }
@@ -175,7 +178,7 @@ async function getUserChatHistoryText(userId: string): Promise<string> {
 
     return formatChatHistoryText(recentMessages);
   } catch (error) {
-    console.error('[GET SuggestedPrompts] Error fetching chat history:', error);
+    console.warn('[GET SuggestedPrompts] Error fetching chat history:', error);
     return '';
   }
 }
