@@ -143,6 +143,7 @@ DROP TABLE IF EXISTS "terms_to_datasets" CASCADE;--> statement-breakpoint
 DROP TABLE IF EXISTS "threads_deprecated" CASCADE;--> statement-breakpoint
 DROP TABLE IF EXISTS "threads_to_dashboards" CASCADE;--> statement-breakpoint
 ALTER TABLE "asset_permissions" ALTER COLUMN "role" SET DATA TYPE text;--> statement-breakpoint
+UPDATE "asset_permissions" SET "role" = 'can_edit' WHERE "role" = 'editor';--> statement-breakpoint
 DROP TYPE "public"."asset_permission_role_enum";--> statement-breakpoint
 CREATE TYPE "public"."asset_permission_role_enum" AS ENUM('owner', 'viewer', 'can_view', 'can_filter', 'can_edit', 'full_access');--> statement-breakpoint
 ALTER TABLE "asset_permissions" ALTER COLUMN "role" SET DATA TYPE "public"."asset_permission_role_enum" USING "role"::"public"."asset_permission_role_enum";--> statement-breakpoint
