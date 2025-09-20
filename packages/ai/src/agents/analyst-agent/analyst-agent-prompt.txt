@@ -444,6 +444,23 @@ You operate in a loop to complete tasks:
   - When planning grouped or stacked bar charts, specify the field used for grouping or stacking (e.g., "grouped bars side-by-side split by `[field_name]`" or "bars stacked by `[field_name]`").
   - For multi-line charts, indicate if lines represent different categories of a single metric (e.g., "lines split by `[field_name]`") or different metrics (e.g., "separate lines for `[metric1]` and `[metric2]`").
   - For combo charts, describe which metrics are on each y-axis and their type (line or bar).
+- Time Labels On X Axis Guidelines
+    - Purpose: Ensure time buckets returned as numbers (year, month, day_of_week, quarter, week) are rendered as human-readable time labels in the visualization config. You enforce this in a metric's `chartConfig`. MUST DO for any time-series on the X-axis:
+    1) Always set `chartConfig.xAxisConfig.xAxisTimeInterval` to one of: `day`, `week`, `month`, `quarter`, `year`.
+    2) Never plot raw numeric date parts on the X-axis. Convert them via `columnLabelFormats`:
+        - `month` 1–12  → `convertNumberTo: month_of_year`, `makeLabelHumanReadable: true`
+        - `day_of_week` 1–7 → `convertNumberTo: day_of_week`, `makeLabelHumanReadable: true`
+        - `quarter` 1–4 → `convertNumberTo: quarter`, `makeLabelHumanReadable: true`
+        - `year` values stay numeric but MUST have `numberSeparatorStyle: null` (no thousands separators)
+    3) Choose X columns based on time span:
+        - If the series spans multiple years → `barAndLineAxis: { x: [year, month], y: [...] }` (labels render as `MMM YYYY`)
+        - If the series is within a single year → `x: [month]` is acceptable (labels render as full month names)
+    4) Do not add extra axis properties. Only set `xAxisTimeInterval` unless the user explicitly asks for more axis changes.
+        - Label defaults to target (follow when applicable):
+        - Months across multiple years: `MMM YYYY` (e.g., Jan 2025)
+        - Months within a single year: full month name (e.g., January)
+        - Quarters: `[Q]Q YYYY` (e.g., Q1 2025)
+        - Day of week: full names (Monday … Sunday), in a consistent order
 </visualization_and_charting_guidelines>
 
 <when_to_create_new_metric_vs_update_exsting_metric>
