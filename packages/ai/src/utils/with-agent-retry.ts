@@ -50,6 +50,7 @@ interface RetryableCheck {
 
 /**
  * Check if an error matches the overloaded error pattern
+ * @deprecated - Kept for backwards compatibility, but all errors are now retryable
  * Pure function - no side effects
  */
 export const isOverloadedError = (error: unknown): boolean => {
@@ -71,7 +72,7 @@ export const isOverloadedError = (error: unknown): boolean => {
   if ('message' in error && typeof error.message === 'string') {
     const lowerMessage = error.message.toLowerCase();
     return (
-      lowerMessage.includes('overloaded') || 
+      lowerMessage.includes('overloaded') ||
       lowerMessage.includes('overloaded_error') ||
       lowerMessage.includes('terminated')
     );
@@ -97,10 +98,11 @@ export const sleep = (ms: number): Promise<void> =>
 
 /**
  * Check if an error is retryable and return structured result
+ * Now treats ALL errors as retryable to handle various provider errors
  * Pure function for error analysis
  */
 export const analyzeError = (error: unknown): RetryableCheck => ({
-  isRetryable: isOverloadedError(error),
+  isRetryable: true, // All errors are now retryable
   error,
 });
 
@@ -174,7 +176,7 @@ export const handleFailedAttempt = async (
   console.error(`[Agent Retry] Error on attempt ${attempt}`, {
     messageId,
     error: error instanceof Error ? error.message : 'Unknown error',
-    isOverloaded: isOverloadedError(error),
+    errorType: error instanceof Error ? error.name : typeof error,
   });
 
   const { isRetryable } = analyzeError(error);
@@ -188,7 +190,7 @@ export const handleFailedAttempt = async (
     return { shouldRetry: false, nextMessages: currentMessages, delayMs: 0 };
   }
 
-  console.warn('[Agent Retry] Overloaded error detected, preparing retry', {
+  console.warn('[Agent Retry] Error detected, preparing retry', {
     messageId,
     attempt,
     remainingAttempts: maxAttempts - attempt,

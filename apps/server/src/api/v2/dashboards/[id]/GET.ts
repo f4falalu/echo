@@ -1,0 +1,297 @@
+import { checkPermission } from '@buster/access-controls';
+import {
+  type User,
+  getCollectionsAssociatedWithDashboard,
+  getDashboardById,
+  getOrganizationMemberCount,
+  getUsersWithDashboardPermissions,
+} from '@buster/database/queries';
+import {
+  GetDashboardParamsSchema,
+  GetDashboardQuerySchema,
+  type GetDashboardResponse,
+} from '@buster/server-shared/dashboards';
+import type { DashboardYml } from '@buster/server-shared/dashboards';
+import type { Metric } from '@buster/server-shared/metrics';
+import type { VerificationStatus } from '@buster/server-shared/share';
+import { zValidator } from '@hono/zod-validator';
+import { Hono } from 'hono';
+import { HTTPException } from 'hono/http-exception';
+import yaml from 'js-yaml';
+import { getPubliclyEnabledByUser } from '../../../../shared-helpers/get-publicly-enabled-by-user';
+import {
+  buildMetricResponse,
+  fetchAndProcessMetricData,
+} from '../../../../shared-helpers/metric-helpers';
+
+interface GetDashboardHandlerParams {
+  dashboardId: string;
+  versionNumber?: number | undefined;
+  password?: string | undefined;
+}
+
+const app = new Hono().get(
+  '/',
+  zValidator('param', GetDashboardParamsSchema),
+  zValidator('query', GetDashboardQuerySchema),
+  async (c) => {
+    const { id } = c.req.valid('param');
+    const { password, version_number } = c.req.valid('query');
+    const user = c.get('busterUser');
+
+    console.info(
+      `Processing GET request for dashboard with ID: ${id}, user_id: ${user.id}, version_number: ${version_number}`
+    );
+
+    const response: GetDashboardResponse = await getDashboardHandler(
+      {
+        dashboardId: id,
+        versionNumber: version_number,
+        password,
+      },
+      user
+    );
+
+    return c.json(response);
+  }
+);
+
+export default app;
+
+/**
+ * Handler to retrieve a dashboard by ID with optional version number
+ * This is the TypeScript equivalent of the Rust get_dashboard_handler
+ */
+async function getDashboardHandler(
+  params: GetDashboardHandlerParams,
+  user: User
+): Promise<GetDashboardResponse> {
+  const { dashboardId, versionNumber, password } = params;
+
+  // Fetch dashboard details
+  const dashboardFile = await getDashboardById({ dashboardId });
+
+  if (!dashboardFile) {
+    console.warn(`Dashboard file not found: ${dashboardId}`);
+    throw new HTTPException(404, {
+      message: 'Dashboard not found',
+    });
+  }
+
+  let { hasAccess, effectiveRole } = await checkPermission({
+    userId: user.id,
+    assetId: dashboardId,
+    assetType: 'dashboard_file',
+    requiredRole: 'can_view',
+    organizationId: dashboardFile.organizationId,
+    workspaceSharing: dashboardFile.workspaceSharing || 'none',
+  });
+
+  // Check public access
+  if (!hasAccess) {
+    if (!dashboardFile.publiclyAccessible) {
+      console.warn(`Permission denied for user ${user.id} to dashboard ${dashboardId}`);
+      throw new HTTPException(403, {
+        message: "You don't have permission to view this dashboard",
+      });
+    }
+
+    // Check if public access has expired
+    const today = new Date();
+    if (dashboardFile.publicExpiryDate && new Date(dashboardFile.publicExpiryDate) < today) {
+      console.warn(`Public access expired for dashboard ${dashboardId}`);
+      throw new HTTPException(403, {
+        message: 'Public access to this dashboard has expired',
+      });
+    }
+
+    // Check password if required
+    if (dashboardFile.publicPassword) {
+      if (!password) {
+        console.warn(`Public password required for dashboard ${dashboardId}`);
+        // I'm a teapot error code for password required
+        throw new HTTPException(418, {
+          message: 'Password required for public access',
+        });
+      }
+
+      if (password !== dashboardFile.publicPassword) {
+        console.warn(`Incorrect public password for dashboard ${dashboardId}`);
+        throw new HTTPException(403, {
+          message: 'Incorrect password for public access',
+        });
+      }
+    }
+
+    hasAccess = true;
+    effectiveRole = 'can_view';
+  }
+
+  if (!hasAccess || !effectiveRole) {
+    // This should never be hit because we have already thrown errors for no public access
+    console.warn(`Permission denied for user ${user.id} to dashboard ${dashboardId}`);
+    throw new HTTPException(403, {
+      message: "You don't have permission to view this dashboard",
+    });
+  }
+
+  // Resolve version-specific data
+  let resolvedContent: DashboardYml;
+  let resolvedName: string;
+  let resolvedDescription: string | null;
+  let resolvedUpdatedAt: string;
+  let resolvedVersionNum: number;
+
+  // Parse version history
+  const versionHistory = dashboardFile.versionHistory;
+  const versions: Array<{ version_number: number; updated_at: string }> = [];
+
+  Object.values(versionHistory).forEach((version) => {
+    versions.push({
+      version_number: version.version_number,
+      updated_at: version.updated_at,
+    });
+  });
+  versions.sort((a, b) => a.version_number - b.version_number);
+
+  // Get requested version if included in the request
+  if (versionNumber) {
+    const requestedVersionNumToString = versionNumber.toString();
+
+    if (versionHistory[requestedVersionNumToString]) {
+      const version = versionHistory[requestedVersionNumToString];
+
+      if (!version || !version.content) {
+        throw new HTTPException(404, {
+          message: `Version ${versionNumber} not found`,
+        });
+      }
+
+      const versionContent = version.content as DashboardYml;
+      resolvedContent = versionContent;
+      resolvedName = versionContent.name;
+      resolvedDescription = versionContent.description;
+      resolvedUpdatedAt = version.updated_at;
+      resolvedVersionNum = version.version_number;
+    } else {
+      throw new HTTPException(404, {
+        message: `Version ${versionNumber} not found`,
+      });
+    }
+  } else {
+    // Use current/latest version
+    const currentContent = dashboardFile.content as DashboardYml;
+    resolvedContent = currentContent;
+    resolvedName = dashboardFile.name;
+    resolvedDescription = currentContent.description;
+    resolvedUpdatedAt = dashboardFile.updatedAt;
+
+    // Determine latest version number
+    const maxVersion = Math.max(...versions.map((v) => v.version_number), 1);
+    resolvedVersionNum = maxVersion;
+  }
+
+  const fileYaml = yaml.dump(resolvedContent);
+
+  // Extract metric IDs from dashboard config
+  const metricIds = extractMetricIds(resolvedContent);
+
+  const metrics = await getMetricsFromDashboardMetricIds(metricIds, user);
+
+  // Get the extra dashboard info concurrently
+  const [individualPermissions, workspaceMemberCount, collections, publicEnabledBy] =
+    await Promise.all([
+      getUsersWithDashboardPermissions({ dashboardId }),
+      getOrganizationMemberCount(dashboardFile.organizationId),
+      getCollectionsAssociatedWithDashboard(dashboardId, user.id),
+      getPubliclyEnabledByUser(dashboardFile.publiclyEnabledBy),
+    ]);
+
+  // Build the response
+  const response: GetDashboardResponse = {
+    metrics,
+    dashboard: {
+      config: resolvedContent,
+      created_at: dashboardFile.createdAt,
+      created_by: dashboardFile.createdBy,
+      deleted_at: null,
+      description: resolvedDescription,
+      id: dashboardFile.id,
+      name: resolvedName,
+      updated_at: resolvedUpdatedAt,
+      updated_by: dashboardFile.createdBy,
+      status: 'verified' as VerificationStatus,
+      version_number: resolvedVersionNum,
+      file: fileYaml,
+      file_name: dashboardFile.fileName,
+    },
+    collections,
+    versions,
+    individual_permissions: individualPermissions,
+    publicly_accessible: dashboardFile.publiclyAccessible,
+    public_expiry_date: dashboardFile.publicExpiryDate,
+    public_enabled_by: publicEnabledBy,
+    public_password: dashboardFile.publicPassword,
+    permission: effectiveRole,
+    workspace_sharing: dashboardFile.workspaceSharing,
+    workspace_member_count: workspaceMemberCount,
+  };
+
+  return response;
+}
+
+/**
+ * Extract metric IDs from dashboard content
+ */
+function extractMetricIds(content: DashboardYml): string[] {
+  try {
+    if (!content.rows) {
+      return [];
+    }
+
+    const metricIds = content.rows.flatMap((row) => row.items?.map((item) => item.id) || []);
+
+    return metricIds;
+  } catch (error) {
+    console.error('Error extracting metric IDs from dashboard content:', error);
+    throw new HTTPException(500, {
+      message: `Error extracting metric IDs from dashboard content: ${error}`,
+    });
+  }
+}
+
+async function getMetricsFromDashboardMetricIds(
+  metricIds: string[],
+  user: User
+): Promise<Record<string, Metric>> {
+  const metricsObj: Record<string, Metric> = {};
+
+  // Process metrics in chunks of 4 to manage concurrency
+  const results = [];
+  const chunkSize = 4;
+
+  for (let i = 0; i < metricIds.length; i += chunkSize) {
+    const chunk = metricIds.slice(i, i + chunkSize);
+    const chunkPromises = chunk.map(async (metricId) => {
+      const processedData = await fetchAndProcessMetricData(metricId, user, {
+        publicAccessPreviouslyVerified: true, // Access is inherited from dashboard access at a minimum
+      });
+
+      // Build the metric response
+      const metric = await buildMetricResponse(processedData, user.id);
+      return { metricId, metric };
+    });
+
+    const chunkResults = await Promise.all(chunkPromises);
+    results.push(...chunkResults);
+  }
+
+  // Filter out failed metrics and build the response object
+  for (const result of results) {
+    if (result) {
+      metricsObj[result.metricId] = result.metric;
+    }
+  }
+
+  return metricsObj;
+}

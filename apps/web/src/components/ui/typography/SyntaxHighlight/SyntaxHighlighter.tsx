@@ -62,7 +62,7 @@ export const SyntaxHighlighter = ({
           );
         })
       ) : (
-        <SyntaxFallback fallbackColor={style.color}>{children}</SyntaxFallback>
+        <SyntaxFallback fallbackColor={style.color}>{children || ''}</SyntaxFallback>
       )}
     </SyntaxWrapper>
   );
@@ -126,10 +126,11 @@ const Line: React.FC<{
 Line.displayName = 'Line';
 
 const SyntaxFallback: React.FC<{ children: string; fallbackColor?: string }> = ({
-  children,
+  children = '',
   fallbackColor = 'inherit',
 }) => {
-  const fallbackChildren: Pick<ThemedToken, 'content' | 'color'>[][] = children
+  const ensureString = typeof children === 'string' ? children : '';
+  const fallbackChildren: Pick<ThemedToken, 'content' | 'color'>[][] = (ensureString || '')
     .split('\n')
     .map((line) => {
       return [

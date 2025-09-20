@@ -47,7 +47,7 @@ interface ToolFileInfo {
 }
 
 // File tracking type
-interface ExtractedFile {
+export interface ExtractedFile {
   id: string;
   fileType: 'metric_file' | 'dashboard_file' | 'report_file';
   fileName: string;

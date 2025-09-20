@@ -94,7 +94,11 @@ const useEditorServerUpdates = ({
     } else if (editor && value && !hasInitialized.current && isEmptyEditor(editor)) {
       hasInitialized.current = true;
       markdownToPlatejs(editor, value).then((elements) => {
-        editor.tf.setValue(elements);
+        editor.tf.reset();
+        editor.tf.init({
+          value: elements,
+          autoSelect: false,
+        });
       });
     } else {
       editor?.getPlugin(StreamContentPlugin)?.api.streamContent.stop();

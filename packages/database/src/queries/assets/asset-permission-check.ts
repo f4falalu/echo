@@ -1,7 +1,7 @@
 import { and, eq, isNull, or } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
-import { assetPermissions, assetTypeEnum } from '../../schema';
+import { assetPermissions } from '../../schema';
 import { AssetTypeSchema } from '../../schema-types';
 
 /**

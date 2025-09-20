@@ -87,6 +87,13 @@ export type {
 } from './utils/execute-metric-query';
 export { createMetadataFromResults } from './utils/create-metadata-from-results';
 
+// Sample query utilities
+export { executeSampleQuery } from './utils/execute-sample-query';
+export type {
+  ExecuteSampleQueryOptions,
+  ExecuteSampleQueryResult,
+} from './utils/execute-sample-query';
+
 // SQL validation utilities
 export { checkQueryIsReadOnly } from './utils/sql-validation';
 export type { QueryTypeCheckResult } from './utils/sql-validation';

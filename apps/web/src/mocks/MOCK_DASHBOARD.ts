@@ -105,7 +105,6 @@ refresh_interval: 300`,
   };
 
   const response: BusterDashboardResponse = {
-    access: 'can_edit',
     metrics: Object.fromEntries(metrics.map((metric) => [metric.id, metric])),
     dashboard,
     permission: 'can_edit',

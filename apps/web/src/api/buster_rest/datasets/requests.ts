@@ -1,6 +1,6 @@
 import type { DataResult } from '@buster/server-shared/metrics';
 import type { BusterDataset, BusterDatasetListItem } from '../../asset_interfaces';
-import { mainApi } from '../instances';
+import { mainApi, mainApiV2 } from '../instances';
 
 export const getDatasets = async (params?: {
   /** Current page number */
@@ -33,9 +33,7 @@ export const getDatasetMetadata = async (datasetId: string): Promise<BusterDatas
 };
 
 export const getDatasetDataSample = async (datasetId: string) => {
-  return await mainApi
-    .get<DataResult>(`/datasets/${datasetId}/data/sample`)
-    .then((res) => res.data);
+  return await mainApiV2.get<DataResult>(`/datasets/${datasetId}/sample`).then((res) => res.data);
 };
 
 export const createDataset = async (params: {

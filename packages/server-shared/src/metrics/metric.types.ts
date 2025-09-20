@@ -7,15 +7,13 @@ import { DataMetadataSchema } from './metadata.type';
 
 export const MetricSchema = z.object({
   id: z.string(),
-  type: z.literal('metric'),
+  type: z.literal('metric_file'),
   name: z.string(),
   version_number: z.number(),
   description: z.string().nullable(),
   file_name: z.string(),
   time_frame: z.string(),
-  dataset_id: z.string(),
   data_source_id: z.string(),
-  dataset_name: z.string().nullable(),
   error: z.string().nullable(),
   chart_config: ChartConfigPropsSchema.default(DEFAULT_CHART_CONFIG),
   data_metadata: DataMetadataSchema,

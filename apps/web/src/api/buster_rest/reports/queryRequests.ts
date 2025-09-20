@@ -1,8 +1,4 @@
-import type {
-  GetReportResponse,
-  ReportResponse,
-  UpdateReportResponse,
-} from '@buster/server-shared/reports';
+import type { GetReportResponse, UpdateReportResponse } from '@buster/server-shared/reports';
 import {
   type QueryClient,
   type UseQueryOptions,
@@ -11,9 +7,10 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { create } from 'mutative';
-import type { BusterMetric } from '@/api/asset_interfaces/metric';
 import { collectionQueryKeys } from '@/api/query_keys/collection';
 import { reportsQueryKeys } from '@/api/query_keys/reports';
+import { silenceAssetErrors } from '@/api/repsonse-helpers/silenece-asset-errors';
+import { useProtectedAssetPassword } from '@/context/BusterAssets/useProtectedAssetStore';
 import type { RustApiError } from '../../errors';
 import {
   useAddAssetToCollection,
@@ -72,18 +69,22 @@ export const prefetchGetReportsListClient = async (
 };
 
 export const prefetchGetReport = async (
+  queryClient: QueryClient,
   reportId: string,
-  report_version_number: number | undefined,
-  queryClient: QueryClient
+  report_version_number: number | undefined
 ) => {
   const version_number = report_version_number || 'LATEST';
-
   const queryKey = reportsQueryKeys.reportsGetReport(reportId, version_number)?.queryKey;
   const existingData = queryClient.getQueryData(queryKey);
   if (!existingData) {
     await queryClient.prefetchQuery({
       ...reportsQueryKeys.reportsGetReport(reportId, version_number || 'LATEST'),
-      queryFn: () => getReportById(reportId),
+      queryFn: () =>
+        getReportById({
+          id: reportId,
+          version_number: typeof version_number === 'number' ? version_number : undefined,
+        }),
+      retry: silenceAssetErrors,
     });
   }
 
@@ -93,7 +94,7 @@ export const prefetchGetReport = async (
 export const usePrefetchGetReportClient = () => {
   const queryClient = useQueryClient();
   return (reportId: string, versionNumber?: number) => {
-    return prefetchGetReport(reportId, versionNumber, queryClient);
+    return prefetchGetReport(queryClient, reportId, versionNumber);
   };
 };
 
@@ -104,8 +105,13 @@ export const useGetReport = <T = GetReportResponse>(
   { id, versionNumber }: { id: string | undefined; versionNumber?: number },
   options?: Omit<UseQueryOptions<GetReportResponse, RustApiError, T>, 'queryKey' | 'queryFn'>
 ) => {
+  const password = useProtectedAssetPassword(id || '');
   const queryFn = () => {
-    return getReportById(id ?? '');
+    return getReportById({
+      id: id ?? '',
+      version_number: typeof versionNumber === 'number' ? versionNumber : undefined,
+      password,
+    });
   };
 
   return useQuery({
@@ -114,19 +120,8 @@ export const useGetReport = <T = GetReportResponse>(
     enabled: !!id,
     select: options?.select,
     ...options,
+    retry: silenceAssetErrors,
   });
-};
-
-/**
- * Prefetch function for individual report (server-side)
- */
-export const prefetchGetReportById = async (queryClient: QueryClient, reportId: string) => {
-  await queryClient.prefetchQuery({
-    ...reportsQueryKeys.reportsGetReport(reportId, 'LATEST'),
-    queryFn: () => getReportById(reportId),
-  });
-
-  return queryClient.getQueryData(reportsQueryKeys.reportsGetReport(reportId, 'LATEST').queryKey);
 };
 
 export const useUpdateReport = () => {
