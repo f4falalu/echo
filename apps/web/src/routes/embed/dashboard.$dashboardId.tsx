@@ -23,6 +23,9 @@ export const Route = createFileRoute('/embed/dashboard/$dashboardId')({
     };
   },
   component: RouteComponent,
+  staticData: {
+    assetType: 'dashboard_file',
+  },
   ssr: true,
 });
 

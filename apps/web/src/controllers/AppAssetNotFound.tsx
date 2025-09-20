@@ -16,7 +16,7 @@ export const AppAssetNotFound: React.FC<{
     console.info('AppAssetNotFound for asset:', assetId, 'and type:', type);
   });
   return (
-    <div className="flex h-[85vh] w-full flex-col items-center justify-center space-y-6">
+    <div className="flex h-full w-full flex-col items-center justify-center space-y-6 bg-background">
       <BusterLogo className="h-16 w-16" />
 
       <div className="max-w-[550px] text-center">

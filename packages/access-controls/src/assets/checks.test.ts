@@ -212,7 +212,7 @@ describe('Asset Permission Checks', () => {
   });
 
   describe('computeEffectivePermission', () => {
-    const mockOrgs = [{ id: 'org123', role: 'viewer' }];
+    const mockOrgs = [{ id: 'org123', role: 'viewer' as const }];
 
     it('should return owner for workspace_admin', () => {
       const result = computeEffectivePermission(null, 'none', 'org123', [

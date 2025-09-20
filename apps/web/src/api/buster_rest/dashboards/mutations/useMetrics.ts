@@ -117,7 +117,7 @@ export const useAddMetricsToDashboard = () => {
     metricIds: string[];
     dashboardId: string;
   }) => {
-    const dashboardResponse = await ensureDashboardConfig(dashboardId);
+    const dashboardResponse = await ensureDashboardConfig(dashboardId, true, undefined);
 
     const existingMetricIds = new Set(
       dashboardResponse?.dashboard.config.rows?.flatMap((row) =>
@@ -191,7 +191,7 @@ export const useRemoveMetricsFromDashboard = () => {
         });
       }
 
-      const dashboardResponse = await ensureDashboardConfig(dashboardId, false);
+      const dashboardResponse = await ensureDashboardConfig(dashboardId, false, undefined);
 
       if (dashboardResponse) {
         const newConfig = removeMetricFromDashboardConfig(
