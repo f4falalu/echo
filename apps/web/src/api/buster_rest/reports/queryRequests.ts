@@ -1,8 +1,4 @@
-import type {
-  GetReportResponse,
-  ReportResponse,
-  UpdateReportResponse,
-} from '@buster/server-shared/reports';
+import type { GetReportResponse, UpdateReportResponse } from '@buster/server-shared/reports';
 import {
   type QueryClient,
   type UseQueryOptions,
@@ -11,7 +7,6 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { create } from 'mutative';
-import type { BusterMetric } from '@/api/asset_interfaces/metric';
 import { collectionQueryKeys } from '@/api/query_keys/collection';
 import { reportsQueryKeys } from '@/api/query_keys/reports';
 import type { RustApiError } from '../../errors';

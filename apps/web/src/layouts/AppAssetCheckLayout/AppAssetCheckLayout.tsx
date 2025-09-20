@@ -5,7 +5,7 @@ import type React from 'react';
 import { FileIndeterminateLoader } from '@/components/features/loaders/FileIndeterminateLoader';
 import { AppNoPageAccess } from '@/controllers/AppNoPageAccess';
 import { AppPasswordAccess } from '@/controllers/AppPasswordAccess';
-import { useMount } from '@/hooks/useMount';
+import { AppAssetNotFound } from '../../controllers/AppAssetNotFound';
 import { getAssetIdAndVersionNumber } from './getAssetIdAndVersionNumberServer';
 import { useGetAssetPasswordConfig } from './useGetAssetPasswordConfig';
 import { useShowLoader } from './useShowLoader';
@@ -31,8 +31,11 @@ export const AppAssetCheckLayout: React.FC<
   const showLoader = useShowLoader(assetId, assetType, versionNumber);
 
   let content: React.ReactNode;
+
   if (!isFetched) {
     return null;
+  } else if (!assetId || !assetType) {
+    return <AppAssetNotFound assetId={assetId} type={assetType} />;
   } else if (!hasAccess && !isPublic) {
     content = <AppNoPageAccess assetId={assetId} type={assetType} />;
   } else if (isPublic && passwordRequired) {
