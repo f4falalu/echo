@@ -16,6 +16,7 @@ export const GetReportInputSchema = z.object({
   reportId: z.string().uuid('Report ID must be a valid UUID'),
   userId: z.string().uuid('User ID must be a valid UUID'),
   permissionRole: AssetPermissionRoleSchema.optional(),
+  versionNumber: z.number().int().min(1).optional(),
 });
 
 type GetReportInput = z.infer<typeof GetReportInputSchema>;
@@ -23,7 +24,7 @@ type GetReportInput = z.infer<typeof GetReportInputSchema>;
 export async function getReport(input: GetReportInput) {
   const validated = GetReportInputSchema.parse(input);
 
-  const { reportId, userId, permissionRole } = validated;
+  const { reportId, userId, permissionRole, versionNumber } = validated;
 
   const userOrg = await getUserOrganizationId(userId);
 
@@ -149,6 +150,17 @@ export async function getReport(input: GetReportInput) {
     permission: permissionRole ? permissionRole : (userPermission ?? 'can_view'),
     workspace_member_count: workspaceMemberCount,
   };
+
+  // if versionNumber is provided, create a versioned report
+  if (versionNumber !== undefined) {
+    const versionExists = reportData.version_history[versionNumber.toString()];
+    if (!versionExists) {
+      throw new Error(`Version ${versionNumber} not found`);
+    }
+    report.content = versionExists.content;
+    report.version_number = versionExists.version_number;
+    report.updated_at = versionExists.updated_at;
+  }
 
   return report;
 }

@@ -13,8 +13,8 @@ import { standardErrorHandler } from '../../../../utils/response';
 export async function getReportHandler(
   reportId: string,
   user: { id: string },
-  _password?: string,
-  _version_number?: number
+  versionNumber?: number,
+  _password?: string
 ): Promise<GetReportResponse> {
   // Get report metadata for access control
   let reportData: Awaited<ReturnType<typeof getReportMetadata>>;
@@ -48,6 +48,7 @@ export async function getReportHandler(
     reportId,
     userId: user.id,
     permissionRole: assetPermissionResult.effectiveRole,
+    versionNumber,
   });
 
   const response: GetReportResponse = report;
@@ -63,7 +64,7 @@ const app = new Hono()
     async (c) => {
       const { id: reportId } = c.req.valid('param');
       const query = c.req.valid('query');
-      const { password, version_number } = query;
+      const { password, version_number: versionNumber } = query;
       const user = c.get('busterUser');
 
       if (!reportId) {
@@ -73,8 +74,8 @@ const app = new Hono()
       const response: GetReportResponse = await getReportHandler(
         reportId,
         user,
-        password,
-        version_number
+        versionNumber,
+        password
       );
       return c.json(response);
     }
