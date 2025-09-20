@@ -30,6 +30,9 @@ export const Route = createFileRoute('/embed/report/$reportId')({
       ],
     };
   },
+  staticData: {
+    assetType: 'report_file',
+  },
 });
 
 function RouteComponent() {

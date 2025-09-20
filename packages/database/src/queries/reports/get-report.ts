@@ -8,7 +8,6 @@ import {
   reportFiles,
   users,
 } from '../../schema';
-import { AssetPermissionRoleSchema } from '../../schema-types';
 import { getAssetPermission } from '../assets';
 import { getOrganizationMemberCount, getUserOrganizationId } from '../organizations';
 
@@ -27,11 +26,8 @@ export async function getReportFileById(input: GetReportInput) {
 
   const userOrg = await getUserOrganizationId(userId);
 
-  if (!userOrg?.organizationId) {
-    throw new Error('User not found in any organization');
-  }
-
-  const { organizationId } = userOrg;
+  const organizationId = userOrg?.organizationId || '';
+  const isOrganizationMember = organizationId !== '';
 
   const reportCollectionsQuery = db
     .select({
@@ -73,13 +69,7 @@ export async function getReportFileById(input: GetReportInput) {
     })
     .from(reportFiles)
     .innerJoin(users, eq(reportFiles.createdBy, users.id))
-    .where(
-      and(
-        eq(reportFiles.id, reportId),
-        eq(reportFiles.organizationId, organizationId),
-        isNull(reportFiles.deletedAt)
-      )
-    )
+    .where(and(eq(reportFiles.id, reportId), isNull(reportFiles.deletedAt)))
     .limit(1);
 
   // Individual permissions query - get users with direct permissions to this report
@@ -111,9 +101,9 @@ export async function getReportFileById(input: GetReportInput) {
     userPermission,
   ] = await Promise.all([
     reportDataQuery,
-    reportCollectionsQuery,
-    individualPermissionsQuery,
-    getOrganizationMemberCount(organizationId),
+    isOrganizationMember ? reportCollectionsQuery : Promise.resolve([]),
+    isOrganizationMember ? individualPermissionsQuery : Promise.resolve([]),
+    isOrganizationMember ? getOrganizationMemberCount(organizationId) : Promise.resolve(0),
     getAssetPermission(userId, reportId, 'report_file'),
   ]);
   const reportData = reportDataResult[0];

@@ -48,6 +48,17 @@ const getAssetAccess = (
     };
   }
 
+  // 403 is no access
+  if (error?.status === 403) {
+    return {
+      hasAccess: false,
+      passwordRequired: false,
+      isPublic: false,
+      isDeleted: false,
+      isFetched,
+    };
+  }
+
   return {
     hasAccess: true,
     passwordRequired: false,
@@ -86,7 +97,7 @@ export const useGetAssetPasswordConfig = (
     return chatQueryKeys.chatsGetChat(assetId);
   }, [type, assetId, chosenVersionNumber]);
 
-  const { error, isFetched } = useQuery({
+  const { error, isFetched, data } = useQuery({
     queryKey: selectedQuery.queryKey,
     enabled: true,
     select: useCallback((v: unknown) => !!v, []),
