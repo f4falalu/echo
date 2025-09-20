@@ -1,0 +1,42 @@
+[
+  {
+    "id": "ef495d61-fa98-4a08-8ec3-da34ce0fc2d2",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "datasetId": "27d21b4d-23ff-439b-94cb-e5d903e2a34a",
+    "permissionId": "83e090f0-d160-4372-8484-6ab6b9b07048",
+    "permissionType": "permission_group",
+    "createdAt": "2025-05-02 17:28:30.267477+00",
+    "updatedAt": "2025-05-02 17:28:30.26748+00",
+    "deletedAt": null
+  },
+  {
+    "id": "e4442958-92bb-48c7-bcdb-87d5b20d594f",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "datasetId": "f36dceb3-3a25-4996-aecb-bf7684d7281f",
+    "permissionId": "b25e4d5a-178e-4441-a7eb-761e9dcec16f",
+    "permissionType": "permission_group",
+    "createdAt": "2025-05-02 17:30:31.730771+00",
+    "updatedAt": "2025-05-02 17:30:31.730772+00",
+    "deletedAt": "2025-05-02 17:30:37.835285+00"
+  },
+  {
+    "id": "1fc83bfd-7097-4cea-9987-1e99c00bb594",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "datasetId": "f36dceb3-3a25-4996-aecb-bf7684d7281f",
+    "permissionId": "7c067290-22bf-457a-819a-770285832b8c",
+    "permissionType": "permission_group",
+    "createdAt": "2025-05-02 17:31:27.509018+00",
+    "updatedAt": "2025-05-02 17:31:27.50902+00",
+    "deletedAt": null
+  },
+  {
+    "id": "b56f0fb8-574f-41db-87b4-dd31e45b8f49",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "datasetId": "27d21b4d-23ff-439b-94cb-e5d903e2a34a",
+    "permissionId": "7c067290-22bf-457a-819a-770285832b8c",
+    "permissionType": "permission_group",
+    "createdAt": "2025-05-02 17:31:27.509024+00",
+    "updatedAt": "2025-05-02 17:31:27.509024+00",
+    "deletedAt": null
+  }
+]

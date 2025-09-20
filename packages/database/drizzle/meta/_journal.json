@@ -743,6 +743,13 @@
       "when": 1758209931606,
       "tag": "0106_heavy_lady_ursula",
       "breakpoints": true
+    },
+    {
+      "idx": 107,
+      "version": "7",
+      "when": 1758309016682,
+      "tag": "0107_deprecate_tables",
+      "breakpoints": true
     }
   ]
 }

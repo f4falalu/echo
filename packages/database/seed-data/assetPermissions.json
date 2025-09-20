@@ -1,0 +1,74 @@
+[
+  {
+    "identityId": "c2dd64cd-f7f3-4884-bc91-d46ae431901e",
+    "identityType": "user",
+    "assetId": "13962e95-ea7c-496f-9247-39eda4ade513",
+    "assetType": "chat",
+    "role": "owner",
+    "createdAt": "2025-09-19 19:47:24.569+00",
+    "updatedAt": "2025-09-19 19:47:24.569+00",
+    "deletedAt": null,
+    "createdBy": "c2dd64cd-f7f3-4884-bc91-d46ae431901e",
+    "updatedBy": "c2dd64cd-f7f3-4884-bc91-d46ae431901e"
+  },
+  {
+    "identityId": "c2dd64cd-f7f3-4884-bc91-d46ae431901e",
+    "identityType": "user",
+    "assetId": "6b8349bf-c1b3-4e94-a512-c0f05fca92db",
+    "assetType": "chat",
+    "role": "owner",
+    "createdAt": "2025-09-19 19:51:14.684+00",
+    "updatedAt": "2025-09-19 19:51:14.684+00",
+    "deletedAt": null,
+    "createdBy": "c2dd64cd-f7f3-4884-bc91-d46ae431901e",
+    "updatedBy": "c2dd64cd-f7f3-4884-bc91-d46ae431901e"
+  },
+  {
+    "identityId": "c2dd64cd-f7f3-4884-bc91-d46ae431901e",
+    "identityType": "user",
+    "assetId": "8005c5dd-b5fe-4378-b6e4-781167a66faa",
+    "assetType": "metric_file",
+    "role": "owner",
+    "createdAt": "2025-09-19 19:52:44.006+00",
+    "updatedAt": "2025-09-19 19:52:44.006+00",
+    "deletedAt": null,
+    "createdBy": "c2dd64cd-f7f3-4884-bc91-d46ae431901e",
+    "updatedBy": "c2dd64cd-f7f3-4884-bc91-d46ae431901e"
+  },
+  {
+    "identityId": "c2dd64cd-f7f3-4884-bc91-d46ae431901e",
+    "identityType": "user",
+    "assetId": "02e001c0-3358-4892-90af-ef67e1f41222",
+    "assetType": "chat",
+    "role": "owner",
+    "createdAt": "2025-09-19 21:05:37.248+00",
+    "updatedAt": "2025-09-19 21:05:37.248+00",
+    "deletedAt": null,
+    "createdBy": "c2dd64cd-f7f3-4884-bc91-d46ae431901e",
+    "updatedBy": "c2dd64cd-f7f3-4884-bc91-d46ae431901e"
+  },
+  {
+    "identityId": "c2dd64cd-f7f3-4884-bc91-d46ae431901e",
+    "identityType": "user",
+    "assetId": "2e3723df-ca9f-415e-88d9-aee59947a380",
+    "assetType": "chat",
+    "role": "owner",
+    "createdAt": "2025-09-19 21:07:06.068+00",
+    "updatedAt": "2025-09-19 21:07:06.068+00",
+    "deletedAt": null,
+    "createdBy": "c2dd64cd-f7f3-4884-bc91-d46ae431901e",
+    "updatedBy": "c2dd64cd-f7f3-4884-bc91-d46ae431901e"
+  },
+  {
+    "identityId": "c2dd64cd-f7f3-4884-bc91-d46ae431901e",
+    "identityType": "user",
+    "assetId": "c76d39e5-c1b0-4882-ba99-f3b96039c7c7",
+    "assetType": "metric_file",
+    "role": "owner",
+    "createdAt": "2025-09-19 21:07:58.868+00",
+    "updatedAt": "2025-09-19 21:07:58.868+00",
+    "deletedAt": null,
+    "createdBy": "c2dd64cd-f7f3-4884-bc91-d46ae431901e",
+    "updatedBy": "c2dd64cd-f7f3-4884-bc91-d46ae431901e"
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "id": "1d99892f-8ab7-4367-9244-cf8b229c4d77",
+    "messageId": "5109abe9-7743-4103-a587-61371a6f340e",
+    "fileId": "8005c5dd-b5fe-4378-b6e4-781167a66faa",
+    "createdAt": "2025-09-19 19:52:44.008014+00",
+    "updatedAt": "2025-09-19 19:52:44.008014+00",
+    "deletedAt": null,
+    "isDuplicate": false,
+    "versionNumber": 1
+  },
+  {
+    "id": "284c230d-3100-44c2-9a8f-49b1dad2cfda",
+    "messageId": "10728d4e-62a8-4ea7-8d90-34396ff197ca",
+    "fileId": "c76d39e5-c1b0-4882-ba99-f3b96039c7c7",
+    "createdAt": "2025-09-19 21:07:58.87558+00",
+    "updatedAt": "2025-09-19 21:07:58.87558+00",
+    "deletedAt": null,
+    "isDuplicate": false,
+    "versionNumber": 1
+  }
+]

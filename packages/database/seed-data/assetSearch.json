@@ -1,0 +1,22 @@
+[
+  {
+    "id": "7ae05512-a554-4dc4-af99-33377aecb6ec",
+    "assetId": "8005c5dd-b5fe-4378-b6e4-781167a66faa",
+    "assetType": "metric",
+    "content": "Top Customer by Lifetime Value",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "createdAt": "2025-09-19 19:52:43.982+00",
+    "updatedAt": "2025-09-19 19:52:43.982+00",
+    "deletedAt": null
+  },
+  {
+    "id": "9f3e71fa-4bb7-4dbd-b006-0a64cab09809",
+    "assetId": "c76d39e5-c1b0-4882-ba99-f3b96039c7c7",
+    "assetType": "metric",
+    "content": "Total Customers",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "createdAt": "2025-09-19 21:07:58.851+00",
+    "updatedAt": "2025-09-19 21:07:58.851+00",
+    "deletedAt": null
+  }
+]

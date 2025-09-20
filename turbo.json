@@ -26,10 +26,7 @@
     },
     "dev": {
       "cache": false,
-      "persistent": true,
-      "dependsOn": [
-        "@buster/database#dev"
-      ]
+      "persistent": true
     },
     "momentic": {
       "cache": false,
@@ -37,10 +34,7 @@
     },
     "dev:fast": {
       "cache": false,
-      "persistent": true,
-      "dependsOn": [
-        "@buster/database#dev"
-      ]
+      "persistent": true
     },
     "lint": {
       "dependsOn": [
