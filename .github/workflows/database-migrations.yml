@@ -7,12 +7,6 @@ on:
       - 'packages/database/drizzle/**'
       - 'packages/database/drizzle.config.ts'
       - '.github/workflows/database-migrations.yml'
-      - 'packages/database/package.json'
-  pull_request:
-    types: [closed]
-    branches: [main, staging]
-    paths:
-      - 'packages/database/drizzle/**'
   workflow_dispatch:
     inputs:
       environment:
@@ -32,7 +26,6 @@ concurrency:
 jobs:
   migrate:
     runs-on: blacksmith-2vcpu-ubuntu-2404
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true) || github.event_name == 'push'
     environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || github.ref_name }}
     steps:
       - uses: actions/checkout@v4
@@ -55,30 +48,18 @@ jobs:
             sudo chown -R $(whoami):$(whoami) "$STORE_PATH" || true
             chmod -R u+rw "$STORE_PATH" || true
           fi
+      
+      - name: Mount Turbo cache sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-turbo-cache
+          path: ./.turbo
           
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --prefer-offline
-      
-      - name: Download SSL Certificate from S3
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          CERT_S3_URL: ${{ secrets.CERT_S3_URL }}
-        run: |
-          # Create certs directory
-          mkdir -p /tmp/certs
-          
-          # Download the certificate from S3
-          aws s3 cp "$CERT_S3_URL" /tmp/certs/db-cert.pem
-          
-          # Set proper permissions
-          chmod 600 /tmp/certs/db-cert.pem
-          
-          echo "Certificate downloaded successfully"
       
       - name: Run migrations
         run: pnpm run db:migrate
         env:
           DATABASE_URL: ${{ secrets.DB_URL }}
-          DATABASE_SSL_CERT: /tmp/certs/db-cert.pem
+          NODE_TLS_REJECT_UNAUTHORIZED: '0'
