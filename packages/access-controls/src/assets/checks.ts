@@ -6,10 +6,7 @@ import {
 import type { User } from '@buster/database/queries';
 import type { AssetType } from '@buster/database/schema-types';
 import type { AssetPermissionRole, OrganizationMembership, WorkspaceSharing } from '../types';
-import {
-  getHighestPermission,
-  isPermissionSufficientForAny,
-} from '../types/asset-permissions';
+import { getHighestPermission, isPermissionSufficientForAny } from '../types/asset-permissions';
 import { getCachedPermission, setCachedPermission } from './cache';
 import { checkCascadingPermissions } from './cascading-permissions';
 
