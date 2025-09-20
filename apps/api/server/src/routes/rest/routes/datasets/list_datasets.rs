@@ -16,7 +16,7 @@ use database::{
     pool::get_pg_pool,
     schema::{
         data_sources, dataset_groups, dataset_groups_permissions, dataset_permissions, datasets,
-        messages_deprecated, permission_groups_to_identities, users, users_to_organizations,
+        permission_groups_to_identities, users, users_to_organizations,
     },
 };
 
@@ -168,10 +168,6 @@ async fn get_org_datasets(
     let mut query = datasets::table
         .inner_join(data_sources::table.on(datasets::data_source_id.eq(data_sources::id)))
         .inner_join(users::table.on(datasets::created_by.eq(users::id)))
-        .left_join(
-            messages_deprecated::table
-                .on(messages_deprecated::dataset_id.eq(datasets::id.nullable())),
-        )
         .select((
             datasets::id,
             datasets::name,
@@ -183,20 +179,6 @@ async fn get_org_datasets(
             users::name.nullable(),
             users::email,
             users::avatar_url.nullable(),
-            data_sources::id,
-            data_sources::name,
-        ))
-        .group_by((
-            datasets::id,
-            datasets::name,
-            datasets::created_at,
-            datasets::updated_at,
-            datasets::enabled,
-            datasets::imported,
-            users::id,
-            users::name,
-            users::email,
-            users::avatar_url,
             data_sources::id,
             data_sources::name,
         ))

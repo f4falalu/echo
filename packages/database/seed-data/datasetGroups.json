@@ -1,0 +1,18 @@
+[
+  {
+    "id": "1611f2f4-6364-4f19-86d1-b4014a4b8a90",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "name": "Sales Group",
+    "createdAt": "2025-05-02 17:29:52.700877+00",
+    "updatedAt": "2025-05-02 17:29:52.70088+00",
+    "deletedAt": null
+  },
+  {
+    "id": "9c316602-d980-4ad0-b0b3-3e73cae56676",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "name": "HR Group",
+    "createdAt": "2025-05-02 17:31:47.553653+00",
+    "updatedAt": "2025-05-02 17:31:47.553654+00",
+    "deletedAt": null
+  }
+]

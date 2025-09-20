@@ -1,0 +1,30 @@
+[
+  {
+    "id": "c2dd64cd-f7f3-4884-bc91-d46ae431901e",
+    "name": "Sales",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "sharingSetting": "none",
+    "editSql": false,
+    "uploadCsv": false,
+    "exportAssets": false,
+    "emailSlackEnabled": false,
+    "createdBy": "6840fa04-c0d7-4e0e-8d3d-ea9190d93874",
+    "createdAt": "2024-11-05 15:41:13.962104+00",
+    "updatedAt": "2024-11-05 15:41:13.962105+00",
+    "deletedAt": null
+  },
+  {
+    "id": "6840fa04-c0d7-4e0e-8d3d-ea9190d93874",
+    "name": "Product",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "sharingSetting": "none",
+    "editSql": false,
+    "uploadCsv": false,
+    "exportAssets": false,
+    "emailSlackEnabled": false,
+    "createdBy": "6840fa04-c0d7-4e0e-8d3d-ea9190d93874",
+    "createdAt": "2024-11-05 15:41:13.962105+00",
+    "updatedAt": "2024-11-05 15:41:13.962106+00",
+    "deletedAt": null
+  }
+]

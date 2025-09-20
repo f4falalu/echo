@@ -1,0 +1,18 @@
+[
+  {
+    "teamId": "c2dd64cd-f7f3-4884-bc91-d46ae431901e",
+    "userId": "c2dd64cd-f7f3-4884-bc91-d46ae431901e",
+    "role": "manager",
+    "createdAt": "2024-11-05 15:41:13.964456+00",
+    "updatedAt": "2024-11-05 15:41:13.964457+00",
+    "deletedAt": null
+  },
+  {
+    "teamId": "6840fa04-c0d7-4e0e-8d3d-ea9190d93874",
+    "userId": "1fe85021-e799-471b-8837-953e9ae06e4c",
+    "role": "member",
+    "createdAt": "2024-11-05 15:41:13.964458+00",
+    "updatedAt": "2024-11-05 15:41:13.964458+00",
+    "deletedAt": null
+  }
+]

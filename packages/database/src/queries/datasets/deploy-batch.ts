@@ -1,7 +1,7 @@
 import { and, eq, isNull, sql } from 'drizzle-orm';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { parseDatabaseError } from '../../helpers/error-parser';
-import { dataSources, datasetColumns, datasets } from '../../schema';
+import { dataSources, datasets } from '../../schema';
 
 // Local type definitions to avoid circular dependency
 interface DeployModel {
@@ -228,76 +228,20 @@ async function upsertDatasetInTransaction(
     datasetId = result.id;
   }
 
-  // Update columns
-  await updateColumnsInTransaction(tx, datasetId, model.columns);
+  // Column updates are no longer supported - datasetColumns table has been deprecated
+  // await updateColumnsInTransaction(tx, datasetId, model.columns);
 
   return isUpdate;
 }
 
 /**
  * Update dataset columns within a transaction
+ * @deprecated datasetColumns table has been deprecated and moved to deprecated schema
  */
-async function updateColumnsInTransaction(
-  tx: PostgresJsDatabase,
-  datasetId: string,
-  columns: DeployModel['columns']
-): Promise<void> {
-  // Get existing
-  const existing = await tx
-    .select({ name: datasetColumns.name })
-    .from(datasetColumns)
-    .where(and(eq(datasetColumns.datasetId, datasetId), isNull(datasetColumns.deletedAt)));
-
-  const existingNames = new Set(existing.map((c) => c.name));
-  const newNames = new Set(columns.map((c) => c.name));
-
-  // Soft delete removed columns
-  const toDelete = existing.filter((c) => !newNames.has(c.name));
-  if (toDelete.length > 0) {
-    await tx
-      .update(datasetColumns)
-      .set({ deletedAt: sql`now()`, updatedAt: sql`now()` })
-      .where(
-        and(
-          eq(datasetColumns.datasetId, datasetId),
-          sql`${datasetColumns.name} IN (${sql.join(
-            toDelete.map((c) => sql`${c.name}`),
-            sql`, `
-          )})`
-        )
-      );
-  }
-
-  // Upsert columns
-  for (const column of columns) {
-    const columnData = {
-      datasetId,
-      name: column.name,
-      type: column.type || 'string',
-      description: column.description || null,
-      nullable: true,
-      semanticType: column.semantic_type,
-      expr: column.expr,
-      updatedAt: sql`now()`,
-    };
-
-    if (existingNames.has(column.name)) {
-      await tx
-        .update(datasetColumns)
-        .set(columnData)
-        .where(
-          and(
-            eq(datasetColumns.datasetId, datasetId),
-            eq(datasetColumns.name, column.name),
-            isNull(datasetColumns.deletedAt)
-          )
-        );
-    } else {
-      await tx.insert(datasetColumns).values({
-        id: crypto.randomUUID(),
-        ...columnData,
-        createdAt: sql`now()`,
-      });
-    }
-  }
-}
+// async function updateColumnsInTransaction(
+//   tx: PostgresJsDatabase,
+//   datasetId: string,
+//   columns: DeployModel['columns']
+// ): Promise<void> {
+//   // Function deprecated - datasetColumns table no longer exists
+// }

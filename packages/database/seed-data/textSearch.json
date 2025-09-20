@@ -1,0 +1,582 @@
+[
+  {
+    "id": "37e06581-dfa2-4d9e-be61-0b9ed1c653e0",
+    "assetType": "chat",
+    "assetId": "02e001c0-3358-4892-90af-ef67e1f41222",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Customer Base Inquiry",
+    "createdAt": "2025-09-19 21:05:37.22908+00",
+    "updatedAt": "2025-09-19 21:05:40.47+00",
+    "deletedAt": null
+  },
+  {
+    "id": "83438e2d-9d66-4478-8a78-624b45d67441",
+    "assetType": "chat",
+    "assetId": "6b8349bf-c1b3-4e94-a512-c0f05fca92db",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Top Customer Identification Request",
+    "createdAt": "2025-09-19 19:51:14.669808+00",
+    "updatedAt": "2025-09-19 19:52:47.147+00",
+    "deletedAt": null
+  },
+  {
+    "id": "898fcad2-4b7a-4020-bdc0-fdc907d7d069",
+    "assetType": "chat",
+    "assetId": "2e3723df-ca9f-415e-88d9-aee59947a380",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Customer Count Inquiry",
+    "createdAt": "2025-09-19 21:07:06.041192+00",
+    "updatedAt": "2025-09-19 21:08:02.342+00",
+    "deletedAt": null
+  },
+  {
+    "id": "e31bac73-9407-40a6-befb-750d85969528",
+    "assetType": "metric_file",
+    "assetId": "8005c5dd-b5fe-4378-b6e4-781167a66faa",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Top Customer by Lifetime Value",
+    "createdAt": "2025-09-19 19:52:43.982+00",
+    "updatedAt": "2025-09-19 19:52:43.982+00",
+    "deletedAt": null
+  },
+  {
+    "id": "0916323e-91af-49fe-a3f2-f2b3c09e4705",
+    "assetType": "metric_file",
+    "assetId": "c76d39e5-c1b0-4882-ba99-f3b96039c7c7",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Total Customers",
+    "createdAt": "2025-09-19 21:07:58.851+00",
+    "updatedAt": "2025-09-19 21:07:58.851+00",
+    "deletedAt": null
+  },
+  {
+    "id": "8e3fc64c-a4b5-479f-99be-b880b3faa5d9",
+    "assetType": "metric_file",
+    "assetId": "1e91b291-8883-5451-8b98-89e99071e4f8",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Total Customers",
+    "createdAt": "2025-05-02 17:12:08.081276+00",
+    "updatedAt": "2025-05-02 17:12:08.08128+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "5733ac0b-9362-48be-843a-fba02944365e",
+    "assetType": "metric_file",
+    "assetId": "435f45d2-f3f0-578c-b3aa-d590d52fb09f",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Total Revenue (Last 4 Quarters)",
+    "createdAt": "2025-05-02 17:16:51.138509+00",
+    "updatedAt": "2025-05-02 17:16:51.138511+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "af339d7e-3cc9-4dda-b2a8-599d04d458a3",
+    "assetType": "metric_file",
+    "assetId": "83258d77-00ea-5b6b-8c53-ae6f16024088",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Quarterly Revenue Trend",
+    "createdAt": "2025-05-02 17:16:51.139311+00",
+    "updatedAt": "2025-05-02 17:16:51.139312+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "8945858e-909c-46f3-845e-a8547dc7f451",
+    "assetType": "metric_file",
+    "assetId": "5f1d1fde-f16f-56c3-aa18-14dbce7443f5",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Quarterly Revenue Growth Rate (QoQ)",
+    "createdAt": "2025-05-02 17:16:51.202757+00",
+    "updatedAt": "2025-05-02 17:16:51.20276+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "e69306d1-efcd-4d80-a0cf-59cd062a3c37",
+    "assetType": "metric_file",
+    "assetId": "017365d0-5292-59a1-b79a-bb8db3f836d2",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Average Order Value (AOV) Trend",
+    "createdAt": "2025-05-02 17:16:51.204147+00",
+    "updatedAt": "2025-05-02 17:16:51.204149+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "120bac64-0cdb-4c42-b745-e92073b8e265",
+    "assetType": "metric_file",
+    "assetId": "0f4c458a-875e-5641-89aa-ef392e40e445",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Revenue by Product Category (Last 4 Quarters)",
+    "createdAt": "2025-05-02 17:16:51.272843+00",
+    "updatedAt": "2025-05-02 17:16:51.272847+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "7af20939-2507-4876-a9f6-1c1251b35319",
+    "assetType": "metric_file",
+    "assetId": "88f342bf-19f9-53a9-87c6-804399e69644",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Top 10 Products by Revenue (Last 4 Quarters)",
+    "createdAt": "2025-05-02 17:16:51.211762+00",
+    "updatedAt": "2025-05-02 17:16:51.211764+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "0dff34ab-c15d-4fc5-92cb-f74f02d69191",
+    "assetType": "metric_file",
+    "assetId": "807ab3f7-eac6-5bf7-973e-de98fa99b626",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Revenue by Sales Territory (Last 4 Quarters)",
+    "createdAt": "2025-05-02 17:16:51.23656+00",
+    "updatedAt": "2025-05-02 17:16:51.236565+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "e9722cb7-cb48-47e3-8f59-fbb32791657a",
+    "assetType": "metric_file",
+    "assetId": "722e80e6-9a09-5ba6-9d0c-87c1cd00fa27",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Quarterly Discount Impact Trend",
+    "createdAt": "2025-05-02 17:16:51.198584+00",
+    "updatedAt": "2025-05-02 17:16:51.198588+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "c3970899-be9f-4f42-8747-f09b4fe7cc9b",
+    "assetType": "metric_file",
+    "assetId": "0502cb5e-965c-5b4f-bd88-3e8725de4275",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Quarterly Gross Profit Margin Trend",
+    "createdAt": "2025-05-02 17:16:51.139499+00",
+    "updatedAt": "2025-05-02 17:16:51.1395+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "8d96b6d0-d5bc-4f5f-8619-0c5d2e4309d9",
+    "assetType": "metric_file",
+    "assetId": "9c94612e-348e-591c-bc80-fd24d556dcf7",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Top 10 Products by Revenue (Q2 2023 - Q1 2024)",
+    "createdAt": "2025-05-02 17:18:46.200189+00",
+    "updatedAt": "2025-05-02 17:18:46.20019+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "ff17620a-d705-4b3d-b5ca-a2f547ca5713",
+    "assetType": "metric_file",
+    "assetId": "7f0ad771-7241-51ad-bb5c-76d32a0ab98b",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Average Revenue per Customer (Quarterly)",
+    "createdAt": "2025-05-02 17:16:51.280829+00",
+    "updatedAt": "2025-05-02 17:16:51.280832+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "4fa79c70-0326-4f17-8a71-9869a22dd694",
+    "assetType": "metric_file",
+    "assetId": "1ab2b66a-9ca6-5120-9155-20998b802c6a",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Total Revenue (Q2 2023 - Q1 2024)",
+    "createdAt": "2025-05-02 17:18:46.207623+00",
+    "updatedAt": "2025-05-02 17:18:46.207624+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "10a745d3-7c1a-4824-8ed3-0cc9551172a4",
+    "assetType": "metric_file",
+    "assetId": "ea6b0583-e9cb-5b2f-a18c-69571042ee67",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Quarterly Revenue Trend (Q2 2023 - Q1 2024)",
+    "createdAt": "2025-05-02 17:18:46.208185+00",
+    "updatedAt": "2025-05-02 17:18:46.208186+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "d85afc73-17b8-42ac-907a-73b0aea24dda",
+    "assetType": "metric_file",
+    "assetId": "b19d2606-6061-5d22-8628-78a4878310d4",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Quarterly Revenue Growth Rate (QoQ) (Q2 2023 - Q1 2024)",
+    "createdAt": "2025-05-02 17:18:46.211434+00",
+    "updatedAt": "2025-05-02 17:18:46.211436+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "24a848ef-cd75-42ba-9e92-be8a1e2fdace",
+    "assetType": "dashboard_file",
+    "assetId": "e57e64e6-9c8c-50d2-aa7e-491ce8c03898",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Quarterly Revenue Report (Last 4 Quarters)",
+    "createdAt": "2025-05-02 17:17:03.424007+00",
+    "updatedAt": "2025-05-02 17:17:03.42401+00",
+    "deletedAt": "2025-09-19 19:27:51.155707+00"
+  },
+  {
+    "id": "01342af7-9fdc-480c-970a-665aa81317be",
+    "assetType": "dashboard_file",
+    "assetId": "dfd955c3-cc6a-5e08-974e-5cbd5427c288",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Quarterly Revenue Report (Previous 4 Quarters)",
+    "createdAt": "2025-05-02 17:19:01.230086+00",
+    "updatedAt": "2025-05-02 17:19:01.230089+00",
+    "deletedAt": "2025-09-19 19:27:51.155707+00"
+  },
+  {
+    "id": "09fb5768-0935-411e-9af6-03ec99f0048e",
+    "assetType": "dashboard_file",
+    "assetId": "d3e1dce4-d1d7-4d7e-a8e3-50ad8b331672",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Untitled",
+    "createdAt": "2025-05-02 17:41:11.665037+00",
+    "updatedAt": "2025-05-02 17:41:34.35877+00",
+    "deletedAt": "2025-09-19 19:27:51.155707+00"
+  },
+  {
+    "id": "8da7a037-e53b-434d-9ddd-b76020cad67f",
+    "assetType": "dashboard_file",
+    "assetId": "bd8f27b6-8dff-4611-a758-6d1d6374ad0f",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Dash",
+    "createdAt": "2025-05-02 17:40:00.230643+00",
+    "updatedAt": "2025-05-02 17:40:25.384709+00",
+    "deletedAt": "2025-09-19 19:27:51.155707+00"
+  },
+  {
+    "id": "9c3f1706-4e14-4924-b1db-d5f53fdcc9f1",
+    "assetType": "dashboard_file",
+    "assetId": "c0855f0f-f50a-424e-9e72-9e53711a7f6a",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Important Metrics",
+    "createdAt": "2025-05-02 17:41:55.824781+00",
+    "updatedAt": "2025-05-02 17:42:05.934132+00",
+    "deletedAt": "2025-09-19 19:27:51.155707+00"
+  },
+  {
+    "id": "61808a61-9bee-4c50-8053-cd6807335521",
+    "assetType": "chat",
+    "assetId": "13962e95-ea7c-496f-9247-39eda4ade513",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Customer Base Inquiry",
+    "createdAt": "2025-09-19 19:47:24.53225+00",
+    "updatedAt": "2025-09-19 19:47:28.009+00",
+    "deletedAt": "2025-09-19 19:49:33.944716+00"
+  },
+  {
+    "id": "369e393b-5384-4f14-abeb-bccaf1404487",
+    "assetType": "chat",
+    "assetId": "643c4d58-62e0-4d5a-9ec2-c0dde0f140a6",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Last 30 Products Sold: Table View",
+    "createdAt": "2025-05-02 17:22:49.885323+00",
+    "updatedAt": "2025-05-02 17:25:03.702973+00",
+    "deletedAt": "2025-09-19 19:49:33.944716+00"
+  },
+  {
+    "id": "ffe8ac64-04ed-4771-8aa6-cf1fca4a789f",
+    "assetType": "chat",
+    "assetId": "865352e8-c327-461d-ae67-9efeb530ff0e",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Customer Count Calculation",
+    "createdAt": "2025-05-02 17:11:47.063447+00",
+    "updatedAt": "2025-05-02 17:12:13.703131+00",
+    "deletedAt": "2025-09-19 19:49:33.944716+00"
+  },
+  {
+    "id": "3c3fa0dc-9104-465b-a09c-5b6666d67454",
+    "assetType": "chat",
+    "assetId": "9e8749a0-11a4-41f1-b3a6-5d7af7d04365",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Revenue Report: Previous Four Quarters",
+    "createdAt": "2025-05-02 17:15:38.203322+00",
+    "updatedAt": "2025-05-02 17:19:14.115354+00",
+    "deletedAt": "2025-09-19 19:49:33.944716+00"
+  },
+  {
+    "id": "ed381aea-05e1-4846-94e7-1ede1e82e1c2",
+    "assetType": "chat",
+    "assetId": "aae82f85-518f-4d92-b777-1e5b4283cb90",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Signature Cycles Sales: Product Comparison by Year",
+    "createdAt": "2025-05-02 17:18:34.188504+00",
+    "updatedAt": "2025-05-02 17:26:44.169011+00",
+    "deletedAt": "2025-09-19 19:49:33.944716+00"
+  },
+  {
+    "id": "0c7b5b38-23fd-4d0d-98d3-9becf8b0910c",
+    "assetType": "chat",
+    "assetId": "07f17baf-5d6c-41be-9a6a-0e9619a4878c",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Most Active Vendor Last 3 Years",
+    "createdAt": "2025-05-02 17:26:19.542993+00",
+    "updatedAt": "2025-05-02 17:27:10.41419+00",
+    "deletedAt": "2025-09-19 19:49:33.944716+00"
+  },
+  {
+    "id": "0f829f14-7390-4021-ae90-fe451ea80c7e",
+    "assetType": "chat",
+    "assetId": "6119c6ba-3488-4b3e-9629-bfc7427ed3f6",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Sales Performance: Last Week, Month, and Year",
+    "createdAt": "2025-05-02 17:21:14.764247+00",
+    "updatedAt": "2025-05-02 17:28:23.415044+00",
+    "deletedAt": "2025-09-19 19:49:33.944716+00"
+  },
+  {
+    "id": "da236fd6-8170-4657-821f-39816289b9be",
+    "assetType": "chat",
+    "assetId": "aa5bce11-a2b9-4842-93c3-288fb4f5d456",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Last Quarter Sales Figures",
+    "createdAt": "2025-05-02 17:32:30.376149+00",
+    "updatedAt": "2025-05-02 17:32:31.171822+00",
+    "deletedAt": "2025-09-19 19:49:33.944716+00"
+  },
+  {
+    "id": "99445395-d1e1-4469-bdeb-3a3fdb1264fc",
+    "assetType": "chat",
+    "assetId": "b612e035-af03-4021-8cd5-8c982fa9a9c5",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Last Month's Revenue",
+    "createdAt": "2025-05-02 17:34:41.936169+00",
+    "updatedAt": "2025-05-02 17:34:42.814488+00",
+    "deletedAt": "2025-09-19 19:49:33.944716+00"
+  },
+  {
+    "id": "57a24fd9-8b31-4280-803e-6c016f9e8a3c",
+    "assetType": "chat",
+    "assetId": "aa3963a9-f434-4a51-b380-d32d6ff43eed",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Last Quarter Sales Performance",
+    "createdAt": "2025-05-02 17:36:20.808029+00",
+    "updatedAt": "2025-05-02 17:36:21.484203+00",
+    "deletedAt": "2025-09-19 19:49:33.944716+00"
+  },
+  {
+    "id": "06f89f89-16c4-4f51-8baa-7068e7ea2cbd",
+    "assetType": "chat",
+    "assetId": "0ba71c06-f86d-4a2d-973c-3870e8a5372e",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Top Customer Identification",
+    "createdAt": "2025-05-02 17:48:54.165621+00",
+    "updatedAt": "2025-05-02 17:48:55.28777+00",
+    "deletedAt": "2025-09-19 19:49:33.944716+00"
+  },
+  {
+    "id": "28c9268e-a081-4915-9c6a-94a66b1b5b1c",
+    "assetType": "chat",
+    "assetId": "420226c8-b91d-49c5-99f8-660b04cc8c01",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Total Products Sold To Date",
+    "createdAt": "2025-05-02 17:50:49.561649+00",
+    "updatedAt": "2025-05-02 17:51:13.592684+00",
+    "deletedAt": "2025-09-19 19:49:33.944716+00"
+  },
+  {
+    "id": "58805ee1-c47a-4370-a777-6b493eedf700",
+    "assetType": "chat",
+    "assetId": "bfc138ed-2b28-4a88-bff9-b4e3d7881cd9",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Clothing Products Table Duplication",
+    "createdAt": "2025-05-02 17:50:57.918898+00",
+    "updatedAt": "2025-05-02 17:52:03.70525+00",
+    "deletedAt": "2025-09-19 19:49:33.944716+00"
+  },
+  {
+    "id": "1e7cc4d8-a478-4d86-8880-7fdb63e58016",
+    "assetType": "metric_file",
+    "assetId": "1f9bf32a-b53c-510f-8c1b-e20e7ad52174",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Average Order Value (AOV) Trend (Q2 2023 - Q1 2024)",
+    "createdAt": "2025-05-02 17:18:46.199282+00",
+    "updatedAt": "2025-05-02 17:18:46.199301+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "61c88727-d11b-4481-a4c6-2e3dc940e4ed",
+    "assetType": "metric_file",
+    "assetId": "45848c7f-0d28-52a0-914e-f3fc1b7d4180",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Revenue by Product Category (Q2 2023 - Q1 2024)",
+    "createdAt": "2025-05-02 17:18:46.243101+00",
+    "updatedAt": "2025-05-02 17:18:46.243103+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "7dea7775-70af-425e-b2c6-8f9228857397",
+    "assetType": "metric_file",
+    "assetId": "117a2fc5-e3e8-5bb0-a29b-bcfa3da3adc0",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Revenue by Sales Territory (Q2 2023 - Q1 2024)",
+    "createdAt": "2025-05-02 17:18:46.231028+00",
+    "updatedAt": "2025-05-02 17:18:46.23103+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "6867dbee-c345-49e1-8e49-1a34ed3a4fbb",
+    "assetType": "metric_file",
+    "assetId": "1277b550-3c25-551c-89c8-4398f4a4f3f7",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Quarterly Discount Impact Trend (Q2 2023 - Q1 2024)",
+    "createdAt": "2025-05-02 17:18:46.140719+00",
+    "updatedAt": "2025-05-02 17:18:46.140721+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "556c869c-286a-4d69-820b-d1c5f600c44c",
+    "assetType": "metric_file",
+    "assetId": "72e445a5-fb08-5b76-8c77-1642adf0cb72",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Quarterly Gross Profit Margin Trend (Q2 2023 - Q1 2024)",
+    "createdAt": "2025-05-02 17:18:46.256495+00",
+    "updatedAt": "2025-05-02 17:18:46.256497+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "020f528f-76df-47dd-b150-62b4b30f01a3",
+    "assetType": "metric_file",
+    "assetId": "635d9b06-afb1-5b05-8130-03c0b7a04bcb",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Average Revenue per Customer (Quarterly) (Q2 2023 - Q1 2024)",
+    "createdAt": "2025-05-02 17:18:46.261976+00",
+    "updatedAt": "2025-05-02 17:18:46.261979+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "3fe8f612-e1b9-4893-91ec-8209dc84f830",
+    "assetType": "metric_file",
+    "assetId": "19ad03c6-a7d8-5182-a5ab-807e719981ba",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Unique Customers (Last 12 Months)",
+    "createdAt": "2025-05-02 17:26:52.667881+00",
+    "updatedAt": "2025-05-02 17:26:52.667884+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "da1d3c1d-0bf2-499a-8a57-cdbe32b2a3fa",
+    "assetType": "metric_file",
+    "assetId": "45c17750-2b61-5683-ba8d-ff6c6fefacee",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Yearly Sales Revenue - Signature Cycles Products (Last 3 Years + YTD)",
+    "createdAt": "2025-05-02 17:19:26.111616+00",
+    "updatedAt": "2025-05-02 17:48:06.750902+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "857925be-8d2b-4a70-8238-e89415665f20",
+    "assetType": "metric_file",
+    "assetId": "fda05357-5c8c-5877-ba40-2ee74512cf88",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Unique Customers (Last 3 Days)",
+    "createdAt": "2025-05-02 17:21:45.165333+00",
+    "updatedAt": "2025-05-02 17:21:45.165339+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "a394d8a8-b232-4ac5-be86-94a4d036d18e",
+    "assetType": "metric_file",
+    "assetId": "90916af0-1e47-5548-ad69-5c93b792f084",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Unique Customers (Last Week Apr 20-26)",
+    "createdAt": "2025-05-02 17:22:47.031317+00",
+    "updatedAt": "2025-05-02 17:22:47.031321+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "302440ce-29a3-4a51-9d4a-2655cc677914",
+    "assetType": "metric_file",
+    "assetId": "6fa57584-2046-53a0-9eab-d9fb8bd5881e",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Unique Customers (Last Month April 2025)",
+    "createdAt": "2025-05-02 17:22:46.038636+00",
+    "updatedAt": "2025-05-02 17:22:46.038641+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "0bcc82bf-8f84-4aff-8e33-486990306a2c",
+    "assetType": "metric_file",
+    "assetId": "5bb48c11-86c4-52e7-8019-b835c801fbe8",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Last 30 Products Sold",
+    "createdAt": "2025-05-02 17:24:57.3234+00",
+    "updatedAt": "2025-05-02 17:24:57.323402+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "02706c1a-2582-423f-9427-8b2dbb655dda",
+    "assetType": "metric_file",
+    "assetId": "ea77637c-d3b3-5dda-a86e-0f6189b73026",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Total Sales Revenue (Last Week Apr 20-26)",
+    "createdAt": "2025-05-02 17:28:17.546743+00",
+    "updatedAt": "2025-05-02 17:28:17.546746+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "bd07933e-0f05-46d1-8c4a-86cd78e45107",
+    "assetType": "metric_file",
+    "assetId": "e4364372-02f8-5f68-b65d-6b2594e90c74",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Total Sales Revenue (Last Month April 2025)",
+    "createdAt": "2025-05-02 17:28:17.561349+00",
+    "updatedAt": "2025-05-02 17:28:17.561352+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "f79f139e-2905-48b3-a2e4-4e1361b4d600",
+    "assetType": "metric_file",
+    "assetId": "2b569e92-229b-5cad-b312-b09c751c544d",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Yearly Sales Revenue by Product - Signature Cycles (2022-Present)",
+    "createdAt": "2025-05-02 17:26:38.644943+00",
+    "updatedAt": "2025-05-02 17:47:55.137382+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "93abfb88-c433-4aa8-bdd7-309bcb41703a",
+    "assetType": "metric_file",
+    "assetId": "b401778a-bd93-53f4-b884-236aaf62c9a8",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Top 10 Most Active Vendors by Purchase Order Count (Last 3 Years)",
+    "createdAt": "2025-05-02 17:27:03.199276+00",
+    "updatedAt": "2025-05-02 17:47:48.162514+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "5760fb60-56ca-485b-8447-88cc69841b4b",
+    "assetType": "metric_file",
+    "assetId": "629206aa-8842-584c-b113-d22baf7efafd",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Top 10 Products by Sales Revenue - Signature Cycles (2022-Present)",
+    "createdAt": "2025-05-02 17:23:03.602778+00",
+    "updatedAt": "2025-05-02 17:48:01.382848+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "9afd247b-11df-4dfb-87e5-3a65d9df59f6",
+    "assetType": "metric_file",
+    "assetId": "27a226fe-d0bb-5d44-abed-11c8f86583b0",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Top Customer by Revenue (All Time)",
+    "createdAt": "2025-05-02 17:49:30.06431+00",
+    "updatedAt": "2025-05-02 17:49:30.064313+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "13d38668-1a8d-4887-9001-e36f45b580d5",
+    "assetType": "metric_file",
+    "assetId": "5316b39f-54ca-59b4-9102-9f581e1fa680",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Total Unique Products Sold",
+    "createdAt": "2025-05-02 17:51:12.609371+00",
+    "updatedAt": "2025-05-02 17:51:12.609375+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  },
+  {
+    "id": "87056cc0-f5fd-4e65-b085-0aa7af0aa1fe",
+    "assetType": "metric_file",
+    "assetId": "e6224028-a508-514d-bf87-ff2196b5703a",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "searchableText": "Last 30 Clothing Products Sold",
+    "createdAt": "2025-05-02 17:51:56.002866+00",
+    "updatedAt": "2025-05-02 17:51:56.002869+00",
+    "deletedAt": "2025-09-19 19:27:25.236433+00"
+  }
+]
