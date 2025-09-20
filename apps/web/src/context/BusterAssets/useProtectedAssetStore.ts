@@ -11,14 +11,6 @@ type ProtectedAsset = {
 
 const protectedAssetsStore = new Store(new Map<string, ProtectedAsset>());
 
-export const getProtectedAssetFromStore = (assetId: string) => {
-  return protectedAssetsStore.state.get(assetId);
-};
-
-export const getProtectedAssetPassword = (assetId: string) => {
-  return getProtectedAssetFromStore(assetId)?.password;
-};
-
 export const setProtectedAssetPassword = ({
   assetId,
   password,
@@ -40,8 +32,7 @@ export const setProtectedAssetPasswordError = ({
   assetId: string;
   error: string | null;
 }) => {
-  const asset = getProtectedAssetFromStore(assetId);
-
+  const asset = protectedAssetsStore.state.get(assetId);
   if (!asset) {
     return;
   }
@@ -59,7 +50,7 @@ export const useProtectedAsset = (assetId: string): ProtectedAsset => {
 };
 
 export const useProtectedAssetPassword = (assetId: string) => {
-  const asset = useStore(
+  const password = useStore(
     protectedAssetsStore,
     useCallback(
       (state: typeof protectedAssetsStore.state) => state.get(assetId)?.password,
@@ -67,5 +58,5 @@ export const useProtectedAssetPassword = (assetId: string) => {
     )
   );
 
-  return asset;
+  return password;
 };

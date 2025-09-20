@@ -10,6 +10,7 @@ import { create } from 'mutative';
 import { collectionQueryKeys } from '@/api/query_keys/collection';
 import { reportsQueryKeys } from '@/api/query_keys/reports';
 import { silenceAssetErrors } from '@/api/repsonse-helpers/silenece-asset-errors';
+import { useProtectedAssetPassword } from '@/context/BusterAssets/useProtectedAssetStore';
 import type { RustApiError } from '../../errors';
 import {
   useAddAssetToCollection,
@@ -104,10 +105,12 @@ export const useGetReport = <T = GetReportResponse>(
   { id, versionNumber }: { id: string | undefined; versionNumber?: number },
   options?: Omit<UseQueryOptions<GetReportResponse, RustApiError, T>, 'queryKey' | 'queryFn'>
 ) => {
+  const password = useProtectedAssetPassword(id || '');
   const queryFn = () => {
     return getReportById({
       id: id ?? '',
       version_number: typeof versionNumber === 'number' ? versionNumber : undefined,
+      password,
     });
   };
 

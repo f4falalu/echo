@@ -15,8 +15,8 @@ import type {
 import { metricsQueryKeys } from '@/api/query_keys/metric';
 import { silenceAssetErrors } from '@/api/repsonse-helpers/silenece-asset-errors';
 import {
-  getProtectedAssetPassword,
   setProtectedAssetPasswordError,
+  useProtectedAssetPassword,
 } from '@/context/BusterAssets/useProtectedAssetStore';
 import { setOriginalMetric } from '@/context/Metrics/useOriginalMetricStore';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
@@ -36,8 +36,8 @@ const getMetricQueryFn = async ({
 }: {
   id: string | undefined;
   version: number | undefined | 'LATEST';
-  password: string | undefined;
   queryClient: QueryClient;
+  password: string | undefined;
 }) => {
   const chosenVersionNumber: number | undefined = version === 'LATEST' ? undefined : version;
   const result = await getMetric({
@@ -73,7 +73,7 @@ export const useGetMetric = <TData = BusterMetric>(
   params?: Omit<UseQueryOptions<BusterMetric, RustApiError, TData>, 'queryKey' | 'queryFn'>
 ) => {
   const queryClient = useQueryClient();
-  const password = getProtectedAssetPassword(id || '');
+  const password = useProtectedAssetPassword(id || '');
 
   const { selectedVersionNumber, latestVersionNumber } = useGetMetricVersionNumber(
     id || '',
@@ -82,7 +82,7 @@ export const useGetMetric = <TData = BusterMetric>(
 
   const { isFetched: isFetchedInitial, isError: isErrorInitial } = useQuery({
     ...metricsQueryKeys.metricsGetMetric(id || '', 'LATEST'),
-    queryFn: () => getMetricQueryFn({ id, version: 'LATEST', password, queryClient }),
+    queryFn: () => getMetricQueryFn({ id, version: 'LATEST', queryClient, password }),
     retry(_failureCount, error) {
       if (error?.message !== undefined && id) {
         setProtectedAssetPasswordError({
@@ -100,7 +100,7 @@ export const useGetMetric = <TData = BusterMetric>(
   return useQuery({
     ...metricsQueryKeys.metricsGetMetric(id || '', selectedVersionNumber),
     enabled: !!id && !!latestVersionNumber && isFetchedInitial && !isErrorInitial,
-    queryFn: () => getMetricQueryFn({ id, version: selectedVersionNumber, password, queryClient }),
+    queryFn: () => getMetricQueryFn({ id, version: selectedVersionNumber, queryClient, password }),
     select: params?.select,
   });
 };
@@ -129,8 +129,8 @@ export const prefetchGetMetric = async (
         getMetricQueryFn({
           id,
           version: params.version_number,
-          password: undefined,
           queryClient,
+          password: undefined,
         }),
       retry: silenceAssetErrors,
     });
@@ -152,7 +152,7 @@ export const useGetMetricData = <TData = BusterMetricDataExtended>(
   params?: Omit<UseQueryOptions<BusterMetricData, RustApiError, TData>, 'queryKey' | 'queryFn'>
 ) => {
   const queryClient = useQueryClient();
-  const password = getProtectedAssetPassword(id);
+  const password = useProtectedAssetPassword(id || '');
   const getLatestMetricVersion = useGetLatestMetricVersionMemoized();
   const { selectedVersionNumber } = useGetMetricVersionNumber(id, versionNumberProp);
   const {

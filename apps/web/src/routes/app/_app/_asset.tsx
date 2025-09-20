@@ -1,10 +1,10 @@
 import type { AssetType } from '@buster/server-shared/assets';
 import { createFileRoute, Outlet, type RouteContext } from '@tanstack/react-router';
 import { getTitle as getAssetTitle } from '@/api/buster_rest/title';
-import { useMount } from '@/hooks/useMount';
 import { AppAssetCheckLayout } from '@/layouts/AppAssetCheckLayout';
 
 export const Route = createFileRoute('/app/_app/_asset')({
+  ssr: false,
   component: RouteComponent,
   context: () => ({ getAssetTitle }),
   beforeLoad: async ({ matches }) => {
