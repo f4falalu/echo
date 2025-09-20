@@ -15,16 +15,15 @@ import { getOrganizationMemberCount, getUserOrganizationId } from '../organizati
 export const GetReportInputSchema = z.object({
   reportId: z.string().uuid('Report ID must be a valid UUID'),
   userId: z.string().uuid('User ID must be a valid UUID'),
-  permissionRole: AssetPermissionRoleSchema.optional(),
   versionNumber: z.number().int().min(1).optional(),
 });
 
 type GetReportInput = z.infer<typeof GetReportInputSchema>;
 
-export async function getReport(input: GetReportInput) {
+export async function getReportFileById(input: GetReportInput) {
   const validated = GetReportInputSchema.parse(input);
 
-  const { reportId, userId, permissionRole, versionNumber } = validated;
+  const { reportId, userId, versionNumber } = validated;
 
   const userOrg = await getUserOrganizationId(userId);
 
@@ -66,6 +65,7 @@ export async function getReport(input: GetReportInput) {
       public_password: reportFiles.publicPassword,
       public_enabled_by: reportFiles.publiclyEnabledBy,
       workspace_sharing: reportFiles.workspaceSharing,
+      organization_id: reportFiles.organizationId,
       // User metadata
       created_by_id: users.id,
       created_by_name: users.name,
@@ -147,7 +147,7 @@ export async function getReport(input: GetReportInput) {
     versions: versionHistoryArray,
     collections: reportCollectionsResult,
     individual_permissions: individualPermissionsResult,
-    permission: permissionRole ? permissionRole : (userPermission ?? 'can_view'),
+    permission: userPermission ?? 'can_view',
     workspace_member_count: workspaceMemberCount,
   };
 
