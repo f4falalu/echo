@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-import * as fs from 'fs';
-import * as path from 'path';
-import { fileURLToPath } from 'url';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { eq, sql } from 'drizzle-orm';
 import { getTableName } from 'drizzle-orm';
 import { db } from '../src/connection';
@@ -17,7 +17,7 @@ function getAllTables(): Record<string, any> {
   for (const [key, value] of Object.entries(schema)) {
     if (value && typeof value === 'object' && Symbol.for('drizzle:IsDrizzleTable') in value) {
       try {
-        const tableName = getTableName(value);
+        const _tableName = getTableName(value);
         tables[key] = value;
       } catch {
         // Not a table, skip
@@ -203,9 +203,9 @@ async function seed() {
     const seedData: Record<string, any[]> = {};
 
     // Load auth data from files (but we'll use hardcoded instead)
-    const authUsers = await loadJsonFile(path.join(dataDir, 'auth.users.json'));
-    const authIdentities = await loadJsonFile(path.join(dataDir, 'auth.identities.json'));
-    const vaultSecrets = await loadJsonFile(path.join(dataDir, 'vault.secrets.json'));
+    const _authUsers = await loadJsonFile(path.join(dataDir, 'auth.users.json'));
+    const _authIdentities = await loadJsonFile(path.join(dataDir, 'auth.identities.json'));
+    const _vaultSecrets = await loadJsonFile(path.join(dataDir, 'vault.secrets.json'));
 
     // Load public schema data
     for (const tableName of tableOrder) {
@@ -220,7 +220,7 @@ async function seed() {
       console.log('=== Upserting seed data (no deletion needed) ===\n');
 
       // Generate auth users for all public users in the seed data
-      const publicUsers = seedData['users'] || [];
+      const publicUsers = seedData.users || [];
       const authUsers = publicUsers.map(generateAuthUser);
       const authIdentities = publicUsers.map(generateAuthIdentity);
 
@@ -294,7 +294,7 @@ async function seed() {
       }
 
       // After all data is inserted, create vault secrets for data sources
-      const dataSources = seedData['dataSources'] || [];
+      const dataSources = seedData.dataSources || [];
       if (dataSources.length > 0) {
         console.log('\n=== Creating vault secrets for data sources ===\n');
         for (const dataSource of dataSources) {
@@ -307,7 +307,7 @@ async function seed() {
                 DELETE FROM vault.secrets WHERE name = ${dataSource.id}
               `);
               console.log(`Deleted existing vault secret for ${dataSource.name}`);
-            } catch (deleteError) {
+            } catch (_deleteError) {
               // It's fine if the delete fails, it might not exist
             }
 
@@ -323,11 +323,13 @@ async function seed() {
 
             if (secretId) {
               // Update the data source with the new secret ID
-              console.log(`Updating data source ${dataSource.name} with new secret ID: ${secretId}`);
+              console.log(
+                `Updating data source ${dataSource.name} with new secret ID: ${secretId}`
+              );
               await tx
-                .update(tables['dataSources'])
+                .update(tables.dataSources)
                 .set({ secretId: secretId })
-                .where(eq(tables['dataSources'].id, dataSource.id));
+                .where(eq(tables.dataSources.id, dataSource.id));
               console.log(`Successfully linked vault secret to data source ${dataSource.name}`);
             }
           } catch (vaultError: any) {
@@ -343,8 +345,8 @@ async function seed() {
 
       // Show summary
       console.log('\nSummary:');
-      const publicUserCount = (seedData['users'] || []).length;
-      const dataSourceCount = (seedData['dataSources'] || []).length;
+      const publicUserCount = (seedData.users || []).length;
+      const dataSourceCount = (seedData.dataSources || []).length;
       const totalRecords =
         Object.values(seedData).reduce((sum, data) => sum + data.length, 0) + publicUserCount * 2; // x2 for auth users + identities
       console.log(`Total records upserted: ${totalRecords}`);
@@ -381,7 +383,7 @@ if (isDryRun) {
   console.log('Seed operation plan:\n');
   console.log('Tables will be seeded in this order:');
 
-  if (metadata && metadata.tables) {
+  if (metadata?.tables) {
     metadata.tables.forEach((table: any, index: number) => {
       const deps =
         table.dependencies?.length > 0 ? ` (depends on: ${table.dependencies.join(', ')})` : '';

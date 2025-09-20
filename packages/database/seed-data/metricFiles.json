@@ -64,10 +64,7 @@
         },
         "disableTooltip": false,
         "metricColumnId": "metric_clv_all_time",
-        "scatterDotSize": [
-          3,
-          15
-        ],
+        "scatterDotSize": [3, 15],
         "xAxisAxisTitle": null,
         "yAxisAxisTitle": null,
         "yAxisScaleType": "linear",
@@ -238,10 +235,7 @@
             },
             "disableTooltip": false,
             "metricColumnId": "metric_clv_all_time",
-            "scatterDotSize": [
-              3,
-              15
-            ],
+            "scatterDotSize": [3, 15],
             "xAxisAxisTitle": null,
             "yAxisAxisTitle": null,
             "yAxisScaleType": "linear",
@@ -438,10 +432,7 @@
         },
         "disableTooltip": false,
         "metricColumnId": "total_customers",
-        "scatterDotSize": [
-          3,
-          15
-        ],
+        "scatterDotSize": [3, 15],
         "xAxisAxisTitle": null,
         "yAxisAxisTitle": null,
         "yAxisScaleType": "linear",
@@ -570,10 +561,7 @@
             },
             "disableTooltip": false,
             "metricColumnId": "total_customers",
-            "scatterDotSize": [
-              3,
-              15
-            ],
+            "scatterDotSize": [3, 15],
             "xAxisAxisTitle": null,
             "yAxisAxisTitle": null,
             "yAxisScaleType": "linear",

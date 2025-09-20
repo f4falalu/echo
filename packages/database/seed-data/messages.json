@@ -43,9 +43,7 @@
         },
         "title": "Broke down your request",
         "status": "completed",
-        "file_ids": [
-          "todos-1758311476502-hd3fotv7z1m"
-        ],
+        "file_ids": ["todos-1758311476502-hd3fotv7z1m"],
         "secondary_title": "3.9 seconds"
       },
       {
@@ -73,9 +71,7 @@
         },
         "title": "Ran 2 validation queries",
         "status": "completed",
-        "file_ids": [
-          "sql-toolu_01Q5bAwXiG9nGmMN9D1gJtzm"
-        ],
+        "file_ids": ["sql-toolu_01Q5bAwXiG9nGmMN9D1gJtzm"],
         "secondary_title": "2.5 seconds"
       },
       {
@@ -103,9 +99,7 @@
         },
         "title": "Ran 2 validation queries, 1 failed",
         "status": "failed",
-        "file_ids": [
-          "sql-toolu_01NFn7mND7tK8UQg16cH27uq"
-        ],
+        "file_ids": ["sql-toolu_01NFn7mND7tK8UQg16cH27uq"],
         "secondary_title": "4.5 seconds"
       },
       {
@@ -133,9 +127,7 @@
         },
         "title": "Ran 1 validation query",
         "status": "completed",
-        "file_ids": [
-          "sql-toolu_01SkTSCXsVqEbwAZhgYit3r6"
-        ],
+        "file_ids": ["sql-toolu_01SkTSCXsVqEbwAZhgYit3r6"],
         "secondary_title": "3.0 seconds"
       },
       {
@@ -163,9 +155,7 @@
         },
         "title": "Created 1 metric_file",
         "status": "completed",
-        "file_ids": [
-          "8005c5dd-b5fe-4378-b6e4-781167a66faa"
-        ],
+        "file_ids": ["8005c5dd-b5fe-4378-b6e4-781167a66faa"],
         "secondary_title": "8.5 seconds"
       }
     ],
@@ -522,9 +512,7 @@
         },
         "title": "Broke down your request",
         "status": "completed",
-        "file_ids": [
-          "todos-1758316028374-sy337pwvhj"
-        ],
+        "file_ids": ["todos-1758316028374-sy337pwvhj"],
         "secondary_title": "2.6 seconds"
       },
       {
@@ -552,9 +540,7 @@
         },
         "title": "Ran 3 validation queries",
         "status": "completed",
-        "file_ids": [
-          "sql-toolu_01WovP2oMwhW6UWFD7TM8mNL"
-        ],
+        "file_ids": ["sql-toolu_01WovP2oMwhW6UWFD7TM8mNL"],
         "secondary_title": "2.2 seconds"
       },
       {
@@ -582,9 +568,7 @@
         },
         "title": "Created 1 metric_file",
         "status": "completed",
-        "file_ids": [
-          "c76d39e5-c1b0-4882-ba99-f3b96039c7c7"
-        ],
+        "file_ids": ["c76d39e5-c1b0-4882-ba99-f3b96039c7c7"],
         "secondary_title": "5.5 seconds"
       }
     ],
@@ -828,9 +812,7 @@
         },
         "title": "Broke down your request",
         "status": "completed",
-        "file_ids": [
-          "todos-1758315939202-jbd1dtn9t5"
-        ],
+        "file_ids": ["todos-1758315939202-jbd1dtn9t5"],
         "secondary_title": "2.5 seconds"
       },
       {
@@ -858,9 +840,7 @@
         },
         "title": "Generated 3 validation queries",
         "status": "completed",
-        "file_ids": [
-          "sql-toolu_01BgQm1j8ggahsvqpRZgEKaY"
-        ]
+        "file_ids": ["sql-toolu_01BgQm1j8ggahsvqpRZgEKaY"]
       },
       {
         "id": "toolu_01S5QUiwN6uy2RNg1MAiwgKR",
@@ -887,9 +867,7 @@
         },
         "title": "Failed to create 1 metric_file",
         "status": "failed",
-        "file_ids": [
-          "6e7ed83e-0232-498c-9657-1147c21163ec"
-        ],
+        "file_ids": ["6e7ed83e-0232-498c-9657-1147c21163ec"],
         "secondary_title": "5.1 seconds"
       },
       {
@@ -909,9 +887,7 @@
         },
         "title": "Failed to create 1 metric_file",
         "status": "failed",
-        "file_ids": [
-          "337ecb09-377a-4179-a0cd-7f98ba16d172"
-        ],
+        "file_ids": ["337ecb09-377a-4179-a0cd-7f98ba16d172"],
         "secondary_title": "1.8 seconds"
       }
     ],
