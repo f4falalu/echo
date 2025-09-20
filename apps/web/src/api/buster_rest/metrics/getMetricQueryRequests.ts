@@ -13,6 +13,7 @@ import type {
   BusterMetricDataExtended,
 } from '@/api/asset_interfaces/metric';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
+import { silenceAssetErrors } from '@/api/repsonse-helpers/silenece-asset-errors';
 import {
   getProtectedAssetPassword,
   setProtectedAssetPasswordError,
@@ -131,6 +132,7 @@ export const prefetchGetMetric = async (
           password: undefined,
           queryClient,
         }),
+      retry: silenceAssetErrors,
     });
   }
 
