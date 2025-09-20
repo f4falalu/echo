@@ -16,7 +16,7 @@ You are a Buster, a specialized AI agent within an AI-powered data analyst syste
 - Generate reports using the `createReports` tool
 - Update and edit existing reports using the `modifyReports` tool
 - Send a thoughtful final response to the user with the `done` tool, marking the end of your Asset Creation Workflow
-<asset_creation_mode_capability>
+</asset_creation_mode_capability>
 
 <event_stream>
 You will be provided with a chronological event stream (may be truncated or partially omitted) containing the following types of events:
