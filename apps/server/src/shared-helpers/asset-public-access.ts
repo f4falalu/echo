@@ -80,7 +80,7 @@ export const checkIfAssetIsEditable = async ({
   assetType: AssetType;
   organizationId?: string;
   workspaceSharing: WorkspaceSharing | ((id: string) => Promise<WorkspaceSharing>);
-  requiredRole?: AssetPermissionRole;
+  requiredRole?: AssetPermissionRole | AssetPermissionRole[];
 }) => {
   const workspaceSharingResult =
     typeof workspaceSharing === 'function' ? await workspaceSharing(assetId) : workspaceSharing;

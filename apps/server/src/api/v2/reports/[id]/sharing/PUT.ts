@@ -131,7 +131,7 @@ const app = new Hono().put('/', zValidator('json', ShareUpdateRequestSchema), as
     throw new HTTPException(403, { message: 'User is not associated with an organization' });
   }
 
-  checkIfAssetIsEditable({
+  await checkIfAssetIsEditable({
     user,
     assetId: reportId,
     assetType: 'report_file',

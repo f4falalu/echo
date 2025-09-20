@@ -1,10 +1,5 @@
 import type { User } from '@buster/database/queries';
-import {
-  getReportFileById,
-  getReportWorkspaceSharing,
-  getUserOrganizationId,
-  updateReport,
-} from '@buster/database/queries';
+import { getReportWorkspaceSharing, updateReport } from '@buster/database/queries';
 import type { UpdateReportRequest, UpdateReportResponse } from '@buster/server-shared/reports';
 import { UpdateReportRequestSchema } from '@buster/server-shared/reports';
 import { zValidator } from '@hono/zod-validator';
@@ -22,12 +17,12 @@ async function updateReportHandler(
     throw new HTTPException(404, { message: 'Report not found' });
   }
 
-  checkIfAssetIsEditable({
+  await checkIfAssetIsEditable({
     user,
     assetId: reportId,
     assetType: 'report_file',
     workspaceSharing: getReportWorkspaceSharing,
-    requiredRole: 'full_access',
+    requiredRole: ['full_access', 'owner', 'can_edit'],
   });
 
   const { name, content, update_version = false } = request;
