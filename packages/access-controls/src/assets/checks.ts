@@ -6,11 +6,7 @@ import {
 import type { User } from '@buster/database/queries';
 import type { AssetType } from '@buster/database/schema-types';
 import type { AssetPermissionRole, OrganizationMembership, WorkspaceSharing } from '../types';
-import {
-  getHighestPermission,
-  isPermissionSufficient,
-  isPermissionSufficientForAny,
-} from '../types/asset-permissions';
+import { getHighestPermission, isPermissionSufficientForAny } from '../types/asset-permissions';
 import { getCachedPermission, setCachedPermission } from './cache';
 import { checkCascadingPermissions } from './cascading-permissions';
 
@@ -40,6 +36,7 @@ export async function checkPermission(check: AssetPermissionCheck): Promise<Asse
 
   // Check cache first (using serialized array as key)
   const cached = getCachedPermission(userId, assetId, assetType, requiredRoles);
+
   if (cached !== undefined) {
     return cached;
   }
@@ -157,18 +154,24 @@ export function computeEffectivePermission(
  * Map workspace sharing level to permission role
  */
 function mapWorkspaceSharingToRole(workspaceSharing: WorkspaceSharing): AssetPermissionRole | null {
-  switch (workspaceSharing) {
-    case 'can_view':
-      return 'can_view';
-    case 'can_edit':
-      return 'can_edit';
-    case 'full_access':
-      return 'full_access';
-    case 'none':
-      return null;
-    default:
-      return null;
+  if (workspaceSharing === 'can_view') {
+    return 'can_view';
   }
+  if (workspaceSharing === 'can_edit') {
+    return 'can_edit';
+  }
+
+  if (workspaceSharing === 'full_access') {
+    return 'full_access';
+  }
+
+  if (workspaceSharing === 'none') {
+    return null;
+  }
+
+  const _exhaustiveCheck: never = workspaceSharing;
+
+  return null;
 }
 
 /**
