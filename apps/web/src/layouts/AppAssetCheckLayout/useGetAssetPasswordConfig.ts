@@ -1,6 +1,6 @@
 import type { AssetType } from '@buster/server-shared/assets';
 import type { ResponseMessageFileType } from '@buster/server-shared/chats';
-import { useQuery } from '@tanstack/react-query';
+import { type QueryKey, useQuery } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 import type { RustApiError } from '@/api/errors';
 import { chatQueryKeys } from '@/api/query_keys/chat';
@@ -17,19 +17,17 @@ interface AssetAccess {
   isFetched: boolean;
 }
 
-const getAssetAccess = (error: RustApiError | null, isFetched: boolean): AssetAccess => {
-  if (!error) {
-    return {
-      hasAccess: true,
-      passwordRequired: false,
-      isPublic: false,
-      isDeleted: false,
-      isFetched,
-    };
+const getAssetAccess = (
+  error: RustApiError | null,
+  isFetched: boolean,
+  selectedQuery: QueryKey
+): AssetAccess => {
+  if (error) {
+    console.error('Error in getAssetAccess', error, isFetched, selectedQuery);
   }
 
   // 418 is password required
-  if (error.status === 418) {
+  if (error?.status === 418) {
     return {
       hasAccess: false,
       passwordRequired: true,
@@ -40,7 +38,7 @@ const getAssetAccess = (error: RustApiError | null, isFetched: boolean): AssetAc
   }
 
   // 410 is deleted
-  if (error.status === 410) {
+  if (error?.status === 410) {
     return {
       hasAccess: false,
       passwordRequired: false,
@@ -51,7 +49,7 @@ const getAssetAccess = (error: RustApiError | null, isFetched: boolean): AssetAc
   }
 
   return {
-    hasAccess: false,
+    hasAccess: true,
     passwordRequired: false,
     isPublic: false,
     isDeleted: false,
@@ -92,8 +90,8 @@ export const useGetAssetPasswordConfig = (
     queryKey: selectedQuery.queryKey,
     enabled: true,
     select: useCallback((v: unknown) => !!v, []),
-    notifyOnChangeProps: ['error', 'isFetched'],
+    notifyOnChangeProps: ['error', 'isFetched', 'data'],
   });
 
-  return getAssetAccess(error, isFetched);
+  return getAssetAccess(error, isFetched, selectedQuery.queryKey);
 };
