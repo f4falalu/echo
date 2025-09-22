@@ -312,35 +312,39 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
               },
             };
 
-            // Update the database with the result of all edits using Promise chain
+            // Update the database with the result of all edits (concurrent, not chained)
             try {
-              // Chain this write to ensure sequential execution
-              state.lastDbWritePromise = (async () => {
-                // Wait for any previous write to complete
-                if (state.lastDbWritePromise) {
-                  try {
-                    await state.lastDbWritePromise;
-                  } catch (error) {
-                    // Previous write failed, but we continue
-                    console.warn('[modify-reports-delta] Previous write failed:', error);
-                  }
-                }
+              // Initialize pending writes array if needed
+              if (!state.pendingDbWrites) {
+                state.pendingDbWrites = [];
+              }
 
-                // Now do our write
-                // We're already inside a check for state.reportId being defined
-                if (!state.reportId) {
-                  throw new Error('Report ID is unexpectedly undefined');
-                }
-                return batchUpdateReport({
-                  reportId: state.reportId,
-                  content: currentContent,
-                  name: state.reportName || undefined,
-                  versionHistory,
+              // We're already inside a check for state.reportId being defined
+              if (!state.reportId) {
+                throw new Error('Report ID is unexpectedly undefined');
+              }
+
+              // Create the write promise and add to pending writes
+              const writePromise = batchUpdateReport({
+                reportId: state.reportId,
+                content: currentContent,
+                name: state.reportName || undefined,
+                versionHistory,
+              })
+                .then(() => {
+                  // Convert to void to match the array type
+                  return;
+                })
+                .catch((error) => {
+                  console.error('[modify-reports-delta] Database write failed:', error);
+                  throw error;
                 });
-              })();
 
-              // Await the promise to handle errors and ensure completion
-              await state.lastDbWritePromise;
+              // Add to pending writes array
+              state.pendingDbWrites.push(writePromise);
+
+              // Await this specific write to handle errors
+              await writePromise;
 
               // No cache update during delta - execute will handle write-through
 

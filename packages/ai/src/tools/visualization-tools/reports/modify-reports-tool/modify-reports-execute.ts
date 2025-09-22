@@ -177,16 +177,22 @@ async function processEditOperations(
 
   // Write all changes to database in one operation
   try {
-    // Wait for any pending delta writes to complete before doing final update
-    if (state?.lastDbWritePromise) {
-      console.info('[modify-reports-execute] Waiting for pending delta writes to complete');
+    // Wait for ALL pending delta writes to complete before doing final update
+    if (state?.pendingDbWrites && state.pendingDbWrites.length > 0) {
+      console.info(
+        `[modify-reports-execute] Waiting for ${state.pendingDbWrites.length} pending delta writes to complete`
+      );
       try {
-        await state.lastDbWritePromise;
+        // Wait for all writes to complete (some may fail, that's OK)
+        await Promise.allSettled(state.pendingDbWrites);
         // Add small delay to ensure we're absolutely last
         await new Promise((resolve) => setTimeout(resolve, 50));
+        console.info(
+          '[modify-reports-execute] All delta writes completed, proceeding with final update'
+        );
       } catch (error) {
         console.warn(
-          '[modify-reports-execute] Delta write failed, proceeding with final update:',
+          '[modify-reports-execute] Error waiting for delta writes, proceeding with final update:',
           error
         );
       }

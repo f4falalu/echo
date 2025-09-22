@@ -103,9 +103,9 @@ export type ModifyReportsOutput = z.infer<typeof ModifyReportsOutputSchema>;
 export type ModifyReportsContext = z.infer<typeof ModifyReportsContextSchema>;
 export type ModifyReportsEditState = z.infer<typeof ModifyReportsEditStateSchema>;
 
-// Extend the inferred type to include Promise field (not supported by Zod directly)
+// Extend the inferred type to include Promise fields (not supported by Zod directly)
 export type ModifyReportsState = z.infer<typeof ModifyReportsStateSchema> & {
-  lastDbWritePromise?: Promise<void>;
+  pendingDbWrites?: Promise<void>[]; // Track all pending writes
 };
 
 // Factory function that accepts agent context and maps to tool context
