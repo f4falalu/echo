@@ -18,27 +18,22 @@ export function createCreateReportsFinish(
   return async (options: { input: CreateReportsInput } & ToolCallOptions) => {
     const input = options.input;
 
-    // Process final input
-    if (input.files) {
-      // Initialize state files if needed
-      if (!state.files) {
-        state.files = [];
-      }
+    // Process final input for single report
+    if (input.name && input.content) {
+      // Initialize state file if needed
+      const existingFile = state.file;
 
-      // Set final state for all files
-      state.files = input.files.map((file, index) => {
-        const existingFile = state.files?.[index];
-        return {
-          id: existingFile?.id || randomUUID(),
-          file_name: file.name,
-          file_type: 'report_file',
-          version_number: existingFile?.version_number || 1,
-          file: {
-            text: file.content,
-          },
-          status: existingFile?.status || 'loading',
-        };
-      });
+      // Set final state for the single report
+      state.file = {
+        id: existingFile?.id || randomUUID(),
+        file_name: input.name,
+        file_type: 'report_file',
+        version_number: existingFile?.version_number || 1,
+        file: {
+          text: input.content,
+        },
+        status: existingFile?.status || 'loading',
+      };
     }
 
     // Update database with final state
@@ -65,7 +60,7 @@ export function createCreateReportsFinish(
 
         console.info('[create-reports] Finished input processing', {
           messageId: context.messageId,
-          fileCount: state.files?.length || 0,
+          reportCreated: !!state.file,
         });
       } catch (error) {
         console.error('[create-reports] Error updating entries on finish:', error);

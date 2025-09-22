@@ -24,7 +24,7 @@ import {
   createCreateReportsReasoningEntry,
 } from './helpers/create-reports-tool-transform-helper';
 
-// Main create report files function - returns success status
+// Main create report function - returns success status
 const getReportCreationResults = wrapTraced(
   async (
     params: CreateReportsInput,
@@ -38,53 +38,37 @@ const getReportCreationResults = wrapTraced(
     if (!userId) {
       return {
         message: 'Unable to verify your identity. Please log in again.',
-        files: [],
-        failed_files: [],
+        error: 'Authentication error',
       };
     }
     if (!organizationId) {
       return {
         message: 'Unable to access your organization. Please check your permissions.',
-        files: [],
-        failed_files: [],
+        error: 'Authorization error',
       };
     }
 
-    // Reports have already been created and updated in the delta function
+    // Report has already been created and updated in the delta function
     // Here we just return the final status
-    const files = state?.files || [];
-    const successfulFiles = files.filter((f) => f.id && f.file_name && f.status === 'completed');
-    const failedFiles: Array<{ name: string; error: string }> = [];
+    const file = state?.file;
 
-    // Check for any files that weren't successfully created
-    params.files.forEach((inputFile, index) => {
-      const stateFile = state?.files?.[index];
-      if (!stateFile || !stateFile.id || stateFile.status === 'failed') {
-        failedFiles.push({
-          name: inputFile.name,
-          error: stateFile?.error || 'Failed to create report',
-        });
-      }
-    });
+    if (!file || !file.id || file.status === 'failed') {
+      return {
+        message: `Failed to create report: ${file?.error || 'Unknown error'}`,
+        error: file?.error || 'Failed to create report',
+      };
+    }
 
     // Generate result message
-    let message: string;
-    if (failedFiles.length === 0) {
-      message = `Successfully created ${successfulFiles.length} report file${successfulFiles.length !== 1 ? 's' : ''}.`;
-    } else if (successfulFiles.length === 0) {
-      message = `Failed to create all report files.`;
-    } else {
-      message = `Successfully created ${successfulFiles.length} report file${successfulFiles.length !== 1 ? 's' : ''}. Failed to create ${failedFiles.length} file${failedFiles.length !== 1 ? 's' : ''}.`;
-    }
+    const message = `Successfully created report file.`;
 
     return {
       message,
-      files: successfulFiles.map((f) => ({
-        id: f.id,
-        name: f.file_name || '',
-        version_number: f.version_number,
-      })),
-      failed_files: failedFiles,
+      file: {
+        id: file.id,
+        name: file.file_name || params.name,
+        version_number: file.version_number,
+      },
     };
   },
   { name: 'Get Report Creation Results' }
@@ -123,38 +107,32 @@ export function createCreateReportsExecute(
           }
         }
 
-        // Ensure all reports that were created during delta have complete content from input
+        // Ensure the report that was created during delta has complete content from input
         // IMPORTANT: The input is the source of truth for content, not any streaming updates
-        // Delta phase creates reports with empty/partial content, execute phase ensures complete content
-        console.info('[create-reports] Ensuring all reports have complete content from input');
+        // Delta phase creates report with empty/partial content, execute phase ensures complete content
+        console.info('[create-reports] Ensuring report has complete content from input');
 
-        for (let i = 0; i < input.files.length; i++) {
-          const inputFile = input.files[i];
-          if (!inputFile) continue;
+        const { name, content } = input;
 
-          const { name, content } = inputFile;
+        // Only update report that was successfully created during delta phase
+        const reportId = state.file?.id;
 
-          // Only update reports that were successfully created during delta phase
-          const reportId = state.files?.[i]?.id;
+        if (!reportId) {
+          // Report wasn't created during delta - mark as failed
+          console.warn('[create-reports] Report was not created during delta phase', { name });
 
-          if (!reportId) {
-            // Report wasn't created during delta - mark as failed
-            console.warn('[create-reports] Report was not created during delta phase', { name });
-
-            if (!state.files) {
-              state.files = [];
-            }
-            state.files[i] = {
-              id: '',
-              file_name: name,
-              file_type: 'report_file',
-              version_number: 1,
-              status: 'failed',
-              error: 'Report creation failed during streaming',
-            };
-            continue;
-          }
-
+          state.file = {
+            id: '',
+            file_name: name,
+            file_type: 'report_file',
+            version_number: 1,
+            status: 'failed',
+            error: 'Report creation failed during streaming',
+            file: {
+              text: content,
+            },
+          };
+        } else {
           try {
             // Create initial version history for the report
             const now = new Date().toISOString();
@@ -217,23 +195,17 @@ export function createCreateReportsExecute(
             }
 
             // Update state to reflect successful update
-            if (!state.files) {
-              state.files = [];
-            }
-            if (!state.files[i]) {
-              state.files[i] = {
-                id: reportId,
-                file_name: name,
-                file_type: 'report_file',
-                version_number: 1,
-                status: 'completed',
-              };
-            } else {
-              const stateFile = state.files[i];
-              if (stateFile) {
-                stateFile.status = 'completed';
-              }
-            }
+            // Include content so rawLlmMessage can be created properly
+            state.file = {
+              id: reportId,
+              file_name: name,
+              file_type: 'report_file',
+              version_number: 1,
+              status: 'completed',
+              file: {
+                text: content,
+              },
+            };
 
             console.info('[create-reports] Successfully updated report with complete content', {
               reportId,
@@ -249,100 +221,66 @@ export function createCreateReportsExecute(
             });
 
             // Update state to reflect failure
-            if (!state.files) {
-              state.files = [];
-            }
-            if (!state.files[i]) {
-              state.files[i] = {
-                id: reportId,
-                file_name: name,
-                file_type: 'report_file',
-                version_number: 1,
-                status: 'failed',
-                error: errorMessage,
-              };
-            } else {
-              const stateFile = state.files[i];
-              if (stateFile) {
-                stateFile.status = 'failed';
-                stateFile.error = errorMessage;
-              }
-            }
+            state.file = {
+              id: reportId,
+              file_name: name,
+              file_type: 'report_file',
+              version_number: 1,
+              status: 'failed',
+              error: errorMessage,
+              file: {
+                text: content,
+              },
+            };
           }
         }
 
         // Get the results (after ensuring all reports are properly created)
         const result = await getReportCreationResults(input, context, state);
 
-        // Update state files with final results
+        // Update state file with final results
         if (result && typeof result === 'object') {
           const typedResult = result as CreateReportsOutput;
-          // Ensure state.files is initialized for safe mutations below
-          state.files = state.files ?? [];
 
-          // Mark any remaining files as completed/failed based on result
-          if (state.files) {
-            state.files.forEach((stateFile) => {
-              if (stateFile.status === 'loading') {
-                // Check if this file is in the success list
-                const isSuccess = typedResult.files?.some((f) => f.id === stateFile.id);
-                stateFile.status = isSuccess ? 'completed' : 'failed';
-              }
-            });
+          // Mark file as completed/failed based on result
+          if (state.file && state.file.status === 'loading') {
+            state.file.status = typedResult.file ? 'completed' : 'failed';
           }
 
           // Update last entries if we have a messageId
           if (context.messageId) {
             try {
-              const finalStatus = typedResult.failed_files?.length ? 'failed' : 'completed';
+              const finalStatus = typedResult.error ? 'failed' : 'completed';
               const toolCallId = state.toolCallId || `tool-${Date.now()}`;
 
               // Update state for final status
-              if (state.files) {
-                state.files.forEach((f) => {
-                  if (!f.status || f.status === 'loading') {
-                    f.status = finalStatus === 'failed' ? 'failed' : 'completed';
-                  }
-                });
+              if (state.file && (!state.file.status || state.file.status === 'loading')) {
+                state.file.status = finalStatus;
               }
 
-              // Check which reports contain metrics to determine if they should be in responseMessages
+              // Check if report should be in responseMessages
               const responseMessages: ChatMessageResponseMessage[] = [];
 
-              // Check each report file for metrics
-              if (state.files && typedResult.files) {
-                for (const resultFile of typedResult.files) {
-                  // Skip if response message was already created during delta
-                  if (state.responseMessagesCreated?.has(resultFile.id)) {
-                    continue;
-                  }
+              // Check if report file exists and hasn't been added to response
+              if (state.file && typedResult.file && !state.responseMessageCreated) {
+                responseMessages.push({
+                  id: state.file.id,
+                  type: 'file' as const,
+                  file_type: 'report_file' as const,
+                  file_name: state.file.file_name || typedResult.file.name,
+                  version_number: state.file.version_number || 1,
+                  filter_version_id: null,
+                  metadata: [
+                    {
+                      status: 'completed' as const,
+                      message: 'Report created successfully',
+                      timestamp: Date.now(),
+                    },
+                  ],
+                });
 
-                  // Find the corresponding state file
-                  const stateFile = state.files.find((f) => f.id === resultFile.id);
-                  if (stateFile) {
-                    responseMessages.push({
-                      id: stateFile.id,
-                      type: 'file' as const,
-                      file_type: 'report_file' as const,
-                      file_name: stateFile.file_name || resultFile.name,
-                      version_number: stateFile.version_number || 1,
-                      filter_version_id: null,
-                      metadata: [
-                        {
-                          status: 'completed' as const,
-                          message: 'Report created successfully',
-                          timestamp: Date.now(),
-                        },
-                      ],
-                    });
-
-                    // Track that we've created a response message for this report
-                    if (!state.responseMessagesCreated) {
-                      state.responseMessagesCreated = new Set<string>();
-                    }
-                    state.responseMessagesCreated.add(resultFile.id);
-                  }
-                }
+                // Track that we've created a response message for this report
+                state.responseMessageCreated = true;
               }
 
               const reasoningEntry = createCreateReportsReasoningEntry(state, toolCallId);
@@ -350,9 +288,7 @@ export function createCreateReportsExecute(
               const rawLlmResultEntry = createRawToolResultEntry(
                 toolCallId,
                 CREATE_REPORTS_TOOL_NAME,
-                {
-                  files: state.files,
-                }
+                typedResult
               );
 
               const updates: Parameters<typeof updateMessageEntries>[0] = {
@@ -378,8 +314,8 @@ export function createCreateReportsExecute(
 
               console.info('[create-reports] Updated last entries with final results', {
                 messageId: context.messageId,
-                successCount: typedResult.files?.length || 0,
-                failedCount: typedResult.failed_files?.length || 0,
+                success: !!typedResult.file,
+                failed: !!typedResult.error,
                 reportsWithMetrics: responseMessages.length,
               });
             } catch (error) {
@@ -392,8 +328,8 @@ export function createCreateReportsExecute(
         const executionTime = Date.now() - startTime;
         console.info('[create-reports] Execution completed', {
           executionTime: `${executionTime}ms`,
-          filesCreated: result?.files?.length || 0,
-          filesFailed: result?.failed_files?.length || 0,
+          fileCreated: !!result?.file,
+          failed: !!result?.error,
         });
 
         return result as CreateReportsOutput;
@@ -418,22 +354,22 @@ export function createCreateReportsExecute(
         if (context.messageId) {
           try {
             const toolCallId = state.toolCallId || `tool-${Date.now()}`;
-            // Update state files to failed status with error message
-            if (state.files) {
-              state.files.forEach((f) => {
-                f.status = 'failed';
-                f.error = f.error || errorMessage;
-              });
+            // Update state file to failed status with error message
+            if (state.file) {
+              state.file.status = 'failed';
+              state.file.error = state.file.error || errorMessage;
             }
 
             const reasoningEntry = createCreateReportsReasoningEntry(state, toolCallId);
             const rawLlmMessage = createCreateReportsRawLlmMessageEntry(state, toolCallId);
+            const errorResult: CreateReportsOutput = {
+              message: `Failed to create report: ${errorMessage}`,
+              error: errorMessage,
+            };
             const rawLlmResultEntry = createRawToolResultEntry(
               toolCallId,
               CREATE_REPORTS_TOOL_NAME,
-              {
-                files: state.files,
-              }
+              errorResult
             );
 
             const updates: Parameters<typeof updateMessageEntries>[0] = {
@@ -463,19 +399,9 @@ export function createCreateReportsExecute(
         }
 
         // Return error information to the agent
-        const failedFiles: Array<{ name: string; error: string }> = [];
-        input.files.forEach((inputFile, index) => {
-          const stateFile = state.files?.[index];
-          failedFiles.push({
-            name: inputFile.name,
-            error: stateFile?.error || errorMessage,
-          });
-        });
-
         return {
-          message: `Failed to create reports: ${errorMessage}`,
-          files: [],
-          failed_files: failedFiles,
+          message: `Failed to create report: ${errorMessage}`,
+          error: state.file?.error || errorMessage,
         } as CreateReportsOutput;
       }
     },

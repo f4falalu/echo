@@ -6,8 +6,8 @@ export function createReportsStart(_context: CreateReportsContext, state: Create
     // Reset state for new tool call to prevent contamination from previous calls
     state.toolCallId = options.toolCallId;
     state.argsText = undefined;
-    state.files = [];
+    state.file = undefined;
     state.startTime = Date.now();
-    state.responseMessagesCreated = new Set<string>();
+    state.responseMessageCreated = false;
   };
 }
