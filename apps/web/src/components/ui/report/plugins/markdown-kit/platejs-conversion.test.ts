@@ -1,9 +1,12 @@
 import type { Value } from 'platejs';
+import { createPlateEditor } from 'platejs/react';
 import { describe, expect, it } from 'vitest';
+import { EditorKit } from '../../editor-kit';
 import { markdownToPlatejs, platejsToMarkdown } from './platejs-conversions';
-import { SERVER_EDITOR } from './server-editor';
 
-const editor = SERVER_EDITOR;
+export const editor = createPlateEditor({
+  plugins: EditorKit({ scrollAreaRef: undefined, mode: 'default' }),
+});
 
 describe('markdownToPlatejs', () => {
   it('should convert elaborate markdown to platejs', async () => {

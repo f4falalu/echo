@@ -1,5 +1,4 @@
-import { TrailingBlockPlugin, type Value } from 'platejs';
-import { type TPlateEditor, useEditorRef } from 'platejs/react';
+import { TrailingBlockPlugin } from 'platejs';
 
 // import { AIKit } from './plugins/ai-kit';
 import { AlignKit } from './plugins/align-kit';
@@ -12,10 +11,8 @@ import { CalloutKit } from './plugins/callout-kit';
 import { CaptionKit } from './plugins/caption-kit';
 import { CodeBlockKit } from './plugins/code-block-kit';
 import { ColumnKit } from './plugins/column-kit';
-import { CommentKit } from './plugins/comment-kit';
 import { CursorOverlayKit } from './plugins/cursor-overlay-kit';
 import { DateKit } from './plugins/date-kit';
-import { DiscussionKit } from './plugins/discussion-kit';
 import { DndKit } from './plugins/dnd-kit';
 import { DocxKit } from './plugins/docx-kit';
 import { EmojiKit } from './plugins/emoji-kit';
@@ -33,7 +30,6 @@ import { MediaKit } from './plugins/media-kit';
 import { MetricKit } from './plugins/metric-kit';
 import { SlashKit } from './plugins/slash-kit';
 import { StreamContentKit } from './plugins/stream-content-kit';
-import { SuggestionKit } from './plugins/suggestion-kit';
 import { TableKit } from './plugins/table-kit';
 import { TocKit } from './plugins/toc-kit';
 import { ToggleKit } from './plugins/toggle-kit';
@@ -78,11 +74,6 @@ export const EditorKit = ({
   ...ListKit,
   ...AlignKit,
   ...LineHeightKit,
-
-  // Collaboration
-  ...DiscussionKit,
-  ...CommentKit,
-  ...SuggestionKit,
 
   // Custom
   ...StreamContentKit,
