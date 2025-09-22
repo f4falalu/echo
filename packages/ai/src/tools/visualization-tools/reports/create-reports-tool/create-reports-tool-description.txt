@@ -13,7 +13,7 @@ Creates report files with markdown content. Reports are used to document finding
 - **Brief Methodology** at the end: Use markdown "## Methodology" header for the methodology section. Cite exact fields/calculations in backticks (e.g., ```sales.amount```, ```SUM(...)```), clarify nuanced definitions and assumptions.
 - If the user explicitly asks for “just a chart/metric” or for ongoing monitoring, skip the report and return that asset directly.
 
-**Example of Investigative Report Structure:**
+**Example of Standard Analysis Report Structure:**
 ```markdown
 # Top Performing Sales Representatives - Last 6 Months
 
