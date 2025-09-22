@@ -10,6 +10,7 @@ import {
 import { ComponentErrorCard } from '@/components/features/global/ComponentErrorCard';
 import { isDev } from '@/config/dev';
 import { env } from '@/env';
+import { useMount } from '@/hooks/useMount';
 import packageJson from '../../../package.json';
 
 const version = packageJson.version;
@@ -36,17 +37,6 @@ const options: Partial<PostHogConfig> = {
   person_profiles: 'always',
   session_recording: {
     recordBody: true,
-  },
-
-  loaded: () => {
-    console.log(
-      `%c🚀 Welcome to Buster v${version}`,
-      'background: linear-gradient(to right, #a21caf, #8b1cb1, #6b21a8); color: white; font-size: 16px; font-weight: bold; padding: 10px; border-radius: 5px;'
-    );
-    console.log(
-      '%cBuster is your open-source data analytics platform. Found a bug? The code is open-source! Report it at https://github.com/buster-so/buster. Better yet, fix it yourself and send a PR.',
-      'background: #6b21a8; color: white; font-size: 10px; font-weight: normal; padding: 8px; border-radius: 4px;'
-    );
   },
 };
 
