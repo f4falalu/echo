@@ -1,5 +1,6 @@
 import type { Descendant, TElement, Value } from 'platejs';
 import type { IReportEditor } from '../../ReportEditor';
+import { preprocessMarkdownForMdx } from './escape-handlers';
 import { postProcessToggleDeserialization, postProcessToggleMarkdown } from './toggle-serializer';
 
 export const markdownToPlatejs = async (
@@ -7,16 +8,14 @@ export const markdownToPlatejs = async (
   markdown: string
 ): Promise<Value> => {
   try {
-    const descendants: Value = editor.api.markdown.deserialize(markdown);
+    // Pre-process markdown to escape < symbols that aren't part of HTML tags
+    const processedMarkdown = preprocessMarkdownForMdx(markdown);
+    const descendants: Value = editor.api.markdown.deserialize(processedMarkdown);
     const descendantsWithIds: Value = descendants.map((element, index) => ({
       ...element,
       id: `id-${index}`,
     }));
-
-    // Apply post-processing to handle details elements
-    const processedElements = postProcessToggleDeserialization(descendantsWithIds as TElement[]);
-
-    return processedElements as Value;
+    return postProcessToggleDeserialization(descendantsWithIds);
   } catch (error) {
     console.error('Error converting markdown to PlateJS:', error);
     return [];
