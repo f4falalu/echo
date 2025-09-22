@@ -215,10 +215,12 @@ async function processEditOperations(
       metricIds,
     });
 
-    await updateMetricsToReports({
-      reportId,
-      metricIds,
-    });
+    if (metricIds.length > 0) {
+      await updateMetricsToReports({
+        reportId,
+        metricIds,
+      });
+    }
 
     if (messageId) {
       await trackFileAssociations({
