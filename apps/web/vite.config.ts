@@ -13,8 +13,17 @@ const config = defineConfig(({ command, mode }) => {
   const isLocalBuild = process.argv.includes('--local') || mode === 'development';
   const target = isLocalBuild ? ('bun' as const) : ('vercel' as const);
 
+  // Generate a unique build ID for cache busting after deployments
+  const buildId = `build:${process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 8) || process.env.BUILD_ID || Date.now().toString()}`;
+  const buildAt = new Date().toISOString();
+
   return {
     server: { port: 3000 },
+    define: {
+      // Make the build ID available to the app for version tracking
+      'import.meta.env.VITE_BUILD_ID': JSON.stringify(buildId),
+      'import.meta.env.VITE_BUILD_AT': JSON.stringify(buildAt),
+    },
     plugins: [
       // this is the plugin that enables path aliases
       viteTsConfigPaths({ projects: ['./tsconfig.json'] }),
