@@ -83,7 +83,7 @@ const ModifyReportsStateSchema = z.object({
     .string()
     .optional()
     .describe('Track the last content saved to DB to avoid redundant updates'),
-  reportsModifiedInMessage: z.set(z.string()).optional(),
+  reportModifiedInMessage: z.boolean().optional(),
   snapshotVersion: z.number().optional(),
   versionHistory: z
     .record(
@@ -121,7 +121,7 @@ export function createModifyReportsTool(context: ModifyReportsContext) {
     toolCallId: undefined,
     responseMessageCreated: false,
     snapshotContent: undefined,
-    reportsModifiedInMessage: new Set(),
+    reportModifiedInMessage: false,
   };
 
   // Create all functions with the context and state passed

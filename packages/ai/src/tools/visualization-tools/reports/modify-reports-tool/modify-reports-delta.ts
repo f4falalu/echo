@@ -296,10 +296,7 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
             state.version_number = newVersion;
 
             // Track this modification for this tool invocation
-            if (!state.reportsModifiedInMessage) {
-              state.reportsModifiedInMessage = new Set();
-            }
-            state.reportsModifiedInMessage.add(state.reportId);
+            state.reportModifiedInMessage = true;
 
             // Update version history with the final content after all edits
             const now = new Date().toISOString();
