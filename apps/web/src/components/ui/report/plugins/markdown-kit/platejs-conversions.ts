@@ -1,4 +1,4 @@
-import type { Descendant, TElement, Value } from 'platejs';
+import type { Descendant, Value } from 'platejs';
 import type { IReportEditor } from '../../ReportEditor';
 import { preprocessMarkdownForMdx } from './escape-handlers';
 import { postProcessToggleDeserialization, postProcessToggleMarkdown } from './toggle-serializer';
