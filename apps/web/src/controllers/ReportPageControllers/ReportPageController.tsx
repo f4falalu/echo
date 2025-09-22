@@ -7,10 +7,8 @@ import DynamicReportEditor from '@/components/ui/report/DynamicReportEditor';
 import type { IReportEditor } from '@/components/ui/report/ReportEditor';
 import { ReportEditorSkeleton } from '@/components/ui/report/ReportEditorSkeleton';
 import type { BusterReportEditor } from '@/components/ui/report/types';
-import { SCROLL_AREA_VIEWPORT_CLASS } from '@/components/ui/scroll-area/ScrollArea';
 import { useGetScrollAreaRef } from '@/components/ui/scroll-area/useGetScrollAreaRef';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
-import { useMount } from '@/hooks/useMount';
 import { useEditorContext } from '@/layouts/AssetContainer/ReportAssetContainer';
 import { cn } from '@/lib/utils';
 import { chatQueryKeys } from '../../api/query_keys/chat';
@@ -95,6 +93,7 @@ export const ReportPageController: React.FC<{
       >
         {report ? (
           <DynamicReportEditor
+            key={reportId}
             value={content}
             placeholder="Start typing..."
             className={commonClassName}
