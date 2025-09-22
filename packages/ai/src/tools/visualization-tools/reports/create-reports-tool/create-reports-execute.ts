@@ -163,11 +163,13 @@ export function createCreateReportsExecute(
               userId: context.userId,
             });
 
-            await updateMetricsToReports({
-              reportId,
-              metricIds,
-              userId: context.userId,
-            });
+            if (metricIds.length > 0) {
+              await updateMetricsToReports({
+                reportId,
+                metricIds,
+                userId: context.userId,
+              });
+            }
 
             // Track file associations if messageId is available
             if (context.messageId) {
