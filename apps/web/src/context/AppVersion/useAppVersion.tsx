@@ -23,7 +23,7 @@ export const useAppVersion = () => {
   useWindowFocus(() => {
     refetch().then(() => {
       if (isChanged) {
-        reloadWindow();
+        //  reloadWindow();
       }
     });
   });
