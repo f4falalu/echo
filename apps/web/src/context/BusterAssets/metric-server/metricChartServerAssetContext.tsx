@@ -1,6 +1,7 @@
 import { ClientOnly, Outlet, useLocation, useNavigate, useSearch } from '@tanstack/react-router';
 import { lazy, Suspense, useRef, useTransition } from 'react';
 import { z } from 'zod';
+import { LazyErrorBoundary } from '@/components/features/global/LazyErrorBoundary';
 import { AppSplitter, type LayoutSize } from '@/components/ui/layouts/AppSplitter';
 import { useGetMetricParams } from '@/context/Metrics/useGetMetricParams';
 import { MetricViewChartController } from '@/controllers/MetricController/MetricViewChartController';
@@ -89,8 +90,10 @@ const MetricEditController = lazy(() =>
 
 const RightChildren = ({ metricId, renderChart }: { metricId: string; renderChart: boolean }) => {
   return renderChart ? (
-    <Suspense fallback={<CircleSpinnerLoaderContainer />}>
-      <MetricEditController metricId={metricId} />
-    </Suspense>
+    <LazyErrorBoundary>
+      <Suspense fallback={<CircleSpinnerLoaderContainer />}>
+        <MetricEditController metricId={metricId} />
+      </Suspense>
+    </LazyErrorBoundary>
   ) : null;
 };

@@ -1,7 +1,6 @@
-import { type QueryKey, useQuery } from '@tanstack/react-query';
-import { useCallback, useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useCallback, useEffect } from 'react';
 import { versionGetAppVersion } from '@/api/query_keys/version';
-import { getAppBuildId } from '@/api/server-functions/getAppVersion';
 import { Text } from '@/components/ui/typography';
 import { useWindowFocus } from '@/hooks/useWindowFocus';
 import { useBusterNotifications } from '../BusterNotifications';
@@ -31,7 +30,6 @@ export const useAppVersion = () => {
   });
 
   useEffect(() => {
-    console.log('isChanged', data?.buildId, browserBuild);
     if (isChanged) {
       openInfoNotification({
         duration: Infinity,

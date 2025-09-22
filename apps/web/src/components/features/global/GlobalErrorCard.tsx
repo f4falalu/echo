@@ -7,11 +7,13 @@ import { Title } from '@/components/ui/typography';
 import { useMount } from '../../../hooks/useMount';
 
 export const ErrorCard = ({
+  footer,
   header = 'Looks like we hit an unexpected error',
   message = "Our team has been notified via Slack. We'll take a look at the issue ASAP and get back to you.",
 }: {
   header?: string;
   message?: string;
+  footer?: React.ReactNode;
 }) => {
   useMount(() => {
     console.error('Error in card:', header, message);
@@ -31,11 +33,13 @@ export const ErrorCard = ({
         </CardContent>
 
         <CardFooter className="w-full pt-0">
-          <Link to="/" className="w-full">
-            <Button variant="black" block size="tall">
-              Take me home
-            </Button>
-          </Link>
+          {footer || (
+            <Link to="/" className="w-full">
+              <Button variant="black" block size="tall">
+                Take me home
+              </Button>
+            </Link>
+          )}
         </CardFooter>
       </Card>
     </div>
