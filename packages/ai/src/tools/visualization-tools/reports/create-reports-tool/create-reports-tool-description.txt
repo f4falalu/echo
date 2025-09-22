@@ -1,4 +1,4 @@
-Creates report files with markdown content. Reports are used to document findings, analysis results, and insights in a structured markdown format. **This tool supports creating multiple reports in a single call; prefer using bulk creation over creating reports one by one.**
+Creates a report file with markdown content. Reports are used to document findings, analysis results, and insights in a structured markdown format. **This tool creates one report per call.**
 
 # REPORT TYPES & FLOWS
 
