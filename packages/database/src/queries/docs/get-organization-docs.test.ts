@@ -82,10 +82,10 @@ describe('getOrganizationDocs', () => {
     organizationId: '123e4567-e89b-12d3-a456-426614174000',
   };
 
-  let mockSelect: any;
-  let mockFrom: any;
-  let mockWhere: any;
-  let mockOrderBy: any;
+  let mockSelect: ReturnType<typeof vi.fn>;
+  let mockFrom: ReturnType<typeof vi.fn>;
+  let mockWhere: ReturnType<typeof vi.fn>;
+  let mockOrderBy: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     vi.clearAllMocks();

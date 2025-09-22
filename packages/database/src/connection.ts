@@ -1,6 +1,6 @@
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { config } from 'dotenv';
-import * as path from 'path';
-import { fileURLToPath } from 'url';
 
 // Get the directory name for ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -61,18 +61,28 @@ export function initializePool<T extends Record<string, postgres.PostgresType>>(
 
   // Create postgres client with pool configuration
   // Disable SSL for local development
-  const isDevelopment = process.env.ENVIRONMENT === 'development' || process.env.NODE_ENV === 'development';
-  
-  console.log('Database connection - ENVIRONMENT:', process.env.ENVIRONMENT, 'NODE_ENV:', process.env.NODE_ENV, 'isDevelopment:', isDevelopment);
-  
+  const isDevelopment =
+    process.env.ENVIRONMENT === 'development' || process.env.NODE_ENV === 'development';
+
+  console.log(
+    'Database connection - ENVIRONMENT:',
+    process.env.ENVIRONMENT,
+    'NODE_ENV:',
+    process.env.NODE_ENV,
+    'isDevelopment:',
+    isDevelopment
+  );
+
   globalPool = postgres(connectionString, {
     max: poolSize,
     idle_timeout: 30,
     connect_timeout: 30,
     prepare: true,
-    ssl: isDevelopment ? false : {
-      rejectUnauthorized: false, // Allow self-signed certificates
-    },
+    ssl: isDevelopment
+      ? false
+      : {
+          rejectUnauthorized: false, // Allow self-signed certificates
+        },
     ...config,
   });
 
