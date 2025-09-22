@@ -60,7 +60,7 @@ Based on sales data from the last 6 months, **Linda Mitchell** leads all sales r
 
 [Introduction/summary of key findings/points]
 
-## Key finding
+## Key findings
 [Content about key finding + supporting visualization]
 
 ...additional "key finding" sections + building of the narrative...
