@@ -34,7 +34,6 @@ import { BaseIndentPlugin } from '@platejs/indent';
 import { BaseColumnItemPlugin, BaseColumnPlugin } from '@platejs/layout';
 import { BaseLinkPlugin } from '@platejs/link';
 import { BaseListPlugin } from '@platejs/list';
-import { BaseEquationPlugin, BaseInlineEquationPlugin } from '@platejs/math';
 import {
   BaseAudioPlugin,
   BaseFilePlugin,
@@ -51,8 +50,9 @@ import {
 } from '@platejs/table';
 import { BaseTocPlugin } from '@platejs/toc';
 import { BaseTogglePlugin } from '@platejs/toggle';
-import { createSlateEditor, KEYS } from 'platejs';
+import { KEYS } from 'platejs';
 import { createPlateEditor } from 'platejs/react';
+import { EditorKit } from '../../editor-kit';
 import { MarkdownKit } from './markdown-kit';
 
 export const BaseTableKit = [
@@ -118,6 +118,10 @@ const serverNode = [
   }),
 ];
 
-export const SERVER_EDITOR = createPlateEditor({
+export const SERVER_EDITOR_OLD = createPlateEditor({
   plugins: serverNode,
+});
+
+export const SERVER_EDITOR = createPlateEditor({
+  plugins: EditorKit({ scrollAreaRef: undefined, mode: 'default' }),
 });

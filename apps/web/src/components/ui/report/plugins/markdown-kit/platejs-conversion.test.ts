@@ -271,8 +271,7 @@ Here's an unordered list:
   it('callout and a metric', async () => {
     const markdown = `<metric metricId="33af38a8-c40f-437d-98ed-1ec78ce35232" width="100%" caption=""></metric>
 
-<callout icon="💡">Testing123
-</callout>`;
+<callout icon="💡">Testing123</callout>`;
     const elements = await markdownToPlatejs(editor, markdown);
     expect(elements).toBeDefined();
     const firstElement = elements[0];
@@ -1344,8 +1343,52 @@ describe('platejsToMarkdown', () => {
     const markdownFromPlatejs = await platejsToMarkdown(editor, elements);
     expect(markdownFromPlatejs).toBeDefined();
     expect(markdownFromPlatejs).toContain(
-      '<metric metricId="1234" versionNumber="undefined" width="100%" caption="This is a caption.. AND IT REALLY WORKS!"></metric>'
+      '<metric metricId="1234" versionNumber="" width="100%" caption="This is a caption.. AND IT REALLY WORKS!"></metric>'
     );
+  });
+
+  it('two metrics', async () => {
+    const elements: Value = [
+      {
+        type: 'metric',
+        children: [
+          {
+            text: '',
+          },
+        ],
+        metricId: 'nate-rulez',
+        caption: [
+          {
+            text: 'Cool',
+          },
+        ],
+        id: 'nate-rulez',
+      },
+      {
+        type: 'metric',
+        children: [
+          {
+            text: '',
+          },
+        ],
+        metricId: 'wells-droolz',
+        caption: [
+          {
+            text: 'Wow',
+          },
+        ],
+        id: 'wells-droolz',
+      },
+    ];
+    const markdownFromPlatejs = await platejsToMarkdown(editor, elements);
+    expect(markdownFromPlatejs).toBeDefined();
+    expect(markdownFromPlatejs).toContain(
+      '<metric metricId="nate-rulez" versionNumber="" width="100%" caption="Cool"></metric>'
+    );
+    expect(markdownFromPlatejs).toContain(
+      '<metric metricId="wells-droolz" versionNumber="" width="100%" caption="Wow"></metric>'
+    );
+    expect(markdownFromPlatejs).not.toContain('\\metric');
   });
 });
 

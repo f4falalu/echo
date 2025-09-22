@@ -23,13 +23,13 @@ import { ExitBreakKit } from './plugins/exit-break-kit';
 import { FixedToolbarKit } from './plugins/fixed-toolbar-kit';
 import { FloatingToolbarKit } from './plugins/floating-toolbar-kit';
 import { FontKit } from './plugins/font-kit';
+import { GlobalVariablePlugin } from './plugins/global-variable-kit';
 import { LineHeightKit } from './plugins/line-height-kit';
 import { LinkKit } from './plugins/link-kit';
 import { ListKit } from './plugins/list-kit';
 import { MarkdownKit } from './plugins/markdown-kit';
 // import { MathKit } from './plugins/math-kit';
 import { MediaKit } from './plugins/media-kit';
-import { MentionKit } from './plugins/mention-kit';
 import { MetricKit } from './plugins/metric-kit';
 import { SlashKit } from './plugins/slash-kit';
 import { StreamContentKit } from './plugins/stream-content-kit';
@@ -40,8 +40,10 @@ import { ToggleKit } from './plugins/toggle-kit';
 
 export const EditorKit = ({
   scrollAreaRef,
+  mode,
 }: {
   scrollAreaRef?: React.RefObject<HTMLDivElement | null>;
+  mode: 'default' | 'export';
 }) => [
   // Editing
   ...SlashKit,
@@ -63,7 +65,6 @@ export const EditorKit = ({
   // ...MathKit,
   ...DateKit,
   ...LinkKit,
-  ...MentionKit,
   ...CaptionKit,
 
   // Marks
@@ -98,4 +99,9 @@ export const EditorKit = ({
 
   // Dnd
   ...DndKit({ scrollAreaRef }),
+
+  //Global
+  GlobalVariablePlugin.configure({
+    options: { mode },
+  }),
 ];
