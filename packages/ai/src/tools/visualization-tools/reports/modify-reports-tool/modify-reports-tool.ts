@@ -101,8 +101,12 @@ const ModifyReportsStateSchema = z.object({
 export type ModifyReportsInput = z.infer<typeof ModifyReportsInputSchema>;
 export type ModifyReportsOutput = z.infer<typeof ModifyReportsOutputSchema>;
 export type ModifyReportsContext = z.infer<typeof ModifyReportsContextSchema>;
-export type ModifyReportsState = z.infer<typeof ModifyReportsStateSchema>;
 export type ModifyReportsEditState = z.infer<typeof ModifyReportsEditStateSchema>;
+
+// Extend the inferred type to include Promise field (not supported by Zod directly)
+export type ModifyReportsState = z.infer<typeof ModifyReportsStateSchema> & {
+  lastDbWritePromise?: Promise<void>;
+};
 
 // Factory function that accepts agent context and maps to tool context
 export function createModifyReportsTool(context: ModifyReportsContext) {

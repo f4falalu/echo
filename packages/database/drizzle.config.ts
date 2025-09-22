@@ -11,12 +11,14 @@ if (!connectionString) {
 }
 
 // Disable SSL for local development
-const isDevelopment = process.env.ENVIRONMENT === 'development' || process.env.NODE_ENV === 'development';
+const isDevelopment =
+  process.env.ENVIRONMENT === 'development' || process.env.NODE_ENV === 'development';
 
 // Append sslmode=disable for local development if not already present
-const dbUrl = isDevelopment && !connectionString.includes('sslmode=') 
-  ? `${connectionString}?sslmode=disable`
-  : connectionString;
+const dbUrl =
+  isDevelopment && !connectionString.includes('sslmode=')
+    ? `${connectionString}?sslmode=disable`
+    : connectionString;
 
 export default defineConfig({
   schema: './src/schema.ts',

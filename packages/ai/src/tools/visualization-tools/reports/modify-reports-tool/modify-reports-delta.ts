@@ -312,14 +312,35 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
               },
             };
 
-            // Update the database with the result of all edits
+            // Update the database with the result of all edits using Promise chain
             try {
-              await batchUpdateReport({
-                reportId: state.reportId,
-                content: currentContent,
-                name: state.reportName || undefined,
-                versionHistory,
-              });
+              // Chain this write to ensure sequential execution
+              state.lastDbWritePromise = (async () => {
+                // Wait for any previous write to complete
+                if (state.lastDbWritePromise) {
+                  try {
+                    await state.lastDbWritePromise;
+                  } catch (error) {
+                    // Previous write failed, but we continue
+                    console.warn('[modify-reports-delta] Previous write failed:', error);
+                  }
+                }
+
+                // Now do our write
+                // We're already inside a check for state.reportId being defined
+                if (!state.reportId) {
+                  throw new Error('Report ID is unexpectedly undefined');
+                }
+                return batchUpdateReport({
+                  reportId: state.reportId,
+                  content: currentContent,
+                  name: state.reportName || undefined,
+                  versionHistory,
+                });
+              })();
+
+              // Await the promise to handle errors and ensure completion
+              await state.lastDbWritePromise;
 
               // No cache update during delta - execute will handle write-through
 

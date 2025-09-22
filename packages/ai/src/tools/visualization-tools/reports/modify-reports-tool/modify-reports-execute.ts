@@ -79,7 +79,8 @@ async function processEditOperations(
   edits: Array<{ operation?: 'replace' | 'append'; code_to_replace: string; code: string }>,
   messageId?: string,
   snapshotContent?: string,
-  versionHistory?: VersionHistory
+  versionHistory?: VersionHistory,
+  state?: ModifyReportsState
 ): Promise<{
   success: boolean;
   finalContent?: string;
@@ -176,6 +177,21 @@ async function processEditOperations(
 
   // Write all changes to database in one operation
   try {
+    // Wait for any pending delta writes to complete before doing final update
+    if (state?.lastDbWritePromise) {
+      console.info('[modify-reports-execute] Waiting for pending delta writes to complete');
+      try {
+        await state.lastDbWritePromise;
+        // Add small delay to ensure we're absolutely last
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      } catch (error) {
+        console.warn(
+          '[modify-reports-execute] Delta write failed, proceeding with final update:',
+          error
+        );
+      }
+    }
+
     await batchUpdateReport({
       reportId,
       content: currentContent,
@@ -239,7 +255,8 @@ const modifyReportsFile = wrapTraced(
     params: ModifyReportsInput,
     context: ModifyReportsContext,
     snapshotContent?: string,
-    versionHistory?: VersionHistory
+    versionHistory?: VersionHistory,
+    state?: ModifyReportsState
   ): Promise<ModifyReportsOutput> => {
     // Get context values
     const userId = context.userId;
@@ -299,7 +316,8 @@ const modifyReportsFile = wrapTraced(
       params.edits,
       messageId,
       snapshotContent, // Pass immutable snapshot
-      versionHistory // Pass snapshot version history
+      versionHistory, // Pass snapshot version history
+      state // Pass state to access lastDbWritePromise
     );
 
     // Track file associations if this is a new version (not part of same turn)
@@ -390,7 +408,8 @@ export function createModifyReportsExecute(
           input,
           context,
           state.snapshotContent, // Pass immutable snapshot from state
-          state.versionHistory // Pass snapshot version history from state
+          state.versionHistory, // Pass snapshot version history from state
+          state // Pass state to access lastDbWritePromise
         );
 
         if (!result) {
