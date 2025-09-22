@@ -1,7 +1,7 @@
 import { StatusSchema } from '@buster/server-shared/chats';
 import { tool } from 'ai';
 import { z } from 'zod';
-import { AnalysisModeSchema } from '../../../../workflows/analyst-agent-workflow/workflow-output.types';
+import { AnalysisModeSchema } from '../../../../types/analysis-mode.types';
 import { createCreateReportsDelta } from './create-reports-delta';
 import { createCreateReportsExecute } from './create-reports-execute';
 import { createCreateReportsFinish } from './create-reports-finish';

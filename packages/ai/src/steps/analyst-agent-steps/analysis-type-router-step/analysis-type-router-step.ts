@@ -5,8 +5,8 @@ import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { GPT5Mini } from '../../../llm/gpt-5-mini';
 import { DEFAULT_OPENAI_OPTIONS } from '../../../llm/providers/gateway';
+import { AnalysisModeSchema } from '../../../types/analysis-mode.types';
 import { isOverloadedError } from '../../../utils/with-agent-retry';
-import { AnalysisModeSchema } from '../../../workflows/analyst-agent-workflow/workflow-output.types';
 import { formatAnalysisTypeRouterPrompt } from './format-analysis-type-router-prompt';
 
 // Zod schemas first - following Zod-first approach

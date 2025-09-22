@@ -19,11 +19,8 @@ import {
 } from '../../tools/communication-tools/submit-thoughts-tool/submit-thoughts-tool';
 import { EXECUTE_SQL_TOOL_NAME } from '../../tools/database-tools/execute-sql/execute-sql';
 import { SEQUENTIAL_THINKING_TOOL_NAME } from '../../tools/planning-thinking-tools/sequential-thinking-tool/sequential-thinking-tool';
+import { type AnalysisMode, AnalysisModeSchema } from '../../types/analysis-mode.types';
 import { type AgentContext, repairToolCall } from '../../utils/tool-call-repair';
-import {
-  type AnalysisMode,
-  AnalysisModeSchema,
-} from '../../workflows/analyst-agent-workflow/workflow-output.types';
 import { getThinkAndPrepAgentSystemPrompt } from './get-think-and-prep-agent-system-prompt';
 
 export const THINK_AND_PREP_AGENT_NAME = 'thinkAndPrepAgent';

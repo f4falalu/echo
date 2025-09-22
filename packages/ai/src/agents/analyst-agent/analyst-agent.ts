@@ -20,8 +20,8 @@ import { CREATE_METRICS_TOOL_NAME } from '../../tools/visualization-tools/metric
 import { MODIFY_METRICS_TOOL_NAME } from '../../tools/visualization-tools/metrics/modify-metrics-tool/modify-metrics-tool';
 import { CREATE_REPORTS_TOOL_NAME } from '../../tools/visualization-tools/reports/create-reports-tool/create-reports-tool';
 import { MODIFY_REPORTS_TOOL_NAME } from '../../tools/visualization-tools/reports/modify-reports-tool/modify-reports-tool';
+import { AnalysisModeSchema } from '../../types/analysis-mode.types';
 import { type AgentContext, repairToolCall } from '../../utils/tool-call-repair';
-import { AnalysisModeSchema } from '../../workflows/analyst-agent-workflow/workflow-output.types';
 import { analystAgentPrepareStep } from './analyst-agent-prepare-step';
 import { getAnalystAgentSystemPrompt } from './get-analyst-agent-system-prompt';
 

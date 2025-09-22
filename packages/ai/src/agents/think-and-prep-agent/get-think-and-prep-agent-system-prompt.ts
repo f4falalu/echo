@@ -1,4 +1,4 @@
-import type { AnalysisMode } from '../../workflows/analyst-agent-workflow/workflow-output.types';
+import type { AnalysisMode } from '../../types/analysis-mode.types';
 import thinkAndPrepInvestigationPrompt from './think-and-prep-agent-investigation-prompt.txt';
 import thinkAndPrepStandardPrompt from './think-and-prep-agent-standard-prompt.txt';
 
