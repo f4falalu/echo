@@ -1,20 +1,22 @@
-import { useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { type QueryKey, useQuery } from '@tanstack/react-query';
+import { useCallback, useEffect, useState } from 'react';
+import { versionGetAppVersion } from '@/api/query_keys/version';
 import { getAppBuildId } from '@/api/server-functions/getAppVersion';
 import { Text } from '@/components/ui/typography';
 import { useWindowFocus } from '@/hooks/useWindowFocus';
 import { useBusterNotifications } from '../BusterNotifications';
 
-const browserBuild = import.meta.env.VITE_BUILD_ID;
+const browserBuild = import.meta.env.VITE_BUILD_ID as string;
+
+const checkNewVersion = (buildId: string | undefined): boolean => {
+  if (!buildId || !browserBuild) return false;
+  return buildId !== browserBuild;
+};
 
 export const useAppVersion = () => {
   const { openInfoNotification } = useBusterNotifications();
-  const { data, refetch, isFetched } = useQuery({
-    queryKey: ['app-version'] as const,
-    queryFn: getAppBuildId,
-    refetchInterval: 20000, // 20 seconds
-  });
-  const isChanged = data?.buildId !== browserBuild && isFetched && browserBuild;
+  const { data, refetch, isFetched } = useQuery(versionGetAppVersion);
+  const isChanged = checkNewVersion(data?.buildId);
 
   const reloadWindow = () => {
     window.location.reload();
@@ -49,20 +51,28 @@ export const useAppVersion = () => {
 };
 
 const AppVersionMessage = () => {
-  //  const [countdown, setCountdown] = useState(30);
-  //   useEffect(() => {
-  //     const interval = setInterval(() => {
-  //       setCountdown((prev) => Math.max(prev - 1, 0));
-  //       if (countdown === 0) {
-  //         //  window.location.reload();
-  //       }
-  //     }, 1000);
-  //     return () => clearInterval(interval);
-  //   }, []);
+  // const [countdown, setCountdown] = useState(180);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     setCountdown((prev) => Math.max(prev - 1, 0));
+  //     if (countdown === 0) {
+  //       window.location.reload();
+  //     }
+  //   }, 1000);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   return (
     <Text>
       A new version of the app is available. Please refresh the page to get the latest features.
     </Text>
   );
+};
+
+export const useIsVersionChanged = () => {
+  const { data } = useQuery({
+    ...versionGetAppVersion,
+    select: useCallback((data: { buildId: string }) => checkNewVersion(data.buildId), []),
+  });
+  return data;
 };
