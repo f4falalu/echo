@@ -1,9 +1,4 @@
 {
-  "functions": {
-    "apps/web/.output/server/index.mjs": {
-      "maxDuration": 30
-    }
-  },
   "headers": [
     {
       "source": "/assets/(.*)",
