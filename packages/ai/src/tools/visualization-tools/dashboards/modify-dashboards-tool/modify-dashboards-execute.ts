@@ -51,9 +51,12 @@ function getLatestVersionNumber(versionHistory: VersionHistory | null): number {
   if (!versionHistory || Object.keys(versionHistory).length === 0) {
     return 0;
   }
-  // Get all version numbers from the record values
-  const versionNumbers = Object.values(versionHistory).map((v) => v.version_number);
-  return Math.max(...versionNumbers);
+  // Get all version numbers from the record values, filtering out null/undefined/NaN
+  const versionNumbers = Object.values(versionHistory)
+    .map((v) => v.version_number)
+    .filter((n) => typeof n === 'number' && !Number.isNaN(n));
+
+  return versionNumbers.length > 0 ? Math.max(...versionNumbers) : 0;
 }
 
 // Helper function to add dashboard version to history

@@ -9,7 +9,8 @@ import CREATE_REPORTS_TOOL_DESCRIPTION from './create-reports-tool-description.t
 
 export const CREATE_REPORTS_TOOL_NAME = 'createReports';
 
-const CreateReportsInputFileSchema = z.object({
+// Input schema for the create reports tool - now accepts a single report
+const CreateReportsInputSchema = z.object({
   name: z
     .string()
     .describe(
@@ -18,36 +19,21 @@ const CreateReportsInputFileSchema = z.object({
   content: z
     .string()
     .describe(
-      'The markdown content for the report. Should be well-structured with headers, sections, and clear analysis. Multiple reports can be created in one call by providing multiple entries in the files array. **Prefer creating reports in bulk.**'
+      'The markdown content for the report. Should be well-structured with headers, sections, and clear analysis.'
     ),
 });
 
-// Input schema for the create reports tool
-const CreateReportsInputSchema = z.object({
-  files: z
-    .array(CreateReportsInputFileSchema)
-    .min(1)
-    .describe(
-      'List of report file parameters to create. Each report should contain comprehensive markdown content with analysis, findings, and recommendations.'
-    ),
-});
-
-const CreateReportsOutputFileSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  version_number: z.number(),
-});
-
-const CreateReportsOutputFailedFileSchema = z.object({
-  name: z.string(),
-  error: z.string(),
-});
-
-// Output schema for the create reports tool
+// Output schema for the create reports tool - now returns a single report or error
 const CreateReportsOutputSchema = z.object({
   message: z.string(),
-  files: z.array(CreateReportsOutputFileSchema),
-  failed_files: z.array(CreateReportsOutputFailedFileSchema),
+  file: z
+    .object({
+      id: z.string(),
+      name: z.string(),
+      version_number: z.number(),
+    })
+    .optional(),
+  error: z.string().optional(),
 });
 
 // Context schema for the create reports tool
@@ -75,19 +61,17 @@ const CreateReportStateFileSchema = z.object({
 const CreateReportsStateSchema = z.object({
   toolCallId: z.string().optional(),
   argsText: z.string().optional(),
-  files: z.array(CreateReportStateFileSchema).optional(),
+  file: CreateReportStateFileSchema.optional(), // Changed from array to single file
   startTime: z.number().optional(),
   initialEntriesCreated: z.boolean().optional(),
-  responseMessagesCreated: z.set(z.string()).optional(),
-  reportsModifiedInMessage: z.set(z.string()).optional(),
+  responseMessageCreated: z.boolean().optional(), // Changed from set to boolean
+  reportModifiedInMessage: z.boolean().optional(), // Changed from set to boolean
 });
 
 // Export types
 export type CreateReportsInput = z.infer<typeof CreateReportsInputSchema>;
 export type CreateReportsOutput = z.infer<typeof CreateReportsOutputSchema>;
 export type CreateReportsContext = z.infer<typeof CreateReportsContextSchema>;
-export type CreateReportsOutputFile = z.infer<typeof CreateReportsOutputFileSchema>;
-export type CreateReportsOutputFailedFile = z.infer<typeof CreateReportsOutputFailedFileSchema>;
 export type CreateReportsState = z.infer<typeof CreateReportsStateSchema>;
 export type CreateReportStateFile = z.infer<typeof CreateReportStateFileSchema>;
 
@@ -96,9 +80,9 @@ export function createCreateReportsTool(context: CreateReportsContext) {
   // Initialize state for streaming
   const state: CreateReportsState = {
     argsText: undefined,
-    files: [],
+    file: undefined,
     toolCallId: undefined,
-    reportsModifiedInMessage: new Set(),
+    reportModifiedInMessage: false,
   };
 
   // Create all functions with the context and state passed
