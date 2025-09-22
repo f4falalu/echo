@@ -22,8 +22,9 @@ import { SEQUENTIAL_THINKING_TOOL_NAME } from '../../tools/planning-thinking-too
 import { type AgentContext, repairToolCall } from '../../utils/tool-call-repair';
 import {
   type AnalysisMode,
-  getThinkAndPrepAgentSystemPrompt,
-} from './get-think-and-prep-agent-system-prompt';
+  AnalysisModeSchema,
+} from '../../workflows/analyst-agent-workflow/workflow-output.types';
+import { getThinkAndPrepAgentSystemPrompt } from './get-think-and-prep-agent-system-prompt';
 
 export const THINK_AND_PREP_AGENT_NAME = 'thinkAndPrepAgent';
 
@@ -47,9 +48,7 @@ export const ThinkAndPrepAgentOptionsSchema = z.object({
   datasets: z
     .array(z.custom<PermissionedDataset>())
     .describe('The datasets available to the user.'),
-  analysisMode: z
-    .enum(['standard', 'investigation'])
-    .default('standard')
+  analysisMode: AnalysisModeSchema.default('standard')
     .describe('The analysis mode to determine which prompt to use.')
     .optional(),
   workflowStartTime: z.number().describe('The start time of the workflow'),

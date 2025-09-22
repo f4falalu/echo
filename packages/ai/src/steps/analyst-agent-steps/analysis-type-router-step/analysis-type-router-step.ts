@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { GPT5Mini } from '../../../llm/gpt-5-mini';
 import { DEFAULT_OPENAI_OPTIONS } from '../../../llm/providers/gateway';
 import { isOverloadedError } from '../../../utils/with-agent-retry';
+import { AnalysisModeSchema } from '../../../workflows/analyst-agent-workflow/workflow-output.types';
 import { formatAnalysisTypeRouterPrompt } from './format-analysis-type-router-prompt';
 
 // Zod schemas first - following Zod-first approach
@@ -15,8 +16,8 @@ export const analysisTypeRouterParamsSchema = z.object({
 });
 
 export const analysisTypeRouterResultSchema = z.object({
-  analysisType: z.enum(['standard', 'investigation']).describe('The chosen analysis type'),
-  reasoning: z.string().describe('Explanation for why this analysis type was chosen'),
+  analysisMode: AnalysisModeSchema.describe('The chosen analysis mode'),
+  reasoning: z.string().describe('Explanation for why this analysis mode was chosen'),
 });
 
 // Export types from schemas
@@ -114,7 +115,7 @@ export async function runAnalysisTypeRouterStep(
       );
 
       return {
-        analysisType: params.messageAnalysisMode,
+        analysisMode: params.messageAnalysisMode,
         reasoning: 'Using the message analysis mode provided',
       };
     }
@@ -127,14 +128,14 @@ export async function runAnalysisTypeRouterStep(
     });
 
     return {
-      analysisType: result.choice,
+      analysisMode: result.choice,
       reasoning: result.reasoning,
     };
   } catch (error) {
     console.error('[analysis-type-router-step] Unexpected error:', error);
     // Default to standard analysis on error
     return {
-      analysisType: 'standard',
+      analysisMode: 'standard',
       reasoning: 'Defaulting to standard analysis due to routing error',
     };
   }
