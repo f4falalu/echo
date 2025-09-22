@@ -1,3 +1,14 @@
+import { config } from 'dotenv';
+import * as path from 'path';
+import { fileURLToPath } from 'url';
+
+// Get the directory name for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load environment variables from root .env file
+config({ path: path.resolve(__dirname, '../../../.env') });
+
 import { drizzle } from 'drizzle-orm/postgres-js';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
@@ -49,12 +60,17 @@ export function initializePool<T extends Record<string, postgres.PostgresType>>(
   }
 
   // Create postgres client with pool configuration
+  // Disable SSL for local development
+  const isDevelopment = process.env.ENVIRONMENT === 'development' || process.env.NODE_ENV === 'development';
+  
+  console.log('Database connection - ENVIRONMENT:', process.env.ENVIRONMENT, 'NODE_ENV:', process.env.NODE_ENV, 'isDevelopment:', isDevelopment);
+  
   globalPool = postgres(connectionString, {
     max: poolSize,
     idle_timeout: 30,
     connect_timeout: 30,
     prepare: true,
-    ssl: {
+    ssl: isDevelopment ? false : {
       rejectUnauthorized: false, // Allow self-signed certificates
     },
     ...config,
