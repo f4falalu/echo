@@ -69,6 +69,7 @@ const useEditorServerUpdates = ({
   isStreaming: boolean;
 }) => {
   const hasInitialized = useRef(false);
+  const lastValue = useRef<string>('');
 
   const { run: throttleStreamUpdate } = useThrottleFn(
     (v: string) => {
@@ -83,10 +84,26 @@ const useEditorServerUpdates = ({
   );
 
   useEffect(() => {
+    // Reset initialization state if we're switching to a different report content
+    if (value !== lastValue.current) {
+      hasInitialized.current = false;
+      lastValue.current = value || '';
+    }
+
     if (editor && isStreaming) {
       hasInitialized.current = true;
       throttleStreamUpdate(value);
     } else if (editor && value && !hasInitialized.current && isEmptyEditor(editor)) {
+      hasInitialized.current = true;
+      markdownToPlatejs(editor, value).then((elements) => {
+        editor.tf.reset();
+        editor.tf.init({
+          value: elements,
+          autoSelect: false,
+        });
+      });
+    } else if (editor && value && !hasInitialized.current && !isEmptyEditor(editor)) {
+      // Handle case where editor has content but we need to switch to different report
       hasInitialized.current = true;
       markdownToPlatejs(editor, value).then((elements) => {
         editor.tf.reset();
