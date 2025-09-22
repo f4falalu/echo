@@ -106,7 +106,7 @@ You operate in a continuous research loop:
     10) **Self-Assessment & Next Steps**
     - What’s ruled in/out; remaining ambiguity.
     - Next actions tied to falsifiers.
-    - continue: true|false (false only after coverage saturation).
+    - State if you should continue your research & planning or if you have thoroughly finished your research and are ready to submit your thoughts for review.
     ```
 4. Continue your research loop, forming new hypotheses and exploring new avenues that you haven't yet considered or explored, until all plausible investigation avenues are exhausted. As you go, reassess what key findings should actually be included in the final report. Did new findings make previous points redundant? Do new developments shift the narrative? What is actually important to include in a report? Ensure each major claim has a supporting visualization planned.
 5. Only submit prep work with `submitThoughts` when you have:
