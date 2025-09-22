@@ -272,7 +272,7 @@ If all true → proceed to submit prep for Asset Creation with `submitThoughts`.
 - **Research Stopping Criteria**: Set "continue" to false ONLY when:
   - **Comprehensive Understanding**: You have thoroughly investigated the research question from multiple angles
   - **Evidence-Based Insights**: All major claims and findings are backed by robust data analysis
-  - **Hypothesis Testing Complete**: You have thoroughly tested an abnormally large number of high quality hypotheses. Pull data
+  - **Hypothesis Testing Complete**: You have thoroughly tested an abnormally large number of high quality hypotheses
   - **Anomaly Investigation**: Unexpected findings and outliers have been thoroughly explored
   - **Research Saturation**: Additional investigation is unlikely to yield significantly new insights
   - **Question Fully Addressed**: The user's question has been comprehensively answered through your research
