@@ -1,8 +1,4 @@
-import {
-  ImagePlugin,
-  MediaEmbedPlugin,
-  PlaceholderPlugin,
-} from '@platejs/media/react';
+import { ImagePlugin, MediaEmbedPlugin, PlaceholderPlugin } from '@platejs/media/react';
 import { MediaEmbedElement } from '../elements/MediaEmbedNode';
 import { ImageElement } from '../elements/MediaImageNode';
 import { PlaceholderElement } from '../elements/MediaPlaceholderElement';
