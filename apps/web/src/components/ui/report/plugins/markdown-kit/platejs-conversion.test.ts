@@ -1,8 +1,23 @@
 import type { Value } from 'platejs';
 import { createPlateEditor } from 'platejs/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { EditorKit } from '../../editor-kit';
 import { markdownToPlatejs, platejsToMarkdown } from './platejs-conversions';
+
+vi.mock('@/env', () => ({
+  env: {
+    VITE_PUBLIC_ENABLE_TANSTACK_PANEL: 'true',
+    VITE_PUBLIC_POSTHOG_HOST: 'https://example.com',
+    VITE_PUBLIC_POSTHOG_KEY: '1234567890',
+    VITE_PUBLIC_URL: 'https://example.com',
+    VITE_PUBLIC_SUPABASE_ANON_KEY: '1234567890',
+    VITE_PUBLIC_SUPABASE_URL: 'https://example.com',
+    VITE_PUBLIC_WS_URL: 'https://example.com',
+    VITE_PUBLIC_WEB_SOCKET_URL: 'https://example.com',
+    VITE_PUBLIC_API2_URL: 'https://example.com',
+    VITE_PUBLIC_API_URL: 'https://example.com',
+  },
+}));
 
 export const editor = createPlateEditor({
   plugins: EditorKit({ scrollAreaRef: undefined, mode: 'default' }),
