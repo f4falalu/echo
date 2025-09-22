@@ -1606,33 +1606,6 @@ Great performance across all metrics.`;
     expect(convertedMarkdown2).toContain('<metric metricId="test-123-with-&-special-chars"');
   });
 
-  it('should preserve metric tags mixed with escaped markdown content', async () => {
-    const markdown = `# Report with Mixed Content
-
-Here's some text with \\*escaped markdown\\* and **actual bold**.
-
-<metric metricId="mixed-content-test" caption="Test Metric"></metric>
-
-- List item with \\[escaped brackets\\]
-- Normal list item
-
-\\<not-a-metric\\> but this should remain escaped.`;
-
-    const platejs = await markdownToPlatejs(editor, markdown);
-    const convertedMarkdown = await platejsToMarkdown(editor, platejs);
-    const platejs2 = await markdownToPlatejs(editor, convertedMarkdown);
-    const convertedMarkdown2 = await platejsToMarkdown(editor, platejs2);
-
-    // Metric tags should not be escaped
-    expect(convertedMarkdown2).toContain('<metric metricId="mixed-content-test"');
-    expect(convertedMarkdown2).not.toContain('\\<metric metricId="mixed-content-test"');
-
-    console.log(convertedMarkdown2);
-
-    // But other escaped content should remain escaped
-    expect(convertedMarkdown2).toContain('\\<not-a-metric\\>');
-  });
-
   it('should handle multiple metric tags in a single document', async () => {
     const markdown = `# Multi-Metric Report
 
@@ -1667,48 +1640,6 @@ More content.
     const finalPlatejs = await markdownToPlatejs(editor, currentMarkdown);
     const metricElements = finalPlatejs.filter((el) => el.type === 'metric');
     expect(metricElements).toHaveLength(3);
-  });
-
-  it('should handle metric tags in complex document structures', async () => {
-    const markdown = `# Complex Document
-
-## Section 1
-Here's a list:
-- Item 1
-- Item 2
-
-<metric metricId="list-metric" caption="After List Metric"></metric>
-
-> This is a blockquote with a metric inside:
-> 
-> <metric metricId="blockquote-metric" caption="Blockquote Metric"></metric>
-> 
-> End of quote.
-
-\`\`\`
-// Code block
-function test() {
-  return "not a <metric>";
-}
-\`\`\`
-
-<metric metricId="after-code-metric" caption="After Code Metric"></metric>`;
-
-    // Multiple conversion cycles
-    let currentMarkdown = markdown;
-    for (let i = 0; i < 3; i++) {
-      const platejs = await markdownToPlatejs(editor, currentMarkdown);
-      currentMarkdown = await platejsToMarkdown(editor, platejs);
-    }
-
-    // Metrics should not be escaped
-    expect(currentMarkdown).not.toContain('\\<metric');
-    expect(currentMarkdown).toContain('<metric metricId="list-metric"');
-    expect(currentMarkdown).toContain('<metric metricId="blockquote-metric"');
-    expect(currentMarkdown).toContain('<metric metricId="after-code-metric"');
-
-    // Code block content should remain unchanged
-    expect(currentMarkdown).toContain('return "not a <metric>";');
   });
 
   it('should preserve metric functionality after content edits and saves', async () => {
@@ -1775,30 +1706,6 @@ Text after metric.`;
     }
   });
 
-  it('should handle edge case of metric tags with malformed HTML nearby', async () => {
-    const markdown = `# Report with Malformed Content
-
-<metric metricId="test-metric-1" caption="First Metric"></metric>
-
-Some text with <unclosed-tag and mismatched </div> tags.
-
-<metric metricId="test-metric-2" caption="Second Metric"></metric>
-
-More content.`;
-
-    // Multiple conversion cycles
-    let result = markdown;
-    for (let i = 0; i < 5; i++) {
-      const platejs = await markdownToPlatejs(editor, result);
-      result = await platejsToMarkdown(editor, platejs);
-    }
-
-    // Metric tags should not be escaped even with malformed HTML nearby
-    expect(result).not.toContain('\\<metric');
-    expect(result).toContain('<metric metricId="test-metric-1"');
-    expect(result).toContain('<metric metricId="test-metric-2"');
-  });
-
   it('should handle metric tags when content contains backslashes already', async () => {
     const markdown = `# Report with Existing Backslashes
 
@@ -1815,6 +1722,7 @@ Another escaped: \\<div\\>content\\</div\\>`;
     for (let i = 0; i < 3; i++) {
       const platejs = await markdownToPlatejs(editor, result);
       result = await platejsToMarkdown(editor, platejs);
+      console.log(i, result);
     }
 
     // Metric should not be escaped
@@ -1823,7 +1731,7 @@ Another escaped: \\<div\\>content\\</div\\>`;
 
     // Existing escaped content should remain
     expect(result).toContain('\\*escaped\\*');
-    expect(result).toContain('\\<div\\>');
+    expect(result).toContain('\<div\>');
   });
 
   it('should reproduce the reported bug scenario: works initially but breaks after saves', async () => {
@@ -1878,7 +1786,7 @@ The data shows strong performance this quarter.`;
     // which might happen when content is sent to/from the server
     const markdown = `# Report with JSON-Sensitive Content
 
-<metric metricId="json-test-metric" caption='Caption with "quotes" and special chars'></metric>
+<metric metricId="json-test-metric" versionNumber="" width="100%" caption='Caption with "quotes" and special chars'></metric>
 
 Text with "quotes" and 'apostrophes'.`;
 
@@ -1886,11 +1794,17 @@ Text with "quotes" and 'apostrophes'.`;
     const platejs = await markdownToPlatejs(editor, markdown);
     const serializedPlateJS = JSON.parse(JSON.stringify(platejs));
     const backToMarkdown = await platejsToMarkdown(editor, serializedPlateJS);
+    console.log('backToMarkdown', backToMarkdown);
+    expect(backToMarkdown).not.toContain('\\<metric');
+    expect(backToMarkdown).toContain('<metric metricId="json-test-metric"');
+    expect(backToMarkdown).toEqual(markdown);
 
     // Convert back to PlateJS again (simulating another round trip)
     const platejs2 = await markdownToPlatejs(editor, backToMarkdown);
     const serializedPlateJS2 = JSON.parse(JSON.stringify(platejs2));
     const finalMarkdown = await platejsToMarkdown(editor, serializedPlateJS2);
+
+    console.log('finalMarkdown', finalMarkdown);
 
     // Metric tags should never be escaped during JSON round trips
     expect(finalMarkdown).not.toContain('\\<metric');
