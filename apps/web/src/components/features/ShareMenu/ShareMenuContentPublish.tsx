@@ -55,7 +55,7 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
       if (assetType === 'metric_file') {
         return createFullURL(
           buildLocation({
-            to: '/app/metrics/$metricId/chart',
+            to: '/embed/metric/$metricId',
             params: {
               metricId: assetId,
             },
@@ -64,7 +64,7 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
       } else if (assetType === 'dashboard_file') {
         return createFullURL(
           buildLocation({
-            to: '/app/dashboards/$dashboardId',
+            to: '/embed/dashboard/$dashboardId',
             params: {
               dashboardId: assetId,
             },
@@ -82,7 +82,7 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
       } else if (assetType === 'report_file') {
         return createFullURL(
           buildLocation({
-            to: '/app/reports/$reportId',
+            to: '/embed/report/$reportId',
             params: {
               reportId: assetId,
             },

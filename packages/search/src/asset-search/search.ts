@@ -91,7 +91,7 @@ async function addAncestorsToSearchResults(
   userId: string,
   organizationId: string
 ): Promise<SearchTextData[]> {
-  const chunkSize = 10;
+  const chunkSize = 5;
   const resultsWithAncestors: SearchTextData[] = [];
 
   for (let i = 0; i < searchResults.length; i += chunkSize) {

@@ -40,14 +40,7 @@ export const requireAuth = bearerAuth({
 
       c.set('busterUser', busterUser);
 
-      // Ensure user is not anonymous
-      const isAuthenticated = !data.user.is_anonymous;
-
-      if (!isAuthenticated) {
-        console.info('Anonymous user attempted to access protected resource');
-      }
-
-      return isAuthenticated;
+      return true;
     } catch (error) {
       console.error('Unexpected error during token validation:', error);
       return false;

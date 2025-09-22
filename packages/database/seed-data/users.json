@@ -1,0 +1,254 @@
+[
+  {
+    "id": "c2dd64cd-f7f3-4884-bc91-d46ae431901e",
+    "email": "chad@buster.so",
+    "name": "chad",
+    "config": {},
+    "createdAt": "2025-09-19 21:10:02.583798+00",
+    "updatedAt": "2025-09-19 18:42:11.761303+00",
+    "attributes": {
+      "user_id": "c2dd64cd-f7f3-4884-bc91-d46ae431901e",
+      "user_email": "chad@buster.so",
+      "organization_id": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+      "organization_role": "workspace_admin"
+    },
+    "avatarUrl": null,
+    "suggestedPrompts": {
+      "updatedAt": "2025-09-19T18:52:25.717Z",
+      "suggestedPrompts": {
+        "help": [
+          "what types of analyses can you perform on quarterly revenue data",
+          "how do you connect new metrics to dashboards",
+          "can you break down revenue by product and vendor accessory",
+          "what data sources do you need to create these reports and dashboards"
+        ],
+        "report": [
+          "generate a revenue breakdown report for last four quarters by product category",
+          "create a supplier and territory profitability report for the latest four quarters",
+          "produce a quarterly revenue vs discount impact narrative for last year",
+          "summarize customer growth and revenue by cohort over four quarters"
+        ],
+        "dashboard": [
+          "build a quarterly revenue dashboard with QoQ growth and AOV",
+          "create a dashboard comparing top 10 products across the last four quarters",
+          "design a vendor activity and spend dashboard for the last 3 years",
+          "make a dashboard showing revenue by product category and region last 4 quarters"
+        ],
+        "visualization": [
+          "which product earned the most revenue in the last four quarters",
+          "show quarterly discount impact trend",
+          "display revenue by customer count vs revenue per customer this year",
+          "plot year over year revenue growth rate by quarter forSignature Cycles"
+        ]
+      }
+    },
+    "personalizationEnabled": false,
+    "personalizationConfig": {},
+    "lastUsedShortcuts": []
+  },
+  {
+    "id": "1fe85021-e799-471b-8837-953e9ae06e4c",
+    "email": "blake@buster.so",
+    "name": "blake",
+    "config": {},
+    "createdAt": "2025-09-19 21:10:02.583798+00",
+    "updatedAt": "2025-09-19 18:42:11.761303+00",
+    "attributes": {
+      "user_id": "1fe85021-e799-471b-8837-953e9ae06e4c",
+      "user_email": "blake@buster.so",
+      "organization_id": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+      "organization_role": "querier"
+    },
+    "avatarUrl": null,
+    "suggestedPrompts": {
+      "updatedAt": "2025-09-17T20:41:10.972Z",
+      "suggestedPrompts": {
+        "help": [
+          "what types of analyses can you perform?",
+          "what questions can I as buster?",
+          "what data models are available for queries?",
+          "can you explain your forecasting capabilities?"
+        ],
+        "report": [
+          "provide a trend analysis of quarterly profits",
+          "evaluate product performance across regions"
+        ],
+        "dashboard": [
+          "create a sales performance dashboard",
+          "design a revenue forecast dashboard"
+        ],
+        "visualization": [
+          "create a metric for monthly sales",
+          "show top vendors by purchase volume"
+        ]
+      }
+    },
+    "personalizationEnabled": false,
+    "personalizationConfig": {},
+    "lastUsedShortcuts": []
+  },
+  {
+    "id": "6840fa04-c0d7-4e0e-8d3d-ea9190d93874",
+    "email": "nate@buster.so",
+    "name": "nate",
+    "config": {},
+    "createdAt": "2025-09-19 21:10:02.583798+00",
+    "updatedAt": "2025-09-19 18:42:11.761303+00",
+    "attributes": {
+      "user_id": "6840fa04-c0d7-4e0e-8d3d-ea9190d93874",
+      "user_email": "nate@buster.so",
+      "organization_id": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+      "organization_role": "data_admin"
+    },
+    "avatarUrl": null,
+    "suggestedPrompts": {
+      "updatedAt": "2025-09-17T20:41:10.972Z",
+      "suggestedPrompts": {
+        "help": [
+          "what types of analyses can you perform?",
+          "what questions can I as buster?",
+          "what data models are available for queries?",
+          "can you explain your forecasting capabilities?"
+        ],
+        "report": [
+          "provide a trend analysis of quarterly profits",
+          "evaluate product performance across regions"
+        ],
+        "dashboard": [
+          "create a sales performance dashboard",
+          "design a revenue forecast dashboard"
+        ],
+        "visualization": [
+          "create a metric for monthly sales",
+          "show top vendors by purchase volume"
+        ]
+      }
+    },
+    "personalizationEnabled": false,
+    "personalizationConfig": {},
+    "lastUsedShortcuts": []
+  },
+  {
+    "id": "aa0a1367-3a10-4fe5-9244-2db46c000d64",
+    "email": "dallin@buster.so",
+    "name": "dallin",
+    "config": {},
+    "createdAt": "2025-09-19 21:10:02.583798+00",
+    "updatedAt": "2025-09-19 18:42:11.761303+00",
+    "attributes": {
+      "user_id": "aa0a1367-3a10-4fe5-9244-2db46c000d64",
+      "user_email": "dallin@buster.so",
+      "organization_id": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+      "organization_role": "restricted_querier"
+    },
+    "avatarUrl": null,
+    "suggestedPrompts": {
+      "updatedAt": "2025-09-17T20:41:10.972Z",
+      "suggestedPrompts": {
+        "help": [
+          "what types of analyses can you perform?",
+          "what questions can I as buster?",
+          "what data models are available for queries?",
+          "can you explain your forecasting capabilities?"
+        ],
+        "report": [
+          "provide a trend analysis of quarterly profits",
+          "evaluate product performance across regions"
+        ],
+        "dashboard": [
+          "create a sales performance dashboard",
+          "design a revenue forecast dashboard"
+        ],
+        "visualization": [
+          "create a metric for monthly sales",
+          "show top vendors by purchase volume"
+        ]
+      }
+    },
+    "personalizationEnabled": false,
+    "personalizationConfig": {},
+    "lastUsedShortcuts": []
+  },
+  {
+    "id": "8e98a1fc-c4d5-401c-98d8-2cce60e11079",
+    "email": "sales@buster.so",
+    "name": "sales",
+    "config": {},
+    "createdAt": "2025-09-19 21:10:02.583798+00",
+    "updatedAt": "2025-09-19 18:42:11.761303+00",
+    "attributes": {
+      "user_id": "8e98a1fc-c4d5-401c-98d8-2cce60e11079",
+      "user_email": "sales@buster.so",
+      "organization_id": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+      "organization_role": "restricted_querier"
+    },
+    "avatarUrl": null,
+    "suggestedPrompts": {
+      "updatedAt": "2025-09-17T20:41:10.972Z",
+      "suggestedPrompts": {
+        "help": [
+          "what types of analyses can you perform?",
+          "what questions can I as buster?",
+          "what data models are available for queries?",
+          "can you explain your forecasting capabilities?"
+        ],
+        "report": [
+          "provide a trend analysis of quarterly profits",
+          "evaluate product performance across regions"
+        ],
+        "dashboard": [
+          "create a sales performance dashboard",
+          "design a revenue forecast dashboard"
+        ],
+        "visualization": [
+          "create a metric for monthly sales",
+          "show top vendors by purchase volume"
+        ]
+      }
+    },
+    "personalizationEnabled": false,
+    "personalizationConfig": {},
+    "lastUsedShortcuts": []
+  },
+  {
+    "id": "70d05d4e-b2c1-40c5-be69-315e420fd0ab",
+    "email": "noaccess@buster.so",
+    "name": "no access",
+    "config": {},
+    "createdAt": "2025-09-19 21:10:02.583798+00",
+    "updatedAt": "2025-09-19 18:42:11.761303+00",
+    "attributes": {
+      "user_id": "70d05d4e-b2c1-40c5-be69-315e420fd0ab",
+      "user_email": "noaccess@buster.so",
+      "organization_id": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+      "organization_role": "viewer"
+    },
+    "avatarUrl": null,
+    "suggestedPrompts": {
+      "updatedAt": "2025-09-17T20:41:10.972Z",
+      "suggestedPrompts": {
+        "help": [
+          "what types of analyses can you perform?",
+          "what questions can I as buster?",
+          "what data models are available for queries?",
+          "can you explain your forecasting capabilities?"
+        ],
+        "report": [
+          "provide a trend analysis of quarterly profits",
+          "evaluate product performance across regions"
+        ],
+        "dashboard": [
+          "create a sales performance dashboard",
+          "design a revenue forecast dashboard"
+        ],
+        "visualization": [
+          "create a metric for monthly sales",
+          "show top vendors by purchase volume"
+        ]
+      }
+    },
+    "personalizationEnabled": false,
+    "personalizationConfig": {},
+    "lastUsedShortcuts": []
+  }
+]

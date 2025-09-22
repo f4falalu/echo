@@ -5,7 +5,6 @@ import {
   getAssetsAssociatedWithMetric,
   getMetricFileById,
   getOrganizationMemberCount,
-  getUser,
   getUsersWithMetricPermissions,
 } from '@buster/database/queries';
 import {
@@ -19,6 +18,7 @@ import type { AssetPermissionRole, VerificationStatus } from '@buster/server-sha
 import { HTTPException } from 'hono/http-exception';
 import yaml from 'js-yaml';
 import { z } from 'zod';
+import { getPubliclyEnabledByUser } from './get-publicly-enabled-by-user';
 
 export const MetricAccessOptionsSchema = z.object({
   /** If public access has been verified by a parent resource set to true */
@@ -116,14 +116,6 @@ export async function fetchAndProcessMetricData(
     }
 
     effectiveRole = 'can_view';
-  }
-
-  // Shouldn't ever be hit because we throw errors above if public access is not verified
-  if (!effectiveRole) {
-    console.warn(`Permission denied for user ${user.id} to metric ${metricId}`);
-    throw new HTTPException(403, {
-      message: "You don't have permission to view this metric",
-    });
   }
 
   // Parse version history
@@ -296,15 +288,4 @@ export async function buildMetricResponse(
   };
 
   return response;
-}
-
-/**
- * Helper to get publicly enabled by user email
- */
-export async function getPubliclyEnabledByUser(enabledById: string | null): Promise<string | null> {
-  if (enabledById) {
-    const publicEnabledByUser = await getUser({ id: enabledById });
-    return publicEnabledByUser.email;
-  }
-  return null;
 }

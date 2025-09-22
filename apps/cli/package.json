@@ -8,7 +8,6 @@
   },
   "scripts": {
     "prebuild": "[ \"$SKIP_ENV_CHECK\" = \"true\" ] || tsx scripts/validate-env.ts",
-    "dev": "bun run --watch src/index.tsx",
     "build": "bun build src/index.tsx --outdir dist --target node",
     "build:dry-run": "tsc --noEmit",
     "build:standalone": "bun build src/index.tsx --compile --outfile dist/buster",

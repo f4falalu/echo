@@ -8,30 +8,26 @@ import {
   reportFiles,
   users,
 } from '../../schema';
-import { AssetPermissionRoleSchema } from '../../schema-types';
 import { getAssetPermission } from '../assets';
 import { getOrganizationMemberCount, getUserOrganizationId } from '../organizations';
 
 export const GetReportInputSchema = z.object({
   reportId: z.string().uuid('Report ID must be a valid UUID'),
   userId: z.string().uuid('User ID must be a valid UUID'),
-  permissionRole: AssetPermissionRoleSchema.optional(),
+  versionNumber: z.number().int().min(1).optional(),
 });
 
 type GetReportInput = z.infer<typeof GetReportInputSchema>;
 
-export async function getReport(input: GetReportInput) {
+export async function getReportFileById(input: GetReportInput) {
   const validated = GetReportInputSchema.parse(input);
 
-  const { reportId, userId, permissionRole } = validated;
+  const { reportId, userId, versionNumber } = validated;
 
   const userOrg = await getUserOrganizationId(userId);
 
-  if (!userOrg?.organizationId) {
-    throw new Error('User not found in any organization');
-  }
-
-  const { organizationId } = userOrg;
+  const organizationId = userOrg?.organizationId || '';
+  const isOrganizationMember = organizationId !== '';
 
   const reportCollectionsQuery = db
     .select({
@@ -65,6 +61,7 @@ export async function getReport(input: GetReportInput) {
       public_password: reportFiles.publicPassword,
       public_enabled_by: reportFiles.publiclyEnabledBy,
       workspace_sharing: reportFiles.workspaceSharing,
+      organization_id: reportFiles.organizationId,
       // User metadata
       created_by_id: users.id,
       created_by_name: users.name,
@@ -72,13 +69,7 @@ export async function getReport(input: GetReportInput) {
     })
     .from(reportFiles)
     .innerJoin(users, eq(reportFiles.createdBy, users.id))
-    .where(
-      and(
-        eq(reportFiles.id, reportId),
-        eq(reportFiles.organizationId, organizationId),
-        isNull(reportFiles.deletedAt)
-      )
-    )
+    .where(and(eq(reportFiles.id, reportId), isNull(reportFiles.deletedAt)))
     .limit(1);
 
   // Individual permissions query - get users with direct permissions to this report
@@ -110,9 +101,9 @@ export async function getReport(input: GetReportInput) {
     userPermission,
   ] = await Promise.all([
     reportDataQuery,
-    reportCollectionsQuery,
-    individualPermissionsQuery,
-    getOrganizationMemberCount(organizationId),
+    isOrganizationMember ? reportCollectionsQuery : Promise.resolve([]),
+    isOrganizationMember ? individualPermissionsQuery : Promise.resolve([]),
+    isOrganizationMember ? getOrganizationMemberCount(organizationId) : Promise.resolve(0),
     getAssetPermission(userId, reportId, 'report_file'),
   ]);
   const reportData = reportDataResult[0];
@@ -146,9 +137,36 @@ export async function getReport(input: GetReportInput) {
     versions: versionHistoryArray,
     collections: reportCollectionsResult,
     individual_permissions: individualPermissionsResult,
-    permission: permissionRole ? permissionRole : (userPermission ?? 'can_view'),
+    permission: userPermission ?? 'can_view',
     workspace_member_count: workspaceMemberCount,
   };
 
+  // if versionNumber is provided, create a versioned report
+  if (versionNumber !== undefined) {
+    const versionExists = reportData.version_history[versionNumber.toString()];
+    if (!versionExists) {
+      throw new Error(`Version ${versionNumber} not found`);
+    }
+    report.content = versionExists.content;
+    report.version_number = versionExists.version_number;
+    report.updated_at = versionExists.updated_at;
+  }
+
   return report;
+}
+
+export async function getReportWorkspaceSharing(reportId: string) {
+  const report = await db
+    .select({
+      workspace_sharing: reportFiles.workspaceSharing,
+    })
+    .from(reportFiles)
+    .where(eq(reportFiles.id, reportId))
+    .limit(1);
+
+  if (!report[0]) {
+    throw new Error('Report not found');
+  }
+
+  return report[0].workspace_sharing;
 }

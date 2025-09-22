@@ -54,6 +54,9 @@ export function initializePool<T extends Record<string, postgres.PostgresType>>(
     idle_timeout: 30,
     connect_timeout: 30,
     prepare: true,
+    ssl: {
+      rejectUnauthorized: false, // Allow self-signed certificates
+    },
     ...config,
   });
 

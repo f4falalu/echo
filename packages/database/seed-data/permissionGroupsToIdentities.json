@@ -1,0 +1,52 @@
+[
+  {
+    "permissionGroupId": "6840fa04-c0d7-4e0e-8d3d-ea9190d93874",
+    "identityId": "c2dd64cd-f7f3-4884-bc91-d46ae431901e",
+    "identityType": "team",
+    "createdAt": "2024-11-05 15:41:13.98306+00",
+    "updatedAt": "2024-11-05 15:41:13.98306+00",
+    "deletedAt": null,
+    "createdBy": "6840fa04-c0d7-4e0e-8d3d-ea9190d93874",
+    "updatedBy": "6840fa04-c0d7-4e0e-8d3d-ea9190d93874"
+  },
+  {
+    "permissionGroupId": "5381a3ac-9671-4318-a8d3-3dc34b7d3c42",
+    "identityId": "6840fa04-c0d7-4e0e-8d3d-ea9190d93874",
+    "identityType": "team",
+    "createdAt": "2024-11-05 15:41:13.983061+00",
+    "updatedAt": "2024-11-05 15:41:13.983061+00",
+    "deletedAt": null,
+    "createdBy": "6840fa04-c0d7-4e0e-8d3d-ea9190d93874",
+    "updatedBy": "6840fa04-c0d7-4e0e-8d3d-ea9190d93874"
+  },
+  {
+    "permissionGroupId": "5381a3ac-9671-4318-a8d3-3dc34b7d3c42",
+    "identityId": "1fe85021-e799-471b-8837-953e9ae06e4c",
+    "identityType": "user",
+    "createdAt": "2024-11-05 15:41:13.983059+00",
+    "updatedAt": "2024-11-05 15:41:13.983059+00",
+    "deletedAt": null,
+    "createdBy": "6840fa04-c0d7-4e0e-8d3d-ea9190d93874",
+    "updatedBy": "6840fa04-c0d7-4e0e-8d3d-ea9190d93874"
+  },
+  {
+    "permissionGroupId": "b25e4d5a-178e-4441-a7eb-761e9dcec16f",
+    "identityId": "8e98a1fc-c4d5-401c-98d8-2cce60e11079",
+    "identityType": "user",
+    "createdAt": "2025-05-02 17:35:41.03045+00",
+    "updatedAt": "2025-05-02 17:35:41.030452+00",
+    "deletedAt": null,
+    "createdBy": "c2dd64cd-f7f3-4884-bc91-d46ae431901e",
+    "updatedBy": "c2dd64cd-f7f3-4884-bc91-d46ae431901e"
+  },
+  {
+    "permissionGroupId": "b25e4d5a-178e-4441-a7eb-761e9dcec16f",
+    "identityId": "70d05d4e-b2c1-40c5-be69-315e420fd0ab",
+    "identityType": "user",
+    "createdAt": "2025-05-02 17:33:12.879557+00",
+    "updatedAt": "2025-05-02 17:33:12.879559+00",
+    "deletedAt": "2025-05-02 17:35:45.173757+00",
+    "createdBy": "c2dd64cd-f7f3-4884-bc91-d46ae431901e",
+    "updatedBy": "c2dd64cd-f7f3-4884-bc91-d46ae431901e"
+  }
+]

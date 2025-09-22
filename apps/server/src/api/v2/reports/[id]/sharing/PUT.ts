@@ -2,7 +2,8 @@ import {
   bulkCreateAssetPermissions,
   checkAssetPermission,
   findUsersByEmails,
-  getReport,
+  getReportFileById,
+  getReportWorkspaceSharing,
   getUserOrganizationId,
   updateReport,
 } from '@buster/database/queries';
@@ -12,6 +13,7 @@ import { type ShareUpdateRequest, ShareUpdateRequestSchema } from '@buster/serve
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
+import { checkIfAssetIsEditable } from '../../../../../shared-helpers/asset-public-access';
 import { getReportHandler } from '../GET';
 
 export async function updateReportShareHandler(
@@ -37,7 +39,7 @@ export async function updateReportShareHandler(
   }
 
   // Check if report exists
-  const report = await getReport({ reportId, userId: user.id });
+  const report = await getReportFileById({ reportId, userId: user.id });
   if (!report) {
     throw new HTTPException(404, { message: 'Report not found' });
   }
@@ -128,6 +130,15 @@ const app = new Hono().put('/', zValidator('json', ShareUpdateRequestSchema), as
   if (!userOrg) {
     throw new HTTPException(403, { message: 'User is not associated with an organization' });
   }
+
+  await checkIfAssetIsEditable({
+    user,
+    assetId: reportId,
+    assetType: 'report_file',
+    workspaceSharing: getReportWorkspaceSharing,
+    organizationId: userOrg.organizationId,
+    requiredRole: 'full_access',
+  });
 
   const updatedReport: ShareUpdateResponse = await updateReportShareHandler(reportId, request, {
     ...user,

@@ -26,10 +26,7 @@
     },
     "dev": {
       "cache": false,
-      "persistent": true,
-      "dependsOn": [
-        "@buster/database#dev"
-      ]
+      "persistent": true
     },
     "momentic": {
       "cache": false,
@@ -37,10 +34,7 @@
     },
     "dev:fast": {
       "cache": false,
-      "persistent": true,
-      "dependsOn": [
-        "@buster/database#dev"
-      ]
+      "persistent": true
     },
     "lint": {
       "dependsOn": [
@@ -99,6 +93,12 @@
       "persistent": true,
       "dependsOn": [
         "build:commonjs"
+      ]
+    },
+    "db:migrate": {
+      "cache": false,
+      "env": [
+        "NODE_TLS_REJECT_UNAUTHORIZED"
       ]
     }
   },
@@ -160,7 +160,8 @@
     "SLACK_CLIENT_ID",
     "SLACK_CLIENT_SECRET",
     "SLACK_SIGNING_SECRET",
-    "MOMENTIC_API_KEY"
+    "MOMENTIC_API_KEY",
+    "NODE_TLS_REJECT_UNAUTHORIZED"
   ],
   "envMode": "strict"
 }

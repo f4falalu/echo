@@ -10,7 +10,7 @@ use database::{
     enums::AssetType,
     pool::get_pg_pool,
     models::UserFavorite,
-    schema::{collections, collections_to_assets, dashboard_files, chats, messages_deprecated, threads_deprecated, user_favorites, metric_files, report_files},
+    schema::{collections, collections_to_assets, dashboard_files, chats, user_favorites, metric_files, report_files},
 };
 
 use middleware::AuthenticatedUser;
@@ -75,16 +75,6 @@ pub async fn list_user_favorites(user: &AuthenticatedUser) -> Result<Vec<Favorit
         tokio::spawn(async move { get_assets_from_collections(collection_ids).await })
     };
 
-    let threads_favorites = {
-        let thread_ids = Arc::new(
-            user_favorites
-                .iter()
-                .filter(|(_, f)| f == &AssetType::Thread)
-                .map(|f| f.0)
-                .collect::<Vec<Uuid>>(),
-        );
-        tokio::spawn(async move { get_favorite_threads(thread_ids).await })
-    };
 
     let metrics_favorites = {
         let metric_ids = Arc::new(
@@ -119,10 +109,10 @@ pub async fn list_user_favorites(user: &AuthenticatedUser) -> Result<Vec<Favorit
         tokio::spawn(async move { get_favorite_reports(report_ids).await })
     };
 
-    let (dashboard_fav_res, collection_fav_res, threads_fav_res, metrics_fav_res, chats_fav_res, reports_fav_res) =
-        match tokio::try_join!(dashboard_favorites, collection_favorites, threads_favorites, metrics_favorites, chats_favorites, reports_favorites) {
-            Ok((dashboard_fav_res, collection_fav_res, threads_fav_res, metrics_fav_res, chats_fav_res, reports_fav_res)) => {
-                (dashboard_fav_res, collection_fav_res, threads_fav_res, metrics_fav_res, chats_fav_res, reports_fav_res)
+    let (dashboard_fav_res, collection_fav_res, metrics_fav_res, chats_fav_res, reports_fav_res) =
+        match tokio::try_join!(dashboard_favorites, collection_favorites, metrics_favorites, chats_favorites, reports_favorites) {
+            Ok((dashboard_fav_res, collection_fav_res, metrics_fav_res, chats_fav_res, reports_fav_res)) => {
+                (dashboard_fav_res, collection_fav_res, metrics_fav_res, chats_fav_res, reports_fav_res)
             }
             Err(e) => {
                 tracing::error!("Error getting favorite assets: {}", e);
@@ -146,13 +136,6 @@ pub async fn list_user_favorites(user: &AuthenticatedUser) -> Result<Vec<Favorit
         }
     };
 
-    let favorite_threads = match threads_fav_res {
-        Ok(threads) => threads,
-        Err(e) => {
-            tracing::error!("Error getting favorite threads: {}", e);
-            return Err(anyhow!("Error getting favorite threads: {}", e));
-        }
-    };
 
     let favorite_metrics = match metrics_fav_res {
         Ok(metrics) => metrics,
@@ -204,13 +187,7 @@ pub async fn list_user_favorites(user: &AuthenticatedUser) -> Result<Vec<Favorit
                 }
             }
             AssetType::Thread => {
-                if let Some(thread) = favorite_threads.iter().find(|t| t.id == favorite.0) {
-                    favorites.push(FavoriteObject {
-                        id: thread.id,
-                        name: thread.name.clone(),
-                        type_: AssetType::Thread,
-                    });
-                }
+                // Threads have been deprecated, skip them
             }
             AssetType::MetricFile => {
                 if let Some(metric) = favorite_metrics.iter().find(|m| m.id == favorite.0) {
@@ -246,40 +223,6 @@ pub async fn list_user_favorites(user: &AuthenticatedUser) -> Result<Vec<Favorit
     Ok(favorites)
 }
 
-async fn get_favorite_threads(thread_ids: Arc<Vec<Uuid>>) -> Result<Vec<FavoriteObject>> {
-    let mut conn = match get_pg_pool().get().await {
-        Ok(conn) => conn,
-        Err(e) => return Err(anyhow!("Error getting connection from pool: {:?}", e)),
-    };
-
-    let thread_records: Vec<(Uuid, Option<String>)> = match threads_deprecated::table
-        .inner_join(messages_deprecated::table.on(threads_deprecated::id.eq(messages_deprecated::thread_id)))
-        .select((threads_deprecated::id, messages_deprecated::title))
-        .filter(threads_deprecated::id.eq_any(thread_ids.as_ref()))
-        .filter(threads_deprecated::deleted_at.is_null())
-        .filter(messages_deprecated::deleted_at.is_null())
-        .filter(messages_deprecated::draft_session_id.is_null())
-        .distinct_on(threads_deprecated::id)
-        .order((threads_deprecated::id, messages_deprecated::created_at.desc()))
-        .load::<(Uuid, Option<String>)>(&mut conn)
-        .await
-    {
-        Ok(thread_records) => thread_records,
-        Err(diesel::NotFound) => return Err(anyhow!("Threads not found")),
-        Err(e) => return Err(anyhow!("Error loading thread records: {:?}", e)),
-    };
-
-    let favorite_threads = thread_records
-        .iter()
-        .map(|(id, name)| FavoriteObject {
-            id: *id,
-            name: name.clone().unwrap_or_else(|| String::from("Untitled")),
-            type_: AssetType::Thread,
-        })
-        .collect();
-
-    Ok(favorite_threads)
-}
 
 async fn get_favorite_dashboards(dashboard_ids: Arc<Vec<Uuid>>) -> Result<Vec<FavoriteObject>> {
     let mut conn = match get_pg_pool().get().await {
