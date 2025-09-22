@@ -29,6 +29,7 @@ export const useAppVersion = () => {
   });
 
   useEffect(() => {
+    console.log('isChanged', data?.buildId, browserBuild);
     if (isChanged) {
       openInfoNotification({
         duration: Infinity,
