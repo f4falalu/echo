@@ -1,3 +1,14 @@
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { config } from 'dotenv';
+
+// Get the directory name for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load environment variables from root .env file
+config({ path: path.resolve(__dirname, '../../../.env') });
+
 import { drizzle } from 'drizzle-orm/postgres-js';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
@@ -49,14 +60,12 @@ export function initializePool<T extends Record<string, postgres.PostgresType>>(
   }
 
   // Create postgres client with pool configuration
+  // SSL is controlled via the connection string (e.g., ?sslmode=require)
   globalPool = postgres(connectionString, {
     max: poolSize,
     idle_timeout: 30,
     connect_timeout: 30,
     prepare: true,
-    ssl: {
-      rejectUnauthorized: false, // Allow self-signed certificates
-    },
     ...config,
   });
 

@@ -87,9 +87,10 @@ export async function createShortcut(input: CreateShortcutInput) {
         .returning();
 
       return created;
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Handle unique constraint violation
-      if (error?.code === '23505' && error?.constraint?.includes('unique')) {
+      const dbError = error as { code?: string; constraint?: string };
+      if (dbError?.code === '23505' && dbError?.constraint?.includes('unique')) {
         throw new Error(`Shortcut with name '${validated.name}' already exists`);
       }
       throw error;

@@ -4,14 +4,19 @@ import { useEffect } from 'react';
 import { Button } from '@/components/ui/buttons';
 import { Card, CardContent, CardFooter } from '@/components/ui/card/CardBase';
 import { Title } from '@/components/ui/typography';
+import { cn } from '@/lib/utils';
 import { useMount } from '../../../hooks/useMount';
 
 export const ErrorCard = ({
+  footer,
+  className,
   header = 'Looks like we hit an unexpected error',
   message = "Our team has been notified via Slack. We'll take a look at the issue ASAP and get back to you.",
 }: {
   header?: string;
   message?: string;
+  footer?: React.ReactNode;
+  className?: string;
 }) => {
   useMount(() => {
     console.error('Error in card:', header, message);
@@ -19,7 +24,10 @@ export const ErrorCard = ({
 
   return (
     <div
-      className=" flex h-full w-full flex-col items-center absolute inset-0 justify-center bg-linear-to-br bg-background p-8 backdrop-blur-xs backdrop-filter"
+      className={cn(
+        'flex h-full w-full flex-col items-center absolute inset-0 justify-center bg-linear-to-br bg-background p-8 backdrop-blur-xs backdrop-filter',
+        className
+      )}
       role="alert"
     >
       <Card className="-mt-10 max-w-100">
@@ -31,11 +39,13 @@ export const ErrorCard = ({
         </CardContent>
 
         <CardFooter className="w-full pt-0">
-          <Link to="/" className="w-full">
-            <Button variant="black" block size="tall">
-              Take me home
-            </Button>
-          </Link>
+          {footer || (
+            <Link to="/" className="w-full">
+              <Button variant="black" block size="tall">
+                Take me home
+              </Button>
+            </Link>
+          )}
         </CardFooter>
       </Card>
     </div>

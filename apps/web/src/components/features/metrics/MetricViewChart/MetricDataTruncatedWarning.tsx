@@ -1,52 +1,29 @@
 import type React from 'react';
-import { useState } from 'react';
 import { useDownloadMetricFile } from '@/api/buster_rest/metrics/getMetricQueryRequests';
 import { Button } from '@/components/ui/buttons';
 import { CircleWarning, Download4 } from '@/components/ui/icons';
 import { Text } from '@/components/ui/typography';
+import { useGetReportParams } from '@/context/Reports/useGetReportParams';
 import { cn } from '@/lib/classMerge';
 
 interface MetricDataTruncatedWarningProps {
   className?: string;
   metricId: string;
+  metricVersionNumber: number | undefined;
 }
 
 export const MetricDataTruncatedWarning: React.FC<MetricDataTruncatedWarningProps> = ({
   className,
   metricId,
+  metricVersionNumber,
 }) => {
   const {
-    mutateAsync: downloadMetricFile,
+    mutateAsync: handleDownload,
     isPending: isGettingFile,
     error: downloadError,
   } = useDownloadMetricFile();
 
   const hasError = !!downloadError;
-
-  const handleDownload = async () => {
-    try {
-      // Create a timeout promise that rejects after 2 minutes (matching backend timeout)
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Download timeout')), 2 * 60 * 1000); // 2 minutes
-      });
-
-      // Race between the API call and the timeout
-      const response = (await Promise.race([
-        downloadMetricFile(metricId),
-        timeoutPromise,
-      ])) as Awaited<ReturnType<typeof downloadMetricFile>>;
-
-      // Create a temporary anchor element to trigger download without navigation
-      const link = document.createElement('a');
-      link.href = response.downloadUrl;
-      link.download = ''; // This will use the filename from the response-content-disposition header
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (error) {
-      console.error('Failed to download metric file:', error);
-    }
-  };
 
   return (
     <div
@@ -67,7 +44,7 @@ export const MetricDataTruncatedWarning: React.FC<MetricDataTruncatedWarningProp
         </Text>
       </div>
       <Button
-        onClick={handleDownload}
+        onClick={() => handleDownload({ id: metricId, metric_version_number: metricVersionNumber })}
         loading={isGettingFile}
         variant={hasError ? 'danger' : 'default'}
         className="ml-4"

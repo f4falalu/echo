@@ -55,13 +55,13 @@
     "@biomejs/biome": "^1.9.4",
     "@types/node": "^22.18.1",
     "tsx": "catalog:",
-    "turbo": "^2.5.6",
+    "turbo": "^2.5.7",
     "vitest": "catalog:"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
-  "packageManager": "pnpm@10.15.1",
+  "packageManager": "pnpm@10.17.1",
   "pnpm": {
     "peerDependencyRules": {
       "ignoreMissing": [

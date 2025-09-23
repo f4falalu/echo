@@ -24,7 +24,11 @@ export const useGetDashboardVersionNumber = (
     strict: false,
   });
 
-  const selectedVersionNumber = versionNumber ?? paramVersionNumber ?? 'LATEST';
+  const isLatest = versionNumber === 'LATEST' || latestVersionNumber === versionNumber;
+
+  const selectedVersionNumber = isLatest
+    ? ('LATEST' as const)
+    : (versionNumber ?? paramVersionNumber ?? 'LATEST');
 
   return useMemo(
     () => ({

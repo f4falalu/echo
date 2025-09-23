@@ -848,7 +848,7 @@ export const chats = pgTable(
       mode: 'string',
     }),
     mostRecentFileId: uuid('most_recent_file_id'),
-    mostRecentFileType: varchar('most_recent_file_type', { length: 255 }),
+    mostRecentFileType: assetTypeEnum('most_recent_file_type'),
     mostRecentVersionNumber: integer('most_recent_version_number'),
     slackChatAuthorization: slackChatAuthorizationEnum('slack_chat_authorization'),
     slackThreadTs: text('slack_thread_ts'),
@@ -1843,14 +1843,15 @@ export const docs = pgTable(
   ]
 );
 
-export const textSearch = pgTable(
-  'text_search',
+export const assetSearchV2 = pgTable(
+  'asset_search_v2',
   {
     id: uuid().defaultRandom().primaryKey().notNull(),
     assetType: assetTypeEnum('asset_type').notNull(),
     assetId: uuid('asset_id').notNull(),
     organizationId: uuid('organization_id').notNull(),
-    searchableText: text('searchable_text').notNull(),
+    title: text('title').notNull(),
+    additionalText: text('additional_text'),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
       .defaultNow()
       .notNull(),
@@ -1863,12 +1864,13 @@ export const textSearch = pgTable(
     foreignKey({
       columns: [table.organizationId],
       foreignColumns: [organizations.id],
-      name: 'text_search_organization_id_fkey',
+      name: 'asset_search_v2_organization_id_fkey',
     }).onDelete('cascade'),
-    index('pgroonga_search_text_index').using(
+    index('pgroonga_search_title_description_index').using(
       'pgroonga',
-      table.searchableText.asc().nullsLast().op('pgroonga_text_full_text_search_ops_v2')
+      table.title.asc().nullsLast().op('pgroonga_text_full_text_search_ops_v2'),
+      table.additionalText.asc().nullsLast().op('pgroonga_text_full_text_search_ops_v2')
     ),
-    unique('text_search_asset_type_asset_id_unique').on(table.assetId, table.assetType),
+    unique('asset_search_v2_asset_type_asset_id_unique').on(table.assetId, table.assetType),
   ]
 );

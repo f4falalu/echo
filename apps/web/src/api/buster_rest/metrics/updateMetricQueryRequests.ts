@@ -1,4 +1,5 @@
 import { type QueryClient, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from '@tanstack/react-router';
 import last from 'lodash/last';
 import { create } from 'mutative';
 import type { BusterCollection } from '@/api/asset_interfaces/collection';
@@ -27,6 +28,7 @@ import {
 export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
   const updateOnSave = params?.updateOnSave || false;
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: updateMetric,
@@ -60,6 +62,11 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
       if (updateOnSave && data) {
         setMetricQueryData(queryClient, newMetric);
       }
+      navigate({
+        to: '.',
+        ignoreBlocker: true,
+        search: (prev) => ({ ...prev, metric_version_number: undefined }),
+      });
     },
   });
 };
@@ -342,13 +349,13 @@ export const useUpdateMetric = (params: {
     id: metricId,
     ...newMetricPartial
   }: Omit<Partial<BusterMetric>, 'status'> & { id: string }) => {
-    const options = metricsQueryKeys.metricsGetMetric(metricId, 'LATEST');
     const prevMetric = getOriginalMetric(metricId);
     const newMetric = create(prevMetric, (draft) => {
       Object.assign(draft || {}, newMetricPartial);
     });
 
     if (prevMetric && newMetric) {
+      const options = metricsQueryKeys.metricsGetMetric(metricId, 'LATEST');
       queryClient.setQueryData(options.queryKey, newMetric);
     } else {
       console.warn('No previous metric found', { prevMetric, newMetric });

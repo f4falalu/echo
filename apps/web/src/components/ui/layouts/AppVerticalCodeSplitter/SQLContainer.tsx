@@ -5,31 +5,19 @@ import { ErrorClosableContainer } from '@/components/ui/error/ErrorClosableConta
 import { Command, ReturnKey } from '@/components/ui/icons';
 import { AppCodeEditor } from '@/components/ui/inputs/AppCodeEditor';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { AppTooltip } from '../../tooltip';
 import type { AppVerticalCodeSplitterProps } from './AppVerticalCodeSplitter';
 
 export const SQLContainer: React.FC<{
   className?: string;
   sql: string | undefined;
   setDatasetSQL: (sql: string) => void;
-  onRunQuery: () => Promise<void>;
-  onSaveSQL: AppVerticalCodeSplitterProps['onSaveSQL'];
-  disabledSave?: AppVerticalCodeSplitterProps['disabledSave'];
   error?: string | null;
   readOnly?: boolean;
+  saveButton?: AppVerticalCodeSplitterProps['saveButton'];
+  runButton?: AppVerticalCodeSplitterProps['runButton'];
 }> = React.memo(
-  ({
-    disabledSave,
-    className = '',
-    readOnly = false,
-    sql,
-    setDatasetSQL,
-    onRunQuery,
-    onSaveSQL,
-    error,
-  }) => {
-    const [isRunning, setIsRunning] = useState(false);
-    const [isSaving, setIsSaving] = useState(false);
+  ({ className = '', saveButton, readOnly = false, sql, setDatasetSQL, runButton, error }) => {
     const { openInfoMessage } = useBusterNotifications();
 
     const onCopySQL = () => {
@@ -37,59 +25,40 @@ export const SQLContainer: React.FC<{
       openInfoMessage('SQL copied to clipboard');
     };
 
-    const onRunQueryPreflight = useMemoizedFn(async () => {
-      setIsRunning(true);
-      try {
-        await onRunQuery();
-      } catch (error) {
-        // Error handling is done by the parent component
-        console.error('Error running query:', error);
-      } finally {
-        setIsRunning(false);
-      }
-    });
-
-    const onSaveSQLPreflight = useMemoizedFn(async () => {
-      setIsSaving(true);
-      try {
-        await onSaveSQL?.();
-      } catch (error) {
-        // Error handling is done by the parent component
-        console.error('Error saving SQL:', error);
-      } finally {
-        setIsSaving(false);
-      }
-    });
-
     const memoizedFooter = useMemo(() => {
       return (
         <>
           <Button onClick={onCopySQL}>Copy SQL</Button>
 
           <div className="flex items-center gap-2">
-            {onSaveSQL && !readOnly && (
-              <Button
-                disabled={disabledSave || !sql || isRunning}
-                variant="black"
-                loading={isSaving}
-                onClick={onSaveSQLPreflight}
-              >
-                Save
-              </Button>
+            {saveButton && !readOnly && (
+              <AppTooltip title={saveButton.tooltip} delayDuration={500}>
+                <Button
+                  disabled={saveButton?.disabled || !sql}
+                  variant="black"
+                  loading={saveButton?.loading}
+                  onClick={saveButton?.onClick}
+                  prefix={saveButton.icon}
+                >
+                  {saveButton.label || 'Save'}
+                </Button>
+              </AppTooltip>
             )}
 
-            {!readOnly && (
+            {!readOnly && runButton && (
               <Button
                 variant="default"
-                loading={isRunning}
+                loading={runButton?.loading}
                 disabled={!sql}
                 className="flex items-center space-x-0"
-                onClick={onRunQueryPreflight}
+                onClick={runButton?.onClick}
                 suffix={
-                  <div className="flex items-center gap-x-1 text-sm">
-                    <Command />
-                    <ReturnKey />
-                  </div>
+                  runButton?.suffix || (
+                    <div className="flex items-center gap-x-1 text-sm">
+                      <Command />
+                      <ReturnKey />
+                    </div>
+                  )
                 }
               >
                 Run
@@ -98,7 +67,7 @@ export const SQLContainer: React.FC<{
           </div>
         </>
       );
-    }, [disabledSave, isRunning, sql, isSaving]);
+    }, [saveButton, runButton, sql]);
 
     return (
       <FileCard
@@ -110,7 +79,7 @@ export const SQLContainer: React.FC<{
           className="overflow-hidden border-x-0 border-t-0"
           value={sql}
           onChange={setDatasetSQL}
-          onMetaEnter={onRunQueryPreflight}
+          onMetaEnter={runButton ? runButton.onClick : undefined}
           variant={null}
           readOnly={readOnly}
         />

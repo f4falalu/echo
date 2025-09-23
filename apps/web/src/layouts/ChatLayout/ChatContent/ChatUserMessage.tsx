@@ -36,8 +36,19 @@ export const ChatUserMessage: React.FC<{
 
   const handleCopy = useCallback(
     (e?: React.ClipboardEvent) => {
-      // Prevent default copy behavior
-      //I do not know why this is needed, but it is...
+      // Check if user has selected text
+      const selection = window.getSelection();
+      const hasSelection = selection && selection.toString().length > 0;
+
+      // If user has selected text, let browser handle it naturally
+      if (hasSelection && e?.clipboardData) {
+        // Don't prevent default - let browser copy the selected text
+        return;
+      }
+
+      // Only override copy behavior when no text is selected
+      // This handles the case where user presses Ctrl+C without selection
+      // or when the copy button is clicked
       if (e?.clipboardData) {
         e.preventDefault();
         e.clipboardData.setData('text/plain', request || '');

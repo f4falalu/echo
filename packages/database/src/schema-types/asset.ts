@@ -21,3 +21,10 @@ export const AssetPermissionRoleSchema = z.enum([
 ]);
 
 export type AssetPermissionRole = z.infer<typeof AssetPermissionRoleSchema>;
+
+export const AncestorSchema = z.object({
+  id: z.string().uuid(),
+  title: z.string(),
+});
+
+export type Ancestor = z.infer<typeof AncestorSchema>;

@@ -3,8 +3,8 @@ import { generateObject } from 'ai';
 import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import { Haiku35 } from '../../../llm';
-import { DEFAULT_ANTHROPIC_OPTIONS } from '../../../llm/providers/gateway';
+import { GPT5Nano } from '../../../llm';
+import { DEFAULT_OPENAI_OPTIONS } from '../../../llm/providers/gateway';
 
 // Zod-first: define input/output schemas and export inferred types
 export const generateChatTitleParamsSchema = z.object({
@@ -56,14 +56,10 @@ async function generateTitleWithLLM(messages: ModelMessage[]): Promise<string> {
     const tracedChatTitle = wrapTraced(
       async () => {
         const { object } = await generateObject({
-          model: Haiku35,
-          headers: {
-            'anthropic-beta': 'fine-grained-tool-streaming-2025-05-14,context-1m-2025-08-07',
-            anthropic_beta: 'fine-grained-tool-streaming-2025-05-14,context-1m-2025-08-07',
-          },
+          model: GPT5Nano,
           schema: llmOutputSchema,
           messages: titleMessages,
-          providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
+          providerOptions: DEFAULT_OPENAI_OPTIONS,
         });
 
         return object;

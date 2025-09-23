@@ -507,6 +507,276 @@ describe('done-tool-file-selection - report filtering functionality', () => {
     });
   });
 
+  describe('BUG-1885: Metrics used in reports appearing in response messages', () => {
+    it('should filter out metric when using new single-file report structure (user reported bug)', () => {
+      // This test reproduces the exact bug scenario reported by the user
+      const messages: ModelMessage[] = [
+        // Create a metric first
+        {
+          role: 'tool',
+          content: [
+            {
+              type: 'tool-result',
+              toolName: 'createMetrics',
+              toolCallId: 'metric-call',
+              output: {
+                type: 'json',
+                value: {
+                  files: [
+                    {
+                      id: 'e774e254-7ccd-4f03-b28d-6d91b5331b8a',
+                      name: 'Top 10 Customers by Lifetime Value',
+                      version_number: 1,
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+        },
+        // Create a report using new single-file structure that references the metric
+        {
+          role: 'assistant',
+          content: [
+            {
+              type: 'tool-call',
+              toolName: 'createReports',
+              toolCallId: 'report-call',
+              input: {
+                name: 'Top Customers Analysis',
+                content: `# Top Customers Analysis\n\n<metric metricId="e774e254-7ccd-4f03-b28d-6d91b5331b8a"/>\n\nAnalysis of top customers...`,
+              },
+            },
+          ],
+        },
+        {
+          role: 'tool',
+          content: [
+            {
+              type: 'tool-result',
+              toolName: 'createReports',
+              toolCallId: 'report-call',
+              output: {
+                type: 'json',
+                value: {
+                  file: {
+                    id: '1a3bf75a-a4b9-415e-b121-d26d1873a45e',
+                    name: 'Top Customers Analysis',
+                    version_number: 1,
+                  },
+                },
+              },
+            },
+          ],
+        },
+      ];
+
+      const files = extractFilesFromToolCalls(messages);
+
+      // The metric should be filtered out because it's referenced in the report
+      // The report should also be filtered out (all reports are filtered)
+      expect(files).toHaveLength(0);
+      expect(files.find((f) => f.id === 'e774e254-7ccd-4f03-b28d-6d91b5331b8a')).toBeUndefined();
+      expect(files.find((f) => f.id === '1a3bf75a-a4b9-415e-b121-d26d1873a45e')).toBeUndefined();
+    });
+
+    it('should filter metrics referenced in ANY report, not just the last one', () => {
+      const messages: ModelMessage[] = [
+        // Create three metrics
+        {
+          role: 'tool',
+          content: [
+            {
+              type: 'tool-result',
+              toolName: 'createMetrics',
+              toolCallId: 'metrics-call',
+              output: {
+                type: 'json',
+                value: {
+                  files: [
+                    { id: 'metric-1', name: 'Metric 1', version_number: 1 },
+                    { id: 'metric-2', name: 'Metric 2', version_number: 1 },
+                    { id: 'metric-3', name: 'Metric 3', version_number: 1 },
+                  ],
+                },
+              },
+            },
+          ],
+        },
+        // First report referencing metric-1
+        {
+          role: 'assistant',
+          content: [
+            {
+              type: 'tool-call',
+              toolName: 'createReports',
+              toolCallId: 'report-1-call',
+              input: {
+                name: 'Report 1',
+                content: '<metric metricId="metric-1"/>',
+              },
+            },
+          ],
+        },
+        {
+          role: 'tool',
+          content: [
+            {
+              type: 'tool-result',
+              toolName: 'createReports',
+              toolCallId: 'report-1-call',
+              output: {
+                type: 'json',
+                value: {
+                  file: { id: 'report-1', name: 'Report 1', version_number: 1 },
+                },
+              },
+            },
+          ],
+        },
+        // Second report referencing metric-2
+        {
+          role: 'assistant',
+          content: [
+            {
+              type: 'tool-call',
+              toolName: 'createReports',
+              toolCallId: 'report-2-call',
+              input: {
+                name: 'Report 2',
+                content: '<metric metricId="metric-2"/>',
+              },
+            },
+          ],
+        },
+        {
+          role: 'tool',
+          content: [
+            {
+              type: 'tool-result',
+              toolName: 'createReports',
+              toolCallId: 'report-2-call',
+              output: {
+                type: 'json',
+                value: {
+                  file: { id: 'report-2', name: 'Report 2', version_number: 1 },
+                },
+              },
+            },
+          ],
+        },
+      ];
+
+      const files = extractFilesFromToolCalls(messages);
+
+      // Only metric-3 should remain (not referenced in any report)
+      expect(files).toHaveLength(1);
+      expect(files[0]?.id).toBe('metric-3');
+      expect(files.find((f) => f.id === 'metric-1')).toBeUndefined(); // In first report
+      expect(files.find((f) => f.id === 'metric-2')).toBeUndefined(); // In second report
+    });
+
+    it('should handle both legacy array and new single-file report structures', () => {
+      const messages: ModelMessage[] = [
+        // Create metrics
+        {
+          role: 'tool',
+          content: [
+            {
+              type: 'tool-result',
+              toolName: 'createMetrics',
+              toolCallId: 'metrics-mixed',
+              output: {
+                type: 'json',
+                value: {
+                  files: [
+                    { id: 'metric-legacy', name: 'Legacy Metric', version_number: 1 },
+                    { id: 'metric-new', name: 'New Metric', version_number: 1 },
+                    { id: 'metric-standalone', name: 'Standalone Metric', version_number: 1 },
+                  ],
+                },
+              },
+            },
+          ],
+        },
+        // Report using legacy array structure
+        {
+          role: 'assistant',
+          content: [
+            {
+              type: 'tool-call',
+              toolName: 'createReports',
+              toolCallId: 'legacy-report',
+              input: {
+                files: [
+                  {
+                    name: 'Legacy Report',
+                    content: '<metric metricId="metric-legacy"/>',
+                  },
+                ],
+              },
+            },
+          ],
+        },
+        {
+          role: 'tool',
+          content: [
+            {
+              type: 'tool-result',
+              toolName: 'createReports',
+              toolCallId: 'legacy-report',
+              output: {
+                type: 'json',
+                value: {
+                  files: [{ id: 'report-legacy', name: 'Legacy Report', version_number: 1 }],
+                },
+              },
+            },
+          ],
+        },
+        // Report using new single-file structure
+        {
+          role: 'assistant',
+          content: [
+            {
+              type: 'tool-call',
+              toolName: 'createReports',
+              toolCallId: 'new-report',
+              input: {
+                name: 'New Report',
+                content: '<metric metricId="metric-new"/>',
+              },
+            },
+          ],
+        },
+        {
+          role: 'tool',
+          content: [
+            {
+              type: 'tool-result',
+              toolName: 'createReports',
+              toolCallId: 'new-report',
+              output: {
+                type: 'json',
+                value: {
+                  file: { id: 'report-new', name: 'New Report', version_number: 1 },
+                },
+              },
+            },
+          ],
+        },
+      ];
+
+      const files = extractFilesFromToolCalls(messages);
+
+      // Only the standalone metric should remain
+      expect(files).toHaveLength(1);
+      expect(files[0]?.id).toBe('metric-standalone');
+      expect(files.find((f) => f.id === 'metric-legacy')).toBeUndefined();
+      expect(files.find((f) => f.id === 'metric-new')).toBeUndefined();
+    });
+  });
+
   describe('createFileResponseMessages', () => {
     it('should create response messages for selected files', () => {
       const files = [

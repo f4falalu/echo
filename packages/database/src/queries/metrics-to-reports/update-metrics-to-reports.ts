@@ -1,7 +1,7 @@
 import { and, eq, inArray, isNull } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
-import { metricFilesToReportFiles } from '../../schema';
+import { metricFilesToReportFiles, reportFiles } from '../../schema';
 
 // Input validation schema
 const UpdateMetricsToReportsInputSchema = z.object({
@@ -53,17 +53,32 @@ export const updateMetricsToReports = async (
       );
 
       // 3. Create new relationships
-      if (metricsToCreate.length > 0 && userId) {
-        const newRelationships = metricsToCreate.map((metricId) => ({
-          metricFileId: metricId,
-          reportFileId: reportId,
-          createdAt: now,
-          updatedAt: now,
-          deletedAt: null,
-          createdBy: userId,
-        }));
+      if (metricsToCreate.length > 0) {
+        let createdBy = userId;
+        if (!userId) {
+          const [createdByResponse] = await db
+            .select({ id: reportFiles.createdBy })
+            .from(reportFiles)
+            .where(eq(reportFiles.id, reportId));
+          if (createdByResponse?.id) {
+            createdBy = createdByResponse.id;
+          }
+        }
 
-        await tx.insert(metricFilesToReportFiles).values(newRelationships);
+        if (createdBy) {
+          const newRelationships = metricsToCreate.map((metricId) => ({
+            metricFileId: metricId,
+            reportFileId: reportId,
+            createdAt: now,
+            updatedAt: now,
+            deletedAt: null,
+            createdBy: createdBy,
+          }));
+
+          await tx.insert(metricFilesToReportFiles).values(newRelationships);
+        } else {
+          throw new Error('Could not find user id for reports created by');
+        }
       }
 
       // 4. Restore soft-deleted relationships (undelete and update)

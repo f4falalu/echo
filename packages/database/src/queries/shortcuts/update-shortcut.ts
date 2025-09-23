@@ -16,7 +16,7 @@ export type UpdateShortcutInput = z.infer<typeof UpdateShortcutInputSchema>;
 export async function updateShortcut(input: UpdateShortcutInput) {
   const validated = UpdateShortcutInputSchema.parse(input);
 
-  const updateData: Record<string, any> = {
+  const updateData: Record<string, unknown> = {
     updatedBy: validated.updatedBy,
     updatedAt: new Date().toISOString(),
   };

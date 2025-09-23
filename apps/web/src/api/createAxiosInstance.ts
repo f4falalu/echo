@@ -53,6 +53,8 @@ export const defaultAxiosRequestHandler = async (config: InternalAxiosRequestCon
 
     if (!token) {
       console.warn('No token found');
+      window.location.href = AuthRoute.to;
+      return Promise.reject(new Error('No token found'));
     }
 
     (config.headers as AxiosRequestHeaders).Authorization = `Bearer ${token}`;

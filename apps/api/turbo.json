@@ -2,14 +2,31 @@
   "$schema": "https://turbo.build/schema.json",
   "extends": ["//"],
   "tasks": {
+    "build": {
+      "dependsOn": ["@buster/database#build"],
+      "outputs": ["target/release/**"],
+      "inputs": [
+        "server/**/*",
+        "libs/**/*",
+        "Cargo.toml",
+        "Cargo.lock"
+      ]
+    },
+    "start": {
+      "dependsOn": ["@buster/database#start", "build"],
+      "cache": true,
+      "persistent": true
+    },
     "dev": {
       "dependsOn": ["@buster/database#start"],
-      "with": [],
+      "cache": false,
+      "persistent": true,
       "outputs": []
     },
     "dev:fast": {
       "dependsOn": ["@buster/database#start"],
-      "with": [],
+      "cache": false,
+      "persistent": true,
       "outputs": []
     }
   }

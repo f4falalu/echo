@@ -1,9 +1,27 @@
 import type { Value } from 'platejs';
-import { describe, expect, it } from 'vitest';
+import { createPlateEditor } from 'platejs/react';
+import { describe, expect, it, vi } from 'vitest';
+import { EditorKit } from '../../editor-kit';
 import { markdownToPlatejs, platejsToMarkdown } from './platejs-conversions';
-import { SERVER_EDITOR } from './server-editor';
 
-const editor = SERVER_EDITOR;
+vi.mock('@/env', () => ({
+  env: {
+    VITE_PUBLIC_ENABLE_TANSTACK_PANEL: 'true',
+    VITE_PUBLIC_POSTHOG_HOST: 'https://example.com',
+    VITE_PUBLIC_POSTHOG_KEY: '1234567890',
+    VITE_PUBLIC_URL: 'https://example.com',
+    VITE_PUBLIC_SUPABASE_ANON_KEY: '1234567890',
+    VITE_PUBLIC_SUPABASE_URL: 'https://example.com',
+    VITE_PUBLIC_WS_URL: 'https://example.com',
+    VITE_PUBLIC_WEB_SOCKET_URL: 'https://example.com',
+    VITE_PUBLIC_API2_URL: 'https://example.com',
+    VITE_PUBLIC_API_URL: 'https://example.com',
+  },
+}));
+
+export const editor = createPlateEditor({
+  plugins: EditorKit({ scrollAreaRef: undefined, mode: 'default' }),
+});
 
 describe('markdownToPlatejs', () => {
   it('should convert elaborate markdown to platejs', async () => {
@@ -271,8 +289,7 @@ Here's an unordered list:
   it('callout and a metric', async () => {
     const markdown = `<metric metricId="33af38a8-c40f-437d-98ed-1ec78ce35232" width="100%" caption=""></metric>
 
-<callout icon="💡">Testing123
-</callout>`;
+<callout icon="💡">Testing123</callout>`;
     const elements = await markdownToPlatejs(editor, markdown);
     expect(elements).toBeDefined();
     const firstElement = elements[0];
@@ -1344,8 +1361,52 @@ describe('platejsToMarkdown', () => {
     const markdownFromPlatejs = await platejsToMarkdown(editor, elements);
     expect(markdownFromPlatejs).toBeDefined();
     expect(markdownFromPlatejs).toContain(
-      '<metric metricId="1234" versionNumber="undefined" width="100%" caption="This is a caption.. AND IT REALLY WORKS!"></metric>'
+      '<metric metricId="1234" versionNumber="" width="100%" caption="This is a caption.. AND IT REALLY WORKS!"></metric>'
     );
+  });
+
+  it('two metrics', async () => {
+    const elements: Value = [
+      {
+        type: 'metric',
+        children: [
+          {
+            text: '',
+          },
+        ],
+        metricId: 'nate-rulez',
+        caption: [
+          {
+            text: 'Cool',
+          },
+        ],
+        id: 'nate-rulez',
+      },
+      {
+        type: 'metric',
+        children: [
+          {
+            text: '',
+          },
+        ],
+        metricId: 'wells-droolz',
+        caption: [
+          {
+            text: 'Wow',
+          },
+        ],
+        id: 'wells-droolz',
+      },
+    ];
+    const markdownFromPlatejs = await platejsToMarkdown(editor, elements);
+    expect(markdownFromPlatejs).toBeDefined();
+    expect(markdownFromPlatejs).toContain(
+      '<metric metricId="nate-rulez" versionNumber="" width="100%" caption="Cool"></metric>'
+    );
+    expect(markdownFromPlatejs).toContain(
+      '<metric metricId="wells-droolz" versionNumber="" width="100%" caption="Wow"></metric>'
+    );
+    expect(markdownFromPlatejs).not.toContain('\\metric');
   });
 });
 
@@ -1507,5 +1568,491 @@ Nested
     expect(platejs[0].children[0].text).toBe('Toggle');
     expect(platejs[1].type).toBe('p');
     expect(platejs[1].children[0].text).toBe('Nested');
+  });
+});
+
+describe('metric escaping bug tests', () => {
+  it('should not add backslashes to metric tags during multiple conversions', async () => {
+    const originalMarkdown = `# Sales Report
+
+Our top performer this month shows impressive results.
+
+<metric metricId="abc-123-def" width="100%" caption="Sales Performance"></metric>
+
+## Summary
+Great performance across all metrics.`;
+
+    // First conversion cycle: markdown -> platejs -> markdown
+    const platejs = await markdownToPlatejs(editor, originalMarkdown);
+    const convertedMarkdown = await platejsToMarkdown(editor, platejs);
+
+    // Second conversion cycle: markdown -> platejs -> markdown (simulates save operation)
+    const platejs2 = await markdownToPlatejs(editor, convertedMarkdown);
+    const convertedMarkdown2 = await platejsToMarkdown(editor, platejs2);
+
+    // Third conversion cycle (simulates another save operation)
+    const platejs3 = await markdownToPlatejs(editor, convertedMarkdown2);
+    const convertedMarkdown3 = await platejsToMarkdown(editor, platejs3);
+
+    // Should not contain escaped metric tags
+    expect(convertedMarkdown3).not.toContain('\\<metric');
+    expect(convertedMarkdown3).not.toContain('\\<\\/metric');
+    expect(convertedMarkdown3).toContain('<metric metricId="abc-123-def"');
+    expect(convertedMarkdown3).toContain('</metric>');
+
+    // Verify the metric element is still properly parsed
+    const finalPlatejs = await markdownToPlatejs(editor, convertedMarkdown3);
+    const metricElement = finalPlatejs.find((el) => el.type === 'metric');
+    expect(metricElement).toBeDefined();
+    expect(metricElement?.metricId).toBe('abc-123-def');
+  });
+
+  it('should handle metric tags with special characters in attributes', async () => {
+    const markdown = `<metric metricId="test-123-with-&-special-chars" caption="Revenue & Profit Analysis" width="100%"></metric>`;
+
+    // Multiple conversion cycles
+    const platejs = await markdownToPlatejs(editor, markdown);
+    const convertedMarkdown = await platejsToMarkdown(editor, platejs);
+    const platejs2 = await markdownToPlatejs(editor, convertedMarkdown);
+    const convertedMarkdown2 = await platejsToMarkdown(editor, platejs2);
+
+    // Should not escape the metric tags themselves
+    expect(convertedMarkdown2).not.toContain('\\<metric');
+    expect(convertedMarkdown2).toContain('<metric metricId="test-123-with-&-special-chars"');
+  });
+
+  it('should handle multiple metric tags in a single document', async () => {
+    const markdown = `# Multi-Metric Report
+
+<metric metricId="first-metric" caption="First Metric"></metric>
+
+Some content between metrics.
+
+<metric metricId="second-metric" width="50%" caption="Second Metric"></metric>
+
+More content.
+
+<metric metricId="third-metric" versionNumber="1.2" caption="Third Metric"></metric>`;
+
+    // Simulate multiple save operations
+    let currentMarkdown = markdown;
+
+    for (let i = 0; i < 5; i++) {
+      const platejs = await markdownToPlatejs(editor, currentMarkdown);
+      currentMarkdown = await platejsToMarkdown(editor, platejs);
+    }
+
+    // None of the metrics should be escaped
+    expect(currentMarkdown).not.toContain('\\<metric');
+    expect(currentMarkdown).not.toContain('\\</metric>');
+
+    // All metrics should still be present
+    expect(currentMarkdown).toContain('<metric metricId="first-metric"');
+    expect(currentMarkdown).toContain('<metric metricId="second-metric"');
+    expect(currentMarkdown).toContain('<metric metricId="third-metric"');
+
+    // Final conversion should still work
+    const finalPlatejs = await markdownToPlatejs(editor, currentMarkdown);
+    const metricElements = finalPlatejs.filter((el) => el.type === 'metric');
+    expect(metricElements).toHaveLength(3);
+  });
+
+  it('should preserve metric functionality after content edits and saves', async () => {
+    // Simulate the workflow: create report -> edit -> save -> edit -> save
+    const initialMarkdown = `# Initial Report
+
+<metric metricId="initial-metric" caption="Initial Metric"></metric>`;
+
+    // First save cycle
+    const platejs1 = await markdownToPlatejs(editor, initialMarkdown);
+    const savedMarkdown1 = await platejsToMarkdown(editor, platejs1);
+
+    // Edit: add content
+    const editedMarkdown = savedMarkdown1 + `\n\n## New Section\nAdded content after save.`;
+
+    // Second save cycle
+    const platejs2 = await markdownToPlatejs(editor, editedMarkdown);
+    const savedMarkdown2 = await platejsToMarkdown(editor, platejs2);
+
+    // Edit: add another metric
+    const editedMarkdown2 = savedMarkdown2.replace(
+      '## New Section',
+      `<metric metricId="added-metric" caption="Added Later"></metric>\n\n## New Section`
+    );
+
+    // Third save cycle
+    const platejs3 = await markdownToPlatejs(editor, editedMarkdown2);
+    const savedMarkdown3 = await platejsToMarkdown(editor, platejs3);
+
+    // Neither metric should be escaped
+    expect(savedMarkdown3).not.toContain('\\<metric');
+    expect(savedMarkdown3).toContain('<metric metricId="initial-metric"');
+    expect(savedMarkdown3).toContain('<metric metricId="added-metric"');
+
+    // Both metrics should parse correctly
+    const finalPlatejs = await markdownToPlatejs(editor, savedMarkdown3);
+    const metrics = finalPlatejs.filter((el) => el.type === 'metric');
+    expect(metrics).toHaveLength(2);
+    expect(metrics[0].metricId).toBe('initial-metric');
+    expect(metrics[1].metricId).toBe('added-metric');
+  });
+
+  // Edge cases that might trigger the escaping bug
+  it('should handle metric tags when markdown processor sees angle brackets as special', async () => {
+    // This test specifically targets potential escaping during markdown processing
+    const markdown = `# Test Report
+
+Text before metric.
+
+<metric metricId="edge-case-test" caption="Test < and > in caption"></metric>
+
+Text after metric.`;
+
+    // Process through multiple serialization cycles to trigger any escaping behavior
+    let result = markdown;
+    for (let cycle = 0; cycle < 10; cycle++) {
+      const platejs = await markdownToPlatejs(editor, result);
+      result = await platejsToMarkdown(editor, platejs);
+
+      // After each cycle, metric tags should never be escaped
+      expect(result).not.toContain('\\<metric');
+      expect(result).not.toContain('\\</metric>');
+      expect(result).toContain('<metric metricId="edge-case-test"');
+    }
+  });
+
+  it('should handle metric tags when content contains backslashes already', async () => {
+    const markdown = `# Report with Existing Backslashes
+
+This is \\*escaped\\* markdown text.
+
+<metric metricId="backslash-test" caption="Test Metric"></metric>
+
+Some code: \`console.log("test\\n");\`
+
+Another escaped: \\<div\\>content\\</div\\>`;
+
+    // Process multiple times to see if existing backslashes interfere
+    let result = markdown;
+    for (let i = 0; i < 3; i++) {
+      const platejs = await markdownToPlatejs(editor, result);
+      result = await platejsToMarkdown(editor, platejs);
+    }
+
+    // Metric should not be escaped
+    expect(result).not.toContain('\\<metric');
+    expect(result).toContain('<metric metricId="backslash-test"');
+
+    // Existing escaped content should remain
+    expect(result).toContain('\\*escaped\\*');
+    expect(result).toContain('<div>');
+  });
+
+  it('should reproduce the reported bug scenario: works initially but breaks after saves', async () => {
+    // Initial report creation - this should work fine
+    const initialContent = `# Sales Performance Report
+
+<metric metricId="sales-overview" caption="Q4 Sales Overview"></metric>
+
+## Analysis
+The data shows strong performance this quarter.`;
+
+    // Simulate initial save (first conversion)
+    const initialPlatejs = await markdownToPlatejs(editor, initialContent);
+    expect(initialPlatejs.find((el) => el.type === 'metric')).toBeDefined();
+
+    const firstSave = await platejsToMarkdown(editor, initialPlatejs);
+    expect(firstSave).toContain('<metric metricId="sales-overview"');
+    expect(firstSave).not.toContain('\\<metric');
+
+    // Simulate user editing and additional saves
+    let currentContent = firstSave;
+
+    // Multiple edit/save cycles (this is where the bug reportedly occurs)
+    for (let saveCount = 1; saveCount <= 10; saveCount++) {
+      // Convert to editor format
+      const platejs = await markdownToPlatejs(editor, currentContent);
+
+      // Simulate user adding some content (like what happens during editing)
+      platejs.push({
+        type: 'p',
+        children: [{ text: `Edit from save cycle ${saveCount}` }],
+      });
+
+      // Save back to markdown
+      currentContent = await platejsToMarkdown(editor, platejs);
+
+      // At NO point should the metric tag be escaped
+      expect(currentContent).not.toContain('\\<metric');
+      expect(currentContent).not.toContain('\\</metric>');
+      expect(currentContent).toContain('<metric metricId="sales-overview"');
+
+      // The metric should still be parseable
+      const testPlatejs = await markdownToPlatejs(editor, currentContent);
+      const metricEl = testPlatejs.find((el) => el.type === 'metric');
+      expect(metricEl).toBeDefined();
+      expect(metricEl?.metricId).toBe('sales-overview');
+    }
+  });
+
+  it('should handle JSON serialization scenarios that might escape content', async () => {
+    // This test targets potential escaping during JSON serialization/deserialization
+    // which might happen when content is sent to/from the server
+    const markdown = `# Report with JSON-Sensitive Content
+
+<metric metricId="json-test-metric" versionNumber="" width="100%" caption='Caption with "quotes" and special chars'></metric>
+
+Text with "quotes" and 'apostrophes'.`;
+
+    // Simulate JSON serialization/deserialization that might happen during API calls
+    const platejs = await markdownToPlatejs(editor, markdown);
+    const serializedPlateJS = JSON.parse(JSON.stringify(platejs));
+    const backToMarkdown = await platejsToMarkdown(editor, serializedPlateJS);
+    expect(backToMarkdown).not.toContain('\\<metric');
+    expect(backToMarkdown).toContain('<metric metricId="json-test-metric"');
+
+    // Convert back to PlateJS again (simulating another round trip)
+    const platejs2 = await markdownToPlatejs(editor, backToMarkdown);
+    const serializedPlateJS2 = JSON.parse(JSON.stringify(platejs2));
+    const finalMarkdown = await platejsToMarkdown(editor, serializedPlateJS2);
+
+    // Metric tags should never be escaped during JSON round trips
+    expect(finalMarkdown).not.toContain('\\<metric');
+    expect(finalMarkdown).toContain('<metric metricId="json-test-metric"');
+    expect(finalMarkdown).toContain(`caption="Caption with &quot;quotes&quot; and special chars"`);
+  });
+
+  it('should handle streaming content updates without escaping metrics', async () => {
+    // This simulates the streaming content updates that happen during report generation
+    const baseMarkdown = `# Streaming Report
+
+Initial content.`;
+
+    const streamedAddition = `
+
+<metric metricId="streamed-metric" caption="Added During Stream"></metric>
+
+More streamed content.`;
+
+    // Simulate initial content
+    let platejs = await markdownToPlatejs(editor, baseMarkdown);
+
+    // Simulate streaming addition (like what happens during AI content generation)
+    const streamedPlatejs = await markdownToPlatejs(editor, streamedAddition);
+    platejs = platejs.concat(streamedPlatejs);
+
+    // Convert back to markdown (simulating save)
+    const result = await platejsToMarkdown(editor, platejs);
+
+    // Multiple conversion cycles to simulate additional streaming and saves
+    let currentContent = result;
+    for (let i = 0; i < 5; i++) {
+      const tempPlatejs = await markdownToPlatejs(editor, currentContent);
+      // Add more streamed content
+      tempPlatejs.push({
+        type: 'p',
+        children: [{ text: `Stream update ${i}` }],
+      });
+      currentContent = await platejsToMarkdown(editor, tempPlatejs);
+    }
+
+    // Metric should not be escaped during streaming operations
+    expect(currentContent).not.toContain('\\<metric');
+    expect(currentContent).toContain('<metric metricId="streamed-metric"');
+  });
+
+  it('should handle problematic content', async () => {
+    const markdown = `This analysis reveals two dramatically different customer universes within our business. Of our 19,119 total customers, **31 elite customers (0.16%) generate >500k CLV** while **19,088 customers (99.84%) have <500k CLV**. The >500k CLV segment represents serious cycling enthusiasts who make large in-store purchases averaging $66,232 per order, while the <500k CLV segment consists of casual recreational cyclists making smaller online purchases averaging $2,863 per order. These segments exhibit completely different behavioral profiles, geographic concentrations, and product preferences, suggesting they require entirely different marketing and service strategies.\n\n## Customer Segment Overview\n\n<metric metricId="be286e99-77f9-4b6e-959c-c2691d2d549e"/>\n\nThe data reveals a stark divide in our customer base. The **>500k CLV segment averages $666,590 per customer** compared to just **$4,672 for the <500k CLV segment** - a 143x difference. Despite representing only 0.16% of customers, the elite >500k CLV segment contributes **$20.7 million in total lifetime value**.\n\n## Customer Behavior Profiles Show Completely Different Cycling Enthusiasts\n\n<metric metricId="ed9c70f3-619b-40ee-a99d-c6dfa2945bb8"/>\n\nThe behavioral analysis reveals two entirely different customer types. **97% of >500k CLV customers are daily cyclists with advanced technical knowledge**, representing serious cycling enthusiasts. In stark contrast, the <500k CLV segment is dominated by **occasional cyclists with basic technical knowledge** (6,697 customers) and **monthly cyclists with intermediate knowledge** (5,493 customers). This suggests the high-value customers are passionate cyclists who view cycling as a serious pursuit, while the majority are casual recreational users.\n\n## Geographic Concentration Reveals Strategic Opportunities\n\n<metric metricId="0219343f-95c6-4a04-bbd9-7e052867abd9"/>\n\nThe >500k CLV customers show significant geographic concentration, with **Southwest (9 customers) and Northwest (7 customers) territories accounting for 52% of elite customers**. This contrasts sharply with the <500k CLV segment's broader global distribution, including strong presence in Australia (3,625 customers). The concentration of high-value customers in specific US regions suggests targeted relationship management and premium service opportunities in these key markets.\n\n## Order Behavior Reveals Dramatically Different Purchase Patterns\n\n<metric metricId="4e276567-45ae-4618-9176-9173c9535464"/>\n\nThe purchase behavior differences are striking. **>500k CLV customers average $66,232 per order and place 10.1 orders per customer**, indicating they make substantial, repeat purchases. Meanwhile, **<500k CLV customers average just $2,863 per order with only 1.6 orders per customer**, suggesting primarily one-time or infrequent purchases. This 23x difference in order value demonstrates that elite customers are making major cycling investments rather than casual purchases.\n\n## Product Category Preferences Show Elite Focus on Premium Equipment\n\n<metric metricId="83756125-45fe-4a38-a4c0-9badc0abc458"/>\n\nBoth segments prioritize bikes, but with different spending patterns. **>500k CLV customers spend 83% of their budget on bikes ($17.1M) and 15% on components ($3.1M)**, indicating serious cyclists investing in high-end equipment and performance upgrades. The <500k CLV segment also focuses on bikes ($77.6M) but with much lower per-customer spending. The elite segment's heavy component spending suggests they're upgrading and customizing their bikes extensively.\n\n## Sales Channel Preferences Highlight Service Expectations\n\n<metric metricId="654aa8cb-d2e0-4b1d-812a-1ab94182c656"/>\n\n**100% of >500k CLV customers purchase exclusively in-store**, demonstrating their preference for personal service, expert consultation, and hands-on product evaluation. This contrasts dramatically with <500k CLV customers, who make **89% of their purchases online** (27,659 orders) for convenience and price comparison. The elite segment's in-store preference suggests they value relationship-based selling and technical expertise, making them ideal candidates for premium service programs and dedicated account management.\n\n## Product Preferences Reveal Different Quality Tiers\n\n<metric metricId="dd0e7ca4-e3f7-4842-8459-7ad588e9b81a"/>\n\nThe product preferences show interesting patterns. **>500k CLV customers favor Road-250 models** (particularly Road-250 Black, 44 with $780K revenue), indicating preference for road cycling and premium models. Meanwhile, **<500k CLV customers predominantly choose Mountain-200 series bikes**, with Mountain-200 Black, 38 generating $3.7M in total revenue across 1,162 orders. The elite segment's focus on Road-250 models suggests they're serious road cyclists, while the broader market prefers versatile mountain bikes.`;
+    const platejs = await markdownToPlatejs(editor, markdown);
+    // Test passes if no error is thrown - the markdown should be fully parsed
+    expect(platejs).toBeDefined();
+    expect(platejs.length).toBeGreaterThan(10); // Should have many elements, not just the first paragraph
+    expect(platejs[1].type).toBe('h2');
+    expect(platejs[2].type).toBe('metric');
+    expect(platejs[2].metricId).toBe('be286e99-77f9-4b6e-959c-c2691d2d549e');
+    expect(platejs[3].type).toBe('p');
+  });
+
+  it('should handle problematic content 2', async () => {
+    const markdown = `Adventure Works has uncovered a fascinating customer segmentation story. While 99.84% of customers fall into the \\<500k CLV segment, a tiny elite group of just 31 customers (0.16%) has achieved >500k CLV status. These elite customers demonstrate dramatically different behaviors and contribute disproportionate value, representing 18.8% of total customer lifetime value despite being less than 0.2% of the customer base.\\n\\n## Segment Overview\\n\\nThe customer base reveals a classic Pareto distribution with extreme concentration at the top:\\n\\n<metric metricId="986dc337-0077-4977-acc8-ed14c42029f6" versionNumber="" width="100%" caption=""></metric>\\n\\n<metric metricId="bac53ff2-a4a8-400d-8ca2-b53cfab9af9e" versionNumber="" width="100%" caption=""></metric>\\n\\nThe financial impact is striking - elite customers average **$666,590** in lifetime value compared to just **$4,672** for mass market customers, representing a **143x difference** in average value per customer.\\n\\n<metric metricId="d6da409f-bd68-424a-8996-9fef7dd06ff9" versionNumber="" width="100%" caption=""></metric>\\n\\n## Elite Customers Are Cycling Enthusiasts with Advanced Technical Skills\\n\\nThe behavioral differences between segments are remarkable. Elite customers represent a completely different customer archetype:\\n\\n<metric metricId="5e80d80f-07b7-4015-9c37-68c8249bdc5a" versionNumber="" width="100%" caption=""></metric>\\n\\n**Elite customers cycle daily** - 96.8% of >500k CLV customers cycle daily compared to just 1% of <500k CLV customers. Meanwhile, 61% of mass market customers are occasional cyclists.\\n\\n<metric metricId="40882084-2b8f-4295-bb35-c96c94c9d200" versionNumber="" width="100%" caption=""></metric>\\n\\n**All elite customers have advanced technical knowledge** - 100% of >500k CLV customers are classified as having advanced technical knowledge, compared to only 2.2% of <500k CLV customers. The mass market is predominantly intermediate (56.2%) and basic (41.6%) technical users.\\n`;
+    expect(markdown).toContain('Segment Overview');
+    const platejs = await markdownToPlatejs(editor, markdown);
+    expect(platejs).toBeDefined();
+
+    // Check that "Segment Overview" is found in the parsed content
+    const segementOverviewIsFound = platejs.some((el) =>
+      el.children.some((child) => (child?.text as string)?.includes('Segment Overview'))
+    );
+    expect(segementOverviewIsFound).toBe(true);
+    expect(platejs[1].type).toBe('h2');
+    expect(platejs[3].type).toBe('metric');
+  });
+
+  it('should handle problematic content 3', async () => {
+    const markdown = `This analysis compares customer behavior between two distinct CLV segments: customers with less than $500k lifetime value versus those with $500k or more. The data reveals significant differences in customer distribution and ordering patterns between these segments.\n\n<metric metricId="091cf0af-0128-4b45-adb4-f9d0ceccb1a7" versionNumber="" width="100%" caption=""></metric>\n\n## Key Findings\n\n**Customer Distribution**\n\n* **\\<500k CLV segment**: 19,088 customers (99.8% of total customer base)\n* **>500k CLV segment**: 31 customers (0.2% of total customer base)\n\n**Order Volume Analysis**\n\n* **\\<500k CLV customers** generated **31,153 total orders**\n* **>500k CLV customers** generated **312 total orders**\n\nDespite representing less than 0.2% of the customer base, the >500k CLV segment accounts for approximately 1% of total order volume, indicating these high-value customers place significantly larger orders on average.\n\n## Strategic Implications\n\n**High-Value Customer Concentration**The extreme concentration of high CLV customers (only 31 customers above $500k) suggests these are likely enterprise or wholesale accounts that require specialized attention and account management strategies.\n\n**Order Frequency vs Order Value**While \\<500k CLV customers drive the majority of order volume (31,153 orders), the >500k CLV segment achieves their high lifetime value through significantly larger average order values rather than order frequency. This indicates two distinct customer behavior patterns:\n\n* **\\<500k CLV**: Higher frequency, lower value transactions\n* **>500k CLV**: Lower frequency, extremely high value transactions\n\n**Customer Retention Focus**With such a small number of ultra-high-value customers, retention strategies for the >500k CLV segment should be highly personalized and proactive to prevent any churn in this critical revenue segment.\n\n## Methodology\n\nThis analysis segments customers based on their all-time customer lifetime value (CLV) using a $500,000 threshold. CLV is calculated as the sum of all \`sales_order_detail.lineTotal\` values across a customer's entire order history, which includes line-level discounts but excludes taxes and freight.\n\n**Data Sources:**\n\n* Customer CLV data from \`customer_all_time_clv.metric_clv_all_time\`\n* Order counts from \`customer_lifetime_orders.metric_lifetime_orders\`\n* Analysis covers all 19,119 customers with purchase history\n\n**Segmentation Logic:**\n\n* **\\<500k CLV**: Customers with \`metric_clv_all_time \\< 500000\`\n* **>500k CLV**: Customers with \`metric_clv_all_time >= 500000\`\n\nThe number of orders metric represents the total count of distinct sales orders placed by all customers within each CLV segment, providing insight into order volume patterns across customer value tiers.\n`;
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+    expect(platejs).toBeDefined();
+    expect(platejs.length).toBeGreaterThan(20);
+    expect(platejs[1].type).toBe('metric');
+    expect(platejs[1].metricId).toBe('091cf0af-0128-4b45-adb4-f9d0ceccb1a7');
+    expect(platejs[2].type).toBe('h2');
+    expect(platejs[2].children[0].text).toBe('Key Findings');
+    expect(platejs[3].type).toBe('p');
+    expect(platejs[3].children).toEqual([{ bold: true, text: 'Customer Distribution' }]);
+    expect(platejs[4].type).toBe('p');
+    expect(platejs[5].type).toBe('p');
+    expect(platejs[6].type).toBe('p');
+    expect(platejs[7].type).toBe('p');
+    expect(platejs[8].type).toBe('p');
+    expect(platejs[9].type).toBe('p');
+    expect(platejs[10].type).toBe('h2');
+    expect(platejs[10].children[0].text).toBe('Strategic Implications');
+  });
+});
+
+describe('edge case tests for markdown parsing', () => {
+  it('should handle curly braces in text', async () => {
+    const markdown =
+      'Revenue increased by {50%} this quarter.\\n\\n## Analysis\\n\\nThe {unexpected} growth was due to new features.';
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+
+    expect(platejs.length).toBeGreaterThan(1);
+    expect(platejs[0].children[0].text).toContain('{50%}');
+    expect(platejs[2].children[0].text).toContain('{unexpected}');
+  });
+
+  it('should handle greater-than symbols in text', async () => {
+    const markdown =
+      'Performance improved by >50% compared to last year.\\n\\nValues >100 are considered excellent.';
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+
+    expect(platejs.length).toBe(2);
+    expect(platejs[0].children[0].text).toContain('>50%');
+    expect(platejs[1].children[0].text).toContain('>100');
+  });
+
+  it('should handle ampersands', async () => {
+    const markdown =
+      'Sales & Marketing team achieved goals.\\n\\nR&D department needs more funding.';
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+
+    expect(platejs.length).toBe(2);
+    expect(platejs[0].children[0].text).toContain('Sales & Marketing');
+    expect(platejs[1].children[0].text).toContain('R&D');
+  });
+
+  it('should handle tab characters', async () => {
+    const markdown = 'Column1\\tColumn2\\tColumn3\\n\\nData1\\tData2\\tData3';
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+
+    expect(platejs).toBeDefined();
+    // Tabs should be preserved or converted to spaces
+  });
+
+  it('should handle escaped backslashes', async () => {
+    const markdown = 'File path: C:\\\\Users\\\\Documents\\\\file.txt';
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+
+    expect(platejs[0].children[0].text).toContain('C:\\Users\\Documents\\file.txt');
+  });
+
+  it('should handle dollar signs', async () => {
+    const markdown = 'The cost is $500 per unit.\\n\\nProfit margin: $1000 - $700 = $300';
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+
+    expect(platejs[0].children[0].text).toContain('$500');
+    expect(platejs[1].children[0].text).toContain('$1000 - $700 = $300');
+  });
+
+  it('should handle HTML entities', async () => {
+    const markdown =
+      'Use &lt;div&gt; for layout.\\n\\nAdd &nbsp; for spacing.\\n\\n&quot;Quote&quot; and &apos;apostrophe&apos;';
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+
+    expect(platejs).toBeDefined();
+    // Check if HTML entities are properly handled
+  });
+
+  it('should handle brackets in text', async () => {
+    const markdown = 'Array[0] contains the first element.\\n\\n[NOTE] This is important.';
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+
+    expect(platejs[0].children[0].text).toContain('Array[0]');
+    expect(platejs[1].children[0].text).toContain('[NOTE]');
+  });
+
+  it('should handle mixed special characters', async () => {
+    const markdown = 'Revenue >$500k & <$1M with {25%} growth in Q[4].';
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+
+    expect(platejs[0].children[0].text).toContain('>$500k');
+    expect(platejs[0].children[0].text).toContain('<$1M');
+    expect(platejs[0].children[0].text).toContain('{25%}');
+    expect(platejs[0].children[0].text).toContain('Q[4]');
+  });
+
+  it('should handle complex financial notation', async () => {
+    const markdown = 'Value ranges: <$100K, $100K-500K, >$500K with ROI {15%} increase.';
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+
+    const text = platejs[0].children.map((child) => child.text).join('');
+    expect(text).toContain('<$100K');
+    expect(text).toContain('>$500K');
+    expect(text).toContain('{15%}');
+  });
+
+  it('should handle mathematical comparisons', async () => {
+    const markdown = 'Performance: x < 100 is poor, x > 500 is excellent, {avg} = 250.';
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+
+    const text = platejs[0].children.map((child) => child.text).join('');
+    expect(text).toContain('x < 100');
+    expect(text).toContain('x > 500');
+    expect(text).toContain('{avg}');
+  });
+
+  it('should handle URLs with special characters', async () => {
+    const markdown = 'Visit https://example.com?param=<value>&other={data} for details.';
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+
+    const text = platejs[0].children.map((child) => child.text).join('');
+    expect(text).toContain('param=<value>');
+    expect(text).toContain('other={data}');
+  });
+
+  it('should handle code-like syntax', async () => {
+    const markdown = 'Use array[index] and object.{property} patterns in code.';
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+
+    expect(platejs[0].children[0].text).toContain('array[index]');
+    expect(platejs[0].children[0].text).toContain('object.{property}');
+  });
+
+  it('should parse > at start of line followed by numbers as text, not blockquote', async () => {
+    const markdown = `### Purchase Motivation
+<metric metricId="384457bc-da77-4d8f-893b-66db768b4eea"/>
+>500k CLV customers are driven by **competition (58%)** and **fitness (42%)** - no recreational or transportation customers exist in this segment. Meanwhile, <500k CLV customers are primarily **recreational cyclists (76%)**, followed by transportation (14%) and competition (8%). This indicates high-value customers view cycling as a serious sport or fitness pursuit rather than casual recreation.
+### Technical Expertise`;
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+    expect(platejs).toBeDefined();
+    expect(platejs[1].type).toBe('metric');
+    const contentElement = platejs[2];
+    expect(contentElement.type).toBe('p');
+    expect(contentElement.children[0].text).toContain('>500k CLV customers are driven by');
   });
 });

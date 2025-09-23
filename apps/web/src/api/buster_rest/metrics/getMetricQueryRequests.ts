@@ -18,6 +18,7 @@ import {
   setProtectedAssetPasswordError,
   useProtectedAssetPassword,
 } from '@/context/BusterAssets/useProtectedAssetStore';
+import { useBusterNotifications } from '@/context/BusterNotifications';
 import { setOriginalMetric } from '@/context/Metrics/useOriginalMetricStore';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { upgradeMetricToIMetric } from '@/lib/metrics';
@@ -143,11 +144,11 @@ export const useGetMetricData = <TData = BusterMetricDataExtended>(
   {
     id = '',
     versionNumber: versionNumberProp,
-    reportFileId,
+    cacheDataId,
   }: {
     id: string | undefined;
     versionNumber?: number | 'LATEST';
-    reportFileId?: string;
+    cacheDataId?: string;
   },
   params?: Omit<UseQueryOptions<BusterMetricData, RustApiError, TData>, 'queryKey' | 'queryFn'>
 ) => {
@@ -172,7 +173,7 @@ export const useGetMetricData = <TData = BusterMetricDataExtended>(
       id,
       version_number: chosenVersionNumber || undefined,
       password,
-      report_file_id: reportFileId,
+      report_file_id: cacheDataId,
     });
     const latestVersionNumber = getLatestMetricVersion(id);
     const isLatest =
@@ -226,8 +227,20 @@ export const usePrefetchGetMetricDataClient = () => {
   );
 };
 
-export const useDownloadMetricFile = () => {
+export const useDownloadMetricFile = (downloadImmediate = true) => {
+  const { openInfoMessage } = useBusterNotifications();
   return useMutation({
     mutationFn: downloadMetricFile,
+    onSuccess: (data) => {
+      if (downloadImmediate) {
+        const link = document.createElement('a');
+        link.href = data.downloadUrl;
+        link.download = ''; // This will use the filename from the response-content-disposition header
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        openInfoMessage(`Downloading ${data.rowCount} records...`);
+      }
+    },
   });
 };
