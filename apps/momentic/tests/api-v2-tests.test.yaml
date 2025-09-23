@@ -1,0 +1,115 @@
+fileType: momentic/test
+id: 20b55cdd-3d7e-413f-98a9-d78a5b28625c
+name: api-v2-tests
+description: Run all api v2 calls and determine we get results back that are expected
+schemaVersion: 1.0.21
+advanced:
+  viewport:
+    width: 1920
+    height: 1080
+  extraHeaders: {}
+  browserType: Chromium
+retries: 0
+envs:
+  - name: development
+    default: true
+steps:
+  - id: 6e2bd037-2ad8-46f7-bca7-fa8dce20b1f3
+    envKey: CHATS_RESPONSE
+    type: PRESET_ACTION
+    command:
+      id: a55195a0-895c-4e41-a129-95fd942821d5
+      type: REQUEST
+      url: http://localhost:3002/api/v2/chats
+      method: GET
+      headers:
+        Authorization: Bearer
+          eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjMmRkNjRjZC1mN2YzLTQ4ODQtYmM5MS1kNDZhZTQzMTkwMWUiLCJuYW1lIjoiSm9obiBEb2UiLCJpYXQiOjE1MTYyMzkwMjIsImV4cCI6MjUxODU1NTMyNiwiYXVkIjoiYXV0aGVudGljYXRlZCJ9.uRs5OVyYErQ1iSQwAXVUD6TFolOu31ejPhcBS41ResA
+        Accept-Encoding: gzip, deflate, br, zstd
+        Accept: application/json, text/plain, */*
+        Accept-Language: en-US,en;
+        Connection: keep-alive
+        Host: localhost:3002
+        Origin: http://localhost:3000
+  - id: 5f735f9b-8050-4963-a0ac-ebf056cae338
+    type: PRESET_ACTION
+    command:
+      id: 23d0449f-396f-461c-bedd-2a620d5388a7
+      type: REQUEST
+      url: http://localhost:3002/api/v2/users?page=1&page_size=5
+      method: GET
+      headers:
+        Authorization: Bearer
+          eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjMmRkNjRjZC1mN2YzLTQ4ODQtYmM5MS1kNDZhZTQzMTkwMWUiLCJuYW1lIjoiSm9obiBEb2UiLCJpYXQiOjE1MTYyMzkwMjIsImV4cCI6MjUxODU1NTMyNiwiYXVkIjoiYXV0aGVudGljYXRlZCJ9.uRs5OVyYErQ1iSQwAXVUD6TFolOu31ejPhcBS41ResA
+        Accept-Encoding: gzip, deflate, br, zstd
+        Accept: application/json, text/plain, */*
+        Accept-Language: en-US,en;
+        Connection: keep-alive
+        Host: localhost:3002
+        Origin: http://localhost:3000
+      params:
+        "": ""
+  - id: 1ae73699-1d71-4e09-939c-2cbe03535acf
+    type: PRESET_ACTION
+    command:
+      id: 9bbaa784-e7a5-4dcf-b5a2-3d6765d291da
+      type: REQUEST
+      url: http://localhost:3002/api/v2/search?query=sales&includeAssetAncestors=True&page=1&page_size=25
+      method: GET
+      headers:
+        Authorization: Bearer
+          eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjMmRkNjRjZC1mN2YzLTQ4ODQtYmM5MS1kNDZhZTQzMTkwMWUiLCJuYW1lIjoiSm9obiBEb2UiLCJpYXQiOjE1MTYyMzkwMjIsImV4cCI6MjUxODU1NTMyNiwiYXVkIjoiYXV0aGVudGljYXRlZCJ9.uRs5OVyYErQ1iSQwAXVUD6TFolOu31ejPhcBS41ResA
+        Accept-Encoding: gzip, deflate, br, zstd
+        Accept: application/json, text/plain, */*
+        Accept-Language: en-US,en;
+        Connection: keep-alive
+        Host: localhost:3002
+        Origin: http://localhost:3000
+  - id: 5b617e66-9819-49eb-952d-8956327830a1
+    type: PRESET_ACTION
+    command:
+      id: cabd0d81-22d0-4ef1-aa19-ca6962c45726
+      type: REQUEST
+      url: http://localhost:3002/api/v2/users/c2dd64cd-f7f3-4884-bc91-d46ae431901e
+      method: GET
+      headers:
+        Authorization: Bearer
+          eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjMmRkNjRjZC1mN2YzLTQ4ODQtYmM5MS1kNDZhZTQzMTkwMWUiLCJuYW1lIjoiSm9obiBEb2UiLCJpYXQiOjE1MTYyMzkwMjIsImV4cCI6MjUxODU1NTMyNiwiYXVkIjoiYXV0aGVudGljYXRlZCJ9.uRs5OVyYErQ1iSQwAXVUD6TFolOu31ejPhcBS41ResA
+        Accept-Encoding: gzip, deflate, br, zstd
+        Accept: application/json, text/plain, */*
+        Accept-Language: en-US,en;
+        Connection: keep-alive
+        Host: localhost:3002
+        Origin: http://localhost:3000
+  - id: bff65d95-b288-4336-a390-a2830d6efb9b
+    type: PRESET_ACTION
+    command:
+      id: 41e9a3ee-10c6-4809-8a68-28f504a75a84
+      type: REQUEST
+      url: http://localhost:3002/api/v2/users/c2dd64cd-f7f3-4884-bc91-d46ae431901e/suggested-prompts
+      method: GET
+      headers:
+        Authorization: Bearer
+          eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjMmRkNjRjZC1mN2YzLTQ4ODQtYmM5MS1kNDZhZTQzMTkwMWUiLCJuYW1lIjoiSm9obiBEb2UiLCJpYXQiOjE1MTYyMzkwMjIsImV4cCI6MjUxODU1NTMyNiwiYXVkIjoiYXV0aGVudGljYXRlZCJ9.uRs5OVyYErQ1iSQwAXVUD6TFolOu31ejPhcBS41ResA
+        Accept-Encoding: gzip, deflate, br, zstd
+        Accept: application/json, text/plain, */*
+        Accept-Language: en-US,en;
+        Connection: keep-alive
+        Host: localhost:3002
+        Origin: http://localhost:3000
+  - id: ff6f4029-88fe-4b6e-a773-af74ea7195cc
+    type: PRESET_ACTION
+    command:
+      id: cf0281d3-dae7-4ca2-b547-7c9ac9682ecc
+      type: REQUEST
+      url: http://localhost:3002/api/v2/docs?page_size=10
+      method: GET
+      headers:
+        Authorization: Bearer
+          eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjMmRkNjRjZC1mN2YzLTQ4ODQtYmM5MS1kNDZhZTQzMTkwMWUiLCJuYW1lIjoiSm9obiBEb2UiLCJpYXQiOjE1MTYyMzkwMjIsImV4cCI6MjUxODU1NTMyNiwiYXVkIjoiYXV0aGVudGljYXRlZCJ9.uRs5OVyYErQ1iSQwAXVUD6TFolOu31ejPhcBS41ResA
+        Accept-Encoding: gzip, deflate, br, zstd
+        Accept: application/json, text/plain, */*
+        Accept-Language: en-US,en;
+        Connection: keep-alive
+        Host: localhost:3002
+        Origin: http://localhost:3000

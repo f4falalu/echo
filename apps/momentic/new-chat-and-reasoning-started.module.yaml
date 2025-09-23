@@ -1,0 +1,46 @@
+fileType: momentic/module
+moduleId: 805447d3-e699-46f6-b1d2-0132840b3f20
+name: new-chat-and-reasoning-started
+description: Navigated to /chat and after waiting the reasoning is coming in
+enabled: true
+schemaVersion: 1.0.21
+steps:
+  - id: 530e80e6-26f8-4db1-82b1-f5644b425726
+    type: PRESET_ACTION
+    command:
+      id: 3cd70032-2335-4fcd-a462-da46cce1bab7
+      type: WAIT_FOR_URL
+      matcher:
+        type: SUBSTRING
+        url: /chat
+  - id: 13eef3cf-c983-45a1-bc6b-fdde2b7067e9
+    type: PRESET_ACTION
+    command:
+      id: 626f8745-fe33-49ab-8310-4335a0c7a51f
+      type: AI_ASSERTION
+      assertion: Text should appear in the middle of the screen showing the question
+        we asked
+  - id: a460ed8a-36ce-4145-9f79-ed46489125f6
+    type: PRESET_ACTION
+    command:
+      id: cd032a60-e769-48c5-924f-29d6c8c8499e
+      type: WAIT_FOR_URL
+      matcher:
+        type: SUBSTRING
+        url: /reasoning
+      timeout: 30
+  - id: e4d03ee3-e9e1-4dc0-a93e-0e2eb46f6c4c
+    type: PRESET_ACTION
+    command:
+      id: 865b7ca4-70df-4137-bdb3-32be38a9bd2f
+      type: WAIT
+      delay: 15
+  - id: d8b65a75-41ee-492d-80ea-c5749d2910a3
+    type: PRESET_ACTION
+    command:
+      id: 904c4a0e-e1d7-41c3-bbc1-b10cb8639239
+      type: AI_ASSERTION
+      assertion: We must confirm that on the right side there is a stream of
+        "reasoning messages" these may look like text, code blocks, sql
+        statements, etc. I want to verify that they are there and that there is
+        content.
