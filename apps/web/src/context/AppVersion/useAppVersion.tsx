@@ -14,7 +14,11 @@ const checkNewVersion = (buildId: string | undefined): boolean => {
 
 export const useAppVersion = () => {
   const { openInfoNotification } = useBusterNotifications();
-  const { data, refetch, isFetched } = useQuery(versionGetAppVersion);
+  const { data, refetch } = useQuery({
+    ...versionGetAppVersion,
+    refetchOnReconnect: true,
+    refetchOnMount: true,
+  });
   const isChanged = checkNewVersion(data?.buildId);
 
   const reloadWindow = () => {
