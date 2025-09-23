@@ -179,7 +179,7 @@ export const useDownloadMetricDataCSV = ({
       onClick: async () => {
         const data = metricData?.data;
         if (data) {
-          await handleDownload(metricId);
+          await handleDownload({ id: metricId, report_file_id: cacheDataId });
         }
       },
     }),

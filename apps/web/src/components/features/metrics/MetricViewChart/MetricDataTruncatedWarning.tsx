@@ -3,6 +3,7 @@ import { useDownloadMetricFile } from '@/api/buster_rest/metrics/getMetricQueryR
 import { Button } from '@/components/ui/buttons';
 import { CircleWarning, Download4 } from '@/components/ui/icons';
 import { Text } from '@/components/ui/typography';
+import { useGetReportParams } from '@/context/Reports/useGetReportParams';
 import { cn } from '@/lib/classMerge';
 
 interface MetricDataTruncatedWarningProps {
@@ -41,7 +42,7 @@ export const MetricDataTruncatedWarning: React.FC<MetricDataTruncatedWarningProp
         </Text>
       </div>
       <Button
-        onClick={() => handleDownload(metricId)}
+        onClick={() => handleDownload({ id: metricId })}
         loading={isGettingFile}
         variant={hasError ? 'danger' : 'default'}
         className="ml-4"
