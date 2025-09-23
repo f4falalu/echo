@@ -329,6 +329,12 @@ importers:
         specifier: ^4.17.12
         version: 4.17.12
 
+  apps/supabase:
+    dependencies:
+      '@buster/database':
+        specifier: workspace:*
+        version: link:../../packages/database
+
   apps/trigger:
     dependencies:
       '@aws-sdk/client-s3':
@@ -337,6 +343,9 @@ importers:
       '@aws-sdk/s3-request-presigner':
         specifier: 'catalog:'
         version: 3.888.0
+      '@buster-app/supabase':
+        specifier: workspace:*
+        version: link:../supabase
       '@buster/access-controls':
         specifier: workspace:*
         version: link:../../packages/access-controls

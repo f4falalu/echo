@@ -8,6 +8,6 @@
   "scripts": {
     "lint": "biome check . --write",
     "lint:fix": "biome check . --write",
-    "start": "supabase start"
+    "start": "echo 'Please run this command through Turbo from the root: turbo start'"
   }
 }

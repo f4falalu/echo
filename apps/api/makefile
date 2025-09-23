@@ -26,6 +26,12 @@ update-seed:
 	> libs/database/seed.sql
 
 start:
+	@PID=$$(lsof -ti:3001); \
+	if [ -n "$$PID" ]; then \
+		echo "Killing process on port 3001 (PID: $$PID)"; \
+		kill -9 $$PID; \
+		sleep 1; \
+	fi; \
 	./target/release/buster_server
 
 stop:

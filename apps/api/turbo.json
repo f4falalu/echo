@@ -4,11 +4,17 @@
   "tasks": {
     "build": {
       "dependsOn": ["@buster/database#start"],
-      "outputs": ["target/release/**"]
+      "outputs": ["target/release/**"],
+      "inputs": [
+        "server/**/*",
+        "libs/**/*",
+        "Cargo.toml",
+        "Cargo.lock"
+      ]
     },
     "start": {
       "dependsOn": ["@buster/database#start", "build"],
-      "cache": false,
+      "cache": true,
       "persistent": true
     },
     "dev": {
