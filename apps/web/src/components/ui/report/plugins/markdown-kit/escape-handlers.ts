@@ -39,5 +39,9 @@ export const preprocessMarkdownForMdx = (markdown: string): string => {
   // This prevents {avg}, {25%}, {data} etc from being interpreted as JSX expressions
   processed = processed.replace(/{([^{}]*?)}/g, '&#123;$1&#125;');
 
+  // 3. Escape > characters at start of line that are followed by digits (comparison operators like >500k)
+  // This prevents them from being interpreted as blockquote syntax
+  processed = processed.replace(/^>(\d)/gm, '&gt;$1');
+
   return processed;
 };
