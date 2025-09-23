@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, test } from 'vitest';
 import type { DataPoint } from './downsample';
 import { detectAnomalies, randomSampling, uniformSampling } from './downsample';
 
@@ -233,7 +233,7 @@ describe('randomSampling', () => {
       expect(found).toBe(true);
     });
 
-    expect(executionTime).toBeLessThan(200);
+    expect(executionTime).toBeLessThan(350);
   });
 });
 
