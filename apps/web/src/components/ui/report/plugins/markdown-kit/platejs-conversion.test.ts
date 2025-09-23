@@ -2041,4 +2041,18 @@ describe('edge case tests for markdown parsing', () => {
     expect(platejs[0].children[0].text).toContain('array[index]');
     expect(platejs[0].children[0].text).toContain('object.{property}');
   });
+
+  it('should parse > at start of line followed by numbers as text, not blockquote', async () => {
+    const markdown = `### Purchase Motivation
+<metric metricId="384457bc-da77-4d8f-893b-66db768b4eea"/>
+>500k CLV customers are driven by **competition (58%)** and **fitness (42%)** - no recreational or transportation customers exist in this segment. Meanwhile, <500k CLV customers are primarily **recreational cyclists (76%)**, followed by transportation (14%) and competition (8%). This indicates high-value customers view cycling as a serious sport or fitness pursuit rather than casual recreation.
+### Technical Expertise`;
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+    expect(platejs).toBeDefined();
+    expect(platejs[1].type).toBe('metric');
+    const contentElement = platejs[2];
+    expect(contentElement.type).toBe('p');
+    expect(contentElement.children[0].text).toContain('>500k CLV customers are driven by');
+  });
 });
