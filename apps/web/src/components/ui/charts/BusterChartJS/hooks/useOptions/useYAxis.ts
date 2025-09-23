@@ -57,28 +57,39 @@ export const useYAxis = ({
 
     const checkVales = [...yAxisKeys, ...y2AxisKeys];
 
-    const isAllBarValues = checkVales.every((key) => {
-      return columnMetadata?.some((column) => {
-        return (
-          column.name === key &&
-          (columnSettings[column.name]?.columnVisualization ||
-            DEFAULT_COLUMN_SETTINGS.columnVisualization) === 'bar'
-        );
-      });
-    });
+    // Create lookup map for O(1) column access
+    const columnMap = new Map(columnMetadata.map((col) => [col.name, col]));
 
-    if (isAllBarValues) return true;
+    let allBarValues = true;
+    let hasNegativeValues = false;
 
-    const hasNegativeValues = checkVales.some((key) => {
-      return columnMetadata?.some((column) => {
-        return column.name === key && Number(column.min_value ?? 0) < 0;
-      });
-    });
+    // Single pass to check both conditions
+    for (const key of checkVales) {
+      const column = columnMap.get(key);
+      if (!column) {
+        allBarValues = false;
+        continue;
+      }
 
+      // Check if this column is a bar
+      const visualization =
+        columnSettings[column.name]?.columnVisualization ||
+        DEFAULT_COLUMN_SETTINGS.columnVisualization;
+      if (visualization !== 'bar') {
+        allBarValues = false;
+      }
+
+      // Check if this column has negative values
+      if (Number(column.min_value ?? 0) < 0) {
+        hasNegativeValues = true;
+      }
+    }
+
+    if (allBarValues) return true;
     if (hasNegativeValues) return false;
 
     return false;
-  }, [hasY2Axis, yAxisKeys, selectedChartType]);
+  }, [hasY2Axis, yAxisKeys, y2AxisKeys, selectedChartType, columnMetadata, columnSettings]);
 
   const isSupportedType = useMemo(() => {
     return selectedChartType !== 'pie';
