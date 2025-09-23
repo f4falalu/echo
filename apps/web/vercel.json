@@ -1,4 +1,5 @@
 {
+  "outputDirectory": ".vercel/output",
   "headers": [
     {
       "source": "/assets/(.*)",
