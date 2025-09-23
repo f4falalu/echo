@@ -97,3 +97,71 @@ jobs:
             **/coverage/**
             !**/coverage/tmp/**
           retention-days: 7
+
+  # Services health check - runs in parallel with test job
+  services-health:
+    name: Services Health Check
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node Environment
+        uses: ./.github/actions/setup-node-env
+        with:
+          cache-key: build-lint-unit
+
+      - name: Build required packages
+        run: pnpm turbo build --filter="!@buster-app/web"
+        env:
+          NODE_ENV: production
+          SKIP_ENV_CHECK: true
+          TURBO_CACHE_DIR: .turbo
+          TURBO_TELEMETRY_DISABLED: 1
+
+      - name: Start services
+        run: |
+          pnpm turbo start &
+          echo $! > turbo.pid
+          echo "Started turbo with PID $(cat turbo.pid)"
+        env:
+          SKIP_ENV_CHECK: true
+          TURBO_CACHE_DIR: .turbo
+          TURBO_TELEMETRY_DISABLED: 1
+
+      - name: Wait for services to be ready
+        run: |
+          echo "Waiting for services to start..."
+          sleep 30
+          
+          # Check each service with retries
+          for port in 3000 3001 3002; do
+            echo "Checking localhost:$port..."
+            max_attempts=30
+            attempt=0
+            while [ $attempt -lt $max_attempts ]; do
+              if curl -f -s -o /dev/null -w "%{http_code}" http://localhost:$port | grep -q "200\|301\|302\|404"; then
+                echo "✅ Service on port $port is responding"
+                break
+              else
+                echo "Waiting for service on port $port (attempt $((attempt+1))/$max_attempts)..."
+                sleep 2
+                attempt=$((attempt+1))
+              fi
+            done
+            if [ $attempt -eq $max_attempts ]; then
+              echo "❌ Service on port $port failed to respond"
+              exit 1
+            fi
+          done
+          
+          echo "All services are healthy!"
+
+      - name: Stop services
+        if: always()
+        run: |
+          if [ -f turbo.pid ]; then
+            kill $(cat turbo.pid) || true
+            rm turbo.pid
+          fi
