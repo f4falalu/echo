@@ -22,7 +22,7 @@ Creates dashboard configuration files with YAML content following the dashboard 
 #       - 6
 #
 # Rules:
-# 1. Each row can have up to 4 items
+# 1. Each row can have up to 4 items, but you should only ever put 3 cards on a single row (adding 4 assets to a single row feels too cramped/squashed)
 # 2. Each row must have a unique ID
 # 3. columnSizes is required and must specify the width for each item
 # 4. Sum of columnSizes in a row must be exactly 12

@@ -3,22 +3,57 @@ Creates a report file with markdown content. Reports are used to document findin
 **Build the Entire Report With a Single Tool Call:**
 - When using this tool, do not use the "seed-and-grow" workflow. Instead, you should create this entire report in a single tool call.
 
-**Structure Guidelines:**
-- **Title** (typically the name of the primary visualization. Do not put the title in the markdown, return it using the schema's "name" key).
-- **Primary visualization/metric** immediately after title (do NOT use a header).
-  - If the user requests more than just a single visualization (or you need to return multiple visualizations in the report), adapt the report structure accordingly (using headers, descriptions, multiple sections, etc as needed).
-- **Insights/Key Information** about the primary visualization, do not use a header: 1 short paragraph (bullets optional). Use **bold** to emphasize key findings from the visualization. Descriptions should talk about the key findings/insights found in the data, not the stylistic characteristics of the chart.
-- **Brief Methodology** at the end: Use markdown "## Methodology" header for the methodology section. Cite exact fields/calculations in backticks (e.g., ```sales.amount```, ```SUM(...)```), clarify nuanced definitions and assumptions.
+---
 
-**Example of Investigative Report Structure:**
+## Structure Guidelines
+
+### Single Visualization Reports
+- **When to use**: The user requests analysis that requires only one visualization, or the insights are fully captured by a single chart or metric.
+- **Title**: Use the name of the primary visualization. Do not include this title in the markdown; instead, return it in the schema’s `"name"` key.
+- **Visualization**: Place the primary visualization immediately after the title (do NOT use a header).
+- **Insights/Key Information**: Follow the visualization with 1 short paragraph describing findings. Use **bold** to highlight key insights. Do not describe the chart’s style; focus only on what the data reveals.
+- **Methodology**: End with a "## Methodology" section. Cite fields and calculations in backticks (e.g., `sales.amount`, `SUM(...)```), and clarify assumptions or nuanced definitions.
+
+**Example:**
 ```markdown
 <metric metricId="[metric-id-here]"/>
-Based on sales data from the last 6 months, **Linda Mitchell** leads all sales representatives with **$1.99 million** in total sales, followed closely by **Jae Pak at $1.79 million** and **Michael Blythe at $1.55 million**. There is clear variance in performance tiers among the 17 active sales representatives, with the top 5 performers each generating over $1.3 million in sales.
+Based on sales data from the last 6 months, **Linda Mitchell leads all sales representatives with $1.99 million in total sales**, followed closely by **Jae Pak at $1.79 million**. There is clear variance in performance tiers among the 17 active sales representatives.
+
 ## Methodology
 [Explain methodology...]
 ```
 
+### Multiple Visualization Reports (Investigative Reports)
+
+* **When to use**: The user explicitly requests multiple charts/metrics, or a single visualization would not be sufficient to tell the story.
+* **Overall Report Structure**: Abandon the single-visualization structure and instead use the following **investigative template**:
+
+```markdown
+[Introduction/summary of key findings/key points, uses bold to highlight key points, no header]
+
+## Key finding
+[Content describing the key finding, use bold to highlight key points, followed by the section’s supporting visualization]
+
+...as many key findings as needed to build the narrative...
+
+## Conclusion
+[Summary that ties together the key findings, no visualization, use bold to highlight key points]
+
+## Methodology
+[Detailed explanation of methodology, citing exact fields/calculations in backticks and clarifying assumptions. Use bold to highlight key points.]
+```
+
+**Guidelines for Investigative Reports:**
+
+* Start with a short introduction paragraph summarizing the big picture. Use **bold** to emphasize the most important insights.
+* Each visualization must appear **within a "## Key finding" section**, directly following the written explanation for that finding.
+* Close with a **Conclusion** (no visuals) to synthesize the findings into one clear takeaway.
+* Always include a **Methodology** section at the end with more detailed explanation than in single-visualization reports.
+
+---
+
 **Other Guidelines:**
-- You are in Standard Mode and should only create Simple Reports. Do not open the report with a summary or introduction paragraph. Instead, you should display the primary visualization following the title.
-  - Exception: If you need to create a report with multiple visualizations, start the report with an introduction paragrah and then give each key metric/visualization its own section with a header that describes the key finding.
-- **DO NOT** use the "seed-and-grow" workflow to build your report. You should create the entire report with a single tool call.
+
+* Reports should always be created in one tool call.
+* For single visualization reports, never include an introduction paragraph and never use a header for the visualization — only multiple visualization reports use an introduction/key finding sections.
+* Do not describe stylistic/chart formatting details. Focus only on findings, insights, and implications.
