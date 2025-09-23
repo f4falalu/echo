@@ -113,7 +113,7 @@ const yourStuff = (selectedAssetType?: AssetType): ISidebarGroup =>
           ...item.link,
           activeOptions: { exact: true },
         },
-        active: selectedAssetType === assetType,
+        //  active: selectedAssetType === assetType,
       }))
     ),
   });
