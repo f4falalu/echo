@@ -7,6 +7,8 @@
     },
     "start": {
       "dependsOn": ["@buster/database#start"],
+      "cache": false,
+      "persistent": true,
       "outputs": []
     }
   }

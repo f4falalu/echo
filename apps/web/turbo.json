@@ -16,6 +16,11 @@
         ],
         "outputs": [".output/**", ".vercel/**"]
       },
+      "start": {
+        "dependsOn": ["build"],
+        "cache": false,
+        "persistent": true
+      },
       "test": {
         "inputs": [
           "src/**/*",
@@ -28,6 +33,8 @@
       },
       "dev": {
         "dependsOn": ["@buster/server-shared#build"],
+        "cache": false,
+        "persistent": true,
         "inputs": [
           "src/**/*",
           "!src/**/*.test.{ts,tsx,js,jsx}",
@@ -40,6 +47,8 @@
       },
       "dev:fast": {
         "dependsOn": ["@buster/server-shared#build"],
+        "cache": false,
+        "persistent": true,
         "inputs": [
           "src/**/*",
           "!src/**/*.test.{ts,tsx,js,jsx}",
