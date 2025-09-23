@@ -137,9 +137,15 @@ jobs:
 
       - name: Start services
         run: |
-          pnpm turbo start &
+          # Start services and capture output
+          pnpm turbo start > turbo.log 2>&1 &
           echo $! > turbo.pid
           echo "Started turbo with PID $(cat turbo.pid)"
+          
+          # Give services a moment to start and show initial logs
+          sleep 5
+          echo "=== Initial turbo start output ==="
+          head -50 turbo.log || true
         env:
           SKIP_ENV_CHECK: true
           TURBO_CACHE_DIR: .turbo
@@ -209,32 +215,68 @@ jobs:
           echo "Waiting for services to start..."
           sleep 30
           
+          # Track if any service fails
+          failed=false
+          
           # Check each service with retries
           for port in 3000 3001 3002; do
             echo "Checking localhost:$port..."
             max_attempts=30
             attempt=0
             while [ $attempt -lt $max_attempts ]; do
-              if curl -f -s -o /dev/null -w "%{http_code}" http://localhost:$port | grep -q "200\|301\|302\|404"; then
-                echo "✅ Service on port $port is responding"
+              # Use curl with connection timeout and capture the http code
+              http_code=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 2 --max-time 5 http://localhost:$port 2>/dev/null || echo "000")
+              
+              if [ "$http_code" != "000" ]; then
+                echo "✅ Service on port $port is responding (HTTP $http_code)"
                 break
               else
                 echo "Waiting for service on port $port (attempt $((attempt+1))/$max_attempts)..."
+                
+                # Try curl with verbose error to see what's happening
+                if [ $((attempt % 10)) -eq 0 ]; then
+                  echo "  Detailed connection attempt:"
+                  curl -v --connect-timeout 2 --max-time 5 http://localhost:$port 2>&1 | head -10 || true
+                fi
+                
                 sleep 2
                 attempt=$((attempt+1))
               fi
             done
             if [ $attempt -eq $max_attempts ]; then
               echo "❌ Service on port $port failed to respond"
-              exit 1
+              failed=true
+              
+              # Show logs for debugging when a service fails
+              echo "=== Turbo logs at time of failure ==="
+              tail -50 turbo.log || true
+              
+              # Check if the turbo process is still running
+              if [ -f turbo.pid ]; then
+                if ! kill -0 $(cat turbo.pid) 2>/dev/null; then
+                  echo "❌ Turbo process has crashed!"
+                  echo "=== Full turbo output ==="
+                  cat turbo.log || true
+                fi
+              fi
             fi
           done
           
-          echo "All services are healthy!"
+          # Exit with error if any service failed
+          if [ "$failed" = true ]; then
+            echo "❌ One or more services failed to start properly"
+            exit 1
+          fi
+          
+          echo "✅ All services are healthy!"
 
       - name: Stop services
         if: always()
         run: |
+          # Show final logs before stopping
+          echo "=== Final turbo output ==="
+          tail -100 turbo.log || true
+          
           if [ -f turbo.pid ]; then
             kill $(cat turbo.pid) || true
             rm turbo.pid
