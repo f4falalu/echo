@@ -13,9 +13,6 @@ envs:
   - name: development
     default: true
 steps:
-  - id: 21a2f438-b836-4e6d-8767-f428001a1871
-    type: MODULE
-    moduleId: 77f747c9-9821-4bfa-9d02-0a57836065da
   - id: 9f7438cb-de54-4ecd-8232-98f9f0b8459a
     type: PRESET_ACTION
     command:
