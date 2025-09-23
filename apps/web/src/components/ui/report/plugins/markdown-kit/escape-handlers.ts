@@ -26,18 +26,18 @@ export const preprocessMarkdownForMdx = (markdown: string): string => {
   let processed = markdown
     .replace(/\\n/g, '\n') // Convert \n to actual newlines
     .replace(/\\'/g, "'") // Convert \' to apostrophes
-    .replace(/\\"/g, '"'); // Convert \" to quotes
+    .replace(/\\"/g, '"') // Convert \" to quotes
+    .replace(/\\</g, '<') // Convert already escaped \< to < so we can re-escape properly
+    .replace(/\\{/g, '{') // Convert already escaped \{ to {
+    .replace(/\\}/g, '}'); // Convert already escaped \} to }
 
-  // Then escape < symbols that are not part of HTML tags or components
-  // This prevents them from being interpreted as unclosed tags by the MDX parser
-  // Pattern explanation:
-  // - Matches < that is NOT followed by:
-  //   - A letter (start of HTML tag like <div)
-  //   - A slash (closing tag like </div)
-  //   - An uppercase letter (React component like <Metric)
-  //   - metric (our custom metric tags)
-  // - But IS part of text content (has word boundary or number after it)
-  processed = processed.replace(/<(?![a-zA-Z/]|metric\s)/g, '\\<');
+  // Then escape characters that MDX interprets as JSX/special syntax
+  // 1. Escape < symbols that are not part of HTML tags or components
+  processed = processed.replace(/<(?![a-zA-Z/]|metric\s)/g, '&lt;');
+
+  // 2. Escape curly braces that are not JSX expressions (simple heuristic: surrounded by word boundaries or numbers)
+  // This prevents {avg}, {25%}, {data} etc from being interpreted as JSX expressions
+  processed = processed.replace(/{([^{}]*?)}/g, '&#123;$1&#125;');
 
   return processed;
 };

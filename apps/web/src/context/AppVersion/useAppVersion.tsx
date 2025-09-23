@@ -32,7 +32,7 @@ export const useAppVersion = () => {
     if (isChanged) {
       openInfoNotification({
         duration: Infinity,
-        title: 'New Version Available',
+        title: 'New version available',
         message: <AppVersionMessage />,
         dismissible: false,
         className: 'min-w-[450px]',
