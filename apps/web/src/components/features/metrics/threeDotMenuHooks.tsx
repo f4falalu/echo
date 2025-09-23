@@ -1,7 +1,7 @@
 import { useNavigate } from '@tanstack/react-router';
 import React, { useCallback, useMemo, useState } from 'react';
 import type { BusterMetric } from '@/api/asset_interfaces/metric';
-import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
+import { useDownloadMetricFile, useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
 import {
   createDropdownItem,
   createDropdownItems,
@@ -25,11 +25,10 @@ import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import { useStartChatFromAsset } from '@/context/BusterAssets/useStartChatFromAsset';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { ensureElementExists } from '@/lib/element';
-import { downloadElementToImage, exportJSONToCSV } from '@/lib/exportUtils';
+import { downloadElementToImage } from '@/lib/exportUtils';
 import { canEdit } from '../../../lib/share';
 import { FollowUpWithAssetContent } from '../assets/FollowUpWithAsset';
 import { useFavoriteStar } from '../favorites';
-import { ASSET_ICONS } from '../icons/assetIcons';
 import { getShareAssetConfig } from '../ShareMenu/helpers';
 import { useListMetricVersionDropdownItems } from '../versionHistory/useListMetricVersionDropdownItems';
 import { METRIC_CHART_CONTAINER_ID } from './MetricChartCard/config';
@@ -165,32 +164,25 @@ export const useDownloadMetricDataCSV = ({
   metricVersionNumber: number | undefined;
   cacheDataId?: string;
 }) => {
-  const [isDownloading, setIsDownloading] = useState(false);
-  const { data: metricData } = useGetMetricData(
-    { id: metricId, versionNumber: metricVersionNumber, cacheDataId },
-    { enabled: false }
-  );
-  const { data: name } = useGetMetric(
-    { id: metricId },
-    { select: useCallback((x: BusterMetric) => x.name, []) }
-  );
+  const { mutateAsync: handleDownload, isPending: isDownloading } = useDownloadMetricFile();
 
   return useMemo(
-    () => ({
-      label: 'Download as CSV',
-      value: 'download-csv',
-      icon: <Download4 />,
-      loading: isDownloading,
-      onClick: async () => {
-        const data = metricData?.data;
-        if (data && name) {
-          setIsDownloading(true);
-          await exportJSONToCSV(data, name);
-          setIsDownloading(false);
-        }
-      },
-    }),
-    [metricData, isDownloading, name]
+    () =>
+      createDropdownItem({
+        label: 'Download as CSV',
+        value: 'download-csv',
+        icon: <Download4 />,
+        loading: isDownloading,
+        closeOnSelect: false,
+        onClick: async () => {
+          await handleDownload({
+            id: metricId,
+            report_file_id: cacheDataId,
+            metric_version_number: metricVersionNumber,
+          });
+        },
+      }),
+    [isDownloading]
   );
 };
 

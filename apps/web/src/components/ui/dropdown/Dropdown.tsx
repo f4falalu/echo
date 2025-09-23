@@ -383,7 +383,7 @@ const DropdownItem = <
   const renderContent = () => {
     const content = (
       <>
-        {icon && !loading && <span className="text-icon-color text-lg">{icon}</span>}
+        {icon && <span className="text-icon-color text-lg">{icon}</span>}
         <div className={cn('flex flex-col space-y-1', truncate && 'overflow-hidden')}>
           <span className={cn(truncate && 'truncate')}>{label}</span>
           {secondaryLabel && <span className="text-gray-light text-xs">{secondaryLabel}</span>}

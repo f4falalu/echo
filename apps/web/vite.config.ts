@@ -15,7 +15,6 @@ const config = defineConfig(({ command, mode }) => {
   const useChecker = !process.env.VITEST && isBuild;
   const isLocalBuild = process.argv.includes('--local') || mode === 'development';
   const isVercelBuild = process.env.VERCEL === '1' || process.env.CI === '1';
-  console.log('isVercelBuild', isVercelBuild, process.env.VERCEL, process.env.CI);
   const target = isLocalBuild
     ? ('bun' as const)
     : isVercelBuild
