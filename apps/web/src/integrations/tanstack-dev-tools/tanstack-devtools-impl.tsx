@@ -1,9 +1,21 @@
 import { ClientOnly } from '@tanstack/react-router';
-import React, { lazy, Suspense } from 'react';
+import sample from 'lodash/sample';
+import React, { lazy, Suspense, useState } from 'react';
 import { useMount } from '@/hooks/useMount';
 import { isServer } from '@/lib/window';
+import image1 from './images/image1.png';
+import image2 from './images/image2.png';
+import image3 from './images/image3.png';
+import image4 from './images/image4.png';
+import image5 from './images/image5.png';
+import image6 from './images/image6.png';
+import image7 from './images/image7.png';
 
 const isProduction = import.meta.env.PROD;
+
+const arrayOfImages = [image1, image2, image3, image4, image5, image6, image7];
+
+const randomImage = sample(arrayOfImages);
 
 // Only create lazy components if we're in the browser
 const LazyTanstackDevtools = !import.meta.env.SSR
@@ -80,7 +92,8 @@ const TanstackDevtoolsImpl: React.FC = React.memo(() => {
             position: 'bottom-left',
             hideUntilHover: true,
             defaultOpen: false,
-            openHotkey: ['Shift', 'D', 'T'],
+            openHotkey: ['Meta', 'D'],
+            triggerImage: randomImage,
           }}
           plugins={[
             {
