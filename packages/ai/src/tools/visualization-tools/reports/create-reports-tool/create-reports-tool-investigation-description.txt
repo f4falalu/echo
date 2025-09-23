@@ -33,7 +33,7 @@ Creates a report file with markdown content. Reports are used to document findin
 [Introduction/summary of key findings/key points, no header]
 
 ## Key finding
-[Content about the key finding followed by the section's supporting visualization]
+[Brief, simple copy about the key finding followed by the section's supporting visualization]
 
 ...additional "key finding" sections + building of the narrative...
 
