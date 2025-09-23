@@ -848,7 +848,7 @@ export const chats = pgTable(
       mode: 'string',
     }),
     mostRecentFileId: uuid('most_recent_file_id'),
-    mostRecentFileType: varchar('most_recent_file_type', { length: 255 }),
+    mostRecentFileType: assetTypeEnum('most_recent_file_type'),
     mostRecentVersionNumber: integer('most_recent_version_number'),
     slackChatAuthorization: slackChatAuthorizationEnum('slack_chat_authorization'),
     slackThreadTs: text('slack_thread_ts'),
