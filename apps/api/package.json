@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "make fast-no-migrations",
-    "dev:fast": "make fast-no-migrations"
+    "dev:fast": "make fast-no-migrations",
+    "start": "make fast-no-migrations"
   },
   "dependencies": {
     "@buster/database": "workspace:*"
