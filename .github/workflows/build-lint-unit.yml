@@ -17,6 +17,7 @@ jobs:
     name: Build
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 10
+    environment: testing
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -26,19 +27,23 @@ jobs:
         with:
           cache-key: build-lint-unit
 
-      - name: Build all packages (excluding web)
-        run: pnpm turbo build --filter="!@buster-app/web"
+      - name: Build all packages
+        run: pnpm turbo build
         env:
           NODE_ENV: production
           SKIP_ENV_CHECK: true
           TURBO_CACHE_DIR: .turbo
           TURBO_TELEMETRY_DISABLED: 1
-
-      - name: Typecheck web app
-        run: pnpm turbo typecheck --filter=@buster-app/web
-        env:
-          TURBO_CACHE_DIR: .turbo
-          TURBO_TELEMETRY_DISABLED: 1
+          # Pass all secrets from the testing environment for build
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          VITE_PUBLIC_API_URL: ${{ secrets.VITE_PUBLIC_API_URL }}
+          VITE_PUBLIC_API2_URL: ${{ secrets.VITE_PUBLIC_API2_URL }}
+          VITE_PUBLIC_SUPABASE_URL: ${{ secrets.VITE_PUBLIC_SUPABASE_URL }}
+          VITE_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.VITE_PUBLIC_SUPABASE_ANON_KEY }}
+          VITE_PUBLIC_URL: ${{ secrets.VITE_PUBLIC_URL }}
 
   # Lint job - runs in parallel
   lint:
@@ -98,11 +103,12 @@ jobs:
             !**/coverage/tmp/**
           retention-days: 7
 
-  # Services health check - runs in parallel with test job
+  # Services health check - runs after build completes
   services-health:
     name: Services Health Check
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 10
+    needs: build  # Wait for build to complete
     environment: testing
     steps:
       - name: Checkout code
@@ -128,14 +134,6 @@ jobs:
           wget -qO- https://github.com/supabase/cli/releases/latest/download/supabase_linux_amd64.tar.gz | tar xvz
           sudo mv supabase /usr/local/bin/
           sudo chmod +x /usr/local/bin/supabase
-
-      - name: Build required packages
-        run: pnpm turbo build
-        env:
-          NODE_ENV: production
-          SKIP_ENV_CHECK: true
-          TURBO_CACHE_DIR: .turbo
-          TURBO_TELEMETRY_DISABLED: 1
 
       - name: Start services
         run: |
