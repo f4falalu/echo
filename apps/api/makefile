@@ -1,3 +1,6 @@
+build:
+	cargo build --release --bin buster_server
+
 dev:
 	docker stop buster-redis-make || true && \
 	docker rm buster-redis-make || true && \
@@ -21,6 +24,9 @@ update-seed:
 	--exclude-table=migrations \
 	--exclude-table=users \
 	> libs/database/seed.sql
+
+start:
+	./target/release/buster_server
 
 stop:
 	docker stop buster-redis-make || true && \
