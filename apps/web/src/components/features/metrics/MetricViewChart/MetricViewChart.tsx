@@ -29,7 +29,9 @@ export const MetricViewChart: React.FC<{
             readOnly={readOnly}
             className={cardClassName}
           />
-          {hasMoreRecords && <MetricDataTruncatedWarning metricId={metricId} />}
+          {hasMoreRecords && (
+            <MetricDataTruncatedWarning metricId={metricId} metricVersionNumber={versionNumber} />
+          )}
         </div>
       </div>
     );

@@ -9,11 +9,13 @@ import { cn } from '@/lib/classMerge';
 interface MetricDataTruncatedWarningProps {
   className?: string;
   metricId: string;
+  metricVersionNumber: number | undefined;
 }
 
 export const MetricDataTruncatedWarning: React.FC<MetricDataTruncatedWarningProps> = ({
   className,
   metricId,
+  metricVersionNumber,
 }) => {
   const {
     mutateAsync: handleDownload,
@@ -42,7 +44,7 @@ export const MetricDataTruncatedWarning: React.FC<MetricDataTruncatedWarningProp
         </Text>
       </div>
       <Button
-        onClick={() => handleDownload({ id: metricId })}
+        onClick={() => handleDownload({ id: metricId, metric_version_number: metricVersionNumber })}
         loading={isGettingFile}
         variant={hasError ? 'danger' : 'default'}
         className="ml-4"

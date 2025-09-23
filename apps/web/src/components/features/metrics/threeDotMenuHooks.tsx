@@ -164,10 +164,6 @@ export const useDownloadMetricDataCSV = ({
   metricVersionNumber: number | undefined;
   cacheDataId?: string;
 }) => {
-  const { data: metricData } = useGetMetricData(
-    { id: metricId, versionNumber: metricVersionNumber, cacheDataId },
-    { enabled: false }
-  );
   const { mutateAsync: handleDownload, isPending: isDownloading } = useDownloadMetricFile();
 
   return useMemo(
@@ -176,14 +172,16 @@ export const useDownloadMetricDataCSV = ({
       value: 'download-csv',
       icon: <Download4 />,
       loading: isDownloading,
+
       onClick: async () => {
-        const data = metricData?.data;
-        if (data) {
-          await handleDownload({ id: metricId, report_file_id: cacheDataId });
-        }
+        await handleDownload({
+          id: metricId,
+          report_file_id: cacheDataId,
+          metric_version_number: metricVersionNumber,
+        });
       },
     }),
-    [metricData, isDownloading]
+    [isDownloading]
   );
 };
 
