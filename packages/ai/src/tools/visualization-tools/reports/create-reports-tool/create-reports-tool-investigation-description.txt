@@ -14,22 +14,18 @@ Creates a report file with markdown content. Reports are used to document findin
 - Include tables, charts references, and data visualizations where relevant
 
 **Content Requirements:**
-- Minimum 10 characters of meaningful content
-- Maximum 100,000 characters per report
 - Use standard markdown formatting (headers, lists, links, etc.)
-- Use bold to highlight key points
+- Use bold to highlight the most important points throughout the report
 - Include data sources and methodology where applicable
 
 **Best Practices:**
 - Start with an executive summary
 - Use data to support conclusions
-- Include actionable recommendations
 - Reference specific metrics and timeframes
-- Maintain professional tone and clear language
 
 **Example Report Structure:**
 ```markdown
-[Introduction/summary of key findings/key points, no header, use bold to highlight key points]
+[Introduction/summary of key findings/key points, no header]
 
 ## Key finding
 [Brief, simple copy about the key finding followed by the section's supporting visualization]
@@ -37,10 +33,10 @@ Creates a report file with markdown content. Reports are used to document findin
 ...additional "key finding" sections + building of the narrative...
 
 ## Conclusion
-[A paragraph or two to express key findings and tie the whole report together, use bold to highlight key points]
+[A paragraph or two to express key findings and tie the whole report together]
 
 ## Methodology
-[Explain methodology with more detail, use bold to highlight key points and backticks for specific field/table/calculation references...]
+[Explain methodology with more detail...]
 ```
 
 **Other Guidelines:**

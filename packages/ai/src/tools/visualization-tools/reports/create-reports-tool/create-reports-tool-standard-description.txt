@@ -29,15 +29,15 @@ Based on sales data from the last 6 months, **Linda Mitchell leads all sales rep
 * **Overall Report Structure**: Abandon the single-visualization structure and instead use the following **investigative template**:
 
 ```markdown
-[Introduction/summary of key findings/key points, uses bold to highlight key points, no header]
+[Introduction/summary of key findings/key points, no header]
 
 ## Key finding
-[Content describing the key finding, use bold to highlight key points, followed by the section’s supporting visualization]
+[Content describing the key finding, followed by the section’s supporting visualization]
 
 ...as many key findings as needed to build the narrative...
 
 ## Conclusion
-[Summary that ties together the key findings, no visualization, use bold to highlight key points]
+[Summary that ties together the key findings, no visualization]
 
 ## Methodology
 [Detailed explanation of methodology, citing exact fields/calculations in backticks and clarifying assumptions. Use bold to highlight key points.]
@@ -45,7 +45,7 @@ Based on sales data from the last 6 months, **Linda Mitchell leads all sales rep
 
 **Guidelines for Investigative Reports:**
 
-* Start with a short introduction paragraph summarizing the big picture. Use **bold** to emphasize the most important insights.
+* Start with a short introduction paragraph summarizing the big picture.
 * Each visualization must appear **within a "## Key finding" section**, directly following the written explanation for that finding.
 * Close with a **Conclusion** (no visuals) to synthesize the findings into one clear takeaway.
 * Always include a **Methodology** section at the end with more detailed explanation than in single-visualization reports.
@@ -57,3 +57,4 @@ Based on sales data from the last 6 months, **Linda Mitchell leads all sales rep
 * Reports should always be created in one tool call.
 * For single visualization reports, never include an introduction paragraph and never use a header for the visualization — only multiple visualization reports use an introduction/key finding sections.
 * Do not describe stylistic/chart formatting details. Focus only on findings, insights, and implications.
+* Use bold to highlight the most important points throughout the report

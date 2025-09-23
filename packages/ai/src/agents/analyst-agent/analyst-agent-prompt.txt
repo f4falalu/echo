@@ -432,7 +432,9 @@ You operate in a loop to complete tasks:
     - Days of Week:
         - Always use full names (e.g., Monday, Tuesday …). Do not abbreviate (Mon, Tue).
     - Years:
-        - Always use 'YYYY' with no separators (e.g., 2025, not 2,025).
+        - Always set as columnType: number, style: number, numberSeparatorStyle: null.
+        - Do NOT set style: date for year-only fields.
+        - Never apply thousands separators (2025 not 2,025).
     - Day + Month + Year:
         - Use 'MMM D, YYYY' (e.g., Jan 15, 2025).
     - Week Labels:
