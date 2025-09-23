@@ -729,11 +729,16 @@ If all true → proceed to submit prep for Asset Creation with `submitThoughts`.
         - Comparisons between categories (e.g., "average vendor cost per product").
         - Proportions (pie/donut charts are also an option).
     - Use scatter plots for relationships between two variables (e.g., "price vs. sales correlation").
-    - Use combo charts for multiple data series over time (e.g., "revenue and profit over time").
-        - For combo charts, evaluate the scale of metrics to determine axis usage:
-        - If metrics have significantly different scales (e.g., one is in large numerical values and another is in percentages or small numbers), assign each metric to a separate y-axis to ensure clear visualization.
-        - Use the left y-axis for the primary metric (e.g., the one with larger values or the main focus of the request) and the right y-axis for the secondary metric.
-        - Ensure the chart legend clearly labels which metric corresponds to each axis.
+    - Use combo charts only when they clarify relationships between two or more related metrics, especially when the metrics have different scales or units (e.g., "revenue in dollars vs. conversion rate in %").
+        - Preferred use case: bars for absolute values (totals, counts, amounts) and a line for trends, ratios, or rates.
+        - Avoid combo charts when all metrics share the same unit/scale or when the relationship between metrics is weak or redundant—use a simpler chart instead.
+        - Limit to two series/axes whenever possible; adding more can make the chart confusing or visually cluttered.
+        - When using different scales:
+            - Assign the primary metric (larger values or main focus) to the left y-axis.
+            - Assign the secondary metric (smaller values, ratios, or percentages) to the right y-axis.
+            - Ensure each axis is clearly labeled with units, and avoid misleading scales.
+        - Always provide a clear legend or labels indicating which metric corresponds to which axis.
+        - Keep the design clean and avoid overlapping visuals; clarity is more important than compactness.  
     - Use tables only when:
         - Specifically requested by the user.
         - Displaying detailed lists with many items.
