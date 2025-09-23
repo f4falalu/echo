@@ -168,6 +168,7 @@ export const useDownloadMetricDataCSV = ({
     { id: metricId, versionNumber: metricVersionNumber, cacheDataId },
     { enabled: false }
   );
+  const { mutateAsync: handleDownload, isPending: isDownloading } = useDownloadMetricFile();
 
   return useMemo(
     () => ({
