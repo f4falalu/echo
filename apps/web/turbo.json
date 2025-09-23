@@ -14,7 +14,25 @@
           "tsconfig.json",
           "package.json"
         ],
-        "outputs": [".output/**", ".vercel/**"]
+        "outputs": [
+          ".output/server/index.mjs",
+          ".output/server/chunks/**",
+          ".output/public/assets/**/*.js",
+          ".output/public/assets/**/*.css",
+          ".output/public/favicon.ico",
+          ".output/public/manifest.json",
+          ".vercel/**",
+          "!.output/**/*.map",
+          "!.output/**/*.map.js",
+          "!.output/server/node_modules/**",
+          "!.output/public/assets/**/*.png",
+          "!.output/public/assets/**/*.jpg",
+          "!.output/public/assets/**/*.jpeg",
+          "!.output/public/assets/**/*.gif",
+          "!.output/public/assets/**/*.svg",
+          "!.output/**/*.test.*",
+          "!.output/**/*.spec.*"
+        ]
       },
       "build:vercel": {
         "dependsOn": ["^build:vercel", "@buster/server-shared#build"],
@@ -28,7 +46,25 @@
           "tsconfig.json",
           "package.json"
         ],
-        "outputs": [".output/**", ".vercel/**"]
+        "outputs": [
+          ".output/server/index.mjs",
+          ".output/server/chunks/**",
+          ".output/public/assets/**/*.js",
+          ".output/public/assets/**/*.css",
+          ".output/public/favicon.ico",
+          ".output/public/manifest.json",
+          ".vercel/**",
+          "!.output/**/*.map",
+          "!.output/**/*.map.js",
+          "!.output/server/node_modules/**",
+          "!.output/public/assets/**/*.png",
+          "!.output/public/assets/**/*.jpg",
+          "!.output/public/assets/**/*.jpeg",
+          "!.output/public/assets/**/*.gif",
+          "!.output/public/assets/**/*.svg",
+          "!.output/**/*.test.*",
+          "!.output/**/*.spec.*"
+        ]
       },
       "start": {
         "dependsOn": ["build"],

@@ -8,8 +8,29 @@
         "^build"
       ],
       "outputs": [
-        "dist/**",
-        ".next/**"
+        "dist/**/*.js",
+        "dist/**/*.mjs",
+        "dist/**/*.cjs",
+        "dist/**/*.d.ts",
+        "dist/**/*.d.mts",
+        "dist/**/*.d.cts",
+        "dist/**/*.json",
+        "dist/**/*.txt",
+        ".next/**",
+        "!dist/**/*.map",
+        "!dist/**/*.js.map",
+        "!dist/**/*.mjs.map",
+        "!dist/**/*.cjs.map",
+        "!dist/**/*.d.ts.map",
+        "!.next/**/*.map",
+        "!dist/**/*.test.*",
+        "!dist/**/*.spec.*",
+        "!dist/**/*.stories.*",
+        "!dist/**/test/**",
+        "!dist/**/__tests__/**",
+        "!dist/**/__mocks__/**",
+        "!dist/**/*.md",
+        "!dist/**/node_modules/**"
       ]
     },
     "build:dry-run": {
@@ -17,8 +38,29 @@
         "^build:dry-run"
       ],
       "outputs": [
-        "dist/**",
-        ".next/**"
+        "dist/**/*.js",
+        "dist/**/*.mjs",
+        "dist/**/*.cjs",
+        "dist/**/*.d.ts",
+        "dist/**/*.d.mts",
+        "dist/**/*.d.cts",
+        "dist/**/*.json",
+        "dist/**/*.txt",
+        ".next/**",
+        "!dist/**/*.map",
+        "!dist/**/*.js.map",
+        "!dist/**/*.mjs.map",
+        "!dist/**/*.cjs.map",
+        "!dist/**/*.d.ts.map",
+        "!.next/**/*.map",
+        "!dist/**/*.test.*",
+        "!dist/**/*.spec.*",
+        "!dist/**/*.stories.*",
+        "!dist/**/test/**",
+        "!dist/**/__tests__/**",
+        "!dist/**/__mocks__/**",
+        "!dist/**/*.md",
+        "!dist/**/node_modules/**"
       ],
       "env": [
         "SKIP_ENV_CHECK"
@@ -85,7 +127,16 @@
       "cache": false,
       "persistent": false,
       "outputs": [
-        "dist/**"
+        "dist/**/*.js",
+        "dist/**/*.cjs",
+        "dist/**/*.d.ts",
+        "dist/**/*.d.cts",
+        "dist/**/*.json",
+        "dist/**/*.txt",
+        "!dist/**/*.map",
+        "!dist/**/*.js.map",
+        "!dist/**/*.cjs.map",
+        "!dist/**/*.d.ts.map"
       ]
     },
     "build:commonjs:watch": {
