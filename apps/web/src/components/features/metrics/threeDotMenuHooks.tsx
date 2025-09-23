@@ -167,20 +167,21 @@ export const useDownloadMetricDataCSV = ({
   const { mutateAsync: handleDownload, isPending: isDownloading } = useDownloadMetricFile();
 
   return useMemo(
-    () => ({
-      label: 'Download as CSV',
-      value: 'download-csv',
-      icon: <Download4 />,
-      loading: isDownloading,
-
-      onClick: async () => {
-        await handleDownload({
-          id: metricId,
-          report_file_id: cacheDataId,
-          metric_version_number: metricVersionNumber,
-        });
-      },
-    }),
+    () =>
+      createDropdownItem({
+        label: 'Download as CSV',
+        value: 'download-csv',
+        icon: <Download4 />,
+        loading: isDownloading,
+        closeOnSelect: false,
+        onClick: async () => {
+          await handleDownload({
+            id: metricId,
+            report_file_id: cacheDataId,
+            metric_version_number: metricVersionNumber,
+          });
+        },
+      }),
     [isDownloading]
   );
 };
