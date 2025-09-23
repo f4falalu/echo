@@ -12,6 +12,8 @@ import type {
   GetMetricResponse,
   ListMetricsResponse,
   MetricDataResponse,
+  MetricDownloadParams,
+  MetricDownloadQueryParams,
   MetricDownloadResponse,
   ShareDeleteResponse,
   ShareUpdateResponse,
@@ -100,8 +102,11 @@ export const updateMetricShare = async ({
 };
 
 // Download metric file
-export const downloadMetricFile = async (id: string): Promise<MetricDownloadResponse> => {
+export const downloadMetricFile = async ({
+  id,
+  ...params
+}: MetricDownloadParams & MetricDownloadQueryParams): Promise<MetricDownloadResponse> => {
   return mainApiV2
-    .get<MetricDownloadResponse>(`/metric_files/${id}/download`)
+    .get<MetricDownloadResponse>(`/metric_files/${id}/download`, { params })
     .then((res) => res.data);
 };
