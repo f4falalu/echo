@@ -94,13 +94,24 @@ export function extractAllFilesForChatUpdate(messages: ModelMessage[]): Extracte
           const contentObj = content as { toolCallId?: string; input?: unknown };
           const toolCallId = contentObj.toolCallId;
           const input = contentObj.input as {
+            name?: string;
+            content?: string;
+            // Legacy support for old array structure
             files?: Array<{ yml_content?: string; content?: string }>;
           };
-          if (toolCallId && input && input.files && Array.isArray(input.files)) {
-            for (const file of input.files) {
-              const reportContent = file.yml_content || file.content;
-              if (reportContent) {
-                createReportContents.set(toolCallId, reportContent);
+
+          // Handle new single-file structure
+          if (toolCallId && input) {
+            if (input.content) {
+              // New structure: single report
+              createReportContents.set(toolCallId, input.content);
+            } else if (input.files && Array.isArray(input.files)) {
+              // Legacy structure: array of files
+              for (const file of input.files) {
+                const reportContent = file.yml_content || file.content;
+                if (reportContent) {
+                  createReportContents.set(toolCallId, reportContent);
+                }
               }
             }
           }
@@ -198,18 +209,32 @@ export function extractFilesFromToolCalls(messages: ModelMessage[]): ExtractedFi
           const contentObj = content as { toolCallId?: string; input?: unknown };
           const toolCallId = contentObj.toolCallId;
           const input = contentObj.input as {
+            name?: string;
+            content?: string;
+            // Legacy support for old array structure
             files?: Array<{ yml_content?: string; content?: string }>;
           };
-          if (toolCallId && input && input.files && Array.isArray(input.files)) {
-            for (const file of input.files) {
-              // Check for both yml_content and content fields
-              const reportContent = file.yml_content || file.content;
-              if (reportContent) {
-                createReportContents.set(toolCallId, reportContent);
-                console.info('[done-tool-file-selection] Stored report content for toolCallId', {
-                  toolCallId,
-                  contentLength: reportContent.length,
-                });
+
+          if (toolCallId && input) {
+            if (input.content) {
+              // New structure: single report
+              createReportContents.set(toolCallId, input.content);
+              console.info('[done-tool-file-selection] Stored report content for toolCallId', {
+                toolCallId,
+                contentLength: input.content.length,
+              });
+            } else if (input.files && Array.isArray(input.files)) {
+              // Legacy structure: array of files
+              for (const file of input.files) {
+                // Check for both yml_content and content fields
+                const reportContent = file.yml_content || file.content;
+                if (reportContent) {
+                  createReportContents.set(toolCallId, reportContent);
+                  console.info('[done-tool-file-selection] Stored report content for toolCallId', {
+                    toolCallId,
+                    contentLength: reportContent.length,
+                  });
+                }
               }
             }
           }
@@ -493,8 +518,47 @@ function processCreateReportsOutput(
   const reportsOutput = output as CreateReportsOutput;
   let reportInfo: ReportInfo | undefined;
 
-  if ('files' in reportsOutput && reportsOutput.files && Array.isArray(reportsOutput.files)) {
-    console.info('[done-tool-file-selection] Processing create report files array', {
+  // Handle new single-file structure
+  if ('file' in reportsOutput && reportsOutput.file && typeof reportsOutput.file === 'object') {
+    const file = reportsOutput.file;
+    console.info('[done-tool-file-selection] Processing create report single file', {
+      toolCallId,
+      hasContent: toolCallId && createReportContents ? createReportContents.has(toolCallId) : false,
+    });
+
+    const fileName = file.name;
+    if (file.id && fileName) {
+      // Get the content from the create report input using toolCallId
+      const content =
+        toolCallId && createReportContents ? createReportContents.get(toolCallId) : undefined;
+
+      files.push({
+        id: file.id,
+        fileType: 'report_file',
+        fileName: fileName,
+        status: 'completed',
+        operation: 'created',
+        versionNumber: file.version_number || 1,
+        content: content, // Store the content from the input
+      });
+
+      // Track this as the last report if we have content
+      if (content) {
+        reportInfo = {
+          id: file.id,
+          content: content,
+          versionNumber: file.version_number || 1,
+          operation: 'created',
+        };
+      }
+    }
+  } else if (
+    'files' in reportsOutput &&
+    reportsOutput.files &&
+    Array.isArray(reportsOutput.files)
+  ) {
+    // Legacy support for array structure
+    console.info('[done-tool-file-selection] Processing create report files array (legacy)', {
       count: reportsOutput.files.length,
       toolCallId,
       hasContent: toolCallId && createReportContents ? createReportContents.has(toolCallId) : false,

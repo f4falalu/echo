@@ -750,6 +750,20 @@
       "when": 1758309016682,
       "tag": "0107_deprecate_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 108,
+      "version": "7",
+      "when": 1758568913678,
+      "tag": "0108_amazing_cassandra_nova",
+      "breakpoints": true
+    },
+    {
+      "idx": 109,
+      "version": "7",
+      "when": 1758572594466,
+      "tag": "0109_icy_supernaut",
+      "breakpoints": true
     }
   ]
 }

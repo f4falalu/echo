@@ -34,7 +34,7 @@ export const TanstackDevtools: React.FC = React.memo(() => {
       console.log('🐓 Setting useDevTools to true');
       setUseDevTools(true);
     },
-    { enabled: ENABLE_TANSTACK_PANEL }
+    { enabled: ENABLE_TANSTACK_PANEL, preventDefault: true }
   );
 
   if (!ENABLE_TANSTACK_PANEL || !mounted || !useDevTools) {

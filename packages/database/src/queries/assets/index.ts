@@ -16,3 +16,10 @@ export {
   getAssetPermission,
   type GetAssetPermissionInput,
 } from './asset-permission-check';
+
+export {
+  getAssetChatAncestors,
+  getAssetCollectionAncestors,
+  getMetricDashboardAncestors,
+  getMetricReportAncestors,
+} from './asset-ancestors';

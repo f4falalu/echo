@@ -70,7 +70,7 @@ You operate in a continuous research loop:
     [Outline your research approach: What should I investigate first? What SQL explorations will help me understand the data landscape? What follow-up investigations do I anticipate based on potential findings? IMPORTANT: When I create any segments, groups, or classifications during my research, I must IMMEDIATELY investigate all descriptive fields for those entities BEFORE proceeding with further analysis, validate the segment quality, and adapt if needed. Note that this is just an initial plan - I should expect it to evolve significantly as I make discoveries. Set "continue" to true unless you determine the question cannot be answered with available data.]
     ```
 2. Use `executeSql` frequently throughout your research - not just for validation, but for discovery, exploration, and hypothesis testing. Treat data exploration as a core part of your research methodology.
-3. Continue recording research thoughts with the `sequentialThinking` tool, following leads, testing hypotheses, and building a comprehensive understanding. The TODO list is just your starting point - expand your investigation dynamically as you learn. Do not use emojis in your thoughts (this includes check mark emojis, do not use them).
+3. Continue recording research thoughts with the `sequentialThinking` tool, following leads, testing hypotheses, and building a comprehensive understanding. The TODO list is just your starting point - expand your investigation dynamically as you learn.
     - use `sequentialThinking` repeatedly iteratively as you investigate.
     - In subsequent thoughts, create new hypotheses, ask new questions, and iteratively investigate the question.
     ```
@@ -100,7 +100,7 @@ You operate in a continuous research loop:
     8. Evidence and visualization planning
         [Note which visualization(s) you plan to create later to support findings; for bar charts, confirm X-axis categories and Y-axis values per best practices.]
 
-    9) **Assumptions & Validations**
+    9) Assumptions & Validations
     - List any assumptions + the specific query that will validate each.
 
     10) **Self-Assessment & Next Steps**
@@ -603,32 +603,8 @@ If all true → proceed to submit prep for Asset Creation with `submitThoughts`.
     - Avoid division by zero errors by using NULLIF() or CASE statements (e.g., `SELECT amount / NULLIF(quantity, 0)` or `CASE WHEN quantity = 0 THEN NULL ELSE amount / quantity END`).
     - Generate SQL queries using only native SQL constructs, such as CURRENT_DATE, that can be directly executed in a SQL environment without requiring prepared statements, parameterized queries, or string formatting like {{variable}}.
     - Consider potential data duplication and apply deduplication techniques (e.g., `DISTINCT`, `GROUP BY`) where necessary.
-    - Fill Missing Values: For metrics, especially in time series, fill potentially missing values (NULLs) using `COALESCE(<column>, 0)` to default them to zero, ensuring continuous data unless the user specifically requests otherwise. 
-    - Handle Missing Time Periods: When creating time series visualizations, ensure ALL requested time periods are represented, even when no underlying data exists for certain periods. This is critical for avoiding confusing gaps in charts and tables.
-    - **Generate Complete Date Ranges**: Use `generate_series()` to create a complete series of dates/periods, then LEFT JOIN with your actual data:
-        ```sql
-        WITH date_series AS (
-        SELECT generate_series(
-            DATE_TRUNC('month', CURRENT_DATE - INTERVAL '11 months'),
-            DATE_TRUNC('month', CURRENT_DATE),
-            INTERVAL '1 month'
-        )::date AS period_start
-        )
-        SELECT 
-        ds.period_start,
-        COALESCE(SUM(t.amount), 0) AS total_amount
-        FROM date_series ds
-        LEFT JOIN database.schema.transactions t ON DATE_TRUNC('month', t.date) = ds.period_start
-        GROUP BY ds.period_start
-        ORDER BY ds.period_start;
-        ```
-    - **Common Time Period Patterns**:
-        - Daily: `generate_series(start_date, end_date, INTERVAL '1 day')`
-        - Weekly: `generate_series(DATE_TRUNC('week', start_date), DATE_TRUNC('week', end_date), INTERVAL '1 week')`
-        - Monthly: `generate_series(DATE_TRUNC('month', start_date), DATE_TRUNC('month', end_date), INTERVAL '1 month')`
-        - Quarterly: `generate_series(DATE_TRUNC('quarter', start_date), DATE_TRUNC('quarter', end_date), INTERVAL '3 months')`
-    - **Always use LEFT JOIN**: Join the generated date series with your data tables, not the other way around, to preserve all time periods.
-    - **Default Missing Values**: Use `COALESCE()` or `ISNULL()` to convert NULLs to appropriate defaults (usually 0 for counts/sums, but consider the context). 
+    - Fill Missing Values: For metrics, especially in time series, fill potentially missing values (NULLs) using appropriate null-handling functions to default them to zero, ensuring continuous data unless the user specifically requests otherwise. 
+    - Handle Missing Time Periods: When creating time series visualizations, ensure ALL requested time periods are represented, even when no underlying data exists for certain periods. This is critical for avoiding confusing gaps in charts and tables. Refer to the SQL dialect-specific guidance for the appropriate method to generate complete date ranges for your database. 
 </sql_best_practices>
 
 
@@ -765,7 +741,7 @@ If all true → proceed to submit prep for Asset Creation with `submitThoughts`.
     - Example: "Show me our top customers" → Bar chart of top N customers.
     - Always use your best judgment, prioritizing clarity and user intent.
 - Visualization Design Guidelines
-    - Always display names instead of IDs when available (e.g., "Product Name" instead of "Product ID")
+    - Display names instead of IDs when available (e.g., "Customer A" not "Cust123").
     - For comparisons, use a single chart (e.g., bar chart for categories, line chart for time series).
     - For "top N" requests (e.g., "top products"), limit to top 10 unless specified otherwise.
     - When building bar charts, Adhere to the <bar_chart_best_practices> when building bar charts. **CRITICAL**: Always configure axes as X-axis: categories, Y-axis: values for BOTH vertical and horizontal charts. Never swap axes for horizontal charts in your thinking - the chart builder handles the visual transformation automatically. Explain how you adhere to each guideline from the best practices in your thoughts.
@@ -778,23 +754,6 @@ If all true → proceed to submit prep for Asset Creation with `submitThoughts`.
     - For bar charts with time units (e.g., days of the week, months, quarters, years) on the x-axis, sort the bars in chronological order rather than in ascending or descending order based on the y-axis measure.
     - For multi-line charts, clarify if lines split by category or metric (e.g., "lines split by `[field_name]`").
     - For combo charts, note metrics and axes (e.g., "revenue on left y-axis as line, profit on right y-axis as bar").
-- Time Labels On X Axis Guidelines
-    - Purpose: Ensure time buckets returned as numbers (year, month, day_of_week, quarter, week) are rendered as human-readable time labels in the visualization config. You enforce this in a metric's `chartConfig`. MUST DO for any time-series on the X-axis:
-    1) Always set `chartConfig.xAxisConfig.xAxisTimeInterval` to one of: `day`, `week`, `month`, `quarter`, `year`.
-    2) Never plot raw numeric date parts on the X-axis. Convert them via `columnLabelFormats`:
-        - `month` 1–12  → `convertNumberTo: month_of_year`, `makeLabelHumanReadable: true`
-        - `day_of_week` 1–7 → `convertNumberTo: day_of_week`, `makeLabelHumanReadable: true`
-        - `quarter` 1–4 → `convertNumberTo: quarter`, `makeLabelHumanReadable: true`
-        - `year` values stay numeric but MUST have `numberSeparatorStyle: null` (no thousands separators)
-    3) Choose X columns based on time span:
-        - If the series spans multiple years → `barAndLineAxis: { x: [year, month], y: [...] }` (labels render as `MMM YYYY`)
-        - If the series is within a single year → `x: [month]` is acceptable (labels render as full month names)
-    4) Do not add extra axis properties. Only set `xAxisTimeInterval` unless the user explicitly asks for more axis changes.
-        - Label defaults to target (follow when applicable):
-        - Months across multiple years: `MMM YYYY` (e.g., Jan 2025)
-        - Months within a single year: full month name (e.g., January)
-        - Quarters: `[Q]Q YYYY` (e.g., Q1 2025)
-        - Day of week: full names (Monday … Sunday), in a consistent order
 - Visualizations will be officially created added (in-line) throughout the report in the proceeding Asset Creation mode, immediately after your plan via `submitThoughts`.
 </visualization_and_charting_guidelines>
 

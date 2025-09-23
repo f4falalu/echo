@@ -1,9 +1,12 @@
 import type { DataResult } from '@buster/server-shared/metrics';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type { BusterMetric } from '@/api/asset_interfaces';
 import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
 import type { AppSplitterRef, LayoutSize } from '@/components/ui/layouts/AppSplitter';
-import { AppVerticalCodeSplitter } from '@/components/ui/layouts/AppVerticalCodeSplitter';
+import {
+  AppVerticalCodeSplitter,
+  type AppVerticalCodeSplitterProps,
+} from '@/components/ui/layouts/AppVerticalCodeSplitter';
 import { useChatIsVersionHistoryMode } from '@/context/Chats/useIsVersionHistoryMode';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useMetricResultsLayout } from './useMetricResultsLayout';
@@ -52,7 +55,7 @@ export const MetricViewSQLController: React.FC<{
   const [sql, setSQL] = useState(metric?.sql || '');
 
   const isSQLChanged = sql !== metric?.sql;
-  const disableSave = !sql || isRunningSQL || isSQLChanged;
+  const disableSave = !sql || isRunningSQL || !isSQLChanged;
   const dataSourceId = metric?.data_source_id || '';
   const data: DataResult | null = metricData?.dataFromRerun || metricData?.data || null;
 
@@ -103,6 +106,25 @@ export const MetricViewSQLController: React.FC<{
     }
   }, [metric?.sql]);
 
+  const saveButton: AppVerticalCodeSplitterProps['saveButton'] = useMemo(() => {
+    return {
+      label: 'Save',
+      onClick: onSaveSQL,
+      loading: isSavingMetric,
+      disabled: disableSave,
+      tooltip: disableSave ? 'SQL is not changed' : 'Save SQL',
+    };
+  }, [onSaveSQL, isSavingMetric, disableSave]);
+
+  const runButton: AppVerticalCodeSplitterProps['runButton'] = useMemo(() => {
+    return {
+      label: 'Run',
+      onClick: onRunQuery,
+      loading: isRunningSQL,
+      disabled: false,
+    };
+  }, [onRunQuery, isRunningSQL]);
+
   useViewSQLBlocker({ sql, originalSql: metric?.sql, enabled: isFetchedMetric, onResetToOriginal });
 
   return (
@@ -113,15 +135,14 @@ export const MetricViewSQLController: React.FC<{
         sql={sql}
         setSQL={setSQL}
         runSQLError={runSQLError || saveMetricError}
-        onRunQuery={onRunQuery}
-        onSaveSQL={onSaveSQL}
         data={data || []}
         readOnly={isVersionHistoryMode}
-        disabledSave={disableSave}
         fetchingData={isRunningSQL || isSavingMetric || !isFetchedInitialData}
         defaultLayout={defaultLayout}
         topHidden={false}
         initialLayout={initialLayout}
+        saveButton={saveButton}
+        runButton={runButton}
       />
     </div>
   );

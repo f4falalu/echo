@@ -37,8 +37,6 @@ export const DatasetHeader: React.FC<{
     setOpenNewDatasetModal(true);
   };
 
-  useHotkeys('d', onOpenNewDatasetModal);
-
   return (
     <>
       <div className="flex space-x-3">

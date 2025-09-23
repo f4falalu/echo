@@ -20,7 +20,6 @@ export const useAutoRedirectStreaming = ({
 }) => {
   const navigate = useNavigate();
   const getChatMessageMemoized = useGetChatMessageMemoized();
-  const location = useLocation();
   const isStreamFinished = useGetChatMessageCompleted({ messageId: lastMessageId });
   const lastReasoningMessageId = useGetChatMessageLastReasoningMessageId({
     messageId: lastMessageId,
@@ -40,7 +39,7 @@ export const useAutoRedirectStreaming = ({
 
   //streaming logic to redirect
   useEffect(() => {
-    if (!hasLoadedChat || !chatId || isStreamFinished) {
+    if (!hasLoadedChat || !chatId) {
       return;
     }
 

@@ -296,10 +296,7 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
             state.version_number = newVersion;
 
             // Track this modification for this tool invocation
-            if (!state.reportsModifiedInMessage) {
-              state.reportsModifiedInMessage = new Set();
-            }
-            state.reportsModifiedInMessage.add(state.reportId);
+            state.reportModifiedInMessage = true;
 
             // Update version history with the final content after all edits
             const now = new Date().toISOString();
@@ -312,14 +309,39 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
               },
             };
 
-            // Update the database with the result of all edits
+            // Update the database with the result of all edits (concurrent, not chained)
             try {
-              await batchUpdateReport({
+              // Initialize pending writes array if needed
+              if (!state.pendingDbWrites) {
+                state.pendingDbWrites = [];
+              }
+
+              // We're already inside a check for state.reportId being defined
+              if (!state.reportId) {
+                throw new Error('Report ID is unexpectedly undefined');
+              }
+
+              // Create the write promise and add to pending writes
+              const writePromise = batchUpdateReport({
                 reportId: state.reportId,
                 content: currentContent,
                 name: state.reportName || undefined,
                 versionHistory,
-              });
+              })
+                .then(() => {
+                  // Convert to void to match the array type
+                  return;
+                })
+                .catch((error) => {
+                  console.error('[modify-reports-delta] Database write failed:', error);
+                  throw error;
+                });
+
+              // Add to pending writes array
+              state.pendingDbWrites.push(writePromise);
+
+              // Await this specific write to handle errors
+              await writePromise;
 
               // No cache update during delta - execute will handle write-through
 
