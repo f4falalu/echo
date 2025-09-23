@@ -1,0 +1,33 @@
+fileType: momentic/module
+schemaVersion: 1.0.21
+moduleId: 782571e2-3c8e-49fe-a59e-0685924c5a43
+name: chat-finished-with-report
+description: Chat should have finished and there should be a report on the right
+  side of the screen
+enabled: true
+steps:
+  - id: 810b467f-1a1d-46a1-bda3-dc975999dea1
+    type: PRESET_ACTION
+    command:
+      id: 4b86bb37-ca4a-482a-b0d2-25e04fa232c9
+      type: WAIT_FOR_URL
+      matcher:
+        type: SUBSTRING
+        url: /reports
+      timeout: 600
+  - id: 94000b39-52e1-4cf5-93f0-1b0316458caf
+    type: PRESET_ACTION
+    command:
+      id: 2e0619bb-23aa-4302-8b9f-5417e7763801
+      type: AI_ASSERTION
+      assertion: Verify we have a report on the right side of the screen with a title
+        text and metric or metrics. These metrics can be graphs, charts, or
+        values.
+  - id: 10746bb0-a990-4604-938c-faf9c20db332
+    type: PRESET_ACTION
+    command:
+      id: 0d076d39-f21c-4001-b3e7-77f1b5ebe548
+      type: AI_ASSERTION
+      assertion: On the left side, we should see a "reasoned for x minutes|seconds"
+        and then we should see normal formatted text under that with a pill
+        containing the title of the report that we are evaluating.

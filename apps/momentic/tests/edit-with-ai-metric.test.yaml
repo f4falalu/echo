@@ -1,0 +1,93 @@
+fileType: momentic/test
+id: 138abd87-2ef5-466c-b826-70529a1073ae
+name: edit-with-ai-metric
+description: "Click into an already created metric and edit it with an ai chat. "
+schemaVersion: 1.0.21
+advanced:
+  viewport:
+    width: 1920
+    height: 1080
+  browserType: Chromium
+retries: 0
+envs:
+  - name: development
+    default: true
+steps:
+  - id: 973ab47b-4cb7-4534-9732-70d9bbfe59f7
+    type: MODULE
+    moduleId: defc36e9-b0a7-4bfe-940f-7901493d5e5e
+  - id: 1908cbc6-9ae9-4634-9c46-21c35c3d34d8
+    type: PRESET_ACTION
+    command:
+      id: 7da8c0e6-dc4a-4862-8860-5712963d5741
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: Metrics in the side navigation panel
+  - id: e4be37e2-e046-43a0-aa3b-e5e30311de97
+    type: PRESET_ACTION
+    command:
+      id: 09107b57-ca3f-493f-b0b7-bdad37960a7e
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: Click on the bottom metric title
+  - id: 639155eb-2be8-4657-a2e1-99edd50d38df
+    type: PRESET_ACTION
+    command:
+      id: c155678c-4a63-4e29-a2dd-83dec90c36c7
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: Edit with Ai button above the metric on the right side of the screen
+  - id: 51497111-5bc8-46d0-9fe3-a68ac6a1eb6f
+    type: PRESET_ACTION
+    command:
+      id: 3264815f-62e7-423c-9edf-a258679b2185
+      type: WAIT_FOR_URL
+      matcher:
+        type: SUBSTRING
+        url: /metrics
+      timeout: 2
+  - id: 855ab648-dbad-4689-bfe3-0950938a3b2b
+    type: PRESET_ACTION
+    command:
+      id: 66de14be-3e56-404c-9dba-42d8b9f9bfa5
+      type: AI_ASSERTION
+      assertion: There should be a metric on the right side of the screen. This should
+        have a title and could be a chat, graph, or value.
+  - id: 558b8ced-9381-4705-af26-a2e0f86902f4
+    type: PRESET_ACTION
+    command:
+      id: f3aa227c-969f-4e78-ac8e-65a7d4cb1613
+      type: AI_ASSERTION
+      assertion: There should be message history on the left side of the screen with a
+        text input box at the bottom to continue a conversation.
+  - id: 4b6612a8-cef9-464a-99d1-6eb93a15f318
+    type: PRESET_ACTION
+    command:
+      id: e5e0f7c9-600e-4f60-b59b-ed87afe96ad3
+      clearContent: true
+      type: TYPE
+      target:
+        type: description
+        elementDescriptor: The text box on the left side of the screen with Ask Buster a
+          question...
+      value: Can you update the existing metric to be a pie chart. Don't create a
+        report only update the existing metric. No matter what the data is you
+        should convert it to something that can be seen through a pie chart.
+  - id: 0358d205-ecbe-42a4-8d3b-53ce71c53bea
+    type: PRESET_ACTION
+    command:
+      id: 6f059746-b5d8-493b-ae95-4f0501b6b84f
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: Click the submit question in the text box of the left side of
+          the screen.
+  - id: 4ef2efe9-8056-49a1-9481-9d22606e0192
+    type: MODULE
+    moduleId: 805447d3-e699-46f6-b1d2-0132840b3f20
+  - id: 9a66ca43-1333-4ee2-8cb7-b34a3d059897
+    type: MODULE
+    moduleId: 666c6102-d4fa-4c6e-998c-4b283337ad92
