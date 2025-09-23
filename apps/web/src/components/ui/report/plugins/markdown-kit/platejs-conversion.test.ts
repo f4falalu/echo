@@ -1876,4 +1876,173 @@ More streamed content.`;
     expect(platejs[2].metricId).toBe('be286e99-77f9-4b6e-959c-c2691d2d549e');
     expect(platejs[3].type).toBe('p');
   });
+
+  it('should handle problematic content 2', async () => {
+    const markdown = `Adventure Works has uncovered a fascinating customer segmentation story. While 99.84% of customers fall into the \\<500k CLV segment, a tiny elite group of just 31 customers (0.16%) has achieved >500k CLV status. These elite customers demonstrate dramatically different behaviors and contribute disproportionate value, representing 18.8% of total customer lifetime value despite being less than 0.2% of the customer base.\\n\\n## Segment Overview\\n\\nThe customer base reveals a classic Pareto distribution with extreme concentration at the top:\\n\\n<metric metricId="986dc337-0077-4977-acc8-ed14c42029f6" versionNumber="" width="100%" caption=""></metric>\\n\\n<metric metricId="bac53ff2-a4a8-400d-8ca2-b53cfab9af9e" versionNumber="" width="100%" caption=""></metric>\\n\\nThe financial impact is striking - elite customers average **$666,590** in lifetime value compared to just **$4,672** for mass market customers, representing a **143x difference** in average value per customer.\\n\\n<metric metricId="d6da409f-bd68-424a-8996-9fef7dd06ff9" versionNumber="" width="100%" caption=""></metric>\\n\\n## Elite Customers Are Cycling Enthusiasts with Advanced Technical Skills\\n\\nThe behavioral differences between segments are remarkable. Elite customers represent a completely different customer archetype:\\n\\n<metric metricId="5e80d80f-07b7-4015-9c37-68c8249bdc5a" versionNumber="" width="100%" caption=""></metric>\\n\\n**Elite customers cycle daily** - 96.8% of >500k CLV customers cycle daily compared to just 1% of <500k CLV customers. Meanwhile, 61% of mass market customers are occasional cyclists.\\n\\n<metric metricId="40882084-2b8f-4295-bb35-c96c94c9d200" versionNumber="" width="100%" caption=""></metric>\\n\\n**All elite customers have advanced technical knowledge** - 100% of >500k CLV customers are classified as having advanced technical knowledge, compared to only 2.2% of <500k CLV customers. The mass market is predominantly intermediate (56.2%) and basic (41.6%) technical users.\\n`;
+    expect(markdown).toContain('Segment Overview');
+    const platejs = await markdownToPlatejs(editor, markdown);
+    expect(platejs).toBeDefined();
+
+    // Check that "Segment Overview" is found in the parsed content
+    const segementOverviewIsFound = platejs.some((el) =>
+      el.children.some((child) => (child?.text as string)?.includes('Segment Overview'))
+    );
+    expect(segementOverviewIsFound).toBe(true);
+    expect(platejs[1].type).toBe('h2');
+    expect(platejs[3].type).toBe('metric');
+  });
+
+  it('should handle problematic content 3', async () => {
+    const markdown = `This analysis compares customer behavior between two distinct CLV segments: customers with less than $500k lifetime value versus those with $500k or more. The data reveals significant differences in customer distribution and ordering patterns between these segments.\n\n<metric metricId="091cf0af-0128-4b45-adb4-f9d0ceccb1a7" versionNumber="" width="100%" caption=""></metric>\n\n## Key Findings\n\n**Customer Distribution**\n\n* **\\<500k CLV segment**: 19,088 customers (99.8% of total customer base)\n* **>500k CLV segment**: 31 customers (0.2% of total customer base)\n\n**Order Volume Analysis**\n\n* **\\<500k CLV customers** generated **31,153 total orders**\n* **>500k CLV customers** generated **312 total orders**\n\nDespite representing less than 0.2% of the customer base, the >500k CLV segment accounts for approximately 1% of total order volume, indicating these high-value customers place significantly larger orders on average.\n\n## Strategic Implications\n\n**High-Value Customer Concentration**The extreme concentration of high CLV customers (only 31 customers above $500k) suggests these are likely enterprise or wholesale accounts that require specialized attention and account management strategies.\n\n**Order Frequency vs Order Value**While \\<500k CLV customers drive the majority of order volume (31,153 orders), the >500k CLV segment achieves their high lifetime value through significantly larger average order values rather than order frequency. This indicates two distinct customer behavior patterns:\n\n* **\\<500k CLV**: Higher frequency, lower value transactions\n* **>500k CLV**: Lower frequency, extremely high value transactions\n\n**Customer Retention Focus**With such a small number of ultra-high-value customers, retention strategies for the >500k CLV segment should be highly personalized and proactive to prevent any churn in this critical revenue segment.\n\n## Methodology\n\nThis analysis segments customers based on their all-time customer lifetime value (CLV) using a $500,000 threshold. CLV is calculated as the sum of all \`sales_order_detail.lineTotal\` values across a customer's entire order history, which includes line-level discounts but excludes taxes and freight.\n\n**Data Sources:**\n\n* Customer CLV data from \`customer_all_time_clv.metric_clv_all_time\`\n* Order counts from \`customer_lifetime_orders.metric_lifetime_orders\`\n* Analysis covers all 19,119 customers with purchase history\n\n**Segmentation Logic:**\n\n* **\\<500k CLV**: Customers with \`metric_clv_all_time \\< 500000\`\n* **>500k CLV**: Customers with \`metric_clv_all_time >= 500000\`\n\nThe number of orders metric represents the total count of distinct sales orders placed by all customers within each CLV segment, providing insight into order volume patterns across customer value tiers.\n`;
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+    expect(platejs).toBeDefined();
+    expect(platejs.length).toBeGreaterThan(20);
+    expect(platejs[1].type).toBe('metric');
+    expect(platejs[1].metricId).toBe('091cf0af-0128-4b45-adb4-f9d0ceccb1a7');
+    expect(platejs[2].type).toBe('h2');
+    expect(platejs[2].children[0].text).toBe('Key Findings');
+    expect(platejs[3].type).toBe('p');
+    expect(platejs[3].children).toEqual([{ bold: true, text: 'Customer Distribution' }]);
+    expect(platejs[4].type).toBe('p');
+    expect(platejs[5].type).toBe('p');
+    expect(platejs[6].type).toBe('p');
+    expect(platejs[7].type).toBe('p');
+    expect(platejs[8].type).toBe('p');
+    expect(platejs[9].type).toBe('p');
+    expect(platejs[10].type).toBe('h2');
+    expect(platejs[10].children[0].text).toBe('Strategic Implications');
+  });
+});
+
+describe('edge case tests for markdown parsing', () => {
+  it('should handle curly braces in text', async () => {
+    const markdown =
+      'Revenue increased by {50%} this quarter.\\n\\n## Analysis\\n\\nThe {unexpected} growth was due to new features.';
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+
+    expect(platejs.length).toBeGreaterThan(1);
+    expect(platejs[0].children[0].text).toContain('{50%}');
+    expect(platejs[2].children[0].text).toContain('{unexpected}');
+  });
+
+  it('should handle greater-than symbols in text', async () => {
+    const markdown =
+      'Performance improved by >50% compared to last year.\\n\\nValues >100 are considered excellent.';
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+
+    expect(platejs.length).toBe(2);
+    expect(platejs[0].children[0].text).toContain('>50%');
+    expect(platejs[1].children[0].text).toContain('>100');
+  });
+
+  it('should handle ampersands', async () => {
+    const markdown =
+      'Sales & Marketing team achieved goals.\\n\\nR&D department needs more funding.';
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+
+    expect(platejs.length).toBe(2);
+    expect(platejs[0].children[0].text).toContain('Sales & Marketing');
+    expect(platejs[1].children[0].text).toContain('R&D');
+  });
+
+  it('should handle tab characters', async () => {
+    const markdown = 'Column1\\tColumn2\\tColumn3\\n\\nData1\\tData2\\tData3';
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+
+    expect(platejs).toBeDefined();
+    // Tabs should be preserved or converted to spaces
+  });
+
+  it('should handle escaped backslashes', async () => {
+    const markdown = 'File path: C:\\\\Users\\\\Documents\\\\file.txt';
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+
+    expect(platejs[0].children[0].text).toContain('C:\\Users\\Documents\\file.txt');
+  });
+
+  it('should handle dollar signs', async () => {
+    const markdown = 'The cost is $500 per unit.\\n\\nProfit margin: $1000 - $700 = $300';
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+
+    expect(platejs[0].children[0].text).toContain('$500');
+    expect(platejs[1].children[0].text).toContain('$1000 - $700 = $300');
+  });
+
+  it('should handle HTML entities', async () => {
+    const markdown =
+      'Use &lt;div&gt; for layout.\\n\\nAdd &nbsp; for spacing.\\n\\n&quot;Quote&quot; and &apos;apostrophe&apos;';
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+
+    expect(platejs).toBeDefined();
+    // Check if HTML entities are properly handled
+  });
+
+  it('should handle brackets in text', async () => {
+    const markdown = 'Array[0] contains the first element.\\n\\n[NOTE] This is important.';
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+
+    expect(platejs[0].children[0].text).toContain('Array[0]');
+    expect(platejs[1].children[0].text).toContain('[NOTE]');
+  });
+
+  it('should handle mixed special characters', async () => {
+    const markdown = 'Revenue >$500k & <$1M with {25%} growth in Q[4].';
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+
+    expect(platejs[0].children[0].text).toContain('>$500k');
+    expect(platejs[0].children[0].text).toContain('<$1M');
+    expect(platejs[0].children[0].text).toContain('{25%}');
+    expect(platejs[0].children[0].text).toContain('Q[4]');
+  });
+
+  it('should handle complex financial notation', async () => {
+    const markdown = 'Value ranges: <$100K, $100K-500K, >$500K with ROI {15%} increase.';
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+
+    const text = platejs[0].children.map((child) => child.text).join('');
+    expect(text).toContain('<$100K');
+    expect(text).toContain('>$500K');
+    expect(text).toContain('{15%}');
+  });
+
+  it('should handle mathematical comparisons', async () => {
+    const markdown = 'Performance: x < 100 is poor, x > 500 is excellent, {avg} = 250.';
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+
+    const text = platejs[0].children.map((child) => child.text).join('');
+    expect(text).toContain('x < 100');
+    expect(text).toContain('x > 500');
+    expect(text).toContain('{avg}');
+  });
+
+  it('should handle URLs with special characters', async () => {
+    const markdown = 'Visit https://example.com?param=<value>&other={data} for details.';
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+
+    const text = platejs[0].children.map((child) => child.text).join('');
+    expect(text).toContain('param=<value>');
+    expect(text).toContain('other={data}');
+  });
+
+  it('should handle code-like syntax', async () => {
+    const markdown = 'Use array[index] and object.{property} patterns in code.';
+
+    const platejs = await markdownToPlatejs(editor, markdown);
+
+    expect(platejs[0].children[0].text).toContain('array[index]');
+    expect(platejs[0].children[0].text).toContain('object.{property}');
+  });
 });
