@@ -13,6 +13,7 @@ import { formatLabelForDataset } from '../../../commonHelpers';
 import type { ChartProps } from '../../core';
 import { formatBarAndLineDataLabel } from '../../helpers';
 import { defaultLabelOptionConfig } from '../useChartSpecificOptions/labelOptionConfig';
+import { barSeriesBuilder_labels } from './barSeriesBuilder';
 import { createTrendlineOnSeries } from './createTrendlines';
 import type { SeriesBuilderProps } from './interfaces';
 import type { LabelBuilderProps } from './useSeriesOptions';
@@ -219,7 +220,6 @@ export const lineSeriesBuilder_labels = ({
     datasetOptions.ticks[0]?.length === 1 &&
     xColumnLabelFormat.columnType === 'date' &&
     xColumnLabelFormat.style === 'date';
-  const ticksKey = datasetOptions.ticksKey;
 
   if (useDateLabels) {
     return datasetOptions.ticks.flatMap((item) => {
@@ -229,13 +229,8 @@ export const lineSeriesBuilder_labels = ({
     });
   }
 
-  return datasetOptions.ticks.flatMap((item) => {
-    return item
-      .map<string>((item, index) => {
-        const key = ticksKey[index]?.key || '';
-        const columnLabelFormat = columnLabelFormats[key];
-        return formatLabel(item, columnLabelFormat);
-      })
-      .join(JOIN_CHARACTER);
+  return barSeriesBuilder_labels({
+    datasetOptions,
+    columnLabelFormats,
   });
 };

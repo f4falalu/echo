@@ -16,6 +16,25 @@
         ],
         "outputs": [".output/**", ".vercel/**"]
       },
+      "build:vercel": {
+        "dependsOn": ["^build:vercel", "@buster/server-shared#build"],
+        "inputs": [
+          "src/**/*",
+          "!src/**/*.test.{ts,tsx,js,jsx}",
+          "!src/**/*.spec.{ts,tsx,js,jsx}",
+          "public/**/*",
+          "next.config.mjs",
+          "tailwind.config.ts",
+          "tsconfig.json",
+          "package.json"
+        ],
+        "outputs": [".output/**", ".vercel/**"]
+      },
+      "start": {
+        "dependsOn": ["build"],
+        "cache": true,
+        "persistent": true
+      },
       "test": {
         "inputs": [
           "src/**/*",
@@ -28,6 +47,8 @@
       },
       "dev": {
         "dependsOn": ["@buster/server-shared#build"],
+        "cache": false,
+        "persistent": true,
         "inputs": [
           "src/**/*",
           "!src/**/*.test.{ts,tsx,js,jsx}",
@@ -40,6 +61,8 @@
       },
       "dev:fast": {
         "dependsOn": ["@buster/server-shared#build"],
+        "cache": false,
+        "persistent": true,
         "inputs": [
           "src/**/*",
           "!src/**/*.test.{ts,tsx,js,jsx}",

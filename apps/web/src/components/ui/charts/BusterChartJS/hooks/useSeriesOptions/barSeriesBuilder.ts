@@ -2,7 +2,7 @@ import { type ColumnLabelFormat, DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/ser
 import type { BarElement } from 'chart.js';
 import type { Context } from 'chartjs-plugin-datalabels';
 import type { Options } from 'chartjs-plugin-datalabels/types/options';
-import { JOIN_CHARACTER } from '@/lib/axisFormatter';
+import { JOIN_CHARACTER, JOIN_CHARACTER_DATE } from '@/lib/axisFormatter';
 import { formatLabel } from '@/lib/columnFormatter';
 import type { BusterChartProps } from '../../../BusterChart.types';
 import type { DatasetOption } from '../../../chartHooks';
@@ -351,8 +351,14 @@ const getFormattedValueAndSetBarDataLabels = (
 export const barSeriesBuilder_labels = ({
   datasetOptions,
   columnLabelFormats,
-}: LabelBuilderProps) => {
+}: Pick<LabelBuilderProps, 'datasetOptions' | 'columnLabelFormats'>) => {
   const ticksKey = datasetOptions.ticksKey;
+
+  const containsADateStyle = datasetOptions.ticksKey.some((tick) => {
+    const selectedColumnLabelFormat = columnLabelFormats[tick.key];
+    return selectedColumnLabelFormat?.style === 'date';
+  });
+  const selectedJoinCharacter = containsADateStyle ? JOIN_CHARACTER_DATE : JOIN_CHARACTER;
 
   const labels = datasetOptions.ticks.flatMap((item) => {
     return item
@@ -361,7 +367,7 @@ export const barSeriesBuilder_labels = ({
         const columnLabelFormat = columnLabelFormats[key];
         return formatLabel(item, columnLabelFormat);
       })
-      .join(JOIN_CHARACTER);
+      .join(selectedJoinCharacter);
   });
 
   return labels;
