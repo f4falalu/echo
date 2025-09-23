@@ -120,9 +120,10 @@ Only utilize the required/default fields unless the user specifically requests t
 #   - NEVER leave raw numbers on the axis.
 #
 # DATE PART RULES
-#   - year → columnType: number, style: number, numberSeparatorStyle: null
-#   - month/quarter/day_of_week → columnType: number, style: date, with convertNumberTo + makeLabelHumanReadable
-#   - full date/timestamp columns → columnType: date, style: date, with explicit dateFormat
+#   - year → columnType: number, style: number, numberSeparatorStyle: null (no thousands separators).
+#   - month/quarter/day_of_week → columnType: number, style: date, with convertNumberTo + makeLabelHumanReadable.
+#   - When X-axis = [month, year] across multiple years → month.dateFormat: 'MMM' (renderer composes 'MMM YYYY' with the year part).
+#   - Full date/timestamp columns → columnType: date, style: date, include explicit dateFormat appropriate to the interval.
 
 # -------------------------------------
 
