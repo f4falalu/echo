@@ -130,7 +130,7 @@ jobs:
           sudo chmod +x /usr/local/bin/supabase
 
       - name: Build required packages
-        run: pnpm turbo build --filter="!@buster-app/web"
+        run: pnpm turbo build
         env:
           NODE_ENV: production
           SKIP_ENV_CHECK: true
