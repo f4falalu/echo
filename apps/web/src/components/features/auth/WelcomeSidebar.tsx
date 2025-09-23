@@ -23,7 +23,7 @@ export const WelcomeToBuster: React.FC<{
           >
             Welcome to Buster.
           </h1>
-          <div className="text-lg">Stand up a PoC in 30 minutes.</div>
+          <div className="text-lg">Explore company data & build reports with AI.</div>
         </div>
       </div>
       <div>
