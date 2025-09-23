@@ -174,4 +174,128 @@ describe('validateAndAdjustBarLineAxes', () => {
       /Bar and line charts require at least one column for each axis/
     );
   });
+
+  it('should automatically set barGroupType to percentage-stack for percent-styled Y columns', () => {
+    const chartConfig = {
+      selectedChartType: 'bar',
+      barGroupType: 'stack',
+      columnLabelFormats: {
+        subcategory_name: {
+          columnType: 'text',
+          style: 'string',
+        },
+        percentage: {
+          columnType: 'number',
+          style: 'percent',
+        },
+      },
+      barAndLineAxis: {
+        x: ['subcategory_name'],
+        y: ['percentage'],
+      },
+    } as any;
+
+    const result = validateAndAdjustBarLineAxes(chartConfig);
+    expect(result.barGroupType).toBe('percentage-stack');
+  });
+
+  it('should not change barGroupType for non-bar charts with percent columns', () => {
+    const chartConfig = {
+      selectedChartType: 'line',
+      lineGroupType: 'stack',
+      columnLabelFormats: {
+        month: {
+          columnType: 'date',
+          style: 'string',
+        },
+        percentage: {
+          columnType: 'number',
+          style: 'percent',
+        },
+      },
+      barAndLineAxis: {
+        x: ['month'],
+        y: ['percentage'],
+      },
+    } as any;
+
+    const result = validateAndAdjustBarLineAxes(chartConfig);
+    expect(result.lineGroupType).toBe('stack'); // Should remain unchanged
+  });
+
+  it('should not change barGroupType if it is not already stack', () => {
+    const chartConfig = {
+      selectedChartType: 'bar',
+      barGroupType: 'group',
+      columnLabelFormats: {
+        category: {
+          columnType: 'text',
+          style: 'string',
+        },
+        percentage: {
+          columnType: 'number',
+          style: 'percent',
+        },
+      },
+      barAndLineAxis: {
+        x: ['category'],
+        y: ['percentage'],
+      },
+    } as any;
+
+    const result = validateAndAdjustBarLineAxes(chartConfig);
+    expect(result.barGroupType).toBe('group'); // Should remain unchanged
+  });
+
+  it('should not change barGroupType if no Y columns have percent style', () => {
+    const chartConfig = {
+      selectedChartType: 'bar',
+      barGroupType: 'stack',
+      columnLabelFormats: {
+        category: {
+          columnType: 'text',
+          style: 'string',
+        },
+        revenue: {
+          columnType: 'number',
+          style: 'currency',
+        },
+      },
+      barAndLineAxis: {
+        x: ['category'],
+        y: ['revenue'],
+      },
+    } as any;
+
+    const result = validateAndAdjustBarLineAxes(chartConfig);
+    expect(result.barGroupType).toBe('stack'); // Should remain unchanged
+  });
+
+  it('should set percentage-stack when multiple Y columns include at least one percent', () => {
+    const chartConfig = {
+      selectedChartType: 'bar',
+      barGroupType: 'stack',
+      columnLabelFormats: {
+        category: {
+          columnType: 'text',
+          style: 'string',
+        },
+        count: {
+          columnType: 'number',
+          style: 'number',
+        },
+        percentage: {
+          columnType: 'number',
+          style: 'percent',
+        },
+      },
+      barAndLineAxis: {
+        x: ['category'],
+        y: ['count', 'percentage'],
+      },
+    } as any;
+
+    const result = validateAndAdjustBarLineAxes(chartConfig);
+    expect(result.barGroupType).toBe('percentage-stack');
+  });
 });
