@@ -47,19 +47,37 @@ export const useYAxis = ({
   gridLines: BusterChartProps['gridLines'];
 }): DeepPartial<ScaleChartOptions<'bar'>['scales']['y']> | undefined => {
   const yAxisKeys = selectedAxis.y;
-  const hasY2Axis = (selectedAxis as ComboChartAxis)?.y2?.length > 0;
+  const y2AxisKeys = (selectedAxis as ComboChartAxis)?.y2 || [];
+  const hasY2Axis = y2AxisKeys.length > 0;
 
   const useMinValue = useMemo(() => {
     if (!hasY2Axis) return false;
     if (selectedChartType !== 'combo') return false;
     if (!columnMetadata) return false;
-    return columnMetadata?.some((column) => {
-      return (
-        yAxisKeys.includes(column.name) &&
-        (columnSettings[column.name]?.columnVisualization ||
-          DEFAULT_COLUMN_SETTINGS.columnVisualization) === 'bar'
-      );
+
+    const checkVales = [...yAxisKeys, ...y2AxisKeys];
+
+    const isAllBarValues = checkVales.every((key) => {
+      return columnMetadata?.some((column) => {
+        return (
+          column.name === key &&
+          (columnSettings[column.name]?.columnVisualization ||
+            DEFAULT_COLUMN_SETTINGS.columnVisualization) === 'bar'
+        );
+      });
     });
+
+    if (isAllBarValues) return true;
+
+    const hasNegativeValues = checkVales.some((key) => {
+      return columnMetadata?.some((column) => {
+        return column.name === key && Number(column.min_value ?? 0) < 0;
+      });
+    });
+
+    if (hasNegativeValues) return false;
+
+    return false;
   }, [hasY2Axis, yAxisKeys, selectedChartType]);
 
   const isSupportedType = useMemo(() => {
