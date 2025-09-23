@@ -8,6 +8,8 @@ export const ExportMetricDataInputSchema = z.object({
   metricId: z.string().uuid('Metric ID must be a valid UUID'),
   userId: z.string().uuid('User ID must be a valid UUID'),
   organizationId: z.string().uuid('Organization ID must be a valid UUID'),
+  reportFileId: z.string().uuid('Report file ID must be a valid UUID').optional(),
+  metricVersionNumber: z.number().optional(),
 });
 
 export type ExportMetricDataInput = z.infer<typeof ExportMetricDataInputSchema>;
