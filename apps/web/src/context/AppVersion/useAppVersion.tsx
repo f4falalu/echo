@@ -68,7 +68,7 @@ const AppVersionMessage = () => {
 };
 
 export const useIsVersionChanged = () => {
-  const { data } = useQuery({
+  const { data = false } = useQuery({
     ...versionGetAppVersion,
     select: useCallback((data: { buildId: string }) => checkNewVersion(data.buildId), []),
   });
