@@ -4,6 +4,10 @@
   "tasks": {
     "build": {
       "outputs": []
+    },
+    "start": {
+      "dependsOn": ["@buster/database#start"],
+      "outputs": []
     }
   }
 }
