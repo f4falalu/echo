@@ -1,5 +1,6 @@
 import { ClientOnly } from '@tanstack/react-router';
 import { lazy, Suspense } from 'react';
+import { LazyErrorBoundary } from '@/components/features/global/LazyErrorBoundary';
 import { PreparingYourRequestLoader } from './LoadingComponents/ChartLoadingComponents';
 
 const BusterChartLazy = lazy(() =>
@@ -7,9 +8,11 @@ const BusterChartLazy = lazy(() =>
 );
 
 export const BusterChartDynamic = (props: Parameters<typeof BusterChartLazy>[0]) => (
-  <Suspense fallback={<PreparingYourRequestLoader text="Loading chart..." />}>
-    <ClientOnly>
-      <BusterChartLazy {...props} />
-    </ClientOnly>
-  </Suspense>
+  <LazyErrorBoundary>
+    <Suspense fallback={<PreparingYourRequestLoader text="Loading chart..." />}>
+      <ClientOnly>
+        <BusterChartLazy {...props} />
+      </ClientOnly>
+    </Suspense>
+  </LazyErrorBoundary>
 );
