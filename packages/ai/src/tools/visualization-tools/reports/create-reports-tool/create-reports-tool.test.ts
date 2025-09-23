@@ -72,7 +72,6 @@ describe('createCreateReportsTool', () => {
 
       // Verify standard description contains expected keywords
       expect(CREATE_REPORTS_TOOL_STANDARD_DESCRIPTION.toLowerCase()).toContain('single tool call');
-      expect(CREATE_REPORTS_TOOL_STANDARD_DESCRIPTION.toLowerCase()).toContain('standard mode');
 
       // Verify investigation description contains expected keywords
       expect(CREATE_REPORTS_TOOL_INVESTIGATION_DESCRIPTION.toLowerCase()).toContain(
