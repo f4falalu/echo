@@ -31,7 +31,7 @@ Based on sales data from the last 6 months, **Linda Mitchell leads all sales rep
 ```markdown
 [Introduction/summary of key findings/key points, no header]
 
-## Key finding
+## [Key finding section, the title should be the key talking point of the section]
 [Content describing the key finding, followed by the section’s supporting visualization]
 
 ...as many key findings as needed to build the narrative...

@@ -1,0 +1,171 @@
+fileType: momentic/test
+id: 83199e36-c987-437f-8e97-cd84e0fa87bc
+name: update-and-save-metric-version
+description: Click into a metric and look around the edit options. Make sure no
+  errors are thrown. Save a change to a metric, refresh the page and make sure
+  that it loads.
+schemaVersion: 1.0.21
+advanced:
+  viewport:
+    width: 1920
+    height: 1080
+  browserType: Chromium
+retries: 0
+envs:
+  - name: development
+    default: true
+steps:
+  - id: 0e93bee3-d7b9-4e02-923c-a478d1b15b0b
+    type: MODULE
+    moduleId: defc36e9-b0a7-4bfe-940f-7901493d5e5e
+  - id: eb1d6165-555e-496c-a8a4-95480697d2cd
+    type: PRESET_ACTION
+    command:
+      id: 148d835f-b9cd-4f38-aaef-8ec6133e895e
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: Metrics on the left side navigation panel
+  - id: a427c4c3-9910-485a-a49f-572801cdca4c
+    type: PRESET_ACTION
+    command:
+      id: b48ef8ae-e668-40bc-b5d4-f1627651da38
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: Click the second metric title from the top of the list of metrics
+  - id: 18ccec13-eb82-4434-8486-66547a2872b2
+    type: PRESET_ACTION
+    command:
+      id: bbf3ad1e-4d2c-4501-a528-504fa216abe4
+      type: WAIT_FOR_URL
+      matcher:
+        type: SUBSTRING
+        url: /metrics
+      timeout: 2
+  - id: 4383c4b9-c590-480f-8812-03d369c5c679
+    type: PRESET_ACTION
+    command:
+      id: 9c1a8b69-3b02-454d-b83c-c57abd95302a
+      type: AI_ASSERTION
+      assertion: Confirm there is a title and a metric displayed. The metric can be a
+        chart, graph, table, or value.
+  - id: 5ccb73fa-40d6-4b5a-80da-195f9f47a6c0
+    type: PRESET_ACTION
+    command:
+      id: 40e714b7-40d2-4e39-8382-9775889c7ce8
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: Results tab above the Metric
+  - id: 88da2ed7-aaa2-442d-bd03-2fe910297402
+    type: PRESET_ACTION
+    command:
+      id: 6849fff3-8f0b-4c0a-bab3-d9f06caad107
+      type: AI_ASSERTION
+      assertion: There is at least one row and one column shown in the results
+  - id: d0494935-7b0a-4fbd-a7e9-046c3a2b2ca3
+    type: PRESET_ACTION
+    command:
+      id: 7870cedb-d930-42d5-8e03-ec8964958993
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: SQL tab
+  - id: 164ed48c-bf61-462c-97a7-209a09780b4c
+    type: PRESET_ACTION
+    command:
+      id: 7e6dea65-7380-456c-8637-614e8d7bcfc6
+      type: AI_ASSERTION
+      assertion: Confirm there is SQL code displayed in the center
+  - id: 5e574283-a2f4-46d2-b14a-def032b9889c
+    type: PRESET_ACTION
+    command:
+      id: df5914de-803b-4d0a-80ca-325dace3a7fc
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: three dots ... next to the share icon at the top
+  - id: 20244d30-4686-4555-84a6-f95e1a31ff0b
+    type: PRESET_ACTION
+    command:
+      id: 1fcc4272-22e1-4664-93c7-0c1b697ca4c8
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: Edit chart option from the dropdown
+  - id: f8f16248-5d84-4625-ac87-29dcb2d1bc3d
+    type: PRESET_ACTION
+    command:
+      id: 135e99db-95df-4abc-9c33-66dbb61dd471
+      type: AI_ASSERTION
+      assertion: "Editing panel is displayed from the right with tabs for Visualize,
+        Styling, and Colors. "
+  - id: bae7b04d-e6b4-4bc7-896c-e93538922edd
+    type: PRESET_ACTION
+    command:
+      id: cddb9248-02c0-43f0-902b-af542886ddab
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: Last scatter plot icon 3rd row down and 4th across in the
+          group of visualization icons.
+  - id: 2ae8fae5-6fa8-44d7-a4c6-db8fc2369138
+    type: PRESET_ACTION
+    command:
+      id: 383a4142-98e2-473e-9887-331a6248d62f
+      type: AI_ASSERTION
+      assertion: Confirm there is a pop up at the bottom with "Unsaved Changes Reset Save"
+  - id: cf787422-678e-454d-a3ce-cff9ef444195
+    type: PRESET_ACTION
+    command:
+      id: 7128c793-178a-482c-82f2-e1ae14802f49
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: reset next to Unsaved changes
+  - id: edf92c40-e10e-4a7c-b39c-729cee49f6bc
+    type: PRESET_ACTION
+    command:
+      id: 1a868eb0-7ee6-44db-8497-43b720dc8ef6
+      clearContent: true
+      type: TYPE
+      target:
+        type: description
+        elementDescriptor: The title above the metric
+      value: momentic-test-metric
+  - id: 15239cdc-448c-4e0f-91fb-08339c565966
+    type: PRESET_ACTION
+    command:
+      id: ccec315a-7369-4a8a-950a-3bbba76c89aa
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: The empty whitespace below the metric
+  - id: df94543c-3fb2-4862-ab45-fb68dfc09639
+    type: PRESET_ACTION
+    command:
+      id: 87161b69-c52f-44df-8310-8e5896b6ffb5
+      type: AI_ASSERTION
+      assertion: Confirm there is a pop up at the bottom with "Unsaved Changes Reset Save"
+  - id: e2a0f74d-058a-4450-b4e7-812ec1d1d0c2
+    type: PRESET_ACTION
+    command:
+      id: 4868bdef-3df2-4d39-a3a7-f7d6c68f70ee
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: Save next to Unsaved Changes
+  - id: cd696a80-d2b2-4f58-89d3-bbb0d95a198e
+    type: PRESET_ACTION
+    command:
+      id: 47e7bb3e-fe86-4414-8fbb-1983fd9edca6
+      loadTimeout: 2
+      type: REFRESH
+  - id: 5de3a198-c9b0-4ba3-a23f-7c150ba66bf8
+    type: PRESET_ACTION
+    command:
+      id: bb8ed7b3-5fad-4eca-8640-a33167547f71
+      type: AI_ASSERTION
+      assertion: Confirm there is a metric with "momentic-test-metric" in the title
+        above it
