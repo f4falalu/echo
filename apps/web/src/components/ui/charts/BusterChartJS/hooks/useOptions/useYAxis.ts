@@ -47,20 +47,49 @@ export const useYAxis = ({
   gridLines: BusterChartProps['gridLines'];
 }): DeepPartial<ScaleChartOptions<'bar'>['scales']['y']> | undefined => {
   const yAxisKeys = selectedAxis.y;
-  const hasY2Axis = (selectedAxis as ComboChartAxis)?.y2?.length > 0;
+  const y2AxisKeys = (selectedAxis as ComboChartAxis)?.y2 || [];
+  const hasY2Axis = y2AxisKeys.length > 0;
 
   const useMinValue = useMemo(() => {
     if (!hasY2Axis) return false;
     if (selectedChartType !== 'combo') return false;
     if (!columnMetadata) return false;
-    return columnMetadata?.some((column) => {
-      return (
-        yAxisKeys.includes(column.name) &&
-        (columnSettings[column.name]?.columnVisualization ||
-          DEFAULT_COLUMN_SETTINGS.columnVisualization) === 'bar'
-      );
-    });
-  }, [hasY2Axis, yAxisKeys, selectedChartType]);
+
+    const checkVales = [...yAxisKeys, ...y2AxisKeys];
+
+    // Create lookup map for O(1) column access
+    const columnMap = new Map(columnMetadata.map((col) => [col.name, col]));
+
+    let allBarValues = true;
+    let hasNegativeValues = false;
+
+    // Single pass to check both conditions
+    for (const key of checkVales) {
+      const column = columnMap.get(key);
+      if (!column) {
+        allBarValues = false;
+        continue;
+      }
+
+      // Check if this column is a bar
+      const visualization =
+        columnSettings[column.name]?.columnVisualization ||
+        DEFAULT_COLUMN_SETTINGS.columnVisualization;
+      if (visualization !== 'bar') {
+        allBarValues = false;
+      }
+
+      // Check if this column has negative values
+      if (Number(column.min_value ?? 0) < 0) {
+        hasNegativeValues = true;
+      }
+    }
+
+    if (allBarValues) return true;
+    if (hasNegativeValues) return false;
+
+    return false;
+  }, [hasY2Axis, yAxisKeys, y2AxisKeys, selectedChartType, columnMetadata, columnSettings]);
 
   const isSupportedType = useMemo(() => {
     return selectedChartType !== 'pie';

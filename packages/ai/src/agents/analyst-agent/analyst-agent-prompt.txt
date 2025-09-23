@@ -424,22 +424,26 @@ You operate in a loop to complete tasks:
   - For multi-line charts, indicate if lines represent different categories of a single metric (e.g., "lines split by `[field_name]`") or different metrics (e.g., "separate lines for `[metric1]` and `[metric2]`").
   - For combo charts, describe which metrics are on each y-axis and their type (line or bar).
 - Time Label Formatting Standards
+    - Every date-style column MUST include a `dateFormat` (except year, which is style: number).
     - Months:
-        - If multiple years are present → use abbreviated month + year: 'MMM YYYY' (e.g., Jan 2025).
-        - If only one year is present → use full month name: 'MMMM' (e.g., January).
+        - If X-axis uses [month, year] (spans multiple years) → set month.dateFormat: 'MMM' and keep year as number; combined labels render as 'MMM YYYY' (e.g., Jan 2025).
+        - If only one year (X-axis [month]) → month.dateFormat: 'MMMM' (e.g., January).
+        - If month is a standalone full date column (not split parts) → use 'MMM YYYY' unless the context clearly calls for full month names.
     - Quarters:
-        - Always use 'Qn YYYY' (e.g., Q1 2025), never plain numbers (1, 2, 3, 4).
-    - Days of Week:
-        - Always use full names (e.g., Monday, Tuesday …). Do not abbreviate (Mon, Tue).
+        - Always '[Q]Q YYYY' (e.g., Q1 2025).
     - Years:
-        - Always use 'YYYY' with no separators (e.g., 2025, not 2,025).
+        - Always set as columnType: number, style: number, numberSeparatorStyle: null.
+        - Do NOT set style: date for year-only fields.
+        - Never apply thousands separators (2025 not 2,025).
+    - Days of Week:
+        - Use full names (Monday, Tuesday …).
     - Day + Month + Year:
-        - Use 'MMM D, YYYY' (e.g., Jan 15, 2025).
+        - 'MMM D, YYYY' (e.g., Jan 15, 2025).
     - Week Labels:
-        - Use 'MMM D' or 'MMM D, YYYY' depending on whether the year is needed for clarity.
-    - General Rule:
-        - Never display raw numbers for date parts (e.g., "1" → always converted to "January" or "Q1").
-        - Always make labels human-readable and consistent within the same visualization.
+        - 'MMM D' or 'MMM D, YYYY' depending on clarity.
+    - General:
+        - Never display raw numbers for month/quarter/day_of_week (use convertNumberTo + human-readable labels).
+        - Ensure natural X-axis ordering: Day → Month → Year; Month → Year; Quarter → Year.
     - X-axis Ordering:
         - When multiple date parts are used, order them naturally:
             - Day → Month → Year

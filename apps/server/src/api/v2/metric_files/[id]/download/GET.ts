@@ -12,10 +12,15 @@ const app = new Hono()
     zValidator('query', MetricDownloadQueryParamsSchema),
     async (c) => {
       const { id } = c.req.valid('param');
-      //  const { report_file_id } = c.req.valid('query');
+      const { report_file_id, metric_version_number } = c.req.valid('query');
       const user = c.get('busterUser');
 
-      const response = await downloadMetricFileHandler(id, user);
+      const response = await downloadMetricFileHandler(
+        id,
+        user,
+        report_file_id,
+        metric_version_number
+      );
 
       return c.json(response);
     }

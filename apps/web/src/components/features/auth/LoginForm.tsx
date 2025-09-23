@@ -26,7 +26,7 @@ export const LoginForm: React.FC<{
 }> = ({ redirectTo }) => {
   const lastUsedProps = useLastUsed();
 
-  const [signUpFlow, setSignUpFlow] = useState(!env.VITE_PUBLIC_USER);
+  const [signUpFlow, setSignUpFlow] = useState(false);
   const [signUpSuccess, setSignUpSuccess] = useState(false);
 
   // Use the centralized auth mutations hook

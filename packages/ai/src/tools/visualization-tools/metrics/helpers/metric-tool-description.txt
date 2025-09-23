@@ -109,28 +109,21 @@ Only utilize the required/default fields unless the user specifically requests t
 #       maximumFractionDigits: 2
 #
 # DATE NUMBER HANDLING RULES (IMPORTANT)
-#   - Whenever a column represents a date part but is typed as a number (e.g., year=2025, month=1–12, quarter=1–4, day=1–31), you MUST set:
-#       columnType: number
-#       style: date   # (NOT number)
+#   - Whenever a column represents a date part but is typed as a number (month, quarter, day_of_week), you MUST set:
+#     columnType: number
+#     style: date
 #   - Always use convertNumberTo to translate raw numbers into readable time units:
 #     - month → convertNumberTo: month_of_year
 #     - quarter → convertNumberTo: quarter
 #     - day_of_week → convertNumberTo: day_of_week
-#   - For year values: columnType: number, style: date, numberSeparatorStyle: null
-#   - For labels, always set makeLabelHumanReadable: true
-#   - Example:
-#     year:
-#       columnType: number
-#       style: date
-#       replaceMissingDataWith: 0
-#       numberSeparatorStyle: null
-#     month:
-#       columnType: number
-#       style: date
-#       convertNumberTo: month_of_year
-#       makeLabelHumanReadable: true
-#       replaceMissingDataWith: 0
-#       numberSeparatorStyle: null
+#   - Always set makeLabelHumanReadable: true for these.
+#   - NEVER leave raw numbers on the axis.
+#
+# DATE PART RULES
+#   - year → columnType: number, style: number, numberSeparatorStyle: null (no thousands separators).
+#   - month/quarter/day_of_week → columnType: number, style: date, with convertNumberTo + makeLabelHumanReadable.
+#   - When X-axis = [month, year] across multiple years → month.dateFormat: 'MMM' (renderer composes 'MMM YYYY' with the year part).
+#   - Full date/timestamp columns → columnType: date, style: date, include explicit dateFormat appropriate to the interval.
 
 # -------------------------------------
 
