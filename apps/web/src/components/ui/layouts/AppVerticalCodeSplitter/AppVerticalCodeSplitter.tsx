@@ -13,18 +13,35 @@ export interface AppVerticalCodeSplitterProps {
   sql: string;
   setSQL: (sql: string) => void;
   runSQLError: string | undefined;
-  onRunQuery: () => Promise<void>;
   data: DataResult;
   fetchingData: boolean;
   defaultLayout: LayoutSize;
   initialLayout: LayoutSize | null;
   autoSaveId: string;
   topHidden?: boolean;
-  onSaveSQL?: () => Promise<void>;
-  disabledSave?: boolean;
   gapAmount?: number;
   className?: string;
   readOnly?: boolean;
+  saveButton:
+    | false
+    | {
+        label?: string;
+        icon?: React.ReactNode;
+        loading?: boolean;
+        disabled?: boolean;
+        onClick: () => Promise<void>;
+        tooltip?: string;
+      };
+  runButton:
+    | false
+    | {
+        label?: string;
+        suffix?: React.ReactNode;
+        loading?: boolean;
+        disabled?: boolean;
+        onClick: () => Promise<void>;
+        tooltip?: string;
+      };
 }
 
 const MIN_LEFT_SIZE = 120;
@@ -37,15 +54,14 @@ export const AppVerticalCodeSplitter = forwardRef<AppSplitterRef, AppVerticalCod
       sql,
       setSQL,
       runSQLError,
-      onRunQuery,
-      onSaveSQL,
+      runButton,
+      saveButton,
       data,
       readOnly = false,
       fetchingData,
       defaultLayout,
       initialLayout,
       autoSaveId,
-      disabledSave = false,
       topHidden = false,
       gapAmount = 3,
       className,
@@ -79,13 +95,12 @@ export const AppVerticalCodeSplitter = forwardRef<AppSplitterRef, AppVerticalCod
               sql={sql}
               setDatasetSQL={setSQL}
               error={runSQLError}
-              onRunQuery={onRunQuery}
-              onSaveSQL={onSaveSQL}
-              disabledSave={disabledSave}
+              runButton={runButton}
+              saveButton={saveButton}
               readOnly={readOnly}
             />
           ),
-          [sql, setSQL, runSQLError, onRunQuery, onSaveSQL, disabledSave, readOnly]
+          [sql, setSQL, runSQLError, runButton, saveButton, readOnly]
         )}
         rightPanelClassName={dataContainerClassName}
         rightChildren={useMemo(
