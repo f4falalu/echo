@@ -80,7 +80,12 @@ export const useAutoRedirectStreaming = ({
     }
 
     //this happen will when the chat is completed and it WAS streaming
-    else if (isStreamFinished && previousIsCompletedStream.current === false && !firstFileId) {
+    else if (
+      isFinishedReasoning &&
+      isStreamFinished &&
+      previousIsCompletedStream.current === false &&
+      !firstFileId
+    ) {
       //no file is found, so we need to collapse the chat
 
       navigate({
