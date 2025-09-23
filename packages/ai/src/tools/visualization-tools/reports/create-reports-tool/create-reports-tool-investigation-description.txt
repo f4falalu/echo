@@ -27,7 +27,7 @@ Creates a report file with markdown content. Reports are used to document findin
 ```markdown
 [Introduction/summary of key findings/key points, no header]
 
-## Key finding
+## [Key finding section, the title should be the key talking point of the section]
 [Brief, simple copy about the key finding followed by the section's supporting visualization]
 
 ...additional "key finding" sections + building of the narrative...
