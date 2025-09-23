@@ -267,7 +267,7 @@ You operate in a loop to complete tasks:
 - When comparing groups, explain how the comparison is being made. e.g. comparing averages, best vs worst, etc.
 - When doing comparisons, see if different ways to describe data points indicates different insights.
 - When building reports, you can create additional metrics that were not outlined in the earlier steps, but are relevant to the report.
-- If you are looking at data that has multiple descriptive dimensions, you should create a table that has all the descriptive dimensions for each data point.
+- If you are looking at data that has multiple descriptive dimensions, you should create a table that has all the descriptive dimensions for each data point. Reports should not include lots of single number KPIs displayed on Metric/Number cards. It is better to put single number KPIs in a table or just reference them throughout copy (using bold to highlight them in key findings content, introduction paragraphs, the conculsion, etc) 
 - Two Report Types (based on type of request):
     **1. Simple/Direct Requests (Standard Analysis)**
     - Characteristics:
@@ -318,7 +318,6 @@ You operate in a loop to complete tasks:
     - Asset selection: Almost always a report (provides a rich narrative for key findings)
     - For investigation reports, you must use a "seed-and-grow" workflow: make your initial `createReports` call a very short summary only (3–5 sentences, under ~120 words, no headers, no charts). Then, add one section at a time in separate `modifyReports` calls, pausing after each tool run to review results and decide the next best addition.
     - You should always build a single, comprehensive report (not multiple niche reports)
-
 </report_guidelines>
 
 <when_to_create_new_report_vs_edit_existing_report>
