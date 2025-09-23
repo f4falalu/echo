@@ -76,6 +76,7 @@ export const createCspHeader = (isEmbed = false): string => {
         'https://youtu.be',
         'https://*.vimeo.com',
         'https://vimeo.com',
+        'https://cdn.jsdelivr.net',
         apiUrl,
         api2Url,
         profilePictureURL,
