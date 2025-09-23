@@ -348,18 +348,16 @@ export function extractFilesFromToolCalls(messages: ModelMessage[]): ExtractedFi
   let filteredFiles = filterOutDashboardMetrics(deduplicatedFiles);
 
   // Filter out metrics and dashboards that are referenced in reports
-  filteredFiles = filterOutReportContainedFiles(filteredFiles, lastReportInfo);
+  // Pass all files so the function can check ALL reports, not just the last one
+  filteredFiles = filterOutReportContainedFiles(filteredFiles);
 
-  // Filter out reports that don't have metrics (they won't be in responseMessages anyway)
-  // Keep reports that have metrics since they'll be in the responseMessages
+  // Filter out ALL reports (they are already in responseMessages)
   filteredFiles = filteredFiles.filter((file) => {
     if (file.fileType !== 'report_file') {
       return true; // Keep all non-report files that passed previous filters
     }
 
-    // For reports, only keep them if they contain metrics
-    // Reports with metrics will be in responseMessages already, so we filter them out here
-    // to avoid duplication
+    // Filter out ALL reports - they are handled separately and already in responseMessages
     return false;
   });
 
@@ -733,49 +731,51 @@ function filterOutDashboardMetrics(files: ExtractedFile[]): ExtractedFile[] {
 
 /**
  * Filter out metrics and dashboards that are referenced in reports
- * Any metric that appears in a report should not be selected
+ * Any metric that appears in ANY report should not be selected
  */
-function filterOutReportContainedFiles(
-  files: ExtractedFile[],
-  lastReportInfo?: ReportInfo
-): ExtractedFile[] {
-  if (!lastReportInfo || !lastReportInfo.content) {
-    // No report content to check against
+function filterOutReportContainedFiles(files: ExtractedFile[]): ExtractedFile[] {
+  // Extract all report files from the files array
+  const reportFiles = files.filter((f) => f.fileType === 'report_file' && f.content);
+
+  if (reportFiles.length === 0) {
+    // No reports to check against
     console.info('[done-tool-file-selection] No report content to filter against');
     return files;
   }
 
-  const reportContent = lastReportInfo.content;
-
-  // Extract metric IDs from the last report content
+  // Extract metric IDs and dashboard IDs from ALL reports
   const metricsInReports = new Set<string>();
   const dashboardsInReports = new Set<string>();
 
-  // Extract metric IDs from report content using regex pattern
-  // Match any alphanumeric ID with hyphens (UUIDs, simple IDs like "metric-1", etc.)
-  const metricIdPattern = /metricId[="']+([a-zA-Z0-9-]+)["']/gi;
-  const matches = reportContent.matchAll(metricIdPattern);
+  // Process each report's content
+  for (const report of reportFiles) {
+    if (!report.content) continue;
 
-  for (const match of matches) {
-    if (match[1]) {
-      metricsInReports.add(match[1]);
+    // Extract metric IDs from report content using regex pattern
+    // Match any alphanumeric ID with hyphens (UUIDs, simple IDs like "metric-1", etc.)
+    const metricIdPattern = /metricId[="']+([a-zA-Z0-9-]+)["']/gi;
+    const matches = report.content.matchAll(metricIdPattern);
+
+    for (const match of matches) {
+      if (match[1]) {
+        metricsInReports.add(match[1]);
+      }
+    }
+
+    // Also check for dashboard IDs in reports
+    const dashboardIdPattern = /dashboardId[="']+([a-zA-Z0-9-]+)["']/gi;
+    const dashboardMatches = report.content.matchAll(dashboardIdPattern);
+
+    for (const match of dashboardMatches) {
+      if (match[1]) {
+        dashboardsInReports.add(match[1]);
+      }
     }
   }
 
-  // Also check for dashboard IDs in reports
-  const dashboardIdPattern = /dashboardId[="']+([a-zA-Z0-9-]+)["']/gi;
-  const dashboardMatches = reportContent.matchAll(dashboardIdPattern);
-
-  for (const match of dashboardMatches) {
-    if (match[1]) {
-      dashboardsInReports.add(match[1]);
-    }
-  }
-
-  console.info('[done-tool-file-selection] Checking for files absorbed by last report', {
-    reportId: lastReportInfo.id,
-    reportOperation: lastReportInfo.operation,
-    contentLength: reportContent.length,
+  console.info('[done-tool-file-selection] Checking for files absorbed by reports', {
+    reportCount: reportFiles.length,
+    reportIds: reportFiles.map((r) => r.id),
     metricsInReports: metricsInReports.size,
     dashboardsInReports: dashboardsInReports.size,
     metricIds: Array.from(metricsInReports),
