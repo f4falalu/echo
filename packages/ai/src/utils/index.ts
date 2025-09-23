@@ -28,3 +28,5 @@ export {
 // Step retry utilities
 export { withStepRetry, createRetryableStep, runStepsWithRetry } from './with-step-retry';
 export type { StepRetryOptions } from './with-step-retry';
+
+export { extractUserAndDoneToolMessages } from './memory/extract-user-and-done-tool-messages';
