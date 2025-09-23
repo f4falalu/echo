@@ -13,13 +13,13 @@ env:
   # Turborepo Remote Caching
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   TURBO_TEAM: ${{ vars.TURBO_TEAM }}
-  TURBO_REMOTE_ONLY: true
+  TURBO_CACHE: remote:rw
 
 jobs:
   # Build job - runs in parallel
   build:
     name: Build
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: blacksmith-8vcpu-ubuntu-2404
     timeout-minutes: 10
     environment: testing
     steps:
@@ -70,7 +70,7 @@ jobs:
   # Test job - runs after build completes
   test:
     name: Test
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: blacksmith-8vcpu-ubuntu-2404
     timeout-minutes: 10
     steps:
       - name: Checkout code
@@ -106,7 +106,7 @@ jobs:
   # Services health check - runs after build completes
   services-health:
     name: Services Health Check
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: blacksmith-8vcpu-ubuntu-2404
     timeout-minutes: 10
     needs: build  # Wait for build to complete
     environment: testing
