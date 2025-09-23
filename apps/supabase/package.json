@@ -1,0 +1,13 @@
+{
+  "name": "@buster-app/supabase",
+  "version": "0.0.1",
+  "private": false,
+  "dependencies": {
+    "@buster/database": "workspace:*"
+  },
+  "scripts": {
+    "lint": "biome check . --write",
+    "lint:fix": "biome check . --write",
+    "start": "echo 'Please run this command through Turbo from the root: turbo start'"
+  }
+}

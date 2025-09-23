@@ -13,7 +13,8 @@
     },
     "start": {
       "cache": false,
-      "persistent": false
+      "persistent": false,
+      "outputs": []
     },
     "db:reset": {
       "cache": false,
