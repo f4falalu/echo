@@ -1,4 +1,5 @@
 import { type QueryClient, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from '@tanstack/react-router';
 import last from 'lodash/last';
 import { create } from 'mutative';
 import type { BusterCollection } from '@/api/asset_interfaces/collection';
@@ -27,6 +28,7 @@ import {
 export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
   const updateOnSave = params?.updateOnSave || false;
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: updateMetric,
@@ -60,6 +62,11 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
       if (updateOnSave && data) {
         setMetricQueryData(queryClient, newMetric);
       }
+      navigate({
+        to: '.',
+        ignoreBlocker: true,
+        search: (prev) => ({ ...prev, metric_version_number: undefined }),
+      });
     },
   });
 };
@@ -361,7 +368,6 @@ export const useUpdateMetric = (params: {
     newMetricPartial: Omit<Partial<BusterMetric>, 'status'> & { id: string }
   ) => {
     const { newMetric, prevMetric } = combineAndUpdateMetric(newMetricPartial);
-    console.log('newMetric', newMetric);
 
     if (newMetric && prevMetric && saveToServer) {
       return await saveMetricToServer(newMetric, prevMetric);
