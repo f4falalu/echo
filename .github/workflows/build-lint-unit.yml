@@ -113,20 +113,21 @@ jobs:
         with:
           cache-key: build-lint-unit
 
-      - name: Cache Homebrew packages
+      - name: Cache Supabase CLI
+        id: cache-supabase
         uses: actions/cache@v4
         with:
-          path: |
-            ~/Library/Caches/Homebrew
-            /usr/local/Cellar/supabase
-            /opt/homebrew/Cellar/supabase
-          key: ${{ runner.os }}-brew-supabase-${{ hashFiles('.github/workflows/build-lint-unit.yml') }}
+          path: /usr/local/bin/supabase
+          key: ${{ runner.os }}-supabase-cli-latest
           restore-keys: |
-            ${{ runner.os }}-brew-supabase-
+            ${{ runner.os }}-supabase-cli-
 
       - name: Install Supabase CLI
+        if: steps.cache-supabase.outputs.cache-hit != 'true'
         run: |
-          brew install supabase/tap/supabase || brew upgrade supabase
+          wget -qO- https://github.com/supabase/cli/releases/latest/download/supabase_linux_amd64.tar.gz | tar xvz
+          sudo mv supabase /usr/local/bin/
+          sudo chmod +x /usr/local/bin/supabase
 
       - name: Build required packages
         run: pnpm turbo build --filter="!@buster-app/web"
