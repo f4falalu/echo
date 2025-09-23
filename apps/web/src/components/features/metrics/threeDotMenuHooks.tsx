@@ -285,7 +285,7 @@ export const useNavigatetoMetricItem = ({
       },
       {
         value: 'results-chart',
-        label: 'Results chart',
+        label: 'View results',
         icon: <Table />,
         link: {
           to: '/app/metrics/$metricId/results',
@@ -299,7 +299,7 @@ export const useNavigatetoMetricItem = ({
       },
       {
         value: 'sql-chart',
-        label: 'SQL chart',
+        label: 'View SQL',
         icon: <Code />,
         link: {
           to: '/app/metrics/$metricId/sql',
