@@ -103,6 +103,7 @@ jobs:
     name: Services Health Check
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 10
+    environment: testing
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -111,6 +112,21 @@ jobs:
         uses: ./.github/actions/setup-node-env
         with:
           cache-key: build-lint-unit
+
+      - name: Cache Homebrew packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/Homebrew
+            /usr/local/Cellar/supabase
+            /opt/homebrew/Cellar/supabase
+          key: ${{ runner.os }}-brew-supabase-${{ hashFiles('.github/workflows/build-lint-unit.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-brew-supabase-
+
+      - name: Install Supabase CLI
+        run: |
+          brew install supabase/tap/supabase || brew upgrade supabase
 
       - name: Build required packages
         run: pnpm turbo build --filter="!@buster-app/web"
