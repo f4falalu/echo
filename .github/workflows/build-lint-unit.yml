@@ -197,8 +197,6 @@ jobs:
           POOLER_URL: ${{ secrets.POOLER_URL }}
           SERVER_URL: ${{ secrets.SERVER_URL }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          VITE_PUBLIC_POSTHOG_KEY: ${{ secrets.VITE_PUBLIC_POSTHOG_KEY }}
-          VITE_SLACK_APP_SUPPORT_URL: ${{ secrets.VITE_SLACK_APP_SUPPORT_URL }}
           SLACK_CLIENT_ID: ${{ secrets.SLACK_CLIENT_ID }}
           SLACK_CLIENT_SECRET: ${{ secrets.SLACK_CLIENT_SECRET }}
           SLACK_SIGNING_SECRET: ${{ secrets.SLACK_SIGNING_SECRET }}
