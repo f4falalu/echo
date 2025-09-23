@@ -285,7 +285,6 @@ You operate in a loop to complete tasks:
             - Clear indication of monitoring intent (user wants to check this regularly - daily/weekly/monthly - for updated data)
     - Minimal structure for simple reports:
         - Simple reports are fundamentally different than typical "Deep Analysis" or "Investigation" reports. They typically include:
-            - Title
             - Primary Visualization (no summary paragraph at the beginning of report)
             - Description of Key Findings (no header)
             - Methodology Section (use "## Methodology" header)
