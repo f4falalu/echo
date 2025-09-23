@@ -1737,7 +1737,6 @@ Another escaped: \\<div\\>content\\</div\\>`;
     for (let i = 0; i < 3; i++) {
       const platejs = await markdownToPlatejs(editor, result);
       result = await platejsToMarkdown(editor, platejs);
-      console.log(i, result);
     }
 
     // Metric should not be escaped
@@ -1809,7 +1808,6 @@ Text with "quotes" and 'apostrophes'.`;
     const platejs = await markdownToPlatejs(editor, markdown);
     const serializedPlateJS = JSON.parse(JSON.stringify(platejs));
     const backToMarkdown = await platejsToMarkdown(editor, serializedPlateJS);
-    console.log('backToMarkdown', backToMarkdown);
     expect(backToMarkdown).not.toContain('\\<metric');
     expect(backToMarkdown).toContain('<metric metricId="json-test-metric"');
 
@@ -1817,8 +1815,6 @@ Text with "quotes" and 'apostrophes'.`;
     const platejs2 = await markdownToPlatejs(editor, backToMarkdown);
     const serializedPlateJS2 = JSON.parse(JSON.stringify(platejs2));
     const finalMarkdown = await platejsToMarkdown(editor, serializedPlateJS2);
-
-    console.log('finalMarkdown', finalMarkdown);
 
     // Metric tags should never be escaped during JSON round trips
     expect(finalMarkdown).not.toContain('\\<metric');
