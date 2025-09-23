@@ -342,13 +342,13 @@ export const useUpdateMetric = (params: {
     id: metricId,
     ...newMetricPartial
   }: Omit<Partial<BusterMetric>, 'status'> & { id: string }) => {
-    const options = metricsQueryKeys.metricsGetMetric(metricId, 'LATEST');
     const prevMetric = getOriginalMetric(metricId);
     const newMetric = create(prevMetric, (draft) => {
       Object.assign(draft || {}, newMetricPartial);
     });
 
     if (prevMetric && newMetric) {
+      const options = metricsQueryKeys.metricsGetMetric(metricId, 'LATEST');
       queryClient.setQueryData(options.queryKey, newMetric);
     } else {
       console.warn('No previous metric found', { prevMetric, newMetric });
@@ -361,6 +361,7 @@ export const useUpdateMetric = (params: {
     newMetricPartial: Omit<Partial<BusterMetric>, 'status'> & { id: string }
   ) => {
     const { newMetric, prevMetric } = combineAndUpdateMetric(newMetricPartial);
+    console.log('newMetric', newMetric);
 
     if (newMetric && prevMetric && saveToServer) {
       return await saveMetricToServer(newMetric, prevMetric);
