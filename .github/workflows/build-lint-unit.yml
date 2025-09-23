@@ -227,7 +227,8 @@ jobs:
               # Use curl with connection timeout and capture the http code
               http_code=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 2 --max-time 5 http://localhost:$port 2>/dev/null || echo "000")
               
-              if [ "$http_code" != "000" ]; then
+              # Check if we got a valid HTTP response (any 3-digit code starting with 1-5)
+              if [[ "$http_code" =~ ^[1-5][0-9][0-9]$ ]]; then
                 echo "✅ Service on port $port is responding (HTTP $http_code)"
                 break
               else
