@@ -37,4 +37,4 @@ catalog:
   vitest: ^3.2.4
   zod: ^3.25.0
 
-minimumReleaseAge: 1440
+minimumReleaseAge: 30
