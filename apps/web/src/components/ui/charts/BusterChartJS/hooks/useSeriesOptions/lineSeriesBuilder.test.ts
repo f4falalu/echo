@@ -42,6 +42,7 @@ vi.mock('@/lib/columnFormatter', () => ({
 
 vi.mock('@/lib/axisFormatter', () => ({
   JOIN_CHARACTER: ' | ',
+  JOIN_CHARACTER_DATE: ' ',
 }));
 
 vi.mock('../../helpers', () => ({
@@ -329,9 +330,9 @@ describe('lineSeriesBuilder', () => {
       const labels = lineSeriesBuilder_labels(props);
 
       expect(labels).toHaveLength(3);
-      expect(labels[0]).toBe('formatted-2023-01-01 | formatted-A');
-      expect(labels[1]).toBe('formatted-2023-01-02 | formatted-B');
-      expect(labels[2]).toBe('formatted-2023-01-03 | formatted-A');
+      expect(labels[0]).toBe('formatted-2023-01-01 formatted-A');
+      expect(labels[1]).toBe('formatted-2023-01-02 formatted-B');
+      expect(labels[2]).toBe('formatted-2023-01-03 formatted-A');
       expect(formatLabel).toHaveBeenCalledWith('2023-01-01', props.columnLabelFormats.date);
       expect(formatLabel).toHaveBeenCalledWith('A', props.columnLabelFormats.category);
       expect(formatLabel).toHaveBeenCalledWith('B', props.columnLabelFormats.category);
@@ -342,9 +343,9 @@ describe('lineSeriesBuilder', () => {
       const labels = lineSeriesBuilder_labels(props);
 
       expect(labels).toHaveLength(3);
-      expect(labels[0]).toBe('formatted-2023-01-01 | formatted-A');
-      expect(labels[1]).toBe('formatted-2023-01-02 | formatted-B');
-      expect(labels[2]).toBe('formatted-2023-01-03 | formatted-A');
+      expect(labels[0]).toBe('formatted-2023-01-01 formatted-A');
+      expect(labels[1]).toBe('formatted-2023-01-02 formatted-B');
+      expect(labels[2]).toBe('formatted-2023-01-03 formatted-A');
       expect(formatLabel).toHaveBeenCalledWith('A', props.columnLabelFormats.category);
       expect(formatLabel).toHaveBeenCalledWith('B', props.columnLabelFormats.category);
       expect(formatLabel).toHaveBeenCalledWith('2023-01-01', props.columnLabelFormats.date);
