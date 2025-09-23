@@ -159,16 +159,21 @@ export const useRenameMetricOnPage = ({
 export const useDownloadMetricDataCSV = ({
   metricId,
   metricVersionNumber,
+  cacheDataId,
 }: {
   metricId: string;
   metricVersionNumber: number | undefined;
+  cacheDataId?: string;
 }) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const { data: metricData } = useGetMetricData(
-    { id: metricId, versionNumber: metricVersionNumber },
+    { id: metricId, versionNumber: metricVersionNumber, cacheDataId },
     { enabled: false }
   );
-  const { data: name } = useGetMetric({ id: metricId }, { select: (x) => x.name });
+  const { data: name } = useGetMetric(
+    { id: metricId },
+    { select: useCallback((x: BusterMetric) => x.name, []) }
+  );
 
   return useMemo(
     () => ({
