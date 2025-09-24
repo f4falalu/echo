@@ -26,7 +26,7 @@ jobs:
         uses: useblacksmith/stickydisk@v1
         with:
           key: ${{ github.repository }}-${{ github.ref_name }}-node-modules
-          path: .
+          path: node_modules
 
       - name: Mount pnpm store sticky disk
         uses: useblacksmith/stickydisk@v1
@@ -37,7 +37,7 @@ jobs:
       - name: Mount turbo cache sticky disk
         uses: useblacksmith/stickydisk@v1
         with:
-          key: ${{ github.repository }}-${{ github.ref_name }}-turbo-cache
+          key: ${{ github.repository }}-${{ github.ref_name }}-turbo
           path: .turbo
 
       - name: Mount Docker cache sticky disk
@@ -99,7 +99,7 @@ jobs:
         uses: useblacksmith/stickydisk@v1
         with:
           key: ${{ github.repository }}-${{ github.ref_name }}-node-modules
-          path: .
+          path: node_modules
 
       - name: Mount pnpm store sticky disk
         uses: useblacksmith/stickydisk@v1
@@ -130,7 +130,7 @@ jobs:
         uses: useblacksmith/stickydisk@v1
         with:
           key: ${{ github.repository }}-${{ github.ref_name }}-node-modules
-          path: .
+          path: node_modules
 
       - name: Mount pnpm store sticky disk
         uses: useblacksmith/stickydisk@v1
@@ -141,7 +141,7 @@ jobs:
       - name: Mount turbo cache sticky disk
         uses: useblacksmith/stickydisk@v1
         with:
-          key: ${{ github.repository }}-${{ github.ref_name }}-turbo-cache
+          key: ${{ github.repository }}-${{ github.ref_name }}-turbo
           path: .turbo
 
       - name: Setup Node Environment
@@ -179,7 +179,7 @@ jobs:
         uses: useblacksmith/stickydisk@v1
         with:
           key: ${{ github.repository }}-${{ github.ref_name }}-node-modules
-          path: .
+          path: node_modules
 
       - name: Mount pnpm store sticky disk
         uses: useblacksmith/stickydisk@v1
@@ -190,7 +190,7 @@ jobs:
       - name: Mount turbo cache sticky disk
         uses: useblacksmith/stickydisk@v1
         with:
-          key: ${{ github.repository }}-${{ github.ref_name }}-turbo-cache
+          key: ${{ github.repository }}-${{ github.ref_name }}-turbo
           path: .turbo
 
       - name: Mount Docker cache sticky disk
