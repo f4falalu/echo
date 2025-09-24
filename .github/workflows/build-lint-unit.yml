@@ -67,8 +67,18 @@ jobs:
           wait
           echo "✅ Docker images pre-pulled successfully"
 
-      - name: Start services
+      - name: Start services and wait for readiness
         run: pnpm turbo start
+          # echo "🚀 Starting all services..."
+          # # Start services in background and wait for them to be ready
+          # ./scripts/start-and-wait-for-services.sh &
+          # SERVICES_PID=$!
+          
+          # # Wait for services to be ready (script will exit when ready or fail)
+          # wait $SERVICES_PID
+          
+          # # Services are now ready for testing
+          # echo "✅ All services are ready!"
         env:
           SKIP_ENV_CHECK: true
           TURBO_TELEMETRY_DISABLED: 1
