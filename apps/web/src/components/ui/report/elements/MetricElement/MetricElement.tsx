@@ -36,6 +36,7 @@ export const MetricElement = withHOC(
     const isFocused = useFocused();
     const showFocused = isSelected && isFocused;
     const className = cn(
+      'max-h-[390px]',
       showFocused && 'ring-ring bg-brand/5 ring-1 ring-offset-4'
     );
 
@@ -132,8 +133,7 @@ const MetricResizeContainer: React.FC<PropsWithChildren<{ isTable: boolean }>> =
         <div
           // ref={handleRef}
           className={cn(
-            'hax-h-[400px]',
-            !isTable && 'min-h-64',
+            !isTable && 'min-h-[390px]',
             !height && !isTable && 'min-h-[390px]'
             //   isDragging && 'cursor-grabbing opacity-50'
           )}
