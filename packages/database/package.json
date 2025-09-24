@@ -31,7 +31,7 @@
     "build": "tsc",
     "build:dry-run": "tsc",
     "db:init": "echo 'Initializing database...'",
-    "start": "supabase start",
+    "start": "tsx scripts/start-and-wait.ts",
     "db:reset": "supabase stop && supabase start && supabase db reset",
     "db:seed": "tsx scripts/seed.ts",
     "db:dump": "tsx scripts/dump.ts",
