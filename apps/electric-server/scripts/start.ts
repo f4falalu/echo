@@ -13,18 +13,17 @@ const projectRoot = join(__dirname, '..');
 // Database connection details from docker-compose.yml
 const DB_HOST = 'localhost';
 const DB_PORT = '54322';
-const DB_NAME = 'postgres';
 const DB_USER = 'postgres';
-const DB_PASSWORD = 'postgres';
 
 // Function to check if database is accessible
 function isDatabaseRunning(): boolean {
   try {
     // Use pg_isready to check if PostgreSQL is accepting connections
-    execSync(`pg_isready -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER}`, {
+    const result = execSync(`pg_isready -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER}`, {
       stdio: 'pipe',
       timeout: 45000
     });
+    console.info('pg_isready result:', result);
     return true;
   } catch (error) {
     return false;
