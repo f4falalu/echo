@@ -1,0 +1,34 @@
+fileType: momentic/module
+schemaVersion: 1.0.21
+moduleId: 666c6102-d4fa-4c6e-998c-4b283337ad92
+name: chat-finished-with-metric
+description: The chat has finished and a metric is showing.
+enabled: true
+steps:
+  - id: 5a0ce4f8-0d7b-4836-910a-48f31d29d0ff
+    type: PRESET_ACTION
+    command:
+      id: 4ff5faf6-5cdc-4153-99b9-563dea9184ff
+      type: WAIT_FOR_URL
+      matcher:
+        type: SUBSTRING
+        url: /metrics
+      timeout: 180
+  - id: aa57fa2f-8c03-4928-9163-15a41ee776f3
+    type: PRESET_ACTION
+    command:
+      id: 21a91075-c205-4926-af5c-73c32cc4151d
+      type: AI_ASSERTION
+      assertion: Confirm that a metric has been delivered, it should be on the right
+        side of the page.  It should have the chart, results, sql up top, it
+        should have the title, the time frame description, and a question
+        looking description.  In the center of that div. We should also see a
+        number descibing total bike sales
+  - id: 78fc9cd5-e8aa-41df-b270-daa24a27843c
+    type: PRESET_ACTION
+    command:
+      id: 4f2074f8-bcf5-49e3-bedf-e378af51f82b
+      type: AI_ASSERTION
+      assertion: On the left side, we should see a "reasoned for x minutes|seconds"
+        and then we should see normal formatted text under that with a pill
+        containing the title of the metric that we are evaluating.

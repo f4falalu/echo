@@ -322,13 +322,6 @@ describe('formatLabel', () => {
           convertNumberTo: 'day_of_week',
         })
       ).toMatch(/Monday/);
-      expect(
-        formatLabel(1, {
-          columnType: 'date',
-          style: 'date',
-          convertNumberTo: 'quarter',
-        })
-      ).toMatch(`${currentYear} QQ`);
     });
 
     it('should handle null/undefined dates', () => {

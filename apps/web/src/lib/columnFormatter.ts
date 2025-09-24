@@ -133,7 +133,6 @@ const formatLabelDate = (
     isUTC = false,
     convertNumberTo,
   } = props;
-
   const dateFormat = dateFormatProp === 'auto' ? autoFormats(convertNumberTo) : dateFormatProp;
 
   return formatDate({

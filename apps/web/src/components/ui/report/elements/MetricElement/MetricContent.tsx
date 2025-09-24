@@ -8,14 +8,12 @@ export const MetricContent = React.memo(
   ({
     metricId,
     metricVersionNumber,
-
     isExportMode = false,
     readOnly = false,
     className,
   }: {
     metricId: string;
     metricVersionNumber: number | undefined;
-
     readOnly?: boolean;
     isExportMode?: boolean;
     className?: string;
