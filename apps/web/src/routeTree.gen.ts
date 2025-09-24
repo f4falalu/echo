@@ -18,6 +18,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
+import { Route as InfoGettingStartedRouteImport } from './routes/info/getting-started'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
 import { Route as AuthLogoutRouteImport } from './routes/auth.logout'
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
@@ -190,6 +191,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppRoute,
+} as any)
+const InfoGettingStartedRoute = InfoGettingStartedRouteImport.update({
+  id: '/info/getting-started',
+  path: '/info/getting-started',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -936,6 +942,7 @@ export interface FileRoutesByFullPath {
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/info/getting-started': typeof InfoGettingStartedRoute
   '/app/': typeof AppIndexRoute
   '/app/healthcheck': typeof AppAppHealthcheckRoute
   '/app/home': typeof AppAppHomeRoute
@@ -1044,6 +1051,7 @@ export interface FileRoutesByTo {
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/info/getting-started': typeof InfoGettingStartedRoute
   '/app/healthcheck': typeof AppAppHealthcheckRoute
   '/app/home': typeof AppAppHomeRoute
   '/embed/dashboard/$dashboardId': typeof EmbedDashboardDashboardIdRoute
@@ -1137,6 +1145,7 @@ export interface FileRoutesById {
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/info/getting-started': typeof InfoGettingStartedRoute
   '/app/': typeof AppIndexRoute
   '/app/_app/_asset': typeof AppAppAssetRouteWithChildren
   '/app/_app/healthcheck': typeof AppAppHealthcheckRoute
@@ -1261,6 +1270,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/logout'
     | '/auth/reset-password'
+    | '/info/getting-started'
     | '/app/'
     | '/app/healthcheck'
     | '/app/home'
@@ -1369,6 +1379,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/logout'
     | '/auth/reset-password'
+    | '/info/getting-started'
     | '/app/healthcheck'
     | '/app/home'
     | '/embed/dashboard/$dashboardId'
@@ -1461,6 +1472,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/logout'
     | '/auth/reset-password'
+    | '/info/getting-started'
     | '/app/'
     | '/app/_app/_asset'
     | '/app/_app/healthcheck'
@@ -1581,6 +1593,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   EmbedRoute: typeof EmbedRouteWithChildren
   HealthcheckRoute: typeof HealthcheckRoute
+  InfoGettingStartedRoute: typeof InfoGettingStartedRoute
 }
 export interface FileServerRoutesByFullPath {
   '/auth/callback': typeof AuthCallbackServerRoute
@@ -1647,6 +1660,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/'
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/info/getting-started': {
+      id: '/info/getting-started'
+      path: '/info/getting-started'
+      fullPath: '/info/getting-started'
+      preLoaderRoute: typeof InfoGettingStartedRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/auth/reset-password': {
       id: '/auth/reset-password'
@@ -3240,6 +3260,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   EmbedRoute: EmbedRouteWithChildren,
   HealthcheckRoute: HealthcheckRoute,
+  InfoGettingStartedRoute: InfoGettingStartedRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
