@@ -35,7 +35,9 @@ export const MetricElement = withHOC(
     const isSelected = useSelected();
     const isFocused = useFocused();
     const showFocused = isSelected && isFocused;
-    const className = cn(showFocused && 'ring-ring bg-brand/5 ring-1 ring-offset-4');
+    const className = cn(
+      showFocused && 'ring-ring bg-brand/5 ring-1 ring-offset-4'
+    );
 
     const { data: selectedChartType } = useGetMetric(
       { id: metricId },
@@ -130,6 +132,7 @@ const MetricResizeContainer: React.FC<PropsWithChildren<{ isTable: boolean }>> =
         <div
           // ref={handleRef}
           className={cn(
+            'hax-h-[400px]',
             !isTable && 'min-h-64',
             !height && !isTable && 'min-h-[390px]'
             //   isDragging && 'cursor-grabbing opacity-50'
