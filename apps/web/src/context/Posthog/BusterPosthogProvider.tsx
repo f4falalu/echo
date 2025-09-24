@@ -35,6 +35,9 @@ const options: Partial<PostHogConfig> = {
   session_recording: {
     recordBody: true,
   },
+  api_host: '/phrp/',
+  ui_host: 'https://us.posthog.com',
+  defaults: '2025-05-24',
 };
 
 const PosthogWrapper: React.FC<PropsWithChildren> = ({ children }) => {
@@ -58,6 +61,7 @@ const PosthogWrapper: React.FC<PropsWithChildren> = ({ children }) => {
           import('posthog-js'),
           import('posthog-js/react'),
         ]);
+        console.log('posthog', posthog);
 
         setPosthogModules({ posthog, PostHogProvider });
       } catch (error) {
