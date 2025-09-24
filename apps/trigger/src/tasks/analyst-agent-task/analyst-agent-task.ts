@@ -137,11 +137,11 @@ class ResourceTracker {
       },
       cpuUsage: finalCpuUsage
         ? {
-          userTimeMs: Math.round(finalCpuUsage.user / 1000),
-          systemTimeMs: Math.round(finalCpuUsage.system / 1000),
-          totalTimeMs: Math.round(totalCpuTime / 1000),
-          estimatedUsagePercent: Math.round(cpuPercentage * 100) / 100,
-        }
+            userTimeMs: Math.round(finalCpuUsage.user / 1000),
+            systemTimeMs: Math.round(finalCpuUsage.system / 1000),
+            totalTimeMs: Math.round(totalCpuTime / 1000),
+            estimatedUsagePercent: Math.round(cpuPercentage * 100) / 100,
+          }
         : { error: 'CPU usage not available' },
       stageBreakdown: this.snapshots.map((snapshot, index) => {
         const prevSnapshot = index > 0 ? this.snapshots[index - 1] : null;
@@ -253,7 +253,7 @@ export const analystAgentTask: ReturnType<
   queue: analystQueue,
   maxDuration: 1200, // 20 minutes for complex analysis
   retry: {
-    maxAttempts: 0
+    maxAttempts: 0,
   },
   onFailure: async ({ error, payload }) => {
     // Log the failure for debugging
@@ -424,12 +424,12 @@ export const analystAgentTask: ReturnType<
         conversationHistory.length > 0
           ? conversationHistory
           : [
-            {
-              role: 'user',
-              // v5 supports string content directly for user messages
-              content: messageContext.requestMessage,
-            },
-          ];
+              {
+                role: 'user',
+                // v5 supports string content directly for user messages
+                content: messageContext.requestMessage,
+              },
+            ];
 
       const workflowInput: AnalystWorkflowInput = {
         messages: modelMessages,

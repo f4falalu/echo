@@ -3,7 +3,7 @@ import type React from 'react';
 import { useMemo, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Button } from '@/components/ui/buttons';
-import { Paragraph, Text, Title } from '@/components/ui/typography';
+import { Paragraph, Title } from '@/components/ui/typography';
 import { useIsVersionChanged } from '@/context/AppVersion/useAppVersion';
 import { useMount } from '@/hooks/useMount';
 import { cn } from '@/lib/utils';

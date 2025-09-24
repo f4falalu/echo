@@ -18,10 +18,12 @@ import {
 } from '../../../visualization-tools/metrics/modify-metrics-tool/modify-metrics-tool';
 import {
   CREATE_REPORTS_TOOL_NAME,
+  type CreateReportsInput,
   type CreateReportsOutput,
 } from '../../../visualization-tools/reports/create-reports-tool/create-reports-tool';
 import {
   MODIFY_REPORTS_TOOL_NAME,
+  type ModifyReportsInput,
   type ModifyReportsOutput,
 } from '../../../visualization-tools/reports/modify-reports-tool/modify-reports-tool';
 
@@ -184,6 +186,56 @@ export function extractAllFilesForChatUpdate(messages: ModelMessage[]): Extracte
 function extractReferencedMetricIds(messages: ModelMessage[]): Set<string> {
   const referencedMetricIds = new Set<string>();
 
+  // First, collect all metric IDs that exist from tool results
+  const allMetricIds = new Set<string>();
+
+  for (const message of messages) {
+    if (message.role === 'tool') {
+      const toolContent = message.content;
+
+      if (Array.isArray(toolContent)) {
+        for (const content of toolContent) {
+          if (
+            content &&
+            typeof content === 'object' &&
+            'type' in content &&
+            content.type === 'tool-result'
+          ) {
+            const toolName = (content as unknown as Record<string, unknown>).toolName;
+            const output = (content as unknown as Record<string, unknown>).output;
+
+            if (
+              (toolName === CREATE_METRICS_TOOL_NAME || toolName === MODIFY_METRICS_TOOL_NAME) &&
+              output
+            ) {
+              const outputObj = output as Record<string, unknown>;
+              if (outputObj.type === 'json' && outputObj.value) {
+                try {
+                  const parsedOutput =
+                    typeof outputObj.value === 'string'
+                      ? JSON.parse(outputObj.value)
+                      : outputObj.value;
+
+                  const metricsOutput = parsedOutput as CreateMetricsOutput | ModifyMetricsOutput;
+                  if (metricsOutput.files && Array.isArray(metricsOutput.files)) {
+                    for (const file of metricsOutput.files) {
+                      if (file.id) {
+                        allMetricIds.add(file.id);
+                      }
+                    }
+                  }
+                } catch (_error) {
+                  // Ignore parsing errors
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Then check if any metric IDs appear in report content
   for (const message of messages) {
     if (message.role === 'assistant' && Array.isArray(message.content)) {
       for (const content of message.content) {
@@ -197,21 +249,19 @@ function extractReferencedMetricIds(messages: ModelMessage[]): Set<string> {
           const toolName = content.toolName;
           const input = (content as { input?: unknown }).input;
 
-          // Extract from CREATE_REPORTS
+          // Extract from CREATE_REPORTS with type safety
           if (toolName === CREATE_REPORTS_TOOL_NAME && input) {
-            const reportInput = input as {
-              content?: string;
+            // Type the input as CreateReportsInput with fallback for legacy
+            const reportInput = input as Partial<CreateReportsInput> & {
               files?: Array<{ yml_content?: string; content?: string }>;
             };
 
             // Handle new structure
             if (reportInput.content) {
-              // Use a more flexible pattern that matches both UUID and simple IDs
-              const metricIdPattern = /<metric\s+metricId\s*=\s*["']([a-zA-Z0-9-]+)["']\s*\/>/gi;
-              const matches = reportInput.content.matchAll(metricIdPattern);
-              for (const match of matches) {
-                if (match[1]) {
-                  referencedMetricIds.add(match[1]);
+              // Simply check if any metric ID appears in the content
+              for (const metricId of allMetricIds) {
+                if (reportInput.content.includes(metricId)) {
+                  referencedMetricIds.add(metricId);
                 }
               }
             }
@@ -221,12 +271,10 @@ function extractReferencedMetricIds(messages: ModelMessage[]): Set<string> {
               for (const file of reportInput.files) {
                 const content = file.yml_content || file.content;
                 if (content) {
-                  const metricIdPattern =
-                    /<metric\s+metricId\s*=\s*["']([a-zA-Z0-9-]+)["']\s*\/>/gi;
-                  const matches = content.matchAll(metricIdPattern);
-                  for (const match of matches) {
-                    if (match[1]) {
-                      referencedMetricIds.add(match[1]);
+                  // Simply check if any metric ID appears in the content
+                  for (const metricId of allMetricIds) {
+                    if (content.includes(metricId)) {
+                      referencedMetricIds.add(metricId);
                     }
                   }
                 }
@@ -234,24 +282,28 @@ function extractReferencedMetricIds(messages: ModelMessage[]): Set<string> {
             }
           }
 
-          // Extract from MODIFY_REPORTS
+          // Extract from MODIFY_REPORTS with type safety
           if (toolName === MODIFY_REPORTS_TOOL_NAME && input) {
-            const modifyInput = input as {
-              edits?: Array<{ code?: string; new_content?: string; content?: string }>;
+            // Type the input as ModifyReportsInput with support for variant field names
+            const modifyInput = input as Partial<ModifyReportsInput> & {
+              edits?: Array<{
+                operation?: 'replace' | 'append';
+                code?: string;
+                code_to_replace?: string;
+                new_content?: string;
+                content?: string;
+              }>;
             };
 
             if (modifyInput.edits && Array.isArray(modifyInput.edits)) {
               for (const edit of modifyInput.edits) {
-                // The field is 'code' based on the schema
+                // Check all possible field names for content
                 const content = edit.code || edit.new_content || edit.content;
                 if (content) {
-                  // Use a more flexible pattern that matches both UUID and simple IDs
-                  const metricIdPattern =
-                    /<metric\s+metricId\s*=\s*["']([a-zA-Z0-9-]+)["']\s*\/>/gi;
-                  const matches = content.matchAll(metricIdPattern);
-                  for (const match of matches) {
-                    if (match[1]) {
-                      referencedMetricIds.add(match[1]);
+                  // Simply check if any metric ID appears in the content
+                  for (const metricId of allMetricIds) {
+                    if (content.includes(metricId)) {
+                      referencedMetricIds.add(metricId);
                     }
                   }
                 }

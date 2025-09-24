@@ -1,13 +1,9 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { useEffect } from 'react';
+import { createFileRoute, redirect } from '@tanstack/react-router';
+import { BUSTER_SIGN_UP_URL } from '../../config/externalRoutes';
 
 export const Route = createFileRoute('/info/getting-started')({
-  component: GettingStartedPage,
+  component: () => null,
+  beforeLoad: () => {
+    throw redirect({ href: BUSTER_SIGN_UP_URL, replace: true, statusCode: 307 });
+  },
 });
-
-function GettingStartedPage() {
-  useEffect(() => {
-    window.location.replace('https://buster.so/sign-up');
-  }, []);
-  return null;
-}

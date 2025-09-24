@@ -78,6 +78,10 @@ export async function getMetricDataHandler(
     requiredRole: 'can_view',
     organizationId,
     workspaceSharing: metric.workspaceSharing ?? 'none',
+    publiclyAccessible: metric.publiclyAccessible,
+    publicExpiryDate: metric.publicExpiryDate ?? undefined,
+    publicPassword: metric.publicPassword ?? undefined,
+    userSuppliedPassword: undefined,
   });
 
   if (!hasAccess) {

@@ -61,7 +61,6 @@ const PosthogWrapper: React.FC<PropsWithChildren> = ({ children }) => {
           import('posthog-js'),
           import('posthog-js/react'),
         ]);
-        console.log('posthog', posthog);
 
         setPosthogModules({ posthog, PostHogProvider });
       } catch (error) {
