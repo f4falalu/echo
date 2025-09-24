@@ -22,6 +22,30 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Mount node_modules sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-${{ github.ref_name }}-node-modules
+          path: .
+
+      - name: Mount pnpm store sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-${{ github.ref_name }}-pnpm-store
+          path: ~/.pnpm-store
+
+      - name: Mount turbo cache sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-${{ github.ref_name }}-turbo-cache
+          path: .turbo
+
+      - name: Mount Docker cache sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-${{ github.ref_name }}-docker-cache
+          path: /var/lib/docker
+
       - name: Setup Node Environment
         uses: ./.github/actions/setup-node-env
         with:
@@ -44,17 +68,23 @@ jobs:
           VITE_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.VITE_PUBLIC_SUPABASE_ANON_KEY }}
           VITE_PUBLIC_URL: ${{ secrets.VITE_PUBLIC_URL }}
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifacts
-          path: |
-            apps/*/dist
-            apps/*/.next
-            packages/*/dist
-            .turbo
-            apps/api/target/release/buster_server
-          retention-days: 1
+      - name: Pre-pull Docker images
+        run: |
+          echo "🐳 Pre-pulling Docker images for faster startup..."
+          # Pull all images in parallel
+          docker pull electricsql/electric &
+          docker pull supabase/postgres:15.1.0.147 &
+          docker pull supabase/gotrue:v2.149.0 &
+          docker pull supabase/realtime:v2.28.32 &
+          docker pull supabase/postgrest:v12.2.0 &
+          docker pull supabase/storage-api:v0.46.4 &
+          docker pull supabase/postgres-meta:v0.83.2 &
+          docker pull supabase/studio:20240422.09 &
+          docker pull supabase/edge-runtime:v1.53.4 &
+          docker pull kong:2.8.1 &
+          docker pull darthsim/imgproxy:v3.8.0 &
+          wait
+          echo "✅ Docker images pre-pulled successfully"
 
   # Lint job - runs in parallel
   lint:
@@ -64,6 +94,18 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Mount node_modules sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-${{ github.ref_name }}-node-modules
+          path: .
+
+      - name: Mount pnpm store sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-${{ github.ref_name }}-pnpm-store
+          path: ~/.pnpm-store
 
       - name: Setup Node Environment
         uses: ./.github/actions/setup-node-env
@@ -75,7 +117,7 @@ jobs:
         env:
           TURBO_TELEMETRY_DISABLED: 1
 
-  # Test job - runs after build completes
+  # Test job - runs in parallel
   test:
     name: Test
     runs-on: blacksmith-8vcpu-ubuntu-2404
@@ -84,17 +126,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Mount node_modules sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-${{ github.ref_name }}-node-modules
+          path: .
+
+      - name: Mount pnpm store sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-${{ github.ref_name }}-pnpm-store
+          path: ~/.pnpm-store
+
+      - name: Mount turbo cache sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-${{ github.ref_name }}-turbo-cache
+          path: .turbo
+
       - name: Setup Node Environment
         uses: ./.github/actions/setup-node-env
         with:
           cache-key: build-lint-unit
-
-      - name: Build required packages
-        run: pnpm turbo build --filter="!@buster-app/web"
-        env:
-          NODE_ENV: production
-          SKIP_ENV_CHECK: true
-          TURBO_TELEMETRY_DISABLED: 1
 
       - name: Run all unit tests
         run: pnpm turbo test:unit
@@ -122,43 +175,40 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Mount node_modules sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-${{ github.ref_name }}-node-modules
+          path: .
+
+      - name: Mount pnpm store sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-${{ github.ref_name }}-pnpm-store
+          path: ~/.pnpm-store
+
+      - name: Mount turbo cache sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-${{ github.ref_name }}-turbo-cache
+          path: .turbo
+
+      - name: Mount Docker cache sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-${{ github.ref_name }}-docker-cache
+          path: /var/lib/docker
+
       - name: Setup Node Environment
         uses: ./.github/actions/setup-node-env
         with:
           cache-key: build-lint-unit
 
-      - name: Cache Supabase CLI
-        id: cache-supabase
-        uses: actions/cache@v4
-        with:
-          path: /usr/local/bin/supabase
-          key: ${{ runner.os }}-supabase-cli-latest
-          restore-keys: |
-            ${{ runner.os }}-supabase-cli-
-
-      - name: Install Supabase CLI
-        if: steps.cache-supabase.outputs.cache-hit != 'true'
-        run: |
-          wget -qO- https://github.com/supabase/cli/releases/latest/download/supabase_linux_amd64.tar.gz | tar xvz
-          sudo mv supabase /usr/local/bin/
-          sudo chmod +x /usr/local/bin/supabase
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifacts
-          path: .
-
-      - name: Start Supabase
-        run: |
-          echo "🚀 Starting Supabase..."
-          supabase start
-          echo "✅ Supabase started successfully"
 
       - name: Start services
         run: |
-          echo "🚀 Starting all services..."
-          # Start services and capture output
+          echo "🚀 Starting all services (includes Supabase)..."
+          # Turbo start will use cached builds from .turbo
           pnpm turbo start > turbo.log 2>&1 &
           echo $! > turbo.pid
           echo "Started turbo with PID $(cat turbo.pid)"
@@ -239,7 +289,10 @@ jobs:
           
           # 1. Check Supabase status
           echo "🔍 Checking Supabase status..."
-          if supabase status; then
+          # Wait a bit more for Supabase to fully start
+          sleep 10
+          cd packages/database && supabase status && cd ../..
+          if [ $? -eq 0 ]; then
             echo "✅ Supabase is healthy!"
           else
             echo "❌ Supabase status check failed"
@@ -329,4 +382,4 @@ jobs:
           fi
           
           echo "🛑 Stopping Supabase..."
-          supabase stop || true
+          cd packages/database && supabase stop || true
