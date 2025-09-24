@@ -1,6 +1,6 @@
-import type { Preview } from "@storybook/react-vite";
-import "../src/styles/styles.css";
-import { BusterStyleProvider } from "../src/context/BusterStyles";
+import type { Preview } from '@storybook/react-vite';
+import '../src/styles/styles.css';
+import { BusterStyleProvider } from '../src/context/BusterStyles';
 
 const preview: Preview = {
   parameters: {
