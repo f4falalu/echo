@@ -44,6 +44,18 @@ jobs:
           VITE_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.VITE_PUBLIC_SUPABASE_ANON_KEY }}
           VITE_PUBLIC_URL: ${{ secrets.VITE_PUBLIC_URL }}
 
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            apps/*/dist
+            apps/*/.next
+            packages/*/dist
+            .turbo
+            apps/api/target/release/buster_server
+          retention-days: 1
+
   # Lint job - runs in parallel
   lint:
     name: Lint
@@ -131,21 +143,17 @@ jobs:
           sudo mv supabase /usr/local/bin/
           sudo chmod +x /usr/local/bin/supabase
 
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: .
+
       - name: Start Supabase
         run: |
           echo "🚀 Starting Supabase..."
           supabase start
           echo "✅ Supabase started successfully"
-      
-      - name: Build all packages
-        run: |
-          echo "🔨 Building all packages (using turbo cache from build job)..."
-          pnpm turbo build
-          echo "✅ Build completed"
-        env:
-          NODE_ENV: production
-          SKIP_ENV_CHECK: true
-          TURBO_TELEMETRY_DISABLED: 1
 
       - name: Start services
         run: |
@@ -220,8 +228,6 @@ jobs:
           SLACK_APP_SUPPORT_URL: ${{ secrets.SLACK_APP_SUPPORT_URL }}
           AI_GATEWAY_API_KEY: ${{ secrets.AI_GATEWAY_API_KEY }}
           DAYTONA_API_KEY: ${{ secrets.DAYTONA_API_KEY }}
-          TEST_GITHUB_PAT: ${{ secrets.TEST_GITHUB_PAT }}
-          TEST_SAMPLE_REPO: ${{ secrets.TEST_SAMPLE_REPO }}
 
       - name: Wait for services to be ready
         run: |
