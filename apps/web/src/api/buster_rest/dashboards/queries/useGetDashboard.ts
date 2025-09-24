@@ -43,7 +43,7 @@ export const useGetDashboard = <TData = GetDashboardResponse>(
     ...dashboardQueryKeys.dashboardGetDashboard(id, 'LATEST'),
     queryFn: () =>
       queryFn({ id, version_number: 'LATEST', shouldInitializeMetrics: true, password }),
-    enabled: false,
+    enabled: true,
     retry(_failureCount, error) {
       if (error?.message !== undefined) {
         setProtectedAssetPasswordError({

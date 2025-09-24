@@ -1,6 +1,7 @@
 import { ClientOnly } from '@tanstack/react-router';
 import type React from 'react';
 import { DashboardVersionModal } from '@/components/features/versionHistory/DashboardVersionModal';
+import { useIsDashboardReadOnly } from '@/context/Dashboards/useIsDashboardReadOnly';
 import { AssetContainer } from '../AssetContainer';
 import { DashboardContainerHeaderSegment } from './DashboardContainerHeaderSegment';
 import { DashboardAssetContextProvider } from './DashboardContextProvider';
