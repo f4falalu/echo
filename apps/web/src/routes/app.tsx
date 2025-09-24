@@ -3,6 +3,7 @@ import { prefetchGetMyUserInfo } from '@/api/buster_rest/users/queryRequests';
 import { getAppLayout } from '@/api/server-functions/getAppLayout';
 import { AppProviders } from '@/context/Providers';
 import { getSupabaseSession } from '@/integrations/supabase/getSupabaseUserClient';
+import { BUSTER_SIGN_UP_URL } from '../config/externalRoutes';
 
 export const Route = createFileRoute('/app')({
   context: ({ context }) => ({ ...context, getAppLayout }),
@@ -27,7 +28,7 @@ export const Route = createFileRoute('/app')({
     try {
       const [user] = await Promise.all([prefetchGetMyUserInfo(queryClient)]);
       if (!user || !user.organizations || user.organizations.length === 0) {
-        throw redirect({ href: 'https://buster.so/sign-up', replace: true, statusCode: 307 });
+        throw redirect({ href: BUSTER_SIGN_UP_URL, replace: true, statusCode: 307 });
       }
       return {
         supabaseSession,
