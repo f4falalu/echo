@@ -18,6 +18,7 @@ export const useAppVersion = () => {
     ...versionGetAppVersion,
     refetchOnReconnect: true,
     refetchOnMount: true,
+    notifyOnChangeProps: ['data'],
   });
   const isChanged = checkNewVersion(data?.buildId);
 
@@ -64,6 +65,7 @@ export const useIsVersionChanged = () => {
   const { data = false } = useQuery({
     ...versionGetAppVersion,
     select: useCallback((data: { buildId: string }) => checkNewVersion(data.buildId), []),
+    notifyOnChangeProps: ['data'],
   });
   return data;
 };
