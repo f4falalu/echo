@@ -6,13 +6,14 @@
       "dependsOn": ["^build", "@buster/server-shared#build"],
       "inputs": [
         "src/**/*",
+        "public/**/*",
+        "tsconfig.json",
+        "package.json",
+        "vite.config.ts",
+        "nitro.config.ts",
         "!src/**/*.test.{ts,tsx,js,jsx}",
         "!src/**/*.spec.{ts,tsx,js,jsx}",
-        "public/**/*",
-        "next.config.mjs",
-        "tailwind.config.ts",
-        "tsconfig.json",
-        "package.json"
+        "!src/**/*.stories.{ts,tsx,js,jsx}"
       ],
       "outputs": [".output/**", ".vercel/**"]
     },
@@ -31,9 +32,10 @@
       "outputs": [".output/**", ".vercel/**"]
     },
     "start": {
-      "dependsOn": ["build"],
+      "dependsOn": ["build", "@buster-app/supabase#start"],
       "cache": true,
-      "persistent": true
+      "persistent": true,
+      "with": ["@buster-app/server#start", "@buster-app/api-legacy#start"]
     },
     "test": {
       "inputs": [
