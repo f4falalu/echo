@@ -68,17 +68,7 @@ jobs:
           echo "✅ Docker images pre-pulled successfully"
 
       - name: Start services
-        run: |
-          echo "🚀 Starting all services (includes Supabase)..."
-          # Turbo start will use cached builds from .turbo
-          pnpm turbo start > turbo.log 2>&1 &
-          echo $! > turbo.pid
-          echo "Started turbo with PID $(cat turbo.pid)"
-          
-          # Give services a moment to start and show initial logs
-          sleep 10
-          echo "=== Initial turbo start output ==="
-          head -50 turbo.log || true
+        run: pnpm turbo start
         env:
           SKIP_ENV_CHECK: true
           TURBO_TELEMETRY_DISABLED: 1
