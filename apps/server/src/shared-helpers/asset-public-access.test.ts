@@ -67,6 +67,10 @@ describe('checkAssetPublicAccess', () => {
         requiredRole: 'can_view',
         organizationId: mockOrganizationId,
         workspaceSharing: mockWorkspaceSharing,
+        publiclyAccessible: false,
+        publicExpiryDate: undefined,
+        publicPassword: undefined,
+        userSuppliedPassword: undefined,
       });
     });
 
@@ -88,6 +92,10 @@ describe('checkAssetPublicAccess', () => {
         requiredRole: 'can_edit',
         organizationId: mockOrganizationId,
         workspaceSharing: mockWorkspaceSharing,
+        publiclyAccessible: false,
+        publicExpiryDate: undefined,
+        publicPassword: undefined,
+        userSuppliedPassword: undefined,
       });
     });
 
@@ -378,6 +386,10 @@ describe('checkAssetPublicAccess', () => {
           requiredRole: 'can_view',
           organizationId: mockOrganizationId,
           workspaceSharing: mockWorkspaceSharing,
+          publiclyAccessible: true,
+          publicExpiryDate: undefined,
+          publicPassword: undefined,
+          userSuppliedPassword: undefined,
         });
       });
     });
@@ -472,6 +484,10 @@ describe('checkAssetPublicAccess', () => {
         requiredRole: 'can_edit',
         organizationId: 'org-123',
         workspaceSharing: 'can_view',
+        publiclyAccessible: false,
+        publicExpiryDate: undefined,
+        publicPassword: undefined,
+        userSuppliedPassword: undefined,
       });
     });
   });

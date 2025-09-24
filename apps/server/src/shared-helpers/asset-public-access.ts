@@ -42,6 +42,10 @@ export const checkAssetPublicAccess = async <T extends PublicAccessAsset>({
     requiredRole,
     organizationId,
     workspaceSharing,
+    publiclyAccessible: asset.publicly_accessible ?? false,
+    publicExpiryDate: asset.public_expiry_date ?? undefined,
+    publicPassword: asset.public_password ?? undefined,
+    userSuppliedPassword: password,
   });
 
   if (!assetPermissionResult.hasAccess) {
@@ -80,7 +84,7 @@ export const checkIfAssetIsEditable = async ({
   assetType: AssetType;
   organizationId?: string;
   workspaceSharing: WorkspaceSharing | ((id: string) => Promise<WorkspaceSharing>);
-  requiredRole?: AssetPermissionRole | AssetPermissionRole[];
+  requiredRole?: AssetPermissionRole;
 }) => {
   const workspaceSharingResult =
     typeof workspaceSharing === 'function' ? await workspaceSharing(assetId) : workspaceSharing;

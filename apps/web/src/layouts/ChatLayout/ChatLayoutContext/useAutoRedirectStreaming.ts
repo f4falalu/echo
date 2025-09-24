@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from '@tanstack/react-router';
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import type { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat';
 import { useGetChatMessageMemoized } from '@/api/buster_rest/chats';
+import { useIsVersionChanged } from '@/context/AppVersion/useAppVersion';
 import { useHasLoadedChat } from '@/context/Chats/useGetChat';
 import {
   useGetChatMessageCompleted,
@@ -20,17 +21,15 @@ export const useAutoRedirectStreaming = ({
 }) => {
   const navigate = useNavigate();
   const getChatMessageMemoized = useGetChatMessageMemoized();
+  const versionChanged = useIsVersionChanged();
   const isStreamFinished = useGetChatMessageCompleted({ messageId: lastMessageId });
   const lastReasoningMessageId = useGetChatMessageLastReasoningMessageId({
     messageId: lastMessageId,
   });
   const isFinishedReasoning = useGetChatMessageIsFinishedReasoning({ messageId: lastMessageId });
   const hasResponseFile = useGetChatMessageHasResponseFile({ messageId: lastMessageId });
-
   const previousIsCompletedStream = useRef<boolean>(isStreamFinished);
-
   const hasLoadedChat = useHasLoadedChat({ chatId: chatId || '' });
-
   const hasReasoning = !!lastReasoningMessageId;
 
   useLayoutEffect(() => {
@@ -63,7 +62,7 @@ export const useAutoRedirectStreaming = ({
           versionNumber: firstFile.version_number,
         });
 
-        navigate({ ...linkProps, replace: true });
+        navigate({ ...linkProps, replace: true, reloadDocument: versionChanged });
       }
     }
 
@@ -76,6 +75,7 @@ export const useAutoRedirectStreaming = ({
           messageId: lastMessageId,
         },
         replace: true,
+        reloadDocument: versionChanged,
       });
     }
 
@@ -94,7 +94,14 @@ export const useAutoRedirectStreaming = ({
           chatId,
         },
         replace: true,
+        reloadDocument: versionChanged,
       });
     }
   }, [isStreamFinished, hasReasoning, hasResponseFile, chatId, lastMessageId, isFinishedReasoning]); //only use these values to trigger the useEffect
+
+  useEffect(() => {
+    if (!isStreamFinished && versionChanged) {
+      window.location.reload();
+    }
+  }, [isStreamFinished, versionChanged]);
 };
