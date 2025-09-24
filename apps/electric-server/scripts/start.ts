@@ -11,7 +11,7 @@ const __dirname = dirname(__filename);
 const projectRoot = join(__dirname, '..');
 
 // Database connection details from docker-compose.yml
-const DB_HOST = 'host.docker.internal';
+const DB_HOST = 'localhost';
 const DB_PORT = '54322';
 const DB_NAME = 'postgres';
 const DB_USER = 'postgres';
@@ -21,7 +21,7 @@ const DB_PASSWORD = 'postgres';
 function isDatabaseRunning(): boolean {
   try {
     // Use pg_isready to check if PostgreSQL is accepting connections
-    execSync(`docker run --rm postgres:15 pg_isready -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER}`, {
+    execSync(`pg_isready -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER}`, {
       stdio: 'pipe',
       timeout: 45000
     });
@@ -38,6 +38,7 @@ function isElectricRunning(): boolean {
       encoding: 'utf8',
       cwd: projectRoot 
     });
+    console.info(result);
     return result.includes('electric-server-electric-1') || result.includes('electric-server_electric_1');
   } catch (error) {
     console.error('⚠️  Error checking docker containers:', error);
