@@ -1,78 +1,79 @@
 {
-    "$schema": "https://turbo.build/schema.json",
-    "extends": ["//"],
-    "tasks": {
-      "build": {
-        "dependsOn": ["^build", "@buster/server-shared#build"],
-        "inputs": [
-          "src/**/*",
-          "!src/**/*.test.{ts,tsx,js,jsx}",
-          "!src/**/*.spec.{ts,tsx,js,jsx}",
-          "public/**/*",
-          "next.config.mjs",
-          "tailwind.config.ts",
-          "tsconfig.json",
-          "package.json"
-        ],
-        "outputs": [".output/**", ".vercel/**"]
-      },
-      "build:vercel": {
-        "dependsOn": ["^build:vercel", "@buster/server-shared#build"],
-        "inputs": [
-          "src/**/*",
-          "!src/**/*.test.{ts,tsx,js,jsx}",
-          "!src/**/*.spec.{ts,tsx,js,jsx}",
-          "public/**/*",
-          "next.config.mjs",
-          "tailwind.config.ts",
-          "tsconfig.json",
-          "package.json"
-        ],
-        "outputs": [".output/**", ".vercel/**"]
-      },
-      "start": {
-        "dependsOn": ["build"],
-        "cache": true,
-        "persistent": true
-      },
-      "test": {
-        "inputs": [
-          "src/**/*",
-          "**/*.test.{ts,tsx,js,jsx}",
-          "**/*.spec.{ts,tsx,js,jsx}",
-          "playwright-tests/**/*",
-          "vitest.config.ts",
-          "package.json"
-        ]
-      },
-      "dev": {
-        "dependsOn": ["@buster/server-shared#build"],
-        "cache": false,
-        "persistent": true,
-        "inputs": [
-          "src/**/*",
-          "!src/**/*.test.{ts,tsx,js,jsx}",
-          "!src/**/*.spec.{ts,tsx,js,jsx}",
-          "next.config.mjs",
-          "tailwind.config.ts",
-          "tsconfig.json",
-          "package.json"
-        ]
-      },
-      "dev:fast": {
-        "dependsOn": ["@buster/server-shared#build"],
-        "cache": false,
-        "persistent": true,
-        "inputs": [
-          "src/**/*",
-          "!src/**/*.test.{ts,tsx,js,jsx}",
-          "!src/**/*.spec.{ts,tsx,js,jsx}",
-          "next.config.mjs",
-          "tailwind.config.ts",
-          "tsconfig.json",
-          "package.json"
-        ]
-      }
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build", "@buster/server-shared#build"],
+      "inputs": [
+        "src/**/*",
+        "public/**/*",
+        "tsconfig.json",
+        "package.json",
+        "vite.config.ts",
+        "nitro.config.ts",
+        "!src/**/*.test.{ts,tsx,js,jsx}",
+        "!src/**/*.spec.{ts,tsx,js,jsx}",
+        "!src/**/*.stories.{ts,tsx,js,jsx}"
+      ],
+      "outputs": [".output/**", ".vercel/**"]
+    },
+    "build:vercel": {
+      "dependsOn": ["^build:vercel", "@buster/server-shared#build"],
+      "inputs": [
+        "src/**/*",
+        "!src/**/*.test.{ts,tsx,js,jsx}",
+        "!src/**/*.spec.{ts,tsx,js,jsx}",
+        "public/**/*",
+        "next.config.mjs",
+        "tailwind.config.ts",
+        "tsconfig.json",
+        "package.json"
+      ],
+      "outputs": [".output/**", ".vercel/**"]
+    },
+    "start": {
+      "dependsOn": ["build", "@buster-app/supabase#start"],
+      "cache": true,
+      "persistent": true,
+      "with": ["@buster-app/server#start", "@buster-app/api-legacy#start"]
+    },
+    "test": {
+      "inputs": [
+        "src/**/*",
+        "**/*.test.{ts,tsx,js,jsx}",
+        "**/*.spec.{ts,tsx,js,jsx}",
+        "playwright-tests/**/*",
+        "vitest.config.ts",
+        "package.json"
+      ]
+    },
+    "dev": {
+      "dependsOn": ["@buster/server-shared#build"],
+      "cache": false,
+      "persistent": true,
+      "inputs": [
+        "src/**/*",
+        "!src/**/*.test.{ts,tsx,js,jsx}",
+        "!src/**/*.spec.{ts,tsx,js,jsx}",
+        "next.config.mjs",
+        "tailwind.config.ts",
+        "tsconfig.json",
+        "package.json"
+      ]
+    },
+    "dev:fast": {
+      "dependsOn": ["@buster/server-shared#build"],
+      "cache": false,
+      "persistent": true,
+      "inputs": [
+        "src/**/*",
+        "!src/**/*.test.{ts,tsx,js,jsx}",
+        "!src/**/*.spec.{ts,tsx,js,jsx}",
+        "next.config.mjs",
+        "tailwind.config.ts",
+        "tsconfig.json",
+        "package.json"
+      ]
     }
   }
-  
+}

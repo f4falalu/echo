@@ -4,31 +4,13 @@
   "concurrency": "20",
   "tasks": {
     "build": {
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [
-        "dist/**",
-        ".next/**"
-      ]
+      "dependsOn": ["^build"]
     },
     "build:dry-run": {
-      "dependsOn": [
-        "^build:dry-run"
-      ],
-      "outputs": [
-        "dist/**",
-        ".next/**"
-      ],
-      "env": [
-        "SKIP_ENV_CHECK"
-      ]
+      "dependsOn": ["^build:dry-run"],
+      "env": ["SKIP_ENV_CHECK"]
     },
     "dev": {
-      "cache": false,
-      "persistent": true
-    },
-    "momentic": {
       "cache": false,
       "persistent": true
     },
@@ -37,29 +19,19 @@
       "persistent": true
     },
     "lint": {
-      "dependsOn": [
-        "^lint"
-      ]
+      "dependsOn": ["^lint"]
     },
     "typecheck": {
-      "dependsOn": [
-        "^build"
-      ]
+      "dependsOn": ["^build"]
     },
     "test": {
-      "dependsOn": [
-        "^build"
-      ]
+      "dependsOn": ["^build"]
     },
     "test:unit": {
-      "dependsOn": [
-        "^test:unit"
-      ]
+      "dependsOn": ["^test:unit"]
     },
     "test:integration": {
-      "dependsOn": [
-        "^build"
-      ]
+      "dependsOn": ["^build"]
     },
     "test:watch": {
       "cache": false,
@@ -74,53 +46,13 @@
       "persistent": true
     },
     "test:coverage": {
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [
-        "coverage/**"
-      ]
-    },
-    "build:commonjs": {
-      "cache": false,
-      "persistent": false,
-      "outputs": [
-        "dist/**"
-      ]
-    },
-    "build:commonjs:watch": {
-      "cache": false,
-      "persistent": true,
-      "dependsOn": [
-        "build:commonjs"
-      ]
-    },
-    "db:migrate": {
-      "cache": false,
-      "env": [
-        "NODE_TLS_REJECT_UNAUTHORIZED"
-      ]
-    },
-    "db:seed": {
-      "cache": false,
-      "env": [
-        "DATABASE_URL",
-        "ENVIRONMENT",
-        "NODE_ENV"
-      ]
-    },
-    "db:init": {
-      "cache": false,
-      "dependsOn": ["db:migrate"],
-      "env": [
-        "DATABASE_URL",
-        "ENVIRONMENT",
-        "NODE_ENV"
-      ]
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**"]
     }
   },
   "globalEnv": [
     "NODE_ENV",
+    "NODE_TLS_REJECT_UNAUTHORIZED",
     "CI",
     "VERCEL",
     "VERCEL_ENV",
