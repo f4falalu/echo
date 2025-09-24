@@ -26,6 +26,7 @@ export const Route = createFileRoute('/app')({
     const { queryClient, supabaseSession } = context;
     try {
       await Promise.all([prefetchGetMyUserInfo(queryClient)]);
+
       return {
         supabaseSession,
       };
