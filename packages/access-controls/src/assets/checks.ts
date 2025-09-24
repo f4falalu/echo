@@ -137,7 +137,12 @@ export async function checkPermission(check: AssetPermissionCheck): Promise<Asse
   if (requiredRole === 'can_view') {
     // Create a user object for cascading permissions check
     const user: Pick<User, 'id'> = { id: userId };
-    const hasCascadingAccess = await checkCascadingPermissions(assetId, assetType, user as User);
+    const hasCascadingAccess = await checkCascadingPermissions(
+      assetId,
+      assetType,
+      user as User,
+      userSuppliedPassword
+    );
     if (hasCascadingAccess) {
       const result = {
         hasAccess: true,

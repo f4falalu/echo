@@ -318,7 +318,8 @@ export async function checkChatCollectionAccess(chatId: string, user: User): Pro
 export async function checkCascadingPermissions(
   assetId: string,
   assetType: AssetType,
-  user: User
+  user: User,
+  userSuppliedPassword?: string
 ): Promise<boolean> {
   // Check cache first
   const cached = getCachedCascadingPermission(user.id, assetId, assetType);
@@ -332,7 +333,11 @@ export async function checkCascadingPermissions(
     switch (assetType) {
       case 'metric_file': {
         // Check access through dashboards, chats, collections, and reports
-        const dashboardAccess = await checkMetricDashboardAccess(assetId, user);
+        const dashboardAccess = await checkMetricDashboardAccess(
+          assetId,
+          user,
+          userSuppliedPassword
+        );
         if (dashboardAccess) {
           hasAccess = true;
           break;
@@ -350,7 +355,7 @@ export async function checkCascadingPermissions(
           break;
         }
 
-        const reportAccess = await checkMetricReportAccess(assetId, user);
+        const reportAccess = await checkMetricReportAccess(assetId, user, userSuppliedPassword);
         if (reportAccess) {
           hasAccess = true;
           break;
