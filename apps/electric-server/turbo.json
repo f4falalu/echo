@@ -3,9 +3,9 @@
   "extends": ["//"],
   "tasks": {
     "start": {
-      "dependsOn": ["@buster/database#start"],
-      "cache": true,
-      "persistent": false,
+      "dependsOn": ["@buster-app/supabase#start", "@buster/database#start"],
+      "cache": false,
+      "persistent": true,
       "outputs": []
     },
     "dev": {
