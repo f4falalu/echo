@@ -25,11 +25,18 @@ export const Route = createFileRoute('/app')({
   loader: async ({ context }) => {
     const { queryClient, supabaseSession } = context;
     try {
-      await Promise.all([prefetchGetMyUserInfo(queryClient)]);
+      const [user] = await Promise.all([prefetchGetMyUserInfo(queryClient)]);
+      if (!user || !user.organizations || user.organizations.length === 0) {
+        throw redirect({ href: 'https://buster.so/sign-up', replace: true, statusCode: 307 });
+      }
       return {
         supabaseSession,
       };
     } catch (error) {
+      // Re-throw redirect Responses so the router can handle them (e.g., getting-started)
+      if (error instanceof Response) {
+        throw error;
+      }
       console.error('Error in app route loader:', error);
       throw redirect({ to: '/auth/login', replace: true, statusCode: 307 });
     }

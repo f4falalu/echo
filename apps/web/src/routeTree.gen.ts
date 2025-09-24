@@ -18,9 +18,11 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
+import { Route as InfoGettingStartedRouteImport } from './routes/info/getting-started'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
 import { Route as AuthLogoutRouteImport } from './routes/auth.logout'
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
+import { Route as AppThrowRouteImport } from './routes/app.throw'
 import { Route as AppSettingsRouteImport } from './routes/app/_settings'
 import { Route as AppAppRouteImport } from './routes/app/_app'
 import { Route as EmbedReportReportIdRouteImport } from './routes/embed/report.$reportId'
@@ -191,6 +193,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const InfoGettingStartedRoute = InfoGettingStartedRouteImport.update({
+  id: '/info/getting-started',
+  path: '/info/getting-started',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -205,6 +212,11 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => AuthRoute,
+} as any)
+const AppThrowRoute = AppThrowRouteImport.update({
+  id: '/throw',
+  path: '/throw',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppSettingsRoute = AppSettingsRouteImport.update({
   id: '/_settings',
@@ -933,9 +945,11 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRouteWithChildren
   '/embed': typeof EmbedRouteWithChildren
   '/healthcheck': typeof HealthcheckRoute
+  '/app/throw': typeof AppThrowRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/info/getting-started': typeof InfoGettingStartedRoute
   '/app/': typeof AppIndexRoute
   '/app/healthcheck': typeof AppAppHealthcheckRoute
   '/app/home': typeof AppAppHomeRoute
@@ -1041,9 +1055,11 @@ export interface FileRoutesByTo {
   '/embed': typeof EmbedRouteWithChildren
   '/healthcheck': typeof HealthcheckRoute
   '/app': typeof AppSettingsRestricted_layoutAdmin_onlyRouteWithChildren
+  '/app/throw': typeof AppThrowRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/info/getting-started': typeof InfoGettingStartedRoute
   '/app/healthcheck': typeof AppAppHealthcheckRoute
   '/app/home': typeof AppAppHomeRoute
   '/embed/dashboard/$dashboardId': typeof EmbedDashboardDashboardIdRoute
@@ -1134,9 +1150,11 @@ export interface FileRoutesById {
   '/healthcheck': typeof HealthcheckRoute
   '/app/_app': typeof AppAppRouteWithChildren
   '/app/_settings': typeof AppSettingsRouteWithChildren
+  '/app/throw': typeof AppThrowRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/info/getting-started': typeof InfoGettingStartedRoute
   '/app/': typeof AppIndexRoute
   '/app/_app/_asset': typeof AppAppAssetRouteWithChildren
   '/app/_app/healthcheck': typeof AppAppHealthcheckRoute
@@ -1258,9 +1276,11 @@ export interface FileRouteTypes {
     | '/auth'
     | '/embed'
     | '/healthcheck'
+    | '/app/throw'
     | '/auth/login'
     | '/auth/logout'
     | '/auth/reset-password'
+    | '/info/getting-started'
     | '/app/'
     | '/app/healthcheck'
     | '/app/home'
@@ -1366,9 +1386,11 @@ export interface FileRouteTypes {
     | '/embed'
     | '/healthcheck'
     | '/app'
+    | '/app/throw'
     | '/auth/login'
     | '/auth/logout'
     | '/auth/reset-password'
+    | '/info/getting-started'
     | '/app/healthcheck'
     | '/app/home'
     | '/embed/dashboard/$dashboardId'
@@ -1458,9 +1480,11 @@ export interface FileRouteTypes {
     | '/healthcheck'
     | '/app/_app'
     | '/app/_settings'
+    | '/app/throw'
     | '/auth/login'
     | '/auth/logout'
     | '/auth/reset-password'
+    | '/info/getting-started'
     | '/app/'
     | '/app/_app/_asset'
     | '/app/_app/healthcheck'
@@ -1581,6 +1605,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   EmbedRoute: typeof EmbedRouteWithChildren
   HealthcheckRoute: typeof HealthcheckRoute
+  InfoGettingStartedRoute: typeof InfoGettingStartedRoute
 }
 export interface FileServerRoutesByFullPath {
   '/auth/callback': typeof AuthCallbackServerRoute
@@ -1648,6 +1673,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/info/getting-started': {
+      id: '/info/getting-started'
+      path: '/info/getting-started'
+      fullPath: '/info/getting-started'
+      preLoaderRoute: typeof InfoGettingStartedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/reset-password': {
       id: '/auth/reset-password'
       path: '/reset-password'
@@ -1668,6 +1700,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth/login'
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof AuthRoute
+    }
+    '/app/throw': {
+      id: '/app/throw'
+      path: '/throw'
+      fullPath: '/app/throw'
+      preLoaderRoute: typeof AppThrowRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/_settings': {
       id: '/app/_settings'
@@ -3195,12 +3234,14 @@ const AppSettingsRouteWithChildren = AppSettingsRoute._addFileChildren(
 interface AppRouteChildren {
   AppAppRoute: typeof AppAppRouteWithChildren
   AppSettingsRoute: typeof AppSettingsRouteWithChildren
+  AppThrowRoute: typeof AppThrowRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppAppRoute: AppAppRouteWithChildren,
   AppSettingsRoute: AppSettingsRouteWithChildren,
+  AppThrowRoute: AppThrowRoute,
   AppIndexRoute: AppIndexRoute,
 }
 
@@ -3240,6 +3281,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   EmbedRoute: EmbedRouteWithChildren,
   HealthcheckRoute: HealthcheckRoute,
+  InfoGettingStartedRoute: InfoGettingStartedRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
