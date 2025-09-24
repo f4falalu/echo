@@ -16,8 +16,6 @@
     "prebuild": "[ \"$SKIP_ENV_CHECK\" = \"true\" ] || tsx scripts/validate-env.ts",
     "build": "tsc",
     "build:dry-run": "tsc",
-    "build:commonjs": "tsc --module commonjs --moduleResolution node",
-    "build:commonjs:watch": "npm run build:commonjs && tsc --module commonjs --moduleResolution node --watch",
     "dev": "tsc --watch",
     "dev:fast": "tsc --watch",
     "lint": "biome check --write",

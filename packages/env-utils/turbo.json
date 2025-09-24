@@ -5,12 +5,6 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true,
-      "dependsOn": ["^build"],
-      "with": ["@buster/database#dev"]
     }
   }
 }
