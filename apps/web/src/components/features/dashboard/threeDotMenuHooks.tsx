@@ -36,11 +36,13 @@ import { useListDashboardVersionDropdownItems } from '../versionHistory/useListD
 
 export const useDashboardVersionHistorySelectMenu = ({
   dashboardId,
+  dashboardVersionNumber,
 }: {
   dashboardId: string;
+  dashboardVersionNumber: number | undefined;
 }): IDropdownItem => {
   const { data } = useGetDashboard(
-    { id: dashboardId },
+    { id: dashboardId, versionNumber: dashboardVersionNumber },
     {
       select: useCallback(
         (x: GetDashboardResponse) => ({
@@ -74,11 +76,17 @@ export const useDashboardVersionHistorySelectMenu = ({
   );
 };
 
-export const useCollectionSelectMenu = ({ dashboardId }: { dashboardId: string }) => {
+export const useCollectionSelectMenu = ({
+  dashboardId,
+  dashboardVersionNumber,
+}: {
+  dashboardId: string;
+  dashboardVersionNumber: number | undefined;
+}) => {
   const { mutateAsync: saveDashboardToCollection } = useAddDashboardToCollection();
   const { mutateAsync: removeDashboardFromCollection } = useRemoveDashboardFromCollection();
   const { data: selectedCollections } = useGetDashboard(
-    { id: dashboardId },
+    { id: dashboardId, versionNumber: dashboardVersionNumber },
     { select: (x) => x.collections?.map((collection) => collection.id) }
   );
   const { openInfoMessage } = useBusterNotifications();
@@ -124,9 +132,15 @@ export const useCollectionSelectMenu = ({ dashboardId }: { dashboardId: string }
   return collectionDropdownItem;
 };
 
-export const useFavoriteDashboardSelectMenu = ({ dashboardId }: { dashboardId: string }) => {
+export const useFavoriteDashboardSelectMenu = ({
+  dashboardId,
+  dashboardVersionNumber,
+}: {
+  dashboardId: string;
+  dashboardVersionNumber: number | undefined;
+}) => {
   const { data: title } = useGetDashboard(
-    { id: dashboardId },
+    { id: dashboardId, versionNumber: dashboardVersionNumber },
     { select: (x) => x?.dashboard?.name }
   );
   const { isFavorited, onFavoriteClick } = useFavoriteStar({
@@ -256,8 +270,17 @@ export const useOpenFullScreenDashboard = ({ dashboardId }: { dashboardId: strin
   );
 };
 
-export const useShareMenuSelectMenu = ({ dashboardId }: { dashboardId: string }) => {
-  const { data: dashboard } = useGetDashboard({ id: dashboardId }, { select: getShareAssetConfig });
+export const useShareMenuSelectMenu = ({
+  dashboardId,
+  dashboardVersionNumber,
+}: {
+  dashboardId: string;
+  dashboardVersionNumber: number | undefined;
+}) => {
+  const { data: dashboard } = useGetDashboard(
+    { id: dashboardId, versionNumber: dashboardVersionNumber },
+    { select: getShareAssetConfig }
+  );
   const isOwner = getIsEffectiveOwner(dashboard?.permission);
 
   return useMemo(
@@ -282,8 +305,17 @@ export const useShareMenuSelectMenu = ({ dashboardId }: { dashboardId: string })
   );
 };
 
-export const useEditDashboardWithAI = ({ dashboardId }: { dashboardId: string }) => {
-  const { data: dashboard } = useGetDashboard({ id: dashboardId }, { select: getShareAssetConfig });
+export const useEditDashboardWithAI = ({
+  dashboardId,
+  dashboardVersionNumber,
+}: {
+  dashboardId: string;
+  dashboardVersionNumber: number | undefined;
+}) => {
+  const { data: dashboard } = useGetDashboard(
+    { id: dashboardId, versionNumber: dashboardVersionNumber },
+    { select: getShareAssetConfig }
+  );
   const isEditor = canEdit(dashboard?.permission);
 
   const { onCreateFileClick, loading } = useStartChatFromAsset({

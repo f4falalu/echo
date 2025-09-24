@@ -7,10 +7,11 @@ import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 
 export const DashboardViewFileController: React.FC<{
   dashboardId: string;
+  dashboardVersionNumber: number | undefined;
   chatId?: string | undefined;
-}> = React.memo(({ dashboardId }) => {
+}> = React.memo(({ dashboardId, dashboardVersionNumber }) => {
   const { data: dashboard } = useGetDashboard(
-    { id: dashboardId },
+    { id: dashboardId, versionNumber: dashboardVersionNumber },
     { select: (data) => data.dashboard }
   );
   const { openSuccessMessage } = useBusterNotifications();

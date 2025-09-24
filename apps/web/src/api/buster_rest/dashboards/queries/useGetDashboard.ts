@@ -29,8 +29,8 @@ import { dashboardsGetList } from '../requests';
 export const useGetDashboard = <TData = GetDashboardResponse>(
   {
     id: idProp,
-    versionNumber: versionNumberProp = 'LATEST',
-  }: { id: string | undefined; versionNumber?: number | 'LATEST' },
+    versionNumber: versionNumberProp,
+  }: { id: string | undefined; versionNumber: number | 'LATEST' | undefined },
   params?: Omit<UseQueryOptions<GetDashboardResponse, RustApiError, TData>, 'queryKey' | 'queryFn'>
 ) => {
   const id = idProp || '';

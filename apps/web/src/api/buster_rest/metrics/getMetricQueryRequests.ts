@@ -69,7 +69,7 @@ export const useGetMetric = <TData = BusterMetric>(
     versionNumber: versionNumberProp,
   }: {
     id: string | undefined;
-    versionNumber?: number | 'LATEST'; //if null it will not use a params from the query params
+    versionNumber: number | 'LATEST' | undefined; //if null it will not use a params from the query params
   },
   params?: Omit<UseQueryOptions<BusterMetric, RustApiError, TData>, 'queryKey' | 'queryFn'>
 ) => {
