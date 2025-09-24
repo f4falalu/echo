@@ -2,8 +2,8 @@ import type { ModelMessage } from 'ai';
 import { generateObject } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import { Haiku35 } from '../../../llm/haiku-3-5';
-import { DEFAULT_ANTHROPIC_OPTIONS } from '../../../llm/providers/gateway';
+import { GPT5Mini } from '../../../llm';
+import { DEFAULT_OPENAI_OPTIONS } from '../../../llm/providers/gateway';
 
 // Schema for what the LLM returns
 const llmOutputSchema = z.object({
@@ -91,11 +91,11 @@ export async function extractValuesWithLLM(
     const tracedValuesExtraction = wrapTraced(
       async () => {
         const { object } = await generateObject({
-          model: Haiku35,
+          model: GPT5Mini,
           schema: llmOutputSchema,
           messages,
           temperature: 0,
-          providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
+          providerOptions: DEFAULT_OPENAI_OPTIONS,
         });
 
         return object;

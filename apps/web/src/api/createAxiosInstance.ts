@@ -6,7 +6,7 @@ import { Route as AuthRoute } from '@/routes/auth.login';
 import { BASE_URL_V2 } from './config';
 import { rustErrorHandler } from './errors';
 
-const AXIOS_TIMEOUT = 180000; // 3 minutes
+const AXIOS_TIMEOUT = 120000; // 2 minutes
 
 export const createAxiosInstance = (baseURL = BASE_URL_V2) => {
   const apiInstance = axios.create({

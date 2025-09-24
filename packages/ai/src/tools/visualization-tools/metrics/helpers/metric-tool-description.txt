@@ -107,6 +107,24 @@ Only utilize the required/default fields unless the user specifically requests t
 #       multiplier: 100  # Use 100 if SQL returns 0.75 for 75%; use 1 if SQL returns 75 for 75%
 #       minimumFractionDigits: 1
 #       maximumFractionDigits: 2
+#
+# DATE NUMBER HANDLING RULES (IMPORTANT)
+#   - Whenever a column represents a date part but is typed as a number (month, quarter, day_of_week), you MUST set:
+#     columnType: number
+#     style: date
+#   - Always use convertNumberTo to translate raw numbers into readable time units:
+#     - month → convertNumberTo: month_of_year
+#     - quarter → convertNumberTo: quarter
+#     - day_of_week → convertNumberTo: day_of_week
+#   - Always set makeLabelHumanReadable: true for these.
+#   - NEVER leave raw numbers on the axis.
+#
+# DATE PART RULES
+#   - year → columnType: number, style: number, numberSeparatorStyle: null (no thousands separators).
+#   - month/quarter/day_of_week → columnType: number, style: date, with convertNumberTo + makeLabelHumanReadable.
+#   - When X-axis = [month, year] across multiple years → month.dateFormat: 'MMM' (renderer composes 'MMM YYYY' with the year part).
+#   - Full date/timestamp columns → columnType: date, style: date, include explicit dateFormat appropriate to the interval.
+
 # -------------------------------------
 
 # --- FORMAL SCHEMA --- (Used for validation, reflects rules above)
@@ -213,7 +231,7 @@ definitions:
         description: |
           Default color palette. 
           RULE: Hex color codes (e.g., #FF0000) MUST be enclosed in quotes (e.g., "#FF0000" or '#FF0000') because '#' signifies a comment otherwise. Double quotes are preferred for consistency.
-          Use this parameter when the user asks about customizing chart colors, unless specified otherwise.
+          You should never return/edit this field unless the user or dataset documentation explicitly ask you to customize chart colors.
       showLegend:
         type: boolean
       gridLines:

@@ -2,21 +2,9 @@
   "$schema": "https://turbo.build/schema.json",
   "extends": ["//"],
   "tasks": {
-    "dev:mastra": {
-      "cache": false,
-      "persistent": true,
-      "dependsOn": [
-        "@buster/database#build:commonjs",
-        "@buster/access-controls#build:commonjs",
-        "@buster/data-source#build:commonjs",
-        "@buster/search#build:commonjs"
-      ],
-      "with": [
-        "@buster/database#build:commonjs:watch",
-        "@buster/access-controls#build:commonjs:watch",
-        "@buster/data-source#build:commonjs:watch",
-        "@buster/search#build:commonjs:watch"
-      ]
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
     },
     "dev": {
       "cache": false,

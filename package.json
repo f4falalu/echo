@@ -55,7 +55,7 @@
     "@biomejs/biome": "^1.9.4",
     "@types/node": "^22.18.1",
     "tsx": "catalog:",
-    "turbo": "^2.5.6",
+    "turbo": "^2.5.7",
     "vitest": "catalog:"
   },
   "peerDependencies": {
@@ -64,9 +64,7 @@
   "packageManager": "pnpm@10.17.1",
   "pnpm": {
     "peerDependencyRules": {
-      "ignoreMissing": [
-        "shiki"
-      ],
+      "ignoreMissing": ["shiki"],
       "allowedVersions": {
         "shiki": "3"
       }

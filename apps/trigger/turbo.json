@@ -2,17 +2,27 @@
   "extends": ["//"],
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": []
+    },
+    "start": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["^build", "@buster-app/supabase#start"],
+      "with": ["@buster-app/supabase#start"]
+    },
     "dev": {
       "cache": false,
       "persistent": true,
       "dependsOn": ["^build"],
-      "with": ["@buster/database#dev"]
+      "with": ["@buster-app/supabase#start"]
     },
     "dev:fast": {
       "cache": false,
       "persistent": true,
       "dependsOn": ["^build"],
-      "with": ["@buster/database#dev"]
+      "with": ["@buster-app/supabase#start"]
     }
   }
 }

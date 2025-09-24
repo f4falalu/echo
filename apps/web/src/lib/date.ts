@@ -15,8 +15,6 @@ import isDate from 'lodash/isDate';
 import lodashIsNaN from 'lodash/isNaN';
 import isNumber from 'lodash/isNumber';
 import isString from 'lodash/isString';
-import { SupportedLanguages } from '@/config/languages';
-import { getBrowserLanguage } from './language';
 import { isNumeric } from './numbers';
 
 dayjs.extend(relativeTime);

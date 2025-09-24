@@ -2,16 +2,9 @@
   "$schema": "https://turborepo.com/schema.json",
   "extends": ["//"],
   "tasks": {
-    "build:commonjs": {
-      "cache": false,
-      "persistent": false,
-      "dependsOn": ["@buster/database#build:commonjs"],
+    "build": {
+      "dependsOn": ["^build"],
       "outputs": ["dist/**"]
-    },
-    "build:commonjs:watch": {
-      "cache": false,
-      "persistent": true,
-      "dependsOn": ["build:commonjs"]
     },
     "dev": {
       "cache": false,

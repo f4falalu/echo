@@ -6,9 +6,13 @@ import { z } from 'zod';
 export const MetricDownloadParamsSchema = z.object({
   id: z.string().uuid('Metric ID must be a valid UUID'),
 });
+export const MetricDownloadQueryParamsSchema = z.object({
+  report_file_id: z.string().uuid('Report file ID must be a valid UUID').optional(),
+  metric_version_number: z.number().optional(),
+});
 
 export type MetricDownloadParams = z.infer<typeof MetricDownloadParamsSchema>;
-
+export type MetricDownloadQueryParams = z.infer<typeof MetricDownloadQueryParamsSchema>;
 /**
  * Response for successful metric download
  */

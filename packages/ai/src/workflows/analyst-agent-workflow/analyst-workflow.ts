@@ -25,6 +25,7 @@ import { CREATE_METRICS_TOOL_NAME } from '../../tools/visualization-tools/metric
 import { MODIFY_METRICS_TOOL_NAME } from '../../tools/visualization-tools/metrics/modify-metrics-tool/modify-metrics-tool';
 import { CREATE_REPORTS_TOOL_NAME } from '../../tools/visualization-tools/reports/create-reports-tool/create-reports-tool';
 import { MODIFY_REPORTS_TOOL_NAME } from '../../tools/visualization-tools/reports/modify-reports-tool/modify-reports-tool';
+import { extractUserAndDoneToolMessages } from '../../utils';
 import { withStepRetry } from '../../utils/with-step-retry';
 import type { StepRetryOptions } from '../../utils/with-step-retry';
 import {
@@ -268,6 +269,7 @@ async function runAnalystPrepSteps({
   values: ExtractValuesSearchResult;
   analysisMode: AnalysisTypeRouterResult['analysisMode'];
 }> {
+  const filteredToUserAndDoneToolMessages = extractUserAndDoneToolMessages(messages);
   const shouldInjectUserPersonalizationTodo = Boolean(userPersonalizationConfig);
   const [todos, values, , analysisMode] = await Promise.all([
     withStepRetry(
@@ -292,7 +294,7 @@ async function runAnalystPrepSteps({
     withStepRetry(
       () =>
         runExtractValuesAndSearchStep({
-          messages,
+          messages: filteredToUserAndDoneToolMessages,
           dataSourceId,
         }),
       {
@@ -310,7 +312,7 @@ async function runAnalystPrepSteps({
     withStepRetry(
       () =>
         runGenerateChatTitleStep({
-          messages,
+          messages: filteredToUserAndDoneToolMessages,
           chatId,
           messageId,
         }),
@@ -329,7 +331,7 @@ async function runAnalystPrepSteps({
     withStepRetry(
       () =>
         runAnalysisTypeRouterStep({
-          messages,
+          messages: filteredToUserAndDoneToolMessages,
           messageAnalysisMode,
         }),
       {

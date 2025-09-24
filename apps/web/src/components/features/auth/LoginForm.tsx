@@ -26,7 +26,7 @@ export const LoginForm: React.FC<{
 }> = ({ redirectTo }) => {
   const lastUsedProps = useLastUsed();
 
-  const [signUpFlow, setSignUpFlow] = useState(!env.VITE_PUBLIC_USER);
+  const [signUpFlow, setSignUpFlow] = useState(false);
   const [signUpSuccess, setSignUpSuccess] = useState(false);
 
   // Use the centralized auth mutations hook
@@ -306,6 +306,23 @@ const AlreadyHaveAccount: React.FC<{
   setSignUpFlow: (value: boolean) => void;
   signUpFlow: boolean;
 }> = React.memo(({ setErrorMessages, setPassword2, setSignUpFlow, signUpFlow }) => {
+  const handleToggleClick = () => {
+    if (!signUpFlow) {
+      // User clicked "Sign up" - redirect to get-started page
+      window.location.href = 'https://www.buster.so/get-started';
+    } else {
+      // User clicked "Sign in" - use existing toggle logic
+      setErrorMessages([]);
+      setPassword2('');
+      setSignUpFlow(!signUpFlow);
+    }
+
+    // TODO: Original toggle logic preserved for future re-enablement
+    // setErrorMessages([]);
+    // setPassword2('');
+    // setSignUpFlow(!signUpFlow);
+  };
+
   return (
     <div className="flex flex-col items-center justify-center gap-1.5">
       <div className="flex items-center justify-center gap-0.5">
@@ -317,11 +334,7 @@ const AlreadyHaveAccount: React.FC<{
           variant="primary"
           size="xs"
           className={cn('ml-1 cursor-pointer font-normal')}
-          onClick={() => {
-            setErrorMessages([]);
-            setPassword2('');
-            setSignUpFlow(!signUpFlow);
-          }}
+          onClick={handleToggleClick}
         >
           {!signUpFlow ? 'Sign up' : 'Sign in'}
         </Text>

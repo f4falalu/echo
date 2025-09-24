@@ -86,6 +86,4 @@ const renderBuilder: Record<
   dot: dotSeriesBuilder,
 };
 
-export const comboSeriesBuilder_labels = (props: LabelBuilderProps): (string | Date)[] => {
-  return lineSeriesBuilder_labels(props);
-};
+export const comboSeriesBuilder_labels = lineSeriesBuilder_labels;

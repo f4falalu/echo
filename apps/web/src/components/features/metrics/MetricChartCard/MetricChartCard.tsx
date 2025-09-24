@@ -153,7 +153,7 @@ const MetricViewChartCardContainer = React.forwardRef<
 >(({ children, loadingData, hasData, errorData, isTable, className }, ref) => {
   const cardClass = React.useMemo(() => {
     if (loadingData || errorData || !hasData) return 'h-full max-h-[600px]';
-    if (isTable) return '';
+    if (isTable) return 'h-full';
     return 'h-full max-h-[600px]';
   }, [isTable, loadingData, hasData, errorData]);
 
@@ -162,7 +162,7 @@ const MetricViewChartCardContainer = React.forwardRef<
       <div
         ref={ref}
         className={cn(
-          'bg-background flex flex-col overflow-hidden rounded border shadow h-full',
+          'bg-background flex flex-col overflow-hidden rounded border shadow',
           cardClass,
           className
         )}
