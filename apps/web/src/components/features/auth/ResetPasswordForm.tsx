@@ -3,6 +3,7 @@ import type { User } from '@supabase/supabase-js';
 import { useRouter } from '@tanstack/react-router';
 import type React from 'react';
 import { useCallback, useState } from 'react';
+import { useGetMyUserInfo } from '@/api/buster_rest/users';
 import { Button } from '@/components/ui/buttons';
 import { SuccessCard } from '@/components/ui/card/SuccessCard';
 import { Input } from '@/components/ui/inputs';
@@ -13,8 +14,8 @@ import { PolicyCheck } from './PolicyCheck';
 
 export const ResetPasswordForm: React.FC<{
   supabaseUser: Pick<User, 'email'>;
-  busterUser: UserResponse;
-}> = ({ supabaseUser, busterUser }) => {
+}> = ({ supabaseUser }) => {
+  const { data: busterUser } = useGetMyUserInfo();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);

@@ -127,6 +127,7 @@ import { Route as AppAppAssetChatsChatIdReportsReportIdMetricsMetricIdContentCha
 import { Route as AppAppAssetChatsChatIdDashboardsDashboardIdMetricsMetricIdContentSqlRouteImport } from './routes/app/_app/_asset/chats.$chatId/dashboards.$dashboardId/metrics.$metricId/_content/sql'
 import { Route as AppAppAssetChatsChatIdDashboardsDashboardIdMetricsMetricIdContentResultsRouteImport } from './routes/app/_app/_asset/chats.$chatId/dashboards.$dashboardId/metrics.$metricId/_content/results'
 import { Route as AppAppAssetChatsChatIdDashboardsDashboardIdMetricsMetricIdContentChartRouteImport } from './routes/app/_app/_asset/chats.$chatId/dashboards.$dashboardId/metrics.$metricId/_content/chart'
+import { ServerRoute as AuthConfirmServerRouteImport } from './routes/auth.confirm'
 import { ServerRoute as AuthCallbackServerRouteImport } from './routes/auth.callback'
 
 const AppAppAssetReportsReportIdRouteImport = createFileRoute(
@@ -939,6 +940,11 @@ const AppAppAssetChatsChatIdDashboardsDashboardIdMetricsMetricIdContentChartRout
         AppAppAssetChatsChatIdDashboardsDashboardIdMetricsMetricIdContentRoute,
     } as any,
   )
+const AuthConfirmServerRoute = AuthConfirmServerRouteImport.update({
+  id: '/auth/confirm',
+  path: '/auth/confirm',
+  getParentRoute: () => rootServerRouteImport,
+} as any)
 const AuthCallbackServerRoute = AuthCallbackServerRouteImport.update({
   id: '/auth/callback',
   path: '/auth/callback',
@@ -1621,24 +1627,28 @@ export interface RootRouteChildren {
 }
 export interface FileServerRoutesByFullPath {
   '/auth/callback': typeof AuthCallbackServerRoute
+  '/auth/confirm': typeof AuthConfirmServerRoute
 }
 export interface FileServerRoutesByTo {
   '/auth/callback': typeof AuthCallbackServerRoute
+  '/auth/confirm': typeof AuthConfirmServerRoute
 }
 export interface FileServerRoutesById {
   __root__: typeof rootServerRouteImport
   '/auth/callback': typeof AuthCallbackServerRoute
+  '/auth/confirm': typeof AuthConfirmServerRoute
 }
 export interface FileServerRouteTypes {
   fileServerRoutesByFullPath: FileServerRoutesByFullPath
-  fullPaths: '/auth/callback'
+  fullPaths: '/auth/callback' | '/auth/confirm'
   fileServerRoutesByTo: FileServerRoutesByTo
-  to: '/auth/callback'
-  id: '__root__' | '/auth/callback'
+  to: '/auth/callback' | '/auth/confirm'
+  id: '__root__' | '/auth/callback' | '/auth/confirm'
   fileServerRoutesById: FileServerRoutesById
 }
 export interface RootServerRouteChildren {
   AuthCallbackServerRoute: typeof AuthCallbackServerRoute
+  AuthConfirmServerRoute: typeof AuthConfirmServerRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2522,6 +2532,13 @@ declare module '@tanstack/react-router' {
 }
 declare module '@tanstack/react-start/server' {
   interface ServerFileRoutesByPath {
+    '/auth/confirm': {
+      id: '/auth/confirm'
+      path: '/auth/confirm'
+      fullPath: '/auth/confirm'
+      preLoaderRoute: typeof AuthConfirmServerRouteImport
+      parentRoute: typeof rootServerRouteImport
+    }
     '/auth/callback': {
       id: '/auth/callback'
       path: '/auth/callback'
@@ -3309,6 +3326,7 @@ export const routeTree = rootRouteImport
   ._addFileTypes<FileRouteTypes>()
 const rootServerRouteChildren: RootServerRouteChildren = {
   AuthCallbackServerRoute: AuthCallbackServerRoute,
+  AuthConfirmServerRoute: AuthConfirmServerRoute,
 }
 export const serverRouteTree = rootServerRouteImport
   ._addFileChildren(rootServerRouteChildren)
