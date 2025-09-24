@@ -121,7 +121,6 @@ export const getDashboardAndInitializeMetrics = async ({
   prefetchMetricsData?: boolean;
 }) => {
   const chosenVersionNumber = version_number === 'LATEST' ? undefined : version_number;
-  console.log('chosenVersionNumber', chosenVersionNumber);
   return getDashboardById({
     id: id || '',
     password,

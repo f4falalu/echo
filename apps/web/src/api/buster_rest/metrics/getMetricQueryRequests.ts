@@ -13,7 +13,7 @@ import type {
   BusterMetricDataExtended,
 } from '@/api/asset_interfaces/metric';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
-import { silenceAssetErrors } from '@/api/repsonse-helpers/silenece-asset-errors';
+import { silenceAssetErrors } from '@/api/response-helpers/silenece-asset-errors';
 import {
   setProtectedAssetPasswordError,
   useProtectedAssetPassword,
