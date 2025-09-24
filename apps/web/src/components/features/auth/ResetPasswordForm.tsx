@@ -1,4 +1,3 @@
-import type { UserResponse } from '@buster/server-shared/user';
 import type { User } from '@supabase/supabase-js';
 import { useRouter } from '@tanstack/react-router';
 import type React from 'react';
