@@ -1,6 +1,7 @@
 import type { GetDashboardResponse } from '@buster/server-shared/dashboards';
 import { useNavigate } from '@tanstack/react-router';
 import React, { useCallback, useMemo } from 'react';
+import type { BusterDashboard, BusterDashboardResponse } from '@/api/asset_interfaces/dashboard';
 import {
   useAddDashboardToCollection,
   useDeleteDashboards,
@@ -87,7 +88,12 @@ export const useCollectionSelectMenu = ({
   const { mutateAsync: removeDashboardFromCollection } = useRemoveDashboardFromCollection();
   const { data: selectedCollections } = useGetDashboard(
     { id: dashboardId, versionNumber: dashboardVersionNumber },
-    { select: (x) => x.collections?.map((collection) => collection.id) }
+    {
+      select: useCallback(
+        (x: BusterDashboardResponse) => x.collections?.map((collection) => collection.id),
+        []
+      ),
+    }
   );
   const { openInfoMessage } = useBusterNotifications();
 
@@ -141,7 +147,7 @@ export const useFavoriteDashboardSelectMenu = ({
 }) => {
   const { data: title } = useGetDashboard(
     { id: dashboardId, versionNumber: dashboardVersionNumber },
-    { select: (x) => x?.dashboard?.name }
+    { select: useCallback((x: BusterDashboardResponse) => x?.dashboard?.name, []) }
   );
   const { isFavorited, onFavoriteClick } = useFavoriteStar({
     id: dashboardId,

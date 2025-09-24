@@ -71,7 +71,6 @@ export const useIsVersionChanged = () => {
 export const useAppVersionMeta = () => {
   const { data } = useQuery({
     ...versionGetAppVersion,
-    select: (data) => data,
     notifyOnChangeProps: ['data'],
   });
   return useMemo(() => ({ ...data, browserBuild }), [data]);

@@ -153,6 +153,7 @@ export const prefetchGetDashboard = async ({
   version_number,
 }: Parameters<typeof getDashboardAndInitializeMetrics>[0]) => {
   const chosenVersionNumber = version_number || 'LATEST';
+  console.log('prefetchGetDashboard', chosenVersionNumber);
   const queryFn = async () =>
     getDashboardAndInitializeMetrics({
       id,

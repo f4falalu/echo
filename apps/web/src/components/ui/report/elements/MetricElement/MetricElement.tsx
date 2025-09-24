@@ -13,6 +13,7 @@ import {
 import React, { type PropsWithChildren, useCallback, useMemo, useRef } from 'react';
 import type { BusterMetric, BusterMetricData } from '@/api/asset_interfaces/metric';
 import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
+import { useGetReportParams } from '@/context/Reports/useGetReportParams';
 import { useSize } from '@/hooks/useSize';
 import { cn } from '@/lib/classMerge';
 import { GlobalVariablePlugin } from '../../plugins/global-variable-kit';
@@ -32,6 +33,7 @@ export const MetricElement = withHOC(
     const metricVersionNumber = props.element.metricVersionNumber;
     const readOnly = useReadOnly();
     const mode = props.editor.getOption(GlobalVariablePlugin, 'mode');
+    const { reportId } = useGetReportParams();
     const isSelected = useSelected();
     const isFocused = useFocused();
     const showFocused = isSelected && isFocused;
@@ -41,11 +43,11 @@ export const MetricElement = withHOC(
     );
 
     const { data: selectedChartType } = useGetMetric(
-      { id: metricId },
+      { id: metricId, versionNumber: metricVersionNumber },
       { select: useCallback((x: BusterMetric) => x?.chart_config?.selectedChartType, []) }
     );
     const { isFetched: isFetchedMetricData } = useGetMetricData(
-      { id: metricId },
+      { id: metricId, versionNumber: metricVersionNumber, cacheDataId: reportId },
       { select: useCallback((x: BusterMetricData) => x, []) }
     );
     const isTable = selectedChartType === 'table' && isFetchedMetricData;

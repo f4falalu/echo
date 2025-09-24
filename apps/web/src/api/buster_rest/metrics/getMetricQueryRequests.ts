@@ -147,7 +147,7 @@ export const useGetMetricData = <TData = BusterMetricDataExtended>(
     cacheDataId,
   }: {
     id: string | undefined;
-    versionNumber?: number | 'LATEST';
+    versionNumber: number | 'LATEST' | undefined;
     cacheDataId?: string;
   },
   params?: Omit<UseQueryOptions<BusterMetricData, RustApiError, TData>, 'queryKey' | 'queryFn'>

@@ -5,7 +5,7 @@ export const Route = createFileRoute('/info/getting-started')({
   component: GettingStartedPage,
 });
 
-export default function GettingStartedPage() {
+function GettingStartedPage() {
   useEffect(() => {
     window.location.replace('https://buster.so/sign-up');
   }, []);
