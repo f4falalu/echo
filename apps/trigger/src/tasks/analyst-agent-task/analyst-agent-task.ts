@@ -357,7 +357,7 @@ export const analystAgentTask: ReturnType<
         dataSourceId: dataSource.dataSourceId,
         dataSourceSyntax: dataSource.dataSourceSyntax,
         datasetsCount: datasets.length,
-        datasets: datasets.map((d) => ({
+        datasets: datasets.map((d: PermissionedDataset) => ({
           id: d.id,
           name: d.name,
         })),
