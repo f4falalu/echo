@@ -232,8 +232,8 @@ importers:
         version: 3.25.76
     devDependencies:
       momentic:
-        specifier: ^2.16.0
-        version: 2.16.0(@types/node@24.3.1)
+        specifier: ^2.17.3
+        version: 2.17.3(@types/node@24.3.1)
       tsx:
         specifier: 'catalog:'
         version: 4.20.5
@@ -9969,8 +9969,8 @@ packages:
   moment@2.30.1:
     resolution: {integrity: sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==}
 
-  momentic@2.16.0:
-    resolution: {integrity: sha512-HxaPDj5B7c5+BTE/gbun5SqCGjnPfAjcjbvrzi3LQP9qCnEntI/IKddN38D613+aPe8Rif1ZAq5pjtMRNWrGcQ==}
+  momentic@2.17.3:
+    resolution: {integrity: sha512-PiAcdojIpywPU0gOR9MApgRsqxY3VgmLMpimJubkVNslFI+re9DBFI/9avdAIKdezZBCRgtx1dgVGDmKmSBx+g==}
     engines: {node: '>=20'}
     hasBin: true
 
@@ -23554,7 +23554,7 @@ snapshots:
 
   moment@2.30.1: {}
 
-  momentic@2.16.0(@types/node@24.3.1):
+  momentic@2.17.3(@types/node@24.3.1):
     dependencies:
       '@actions/exec': 1.1.1
       '@actions/io': 1.1.3
