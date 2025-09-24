@@ -32,7 +32,6 @@ import { Route as EmbedDashboardDashboardIdRouteImport } from './routes/embed/da
 import { Route as AppSettingsRestricted_layoutRouteImport } from './routes/app/_settings/_restricted_layout'
 import { Route as AppSettingsPermissionsRouteImport } from './routes/app/_settings/_permissions'
 import { Route as AppAppHomeRouteImport } from './routes/app/_app/home'
-import { Route as AppAppHealthcheckRouteImport } from './routes/app/_app/healthcheck'
 import { Route as AppAppAssetRouteImport } from './routes/app/_app/_asset'
 import { Route as AppSettingsSettingsIndexRouteImport } from './routes/app/_settings/settings.index'
 import { Route as AppAppReportsIndexRouteImport } from './routes/app/_app/reports.index'
@@ -261,11 +260,6 @@ const AppSettingsPermissionsRoute = AppSettingsPermissionsRouteImport.update({
 const AppAppHomeRoute = AppAppHomeRouteImport.update({
   id: '/home',
   path: '/home',
-  getParentRoute: () => AppAppRoute,
-} as any)
-const AppAppHealthcheckRoute = AppAppHealthcheckRouteImport.update({
-  id: '/healthcheck',
-  path: '/healthcheck',
   getParentRoute: () => AppAppRoute,
 } as any)
 const AppAppAssetRoute = AppAppAssetRouteImport.update({
@@ -964,7 +958,6 @@ export interface FileRoutesByFullPath {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/info/getting-started': typeof InfoGettingStartedRoute
   '/app/': typeof AppIndexRoute
-  '/app/healthcheck': typeof AppAppHealthcheckRoute
   '/app/home': typeof AppAppHomeRoute
   '/embed/dashboard/$dashboardId': typeof EmbedDashboardDashboardIdRoute
   '/embed/metric/$metricId': typeof EmbedMetricMetricIdRoute
@@ -1074,7 +1067,6 @@ export interface FileRoutesByTo {
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/info/getting-started': typeof InfoGettingStartedRoute
-  '/app/healthcheck': typeof AppAppHealthcheckRoute
   '/app/home': typeof AppAppHomeRoute
   '/embed/dashboard/$dashboardId': typeof EmbedDashboardDashboardIdRoute
   '/embed/metric/$metricId': typeof EmbedMetricMetricIdRoute
@@ -1172,7 +1164,6 @@ export interface FileRoutesById {
   '/info/getting-started': typeof InfoGettingStartedRoute
   '/app/': typeof AppIndexRoute
   '/app/_app/_asset': typeof AppAppAssetRouteWithChildren
-  '/app/_app/healthcheck': typeof AppAppHealthcheckRoute
   '/app/_app/home': typeof AppAppHomeRoute
   '/app/_settings/_permissions': typeof AppSettingsPermissionsRouteWithChildren
   '/app/_settings/_restricted_layout': typeof AppSettingsRestricted_layoutRouteWithChildren
@@ -1298,7 +1289,6 @@ export interface FileRouteTypes {
     | '/auth/reset-password'
     | '/info/getting-started'
     | '/app/'
-    | '/app/healthcheck'
     | '/app/home'
     | '/embed/dashboard/$dashboardId'
     | '/embed/metric/$metricId'
@@ -1408,7 +1398,6 @@ export interface FileRouteTypes {
     | '/auth/logout'
     | '/auth/reset-password'
     | '/info/getting-started'
-    | '/app/healthcheck'
     | '/app/home'
     | '/embed/dashboard/$dashboardId'
     | '/embed/metric/$metricId'
@@ -1505,7 +1494,6 @@ export interface FileRouteTypes {
     | '/info/getting-started'
     | '/app/'
     | '/app/_app/_asset'
-    | '/app/_app/healthcheck'
     | '/app/_app/home'
     | '/app/_settings/_permissions'
     | '/app/_settings/_restricted_layout'
@@ -1791,13 +1779,6 @@ declare module '@tanstack/react-router' {
       path: '/home'
       fullPath: '/app/home'
       preLoaderRoute: typeof AppAppHomeRouteImport
-      parentRoute: typeof AppAppRoute
-    }
-    '/app/_app/healthcheck': {
-      id: '/app/_app/healthcheck'
-      path: '/healthcheck'
-      fullPath: '/app/healthcheck'
-      preLoaderRoute: typeof AppAppHealthcheckRouteImport
       parentRoute: typeof AppAppRoute
     }
     '/app/_app/_asset': {
@@ -3017,7 +2998,6 @@ const AppAppDatasetsDatasetIdRouteWithChildren =
 
 interface AppAppRouteChildren {
   AppAppAssetRoute: typeof AppAppAssetRouteWithChildren
-  AppAppHealthcheckRoute: typeof AppAppHealthcheckRoute
   AppAppHomeRoute: typeof AppAppHomeRoute
   AppAppDatasetsDatasetIdRoute: typeof AppAppDatasetsDatasetIdRouteWithChildren
   AppAppChatsIndexRoute: typeof AppAppChatsIndexRoute
@@ -3031,7 +3011,6 @@ interface AppAppRouteChildren {
 
 const AppAppRouteChildren: AppAppRouteChildren = {
   AppAppAssetRoute: AppAppAssetRouteWithChildren,
-  AppAppHealthcheckRoute: AppAppHealthcheckRoute,
   AppAppHomeRoute: AppAppHomeRoute,
   AppAppDatasetsDatasetIdRoute: AppAppDatasetsDatasetIdRouteWithChildren,
   AppAppChatsIndexRoute: AppAppChatsIndexRoute,
