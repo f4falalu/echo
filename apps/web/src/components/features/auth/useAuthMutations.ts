@@ -19,14 +19,23 @@ export const useOAuthMutation = (
   setLastUsedMethod: (method: SignInTypes) => void
 ) => {
   return useMutation({
-    mutationFn,
+    mutationFn: async () => {
+      const result = await mutationFn();
+      if (!result.success) {
+        throw new Error(result.error || `${type} authentication failed`);
+      }
+      return result;
+    },
     onSuccess: (data) => {
       if (data.success && data.url) {
         setLastUsedMethod(type);
         window.location.href = data.url;
       }
     },
-    throwOnError: true,
+    retry: false,
+    onError: (error) => {
+      console.error(error);
+    },
   });
 };
 
@@ -85,33 +94,42 @@ export const useAuthMutations = (redirectTo?: string | null, onSignUpSuccess?: (
 
   // Email/Password Mutations
   const emailSignInMutation = useMutation({
-    mutationFn: ({ email, password }: { email: string; password: string }) =>
-      signInWithEmailAndPassword({ data: { email, password, redirectUrl: redirectTo } }),
-    onSuccess: async (data) => {
-      if (!data.error) {
-        setLastUsedMethod('email');
-        await navigate({ to: redirectTo || '/app/home' });
+    mutationFn: async ({ email, password }: { email: string; password: string }) => {
+      const result = await signInWithEmailAndPassword({
+        data: { email, password, redirectUrl: redirectTo },
+      });
+      if (result.error) {
+        throw new Error(result.message);
       }
-      if (data.error) {
-        throw new Error(data.message);
-      }
+      return result;
     },
-    throwOnError: true,
+    onSuccess: async () => {
+      setLastUsedMethod('email');
+      await navigate({ to: redirectTo || '/app/home' });
+    },
+    retry: false,
+    onError: (error) => {
+      console.error(error);
+    },
   });
 
   const emailSignUpMutation = useMutation({
-    mutationFn: ({ email, password }: { email: string; password: string }) =>
-      signUpWithEmailAndPassword({ data: { email, password, redirectTo } }),
-    onSuccess: (data) => {
-      if (data.error) {
-        throw new Error(data.error);
+    mutationFn: async ({ email, password }: { email: string; password: string }) => {
+      const result = await signUpWithEmailAndPassword({ data: { email, password, redirectTo } });
+      if (!result.success) {
+        throw new Error(result.error || 'Sign up failed');
       }
-      if (data.success) {
-        setLastUsedMethod('email');
-        if (onSignUpSuccess) {
-          onSignUpSuccess();
-        }
+      return result;
+    },
+    onSuccess: () => {
+      setLastUsedMethod('email');
+      if (onSignUpSuccess) {
+        onSignUpSuccess();
       }
+    },
+    retry: false,
+    onError: (error) => {
+      console.error(error);
     },
   });
 
