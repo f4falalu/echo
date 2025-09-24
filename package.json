@@ -64,9 +64,7 @@
   "packageManager": "pnpm@10.17.1",
   "pnpm": {
     "peerDependencyRules": {
-      "ignoreMissing": [
-        "shiki"
-      ],
+      "ignoreMissing": ["shiki"],
       "allowedVersions": {
         "shiki": "3"
       }
