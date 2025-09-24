@@ -1,5 +1,5 @@
 import type { ShareAssetType, ShareConfig } from '@buster/server-shared/share';
-import { useRouter } from '@tanstack/react-router';
+import { type ParsedLocation, useRouter } from '@tanstack/react-router';
 import React, { useMemo, useState } from 'react';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
@@ -25,7 +25,7 @@ export const ShareMenuContent: React.FC<{
   const { buildLocation } = useRouter();
 
   const embedlinkUrl: string = useMemo(() => {
-    let url = '';
+    let url: ParsedLocation | string = '';
     if (!assetId) {
       return '';
     }
@@ -35,39 +35,39 @@ export const ShareMenuContent: React.FC<{
         params: {
           metricId: assetId,
         },
-      }).href;
+      });
     } else if (assetType === 'dashboard_file') {
       url = buildLocation({
         to: '/embed/dashboard/$dashboardId',
         params: {
           dashboardId: assetId,
         },
-      }).href;
+      });
     } else if (assetType === 'collection') {
       url = buildLocation({
         to: '/auth/login',
-      }).href;
+      });
     } else if (assetType === 'report_file') {
       url = buildLocation({
         to: '/embed/report/$reportId',
         params: {
           reportId: assetId,
         },
-      }).href;
+      });
     } else if (assetType === 'chat') {
       url = buildLocation({
         to: '/auth/login',
-      }).href;
+      });
     } else {
       const _exhaustiveCheck: never = assetType;
     }
 
-    const urlWithDomain: string = window.location.origin + url;
+    const urlWithDomain: string = createFullURL(url);
     return urlWithDomain;
   }, [assetId, assetType, buildLocation]);
 
   const linkUrl: string = useMemo(() => {
-    let url = '';
+    let url: ParsedLocation | string = '';
     if (!assetId) {
       return '';
     }
@@ -77,38 +77,38 @@ export const ShareMenuContent: React.FC<{
         params: {
           metricId: assetId,
         },
-      }).href;
+      });
     } else if (assetType === 'dashboard_file') {
       url = buildLocation({
         to: '/app/dashboards/$dashboardId',
         params: {
           dashboardId: assetId,
         },
-      }).href;
+      });
     } else if (assetType === 'collection') {
       url = buildLocation({
         to: '/app/collections/$collectionId',
         params: {
           collectionId: assetId,
         },
-      }).href;
+      });
     } else if (assetType === 'report_file') {
       url = buildLocation({
         to: '/app/reports/$reportId',
         params: {
           reportId: assetId,
         },
-      }).href;
+      });
     } else if (assetType === 'chat') {
       url = buildLocation({
         to: '/app/chats/$chatId',
         params: {
           chatId: assetId,
         },
-      }).href;
+      });
     }
 
-    const urlWithDomain: string = window.location.origin + url;
+    const urlWithDomain: string = createFullURL(url);
     return urlWithDomain;
   }, [assetId, buildLocation]);
 
