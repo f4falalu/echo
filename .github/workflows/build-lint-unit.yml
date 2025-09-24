@@ -10,10 +10,6 @@ concurrency:
 
 env:
   CI: true
-  # Turborepo Remote Caching
-  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
-  TURBO_CACHE: remote:rw
 
 jobs:
   # Build job - runs in parallel
@@ -103,11 +99,11 @@ jobs:
             !**/coverage/tmp/**
           retention-days: 7
 
-  # Services health check - runs after build completes
-  services-health:
-    name: Services Health Check
+  # E2E Tests - runs after build completes
+  e2e-tests:
+    name: E2E Tests
     runs-on: blacksmith-8vcpu-ubuntu-2404
-    timeout-minutes: 10
+    timeout-minutes: 20
     needs: build  # Wait for build to complete
     environment: testing
     steps:
@@ -135,21 +131,39 @@ jobs:
           sudo mv supabase /usr/local/bin/
           sudo chmod +x /usr/local/bin/supabase
 
+      - name: Start Supabase
+        run: |
+          echo "🚀 Starting Supabase..."
+          supabase start
+          echo "✅ Supabase started successfully"
+      
+      - name: Build all packages
+        run: |
+          echo "🔨 Building all packages (using turbo cache from build job)..."
+          pnpm turbo build
+          echo "✅ Build completed"
+        env:
+          NODE_ENV: production
+          SKIP_ENV_CHECK: true
+          TURBO_TELEMETRY_DISABLED: 1
+
       - name: Start services
         run: |
+          echo "🚀 Starting all services..."
           # Start services and capture output
           pnpm turbo start > turbo.log 2>&1 &
           echo $! > turbo.pid
           echo "Started turbo with PID $(cat turbo.pid)"
           
           # Give services a moment to start and show initial logs
-          sleep 5
+          sleep 10
           echo "=== Initial turbo start output ==="
           head -50 turbo.log || true
         env:
           SKIP_ENV_CHECK: true
           TURBO_TELEMETRY_DISABLED: 1
           # Pass all secrets from the testing environment
+          MOMENTIC_API_KEY: ${{ secrets.MOMENTIC_API_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -212,14 +226,31 @@ jobs:
       - name: Wait for services to be ready
         run: |
           echo "Waiting for services to start..."
-          sleep 30
+          sleep 15
           
           # Track if any service fails
           failed=false
           
-          # Check each service with retries
-          for port in 3000 3001 3002; do
-            echo "Checking localhost:$port..."
+          # 1. Check Supabase status
+          echo "🔍 Checking Supabase status..."
+          if supabase status; then
+            echo "✅ Supabase is healthy!"
+          else
+            echo "❌ Supabase status check failed"
+            failed=true
+          fi
+          
+          # 2. Check services in order: 3003 (Electric), 3002 (Server), 3001 (API), 3000 (Web)
+          for port in 3003 3002 3001 3000; do
+            service_name=""
+            case $port in
+              3003) service_name="Electric" ;;
+              3002) service_name="Server" ;;
+              3001) service_name="API" ;;
+              3000) service_name="Web" ;;
+            esac
+            
+            echo "🔍 Checking $service_name on localhost:$port..."
             max_attempts=30
             attempt=0
             while [ $attempt -lt $max_attempts ]; do
@@ -228,10 +259,10 @@ jobs:
               
               # Check if we got a valid HTTP response (any 3-digit code starting with 1-5)
               if [[ "$http_code" =~ ^[1-5][0-9][0-9]$ ]]; then
-                echo "✅ Service on port $port is responding (HTTP $http_code)"
+                echo "✅ $service_name on port $port is responding (HTTP $http_code)"
                 break
               else
-                echo "Waiting for service on port $port (attempt $((attempt+1))/$max_attempts)..."
+                echo "  Waiting for $service_name on port $port (attempt $((attempt+1))/$max_attempts)..."
                 
                 # Try curl with verbose error to see what's happening
                 if [ $((attempt % 10)) -eq 0 ]; then
@@ -239,17 +270,17 @@ jobs:
                   curl -v --connect-timeout 2 --max-time 5 http://localhost:$port 2>&1 | head -10 || true
                 fi
                 
-                sleep 2
+                sleep 3
                 attempt=$((attempt+1))
               fi
             done
             if [ $attempt -eq $max_attempts ]; then
-              echo "❌ Service on port $port failed to respond"
+              echo "❌ $service_name on port $port failed to respond"
               failed=true
               
               # Show logs for debugging when a service fails
               echo "=== Turbo logs at time of failure ==="
-              tail -50 turbo.log || true
+              tail -100 turbo.log || true
               
               # Check if the turbo process is still running
               if [ -f turbo.pid ]; then
@@ -270,6 +301,15 @@ jobs:
           
           echo "✅ All services are healthy!"
 
+      - name: Run Momentic E2E Tests
+        run: |
+          echo "🧪 Running Momentic E2E tests..."
+          cd apps/momentic
+          pnpm dlx momentic install-browsers --all
+          pnpm dlx momentic run --api-key $MOMENTIC_API_KEY
+        env:
+          MOMENTIC_API_KEY: ${{ secrets.MOMENTIC_API_KEY }}
+
       - name: Stop services
         if: always()
         run: |
@@ -281,3 +321,6 @@ jobs:
             kill $(cat turbo.pid) || true
             rm turbo.pid
           fi
+          
+          echo "🛑 Stopping Supabase..."
+          supabase stop || true
