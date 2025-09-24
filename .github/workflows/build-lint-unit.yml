@@ -22,30 +22,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Mount node_modules sticky disk
-        uses: useblacksmith/stickydisk@v1
-        with:
-          key: ${{ github.repository }}-${{ github.ref_name }}-node-modules
-          path: node_modules
-
-      - name: Mount pnpm store sticky disk
-        uses: useblacksmith/stickydisk@v1
-        with:
-          key: ${{ github.repository }}-${{ github.ref_name }}-pnpm-store
-          path: ~/.pnpm-store
-
-      - name: Mount turbo cache sticky disk
-        uses: useblacksmith/stickydisk@v1
-        with:
-          key: ${{ github.repository }}-${{ github.ref_name }}-turbo
-          path: .turbo
-
-      - name: Mount Docker cache sticky disk
-        uses: useblacksmith/stickydisk@v1
-        with:
-          key: ${{ github.repository }}-${{ github.ref_name }}-docker-cache
-          path: /var/lib/docker
-
       - name: Setup Node Environment
         uses: ./.github/actions/setup-node-env
         with:
