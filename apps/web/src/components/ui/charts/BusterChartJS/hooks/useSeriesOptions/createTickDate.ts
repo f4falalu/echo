@@ -12,7 +12,6 @@ export const createTickDates = (
   xAxisKeys: string[],
   columnLabelFormats: Record<string, ColumnLabelFormat>
 ): (Date | string)[] | null => {
-  console.clear();
   const xColumnLabelFormats = xAxisKeys.map(
     (key) => columnLabelFormats[key] || DEFAULT_COLUMN_LABEL_FORMAT
   );
