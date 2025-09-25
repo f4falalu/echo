@@ -7,6 +7,7 @@ import {
   DEFAULT_CHART_CONFIG,
   DEFAULT_COLUMN_LABEL_FORMAT,
 } from '@buster/server-shared/metrics';
+import { fa } from '@faker-js/faker';
 import type {
   CartesianScaleTypeRegistry,
   Scale,
@@ -20,7 +21,7 @@ import type { BusterChartProps } from '../../../BusterChart.types';
 import { formatYAxisLabel, yAxisSimilar } from '../../../commonHelpers';
 import { useY2AxisTitle } from './axisHooks/useY2AxisTitle';
 
-export const DEFAULT_Y2_AXIS_COUNT = 7;
+export const DEFAULT_Y2_AXIS_COUNT = 9;
 
 export const useY2Axis = ({
   columnLabelFormats,
@@ -47,6 +48,7 @@ export const useY2Axis = ({
   const selectedAxis = selectedAxisProp as ComboChartAxis;
   const y2AxisKeys = selectedAxis.y2 || [];
   const yAxisMinValue = yAxis?.min;
+  const yAxisMaxValue = yAxis?.max;
 
   const y2AxisKeysString = useMemo(() => {
     return y2AxisKeys.join(',');
@@ -116,6 +118,7 @@ export const useY2Axis = ({
           includeBounds: true,
         },
         min: yAxisMinValue,
+        max: yAxisMaxValue,
         grid: {
           drawOnChartArea: false, // only want the grid lines for one axis to show up
         },
