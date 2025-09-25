@@ -2631,7 +2631,7 @@ export const WithQuarterAndYearXAxis: Story = {
   },
 };
 
-export const WithQuarterNumber: Story = {
+export const WithQuarterNumber_PermantBroken: Story = {
   args: {
     colors: [
       '#B399FD',
