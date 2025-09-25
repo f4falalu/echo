@@ -75,7 +75,7 @@ jobs:
           cache-key: build-lint-unit
 
       - name: Build required packages
-        run: pnpm turbo build --filter="!@buster-app/web"
+        run: pnpm turbo build --filter="!@buster-app/web" --filter="!@buster-app/api-legacy"
         env:
           NODE_ENV: production
           SKIP_ENV_CHECK: true
