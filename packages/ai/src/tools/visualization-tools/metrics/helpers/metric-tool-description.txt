@@ -121,6 +121,9 @@ Only utilize the required/default fields unless the user specifically requests t
 #
 # DATE PART RULES
 #   - year → columnType: number, style: number, numberSeparatorStyle: null (no thousands separators).
+#   - second → columnType: number, style: number, numberSeparatorStyle: null
+#   - minute → columnType: number, style: number, numberSeparatorStyle: null
+#   - hour → columnType: number, style: number, numberSeparatorStyle: null
 #   - month/quarter/day_of_week → columnType: number, style: date, with convertNumberTo + makeLabelHumanReadable.
 #   - When X-axis = [month, year] across multiple years → month.dateFormat: 'MMM' (renderer composes 'MMM YYYY' with the year part).
 #   - Full date/timestamp columns → columnType: date, style: date, include explicit dateFormat appropriate to the interval.
