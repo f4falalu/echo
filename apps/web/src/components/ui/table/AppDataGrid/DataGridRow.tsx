@@ -14,8 +14,8 @@ export const DataGridRow: React.FC<DataGridRowProps> = ({ row, virtualRow }) => 
     <tr
       className={cn(
         'hover:bg-item-hover absolute inset-x-0 border-b flex',
-        row.getIsSelected() && 'bg-primary/10',
-        'last:border-b-0'
+        row.getIsSelected() && 'bg-primary/10'
+        //   'last:border-b-0' //don't do it
       )}
       style={{
         transform: `translateY(${virtualRow.start}px)`,
