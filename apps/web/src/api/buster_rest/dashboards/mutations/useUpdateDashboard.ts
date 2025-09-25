@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { create } from 'mutative';
 import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
 import { getOriginalDashboard } from '@/context/Dashboards/useOriginalDashboardStore';
-import type { dashboardsUpdateDashboard } from '../requests';
 import { useSaveDashboard } from './useSaveDashboard';
 
 /**
