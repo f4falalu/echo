@@ -1,4 +1,4 @@
-import { useNavigate } from '@tanstack/react-router';
+import { useNavigate, useRouter } from '@tanstack/react-router';
 import { useMemo } from 'react';
 import type { IBusterChat } from '@/api/asset_interfaces';
 import { useDeleteChat, useDuplicateChat, useGetChat } from '@/api/buster_rest/chats';
@@ -89,18 +89,23 @@ export const useFavoriteChatSelectMenu = ({ chatId = '' }: { chatId: string | un
 };
 
 export const useOpenInNewTabSelectMenu = ({ chatId = '' }: { chatId: string | undefined }) => {
+  const router = useRouter();
   return useMemo(() => {
     return createDropdownItem({
       label: 'Open in new tab',
       value: 'open-in-new-tab',
       icon: <ArrowRight />,
-      link: {
-        to: '/app/chats/$chatId',
-        params: { chatId: chatId },
-        target: '_blank',
+      onClick: () => {
+        if (chatId) {
+          const link = router.buildLocation({
+            to: '/app/chats/$chatId',
+            params: { chatId: chatId },
+          });
+          window.open(link.href, '_blank');
+        }
       },
     });
-  }, []);
+  }, [chatId, router.buildLocation]);
 };
 
 export const useDuplicateChatSelectMenu = ({ chatId = '' }: { chatId: string | undefined }) => {
