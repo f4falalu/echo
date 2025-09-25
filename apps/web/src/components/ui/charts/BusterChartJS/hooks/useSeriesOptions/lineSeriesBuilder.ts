@@ -14,6 +14,7 @@ import type { ChartProps } from '../../core';
 import { formatBarAndLineDataLabel } from '../../helpers';
 import { defaultLabelOptionConfig } from '../useChartSpecificOptions/labelOptionConfig';
 import { barSeriesBuilder_labels } from './barSeriesBuilder';
+import { createTickDates } from './createTickDate';
 import { createTrendlineOnSeries } from './createTrendlines';
 import type { SeriesBuilderProps } from './interfaces';
 import type { LabelBuilderProps } from './useSeriesOptions';
@@ -214,24 +215,8 @@ export const lineSeriesBuilder_labels = ({
   xAxisKeys,
   columnLabelFormats,
 }: LabelBuilderProps): (string | Date)[] => {
-  const xColumnLabelFormats = xAxisKeys.map(
-    (key) => columnLabelFormats[key] || DEFAULT_COLUMN_LABEL_FORMAT
-  );
-  const useDateLabels = xColumnLabelFormats.some(
-    (format) =>
-      (format.columnType === 'date' && format.style === 'date') ||
-      (format.style === 'date' && format.columnType === 'number' && !!format.convertNumberTo)
-  );
-
-  if (useDateLabels) {
-    console.log(datasetOptions);
-    const dateTicks = datasetOptions.ticks.flatMap((item) => {
-      return item.map<Date>((item) => {
-        return createDayjsDate(item as string).toDate(); //do not join because it will turn into a string
-      });
-    });
-    console.log(dateTicks);
-
+  const dateTicks = createTickDates(datasetOptions.ticks, xAxisKeys, columnLabelFormats);
+  if (dateTicks) {
     return dateTicks;
   }
 

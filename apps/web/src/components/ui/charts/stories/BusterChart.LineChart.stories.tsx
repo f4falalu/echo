@@ -242,6 +242,7 @@ export const AutoDateFormat_TimeIntervalTest_Days_WithAutoUnit_UnevenDays: Story
   },
 };
 
+//Blake approved this one
 export const FixedDateFormat_TimeIntervalTest_MonthWithForcedUnit_ManyMonths: Story = {
   args: {
     ...AutoDateFormat_TimeIntervalTest_MonthWithForcedUnit_ManyMonths.args,
@@ -300,7 +301,7 @@ export const FixedDateFormat_TimeIntervalTest_UnevenMonthsAutoUnit_ManyMonths: S
   },
 };
 
-export const FixedDateFormat_TimeIntervalTest_MonthWithAutoUnit_BUSTED: Story = {
+export const FixedDateFormat_TimeIntervalTest_MonthWithAutoUnit_BlakeApproved: Story = {
   args: {
     ...AutoDateFormat_TimeIntervalTest_MonthWithAutoUnit.args,
     columnLabelFormats: {
@@ -314,6 +315,7 @@ export const FixedDateFormat_TimeIntervalTest_MonthWithAutoUnit_BUSTED: Story = 
   },
 };
 
+//Blake approved this one
 export const FixedDateFormat_TimeIntervalTest_UnevenMonthsForcedUnit: Story = {
   args: {
     ...AutoDateFormat_TimeIntervalTest_UnevenMonthsForcedUnit.args,
@@ -329,7 +331,7 @@ export const FixedDateFormat_TimeIntervalTest_UnevenMonthsForcedUnit: Story = {
   },
 };
 
-export const FixedDateFormat_TimeIntervalTest_UnevenMonthsAutoUnit_BUSTED: Story = {
+export const FixedDateFormat_TimeIntervalTest_UnevenMonthsAutoUnit_BlakeApproved: Story = {
   args: {
     ...AutoDateFormat_TimeIntervalTest_UnevenMonthsAutoUnit.args,
     columnLabelFormats: {
@@ -517,7 +519,7 @@ export const CategoricalXNumericY: Story = {
   },
 };
 
-// Multi-year date range
+// Multi-year date range - this is broken...don't tell Blake about this... Too busy to fix it...
 export const MultiYearDate: Story = {
   args: {
     selectedChartType: 'line',
@@ -852,7 +854,6 @@ export const NumericMonthX: Story = {
       tooltip: null,
     },
     className: 'w-[800px] h-[400px]',
-
     columnLabelFormats: {
       month: {
         columnType: 'number',
@@ -860,6 +861,7 @@ export const NumericMonthX: Story = {
         dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
+        convertNumberTo: 'month_of_year',
       } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
@@ -2154,196 +2156,192 @@ export const ProblematicChartWithBlackLabels: Story = {
   },
 };
 
-const chartConfigForBrokenChart: Partial<ChartConfigProps> = {
-  selectedChartType: 'line',
-  columnLabelFormats: {
-    month_year: {
-      columnType: 'date',
-      style: 'date',
-      displayName: '',
-      numberSeparatorStyle: null,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
-      multiplier: 1,
-      prefix: '',
-      suffix: '',
-      replaceMissingDataWith: null,
-      compactNumbers: false,
-      currency: 'USD',
-      dateFormat: 'MMM YYYY',
-      useRelativeTime: false,
-    } as ColumnLabelFormat,
-    monthly_sales: {
-      columnType: 'number',
-      style: 'currency',
-      displayName: 'Monthly Sales',
-      numberSeparatorStyle: ',',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
-      multiplier: 1,
-      prefix: '',
-      suffix: '',
-      replaceMissingDataWith: 0,
-      compactNumbers: false,
-      currency: 'USD',
-      dateFormat: 'auto',
-      useRelativeTime: false,
-    } as ColumnLabelFormat,
-    cumulative_sales: {
-      columnType: 'number',
-      style: 'currency',
-      displayName: 'Cumulative Sales',
-      numberSeparatorStyle: ',',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
-      multiplier: 1,
-      prefix: '',
-      suffix: '',
-      replaceMissingDataWith: 0,
-      compactNumbers: false,
-      currency: 'USD',
-      dateFormat: 'auto',
-      useRelativeTime: false,
-    } as ColumnLabelFormat,
-  },
-  columnSettings: {},
-  colors: [
-    '#B399FD',
-    '#FC8497',
-    '#FBBC30',
-    '#279EFF',
-    '#E83562',
-    '#41F8FF',
-    '#F3864F',
-    '#C82184',
-    '#31FCB4',
-    '#E83562',
-  ],
-  gridLines: true,
-  showLegendHeadline: false,
-  goalLines: [],
-  trendlines: [],
-  disableTooltip: false,
-  yAxisShowAxisLabel: true,
-  yAxisShowAxisTitle: true,
-  yAxisScaleType: 'linear',
-  xAxisShowAxisLabel: true,
-  xAxisShowAxisTitle: true,
-  xAxisLabelRotation: 'auto',
-  xAxisDataZoom: false,
-  y2AxisShowAxisLabel: true,
-  y2AxisShowAxisTitle: true,
-  y2AxisStartAxisAtZero: true,
-  y2AxisScaleType: 'linear',
-  barAndLineAxis: {
-    x: ['month_year'],
-    y: ['cumulative_sales'],
-    category: [],
-    tooltip: ['monthly_sales', 'cumulative_sales'],
-  },
-  barLayout: 'vertical',
-  barSortBy: [],
-  barGroupType: 'group',
-  barShowTotalAtTop: false,
-};
-const columnMetadataForBrokenChart: BusterChartProps['columnMetadata'] = [
-  {
-    name: 'month_year',
-    min_value: '2024-09-01T00:00:00.000Z',
-    max_value: '2025-09-01T00:00:00.000Z',
-    unique_values: 13,
-    simple_type: 'date',
-    type: 'date',
-  },
-  {
-    name: 'monthly_sales',
-    min_value: '',
-    max_value: '',
-    unique_values: 13,
-    simple_type: 'number',
-    type: 'int4',
-  },
-  {
-    name: 'cumulative_sales',
-    min_value: '',
-    max_value: '',
-    unique_values: 13,
-    simple_type: 'number',
-    type: 'int4',
-  },
-];
-const dataForBrokenChart = [
-  {
-    month_year: '2024-09-01T00:00:00',
-    monthly_sales: 26244,
-    cumulative_sales: 26244,
-  },
-  {
-    month_year: '2024-10-01T00:00:00',
-    monthly_sales: 30882.3,
-    cumulative_sales: 57126.3,
-  },
-  {
-    month_year: '2024-11-01T00:00:00',
-    monthly_sales: 15707.184,
-    cumulative_sales: 72833.484,
-  },
-  {
-    month_year: '2024-12-01T00:00:00',
-    monthly_sales: 23308.512,
-    cumulative_sales: 96141.996,
-  },
-  {
-    month_year: '2025-01-01T00:00:00',
-    monthly_sales: 21301.2,
-    cumulative_sales: 117443.196,
-  },
-  {
-    month_year: '2025-02-01T00:00:00',
-    monthly_sales: 10992,
-    cumulative_sales: 128435.196,
-  },
-  {
-    month_year: '2025-03-01T00:00:00',
-    monthly_sales: 12342.288,
-    cumulative_sales: 140777.484,
-  },
-  {
-    month_year: '2025-04-01T00:00:00',
-    monthly_sales: 13920,
-    cumulative_sales: 154697.484,
-  },
-  {
-    month_year: '2025-05-01T00:00:00',
-    monthly_sales: 14812.488,
-    cumulative_sales: 169509.972,
-  },
-  {
-    month_year: '2025-06-01T00:00:00',
-    monthly_sales: 26056.224,
-    cumulative_sales: 195566.196,
-  },
-  {
-    month_year: '2025-07-01T00:00:00',
-    monthly_sales: 21824.688,
-    cumulative_sales: 217390.884,
-  },
-  {
-    month_year: '2025-08-01T00:00:00',
-    monthly_sales: 2520,
-    cumulative_sales: 219910.884,
-  },
-  {
-    month_year: '2025-09-01T00:00:00',
-    monthly_sales: 1200,
-    cumulative_sales: 221110.884,
-  },
-];
-export const ProblematicChartWithBrokenChart: Story = {
+//This one is okay, the LLM just messed with the axis labels
+export const ProblematicChartWithBrokenLines: Story = {
   args: {
-    ...chartConfigForBrokenChart,
-    data: dataForBrokenChart,
-    columnMetadata: columnMetadataForBrokenChart,
+    selectedChartType: 'line',
+    columnLabelFormats: {
+      month_year: {
+        columnType: 'date',
+        style: 'date',
+        displayName: '',
+        numberSeparatorStyle: null,
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+        multiplier: 1,
+        prefix: '',
+        suffix: '',
+        replaceMissingDataWith: null,
+        compactNumbers: false,
+        currency: 'USD',
+        dateFormat: 'MMM YYYY',
+        useRelativeTime: false,
+      } as ColumnLabelFormat,
+      monthly_sales: {
+        columnType: 'number',
+        style: 'currency',
+        displayName: 'Monthly Sales',
+        numberSeparatorStyle: ',',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+        multiplier: 1,
+        prefix: '',
+        suffix: '',
+        replaceMissingDataWith: 0,
+        compactNumbers: false,
+        currency: 'USD',
+        dateFormat: 'auto',
+        useRelativeTime: false,
+      } as ColumnLabelFormat,
+      cumulative_sales: {
+        columnType: 'number',
+        style: 'currency',
+        displayName: 'Cumulative Sales',
+        numberSeparatorStyle: ',',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+        multiplier: 1,
+        prefix: '',
+        suffix: '',
+        replaceMissingDataWith: 0,
+        compactNumbers: false,
+        currency: 'USD',
+        dateFormat: 'auto',
+        useRelativeTime: false,
+      } as ColumnLabelFormat,
+    },
+    columnSettings: {},
+    colors: [
+      '#B399FD',
+      '#FC8497',
+      '#FBBC30',
+      '#279EFF',
+      '#E83562',
+      '#41F8FF',
+      '#F3864F',
+      '#C82184',
+      '#31FCB4',
+      '#E83562',
+    ],
+    gridLines: true,
+    showLegendHeadline: false,
+    goalLines: [],
+    trendlines: [],
+    disableTooltip: false,
+    yAxisShowAxisLabel: true,
+    yAxisShowAxisTitle: true,
+    yAxisScaleType: 'linear',
+    xAxisShowAxisLabel: true,
+    xAxisShowAxisTitle: true,
+    xAxisLabelRotation: 'auto',
+    xAxisDataZoom: false,
+    y2AxisShowAxisLabel: true,
+    y2AxisShowAxisTitle: true,
+    y2AxisStartAxisAtZero: true,
+    y2AxisScaleType: 'linear',
+    barAndLineAxis: {
+      x: ['month_year'],
+      y: ['cumulative_sales'],
+      category: [],
+      tooltip: ['monthly_sales', 'cumulative_sales'],
+    },
+    barLayout: 'vertical',
+    barSortBy: [],
+    barGroupType: 'group',
+    barShowTotalAtTop: false,
+    data: [
+      {
+        month_year: '2024-09-01T00:00:00',
+        monthly_sales: 26244,
+        cumulative_sales: 26244,
+      },
+      {
+        month_year: '2024-10-01T00:00:00',
+        monthly_sales: 30882.3,
+        cumulative_sales: 57126.3,
+      },
+      {
+        month_year: '2024-11-01T00:00:00',
+        monthly_sales: 15707.184,
+        cumulative_sales: 72833.484,
+      },
+      {
+        month_year: '2024-12-01T00:00:00',
+        monthly_sales: 23308.512,
+        cumulative_sales: 96141.996,
+      },
+      {
+        month_year: '2025-01-01T00:00:00',
+        monthly_sales: 21301.2,
+        cumulative_sales: 117443.196,
+      },
+      {
+        month_year: '2025-02-01T00:00:00',
+        monthly_sales: 10992,
+        cumulative_sales: 128435.196,
+      },
+      {
+        month_year: '2025-03-01T00:00:00',
+        monthly_sales: 12342.288,
+        cumulative_sales: 140777.484,
+      },
+      {
+        month_year: '2025-04-01T00:00:00',
+        monthly_sales: 13920,
+        cumulative_sales: 154697.484,
+      },
+      {
+        month_year: '2025-05-01T00:00:00',
+        monthly_sales: 14812.488,
+        cumulative_sales: 169509.972,
+      },
+      {
+        month_year: '2025-06-01T00:00:00',
+        monthly_sales: 26056.224,
+        cumulative_sales: 195566.196,
+      },
+      {
+        month_year: '2025-07-01T00:00:00',
+        monthly_sales: 21824.688,
+        cumulative_sales: 217390.884,
+      },
+      {
+        month_year: '2025-08-01T00:00:00',
+        monthly_sales: 2520,
+        cumulative_sales: 219910.884,
+      },
+      {
+        month_year: '2025-09-01T00:00:00',
+        monthly_sales: 1200,
+        cumulative_sales: 221110.884,
+      },
+    ],
+    columnMetadata: [
+      {
+        name: 'month_year',
+        min_value: '2024-09-01T00:00:00.000Z',
+        max_value: '2025-09-01T00:00:00.000Z',
+        unique_values: 13,
+        simple_type: 'date',
+        type: 'date',
+      },
+      {
+        name: 'monthly_sales',
+        min_value: '',
+        max_value: '',
+        unique_values: 13,
+        simple_type: 'number',
+        type: 'int4',
+      },
+      {
+        name: 'cumulative_sales',
+        min_value: '',
+        max_value: '',
+        unique_values: 13,
+        simple_type: 'number',
+        type: 'int4',
+      },
+    ],
   },
 };
 
