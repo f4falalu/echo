@@ -35,6 +35,7 @@ export const useIsDashboardChanged = ({
         }),
         []
       ),
+      enabled: false,
     }
   );
 

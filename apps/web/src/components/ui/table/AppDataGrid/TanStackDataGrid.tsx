@@ -17,6 +17,7 @@ import { DataGridHeader } from './DataGridHeader';
 import { DataGridRow } from './DataGridRow';
 import { defaultCellFormat, defaultHeaderFormat } from './defaultFormat';
 import { createDefaultTableColumnWidths } from './helpers/createDefaultTableColumnWidths';
+import { handleTableCopy } from './helpers/handleTableCopy';
 import { SortColumnWrapper } from './SortColumnWrapper';
 
 export interface TanStackDataGridProps {
@@ -150,6 +151,16 @@ export const AppDataGrid: React.FC<TanStackDataGridProps> = React.memo(
       if (onReady) onReady();
     }, [onReady]);
 
+    // Handle clipboard copy events to preserve table structure
+    useEffect(() => {
+      const copyHandler = (event: ClipboardEvent) => {
+        handleTableCopy(event, { table, parentRef });
+      };
+
+      document.addEventListener('copy', copyHandler);
+      return () => document.removeEventListener('copy', copyHandler);
+    }, [table]);
+
     return (
       <div ref={parentRef} className={cn('h-full w-full overflow-auto', className)} style={style}>
         <SortColumnWrapper
@@ -159,7 +170,10 @@ export const AppDataGrid: React.FC<TanStackDataGridProps> = React.memo(
           setColOrder={setColOrder}
           onReorderColumns={onReorderColumns}
         >
-          <table className="bg-background w-full">
+          <table
+            className="bg-background w-full"
+            style={{ borderCollapse: 'separate', borderSpacing: 0 }}
+          >
             <DataGridHeader
               table={table}
               sortable={sortable}
@@ -170,7 +184,11 @@ export const AppDataGrid: React.FC<TanStackDataGridProps> = React.memo(
 
             <tbody
               className="relative"
-              style={{ display: 'grid', height: `${rowVirtualizer.getTotalSize()}px` }}
+              style={{
+                display: 'block',
+                height: `${rowVirtualizer.getTotalSize()}px`,
+                position: 'relative',
+              }}
             >
               {rowVirtualizer.getVirtualItems().map((virtualRow) => {
                 const row = table.getRowModel().rows[virtualRow.index];
