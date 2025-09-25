@@ -15,7 +15,10 @@ export const useUpdateDashboard = (params?: {
 }) => {
   const { updateOnSave = false, updateVersion = false, saveToServer = false } = params || {};
   const queryClient = useQueryClient();
-  const { mutateAsync: dashboardsUpdateDashboard } = useSaveDashboard({ updateOnSave });
+  const { mutateAsync: dashboardsUpdateDashboard } = useSaveDashboard({
+    updateOnSave,
+    updateVersion,
+  });
 
   const mutationFn = async (variables: Parameters<typeof dashboardsUpdateDashboard>[0]) => {
     if (saveToServer) {
