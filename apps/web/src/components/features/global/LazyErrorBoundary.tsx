@@ -16,17 +16,19 @@ export const LazyErrorBoundary: React.FC<React.PropsWithChildren> = ({ children 
     <ErrorBoundary
       fallbackRender={() => {
         if (isChanged) {
-          return (
-            <ComponentErrorCard
-              highlightType="info"
-              message="The app has been updated. Please reload the page."
-              title="New version available"
-              buttonText="Reload"
-              onButtonClick={() => {
-                navigate({ reloadDocument: true });
-              }}
-            />
-          );
+          window.location.reload();
+          return null;
+          // return (
+          //   <ComponentErrorCard
+          //     highlightType="info"
+          //     message="The app has been updated. Please reload the page."
+          //     title="New version available"
+          //     buttonText="Reload"
+          //     onButtonClick={() => {
+          //       navigate({ reloadDocument: true });
+          //     }}
+          //   />
+          // );
         }
 
         return (
