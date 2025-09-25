@@ -9,6 +9,7 @@ import {
 import { useDebounce } from '@/hooks/useDebounce';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { formatDate } from '@/lib/date';
+import { assetTypeToIcon } from '../icons/assetIcons';
 
 export const AddMetricModal: React.FC<{
   open: boolean;
@@ -58,22 +59,30 @@ export const AddMetricModal: React.FC<{
         {
           title: 'Title',
           dataIndex: 'title',
-          render: (value) => {
-            // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
-            return <span dangerouslySetInnerHTML={{ __html: value }}></span>;
+          render: (value, record) => {
+            const Icon = assetTypeToIcon(record.assetType);
+            return (
+              <div className="flex items-center gap-1.5">
+                <span className="text-icon-color">
+                  <Icon />
+                </span>
+                {/* biome-ignore lint/security/noDangerouslySetInnerHtml: this endpoint is sanitized */}
+                <span dangerouslySetInnerHTML={{ __html: value }}></span>
+              </div>
+            );
           },
         },
-        // {
-        //   title: 'Updated',
-        //   dataIndex: 'updated_at',
-        //   width: 140,
-        //   render: (value) => {
-        //     return formatDate({
-        //       date: value,
-        //       format: 'lll',
-        //     });
-        //   },
-        // },
+        {
+          title: 'Updated at',
+          dataIndex: 'updatedAt',
+          width: 140,
+          render: (value) => {
+            return formatDate({
+              date: value,
+              format: 'lll',
+            });
+          },
+        },
       ],
       []
     );
