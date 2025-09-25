@@ -214,19 +214,25 @@ export const lineSeriesBuilder_labels = ({
   xAxisKeys,
   columnLabelFormats,
 }: LabelBuilderProps): (string | Date)[] => {
-  const xColumnLabelFormat = columnLabelFormats[xAxisKeys[0] || ''] || DEFAULT_COLUMN_LABEL_FORMAT;
-  const useDateLabels =
-    xAxisKeys.length === 1 &&
-    datasetOptions.ticks[0]?.length === 1 &&
-    xColumnLabelFormat.columnType === 'date' &&
-    xColumnLabelFormat.style === 'date';
+  const xColumnLabelFormats = xAxisKeys.map(
+    (key) => columnLabelFormats[key] || DEFAULT_COLUMN_LABEL_FORMAT
+  );
+  const useDateLabels = xColumnLabelFormats.some(
+    (format) =>
+      (format.columnType === 'date' && format.style === 'date') ||
+      (format.style === 'date' && format.columnType === 'number' && !!format.convertNumberTo)
+  );
 
   if (useDateLabels) {
-    return datasetOptions.ticks.flatMap((item) => {
+    console.log(datasetOptions);
+    const dateTicks = datasetOptions.ticks.flatMap((item) => {
       return item.map<Date>((item) => {
         return createDayjsDate(item as string).toDate(); //do not join because it will turn into a string
       });
     });
+    console.log(dateTicks);
+
+    return dateTicks;
   }
 
   return barSeriesBuilder_labels({
