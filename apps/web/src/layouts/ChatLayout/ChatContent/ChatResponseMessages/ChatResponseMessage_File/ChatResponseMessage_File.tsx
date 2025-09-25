@@ -26,6 +26,7 @@ export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = Reac
       asset_type: file_type,
       id: responseMessage.id,
       chatId,
+      versionNumber: responseMessage.version_number,
     }) as unknown as ILinkProps;
 
     const SelectedComponent = useMemo(() => {

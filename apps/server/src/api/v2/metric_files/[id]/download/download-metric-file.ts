@@ -19,7 +19,9 @@ import { HTTPException } from 'hono/http-exception';
  */
 export async function downloadMetricFileHandler(
   metricId: string,
-  user: User
+  user: User,
+  reportFileId?: string,
+  metricVersionNumber?: number
 ): Promise<MetricDownloadResponse> {
   // Get user's organization
   const userOrg = await getUserOrganizationId(user.id);
@@ -59,9 +61,15 @@ export async function downloadMetricFileHandler(
         metricId,
         userId: user.id,
         organizationId,
+        reportFileId,
+        metricVersionNumber,
       },
       {
-        idempotencyKey: `export-${user.id}-${metricId}`,
+        idempotencyKey: metricVersionNumber
+          ? `export-${user.id}-${metricId}-v${metricVersionNumber}`
+          : reportFileId
+            ? `export-${user.id}-${metricId}-${reportFileId}`
+            : `export-${user.id}-${metricId}`,
         idempotencyKeyTTL: '5m', // 5 minutes TTL
       }
     );

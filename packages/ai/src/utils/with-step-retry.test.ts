@@ -63,6 +63,8 @@ describe('with-step-retry', () => {
     });
 
     it('should use exponential backoff for delays', async () => {
+      vi.useFakeTimers();
+
       const mockStep = vi
         .fn()
         .mockRejectedValueOnce(new Error('Failure 1'))
@@ -70,20 +72,31 @@ describe('with-step-retry', () => {
         .mockResolvedValueOnce('success');
 
       const onRetry = vi.fn();
-      const startTime = Date.now();
 
-      const result = await withStepRetry(mockStep, {
+      const promise = withStepRetry(mockStep, {
         stepName: 'test-step',
         maxAttempts: 3,
         baseDelayMs: 10,
         onRetry,
       });
 
-      const duration = Date.now() - startTime;
-      // Should take at least 10ms (first retry) + 20ms (second retry) = 30ms
-      expect(duration).toBeGreaterThanOrEqual(30);
-      expect(result).toBe('success');
+      // First attempt fails immediately
+      await vi.advanceTimersByTimeAsync(0);
+      expect(mockStep).toHaveBeenCalledTimes(1);
+
+      // First retry after 10ms
+      await vi.advanceTimersByTimeAsync(10);
+      expect(mockStep).toHaveBeenCalledTimes(2);
+
+      // Second retry after 20ms (exponential backoff: 10 * 2^1)
+      await vi.advanceTimersByTimeAsync(20);
       expect(mockStep).toHaveBeenCalledTimes(3);
+
+      const result = await promise;
+      expect(result).toBe('success');
+      expect(onRetry).toHaveBeenCalledTimes(2);
+
+      vi.useRealTimers();
     });
 
     it('should handle non-Error objects', async () => {

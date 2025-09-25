@@ -5,7 +5,6 @@ import {
   type ColumnLabelFormat,
   type ComboChartAxis,
   DEFAULT_COLUMN_LABEL_FORMAT,
-  DEFAULT_COLUMN_SETTINGS,
 } from '@buster/server-shared/metrics';
 import type { GridLineOptions, Scale, ScaleChartOptions } from 'chart.js';
 import { useMemo } from 'react';
@@ -16,6 +15,7 @@ import { formatYAxisLabel, yAxisSimilar } from '../../../commonHelpers';
 import { useYAxisTitle } from './axisHooks/useYAxisTitle';
 import { useIsStacked } from './useIsStacked';
 import { DEFAULT_Y2_AXIS_COUNT } from './useY2Axis';
+import { useYTickValues } from './useYTickValues';
 
 export const useYAxis = ({
   columnLabelFormats,
@@ -30,7 +30,6 @@ export const useYAxis = ({
   yAxisScaleType,
   gridLines,
   columnMetadata,
-  columnSettings,
 }: {
   columnLabelFormats: NonNullable<ChartConfigProps['columnLabelFormats']>;
   selectedAxis: ChartEncodes;
@@ -47,24 +46,25 @@ export const useYAxis = ({
   gridLines: BusterChartProps['gridLines'];
 }): DeepPartial<ScaleChartOptions<'bar'>['scales']['y']> | undefined => {
   const yAxisKeys = selectedAxis.y;
-  const hasY2Axis = (selectedAxis as ComboChartAxis)?.y2?.length > 0;
-
-  const useMinValue = useMemo(() => {
-    if (!hasY2Axis) return false;
-    if (selectedChartType !== 'combo') return false;
-    if (!columnMetadata) return false;
-    return columnMetadata?.some((column) => {
-      return (
-        yAxisKeys.includes(column.name) &&
-        (columnSettings[column.name]?.columnVisualization ||
-          DEFAULT_COLUMN_SETTINGS.columnVisualization) === 'bar'
-      );
-    });
-  }, [hasY2Axis, yAxisKeys, selectedChartType]);
+  const y2AxisKeys = (selectedAxis as ComboChartAxis)?.y2 || [];
+  const hasY2Axis = y2AxisKeys.length > 0;
 
   const isSupportedType = useMemo(() => {
     return selectedChartType !== 'pie';
   }, [selectedChartType]);
+
+  const { minTickValue, maxTickValue } = useYTickValues({
+    hasY2Axis,
+    columnMetadata,
+    selectedChartType,
+    yAxisKeys,
+    y2AxisKeys,
+    columnLabelFormats,
+  });
+
+  const defaultTickCount = useMemo(() => {
+    if (y2AxisKeys.length > 0 && minTickValue !== undefined) return DEFAULT_Y2_AXIS_COUNT;
+  }, [minTickValue]);
 
   const grid: DeepPartial<GridLineOptions> | undefined = useMemo(() => {
     return {
@@ -128,11 +128,9 @@ export const useYAxis = ({
   const memoizedYAxisOptions: DeepPartial<ScaleChartOptions<'bar'>['scales']['y']> | undefined =
     useMemo(() => {
       if (!isSupportedType) return undefined;
-
-      const baseConfig = {
+      return {
         type,
         grid,
-        max: usePercentageModeAxis ? 100 : undefined,
         beginAtZero: yAxisStartAxisAtZero !== false,
         stacked,
         title: {
@@ -142,16 +140,15 @@ export const useYAxis = ({
         ticks: {
           display: yAxisShowAxisLabel,
           callback: tickCallback,
-          count: useMinValue ? DEFAULT_Y2_AXIS_COUNT : undefined,
+          count: defaultTickCount,
           includeBounds: true,
         },
-        min: useMinValue ? 0 : undefined,
+        min: usePercentageModeAxis ? 0 : minTickValue,
+        max: usePercentageModeAxis ? 100 : maxTickValue,
         border: {
           display: yAxisShowAxisLabel,
         },
       } as DeepPartial<ScaleChartOptions<'bar'>['scales']['y']>;
-
-      return baseConfig;
     }, [
       tickCallback,
       type,
@@ -162,6 +159,9 @@ export const useYAxis = ({
       yAxisStartAxisAtZero,
       yAxisShowAxisLabel,
       usePercentageModeAxis,
+      maxTickValue,
+      minTickValue,
+      defaultTickCount,
     ]);
 
   return memoizedYAxisOptions;

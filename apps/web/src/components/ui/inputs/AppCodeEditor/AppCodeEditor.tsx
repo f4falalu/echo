@@ -5,6 +5,7 @@ import type { EditorProps, OnMount } from '@monaco-editor/react';
 import { ClientOnly } from '@tanstack/react-router';
 import type React from 'react';
 import { forwardRef, lazy, Suspense, useCallback, useMemo } from 'react';
+import { LazyErrorBoundary } from '@/components/features/global/LazyErrorBoundary';
 import { useMount } from '@/hooks/useMount';
 import { cn } from '@/lib/utils';
 import { isServer } from '@/lib/window';
@@ -178,23 +179,25 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
         )}
         style={style}
       >
-        <ClientOnly fallback={<LoadingCodeEditor />}>
-          <Suspense fallback={<LoadingCodeEditor />}>
-            <Editor
-              key={useDarkMode ? 'dark' : 'light'}
-              height={height}
-              language={language}
-              className={className}
-              defaultValue={defaultValue}
-              value={value}
-              theme={useDarkMode ? 'night-owl' : 'github-light'}
-              onMount={onMountCodeEditor}
-              onChange={onChangeCodeEditor}
-              options={memoizedMonacoEditorOptions}
-              loading={null}
-            />
-          </Suspense>
-        </ClientOnly>
+        <LazyErrorBoundary>
+          <ClientOnly fallback={<LoadingCodeEditor />}>
+            <Suspense fallback={<LoadingCodeEditor />}>
+              <Editor
+                key={useDarkMode ? 'dark' : 'light'}
+                height={height}
+                language={language}
+                className={className}
+                defaultValue={defaultValue}
+                value={value}
+                theme={useDarkMode ? 'night-owl' : 'github-light'}
+                onMount={onMountCodeEditor}
+                onChange={onChangeCodeEditor}
+                options={memoizedMonacoEditorOptions}
+                loading={null}
+              />
+            </Suspense>
+          </ClientOnly>
+        </LazyErrorBoundary>
       </div>
     );
   }

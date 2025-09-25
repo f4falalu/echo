@@ -211,43 +211,6 @@ export const permissionGroups = pgTable(
   ]
 );
 
-export const terms = pgTable(
-  'terms',
-  {
-    id: uuid().defaultRandom().primaryKey().notNull(),
-    name: text().notNull(),
-    definition: text(),
-    sqlSnippet: text('sql_snippet'),
-    organizationId: uuid('organization_id').notNull(),
-    createdBy: uuid('created_by').notNull(),
-    updatedBy: uuid('updated_by').notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.organizationId],
-      foreignColumns: [organizations.id],
-      name: 'terms_organization_id_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [table.createdBy],
-      foreignColumns: [users.id],
-      name: 'terms_created_by_fkey',
-    }).onUpdate('cascade'),
-    foreignKey({
-      columns: [table.updatedBy],
-      foreignColumns: [users.id],
-      name: 'terms_updated_by_fkey',
-    }).onUpdate('cascade'),
-  ]
-);
-
 export const collections = pgTable(
   'collections',
   {
@@ -292,78 +255,6 @@ export const collections = pgTable(
       foreignColumns: [users.id],
       name: 'collections_workspace_sharing_enabled_by_fkey',
     }).onUpdate('cascade'),
-  ]
-);
-
-export const dashboards = pgTable(
-  'dashboards',
-  {
-    id: uuid().defaultRandom().primaryKey().notNull(),
-    name: text().notNull(),
-    description: text(),
-    config: jsonb().notNull(),
-    publiclyAccessible: boolean('publicly_accessible').default(false).notNull(),
-    publiclyEnabledBy: uuid('publicly_enabled_by'),
-    publicExpiryDate: timestamp('public_expiry_date', {
-      withTimezone: true,
-      mode: 'string',
-    }),
-    passwordSecretId: uuid('password_secret_id'),
-    createdBy: uuid('created_by').notNull(),
-    updatedBy: uuid('updated_by').notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
-    organizationId: uuid('organization_id').notNull(),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.publiclyEnabledBy],
-      foreignColumns: [users.id],
-      name: 'dashboards_publicly_enabled_by_fkey',
-    }).onUpdate('cascade'),
-    foreignKey({
-      columns: [table.organizationId],
-      foreignColumns: [organizations.id],
-      name: 'dashboards_organization_id_fkey',
-    }).onUpdate('cascade'),
-    foreignKey({
-      columns: [table.createdBy],
-      foreignColumns: [users.id],
-      name: 'dashboards_created_by_fkey',
-    }).onUpdate('cascade'),
-    foreignKey({
-      columns: [table.updatedBy],
-      foreignColumns: [users.id],
-      name: 'dashboards_updated_by_fkey',
-    }).onUpdate('cascade'),
-  ]
-);
-
-export const dashboardVersions = pgTable(
-  'dashboard_versions',
-  {
-    id: uuid().defaultRandom().primaryKey().notNull(),
-    dashboardId: uuid('dashboard_id').notNull(),
-    config: jsonb().notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.dashboardId],
-      foreignColumns: [dashboards.id],
-      name: 'dashboard_versions_dashboard_id_fkey',
-    }).onDelete('cascade'),
   ]
 );
 
@@ -413,49 +304,6 @@ export const dataSources = pgTable(
     ),
   ]
 );
-
-export const datasetColumns = pgTable(
-  'dataset_columns',
-  {
-    id: uuid().primaryKey().notNull(),
-    datasetId: uuid('dataset_id').notNull(),
-    name: text().notNull(),
-    type: text().notNull(),
-    description: text(),
-    nullable: boolean().notNull(),
-    createdAt: timestamp('created_at', {
-      withTimezone: true,
-      mode: 'string',
-    }).notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
-    storedValues: boolean('stored_values').default(false),
-    storedValuesStatus: storedValuesStatusEnum('stored_values_status'),
-    storedValuesError: text('stored_values_error'),
-    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
-    storedValuesCount: bigint('stored_values_count', { mode: 'number' }),
-    storedValuesLastSynced: timestamp('stored_values_last_synced', {
-      withTimezone: true,
-      mode: 'string',
-    }),
-    semanticType: text('semantic_type'),
-    dimType: text('dim_type'),
-    expr: text(),
-  },
-  (table) => [unique('unique_dataset_column_name').on(table.datasetId, table.name)]
-);
-
-export const sqlEvaluations = pgTable('sql_evaluations', {
-  id: uuid().default(sql`uuid_generate_v4()`).primaryKey().notNull(),
-  evaluationObj: jsonb('evaluation_obj').notNull(),
-  evaluationSummary: text('evaluation_summary').notNull(),
-  score: text().notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-  updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-  deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
-});
 
 export const assetSearch = pgTable(
   'asset_search',
@@ -586,22 +434,6 @@ export const datasetPermissions = pgTable(
   ]
 );
 
-export const dieselSchemaMigrations = pgTable(
-  '__diesel_schema_migrations',
-  {
-    version: varchar({ length: 50 }).primaryKey().notNull(),
-    runOn: timestamp('run_on', { mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
-  },
-  (_table) => [
-    pgPolicy('diesel_schema_migrations_policy', {
-      as: 'permissive',
-      for: 'all',
-      to: ['authenticated'],
-      using: sql`true`,
-    }),
-  ]
-);
-
 export const datasetGroupsPermissions = pgTable(
   'dataset_groups_permissions',
   {
@@ -648,124 +480,6 @@ export const datasetGroupsPermissions = pgTable(
     ),
   ]
 );
-
-export const threadsDeprecated = pgTable(
-  'threads_deprecated',
-  {
-    id: uuid().defaultRandom().primaryKey().notNull(),
-    createdBy: uuid('created_by').notNull(),
-    updatedBy: uuid('updated_by').notNull(),
-    publiclyAccessible: boolean('publicly_accessible').default(false).notNull(),
-    publiclyEnabledBy: uuid('publicly_enabled_by'),
-    publicExpiryDate: timestamp('public_expiry_date', {
-      withTimezone: true,
-      mode: 'string',
-    }),
-    passwordSecretId: uuid('password_secret_id'),
-    stateMessageId: uuid('state_message_id'),
-    parentThreadId: uuid('parent_thread_id'),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
-    organizationId: uuid('organization_id').notNull(),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.createdBy],
-      foreignColumns: [users.id],
-      name: 'threads_created_by_fkey',
-    }).onUpdate('cascade'),
-    foreignKey({
-      columns: [table.updatedBy],
-      foreignColumns: [users.id],
-      name: 'threads_updated_by_fkey',
-    }).onUpdate('cascade'),
-    foreignKey({
-      columns: [table.publiclyEnabledBy],
-      foreignColumns: [users.id],
-      name: 'threads_publicly_enabled_by_fkey',
-    }).onUpdate('cascade'),
-    foreignKey({
-      columns: [table.parentThreadId],
-      foreignColumns: [table.id],
-      name: 'threads_parent_thread_id_fkey',
-    }).onUpdate('cascade'),
-    foreignKey({
-      columns: [table.organizationId],
-      foreignColumns: [organizations.id],
-      name: 'threads_organization_id_fkey',
-    }),
-    foreignKey({
-      columns: [table.createdBy],
-      foreignColumns: [users.id],
-      name: 'threads_deprecated_created_by_fkey',
-    }).onUpdate('cascade'),
-    foreignKey({
-      columns: [table.updatedBy],
-      foreignColumns: [users.id],
-      name: 'threads_deprecated_updated_by_fkey',
-    }).onUpdate('cascade'),
-    foreignKey({
-      columns: [table.publiclyEnabledBy],
-      foreignColumns: [users.id],
-      name: 'threads_deprecated_publicly_enabled_by_fkey',
-    }).onUpdate('cascade'),
-  ]
-);
-
-export const messagesDeprecated = pgTable(
-  'messages_deprecated',
-  {
-    id: uuid().defaultRandom().primaryKey().notNull(),
-    threadId: uuid('thread_id').notNull(),
-    sentBy: uuid('sent_by').notNull(),
-    message: text().notNull(),
-    responses: jsonb(),
-    code: text(),
-    context: jsonb(),
-    title: text(),
-    feedback: messageFeedbackEnum(),
-    verification: verificationEnum().default('notRequested').notNull(),
-    datasetId: uuid('dataset_id'),
-    chartConfig: jsonb('chart_config').default({}),
-    chartRecommendations: jsonb('chart_recommendations').default({}),
-    timeFrame: text('time_frame'),
-    dataMetadata: jsonb('data_metadata'),
-    draftSessionId: uuid('draft_session_id'),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
-    draftState: jsonb('draft_state'),
-    summaryQuestion: text('summary_question'),
-    sqlEvaluationId: uuid('sql_evaluation_id'),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.sentBy],
-      foreignColumns: [users.id],
-      name: 'messages_sent_by_fkey',
-    }).onUpdate('cascade'),
-    foreignKey({
-      columns: [table.datasetId],
-      foreignColumns: [datasets.id],
-      name: 'messages_dataset_id_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [table.sentBy],
-      foreignColumns: [users.id],
-      name: 'messages_deprecated_sent_by_fkey',
-    }).onUpdate('cascade'),
-  ]
-);
-
 export const datasets = pgTable(
   'datasets',
   {
@@ -1134,7 +848,7 @@ export const chats = pgTable(
       mode: 'string',
     }),
     mostRecentFileId: uuid('most_recent_file_id'),
-    mostRecentFileType: varchar('most_recent_file_type', { length: 255 }),
+    mostRecentFileType: assetTypeEnum('most_recent_file_type'),
     mostRecentVersionNumber: integer('most_recent_version_number'),
     slackChatAuthorization: slackChatAuthorizationEnum('slack_chat_authorization'),
     slackThreadTs: text('slack_thread_ts'),
@@ -1244,49 +958,6 @@ export const s3Integrations = pgTable(
       table.organizationId.asc().nullsLast().op('uuid_ops')
     ),
     index('idx_s3_integrations_deleted_at').using('btree', table.deletedAt.asc().nullsLast()),
-  ]
-);
-
-export const storedValuesSyncJobs = pgTable(
-  'stored_values_sync_jobs',
-  {
-    id: uuid().defaultRandom().primaryKey().notNull(),
-    dataSourceId: uuid('data_source_id').notNull(),
-    databaseName: text('database_name').notNull(),
-    schemaName: text('schema_name').notNull(),
-    tableName: text('table_name').notNull(),
-    columnName: text('column_name').notNull(),
-    lastSyncedAt: timestamp('last_synced_at', {
-      withTimezone: true,
-      mode: 'string',
-    }),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    status: text().notNull(),
-    errorMessage: text('error_message'),
-  },
-  (table) => [
-    index('idx_stored_values_sync_jobs_data_source_id').using(
-      'btree',
-      table.dataSourceId.asc().nullsLast().op('uuid_ops')
-    ),
-    index('idx_stored_values_sync_jobs_db_schema_table_column').using(
-      'btree',
-      table.databaseName.asc().nullsLast().op('text_ops'),
-      table.schemaName.asc().nullsLast().op('text_ops'),
-      table.tableName.asc().nullsLast().op('text_ops'),
-      table.columnName.asc().nullsLast().op('text_ops')
-    ),
-    index('idx_stored_values_sync_jobs_status').using(
-      'btree',
-      table.status.asc().nullsLast().op('text_ops')
-    ),
-    foreignKey({
-      columns: [table.dataSourceId],
-      foreignColumns: [dataSources.id],
-      name: 'stored_values_sync_jobs_data_source_id_fkey',
-    }).onDelete('cascade'),
   ]
 );
 
@@ -1416,24 +1087,6 @@ export const permissionGroupsToUsers = pgTable(
   ]
 );
 
-export const entityRelationship = pgTable(
-  'entity_relationship',
-  {
-    primaryDatasetId: uuid('primary_dataset_id').notNull(),
-    foreignDatasetId: uuid('foreign_dataset_id').notNull(),
-    relationshipType: text('relationship_type').notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    primaryKey({
-      columns: [table.primaryDatasetId, table.foreignDatasetId],
-      name: 'entity_relationship_pkey',
-    }),
-  ]
-);
-
 export const metricFilesToDatasets = pgTable(
   'metric_files_to_datasets',
   {
@@ -1458,37 +1111,6 @@ export const metricFilesToDatasets = pgTable(
     primaryKey({
       columns: [table.metricFileId, table.datasetId, table.metricVersionNumber],
       name: 'metric_files_to_datasets_pkey',
-    }),
-  ]
-);
-
-export const termsToDatasets = pgTable(
-  'terms_to_datasets',
-  {
-    termId: uuid('term_id').notNull(),
-    datasetId: uuid('dataset_id').notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.termId],
-      foreignColumns: [terms.id],
-      name: 'terms_to_datasets_term_id_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [table.datasetId],
-      foreignColumns: [datasets.id],
-      name: 'terms_to_datasets_dataset_id_fkey',
-    }).onDelete('cascade'),
-    primaryKey({
-      columns: [table.termId, table.datasetId],
-      name: 'terms_to_datasets_pkey',
     }),
   ]
 );
@@ -1567,43 +1189,6 @@ export const datasetsToDatasetGroups = pgTable(
       for: 'all',
       to: ['authenticated'],
       using: sql`true`,
-    }),
-  ]
-);
-
-export const threadsToDashboards = pgTable(
-  'threads_to_dashboards',
-  {
-    threadId: uuid('thread_id').notNull(),
-    dashboardId: uuid('dashboard_id').notNull(),
-    addedBy: uuid('added_by').notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.threadId],
-      foreignColumns: [threadsDeprecated.id],
-      name: 'threads_to_dashboards_thread_id_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [table.dashboardId],
-      foreignColumns: [dashboards.id],
-      name: 'threads_to_dashboards_dashboard_id_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [table.addedBy],
-      foreignColumns: [users.id],
-      name: 'threads_to_dashboards_added_by_fkey',
-    }).onUpdate('cascade'),
-    primaryKey({
-      columns: [table.threadId, table.dashboardId],
-      name: 'threads_to_dashboards_pkey',
     }),
   ]
 );
@@ -1920,159 +1505,6 @@ export const usersToOrganizations = pgTable(
       columns: [table.userId, table.organizationId],
       name: 'users_to_organizations_pkey',
     }),
-  ]
-);
-
-export const databaseMetadata = pgTable(
-  'database_metadata',
-  {
-    id: uuid().defaultRandom().primaryKey().notNull(),
-    dataSourceId: uuid('data_source_id').notNull(),
-    name: text().notNull(),
-    owner: text(),
-    comment: text(),
-    created: timestamp({ withTimezone: true, mode: 'string' }),
-    lastModified: timestamp('last_modified', {
-      withTimezone: true,
-      mode: 'string',
-    }),
-    metadata: jsonb().default({}).notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.dataSourceId],
-      foreignColumns: [dataSources.id],
-      name: 'database_metadata_data_source_id_fkey',
-    }).onDelete('cascade'),
-    unique('database_metadata_data_source_id_name_key').on(table.dataSourceId, table.name),
-    index('database_metadata_data_source_id_idx').using(
-      'btree',
-      table.dataSourceId.asc().nullsLast().op('uuid_ops')
-    ),
-  ]
-);
-
-export const schemaMetadata = pgTable(
-  'schema_metadata',
-  {
-    id: uuid().defaultRandom().primaryKey().notNull(),
-    dataSourceId: uuid('data_source_id').notNull(),
-    databaseId: uuid('database_id'), // Optional for MySQL
-    name: text().notNull(),
-    databaseName: text('database_name').notNull(),
-    owner: text(),
-    comment: text(),
-    created: timestamp({ withTimezone: true, mode: 'string' }),
-    lastModified: timestamp('last_modified', {
-      withTimezone: true,
-      mode: 'string',
-    }),
-    metadata: jsonb().default({}).notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.dataSourceId],
-      foreignColumns: [dataSources.id],
-      name: 'schema_metadata_data_source_id_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [table.databaseId],
-      foreignColumns: [databaseMetadata.id],
-      name: 'schema_metadata_database_id_fkey',
-    }).onDelete('cascade'),
-    unique('schema_metadata_data_source_id_database_id_name_key').on(
-      table.dataSourceId,
-      table.databaseId,
-      table.name
-    ),
-    index('schema_metadata_data_source_id_idx').using(
-      'btree',
-      table.dataSourceId.asc().nullsLast().op('uuid_ops')
-    ),
-    index('schema_metadata_database_id_idx').using(
-      'btree',
-      table.databaseId.asc().nullsLast().op('uuid_ops')
-    ),
-  ]
-);
-
-export const tableMetadata = pgTable(
-  'table_metadata',
-  {
-    id: uuid().defaultRandom().primaryKey().notNull(),
-    dataSourceId: uuid('data_source_id').notNull(),
-    databaseId: uuid('database_id'), // Optional for some databases
-    schemaId: uuid('schema_id').notNull(),
-    name: text().notNull(),
-    schemaName: text('schema_name').notNull(),
-    databaseName: text('database_name').notNull(),
-    type: tableTypeEnum().notNull(),
-    rowCount: bigint('row_count', { mode: 'number' }),
-    sizeBytes: bigint('size_bytes', { mode: 'number' }),
-    comment: text(),
-    created: timestamp({ withTimezone: true, mode: 'string' }),
-    lastModified: timestamp('last_modified', {
-      withTimezone: true,
-      mode: 'string',
-    }),
-    clusteringKeys: jsonb('clustering_keys').default([]).notNull(),
-    columns: jsonb().default([]).notNull(), // Array of Column objects
-    metadata: jsonb().default({}).notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.dataSourceId],
-      foreignColumns: [dataSources.id],
-      name: 'table_metadata_data_source_id_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [table.databaseId],
-      foreignColumns: [databaseMetadata.id],
-      name: 'table_metadata_database_id_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [table.schemaId],
-      foreignColumns: [schemaMetadata.id],
-      name: 'table_metadata_schema_id_fkey',
-    }).onDelete('cascade'),
-    unique('table_metadata_data_source_id_schema_id_name_key').on(
-      table.dataSourceId,
-      table.schemaId,
-      table.name
-    ),
-    index('table_metadata_data_source_id_idx').using(
-      'btree',
-      table.dataSourceId.asc().nullsLast().op('uuid_ops')
-    ),
-    index('table_metadata_database_id_idx').using(
-      'btree',
-      table.databaseId.asc().nullsLast().op('uuid_ops')
-    ),
-    index('table_metadata_schema_id_idx').using(
-      'btree',
-      table.schemaId.asc().nullsLast().op('uuid_ops')
-    ),
   ]
 );
 
@@ -2411,14 +1843,15 @@ export const docs = pgTable(
   ]
 );
 
-export const textSearch = pgTable(
-  'text_search',
+export const assetSearchV2 = pgTable(
+  'asset_search_v2',
   {
     id: uuid().defaultRandom().primaryKey().notNull(),
     assetType: assetTypeEnum('asset_type').notNull(),
     assetId: uuid('asset_id').notNull(),
     organizationId: uuid('organization_id').notNull(),
-    searchableText: text('searchable_text').notNull(),
+    title: text('title').notNull(),
+    additionalText: text('additional_text'),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
       .defaultNow()
       .notNull(),
@@ -2431,12 +1864,13 @@ export const textSearch = pgTable(
     foreignKey({
       columns: [table.organizationId],
       foreignColumns: [organizations.id],
-      name: 'text_search_organization_id_fkey',
+      name: 'asset_search_v2_organization_id_fkey',
     }).onDelete('cascade'),
-    index('pgroonga_search_text_index').using(
+    index('pgroonga_search_title_description_index').using(
       'pgroonga',
-      table.searchableText.asc().nullsLast().op('pgroonga_text_full_text_search_ops_v2')
+      table.title.asc().nullsLast().op('pgroonga_text_full_text_search_ops_v2'),
+      table.additionalText.asc().nullsLast().op('pgroonga_text_full_text_search_ops_v2')
     ),
-    unique('text_search_asset_type_asset_id_unique').on(table.assetId, table.assetType),
+    unique('asset_search_v2_asset_type_asset_id_unique').on(table.assetId, table.assetType),
   ]
 );

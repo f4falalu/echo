@@ -4,27 +4,19 @@
   "concurrency": "20",
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**"]
+      "dependsOn": ["^build"]
     },
     "build:dry-run": {
       "dependsOn": ["^build:dry-run"],
-      "outputs": ["dist/**", ".next/**"],
       "env": ["SKIP_ENV_CHECK"]
     },
     "dev": {
-      "cache": false,
-      "persistent": true,
-      "dependsOn": ["@buster/database#dev"]
-    },
-    "momentic": {
       "cache": false,
       "persistent": true
     },
     "dev:fast": {
       "cache": false,
-      "persistent": true,
-      "dependsOn": ["@buster/database#dev"]
+      "persistent": true
     },
     "lint": {
       "dependsOn": ["^lint"]
@@ -36,7 +28,7 @@
       "dependsOn": ["^build"]
     },
     "test:unit": {
-      "dependsOn": ["^test:unit"]
+      "dependsOn": ["^build"]
     },
     "test:integration": {
       "dependsOn": ["^build"]
@@ -56,20 +48,11 @@
     "test:coverage": {
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"]
-    },
-    "build:commonjs": {
-      "cache": false,
-      "persistent": false,
-      "outputs": ["dist/**"]
-    },
-    "build:commonjs:watch": {
-      "cache": false,
-      "persistent": true,
-      "dependsOn": ["build:commonjs"]
     }
   },
   "globalEnv": [
     "NODE_ENV",
+    "NODE_TLS_REJECT_UNAUTHORIZED",
     "CI",
     "VERCEL",
     "VERCEL_ENV",
@@ -126,7 +109,8 @@
     "SLACK_CLIENT_ID",
     "SLACK_CLIENT_SECRET",
     "SLACK_SIGNING_SECRET",
-    "MOMENTIC_API_KEY"
+    "MOMENTIC_API_KEY",
+    "NODE_TLS_REJECT_UNAUTHORIZED"
   ],
   "envMode": "strict"
 }

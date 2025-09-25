@@ -13,11 +13,12 @@ import type {
   BusterMetricDataExtended,
 } from '@/api/asset_interfaces/metric';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
-import { silenceAssetErrors } from '@/api/repsonse-helpers/silenece-asset-errors';
+import { silenceAssetErrors } from '@/api/response-helpers/silenece-asset-errors';
 import {
   setProtectedAssetPasswordError,
   useProtectedAssetPassword,
 } from '@/context/BusterAssets/useProtectedAssetStore';
+import { useBusterNotifications } from '@/context/BusterNotifications';
 import { setOriginalMetric } from '@/context/Metrics/useOriginalMetricStore';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { upgradeMetricToIMetric } from '@/lib/metrics';
@@ -68,7 +69,7 @@ export const useGetMetric = <TData = BusterMetric>(
     versionNumber: versionNumberProp,
   }: {
     id: string | undefined;
-    versionNumber?: number | 'LATEST'; //if null it will not use a params from the query params
+    versionNumber: number | 'LATEST' | undefined; //if null it will not use a params from the query params
   },
   params?: Omit<UseQueryOptions<BusterMetric, RustApiError, TData>, 'queryKey' | 'queryFn'>
 ) => {
@@ -82,7 +83,9 @@ export const useGetMetric = <TData = BusterMetric>(
 
   const { isFetched: isFetchedInitial, isError: isErrorInitial } = useQuery({
     ...metricsQueryKeys.metricsGetMetric(id || '', 'LATEST'),
-    queryFn: () => getMetricQueryFn({ id, version: 'LATEST', queryClient, password }),
+    queryFn: () => {
+      return getMetricQueryFn({ id, version: 'LATEST', queryClient, password });
+    },
     retry(_failureCount, error) {
       if (error?.message !== undefined && id) {
         setProtectedAssetPasswordError({
@@ -92,16 +95,19 @@ export const useGetMetric = <TData = BusterMetric>(
       }
       return false;
     },
-    enabled: (params?.enabled ?? true) && !!id,
     select: undefined,
     ...params,
+    enabled: (params?.enabled ?? true) && !!id,
   });
 
   return useQuery({
     ...metricsQueryKeys.metricsGetMetric(id || '', selectedVersionNumber),
-    enabled: !!id && !!latestVersionNumber && isFetchedInitial && !isErrorInitial,
-    queryFn: () => getMetricQueryFn({ id, version: selectedVersionNumber, queryClient, password }),
+    queryFn: () => {
+      return getMetricQueryFn({ id, version: selectedVersionNumber, queryClient, password });
+    },
+    ...params,
     select: params?.select,
+    enabled: !!id && !!latestVersionNumber && isFetchedInitial && !isErrorInitial,
   });
 };
 
@@ -143,11 +149,11 @@ export const useGetMetricData = <TData = BusterMetricDataExtended>(
   {
     id = '',
     versionNumber: versionNumberProp,
-    reportFileId,
+    cacheDataId,
   }: {
     id: string | undefined;
-    versionNumber?: number | 'LATEST';
-    reportFileId?: string;
+    versionNumber: number | 'LATEST' | undefined;
+    cacheDataId?: string;
   },
   params?: Omit<UseQueryOptions<BusterMetricData, RustApiError, TData>, 'queryKey' | 'queryFn'>
 ) => {
@@ -172,7 +178,7 @@ export const useGetMetricData = <TData = BusterMetricDataExtended>(
       id,
       version_number: chosenVersionNumber || undefined,
       password,
-      report_file_id: reportFileId,
+      report_file_id: cacheDataId,
     });
     const latestVersionNumber = getLatestMetricVersion(id);
     const isLatest =
@@ -226,8 +232,20 @@ export const usePrefetchGetMetricDataClient = () => {
   );
 };
 
-export const useDownloadMetricFile = () => {
+export const useDownloadMetricFile = (downloadImmediate = true) => {
+  const { openInfoMessage } = useBusterNotifications();
   return useMutation({
     mutationFn: downloadMetricFile,
+    onSuccess: (data) => {
+      if (downloadImmediate) {
+        const link = document.createElement('a');
+        link.href = data.downloadUrl;
+        link.download = ''; // This will use the filename from the response-content-disposition header
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        openInfoMessage(`Downloading ${data.rowCount} records...`);
+      }
+    },
   });
 };

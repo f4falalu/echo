@@ -1,12 +1,12 @@
 import { and, count, eq, gte, inArray, isNull, lte, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
-import { assetTypeEnum, textSearch } from '../../schema';
+import { assetSearchV2, assetTypeEnum } from '../../schema';
 import {
   type PaginatedResponse,
   PaginationInputSchema,
   createPaginatedResponse,
-} from '../shared-types';
+} from '../../schema-types';
 import { createPermissionedAssetsSubquery } from './access-control-helpers';
 
 import { AssetTypeSchema } from '../../schema-types/asset';
@@ -49,7 +49,7 @@ export type TextSearchResult = z.infer<typeof TextSearchResultSchema>;
 export type SearchTextResponse = PaginatedResponse<TextSearchResult>;
 
 /**
- * Search text_search table using pgroonga index
+ * Search asset_search_v2 table using pgroonga index
  * Uses Full Text Search
  */
 export async function searchText(input: SearchTextInput): Promise<SearchTextResponse> {
@@ -62,29 +62,31 @@ export async function searchText(input: SearchTextInput): Promise<SearchTextResp
 
     if (searchString) {
       const fullSearchString = `${searchString}*`;
-      filterConditions.push(sql`${textSearch.searchableText} &@~ ${fullSearchString}`);
+      filterConditions.push(
+        sql`ARRAY[${assetSearchV2.title}, ${assetSearchV2.additionalText}] &@~ ${fullSearchString}`
+      );
     }
 
     // Asset types filter (multiple asset types)
     if (filters?.assetTypes && filters.assetTypes.length > 0) {
       console.info('filters.assetTypes', filters.assetTypes);
-      filterConditions.push(inArray(textSearch.assetType, filters.assetTypes));
+      filterConditions.push(inArray(assetSearchV2.assetType, filters.assetTypes));
     }
 
     // Date range filter
     if (filters?.dateRange) {
       if (filters.dateRange.startDate) {
-        filterConditions.push(gte(textSearch.updatedAt, filters.dateRange.startDate));
+        filterConditions.push(gte(assetSearchV2.updatedAt, filters.dateRange.startDate));
       }
       if (filters.dateRange.endDate) {
-        filterConditions.push(lte(textSearch.updatedAt, filters.dateRange.endDate));
+        filterConditions.push(lte(assetSearchV2.updatedAt, filters.dateRange.endDate));
       }
     }
 
     // Combine all conditions
     const allConditions = [
-      eq(textSearch.organizationId, organizationId),
-      isNull(textSearch.deletedAt),
+      eq(assetSearchV2.organizationId, organizationId),
+      isNull(assetSearchV2.deletedAt),
       ...filterConditions,
     ];
 
@@ -94,17 +96,22 @@ export async function searchText(input: SearchTextInput): Promise<SearchTextResp
     // Execute search query with pagination
     const results = await db
       .select({
-        assetId: textSearch.assetId,
-        assetType: textSearch.assetType,
-        searchableText: textSearch.searchableText,
+        assetId: assetSearchV2.assetId,
+        assetType: assetSearchV2.assetType,
+        title: assetSearchV2.title,
+        additionalText: assetSearchV2.additionalText,
+        updatedAt: assetSearchV2.updatedAt,
       })
-      .from(textSearch)
+      .from(assetSearchV2)
       .innerJoin(
         permissionedAssetsSubquery,
-        eq(textSearch.assetId, permissionedAssetsSubquery.assetId)
+        eq(assetSearchV2.assetId, permissionedAssetsSubquery.assetId)
       )
       .where(and(...allConditions))
-      .orderBy(sql`pgroonga_score("text_search".tableoid, "text_search".ctid) DESC`)
+      .orderBy(
+        sql`pgroonga_score("asset_search_v2".tableoid, "asset_search_v2".ctid) DESC`,
+        assetSearchV2.updatedAt
+      )
       .limit(page_size)
       .offset(offset);
 
@@ -113,10 +120,10 @@ export async function searchText(input: SearchTextInput): Promise<SearchTextResp
       .select({
         count: count(),
       })
-      .from(textSearch)
+      .from(assetSearchV2)
       .innerJoin(
         permissionedAssetsSubquery,
-        eq(textSearch.assetId, permissionedAssetsSubquery.assetId)
+        eq(assetSearchV2.assetId, permissionedAssetsSubquery.assetId)
       )
       .where(and(...allConditions));
 

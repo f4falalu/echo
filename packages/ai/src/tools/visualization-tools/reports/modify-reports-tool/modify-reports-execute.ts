@@ -79,7 +79,8 @@ async function processEditOperations(
   edits: Array<{ operation?: 'replace' | 'append'; code_to_replace: string; code: string }>,
   messageId?: string,
   snapshotContent?: string,
-  versionHistory?: VersionHistory
+  versionHistory?: VersionHistory,
+  state?: ModifyReportsState
 ): Promise<{
   success: boolean;
   finalContent?: string;
@@ -176,6 +177,23 @@ async function processEditOperations(
 
   // Write all changes to database in one operation
   try {
+    // Wait for the last delta write to complete before doing final update
+    if (state?.lastUpdate) {
+      console.info('[modify-reports-execute] Waiting for last delta write to complete');
+      try {
+        // Wait for the last write in the chain to complete
+        await state.lastUpdate;
+        console.info(
+          '[modify-reports-execute] Last delta write completed, proceeding with final update'
+        );
+      } catch (error) {
+        console.warn(
+          '[modify-reports-execute] Error waiting for last delta write, proceeding with final update:',
+          error
+        );
+      }
+    }
+
     await batchUpdateReport({
       reportId,
       content: currentContent,
@@ -193,10 +211,12 @@ async function processEditOperations(
       metricIds,
     });
 
-    await updateMetricsToReports({
-      reportId,
-      metricIds,
-    });
+    if (metricIds.length > 0) {
+      await updateMetricsToReports({
+        reportId,
+        metricIds,
+      });
+    }
 
     if (messageId) {
       await trackFileAssociations({
@@ -239,7 +259,8 @@ const modifyReportsFile = wrapTraced(
     params: ModifyReportsInput,
     context: ModifyReportsContext,
     snapshotContent?: string,
-    versionHistory?: VersionHistory
+    versionHistory?: VersionHistory,
+    state?: ModifyReportsState
   ): Promise<ModifyReportsOutput> => {
     // Get context values
     const userId = context.userId;
@@ -299,7 +320,8 @@ const modifyReportsFile = wrapTraced(
       params.edits,
       messageId,
       snapshotContent, // Pass immutable snapshot
-      versionHistory // Pass snapshot version history
+      versionHistory, // Pass snapshot version history
+      state // Pass state to access lastUpdate
     );
 
     // Track file associations if this is a new version (not part of same turn)
@@ -390,7 +412,8 @@ export function createModifyReportsExecute(
           input,
           context,
           state.snapshotContent, // Pass immutable snapshot from state
-          state.versionHistory // Pass snapshot version history from state
+          state.versionHistory, // Pass snapshot version history from state
+          state // Pass state to access lastUpdate
         );
 
         if (!result) {

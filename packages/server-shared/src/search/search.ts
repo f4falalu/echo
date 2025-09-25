@@ -1,12 +1,11 @@
-import { TextSearchResultSchema } from '@buster/database/schema-types';
+import {
+  type Ancestor,
+  AncestorSchema,
+  TextSearchResultSchema,
+} from '@buster/database/schema-types';
 import { z } from 'zod';
 import { AssetTypeSchema } from '../assets';
 import { PaginatedRequestSchema, PaginatedResponseSchema } from '../type-utilities/pagination';
-
-const AncestorSchema = z.object({
-  id: z.string().uuid(),
-  title: z.string(),
-});
 
 export const AssetAncestorsSchema = z.object({
   chats: z.array(AncestorSchema),
@@ -22,14 +21,15 @@ export const SearchTextRequestSchema = z
   .object({
     query: z.string().optional(),
     assetTypes: z.union([AssetTypeSchema, z.array(AssetTypeSchema)]).optional(),
-    includeAncestors: z
+    includeAssetAncestors: z
       .preprocess((val) => {
         if (typeof val === 'string') {
           return val.toLowerCase() === 'true';
         }
         return Boolean(val);
       }, z.boolean())
-      .default(false),
+      .default(false)
+      .optional(),
     endDate: z.string().datetime().optional(),
     startDate: z.string().datetime().optional(),
   })
@@ -39,9 +39,9 @@ export const SearchTextDataSchema = TextSearchResultSchema.extend({
   ancestors: AssetAncestorsSchema.optional(),
 });
 
+export { type Ancestor, AncestorSchema };
 export type SearchTextRequest = z.infer<typeof SearchTextRequestSchema>;
 export type SearchTextData = z.infer<typeof SearchTextDataSchema>;
 export const SearchTextResponseSchema = PaginatedResponseSchema(SearchTextDataSchema);
 export type SearchTextResponse = z.infer<typeof SearchTextResponseSchema>;
-export type Ancestor = z.infer<typeof AncestorSchema>;
 export type AssetAncestors = z.infer<typeof AssetAncestorsSchema>;

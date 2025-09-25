@@ -33,6 +33,8 @@ export const ChatInput: React.FC = React.memo(() => {
   });
 
   const onChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
     setInputValue(e.target.value);
   };
 

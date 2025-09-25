@@ -13,7 +13,7 @@ type DashboardVersionModalProps = Pick<VersionHistoryModalProps, 'onClose' | 've
 export const DashboardVersionModal = React.memo(
   ({ onClose, versionNumber: versionNumberProp, dashboardId }: DashboardVersionModalProps) => {
     const { data } = useGetDashboard(
-      { id: dashboardId },
+      { id: dashboardId, versionNumber: 'LATEST' },
       {
         select: useCallback(
           (x: BusterDashboardResponse) => ({
@@ -26,6 +26,7 @@ export const DashboardVersionModal = React.memo(
     );
     const { mutateAsync: updateDashboard, isPending: isRestoringVersion } = useSaveDashboard({
       updateOnSave: true,
+      updateVersion: true,
     });
 
     const {

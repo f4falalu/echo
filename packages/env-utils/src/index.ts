@@ -7,16 +7,19 @@ import { config } from 'dotenv';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Find the root of the monorepo (where turbo.json is)
+// Find the root of the monorepo (where turbo.json and pnpm-workspace.yaml are)
 function findMonorepoRoot(): string {
   let currentDir = __dirname;
   while (currentDir !== '/') {
-    if (existsSync(path.join(currentDir, 'turbo.json'))) {
+    const turboPath = path.join(currentDir, 'turbo.json');
+    const pnpmWorkspacePath = path.join(currentDir, 'pnpm-workspace.yaml');
+    // Look for both turbo.json AND pnpm-workspace.yaml to ensure we find the actual root
+    if (existsSync(turboPath) && existsSync(pnpmWorkspacePath)) {
       return currentDir;
     }
     currentDir = path.dirname(currentDir);
   }
-  throw new Error('Could not find monorepo root (turbo.json)');
+  throw new Error('Could not find monorepo root (turbo.json + pnpm-workspace.yaml)');
 }
 
 // Load environment variables from root .env file

@@ -5,6 +5,7 @@ import { dataSources, metricFiles } from '../../schema';
 
 export const GetMetricForExportInputSchema = z.object({
   metricId: z.string().uuid(),
+  versionNumber: z.number().optional(),
 });
 
 export type GetMetricForExportInput = z.infer<typeof GetMetricForExportInputSchema>;
@@ -34,6 +35,7 @@ export async function getMetricForExport(input: GetMetricForExportInput): Promis
       content: metricFiles.content,
       dataSourceId: metricFiles.dataSourceId,
       organizationId: metricFiles.organizationId,
+      versionHistory: metricFiles.versionHistory,
       secretId: dataSources.secretId,
       dataSourceType: dataSources.type,
     })
@@ -52,15 +54,32 @@ export async function getMetricForExport(input: GetMetricForExportInput): Promis
     throw new Error(`Metric with ID ${validated.metricId} not found or has been deleted`);
   }
 
+  // Handle version-specific content if requested
+  let contentToUse = result.content as Record<string, unknown>;
+
+  if (validated.versionNumber !== undefined && result.versionHistory) {
+    const versionKey = validated.versionNumber.toString();
+    const versionHistory = result.versionHistory as Record<string, any>;
+    const versionData = versionHistory[versionKey];
+
+    if (versionData?.content) {
+      contentToUse = versionData.content;
+    } else {
+      throw new Error(
+        `Version ${validated.versionNumber} not found for metric ${validated.metricId}`
+      );
+    }
+  }
+
   // Extract SQL from metric content
   // The content structure may vary, so we check multiple possible locations
   let sql: string | undefined;
 
   //TODO: we need to use the metric type when we merge in the new ai sdk v5 branch date: 08/14/2025
 
-  if (typeof result.content === 'object' && result.content !== null) {
+  if (typeof contentToUse === 'object' && contentToUse !== null) {
     // Check common locations for SQL in metric content
-    const content = result.content as Record<string, unknown>;
+    const content = contentToUse;
     sql =
       (typeof content.sql === 'string' ? content.sql : undefined) ||
       (typeof content.query === 'string' ? content.query : undefined) ||
@@ -81,7 +100,7 @@ export async function getMetricForExport(input: GetMetricForExportInput): Promis
   return {
     id: result.id,
     name: result.name,
-    content: result.content as Record<string, unknown>,
+    content: contentToUse,
     dataSourceId: result.dataSourceId,
     organizationId: result.organizationId,
     secretId: result.secretId,

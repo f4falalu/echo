@@ -296,10 +296,7 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
             state.version_number = newVersion;
 
             // Track this modification for this tool invocation
-            if (!state.reportsModifiedInMessage) {
-              state.reportsModifiedInMessage = new Set();
-            }
-            state.reportsModifiedInMessage.add(state.reportId);
+            state.reportModifiedInMessage = true;
 
             // Update version history with the final content after all edits
             const now = new Date().toISOString();
@@ -312,14 +309,52 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
               },
             };
 
-            // Update the database with the result of all edits
+            // Update the database with the result of all edits (sequentially chained)
             try {
-              await batchUpdateReport({
-                reportId: state.reportId,
-                content: currentContent,
-                name: state.reportName || undefined,
-                versionHistory,
-              });
+              // We're already inside a check for state.reportId being defined
+              if (!state.reportId) {
+                throw new Error('Report ID is unexpectedly undefined');
+              }
+
+              // Initialize the promise chain if this is the first write
+              if (!state.lastUpdate) {
+                state.lastUpdate = Promise.resolve();
+              }
+
+              // Chain this write to happen after the previous one completes
+              state.lastUpdate = state.lastUpdate
+                .then(async () => {
+                  // Double-check that content has actually changed since last write
+                  // This prevents redundant writes if multiple deltas arrive with same content
+                  if (currentContent === state.lastSavedContent) {
+                    console.info('[modify-reports-delta] Skipping write - content unchanged', {
+                      reportId: state.reportId,
+                    });
+                    return;
+                  }
+
+                  // Perform the database write
+                  await batchUpdateReport({
+                    reportId: state.reportId as string, // We checked it's defined above
+                    content: currentContent,
+                    name: state.reportName || undefined,
+                    versionHistory,
+                  });
+
+                  console.info('[modify-reports-delta] Database write completed', {
+                    reportId: state.reportId,
+                    version: newVersion,
+                  });
+                })
+                .catch((error) => {
+                  // Log error but don't break the chain - allow subsequent writes to continue
+                  console.error('[modify-reports-delta] Database write failed:', error);
+                  // Don't re-throw - let the chain continue for resilience
+                });
+
+              // Wait for this specific write to complete before proceeding
+              // This ensures we don't mark things as saved until the write is done
+              await state.lastUpdate;
 
               // No cache update during delta - execute will handle write-through
 

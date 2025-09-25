@@ -1,8 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from '@tanstack/react-router';
 import last from 'lodash/last';
-import { create } from 'mutative';
 import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
-import { metricsQueryKeys } from '@/api/query_keys/metric';
 import { setOriginalDashboard } from '@/context/Dashboards/useOriginalDashboardStore';
 import { initializeMetrics } from '../dashboardQueryHelpers';
 import { dashboardsUpdateDashboard } from '../requests';
@@ -11,12 +10,19 @@ import { dashboardsUpdateDashboard } from '../requests';
  * useSaveDashboard
  * Saves the dashboard to the server and updates cache optionally.
  */
-export const useSaveDashboard = (params?: { updateOnSave?: boolean }) => {
+export const useSaveDashboard = (params?: { updateOnSave?: boolean; updateVersion?: boolean }) => {
   const updateOnSave = params?.updateOnSave || false;
+  const updateVersion = params?.updateVersion || true;
+
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   return useMutation({
-    mutationFn: dashboardsUpdateDashboard,
+    mutationFn: (variables: Parameters<typeof dashboardsUpdateDashboard>[0]) =>
+      dashboardsUpdateDashboard({
+        ...variables,
+        update_version: variables.update_version ?? updateVersion,
+      }),
     onMutate: (variables) => {
       const options = dashboardQueryKeys.dashboardGetDashboard(variables.id, 'LATEST');
       queryClient.setQueryData(options.queryKey, (old) => {
@@ -55,6 +61,11 @@ export const useSaveDashboard = (params?: { updateOnSave?: boolean }) => {
 
       const isLatestVersion = data.dashboard.version_number === last(data.versions)?.version_number;
       if (isLatestVersion) setOriginalDashboard(data.dashboard);
+      navigate({
+        to: '.',
+        ignoreBlocker: true,
+        search: (prev) => ({ ...prev, dashboard_version_number: undefined }),
+      });
     },
   });
 };

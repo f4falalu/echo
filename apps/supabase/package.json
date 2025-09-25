@@ -1,0 +1,13 @@
+{
+  "name": "@buster-app/supabase",
+  "version": "0.0.1",
+  "private": false,
+  "dependencies": {},
+  "scripts": {
+    "lint": "biome check . --write",
+    "lint:fix": "biome check . --write",
+    "start": "supabase start",
+    "stop": "supabase stop",
+    "reset": "supabase stop && supabase start && supabase db reset"
+  }
+}

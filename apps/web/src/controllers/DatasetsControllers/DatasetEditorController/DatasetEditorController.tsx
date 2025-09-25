@@ -7,7 +7,10 @@ import { useMemo, useRef, useState } from 'react';
 import { useGetDatasetData } from '@/api/buster_rest/datasets';
 import { useRunSQL } from '@/api/buster_rest/sql';
 import type { AppSplitterRef, LayoutSize } from '@/components/ui/layouts/AppSplitter';
-import { AppVerticalCodeSplitter } from '@/components/ui/layouts/AppVerticalCodeSplitter';
+import {
+  AppVerticalCodeSplitter,
+  type AppVerticalCodeSplitterProps,
+} from '@/components/ui/layouts/AppVerticalCodeSplitter';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useRequest } from '@/hooks/useRequest';
 import { cn } from '@/lib/classMerge';
@@ -74,6 +77,24 @@ export const DatasetEditorController: React.FC<{
     }
   });
 
+  const runButton: AppVerticalCodeSplitterProps['runButton'] = useMemo(() => {
+    return {
+      label: 'Run',
+      onClick: onRunQuery,
+      loading: fetchingTempData,
+      disabled: false,
+    };
+  }, [onRunQuery, fetchingTempData]);
+
+  const saveButton: AppVerticalCodeSplitterProps['saveButton'] = useMemo(() => {
+    return {
+      label: 'Save',
+      onClick: onRunQuery,
+      loading: fetchingInitialData,
+      disabled: false,
+    };
+  }, [onRunQuery, fetchingInitialData]);
+
   return (
     <div className="flex h-full w-full flex-col overflow-hidden" ref={ref}>
       <EditorContainerSubHeader selectedApp={selectedApp} setSelectedApp={setSelectedApp} />
@@ -85,7 +106,8 @@ export const DatasetEditorController: React.FC<{
             sql={sql}
             setSQL={setSQL}
             runSQLError={runSQLError?.message}
-            onRunQuery={onRunQuery}
+            runButton={runButton}
+            saveButton={saveButton}
             data={shownData}
             fetchingData={fetchingInitialData || fetchingTempData}
             defaultLayout={defaultLayout}

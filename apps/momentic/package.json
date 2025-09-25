@@ -16,7 +16,7 @@
   },
   "scripts": {
     "prebuild": "[ \"$SKIP_ENV_CHECK\" = \"true\" ] || tsx scripts/validate-env.ts",
-    "momentic": "pnpm dlx momentic app --api-key $MOMENTIC_API_KEY",
+    "momentic": "pnpm dlx momentic install-browsers --all &&pnpm dlx momentic app --api-key $MOMENTIC_API_KEY",
     "momentic:run": "pnpm dlx momentic run --api-key $MOMENTIC_API_KEY"
   },
   "dependencies": {
@@ -26,7 +26,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "momentic": "^2.16.0",
+    "momentic": "^2.17.3",
     "tsx": "catalog:"
   }
 }

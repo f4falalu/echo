@@ -83,7 +83,7 @@ const ModifyReportsStateSchema = z.object({
     .string()
     .optional()
     .describe('Track the last content saved to DB to avoid redundant updates'),
-  reportsModifiedInMessage: z.set(z.string()).optional(),
+  reportModifiedInMessage: z.boolean().optional(),
   snapshotVersion: z.number().optional(),
   versionHistory: z
     .record(
@@ -101,8 +101,12 @@ const ModifyReportsStateSchema = z.object({
 export type ModifyReportsInput = z.infer<typeof ModifyReportsInputSchema>;
 export type ModifyReportsOutput = z.infer<typeof ModifyReportsOutputSchema>;
 export type ModifyReportsContext = z.infer<typeof ModifyReportsContextSchema>;
-export type ModifyReportsState = z.infer<typeof ModifyReportsStateSchema>;
 export type ModifyReportsEditState = z.infer<typeof ModifyReportsEditStateSchema>;
+
+// Extend the inferred type to include Promise fields (not supported by Zod directly)
+export type ModifyReportsState = z.infer<typeof ModifyReportsStateSchema> & {
+  lastUpdate?: Promise<void>; // Track the last write promise for sequential chaining
+};
 
 // Factory function that accepts agent context and maps to tool context
 export function createModifyReportsTool(context: ModifyReportsContext) {
@@ -117,7 +121,7 @@ export function createModifyReportsTool(context: ModifyReportsContext) {
     toolCallId: undefined,
     responseMessageCreated: false,
     snapshotContent: undefined,
-    reportsModifiedInMessage: new Set(),
+    reportModifiedInMessage: false,
   };
 
   // Create all functions with the context and state passed

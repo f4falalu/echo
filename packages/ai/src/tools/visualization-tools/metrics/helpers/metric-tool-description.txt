@@ -104,9 +104,30 @@ Only utilize the required/default fields unless the user specifically requests t
 #       style: percent
 #       replaceMissingDataWith: 0
 #       numberSeparatorStyle: ','
-#       multiplier: 100  # if calculated and not already multiplied
+#       multiplier: 100  # Use 100 if SQL returns 0.75 for 75%; use 1 if SQL returns 75 for 75%
 #       minimumFractionDigits: 1
 #       maximumFractionDigits: 2
+#
+# DATE NUMBER HANDLING RULES (IMPORTANT)
+#   - Whenever a column represents a date part but is typed as a number (month, quarter, day_of_week), you MUST set:
+#     columnType: number
+#     style: date
+#   - Always use convertNumberTo to translate raw numbers into readable time units:
+#     - month → convertNumberTo: month_of_year
+#     - quarter → convertNumberTo: quarter
+#     - day_of_week → convertNumberTo: day_of_week
+#   - Always set makeLabelHumanReadable: true for these.
+#   - NEVER leave raw numbers on the axis.
+#
+# DATE PART RULES
+#   - year → columnType: number, style: number, numberSeparatorStyle: null (no thousands separators).
+#   - second → columnType: number, style: number, numberSeparatorStyle: null
+#   - minute → columnType: number, style: number, numberSeparatorStyle: null
+#   - hour → columnType: number, style: number, numberSeparatorStyle: null
+#   - month/quarter/day_of_week → columnType: number, style: date, with convertNumberTo + makeLabelHumanReadable.
+#   - When X-axis = [month, year] across multiple years → month.dateFormat: 'MMM' (renderer composes 'MMM YYYY' with the year part).
+#   - Full date/timestamp columns → columnType: date, style: date, include explicit dateFormat appropriate to the interval.
+
 # -------------------------------------
 
 # --- FORMAL SCHEMA --- (Used for validation, reflects rules above)
@@ -138,15 +159,51 @@ properties:
     type: string
     description: |
       Human-readable time period covered by the SQL query, similar to a filter in a BI tool.
-      RULE: Must accurately reflect the date/time filter used in the `sql` field. Do not misrepresent the time range.
-      Examples:
+
+      ## CRITICAL RULES
+      - Each metric/visualization should have its own unique timeframe string based on the date filters used in the metric's `sql` field
+      - The timeframe must be derived directly and only from that metric’s `sql` field.
+      - Never generalize across metrics or apply a “one size fits all” timeframe for multiple charts. If charts are on the same report or dashboard but utilize different date filters, you must display the correct timeFrame for each metric/visualization.
+      - Must accurately reflect both the date filters and the grouping granularity used in the SQL.
+
+      ## Allowed Formats
       - Fixed Dates: "January 1, 2020 - December 31, 2020", "2024", "Q2 2024", "June 1, 2025"
-      - Relative Dates: "Today", "Yesterday", "Last 7 days", "Last 30 days", "Last Quarter", "Last 12 Months", "Year to Date", "All time"
-      - Comparisons: Use the format "Comparison: [Period 1] vs [Period 2]". Examples:
-        - "Comparison: Last 30 days vs Previous 30 days"
-        - "Comparison: June 1, 2025 - June 30, 2025 vs July 1, 2025 - July 31, 2025"
-      RULE: Use full month names for dates, e.g., "January", not "Jan".
-      RULE: Follow general quoting rules. CANNOT contain ':'.
+      - Relative Dates: "Today", "Yesterday", "Last 7 days", "Last 30 days", "Last Quarter", 
+        "Last 12 Months", "Year to Date", "Quarter to Date", "Month to Date", "Week to Date", "All time"
+      - Comparisons: "Comparison - [Period 1] vs [Period 2]"
+        Examples:
+          - "Comparison - Last 30 days vs Previous 30 days"
+          - "Comparison - Last 12 Months vs Previous 12 Months"
+          - "Comparison - June 1, 2025 - June 30, 2025 vs July 1, 2025 - July 31, 2025"
+      - Fiscal Periods: "FY2024", "FQ3 2024"
+      - Forecast/Future: "Next 12 Months", "Next Quarter"
+
+      ## Edge Case Rules
+      - **Incomplete start date only** (`WHERE date >= '2023-01-01'`) → "Since January 1, 2023"
+      - **Incomplete end date only** (`WHERE date <= '2024-06-30'`) → "Through June 30, 2024"
+      - **Current partial period** (`WHERE YEAR(order_date) = 2024` during 2024) → "Year to Date"
+      - **Custom rolling windows** (`WHERE date >= CURRENT_DATE - INTERVAL '90 days'`) → "Last 90 days"
+      - **Future projections** (`WHERE date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '12 months'`) → "Next 12 Months"
+      - **Short fixed spans** (3 months of data: Jan–Mar 2025) → "January 2025 - March 2025"
+      - **Fiscal calendar filters** (`WHERE fiscal_quarter = 'FQ3 2024'`) → "FQ3 2024"
+      - **Rolling to-date filters** (`DATE_TRUNC('quarter', CURRENT_DATE)`) → "Quarter to Date"
+      - **Relative offsets** (`WHERE date BETWEEN CURRENT_DATE - INTERVAL '60 days' AND CURRENT_DATE - INTERVAL '30 days'`) → "30–60 Days Ago"
+
+      ## Formatting Rules
+      - Always use full month names ("January", not "Jan").
+      - Do not include ":" inside the timeframe string.
+      - Timeframe string must match SQL exactly (filters and grouping).
+      - Never reuse the same timeframe across unrelated metrics unless the SQL is identical.
+
+      ## Examples
+      - Query grouped by month, filtered last 12 months → "Last 12 Months"
+      - Query grouped by quarter, filtered current year → "Q1 2025 - Q3 2025"
+      - Query with WHERE order_date BETWEEN '2021-01-01' AND '2021-12-31' → "January 1, 2021 - December 31, 2021"
+      - Query with no date filter → "All time"
+      - Comparison of rolling periods → "Comparison - Last 30 days vs Previous 30 days"
+      - Open-ended filter (`>= 2023-01-01`) → "Since January 1, 2023"
+      - Forecasting 1 year ahead → "Next 12 Months"
+      - Fiscal quarter filter → "FQ3 2024"
 
   # SQL QUERY
   sql:
@@ -213,7 +270,7 @@ definitions:
         description: |
           Default color palette. 
           RULE: Hex color codes (e.g., #FF0000) MUST be enclosed in quotes (e.g., "#FF0000" or '#FF0000') because '#' signifies a comment otherwise. Double quotes are preferred for consistency.
-          Use this parameter when the user asks about customizing chart colors, unless specified otherwise.
+          You should never return/edit this field unless the user or dataset documentation explicitly ask you to customize chart colors.
       showLegend:
         type: boolean
       gridLines:
@@ -348,15 +405,21 @@ definitions:
         type: string
         enum:
           - currency # Note: The "$" sign is automatically prepended.
-          - percent # Note: "%" sign is appended. For percentage values: 
-            # - If the value comes directly from a database column, use multiplier: 1
-            # - If the value is calculated in your SQL query and not already multiplied by 100, use multiplier: 100
+          - percent # Note: "%" sign is automatically appended as a suffix.
+            # IMPORTANT: You MUST analyze the SQL query to determine the correct multiplier:
+            # - If SQL returns decimal ratios (e.g., 0.75 for 75%), use multiplier: 100
+            # - If SQL returns percentage values (e.g., 75 for 75%), use multiplier: 1 (or omit it)
           - number
-          - date # Note: For date columns, consider setting xAxisTimeInterval in xAxisConfig to control date grouping (day, week, month, quarter, year)
+          - date # Note: For date columns, consider setting xAxisTimeInterval in xAxisConfig to control date grouping (day, week, month, quarter, year) if using the convertNumberTo field, you must also set the style to date.
           - string
       multiplier:
         type: number
-        description: Value to multiply the number by before display. Default value is 1. For percentages, the multiplier depends on how the data is sourced: if the value comes directly from a database column, use multiplier: 1; if the value is calculated in your SQL query and not already multiplied by 100, use multiplier: 100.
+        description: |
+          Value to multiply the number by before display. Default: 1.
+          For percentages with style: percent, you MUST examine the SQL query and data format:
+          - If SQL returns decimal ratios (e.g., 0.75), use multiplier: 100 to convert to percentage (75%)
+          - If SQL returns percentage values (e.g., 75), use multiplier: 1 or omit this field
+          The agent must analyze the actual SQL query and understand the data format, not make assumptions.
       displayName:
         type: string
         description: Custom display name for the column
@@ -399,7 +462,7 @@ definitions:
         description: Whether to interpret dates as UTC
       convertNumberTo:
         type: string
-        description: Optional. Convert numeric values to time units or date parts.  This is a necessity for time series data when numbers are passed instead of the date.
+        description: Optional. Convert numeric values to time units or date parts.  This is a necessity for time series data when numbers are passed instead of the date. If using this, the style must be set as date.
         enum:
           - day_of_week
           - month_of_year

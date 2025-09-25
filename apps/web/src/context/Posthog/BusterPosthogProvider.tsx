@@ -2,7 +2,6 @@ import { isServer } from '@tanstack/react-query';
 import { ClientOnly } from '@tanstack/react-router';
 import type { PostHogConfig } from 'posthog-js';
 import React, { type PropsWithChildren, useEffect, useState } from 'react';
-import { useGetUserTeams } from '@/api/buster_rest/users';
 import {
   useGetUserBasicInfo,
   useGetUserOrganization,
@@ -10,9 +9,8 @@ import {
 import { ComponentErrorCard } from '@/components/features/global/ComponentErrorCard';
 import { isDev } from '@/config/dev';
 import { env } from '@/env';
-import packageJson from '../../../package.json';
+import { useAppVersionMeta } from '../AppVersion/useAppVersion';
 
-const version = packageJson.version;
 const POSTHOG_KEY = env.VITE_PUBLIC_POSTHOG_KEY;
 const DEBUG_POSTHOG = false;
 
@@ -37,20 +35,13 @@ const options: Partial<PostHogConfig> = {
   session_recording: {
     recordBody: true,
   },
-
-  loaded: () => {
-    console.log(
-      `%c🚀 Welcome to Buster v${version}`,
-      'background: linear-gradient(to right, #a21caf, #8b1cb1, #6b21a8); color: white; font-size: 16px; font-weight: bold; padding: 10px; border-radius: 5px;'
-    );
-    console.log(
-      '%cBuster is your open-source data analytics platform. Found a bug? The code is open-source! Report it at https://github.com/buster-so/buster. Better yet, fix it yourself and send a PR.',
-      'background: #6b21a8; color: white; font-size: 10px; font-weight: normal; padding: 8px; border-radius: 4px;'
-    );
-  },
+  api_host: '/phrp/',
+  ui_host: 'https://us.posthog.com',
+  defaults: '2025-05-24',
 };
 
 const PosthogWrapper: React.FC<PropsWithChildren> = ({ children }) => {
+  const appVersionMeta = useAppVersionMeta();
   const user = useGetUserBasicInfo();
   const userOrganizations = useGetUserOrganization();
   const userOrganizationId = userOrganizations?.id || '';
@@ -99,8 +90,34 @@ const PosthogWrapper: React.FC<PropsWithChildren> = ({ children }) => {
         organization: userOrganizations,
       });
       posthog.group(userOrganizationId, userOrganizationName);
+
+      // Register app version metadata to be included with all events
+      if (appVersionMeta) {
+        posthog.register({
+          app_version: appVersionMeta.buildId,
+          browser_build: appVersionMeta.browserBuild,
+          server_build: appVersionMeta.buildId,
+          version_changed: appVersionMeta.buildId !== appVersionMeta.browserBuild,
+        });
+      }
     }
-  }, [user?.id, userOrganizationId, userOrganizationName, posthogModules]);
+  }, [user?.id, userOrganizationId, userOrganizationName, posthogModules, appVersionMeta]);
+
+  // Update app version metadata when it changes after PostHog is initialized
+  useEffect(() => {
+    if (posthogModules?.posthog && appVersionMeta) {
+      const { posthog } = posthogModules;
+
+      if (posthog.__loaded) {
+        posthog.register({
+          app_version: appVersionMeta.buildId,
+          browser_build: appVersionMeta.browserBuild,
+          server_build: appVersionMeta.buildId,
+          version_changed: appVersionMeta.buildId !== appVersionMeta.browserBuild,
+        });
+      }
+    }
+  }, [appVersionMeta, posthogModules]);
 
   // Show children while loading or if modules failed to load
   if (isLoading || !posthogModules) {

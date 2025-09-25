@@ -1,11 +1,11 @@
 import { useBlocker } from '@tanstack/react-router';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 import type { ConfirmProps } from '@/components/ui/modal/ConfirmModal';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useUnmount } from '@/hooks/useUnmount';
 import { timeout } from '@/lib/timeout';
 import { useOpenConfirmModal } from '../BusterNotifications';
-import { setBlocker } from './blocker-store';
+import { setBlocker, useCooldownTimer } from './blocker-store';
 
 export const useBlockerWithModal = ({
   onReset,
@@ -24,24 +24,10 @@ export const useBlockerWithModal = ({
   cancelButtonProps?: ConfirmProps['cancelButtonProps'];
   enableBeforeUnload?: boolean;
 }) => {
-  const [explicitlyUnblocked, setExplicitlyUnblocked] = useState(false);
-  const cooldownTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const { cooldownBlockerTimer, startCooldownTimer, cancelCooldownTimer } = useCooldownTimer();
   const openConfirmModal = useOpenConfirmModal();
 
-  const cancelCooldownTimer = () => {
-    if (cooldownTimer.current) {
-      clearTimeout(cooldownTimer.current);
-      cooldownTimer.current = undefined;
-    }
-    setExplicitlyUnblocked(false);
-  };
-
-  const startCooldownTimer = () => {
-    setExplicitlyUnblocked(true);
-    cooldownTimer.current = setTimeout(() => {
-      cancelCooldownTimer();
-    }, 500);
-  };
+  const isBlockerDisabled = !enableBlocker || !!cooldownBlockerTimer;
 
   const ensureBlockerIsUnBlocked = useMemoizedFn(async (iteration = 0) => {
     if (enableBlocker === false || iteration > 30) {
@@ -50,6 +36,12 @@ export const useBlockerWithModal = ({
 
     await timeout(5);
     return ensureBlockerIsUnBlocked(iteration + 1);
+  });
+
+  //this must be a moized funciton because shouldBlockFn caches the function
+  const checkShouldBlockFn = useMemoizedFn(() => {
+    if (isBlockerDisabled) return true;
+    return false;
   });
 
   useUnmount(() => {
@@ -61,13 +53,13 @@ export const useBlockerWithModal = ({
   }, [enableBlocker]);
 
   useBlocker({
-    disabled: !enableBlocker || explicitlyUnblocked,
+    disabled: isBlockerDisabled,
     shouldBlockFn: async () => {
-      if (!enableBlocker) return false;
+      if (checkShouldBlockFn()) return false;
 
       const shouldLeave = await openConfirmModal<true>({
         title: title || 'Unsaved changes',
-        content: content,
+        content,
         primaryButtonProps: primaryButtonProps || {
           text: 'Yes, leave',
         },
@@ -79,6 +71,7 @@ export const useBlockerWithModal = ({
           await onReset();
           await ensureBlockerIsUnBlocked();
           startCooldownTimer();
+          await timeout(25);
           return Promise.resolve(true);
         },
         onCancel: async () => {

@@ -31,7 +31,7 @@ const FORMATS = {
   day: 'MMM D',
   week: 'll',
   month: 'MMM YYYY',
-  quarter: '[Q]Q - YYYY',
+  quarter: '[Q]Q YYYY',
   year: 'YYYY',
 };
 

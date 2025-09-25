@@ -18,6 +18,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
+import { Route as InfoGettingStartedRouteImport } from './routes/info/getting-started'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
 import { Route as AuthLogoutRouteImport } from './routes/auth.logout'
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
@@ -29,7 +30,6 @@ import { Route as EmbedDashboardDashboardIdRouteImport } from './routes/embed/da
 import { Route as AppSettingsRestricted_layoutRouteImport } from './routes/app/_settings/_restricted_layout'
 import { Route as AppSettingsPermissionsRouteImport } from './routes/app/_settings/_permissions'
 import { Route as AppAppHomeRouteImport } from './routes/app/_app/home'
-import { Route as AppAppHealthcheckRouteImport } from './routes/app/_app/healthcheck'
 import { Route as AppAppAssetRouteImport } from './routes/app/_app/_asset'
 import { Route as AppSettingsSettingsIndexRouteImport } from './routes/app/_settings/settings.index'
 import { Route as AppAppReportsIndexRouteImport } from './routes/app/_app/reports.index'
@@ -124,6 +124,7 @@ import { Route as AppAppAssetChatsChatIdReportsReportIdMetricsMetricIdContentCha
 import { Route as AppAppAssetChatsChatIdDashboardsDashboardIdMetricsMetricIdContentSqlRouteImport } from './routes/app/_app/_asset/chats.$chatId/dashboards.$dashboardId/metrics.$metricId/_content/sql'
 import { Route as AppAppAssetChatsChatIdDashboardsDashboardIdMetricsMetricIdContentResultsRouteImport } from './routes/app/_app/_asset/chats.$chatId/dashboards.$dashboardId/metrics.$metricId/_content/results'
 import { Route as AppAppAssetChatsChatIdDashboardsDashboardIdMetricsMetricIdContentChartRouteImport } from './routes/app/_app/_asset/chats.$chatId/dashboards.$dashboardId/metrics.$metricId/_content/chart'
+import { ServerRoute as AuthConfirmServerRouteImport } from './routes/auth.confirm'
 import { ServerRoute as AuthCallbackServerRouteImport } from './routes/auth.callback'
 
 const AppAppAssetReportsReportIdRouteImport = createFileRoute(
@@ -191,6 +192,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const InfoGettingStartedRoute = InfoGettingStartedRouteImport.update({
+  id: '/info/getting-started',
+  path: '/info/getting-started',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -242,11 +248,6 @@ const AppSettingsPermissionsRoute = AppSettingsPermissionsRouteImport.update({
 const AppAppHomeRoute = AppAppHomeRouteImport.update({
   id: '/home',
   path: '/home',
-  getParentRoute: () => AppAppRoute,
-} as any)
-const AppAppHealthcheckRoute = AppAppHealthcheckRouteImport.update({
-  id: '/healthcheck',
-  path: '/healthcheck',
   getParentRoute: () => AppAppRoute,
 } as any)
 const AppAppAssetRoute = AppAppAssetRouteImport.update({
@@ -921,6 +922,11 @@ const AppAppAssetChatsChatIdDashboardsDashboardIdMetricsMetricIdContentChartRout
         AppAppAssetChatsChatIdDashboardsDashboardIdMetricsMetricIdContentRoute,
     } as any,
   )
+const AuthConfirmServerRoute = AuthConfirmServerRouteImport.update({
+  id: '/auth/confirm',
+  path: '/auth/confirm',
+  getParentRoute: () => rootServerRouteImport,
+} as any)
 const AuthCallbackServerRoute = AuthCallbackServerRouteImport.update({
   id: '/auth/callback',
   path: '/auth/callback',
@@ -936,8 +942,8 @@ export interface FileRoutesByFullPath {
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/info/getting-started': typeof InfoGettingStartedRoute
   '/app/': typeof AppIndexRoute
-  '/app/healthcheck': typeof AppAppHealthcheckRoute
   '/app/home': typeof AppAppHomeRoute
   '/embed/dashboard/$dashboardId': typeof EmbedDashboardDashboardIdRoute
   '/embed/metric/$metricId': typeof EmbedMetricMetricIdRoute
@@ -1044,7 +1050,7 @@ export interface FileRoutesByTo {
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
-  '/app/healthcheck': typeof AppAppHealthcheckRoute
+  '/info/getting-started': typeof InfoGettingStartedRoute
   '/app/home': typeof AppAppHomeRoute
   '/embed/dashboard/$dashboardId': typeof EmbedDashboardDashboardIdRoute
   '/embed/metric/$metricId': typeof EmbedMetricMetricIdRoute
@@ -1137,9 +1143,9 @@ export interface FileRoutesById {
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/info/getting-started': typeof InfoGettingStartedRoute
   '/app/': typeof AppIndexRoute
   '/app/_app/_asset': typeof AppAppAssetRouteWithChildren
-  '/app/_app/healthcheck': typeof AppAppHealthcheckRoute
   '/app/_app/home': typeof AppAppHomeRoute
   '/app/_settings/_permissions': typeof AppSettingsPermissionsRouteWithChildren
   '/app/_settings/_restricted_layout': typeof AppSettingsRestricted_layoutRouteWithChildren
@@ -1261,8 +1267,8 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/logout'
     | '/auth/reset-password'
+    | '/info/getting-started'
     | '/app/'
-    | '/app/healthcheck'
     | '/app/home'
     | '/embed/dashboard/$dashboardId'
     | '/embed/metric/$metricId'
@@ -1369,7 +1375,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/logout'
     | '/auth/reset-password'
-    | '/app/healthcheck'
+    | '/info/getting-started'
     | '/app/home'
     | '/embed/dashboard/$dashboardId'
     | '/embed/metric/$metricId'
@@ -1461,9 +1467,9 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/logout'
     | '/auth/reset-password'
+    | '/info/getting-started'
     | '/app/'
     | '/app/_app/_asset'
-    | '/app/_app/healthcheck'
     | '/app/_app/home'
     | '/app/_settings/_permissions'
     | '/app/_settings/_restricted_layout'
@@ -1581,27 +1587,32 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   EmbedRoute: typeof EmbedRouteWithChildren
   HealthcheckRoute: typeof HealthcheckRoute
+  InfoGettingStartedRoute: typeof InfoGettingStartedRoute
 }
 export interface FileServerRoutesByFullPath {
   '/auth/callback': typeof AuthCallbackServerRoute
+  '/auth/confirm': typeof AuthConfirmServerRoute
 }
 export interface FileServerRoutesByTo {
   '/auth/callback': typeof AuthCallbackServerRoute
+  '/auth/confirm': typeof AuthConfirmServerRoute
 }
 export interface FileServerRoutesById {
   __root__: typeof rootServerRouteImport
   '/auth/callback': typeof AuthCallbackServerRoute
+  '/auth/confirm': typeof AuthConfirmServerRoute
 }
 export interface FileServerRouteTypes {
   fileServerRoutesByFullPath: FileServerRoutesByFullPath
-  fullPaths: '/auth/callback'
+  fullPaths: '/auth/callback' | '/auth/confirm'
   fileServerRoutesByTo: FileServerRoutesByTo
-  to: '/auth/callback'
-  id: '__root__' | '/auth/callback'
+  to: '/auth/callback' | '/auth/confirm'
+  id: '__root__' | '/auth/callback' | '/auth/confirm'
   fileServerRoutesById: FileServerRoutesById
 }
 export interface RootServerRouteChildren {
   AuthCallbackServerRoute: typeof AuthCallbackServerRoute
+  AuthConfirmServerRoute: typeof AuthConfirmServerRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1647,6 +1658,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/'
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/info/getting-started': {
+      id: '/info/getting-started'
+      path: '/info/getting-started'
+      fullPath: '/info/getting-started'
+      preLoaderRoute: typeof InfoGettingStartedRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/auth/reset-password': {
       id: '/auth/reset-password'
@@ -1723,13 +1741,6 @@ declare module '@tanstack/react-router' {
       path: '/home'
       fullPath: '/app/home'
       preLoaderRoute: typeof AppAppHomeRouteImport
-      parentRoute: typeof AppAppRoute
-    }
-    '/app/_app/healthcheck': {
-      id: '/app/_app/healthcheck'
-      path: '/healthcheck'
-      fullPath: '/app/healthcheck'
-      preLoaderRoute: typeof AppAppHealthcheckRouteImport
       parentRoute: typeof AppAppRoute
     }
     '/app/_app/_asset': {
@@ -2464,6 +2475,13 @@ declare module '@tanstack/react-router' {
 }
 declare module '@tanstack/react-start/server' {
   interface ServerFileRoutesByPath {
+    '/auth/confirm': {
+      id: '/auth/confirm'
+      path: '/auth/confirm'
+      fullPath: '/auth/confirm'
+      preLoaderRoute: typeof AuthConfirmServerRouteImport
+      parentRoute: typeof rootServerRouteImport
+    }
     '/auth/callback': {
       id: '/auth/callback'
       path: '/auth/callback'
@@ -2942,7 +2960,6 @@ const AppAppDatasetsDatasetIdRouteWithChildren =
 
 interface AppAppRouteChildren {
   AppAppAssetRoute: typeof AppAppAssetRouteWithChildren
-  AppAppHealthcheckRoute: typeof AppAppHealthcheckRoute
   AppAppHomeRoute: typeof AppAppHomeRoute
   AppAppDatasetsDatasetIdRoute: typeof AppAppDatasetsDatasetIdRouteWithChildren
   AppAppChatsIndexRoute: typeof AppAppChatsIndexRoute
@@ -2956,7 +2973,6 @@ interface AppAppRouteChildren {
 
 const AppAppRouteChildren: AppAppRouteChildren = {
   AppAppAssetRoute: AppAppAssetRouteWithChildren,
-  AppAppHealthcheckRoute: AppAppHealthcheckRoute,
   AppAppHomeRoute: AppAppHomeRoute,
   AppAppDatasetsDatasetIdRoute: AppAppDatasetsDatasetIdRouteWithChildren,
   AppAppChatsIndexRoute: AppAppChatsIndexRoute,
@@ -3240,12 +3256,14 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   EmbedRoute: EmbedRouteWithChildren,
   HealthcheckRoute: HealthcheckRoute,
+  InfoGettingStartedRoute: InfoGettingStartedRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 const rootServerRouteChildren: RootServerRouteChildren = {
   AuthCallbackServerRoute: AuthCallbackServerRoute,
+  AuthConfirmServerRoute: AuthConfirmServerRoute,
 }
 export const serverRouteTree = rootServerRouteImport
   ._addFileChildren(rootServerRouteChildren)

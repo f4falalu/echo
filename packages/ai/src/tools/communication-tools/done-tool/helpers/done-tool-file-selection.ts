@@ -18,10 +18,12 @@ import {
 } from '../../../visualization-tools/metrics/modify-metrics-tool/modify-metrics-tool';
 import {
   CREATE_REPORTS_TOOL_NAME,
+  type CreateReportsInput,
   type CreateReportsOutput,
 } from '../../../visualization-tools/reports/create-reports-tool/create-reports-tool';
 import {
   MODIFY_REPORTS_TOOL_NAME,
+  type ModifyReportsInput,
   type ModifyReportsOutput,
 } from '../../../visualization-tools/reports/modify-reports-tool/modify-reports-tool';
 
@@ -94,13 +96,24 @@ export function extractAllFilesForChatUpdate(messages: ModelMessage[]): Extracte
           const contentObj = content as { toolCallId?: string; input?: unknown };
           const toolCallId = contentObj.toolCallId;
           const input = contentObj.input as {
+            name?: string;
+            content?: string;
+            // Legacy support for old array structure
             files?: Array<{ yml_content?: string; content?: string }>;
           };
-          if (toolCallId && input && input.files && Array.isArray(input.files)) {
-            for (const file of input.files) {
-              const reportContent = file.yml_content || file.content;
-              if (reportContent) {
-                createReportContents.set(toolCallId, reportContent);
+
+          // Handle new single-file structure
+          if (toolCallId && input) {
+            if (input.content) {
+              // New structure: single report
+              createReportContents.set(toolCallId, input.content);
+            } else if (input.files && Array.isArray(input.files)) {
+              // Legacy structure: array of files
+              for (const file of input.files) {
+                const reportContent = file.yml_content || file.content;
+                if (reportContent) {
+                  createReportContents.set(toolCallId, reportContent);
+                }
               }
             }
           }
@@ -167,6 +180,188 @@ export function extractAllFilesForChatUpdate(messages: ModelMessage[]): Extracte
 }
 
 /**
+ * Extract referenced metric IDs from tool calls (CREATE_REPORTS and MODIFY_REPORTS)
+ * Parse the tool call inputs to find metric references in reports
+ */
+function extractReferencedMetricIds(messages: ModelMessage[]): Set<string> {
+  const referencedMetricIds = new Set<string>();
+
+  // First, collect all metric IDs that exist from tool results
+  const allMetricIds = new Set<string>();
+
+  for (const message of messages) {
+    if (message.role === 'tool') {
+      const toolContent = message.content;
+
+      if (Array.isArray(toolContent)) {
+        for (const content of toolContent) {
+          if (
+            content &&
+            typeof content === 'object' &&
+            'type' in content &&
+            content.type === 'tool-result'
+          ) {
+            const toolName = (content as unknown as Record<string, unknown>).toolName;
+            const output = (content as unknown as Record<string, unknown>).output;
+
+            if (
+              (toolName === CREATE_METRICS_TOOL_NAME || toolName === MODIFY_METRICS_TOOL_NAME) &&
+              output
+            ) {
+              const outputObj = output as Record<string, unknown>;
+              if (outputObj.type === 'json' && outputObj.value) {
+                try {
+                  const parsedOutput =
+                    typeof outputObj.value === 'string'
+                      ? JSON.parse(outputObj.value)
+                      : outputObj.value;
+
+                  const metricsOutput = parsedOutput as CreateMetricsOutput | ModifyMetricsOutput;
+                  if (metricsOutput.files && Array.isArray(metricsOutput.files)) {
+                    for (const file of metricsOutput.files) {
+                      if (file.id) {
+                        allMetricIds.add(file.id);
+                      }
+                    }
+                  }
+                } catch (_error) {
+                  // Ignore parsing errors
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Then check if any metric IDs appear in report content
+  for (const message of messages) {
+    if (message.role === 'assistant' && Array.isArray(message.content)) {
+      for (const content of message.content) {
+        if (
+          content &&
+          typeof content === 'object' &&
+          'type' in content &&
+          content.type === 'tool-call' &&
+          'toolName' in content
+        ) {
+          const toolName = content.toolName;
+          const input = (content as { input?: unknown }).input;
+
+          // Extract from CREATE_REPORTS with type safety
+          if (toolName === CREATE_REPORTS_TOOL_NAME && input) {
+            // Type the input as CreateReportsInput with fallback for legacy
+            const reportInput = input as Partial<CreateReportsInput> & {
+              files?: Array<{ yml_content?: string; content?: string }>;
+            };
+
+            // Handle new structure
+            if (reportInput.content) {
+              // Simply check if any metric ID appears in the content
+              for (const metricId of allMetricIds) {
+                if (reportInput.content.includes(metricId)) {
+                  referencedMetricIds.add(metricId);
+                }
+              }
+            }
+
+            // Handle legacy structure
+            if (reportInput.files && Array.isArray(reportInput.files)) {
+              for (const file of reportInput.files) {
+                const content = file.yml_content || file.content;
+                if (content) {
+                  // Simply check if any metric ID appears in the content
+                  for (const metricId of allMetricIds) {
+                    if (content.includes(metricId)) {
+                      referencedMetricIds.add(metricId);
+                    }
+                  }
+                }
+              }
+            }
+          }
+
+          // Extract from MODIFY_REPORTS with type safety
+          if (toolName === MODIFY_REPORTS_TOOL_NAME && input) {
+            // Type the input as ModifyReportsInput with support for variant field names
+            const modifyInput = input as Partial<ModifyReportsInput> & {
+              edits?: Array<{
+                operation?: 'replace' | 'append';
+                code?: string;
+                code_to_replace?: string;
+                new_content?: string;
+                content?: string;
+              }>;
+            };
+
+            if (modifyInput.edits && Array.isArray(modifyInput.edits)) {
+              for (const edit of modifyInput.edits) {
+                // Check all possible field names for content
+                const content = edit.code || edit.new_content || edit.content;
+                if (content) {
+                  // Simply check if any metric ID appears in the content
+                  for (const metricId of allMetricIds) {
+                    if (content.includes(metricId)) {
+                      referencedMetricIds.add(metricId);
+                    }
+                  }
+                }
+              }
+            }
+          }
+
+          // Extract from CREATE_DASHBOARDS and MODIFY_DASHBOARDS
+          if (
+            (toolName === CREATE_DASHBOARDS_TOOL_NAME ||
+              toolName === MODIFY_DASHBOARDS_TOOL_NAME) &&
+            input
+          ) {
+            const dashboardInput = input as {
+              dashboards?: Array<{ rows?: Array<{ metricIds?: string[] }> }>;
+              rows?: Array<{ metricIds?: string[] }>;
+            };
+
+            // Handle dashboards array
+            if (dashboardInput.dashboards && Array.isArray(dashboardInput.dashboards)) {
+              for (const dashboard of dashboardInput.dashboards) {
+                if (dashboard.rows && Array.isArray(dashboard.rows)) {
+                  for (const row of dashboard.rows) {
+                    if (row.metricIds && Array.isArray(row.metricIds)) {
+                      for (const metricId of row.metricIds) {
+                        referencedMetricIds.add(metricId);
+                      }
+                    }
+                  }
+                }
+              }
+            }
+
+            // Handle direct rows (for single dashboard)
+            if (dashboardInput.rows && Array.isArray(dashboardInput.rows)) {
+              for (const row of dashboardInput.rows) {
+                if (row.metricIds && Array.isArray(row.metricIds)) {
+                  for (const metricId of row.metricIds) {
+                    referencedMetricIds.add(metricId);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  console.info('[done-tool-file-selection] Extracted referenced metric IDs from tool calls', {
+    count: referencedMetricIds.size,
+    metricIds: Array.from(referencedMetricIds),
+  });
+
+  return referencedMetricIds;
+}
+
+/**
  * Extract files from tool call responses in the conversation messages
  * Focuses on tool result messages that contain file information
  */
@@ -177,6 +372,9 @@ export function extractFilesFromToolCalls(messages: ModelMessage[]): ExtractedFi
   console.info('[done-tool-file-selection] Starting file extraction from messages', {
     messageCount: messages.length,
   });
+
+  // Extract referenced metric IDs from tool calls
+  const referencedMetricIds = extractReferencedMetricIds(messages);
 
   // First pass: extract create report content from assistant messages
   const createReportContents: Map<string, string> = new Map();
@@ -198,18 +396,32 @@ export function extractFilesFromToolCalls(messages: ModelMessage[]): ExtractedFi
           const contentObj = content as { toolCallId?: string; input?: unknown };
           const toolCallId = contentObj.toolCallId;
           const input = contentObj.input as {
+            name?: string;
+            content?: string;
+            // Legacy support for old array structure
             files?: Array<{ yml_content?: string; content?: string }>;
           };
-          if (toolCallId && input && input.files && Array.isArray(input.files)) {
-            for (const file of input.files) {
-              // Check for both yml_content and content fields
-              const reportContent = file.yml_content || file.content;
-              if (reportContent) {
-                createReportContents.set(toolCallId, reportContent);
-                console.info('[done-tool-file-selection] Stored report content for toolCallId', {
-                  toolCallId,
-                  contentLength: reportContent.length,
-                });
+
+          if (toolCallId && input) {
+            if (input.content) {
+              // New structure: single report
+              createReportContents.set(toolCallId, input.content);
+              console.info('[done-tool-file-selection] Stored report content for toolCallId', {
+                toolCallId,
+                contentLength: input.content.length,
+              });
+            } else if (input.files && Array.isArray(input.files)) {
+              // Legacy structure: array of files
+              for (const file of input.files) {
+                // Check for both yml_content and content fields
+                const reportContent = file.yml_content || file.content;
+                if (reportContent) {
+                  createReportContents.set(toolCallId, reportContent);
+                  console.info('[done-tool-file-selection] Stored report content for toolCallId', {
+                    toolCallId,
+                    contentLength: reportContent.length,
+                  });
+                }
               }
             }
           }
@@ -322,19 +534,25 @@ export function extractFilesFromToolCalls(messages: ModelMessage[]): ExtractedFi
   // Filter out metrics that belong to dashboards
   let filteredFiles = filterOutDashboardMetrics(deduplicatedFiles);
 
-  // Filter out metrics and dashboards that are referenced in reports
-  filteredFiles = filterOutReportContainedFiles(filteredFiles, lastReportInfo);
+  // Filter out metrics that are referenced in reports (using tool calls)
+  filteredFiles = filteredFiles.filter((file) => {
+    if (file.fileType === 'metric_file' && referencedMetricIds.has(file.id)) {
+      console.info('[done-tool-file-selection] Excluding metric referenced in report tool calls', {
+        metricId: file.id,
+        metricName: file.fileName,
+      });
+      return false;
+    }
+    return true;
+  });
 
-  // Filter out reports that don't have metrics (they won't be in responseMessages anyway)
-  // Keep reports that have metrics since they'll be in the responseMessages
+  // Filter out ALL reports (they are already in responseMessages)
   filteredFiles = filteredFiles.filter((file) => {
     if (file.fileType !== 'report_file') {
       return true; // Keep all non-report files that passed previous filters
     }
 
-    // For reports, only keep them if they contain metrics
-    // Reports with metrics will be in responseMessages already, so we filter them out here
-    // to avoid duplication
+    // Filter out ALL reports - they are handled separately and already in responseMessages
     return false;
   });
 
@@ -493,8 +711,47 @@ function processCreateReportsOutput(
   const reportsOutput = output as CreateReportsOutput;
   let reportInfo: ReportInfo | undefined;
 
-  if ('files' in reportsOutput && reportsOutput.files && Array.isArray(reportsOutput.files)) {
-    console.info('[done-tool-file-selection] Processing create report files array', {
+  // Handle new single-file structure
+  if ('file' in reportsOutput && reportsOutput.file && typeof reportsOutput.file === 'object') {
+    const file = reportsOutput.file;
+    console.info('[done-tool-file-selection] Processing create report single file', {
+      toolCallId,
+      hasContent: toolCallId && createReportContents ? createReportContents.has(toolCallId) : false,
+    });
+
+    const fileName = file.name;
+    if (file.id && fileName) {
+      // Get the content from the create report input using toolCallId
+      const content =
+        toolCallId && createReportContents ? createReportContents.get(toolCallId) : undefined;
+
+      files.push({
+        id: file.id,
+        fileType: 'report_file',
+        fileName: fileName,
+        status: 'completed',
+        operation: 'created',
+        versionNumber: file.version_number || 1,
+        content: content, // Store the content from the input
+      });
+
+      // Track this as the last report if we have content
+      if (content) {
+        reportInfo = {
+          id: file.id,
+          content: content,
+          versionNumber: file.version_number || 1,
+          operation: 'created',
+        };
+      }
+    }
+  } else if (
+    'files' in reportsOutput &&
+    reportsOutput.files &&
+    Array.isArray(reportsOutput.files)
+  ) {
+    // Legacy support for array structure
+    console.info('[done-tool-file-selection] Processing create report files array (legacy)', {
       count: reportsOutput.files.length,
       toolCallId,
       hasContent: toolCallId && createReportContents ? createReportContents.has(toolCallId) : false,
@@ -662,88 +919,6 @@ function filterOutDashboardMetrics(files: ExtractedFile[]): ExtractedFile[] {
     }
 
     return !shouldExclude;
-  });
-
-  return filtered;
-}
-
-/**
- * Filter out metrics and dashboards that are referenced in reports
- * Any metric that appears in a report should not be selected
- */
-function filterOutReportContainedFiles(
-  files: ExtractedFile[],
-  lastReportInfo?: ReportInfo
-): ExtractedFile[] {
-  if (!lastReportInfo || !lastReportInfo.content) {
-    // No report content to check against
-    console.info('[done-tool-file-selection] No report content to filter against');
-    return files;
-  }
-
-  const reportContent = lastReportInfo.content;
-
-  // Extract metric IDs from the last report content
-  const metricsInReports = new Set<string>();
-  const dashboardsInReports = new Set<string>();
-
-  // Extract metric IDs from report content using regex pattern
-  // Match any alphanumeric ID with hyphens (UUIDs, simple IDs like "metric-1", etc.)
-  const metricIdPattern = /metricId[="']+([a-zA-Z0-9-]+)["']/gi;
-  const matches = reportContent.matchAll(metricIdPattern);
-
-  for (const match of matches) {
-    if (match[1]) {
-      metricsInReports.add(match[1]);
-    }
-  }
-
-  // Also check for dashboard IDs in reports
-  const dashboardIdPattern = /dashboardId[="']+([a-zA-Z0-9-]+)["']/gi;
-  const dashboardMatches = reportContent.matchAll(dashboardIdPattern);
-
-  for (const match of dashboardMatches) {
-    if (match[1]) {
-      dashboardsInReports.add(match[1]);
-    }
-  }
-
-  console.info('[done-tool-file-selection] Checking for files absorbed by last report', {
-    reportId: lastReportInfo.id,
-    reportOperation: lastReportInfo.operation,
-    contentLength: reportContent.length,
-    metricsInReports: metricsInReports.size,
-    dashboardsInReports: dashboardsInReports.size,
-    metricIds: Array.from(metricsInReports),
-    dashboardIds: Array.from(dashboardsInReports),
-  });
-
-  if (metricsInReports.size === 0 && dashboardsInReports.size === 0) {
-    // No metrics or dashboards referenced in reports
-    return files;
-  }
-
-  // Filter out metrics and dashboards that appear in report content
-  const filtered = files.filter((file) => {
-    // Check if this metric is referenced in a report
-    if (file.fileType === 'metric_file' && metricsInReports.has(file.id)) {
-      console.info('[done-tool-file-selection] Excluding metric referenced in report', {
-        metricId: file.id,
-        metricName: file.fileName,
-      });
-      return false;
-    }
-
-    // Check if this dashboard is referenced in a report
-    if (file.fileType === 'dashboard_file' && dashboardsInReports.has(file.id)) {
-      console.info('[done-tool-file-selection] Excluding dashboard referenced in report', {
-        dashboardId: file.id,
-        dashboardName: file.fileName,
-      });
-      return false;
-    }
-
-    return true;
   });
 
   return filtered;

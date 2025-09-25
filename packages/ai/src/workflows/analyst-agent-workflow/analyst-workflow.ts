@@ -25,6 +25,7 @@ import { CREATE_METRICS_TOOL_NAME } from '../../tools/visualization-tools/metric
 import { MODIFY_METRICS_TOOL_NAME } from '../../tools/visualization-tools/metrics/modify-metrics-tool/modify-metrics-tool';
 import { CREATE_REPORTS_TOOL_NAME } from '../../tools/visualization-tools/reports/create-reports-tool/create-reports-tool';
 import { MODIFY_REPORTS_TOOL_NAME } from '../../tools/visualization-tools/reports/modify-reports-tool/modify-reports-tool';
+import { extractUserAndDoneToolMessages } from '../../utils';
 import { withStepRetry } from '../../utils/with-step-retry';
 import type { StepRetryOptions } from '../../utils/with-step-retry';
 import {
@@ -74,7 +75,7 @@ export async function runAnalystWorkflow(
   const userPersonalizationMessageContent =
     generatePersonalizationMessageContent(userPersonalizationConfig);
 
-  const { todos, values, analysisType } = await runAnalystPrepSteps(input);
+  const { todos, values, analysisMode } = await runAnalystPrepSteps(input);
 
   // Add all messages from extract-values step (tool call, result, and optional user message)
   messages.push(...values.messages);
@@ -93,7 +94,7 @@ export async function runAnalystWorkflow(
       sql_dialect_guidance: input.dataSourceSyntax,
       datasets: input.datasets,
       workflowStartTime,
-      analysisMode: analysisType,
+      analysisMode,
       analystInstructions,
       organizationDocs,
       userPersonalizationMessageContent,
@@ -132,6 +133,7 @@ export async function runAnalystWorkflow(
         userId: input.userId,
         datasets: input.datasets,
         workflowStartTime,
+        analysisMode,
         analystInstructions,
         organizationDocs,
         userPersonalizationMessageContent,
@@ -212,7 +214,7 @@ export async function runAnalystWorkflow(
     endTime: workflowEndTime,
     totalExecutionTimeMs: workflowEndTime - workflowStartTime,
 
-    analysisMode: analysisType === 'investigation' ? 'investigation' : 'standard',
+    analysisMode: analysisMode === 'investigation' ? 'investigation' : 'standard',
 
     messages,
 
@@ -265,10 +267,11 @@ async function runAnalystPrepSteps({
 }: AnalystPrepStepInput): Promise<{
   todos: CreateTodosResult;
   values: ExtractValuesSearchResult;
-  analysisType: AnalysisTypeRouterResult['analysisType'];
+  analysisMode: AnalysisTypeRouterResult['analysisMode'];
 }> {
+  const filteredToUserAndDoneToolMessages = extractUserAndDoneToolMessages(messages);
   const shouldInjectUserPersonalizationTodo = Boolean(userPersonalizationConfig);
-  const [todos, values, , analysisType] = await Promise.all([
+  const [todos, values, , analysisMode] = await Promise.all([
     withStepRetry(
       () =>
         runCreateTodosStep({
@@ -291,7 +294,7 @@ async function runAnalystPrepSteps({
     withStepRetry(
       () =>
         runExtractValuesAndSearchStep({
-          messages,
+          messages: filteredToUserAndDoneToolMessages,
           dataSourceId,
         }),
       {
@@ -309,7 +312,7 @@ async function runAnalystPrepSteps({
     withStepRetry(
       () =>
         runGenerateChatTitleStep({
-          messages,
+          messages: filteredToUserAndDoneToolMessages,
           chatId,
           messageId,
         }),
@@ -328,7 +331,7 @@ async function runAnalystPrepSteps({
     withStepRetry(
       () =>
         runAnalysisTypeRouterStep({
-          messages,
+          messages: filteredToUserAndDoneToolMessages,
           messageAnalysisMode,
         }),
       {
@@ -345,7 +348,7 @@ async function runAnalystPrepSteps({
     ),
   ]);
 
-  return { todos, values, analysisType: analysisType.analysisType };
+  return { todos, values, analysisMode: analysisMode.analysisMode };
 }
 
 function generatePersonalizationMessageContent(

@@ -21,6 +21,7 @@ export const getSupabaseSession = async (): Promise<SimplifiedSupabaseSession> =
     : await extractSimplifiedSupabaseSession(supabase);
 
   if ((!sessionData.accessToken || sessionError) && !isServer) {
+    console.warn('No session data or error', sessionData, sessionError);
     return sessionData;
   }
 
@@ -31,5 +32,12 @@ export const getSupabaseUser = async () => {
   const { data: userData } = isServer
     ? await getSupabaseUserServerFn()
     : await supabase.auth.getUser();
-  return userData.user;
+
+  const simplifiedUser = {
+    id: userData.user?.id ?? '',
+    email: userData.user?.email ?? '',
+    is_anonymous: userData.user?.is_anonymous ?? true,
+  };
+
+  return simplifiedUser;
 };

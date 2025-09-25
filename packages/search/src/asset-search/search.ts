@@ -1,6 +1,12 @@
 import { type SearchFilters, getUserOrganizationId, searchText } from '@buster/database/queries';
-import type { SearchTextData, SearchTextRequest, SearchTextResponse } from '@buster/server-shared';
+import type {
+  AssetType,
+  SearchTextData,
+  SearchTextRequest,
+  SearchTextResponse,
+} from '@buster/server-shared';
 import { getAssetAncestors } from './get-search-result-ancestors';
+import { processSearchResultText } from './text-processing-helpers';
 
 /**
  * Perform text search and enhance results with asset ancestors
@@ -44,26 +50,26 @@ export async function performTextSearch(
     filters,
   });
 
-  if (searchRequest.query) {
-    const highlightedResults = await Promise.all(
-      result.data.map(async (searchResult) => {
-        const highlightedText = await highlightSearchTerms(
-          searchRequest.query ?? '',
-          searchResult.searchableText
-        );
-        return {
-          ...searchResult,
-          searchableText: highlightedText,
-        };
-      })
-    );
-    result = {
-      ...result,
-      data: highlightedResults,
-    };
-  }
+  const highlightedResults = await Promise.all(
+    result.data.map(async (searchResult) => {
+      const { processedTitle, processedAdditionalText } = processSearchResultText(
+        searchRequest.query ?? '',
+        searchResult.title,
+        searchResult.additionalText ?? ''
+      );
+      return {
+        ...searchResult,
+        title: processedTitle,
+        additionalText: processedAdditionalText,
+      };
+    })
+  );
+  result = {
+    ...result,
+    data: highlightedResults,
+  };
 
-  if (searchRequest.includeAncestors) {
+  if (searchRequest.includeAssetAncestors) {
     const resultsWithAncestors = await addAncestorsToSearchResults(
       result.data,
       userId,
@@ -91,7 +97,7 @@ async function addAncestorsToSearchResults(
   userId: string,
   organizationId: string
 ): Promise<SearchTextData[]> {
-  const chunkSize = 10;
+  const chunkSize = 5;
   const resultsWithAncestors: SearchTextData[] = [];
 
   for (let i = 0; i < searchResults.length; i += chunkSize) {
@@ -100,7 +106,7 @@ async function addAncestorsToSearchResults(
       chunk.map(async (searchResult) => {
         const ancestors = await getAssetAncestors(
           searchResult.assetId,
-          searchResult.assetType,
+          searchResult.assetType as AssetType,
           userId,
           organizationId
         );
@@ -115,44 +121,4 @@ async function addAncestorsToSearchResults(
   }
 
   return resultsWithAncestors;
-}
-
-/**
- * Highlights search terms in text by wrapping matching words with HTML <b> tags
- * @param searchString - The search query string
- * @param searchableText - The text to highlight terms in
- * @returns The text with search terms wrapped in <b> tags
- */
-export async function highlightSearchTerms(
-  searchString: string,
-  searchableText: string
-): Promise<string> {
-  if (!searchString || !searchableText) {
-    return searchableText;
-  }
-
-  // Split search string by spaces and filter out empty strings
-  const searchTerms = searchString.split(' ').filter((term) => term.trim().length > 0);
-
-  if (searchTerms.length === 0) {
-    return searchableText;
-  }
-
-  let result = searchableText;
-
-  // Process each search term individually to ensure all matches are replaced
-  searchTerms.forEach((term) => {
-    const trimmedTerm = term.trim();
-    if (trimmedTerm.length === 0) return;
-
-    const escapedTerm = trimmedTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-    // Create regex with global flag to replace ALL occurrences
-    const regex = new RegExp(`\\b(${escapedTerm})\\b`, 'gi');
-
-    // Replace all matches for this term
-    result = result.replace(regex, '<b>$1</b>');
-  });
-
-  return result;
 }
