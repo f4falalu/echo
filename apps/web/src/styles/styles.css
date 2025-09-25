@@ -56,5 +56,5 @@ th {
 
 strong,
 b {
-  @apply font-semibold
+  @apply font-semibold;
 }
