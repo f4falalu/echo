@@ -73,7 +73,7 @@ const createQuarterTickDates = (
           // Format is '[Q]Q' - keep [Q] literal, replace the second Q
           // Then remove the brackets to get clean output like Q1, Q2, etc.
           return DEFAULT_DATE_FORMAT_QUARTER.replace(/(?<!\[)Q(?!\])/g, String(item)).replace(
-            /[\[\]]/g,
+            /[[\]]/g,
             ''
           );
         }

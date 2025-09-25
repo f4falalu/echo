@@ -41,8 +41,8 @@ describe('Chat API Requests', () => {
       ];
 
       // Setup mock response
-      (mainApiV2.get as any).mockResolvedValueOnce({ 
-        data: { data: mockChats } 
+      (mainApiV2.get as any).mockResolvedValueOnce({
+        data: { data: mockChats },
       });
 
       // Import the function we want to test
