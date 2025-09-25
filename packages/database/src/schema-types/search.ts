@@ -5,4 +5,5 @@ export const TextSearchResultSchema = z.object({
   assetType: z.string(),
   title: z.string(),
   additionalText: z.string().nullable(),
+  updatedAt: z.string().datetime(),
 });
