@@ -38,11 +38,13 @@ describe('createFullURL', () => {
       pathname: '/reports/123',
       search: { tab: 'overview' },
       searchStr: '?tab=overview',
-      state: {},
+      state: { __TSR_index: 0 },
       hash: '',
       key: 'test-key',
       maskedLocation: undefined,
-    } as ParsedLocation;
+      publicHref: '/reports/123?tab=overview',
+      url: '/reports/123?tab=overview',
+    } as unknown as ParsedLocation;
 
     const result = createFullURL(mockLocation);
 

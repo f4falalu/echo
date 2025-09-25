@@ -7,6 +7,7 @@ import { createDropdownItem } from '@/components/ui/dropdown';
 import { ArrowRight, DuplicatePlus, Pencil, ShareRight, Star, Trash } from '@/components/ui/icons';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import { useBusterNotifications } from '@/context/BusterNotifications';
+import { ensureElementExists } from '@/lib/element';
 import { getIsEffectiveOwner } from '@/lib/share';
 import { timeout } from '@/lib/timeout';
 import { getShareAssetConfig, ShareMenuContent } from '../ShareMenu';
@@ -45,12 +46,18 @@ export const useRenameChatTitle = () => {
         label: 'Rename',
         value: 'edit-chat-title',
         icon: <Pencil />,
-        onClick: async () => {
-          const input = document.getElementById(CHAT_HEADER_TITLE_ID) as HTMLInputElement;
+        onClick: async (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          const input = await ensureElementExists(
+            () => document.getElementById(CHAT_HEADER_TITLE_ID) as HTMLInputElement
+          );
           if (input) {
-            await timeout(25);
+            // Focus first, then select after a small delay to ensure focus completes
             input.focus();
-            input.select();
+            setTimeout(() => {
+              input.select(); //i think this is related to how the dropdown is closing and taking away focus
+            }, 200);
           }
         },
       }),
