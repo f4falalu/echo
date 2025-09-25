@@ -71,7 +71,11 @@ const createQuarterTickDates = (
         if (index === indexOfQuarter) {
           // Replace the Q that's not in brackets with the quarter number
           // Format is '[Q]Q' - keep [Q] literal, replace the second Q
-          return DEFAULT_DATE_FORMAT_QUARTER.replace(/(?<!\[)Q(?!\])/g, String(item));
+          // Then remove the brackets to get clean output like Q1, Q2, etc.
+          return DEFAULT_DATE_FORMAT_QUARTER.replace(/(?<!\[)Q(?!\])/g, String(item)).replace(
+            /[\[\]]/g,
+            ''
+          );
         }
         return formatLabel(item, xColumnLabelFormats[index]);
       })
