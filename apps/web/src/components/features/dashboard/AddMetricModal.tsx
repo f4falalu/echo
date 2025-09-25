@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import type { BusterSearchResult } from '@/api/asset_interfaces/search';
+import type { SearchTextRequest, SearchTextResponse } from '@buster/server-shared/search';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearch } from '@/api/buster_rest/search';
 import { Button } from '@/components/ui/buttons';
 import {
@@ -46,29 +46,34 @@ export const AddMetricModal: React.FC<{
     const { data: searchResults } = useSearch(
       {
         query: debouncedSearchTerm,
-        asset_types: ['metric_file'],
-        num_results: 100,
-      },
-      { enabled: true }
+        assetTypes: ['metric_file'],
+        page_size: 25,
+        page: 1,
+      } satisfies SearchTextRequest,
+      { enabled: true, select: useCallback((data: SearchTextResponse) => data.data, []) }
     );
 
-    const columns = useMemo<InputSelectModalProps<BusterSearchResult>['columns']>(
+    const columns = useMemo<InputSelectModalProps<SearchTextResponse['data'][number]>['columns']>(
       () => [
         {
-          title: 'Name',
-          dataIndex: 'name',
-        },
-        {
-          title: 'Updated',
-          dataIndex: 'updated_at',
-          width: 140,
+          title: 'Title',
+          dataIndex: 'title',
           render: (value) => {
-            return formatDate({
-              date: value,
-              format: 'lll',
-            });
+            // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
+            return <span dangerouslySetInnerHTML={{ __html: value }}></span>;
           },
         },
+        // {
+        //   title: 'Updated',
+        //   dataIndex: 'updated_at',
+        //   width: 140,
+        //   render: (value) => {
+        //     return formatDate({
+        //       date: value,
+        //       format: 'lll',
+        //     });
+        //   },
+        // },
       ],
       []
     );
@@ -76,8 +81,8 @@ export const AddMetricModal: React.FC<{
     const rows = useMemo(() => {
       return (
         searchResults?.map((result) => ({
-          id: result.id,
-          dataTestId: `item-${result.id}`,
+          id: result.assetId,
+          dataTestId: `item-${result.assetId}`,
           data: result,
         })) || []
       );
@@ -100,7 +105,7 @@ export const AddMetricModal: React.FC<{
         const item = rows.find((row) => row.id === id);
         return {
           id: id,
-          name: item?.data?.name || id,
+          name: item?.data?.title || id,
         };
       });
 
