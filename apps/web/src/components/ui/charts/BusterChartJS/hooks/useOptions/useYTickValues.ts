@@ -2,12 +2,13 @@
 import { useMemo } from 'react';
 import type { BusterChartProps } from '../../../BusterChart.types';
 
-const MIN_PERCENT_DIFFERENCE = 2;
+const MIN_PERCENT_DIFFERENCE = 1.5;
 const MAX_PERCENT_DIFFERENCE = 2;
+const MIN_OFFSET = 1.1;
+const MAX_OFFSET = 1.1;
 
 export const useYTickValues = ({
   hasY2Axis,
-  isSupportedType,
   columnMetadata,
   selectedChartType,
   yAxisKeys,
@@ -15,15 +16,13 @@ export const useYTickValues = ({
   columnLabelFormats,
 }: {
   hasY2Axis: boolean;
-  isSupportedType: boolean;
   columnMetadata: BusterChartProps['columnMetadata'];
   selectedChartType: BusterChartProps['selectedChartType'];
   yAxisKeys: string[];
   y2AxisKeys: string[];
   columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>;
 }) => {
-  const shouldUseMinAndMaxValues =
-    !hasY2Axis || !isSupportedType || !columnMetadata || selectedChartType !== 'combo';
+  const shouldUseMinAndMaxValues = hasY2Axis && columnMetadata && selectedChartType === 'combo';
 
   const checkValues = useMemo(() => {
     return [...yAxisKeys, ...y2AxisKeys];
@@ -41,6 +40,40 @@ export const useYTickValues = ({
     return new Map(columnMetadata.map((col) => [col.name, col]));
   }, [columnMetadata]);
 
+  // Calculate min/max ranges for y-axis columns
+  const yAxisRange = useMemo(() => {
+    return yAxisKeys.reduce(
+      (acc, key) => {
+        const column = columnMap.get(key);
+        if (!column) return acc;
+        const min = Number(column.min_value ?? 0);
+        const max = Number(column.max_value ?? 0);
+        return {
+          min: Math.min(acc.min, min),
+          max: Math.max(acc.max, max),
+        };
+      },
+      { min: Infinity, max: -Infinity }
+    );
+  }, [yAxisKeys, columnMap]);
+
+  // Calculate min/max ranges for y2-axis columns
+  const y2AxisRange = useMemo(() => {
+    return y2AxisKeys.reduce(
+      (acc, key) => {
+        const column = columnMap.get(key);
+        if (!column) return acc;
+        const min = Number(column.min_value ?? 0);
+        const max = Number(column.max_value ?? 0);
+        return {
+          min: Math.min(acc.min, min),
+          max: Math.max(acc.max, max),
+        };
+      },
+      { min: Infinity, max: -Infinity }
+    );
+  }, [y2AxisKeys, columnMap]);
+
   const minTickValue: number | undefined = useMemo(() => {
     if (!shouldUseMinAndMaxValues) return undefined;
 
@@ -54,38 +87,6 @@ export const useYTickValues = ({
       if (lowestValue > 0) return 0;
       return lowestValue;
     }
-
-    // If y and y2 axes min/max values are within 130% of each other, use the same scale
-
-    // Calculate min/max ranges for y-axis columns
-    const yAxisRange = yAxisKeys.reduce(
-      (acc, key) => {
-        const column = columnMap.get(key);
-        if (!column) return acc;
-        const min = Number(column.min_value ?? 0);
-        const max = Number(column.max_value ?? 0);
-        return {
-          min: Math.min(acc.min, min),
-          max: Math.max(acc.max, max),
-        };
-      },
-      { min: Infinity, max: -Infinity }
-    );
-
-    // Calculate min/max ranges for y2-axis columns
-    const y2AxisRange = y2AxisKeys.reduce(
-      (acc, key) => {
-        const column = columnMap.get(key);
-        if (!column) return acc;
-        const min = Number(column.min_value ?? 0);
-        const max = Number(column.max_value ?? 0);
-        return {
-          min: Math.min(acc.min, min),
-          max: Math.max(acc.max, max),
-        };
-      },
-      { min: Infinity, max: -Infinity }
-    );
 
     // Reset infinities if no valid data found
     if (yAxisRange.min === Infinity) yAxisRange.min = 0;
@@ -109,17 +110,22 @@ export const useYTickValues = ({
 
     // If both min and max values are similar, use the lowest min value
     if (minValuesAreSimilar && maxValuesAreSimilar) {
-      return Math.min(yAxisRange.min, y2AxisRange.min);
+      return Math.min(yAxisRange.min, y2AxisRange.min) * MIN_OFFSET;
     }
   }, [
     columnLabelFormats,
+    yAxisRange,
+    y2AxisRange,
     shouldUseMinAndMaxValues,
     columnMap,
     checkValues,
     allYValuesArePercentage,
   ]);
 
+  const maxTickValue: number | undefined = undefined;
+
   return {
     minTickValue,
+    maxTickValue,
   };
 };

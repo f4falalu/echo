@@ -53,9 +53,8 @@ export const useYAxis = ({
     return selectedChartType !== 'pie';
   }, [selectedChartType]);
 
-  const { minTickValue } = useYTickValues({
+  const { minTickValue, maxTickValue } = useYTickValues({
     hasY2Axis,
-    isSupportedType,
     columnMetadata,
     selectedChartType,
     yAxisKeys,
@@ -132,7 +131,6 @@ export const useYAxis = ({
       return {
         type,
         grid,
-        max: usePercentageModeAxis ? 100 : undefined,
         beginAtZero: yAxisStartAxisAtZero !== false,
         stacked,
         title: {
@@ -145,7 +143,8 @@ export const useYAxis = ({
           count: defaultTickCount,
           includeBounds: true,
         },
-        min: minTickValue,
+        min: usePercentageModeAxis ? 0 : minTickValue,
+        max: usePercentageModeAxis ? 100 : maxTickValue,
         border: {
           display: yAxisShowAxisLabel,
         },
@@ -160,6 +159,9 @@ export const useYAxis = ({
       yAxisStartAxisAtZero,
       yAxisShowAxisLabel,
       usePercentageModeAxis,
+      maxTickValue,
+      minTickValue,
+      defaultTickCount,
     ]);
 
   return memoizedYAxisOptions;
