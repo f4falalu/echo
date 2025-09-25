@@ -100,6 +100,7 @@ export async function searchText(input: SearchTextInput): Promise<SearchTextResp
         assetType: assetSearchV2.assetType,
         title: assetSearchV2.title,
         additionalText: assetSearchV2.additionalText,
+        updatedAt: assetSearchV2.updatedAt,
       })
       .from(assetSearchV2)
       .innerJoin(
