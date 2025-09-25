@@ -152,17 +152,10 @@ export const AppDataGrid: React.FC<TanStackDataGridProps> = React.memo(
     }, [onReady]);
 
     // Handle clipboard copy events to preserve table structure
-    useEffect(() => {
-      const container = parentRef.current;
-      if (!container) return;
-
-      const copyHandler = (event: ClipboardEvent) => {
-        handleTableCopy(event, { table, parentRef });
-      };
-
-      container.addEventListener('copy', copyHandler);
-      return () => container.removeEventListener('copy', copyHandler);
-    }, [table]);
+    const handleCopy = (event: React.ClipboardEvent) => {
+      // Convert React event to native ClipboardEvent for handleTableCopy
+      handleTableCopy(event.nativeEvent, { table, parentRef });
+    };
 
     return (
       <div ref={parentRef} className={cn('h-full w-full overflow-auto', className)} style={style}>
@@ -176,6 +169,7 @@ export const AppDataGrid: React.FC<TanStackDataGridProps> = React.memo(
           <table
             className="bg-background w-full"
             style={{ borderCollapse: 'separate', borderSpacing: 0 }}
+            onCopy={handleCopy}
           >
             <DataGridHeader
               table={table}
