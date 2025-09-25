@@ -27,7 +27,7 @@ export const Route = createFileRoute('/app')({
     const { queryClient, supabaseSession } = context;
     try {
       const [user] = await Promise.all([prefetchGetMyUserInfo(queryClient)]);
-      if (!user || !user.organizations || user.organizations.length === 0) {
+      if (user && user?.organizations?.length === 0) {
         throw redirect({ href: BUSTER_SIGN_UP_URL, replace: true, statusCode: 307 });
       }
       return {

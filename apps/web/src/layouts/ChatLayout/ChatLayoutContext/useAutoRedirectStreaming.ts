@@ -44,8 +44,6 @@ export const useAutoRedirectStreaming = ({
       return;
     }
 
-    console.log('triggerAutoNavigate', triggerAutoNavigate);
-
     const chatMessage = getChatMessageMemoized(lastMessageId);
     const firstFileId = chatMessage?.response_message_ids?.find((id) => {
       const responseMessage = chatMessage?.response_messages[id];
