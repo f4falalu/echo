@@ -6,7 +6,6 @@ export const DEFAULT_ANTHROPIC_OPTIONS = {
   gateway: {
     order: ['bedrock', 'anthropic', 'vertex'],
   },
-  headers: {},
   anthropic: { cacheControl: { type: 'ephemeral' } },
 };
 
@@ -15,7 +14,7 @@ export const DEFAULT_OPENAI_OPTIONS = {
     order: ['openai'],
   },
   openai: {
-    parallelToolCalls: false,
+    // parallelToolCalls: false,
     reasoningEffort: 'minimal',
     verbosity: 'low',
   },
