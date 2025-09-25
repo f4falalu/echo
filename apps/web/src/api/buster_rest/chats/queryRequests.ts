@@ -431,7 +431,6 @@ export const useUpdateChatShare = () => {
           }
           if (variables.params.workspace_sharing !== undefined) {
             draft.workspace_sharing = variables.params.workspace_sharing;
-            s;
           }
         });
       });
