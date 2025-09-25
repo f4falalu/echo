@@ -410,6 +410,7 @@ export const useUpdateChatShare = () => {
       const queryKey = chatQueryKeys.chatsGetChat(variables.id).queryKey;
       queryClient.setQueryData(queryKey, (previousData: IBusterChat | undefined) => {
         if (!previousData) return previousData;
+
         return create(previousData, (draft: IBusterChat) => {
           draft.individual_permissions = (
             draft.individual_permissions?.map((t) => {
@@ -427,6 +428,10 @@ export const useUpdateChatShare = () => {
           }
           if (variables.params.public_expiry_date !== undefined) {
             draft.public_expiry_date = variables.params.public_expiry_date;
+          }
+          if (variables.params.workspace_sharing !== undefined) {
+            draft.workspace_sharing = variables.params.workspace_sharing;
+            s;
           }
         });
       });

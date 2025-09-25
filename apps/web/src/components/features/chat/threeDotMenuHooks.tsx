@@ -12,8 +12,6 @@ import { timeout } from '@/lib/timeout';
 import { getShareAssetConfig, ShareMenuContent } from '../ShareMenu';
 import { CHAT_HEADER_TITLE_ID } from './ChatHeaderTitle';
 
-const stablePermissionSelector = (chat: IBusterChat) => chat.permission;
-
 export const useShareMenuSelectMenu = ({ chatId = '' }: { chatId: string | undefined }) => {
   const { data: shareAssetConfig } = useGetChat({ id: chatId }, { select: getShareAssetConfig });
   const isEffectiveOwner = getIsEffectiveOwner(shareAssetConfig?.permission);
