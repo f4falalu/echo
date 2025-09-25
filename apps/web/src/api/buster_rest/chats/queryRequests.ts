@@ -26,7 +26,6 @@ import {
   deleteChat,
   duplicateChat,
   getChat,
-  getListChats,
   getListLogs,
   shareChat,
   unshareChat,
@@ -34,12 +33,13 @@ import {
   updateChatMessageFeedback,
   updateChatShare,
 } from './requests';
+import { getListChats } from './requestsV2';
 
 export const useGetListChats = (
-  filters?: Omit<Parameters<typeof getListChats>[0], 'page_token' | 'page_size'>
+  filters?: Omit<Parameters<typeof getListChats>[0], 'page' | 'page_size'>
 ) => {
   const filtersCompiled: Parameters<typeof getListChats>[0] = useMemo(
-    () => ({ admin_view: false, page_token: 0, page_size: 5000, ...filters }),
+    () => ({ admin_view: false, page: 1, page_size: 5000, ...filters }),
     [filters]
   );
 

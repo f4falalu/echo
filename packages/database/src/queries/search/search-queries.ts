@@ -6,7 +6,7 @@ import {
   type PaginatedResponse,
   PaginationInputSchema,
   createPaginatedResponse,
-} from '../shared-types';
+} from '../../schema-types';
 import { createPermissionedAssetsSubquery } from './access-control-helpers';
 
 import { AssetTypeSchema } from '../../schema-types/asset';
