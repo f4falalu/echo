@@ -11,6 +11,7 @@ import {
 import { chatQueryKeys } from '@/api/query_keys/chat';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
 import { useBlackboxMessage } from '@/context/BlackBox/useBlackboxMessage';
+import { updateDocumentTitle, useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useMount } from '@/hooks/useMount';
 import { updateChatToIChat } from '@/lib/chat';
@@ -135,13 +136,20 @@ export const useChatStreaming = ({
   });
 
   useEffect(() => {
+    const REASONING_TITLE = 'Reasoning... | ';
     if (isStreamingMessage) {
       const message = getChatMessageMemoized(messageId);
       if (message) {
         checkBlackBoxMessage(message);
       }
+      updateDocumentTitle((currentTitle) => {
+        return `${REASONING_TITLE}${currentTitle}`;
+      });
     } else {
       removeBlackBoxMessage(messageId);
+      updateDocumentTitle((currentTitle) => {
+        return currentTitle.replace(REASONING_TITLE, '');
+      });
     }
   }, [isStreamingMessage]);
 
