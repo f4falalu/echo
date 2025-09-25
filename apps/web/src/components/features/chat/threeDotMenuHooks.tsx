@@ -97,6 +97,7 @@ export const useOpenInNewTabSelectMenu = ({ chatId = '' }: { chatId: string | un
       link: {
         to: '/app/chats/$chatId',
         params: { chatId: chatId },
+        target: '_blank',
       },
     });
   }, []);
