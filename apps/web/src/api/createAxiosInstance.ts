@@ -50,9 +50,10 @@ export const defaultAxiosRequestHandler = async (config: InternalAxiosRequestCon
     const { accessToken: token } = session;
 
     if (!token) {
-      console.warn('No token found');
-      window.location.href = AuthRoute.to;
-      return Promise.reject(new Error('No token found'));
+      console.warn('No token found', config);
+      //embed route were having an issue with this...
+      //window.location.href = AuthRoute.to;
+      //return Promise.reject(new Error('No token found'));
     }
 
     (config.headers as AxiosRequestHeaders).Authorization = `Bearer ${token}`;
