@@ -48,11 +48,7 @@ export const InputTextArea = React.forwardRef<InputTextAreaRef, InputTextAreaPro
   ) => {
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-    <<<<<<< HEAD
-    useImperativeHandle(
-      ref,
-      () =>
-    {
+    useImperativeHandle(ref, () => {
       if (!textareaRef.current) {
         return null as unknown as InputTextAreaRef;
       }
@@ -65,28 +61,7 @@ export const InputTextArea = React.forwardRef<InputTextAreaRef, InputTextAreaPro
           }
         },
       });
-    }
-    ,
-      []
-    )
-    =======
-    useImperativeHandle(ref, () =>
-    {
-      if (!textareaRef.current) {
-        return null as unknown as InputTextAreaRef;
-      }
-      return Object.assign(textareaRef.current, {
-        forceRecalculateHeight: () => {
-          if (textareaRef.current) {
-            // Force a recalculation by triggering an input event
-            const event = new Event('input', { bubbles: true });
-            textareaRef.current.dispatchEvent(event);
-          }
-        },
-      });
-    }
-    , [])
-    >>>>>>> staging
+    }, []);
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (e.key === 'Enter') {
