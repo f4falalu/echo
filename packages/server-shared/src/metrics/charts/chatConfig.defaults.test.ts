@@ -32,13 +32,11 @@ describe('DEFAULT_CHART_CONFIG', () => {
         category: [],
         size: [],
         tooltip: null,
-        colorBy: null,
       });
       expect(config.pieChartAxis).toEqual({
         x: [],
         y: [],
         tooltip: null,
-        colorBy: null,
       });
 
       // Verify the config is a complete object with all required properties

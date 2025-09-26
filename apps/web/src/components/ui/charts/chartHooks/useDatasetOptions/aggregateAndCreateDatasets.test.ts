@@ -2107,20 +2107,20 @@ describe('aggregateAndCreateDatasets', () => {
       expect(result.datasets).toHaveLength(4);
 
       // Find sales datasets
-      const salesDatasets = result.datasets.filter(d => d.dataKey === 'sales');
-      const profitDatasets = result.datasets.filter(d => d.dataKey === 'profit');
+      const salesDatasets = result.datasets.filter((d) => d.dataKey === 'sales');
+      const profitDatasets = result.datasets.filter((d) => d.dataKey === 'profit');
 
       expect(salesDatasets).toHaveLength(2);
       expect(profitDatasets).toHaveLength(2);
 
       // Check labels include both metric and color field
-      const northSalesDataset = salesDatasets.find(d => d.colors === '#0000ff');
+      const northSalesDataset = salesDatasets.find((d) => d.colors === '#0000ff');
       expect(northSalesDataset?.label).toEqual([
         { key: 'sales', value: '' },
         { key: 'region', value: 'North' },
       ]);
 
-      const southProfitDataset = profitDatasets.find(d => d.colors === '#ff00ff');
+      const southProfitDataset = profitDatasets.find((d) => d.colors === '#ff00ff');
       expect(southProfitDataset?.label).toEqual([
         { key: 'profit', value: '' },
         { key: 'region', value: 'South' },
@@ -2161,7 +2161,7 @@ describe('aggregateAndCreateDatasets', () => {
 
       // Check that labels include product category AND color field
       const northProductADataset = result.datasets.find(
-        d => d.colors === '#aabbcc' && d.label.some(l => l.key === 'product' && l.value === 'A')
+        (d) => d.colors === '#aabbcc' && d.label.some((l) => l.key === 'product' && l.value === 'A')
       );
 
       expect(northProductADataset).toBeDefined();
@@ -2172,7 +2172,7 @@ describe('aggregateAndCreateDatasets', () => {
       expect(northProductADataset?.data).toEqual([100, 120]);
 
       const southProductADataset = result.datasets.find(
-        d => d.colors === '#ddeeff' && d.label.some(l => l.key === 'product' && l.value === 'A')
+        (d) => d.colors === '#ddeeff' && d.label.some((l) => l.key === 'product' && l.value === 'A')
       );
 
       expect(southProductADataset).toBeDefined();
@@ -2210,7 +2210,7 @@ describe('aggregateAndCreateDatasets', () => {
       expect(result.datasets).toHaveLength(1);
 
       // Dataset A should have real data
-      const datasetA = result.datasets.find(d => d.colors === '#ff0000');
+      const datasetA = result.datasets.find((d) => d.colors === '#ff0000');
       expect(datasetA?.data).toEqual([100, 120]);
       expect(datasetA?.label).toEqual([{ key: 'category', value: 'A' }]);
 
