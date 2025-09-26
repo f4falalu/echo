@@ -201,7 +201,7 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
 );
 ShareMenuContentPublish.displayName = 'ShareMenuContentPublish';
 
-const IsPublishedInfo: React.FC<{ isPublished: boolean }> = React.memo(({ isPublished }) => {
+const IsPublishedInfo: React.FC<{ isPublished: boolean }> = ({ isPublished }) => {
   if (!isPublished) return null;
 
   return (
@@ -210,8 +210,7 @@ const IsPublishedInfo: React.FC<{ isPublished: boolean }> = React.memo(({ isPubl
       <Text variant="link">Live on the web</Text>
     </div>
   );
-});
-IsPublishedInfo.displayName = 'IsPublishedInfo';
+};
 
 const LinkExpiration: React.FC<{
   linkExpiry: Date | null;
