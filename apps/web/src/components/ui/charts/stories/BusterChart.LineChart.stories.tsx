@@ -34,7 +34,7 @@ export const Default: Story = {
       y: ['revenue', 'profit', 'customers'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'resize overflow-auto min-w-[250px] h-[400px]',
     columnLabelFormats: {
@@ -77,7 +77,7 @@ export const AutoDateFormat_TimeIntervalTest_MonthWithForcedUnit_ManyMonths: Sto
       y: ['sales'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     columnLabelFormats: {
       date: {
@@ -135,7 +135,7 @@ export const AutoDateFormat_TimeIntervalTest_MonthWithForcedUnit: Story = {
       y: ['sales'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     columnLabelFormats: {
       date: {
@@ -193,7 +193,7 @@ export const AutoDateFormat_TimeIntervalTest_Days_WithForcedUnit: Story = {
       y: ['sales'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     columnLabelFormats: {
       date: {
@@ -451,7 +451,7 @@ export const NumericXY: Story = {
       y: ['value'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
@@ -479,7 +479,7 @@ export const NumericXYThatCorrespondToAMonth: Story = {
       y: ['sales'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     xAxisTimeInterval: 'month',
     className: 'w-[800px] h-[400px]',
@@ -510,7 +510,7 @@ export const CategoricalXNumericY: Story = {
       y: ['value'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
@@ -542,7 +542,7 @@ export const MultiYearDate: Story = {
       y: ['value'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px] resize overflow-auto',
     columnLabelFormats: {
@@ -588,7 +588,7 @@ export const MultipleYAxes: Story = {
       y: ['revenue', 'units', 'satisfaction'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
@@ -639,7 +639,7 @@ export const UnevenlySpacedDates: Story = {
       y: ['value'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px]  h-[400px]',
 
@@ -680,7 +680,7 @@ export const CloselySpacedDates: Story = {
       y: ['value'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px] resize overflow-auto',
     columnSettings: {
@@ -727,7 +727,7 @@ export const WithCategory: Story = {
       y: ['sales'],
       category: ['region'],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
@@ -814,7 +814,7 @@ export const MultipleYAxesWithCategory: Story = {
       y: ['revenue', 'satisfaction'],
       category: ['product'],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
@@ -865,7 +865,7 @@ export const NumericMonthX: Story = {
       y: ['sales', 'customers'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
@@ -901,7 +901,7 @@ export const PercentageStackedLineSingle: Story = {
       y: ['revenue'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
@@ -936,7 +936,7 @@ export const PercentageStackedLineMultiple: Story = {
       y: ['revenue', 'profit', 'customers'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
@@ -971,7 +971,7 @@ export const PercentageStackedLineSingleWithDataLabels: Story = {
       y: ['revenue'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px]',
     columnSettings: {
@@ -1011,7 +1011,7 @@ export const StackedAreaLineMultipleWithDataLabels: Story = {
       y: ['revenue', 'profit', 'customers'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px]',
     columnSettings: {
@@ -1062,7 +1062,7 @@ export const StackedAreaLineSingleWithDataLabels: Story = {
       y: ['revenue'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px]',
     columnSettings: {
@@ -1102,7 +1102,7 @@ export const PercentageStackedLineMultipleWithDataLabels: Story = {
       y: ['revenue', 'profit', 'customers'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px]',
     columnSettings: {
@@ -1155,7 +1155,7 @@ export const HasMixedNullAndNumberValuesSingleLineWithMissingDataZero: Story = {
       y: ['revenue'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px]',
     columnSettings: {
@@ -1193,7 +1193,7 @@ export const HasMixedNullAndNumberValuesSingleLineWithMissingDataNull: Story = {
       y: ['revenue'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px]',
     columnSettings: {
@@ -1232,7 +1232,7 @@ export const HasMixedNullAndNumberValuesSingleMultiLine: Story = {
       y: ['revenue', 'profit'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
 
     className: 'w-[800px] h-[400px]',
@@ -1283,7 +1283,7 @@ export const HasNullValuesWithCategoryMultiLine: Story = {
       y: ['revenue'],
       category: ['category'],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     columnSettings: {
       revenue: {
@@ -1322,7 +1322,7 @@ export const WithTrendline_MaxMinAverageMedian: Story = {
       y: ['revenue'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1386,7 +1386,7 @@ export const WithTrendline_DateXAxisLinearRegression: Story = {
       y: ['revenue'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1426,7 +1426,7 @@ export const WithTrendline_NumericalXAxisLinearRegression: Story = {
       y: ['revenue'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1467,7 +1467,7 @@ export const WithTrendline_StringXAxisLinearRegression: Story = {
       y: ['revenue'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1519,7 +1519,7 @@ export const WithTrendline_DateXAxisExponentialRegression: Story = {
       y: ['revenue'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1572,7 +1572,7 @@ export const WithTrendline_NumericalXAxisExponentialRegression: Story = {
       y: ['revenue'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1624,7 +1624,7 @@ export const WithTrendline_StringXAxisExponentialRegression: Story = {
       y: ['revenue'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1676,7 +1676,7 @@ export const WithTrendline_DateXAxisLogarithmicRegression: Story = {
       y: ['revenue'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1729,7 +1729,7 @@ export const WithTrendline_NumericalXAxisLogarithmicRegression: Story = {
       y: ['revenue'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1781,7 +1781,7 @@ export const WithTrendline_StringXAxisLogarithmicRegression: Story = {
       y: ['revenue'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1830,7 +1830,7 @@ export const ExponentialDecreaseWithTrendline: Story = {
       y: ['value'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
@@ -1882,7 +1882,7 @@ export const WithTrendline_DateXAxisPolynomialRegression: Story = {
       y: ['revenue'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1935,7 +1935,7 @@ export const WithTrendline_NumericalXAxisPolynomialRegression: Story = {
       y: ['revenue'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1987,7 +1987,7 @@ export const WithTrendline_StringXAxisPolynomialRegression: Story = {
       y: ['revenue'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -2025,7 +2025,7 @@ export const With2ThousandPoints: Story = {
       y: ['revenue'],
       category: ['category'],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     columnLabelFormats: {
       date: {
@@ -2047,7 +2047,7 @@ export const With5ThousandPoints: Story = {
       y: ['revenue'],
       category: ['category'],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     columnLabelFormats: {
       date: {
@@ -2284,7 +2284,7 @@ export const ProblematicChartWithBrokenLines: Story = {
       y: ['cumulative_sales'],
       category: [],
       tooltip: ['monthly_sales', 'cumulative_sales'],
-      colorBy: null,
+      colorBy: [],
     },
     barLayout: 'vertical',
     barSortBy: [],
@@ -2394,7 +2394,7 @@ export const WithQuarterAndYearXAxis: Story = {
       y: ['high_margin_revenue', 'low_margin_revenue'],
       tooltip: null,
       category: [],
-      colorBy: null,
+      colorBy: [],
     },
     columnMetadata: [
       {
@@ -2698,7 +2698,6 @@ export const WithProblematicXAxis: Story = {
       size: [],
       tooltip: null,
       category: [],
-      colorBy: null,
     },
     barGroupType: 'group',
     metricHeader: null,
@@ -2706,7 +2705,6 @@ export const WithProblematicXAxis: Story = {
       x: [],
       y: [],
       tooltip: null,
-      colorBy: null,
     },
     lineGroupType: null,
     pieDonutWidth: 40,
@@ -2716,7 +2714,7 @@ export const WithProblematicXAxis: Story = {
       y: ['total_units_sold'],
       tooltip: null,
       category: [],
-      colorBy: null,
+      colorBy: [],
     },
     columnSettings: {},
     comboChartAxis: {
@@ -2725,7 +2723,7 @@ export const WithProblematicXAxis: Story = {
       y2: [],
       tooltip: null,
       category: [],
-      colorBy: null,
+      colorBy: [],
     },
     disableTooltip: false,
     metricColumnId: '',
@@ -2905,7 +2903,6 @@ export const WithProblematicXAxisQuarter: Story = {
       size: [],
       tooltip: null,
       category: [],
-      colorBy: null,
     },
     barGroupType: 'group',
     metricHeader: null,
@@ -2913,7 +2910,6 @@ export const WithProblematicXAxisQuarter: Story = {
       x: [],
       y: [],
       tooltip: null,
-      colorBy: null,
     },
     lineGroupType: null,
     pieDonutWidth: 40,
@@ -2923,7 +2919,7 @@ export const WithProblematicXAxisQuarter: Story = {
       y: ['metric_qoq_salesgrowthrate'],
       tooltip: null,
       category: [],
-      colorBy: null,
+      colorBy: [],
     },
     columnSettings: {},
     comboChartAxis: {
@@ -2932,7 +2928,7 @@ export const WithProblematicXAxisQuarter: Story = {
       y2: [],
       tooltip: null,
       category: [],
-      colorBy: null,
+      colorBy: [],
     },
     disableTooltip: false,
     metricColumnId: '',
@@ -3137,7 +3133,6 @@ export const WithProblematicXAxisQuarter2: Story = {
       size: [],
       tooltip: null,
       category: [],
-      colorBy: null,
     },
     barGroupType: 'group',
     metricHeader: null,
@@ -3145,7 +3140,6 @@ export const WithProblematicXAxisQuarter2: Story = {
       x: [],
       y: [],
       tooltip: null,
-      colorBy: null,
     },
     lineGroupType: null,
     pieDonutWidth: 40,
@@ -3155,7 +3149,7 @@ export const WithProblematicXAxisQuarter2: Story = {
       y: ['quarterly_revenue'],
       tooltip: null,
       category: ['fiscal_year'],
-      colorBy: null,
+      colorBy: [],
     },
     columnSettings: {},
     comboChartAxis: {
@@ -3164,7 +3158,7 @@ export const WithProblematicXAxisQuarter2: Story = {
       y2: [],
       tooltip: null,
       category: [],
-      colorBy: null,
+      colorBy: [],
     },
     disableTooltip: false,
     metricColumnId: '',
@@ -3364,7 +3358,7 @@ export const WithColorByXAxis: Story = {
       y: ['sales'],
       category: [],
       tooltip: null,
-      colorBy: { columnId: 'type' },
+      colorBy: ['type'],
     },
   },
 };
@@ -3406,7 +3400,7 @@ export const WithColorByXAndCategoryAxis: Story = {
       y: ['sales'],
       category: ['category'],
       tooltip: null,
-      colorBy: { columnId: 'type' },
+      colorBy: ['type'],
     },
   },
 };

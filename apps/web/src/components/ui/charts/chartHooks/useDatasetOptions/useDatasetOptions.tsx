@@ -1,4 +1,5 @@
 import type {
+  BarAndLineAxis,
   BarSortBy,
   ChartConfigProps,
   ChartEncodes,
@@ -49,6 +50,8 @@ type DatasetHookParams = {
 };
 
 const defaultYAxis2 = [] as string[];
+const stableColorByFields = [] as string[];
+const stableCategoryFields = [] as string[];
 
 export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult => {
   const {
@@ -69,13 +72,13 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
     y: yAxisFields,
     size: sizeField,
     tooltip: _tooltipFields = null,
-    category: categoryFields = [],
-    colorBy,
-  } = selectedAxis as ScatterAxis;
+    category: categoryFields = stableCategoryFields,
+    colorBy: colorByFields = stableColorByFields,
+  } = selectedAxis as ScatterAxis & BarAndLineAxis;
   const { y2: y2AxisFields = defaultYAxis2 } = selectedAxis as ComboChartAxis;
 
   // Use the optimized color mapping hook
-  const { colorConfig } = useColorMapping(data, colorBy, colors);
+  const { colorConfig } = useColorMapping(data, colorByFields, colors);
 
   const tooltipFields = useMemo(() => _tooltipFields || [], [_tooltipFields]);
 

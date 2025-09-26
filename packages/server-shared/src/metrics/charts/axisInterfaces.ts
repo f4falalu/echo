@@ -63,12 +63,6 @@ export const ScatterAxisSchema = z
     size: z.tuple([z.string()]).or(z.array(z.string()).length(0)).default([]),
     // if null the y axis will automatically be used, the y axis will be used for the tooltip.
     tooltip: z.nullable(z.array(z.string())).default(null),
-    /**
-     * Apply colors to chart elements based on a column's values.
-     * Unlike 'category', this keeps all data in a single series with color differentiation.
-     * Perfect for status indicators, priority levels, or categorical color coding.
-     */
-    colorBy: z.null().optional().default(null),
   })
   .default({
     x: [],
@@ -76,7 +70,6 @@ export const ScatterAxisSchema = z
     size: [],
     category: [],
     tooltip: null,
-    colorBy: null,
   });
 
 export const ComboChartAxisSchema = z
@@ -127,18 +120,11 @@ export const PieChartAxisSchema = z
     y: z.array(z.string()).default([]),
     // if null the y axis will automatically be used, the y axis will be used for the tooltip.
     tooltip: z.nullable(z.array(z.string())).default(null),
-    /**
-     * Apply colors to chart elements based on a column's values.
-     * Unlike 'category', this keeps all data in a single series with color differentiation.
-     * Perfect for status indicators, priority levels, or categorical color coding.
-     */
-    colorBy: z.null().optional().default(null),
   })
   .default({
     x: [],
     y: [],
     tooltip: null,
-    colorBy: null,
   });
 
 export const ChartEncodesSchema = z.union([

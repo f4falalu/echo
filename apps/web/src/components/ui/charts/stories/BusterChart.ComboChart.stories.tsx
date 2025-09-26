@@ -75,7 +75,7 @@ export const DualAxisCombo: Story = {
       y2: ['averageOrderValue'],
       tooltip: ['revenue', 'averageOrderValue'],
       category: [],
-      colorBy: null,
+      colorBy: [],
     },
     columnSettings: {
       revenue: {
@@ -132,7 +132,7 @@ export const RevenueAndOrders: Story = {
       y2: ['orders'],
       tooltip: ['revenue', 'orders'],
       category: [],
-      colorBy: null,
+      colorBy: [],
     },
     columnSettings: {
       revenue: {
@@ -188,7 +188,7 @@ export const DualLineChart: Story = {
       y: ['revenue'],
       y2: ['averageOrderValue'],
       tooltip: ['revenue', 'averageOrderValue'],
-      colorBy: null,
+      colorBy: [],
     },
     columnSettings: {
       revenue: {
@@ -246,7 +246,7 @@ export const DualBarChart: Story = {
       y: ['revenue'],
       y2: ['orders'],
       tooltip: ['revenue', 'orders'],
-      colorBy: null,
+      colorBy: [],
     },
     columnSettings: {
       revenue: {
@@ -300,7 +300,7 @@ export const CompactView: Story = {
       y: ['revenue'],
       y2: ['averageOrderValue'],
       tooltip: ['revenue', 'averageOrderValue'],
-      colorBy: null,
+      colorBy: [],
     },
     columnSettings: {
       revenue: {
@@ -356,7 +356,7 @@ export const NoLegendNoGrid: Story = {
       y: ['revenue'],
       y2: ['averageOrderValue'],
       tooltip: ['revenue', 'averageOrderValue'],
-      colorBy: null,
+      colorBy: [],
     },
     columnSettings: {
       revenue: {
@@ -412,7 +412,7 @@ export const LargeDataset: Story = {
       y: ['revenue'],
       y2: ['averageOrderValue'],
       tooltip: ['revenue', 'averageOrderValue'],
-      colorBy: null,
+      colorBy: [],
     },
     columnSettings: {
       revenue: {
@@ -468,7 +468,7 @@ export const MultipleY2Axes: Story = {
       y: ['sales'],
       y2: ['stockLevel'], // 'returnRate', 'customerRating'
       tooltip: ['sales', 'customerRating', 'stockLevel', 'returnRate'],
-      colorBy: null,
+      colorBy: [],
     },
     columnSettings: {
       sales: {
@@ -589,7 +589,7 @@ export const ProblematicData: Story = {
       y: ['metric_discountimpact', 'orders_with_discount'],
       y2: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     columnMetadata: [
       {
@@ -1127,7 +1127,7 @@ export const ComboChartWithNegativeNumbers: Story = {
       y2: ['non_revenue'],
       category: [],
       tooltip: null,
-      colorBy: null,
+      colorBy: [],
     },
     columnSettings: {},
     disableTooltip: false,
@@ -1338,7 +1338,7 @@ export const WithColorByNoY2: Story = {
       y2: [],
       category: [],
       tooltip: null,
-      colorBy: { columnId: 'type' },
+      colorBy: ['type'],
     },
   },
 };
@@ -1402,7 +1402,7 @@ export const WithColorByWithY2: Story = {
       //  category: ['type'],
       category: [],
       tooltip: null,
-      colorBy: { columnId: 'type' },
+      colorBy: ['type'],
     },
   },
 };
@@ -1419,7 +1419,7 @@ export const ComboChartWithNegativeNumbers2: Story = {
       y2: ['avg_territory_growth'],
       tooltip: null,
       category: [],
-      colorBy: null,
+      colorBy: [],
     },
     columnLabelFormats: {
       region: {
@@ -1640,7 +1640,6 @@ export const ComboChartWithNegativeNumbers3: Story = {
       size: [],
       tooltip: null,
       category: [],
-      colorBy: null,
     },
     barGroupType: 'group',
     metricHeader: null,
@@ -1648,7 +1647,6 @@ export const ComboChartWithNegativeNumbers3: Story = {
       x: [],
       y: [],
       tooltip: null,
-      colorBy: null,
     },
     lineGroupType: null,
     pieDonutWidth: 40,
@@ -1658,7 +1656,7 @@ export const ComboChartWithNegativeNumbers3: Story = {
       y: [],
       tooltip: null,
       category: [],
-      colorBy: null,
+      colorBy: [],
     },
     columnSettings: {},
     comboChartAxis: {
@@ -1667,7 +1665,7 @@ export const ComboChartWithNegativeNumbers3: Story = {
       y2: ['percent_change'],
       tooltip: null,
       category: [],
-      colorBy: null,
+      colorBy: [],
     },
     disableTooltip: false,
     metricColumnId: '',

@@ -84,7 +84,7 @@ export const chartTypeToDropZones: Record<
       isHorizontalBar
         ? makeReverseXAxisDropZone(_selectedAxis.x)
         : makeYAxisDropZone(_selectedAxis.y),
-      makeColorByDropZone(_selectedAxis.colorBy?.columnId),
+      makeColorByDropZone(_selectedAxis.colorBy),
       makeCategoryAxisDropZone(_selectedAxis.category),
       makeTooltipDropZone(_selectedAxis.tooltip),
     ];

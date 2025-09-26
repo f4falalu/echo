@@ -57,7 +57,6 @@ const keySpecificHandlers: Partial<
       x: pieChartAxis.x || DEFAULT_CHART_CONFIG.pieChartAxis.x,
       y: pieChartAxis.y || DEFAULT_CHART_CONFIG.pieChartAxis.y,
       tooltip: pieChartAxis.tooltip || DEFAULT_CHART_CONFIG.pieChartAxis.tooltip,
-      colorBy: pieChartAxis.colorBy || DEFAULT_CHART_CONFIG.pieChartAxis.colorBy,
     };
   },
   scatterAxis: (value: unknown, dataMetadata) => {
@@ -69,7 +68,6 @@ const keySpecificHandlers: Partial<
       size: scatterAxis.size || DEFAULT_CHART_CONFIG.scatterAxis.size,
       tooltip: scatterAxis.tooltip || DEFAULT_CHART_CONFIG.scatterAxis.tooltip,
       category: scatterAxis.category || DEFAULT_CHART_CONFIG.scatterAxis.category,
-      colorBy: scatterAxis.colorBy || DEFAULT_CHART_CONFIG.scatterAxis.colorBy,
     };
   },
   comboChartAxis: (value: unknown, dataMetadata) => {

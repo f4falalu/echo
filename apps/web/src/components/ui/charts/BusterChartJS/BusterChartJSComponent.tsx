@@ -17,6 +17,8 @@ import type { ChartJSOrUndefined, ChartProps } from './core/types';
 import { useGoalLines, useOptions, useSeriesOptions } from './hooks';
 import { useChartSpecificOptions } from './hooks/useChartSpecificOptions';
 
+const stableColumnMetadata: BusterChartTypeComponentProps['columnMetadata'] = [];
+
 export const BusterChartJSComponent = React.memo(
   React.forwardRef<ChartJSOrUndefined, BusterChartTypeComponentProps>(
     (
@@ -51,7 +53,7 @@ export const BusterChartJSComponent = React.memo(
         datasetOptions,
         yAxisShowAxisTitle,
         xAxisShowAxisTitle,
-        columnMetadata = [],
+        columnMetadata = stableColumnMetadata,
         y2AxisShowAxisLabel,
         y2AxisScaleType,
         y2AxisStartAxisAtZero,

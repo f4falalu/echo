@@ -30,7 +30,6 @@ export const Default: Story = {
       x: [],
       y: [],
       tooltip: null,
-      colorBy: null,
     },
   },
 };
@@ -43,7 +42,6 @@ export const PieChart: Story = {
       x: [],
       y: [],
       tooltip: null,
-      colorBy: null,
     },
   },
 };
@@ -56,7 +54,6 @@ export const DonutChart: Story = {
       x: [],
       y: [],
       tooltip: null,
-      colorBy: null,
     },
   },
 };
@@ -69,7 +66,6 @@ export const MultipleYAxis: Story = {
       x: [],
       y: ['column1', 'column2'],
       tooltip: null,
-      colorBy: null,
     },
   },
 };

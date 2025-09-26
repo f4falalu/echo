@@ -11,7 +11,7 @@ describe('getChartTypeDropZones', () => {
         y: ['value1'],
         category: ['category1'],
         tooltip: ['tooltip1', 'tooltip2'],
-        colorBy: null,
+        colorBy: [],
       };
 
       const result = getChartTypeDropZones({
@@ -49,7 +49,7 @@ describe('getChartTypeDropZones', () => {
         y: ['value1', 'value2'],
         category: ['category1'],
         tooltip: null,
-        colorBy: null,
+        colorBy: [],
       };
 
       const result = getChartTypeDropZones({
@@ -89,7 +89,7 @@ describe('getChartTypeDropZones', () => {
         y: [],
         category: [],
         tooltip: ['hover_info', 'extra_data'],
-        colorBy: null,
+        colorBy: [],
       };
 
       const result = getChartTypeDropZones({
@@ -130,7 +130,7 @@ describe('getChartTypeDropZones', () => {
         y: ['sales', 'profit'],
         category: [],
         tooltip: ['additional_info'],
-        colorBy: null,
+        colorBy: [],
       };
 
       const result = getChartTypeDropZones({
@@ -171,7 +171,6 @@ describe('getChartTypeDropZones', () => {
         category: ['gender'],
         size: ['age'],
         tooltip: ['name'],
-        colorBy: null,
       };
 
       const result = getChartTypeDropZones({
@@ -215,7 +214,6 @@ describe('getChartTypeDropZones', () => {
         category: [],
         size: [], // Empty size array
         tooltip: null,
-        colorBy: null,
       };
 
       const result = getChartTypeDropZones({
@@ -239,7 +237,6 @@ describe('getChartTypeDropZones', () => {
         x: ['category'],
         y: ['value'],
         tooltip: ['description'],
-        colorBy: null,
       };
 
       const result = getChartTypeDropZones({
@@ -275,7 +272,7 @@ describe('getChartTypeDropZones', () => {
         y2: ['customer_count'],
         category: ['region'],
         tooltip: ['details'],
-        colorBy: null,
+        colorBy: [],
       };
 
       const result = getChartTypeDropZones({
