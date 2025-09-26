@@ -1,4 +1,5 @@
-import { type UpdateMessageEntriesParams, updateMessageEntries } from '@buster/database/queries';
+import { type UpdateMessageEntriesParams, updateMessage, updateMessageEntries } from '@buster/database/queries';
+import type { ResponseMessageFileType } from '@buster/server-shared/chats';
 import type { ToolCallOptions } from 'ai';
 import {
   OptimisticJsonParser,
@@ -13,6 +14,7 @@ import {
 // Type-safe key extraction from the schema - will cause compile error if field name changes
 // Using keyof with the inferred type ensures we're using the actual schema keys
 const FINAL_RESPONSE_KEY = 'finalResponse' as const satisfies keyof DoneToolInput;
+const ASSETS_TO_RETURN_KEY = 'assetsToReturn' as const satisfies keyof DoneToolInput;
 
 export function createDoneToolDelta(context: DoneToolContext, doneToolState: DoneToolState) {
   return async function doneToolDelta(
@@ -30,7 +32,110 @@ export function createDoneToolDelta(context: DoneToolContext, doneToolState: Don
       FINAL_RESPONSE_KEY
     );
 
+    // Extract assetsToReturn; can be full array or stringified
+    const rawAssets = getOptimisticValue<unknown>(
+      parseResult.extractedValues,
+      ASSETS_TO_RETURN_KEY,
+      []
+    );
+
+    type AssetToReturn = {
+      assetId: string;
+      assetName: string;
+      assetType: ResponseMessageFileType; // expected: 'metric_file' | 'dashboard_file' | 'report_file'
+    };
+
+    function isAssetToReturn(value: unknown): value is AssetToReturn {
+      if (!value || typeof value !== 'object') return false;
+      const obj = value as Record<string, unknown>;
+      const idOk = typeof obj.assetId === 'string';
+      const nameOk = typeof obj.assetName === 'string';
+      const typeVal = obj.assetType;
+      const typeOk =
+        typeof typeVal === 'string' &&
+        (typeVal === 'metric_file' || typeVal === 'dashboard_file' || typeVal === 'report_file');
+      return idOk && nameOk && typeOk;
+    }
+
+    let assetsToInsert: AssetToReturn[] = [];
+    if (Array.isArray(rawAssets)) {
+      assetsToInsert = rawAssets.filter(isAssetToReturn);
+    } else if (typeof rawAssets === 'string') {
+      try {
+        const parsed: unknown = JSON.parse(rawAssets);
+        if (Array.isArray(parsed)) {
+          assetsToInsert = parsed.filter(isAssetToReturn);
+        }
+      } catch {
+        // ignore malformed JSON until more delta arrives
+      }
+    }
+
+    // Insert any newly completed asset items as response messages (dedupe via state)
+    if (assetsToInsert.length > 0 && context.messageId) {
+      const alreadyAdded = new Set(doneToolState.addedAssetIds || []);
+      const newAssets = assetsToInsert.filter((a) => !alreadyAdded.has(a.assetId));
+
+      if (newAssets.length > 0) {
+        const fileResponses = newAssets.map((a) => ({
+          id: a.assetId,
+          type: 'file' as const,
+          file_type: a.assetType,
+          file_name: a.assetName,
+          version_number: 1,
+          filter_version_id: null,
+          metadata: [
+            {
+              status: 'completed' as const,
+              message: `Added ${a.assetType.replace('_file', '')} to response`,
+              timestamp: Date.now(),
+            },
+          ],
+        }));
+
+        // Upsert file messages alone to ensure they appear before the final text
+        const entriesForAssets: UpdateMessageEntriesParams = {
+          messageId: context.messageId,
+          responseMessages: fileResponses,
+        };
+
+        try {
+          await updateMessageEntries(entriesForAssets);
+          // Update state to prevent duplicates on next deltas
+          doneToolState.addedAssetIds = [
+            ...(doneToolState.addedAssetIds || []),
+            ...newAssets.map((a) => a.assetId),
+          ];
+        } catch (error) {
+          console.error('[done-tool] Failed to add asset response entries from delta:', error);
+        }
+      }
+    }
+
     if (finalResponse !== undefined && finalResponse !== '') {
+      // Mark final reasoning now (after assets have been handled above) and before text streams
+      if (context.messageId) {
+        try {
+          const currentTime = Date.now();
+          const elapsedTimeMs = currentTime - context.workflowStartTime;
+          const elapsedSeconds = Math.floor(elapsedTimeMs / 1000);
+
+          let timeString: string;
+          if (elapsedSeconds < 60) {
+            timeString = `${elapsedSeconds} seconds`;
+          } else {
+            const elapsedMinutes = Math.floor(elapsedSeconds / 60);
+            timeString = `${elapsedMinutes} minutes`;
+          }
+
+          await updateMessage(context.messageId, {
+            finalReasoningMessage: `Reasoned for ${timeString}`,
+          });
+        } catch (error) {
+          console.error('[done-tool] Failed to set final reasoning message in delta:', error);
+        }
+      }
+
       // Update the state with the extracted final_response
       doneToolState.finalResponse = finalResponse;
 
