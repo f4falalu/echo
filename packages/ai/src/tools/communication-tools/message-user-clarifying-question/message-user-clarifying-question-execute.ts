@@ -1,5 +1,6 @@
 import { updateMessageEntries } from '@buster/database/queries';
 import { wrapTraced } from 'braintrust';
+import { cleanupState } from '../../shared/cleanup-state';
 import { createRawToolResultEntry } from '../../shared/create-raw-llm-tool-result-entry';
 import { createMessageUserClarifyingQuestionRawLlmMessageEntry } from './helpers/message-user-clarifying-question-transform-helper';
 import {
@@ -58,7 +59,13 @@ export function createMessageUserClarifyingQuestionExecute(
         throw new Error('Tool call ID is required');
       }
 
-      return processMessageUserClarifyingQuestion(state, state.toolCallId, context.messageId);
+      const result = await processMessageUserClarifyingQuestion(
+        state,
+        state.toolCallId,
+        context.messageId
+      );
+      cleanupState(state);
+      return result;
     },
     { name: 'Message User Clarifying Question' }
   );
