@@ -1,7 +1,7 @@
 import {
-  batchUpdateReport,
   updateMessageEntries,
   updateMetricsToReports,
+  updateReportWithVersion,
 } from '@buster/database/queries';
 import type { ChatMessageResponseMessage } from '@buster/server-shared/chats';
 import { wrapTraced } from 'braintrust';
@@ -146,7 +146,7 @@ export function createCreateReportsExecute(
             };
 
             // Update the report with complete content from input (source of truth)
-            await batchUpdateReport({
+            await updateReportWithVersion({
               reportId,
               content,
               name,
