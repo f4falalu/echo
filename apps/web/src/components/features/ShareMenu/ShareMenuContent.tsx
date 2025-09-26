@@ -26,6 +26,7 @@ export const ShareMenuContent: React.FC<{
 
   const embedlinkUrl: string = useMemo(() => {
     let url: ParsedLocation | string = '';
+    console.log('assetType', assetType);
     if (!assetId) {
       return '';
     }
@@ -44,8 +45,12 @@ export const ShareMenuContent: React.FC<{
         },
       });
     } else if (assetType === 'collection') {
+      console.warn('collection is actually not supported for embeds...', assetId);
       url = buildLocation({
-        to: '/auth/login',
+        to: '/app/chats/$chatId',
+        params: {
+          chatId: assetId,
+        },
       });
     } else if (assetType === 'report_file') {
       url = buildLocation({
@@ -56,7 +61,10 @@ export const ShareMenuContent: React.FC<{
       });
     } else if (assetType === 'chat') {
       url = buildLocation({
-        to: '/auth/login',
+        to: '/embed/chat/$chatId',
+        params: {
+          chatId: assetId,
+        },
       });
     } else {
       const _exhaustiveCheck: never = assetType;
