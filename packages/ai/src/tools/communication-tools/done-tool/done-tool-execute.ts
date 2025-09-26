@@ -20,14 +20,21 @@ async function processDone(
   state: DoneToolState,
   toolCallId: string,
   messageId: string,
-  _context: DoneToolContext
+  _context: DoneToolContext,
+  input: DoneToolInput
 ): Promise<DoneToolOutput> {
   const output: DoneToolOutput = {
     success: true,
   };
 
+  // Update state with the full finalResponse from input to ensure completeness
+  const updatedState: DoneToolState = {
+    ...state,
+    finalResponse: input.finalResponse,
+  };
+
   // Create both the tool call and result messages to maintain proper ordering
-  const rawLlmMessage = createDoneToolRawLlmMessageEntry(state, toolCallId);
+  const rawLlmMessage = createDoneToolRawLlmMessageEntry(updatedState, toolCallId);
   const rawToolResultEntry = createRawToolResultEntry(toolCallId, DONE_TOOL_NAME, output);
 
   try {
@@ -55,12 +62,12 @@ async function processDone(
 // Factory function that creates the execute function with proper context typing
 export function createDoneToolExecute(context: DoneToolContext, state: DoneToolState) {
   return wrapTraced(
-    async (_input: DoneToolInput): Promise<DoneToolOutput> => {
+    async (input: DoneToolInput): Promise<DoneToolOutput> => {
       if (!state.toolCallId) {
         throw new Error('Tool call ID is required');
       }
 
-      const result = await processDone(state, state.toolCallId, context.messageId, context);
+      const result = await processDone(state, state.toolCallId, context.messageId, context, input);
 
       // Wait for all pending updates from delta/finish to complete before returning
       await waitForPendingUpdates(context.messageId);
