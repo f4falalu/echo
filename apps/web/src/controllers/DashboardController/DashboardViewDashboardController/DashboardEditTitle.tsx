@@ -44,7 +44,7 @@ export const DashboardEditTitles: React.FC<{
 
   useEffect(() => {
     if (debouncedWidth) {
-      inputTextAreaRef.current?.forceRecalculateHeight();
+      inputTextAreaRef.current?.forceRecalculateHeight?.();
     }
   }, [debouncedWidth]);
 

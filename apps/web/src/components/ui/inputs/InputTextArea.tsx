@@ -28,8 +28,8 @@ export interface InputTextAreaProps
   onPressEnter?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
 }
 
-export interface InputTextAreaRef {
-  forceRecalculateHeight: () => void;
+export interface InputTextAreaRef extends HTMLTextAreaElement {
+  forceRecalculateHeight?: () => void;
 }
 
 export const InputTextArea = React.forwardRef<InputTextAreaRef, InputTextAreaProps>(
@@ -48,9 +48,11 @@ export const InputTextArea = React.forwardRef<InputTextAreaRef, InputTextAreaPro
   ) => {
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-    useImperativeHandle(
-      ref,
-      () => ({
+    useImperativeHandle(ref, () => {
+      if (!textareaRef.current) {
+        return null as unknown as InputTextAreaRef;
+      }
+      return Object.assign(textareaRef.current, {
         forceRecalculateHeight: () => {
           if (textareaRef.current) {
             // Force a recalculation by triggering an input event
@@ -58,9 +60,8 @@ export const InputTextArea = React.forwardRef<InputTextAreaRef, InputTextAreaPro
             textareaRef.current.dispatchEvent(event);
           }
         },
-      }),
-      []
-    );
+      });
+    }, []);
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (e.key === 'Enter') {
