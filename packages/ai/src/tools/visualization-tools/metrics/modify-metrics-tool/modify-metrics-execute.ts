@@ -14,6 +14,7 @@ import { wrapTraced } from 'braintrust';
 import { eq, inArray } from 'drizzle-orm';
 import * as yaml from 'yaml';
 import { z } from 'zod';
+import { cleanupState } from '../../../shared/cleanup-state';
 import { getDataSourceCredentials } from '../../../../utils/get-data-source';
 import { createRawToolResultEntry } from '../../../shared/create-raw-llm-tool-result-entry';
 import { trackFileAssociations } from '../../file-tracking-helper';
@@ -630,6 +631,7 @@ export function createModifyMetricsExecute(
           filesFailed: result?.failed_files?.length || 0,
         });
 
+        cleanupState(state);
         return result as ModifyMetricsOutput;
       } catch (error) {
         console.error('[modify-metrics] Execution error:', error);
@@ -675,6 +677,7 @@ export function createModifyMetricsExecute(
           }
         }
 
+        cleanupState(state);
         throw error;
       }
     },

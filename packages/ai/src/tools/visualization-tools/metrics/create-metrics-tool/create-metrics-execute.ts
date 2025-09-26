@@ -14,6 +14,7 @@ import {
 import { wrapTraced } from 'braintrust';
 import * as yaml from 'yaml';
 import { z } from 'zod';
+import { cleanupState } from '../../../shared/cleanup-state';
 import { getDataSourceCredentials } from '../../../../utils/get-data-source';
 import { createRawToolResultEntry } from '../../../shared/create-raw-llm-tool-result-entry';
 import { trackFileAssociations } from '../../file-tracking-helper';
@@ -579,6 +580,7 @@ export function createCreateMetricsExecute(
           filesFailed: result?.failed_files?.length || 0,
         });
 
+        cleanupState(state);
         return result as CreateMetricsOutput;
       } catch (error) {
         const executionTime = Date.now() - startTime;
@@ -628,6 +630,7 @@ export function createCreateMetricsExecute(
           }
         }
 
+        cleanupState(state);
         throw error;
       }
     },
