@@ -26,5 +26,6 @@ export {
 
 export {
   getAssetLatestVersion,
+  GetAssetLatestVersionInputSchema,
   type GetAssetLatestVersionInput,
 } from './get-asset-latest-version';
