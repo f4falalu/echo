@@ -11,19 +11,24 @@ import type { BusterChartProps } from '../../BusterChart.types';
  * @param colors - Array of available colors
  * @returns Object with color mapping and a function to get color for a value
  */
-export function useColorMapping(
+export const useColorMapping = (
   data: NonNullable<BusterChartProps['data']>,
   colorBy: ColorBy | null,
   colors: string[]
-) {
+): {
+  hasColorMapping: boolean;
+  colorMapping: Map<string, string>;
+  colorConfig: { field: string; mapping: Map<string, string> } | undefined;
+  getColorForValue: (value: string | number | null | undefined) => string | undefined;
+} => {
   // Memoize the unique values extraction
   const uniqueColorValues = useMemo(() => {
-    if (!colorBy?.columnId || !colors || colors.length === 0) {
+    if (!colorBy || !colors || colors.length === 0 || colorBy.length === 0) {
       return new Set<string>();
     }
 
     const values = new Set<string>();
-    const columnId = colorBy.columnId;
+    const columnId = colorBy[0];
 
     for (const row of data) {
       const value = row[columnId];
@@ -33,11 +38,11 @@ export function useColorMapping(
     }
 
     return values;
-  }, [data, colorBy?.columnId, colors?.length]);
+  }, [data, colorBy, colors?.length]);
 
   // Memoize the color mapping creation
   const colorMapping = useMemo(() => {
-    if (!colorBy?.columnId || !colors || colors.length === 0 || uniqueColorValues.size === 0) {
+    if (!colorBy || !colors || colors.length === 0 || uniqueColorValues.size === 0) {
       return new Map<string, string>();
     }
 
@@ -49,18 +54,18 @@ export function useColorMapping(
     });
 
     return mapping;
-  }, [uniqueColorValues, colors, colorBy?.columnId]);
+  }, [uniqueColorValues, colors, colorBy]);
 
   // Create colorConfig for dataset aggregation
   const colorConfig = useMemo(() => {
-    if (!colorBy?.columnId || !colors || colors.length === 0 || colorMapping.size === 0) {
+    if (!colorBy || !colors || colors.length === 0 || colorMapping.size === 0) {
       return undefined;
     }
     return {
-      field: colorBy.columnId,
+      field: colorBy[0],
       mapping: colorMapping,
     };
-  }, [colorBy?.columnId, colors?.length, colorMapping]);
+  }, [colorBy, colors?.length, colorMapping]);
 
   // Return the mapping and helper functions
   return useMemo(
@@ -77,4 +82,4 @@ export function useColorMapping(
     }),
     [colorMapping, colors, colorConfig]
   );
-}
+};

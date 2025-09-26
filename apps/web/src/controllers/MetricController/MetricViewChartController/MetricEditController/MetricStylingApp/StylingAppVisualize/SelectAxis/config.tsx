@@ -50,6 +50,7 @@ export enum SelectAxisContainerId {
   Tooltip = 'tooltip',
   Y2Axis = 'y2Axis',
   Metric = 'metric',
+  ColorBy = 'colorBy',
 }
 
 export const zoneIdToAxis: Record<SelectAxisContainerId, string> = {
@@ -61,6 +62,7 @@ export const zoneIdToAxis: Record<SelectAxisContainerId, string> = {
   [SelectAxisContainerId.Tooltip]: 'tooltip',
   [SelectAxisContainerId.Y2Axis]: 'y2',
   [SelectAxisContainerId.Metric]: 'metric',
+  [SelectAxisContainerId.ColorBy]: 'colorBy',
 };
 
 export const chartTypeToAxis: Record<

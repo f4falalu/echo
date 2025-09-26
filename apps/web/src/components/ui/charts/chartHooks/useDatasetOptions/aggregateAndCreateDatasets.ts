@@ -423,7 +423,7 @@ export function aggregateAndCreateDatasets<
  * Creates datasets by splitting data by color values first, then aggregating each subset
  * This preserves the granular color information needed for proper aggregation
  */
-function createDatasetsByColorThenAggregate<
+export function createDatasetsByColorThenAggregate<
   T extends Record<string, string | number | null | Date | undefined>,
 >(
   data: T[],
@@ -722,102 +722,6 @@ function createDatasetsByColorThenAggregate<
     ticksKey,
     ticks,
   };
-}
-
-/**
- * Creates separate datasets for each unique color value when colorBy is specified
- * Optimized to minimize redundant operations and loops
- */
-function createSeparateDatasetsByColor<
-  T extends Record<string, string | number | null | Date | undefined>,
->(
-  datasets: DatasetOption[],
-  originalData: T[],
-  colorConfig: { field: string; mapping: Map<string, string> },
-  xGroups: Array<{ id: string; rec: Record<string, string>; rows: T[] }>
-): DatasetOption[] {
-  const { field: colorByField, mapping: colorMapping } = colorConfig;
-
-  // Get unique color values that have valid colors mapped
-  const uniqueColorValues = Array.from(
-    new Set(
-      originalData
-        .map((row) => row[colorByField])
-        .filter((val) => val !== null && val !== undefined)
-        .map(String)
-    )
-  ).filter((colorValue) => colorMapping.has(colorValue)); // Only include values with mapped colors
-
-  if (uniqueColorValues.length === 0) {
-    return datasets; // No valid color values, return original datasets
-  }
-
-  // Pre-compute which x-groups contain each color value to avoid repeated calculations
-  const colorValuesByXGroup: Map<number, Set<string>> = new Map();
-
-  for (let dataIndex = 0; dataIndex < xGroups.length; dataIndex++) {
-    const xGroup = xGroups[dataIndex];
-    const colorValuesInGroup = new Set<string>();
-
-    for (const row of xGroup.rows) {
-      const colorValue = row[colorByField];
-      if (colorValue !== null && colorValue !== undefined) {
-        colorValuesInGroup.add(String(colorValue));
-      }
-    }
-
-    colorValuesByXGroup.set(dataIndex, colorValuesInGroup);
-  }
-
-  const newDatasets: DatasetOption[] = [];
-
-  // For each original dataset, create separate datasets for each color value
-  for (const originalDataset of datasets) {
-    for (let i = 0; i < uniqueColorValues.length; i++) {
-      const colorValue = uniqueColorValues[i];
-      const color = colorMapping.get(colorValue); // Safe to use ! since we filtered above
-
-      // Create new data array with nulls where the color value doesn't match
-      const newData: (number | null)[] = [];
-      const newTooltipData: (typeof originalDataset.tooltipData)[0][] = [];
-
-      // Use pre-computed lookup for efficiency
-      for (let dataIndex = 0; dataIndex < originalDataset.data.length; dataIndex++) {
-        const colorValuesInGroup = colorValuesByXGroup.get(dataIndex);
-        const hasColorValue = colorValuesInGroup?.has(colorValue) ?? false;
-
-        if (hasColorValue) {
-          // Keep the original data point
-          newData.push(originalDataset.data[dataIndex]);
-          newTooltipData.push(originalDataset.tooltipData[dataIndex]);
-        } else {
-          // Set to null where color value doesn't exist
-          newData.push(null);
-          newTooltipData.push([]);
-        }
-      }
-
-      // Create new dataset ID and label
-      const newId = `${originalDataset.id}${i + 1}`;
-      const newLabel = [
-        {
-          key: colorByField,
-          value: colorValue,
-        },
-      ];
-
-      newDatasets.push({
-        ...originalDataset,
-        id: newId,
-        label: newLabel,
-        data: newData,
-        tooltipData: newTooltipData,
-        colors: color, // Single color string instead of array
-      });
-    }
-  }
-
-  return newDatasets;
 }
 
 /**

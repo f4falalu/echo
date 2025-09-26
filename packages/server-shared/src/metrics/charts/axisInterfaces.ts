@@ -1,33 +1,6 @@
 import { z } from 'zod';
 
-export const ColorBySchema = z
-  .object({
-    /**
-     * Column ID whose values will determine colors for chart elements.
-     * Use this when you want to apply colors based on a column's values
-     * without creating separate series (unlike category which creates multiple series).
-     *
-     * Example use cases:
-     * - Color bars by status (red for "failed", green for "success")
-     * - Color points by priority level
-     * - Apply conditional formatting based on categorical values
-     */
-    columnId: z.string().nullable().optional(),
-    /**
-     * Optional override for specific value-to-color mappings.
-     * This allows custom color assignment for specific values.
-     */
-    overrideColorByValue: z
-      .object({
-        // The specific value to override color for
-        value: z.string(),
-      })
-      .nullable()
-      .optional(),
-  })
-  .nullable()
-  .optional()
-  .default(null);
+export const ColorBySchema = z.tuple([z.string()]).or(z.array(z.string()).length(0)).default([]);
 
 export const BarAndLineAxisSchema = z
   .object({
@@ -63,7 +36,7 @@ export const BarAndLineAxisSchema = z
     y: [],
     category: [],
     tooltip: null,
-    colorBy: null,
+    colorBy: [],
   });
 
 export const ScatterAxisSchema = z
@@ -143,7 +116,7 @@ export const ComboChartAxisSchema = z
     y2: [],
     category: [],
     tooltip: null,
-    colorBy: null,
+    colorBy: [],
   });
 
 export const PieChartAxisSchema = z
