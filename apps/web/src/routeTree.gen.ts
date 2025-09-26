@@ -29,10 +29,12 @@ import { Route as EmbedMetricMetricIdRouteImport } from './routes/embed/metric.$
 import { Route as EmbedDashboardDashboardIdRouteImport } from './routes/embed/dashboard.$dashboardId'
 import { Route as AppSettingsRestricted_layoutRouteImport } from './routes/app/_settings/_restricted_layout'
 import { Route as AppSettingsPermissionsRouteImport } from './routes/app/_settings/_permissions'
+import { Route as AppAppNewUserRouteImport } from './routes/app/_app/new-user'
 import { Route as AppAppHomeRouteImport } from './routes/app/_app/home'
 import { Route as AppAppAssetRouteImport } from './routes/app/_app/_asset'
 import { Route as AppSettingsSettingsIndexRouteImport } from './routes/app/_settings/settings.index'
 import { Route as AppAppReportsIndexRouteImport } from './routes/app/_app/reports.index'
+import { Route as AppAppNewUserIndexRouteImport } from './routes/app/_app/new-user/index'
 import { Route as AppAppMetricsIndexRouteImport } from './routes/app/_app/metrics.index'
 import { Route as AppAppLogsIndexRouteImport } from './routes/app/_app/logs.index'
 import { Route as AppAppDatasetsIndexRouteImport } from './routes/app/_app/datasets.index'
@@ -245,6 +247,11 @@ const AppSettingsPermissionsRoute = AppSettingsPermissionsRouteImport.update({
   id: '/_permissions',
   getParentRoute: () => AppSettingsRoute,
 } as any)
+const AppAppNewUserRoute = AppAppNewUserRouteImport.update({
+  id: '/new-user',
+  path: '/new-user',
+  getParentRoute: () => AppAppRoute,
+} as any)
 const AppAppHomeRoute = AppAppHomeRouteImport.update({
   id: '/home',
   path: '/home',
@@ -264,6 +271,11 @@ const AppAppReportsIndexRoute = AppAppReportsIndexRouteImport.update({
   id: '/reports/',
   path: '/reports/',
   getParentRoute: () => AppAppRoute,
+} as any)
+const AppAppNewUserIndexRoute = AppAppNewUserIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppAppNewUserRoute,
 } as any)
 const AppAppMetricsIndexRoute = AppAppMetricsIndexRouteImport.update({
   id: '/metrics/',
@@ -945,6 +957,7 @@ export interface FileRoutesByFullPath {
   '/info/getting-started': typeof InfoGettingStartedRoute
   '/app/': typeof AppIndexRoute
   '/app/home': typeof AppAppHomeRoute
+  '/app/new-user': typeof AppAppNewUserRouteWithChildren
   '/embed/dashboard/$dashboardId': typeof EmbedDashboardDashboardIdRoute
   '/embed/metric/$metricId': typeof EmbedMetricMetricIdRoute
   '/embed/report/$reportId': typeof EmbedReportReportIdRoute
@@ -955,6 +968,7 @@ export interface FileRoutesByFullPath {
   '/app/datasets': typeof AppAppDatasetsIndexRoute
   '/app/logs': typeof AppAppLogsIndexRoute
   '/app/metrics': typeof AppAppMetricsIndexRoute
+  '/app/new-user/': typeof AppAppNewUserIndexRoute
   '/app/reports': typeof AppAppReportsIndexRoute
   '/app/settings': typeof AppSettingsSettingsIndexRoute
   '/app/chats/$chatId': typeof AppAppAssetChatsChatIdRouteWithChildren
@@ -1062,6 +1076,7 @@ export interface FileRoutesByTo {
   '/app/datasets': typeof AppAppDatasetsIndexRoute
   '/app/logs': typeof AppAppLogsIndexRoute
   '/app/metrics': typeof AppAppMetricsIndexRoute
+  '/app/new-user': typeof AppAppNewUserIndexRoute
   '/app/reports': typeof AppAppReportsIndexRoute
   '/app/settings': typeof AppSettingsSettingsIndexRoute
   '/app/datasets/$datasetId/editor': typeof AppAppDatasetsDatasetIdEditorRoute
@@ -1147,6 +1162,7 @@ export interface FileRoutesById {
   '/app/': typeof AppIndexRoute
   '/app/_app/_asset': typeof AppAppAssetRouteWithChildren
   '/app/_app/home': typeof AppAppHomeRoute
+  '/app/_app/new-user': typeof AppAppNewUserRouteWithChildren
   '/app/_settings/_permissions': typeof AppSettingsPermissionsRouteWithChildren
   '/app/_settings/_restricted_layout': typeof AppSettingsRestricted_layoutRouteWithChildren
   '/embed/dashboard/$dashboardId': typeof EmbedDashboardDashboardIdRoute
@@ -1160,6 +1176,7 @@ export interface FileRoutesById {
   '/app/_app/datasets/': typeof AppAppDatasetsIndexRoute
   '/app/_app/logs/': typeof AppAppLogsIndexRoute
   '/app/_app/metrics/': typeof AppAppMetricsIndexRoute
+  '/app/_app/new-user/': typeof AppAppNewUserIndexRoute
   '/app/_app/reports/': typeof AppAppReportsIndexRoute
   '/app/_settings/settings/': typeof AppSettingsSettingsIndexRoute
   '/app/_app/_asset/chats/$chatId': typeof AppAppAssetChatsChatIdRouteWithChildren
@@ -1270,6 +1287,7 @@ export interface FileRouteTypes {
     | '/info/getting-started'
     | '/app/'
     | '/app/home'
+    | '/app/new-user'
     | '/embed/dashboard/$dashboardId'
     | '/embed/metric/$metricId'
     | '/embed/report/$reportId'
@@ -1280,6 +1298,7 @@ export interface FileRouteTypes {
     | '/app/datasets'
     | '/app/logs'
     | '/app/metrics'
+    | '/app/new-user/'
     | '/app/reports'
     | '/app/settings'
     | '/app/chats/$chatId'
@@ -1387,6 +1406,7 @@ export interface FileRouteTypes {
     | '/app/datasets'
     | '/app/logs'
     | '/app/metrics'
+    | '/app/new-user'
     | '/app/reports'
     | '/app/settings'
     | '/app/datasets/$datasetId/editor'
@@ -1471,6 +1491,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/app/_app/_asset'
     | '/app/_app/home'
+    | '/app/_app/new-user'
     | '/app/_settings/_permissions'
     | '/app/_settings/_restricted_layout'
     | '/embed/dashboard/$dashboardId'
@@ -1484,6 +1505,7 @@ export interface FileRouteTypes {
     | '/app/_app/datasets/'
     | '/app/_app/logs/'
     | '/app/_app/metrics/'
+    | '/app/_app/new-user/'
     | '/app/_app/reports/'
     | '/app/_settings/settings/'
     | '/app/_app/_asset/chats/$chatId'
@@ -1736,6 +1758,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsPermissionsRouteImport
       parentRoute: typeof AppSettingsRoute
     }
+    '/app/_app/new-user': {
+      id: '/app/_app/new-user'
+      path: '/new-user'
+      fullPath: '/app/new-user'
+      preLoaderRoute: typeof AppAppNewUserRouteImport
+      parentRoute: typeof AppAppRoute
+    }
     '/app/_app/home': {
       id: '/app/_app/home'
       path: '/home'
@@ -1763,6 +1792,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/reports'
       preLoaderRoute: typeof AppAppReportsIndexRouteImport
       parentRoute: typeof AppAppRoute
+    }
+    '/app/_app/new-user/': {
+      id: '/app/_app/new-user/'
+      path: '/'
+      fullPath: '/app/new-user/'
+      preLoaderRoute: typeof AppAppNewUserIndexRouteImport
+      parentRoute: typeof AppAppNewUserRoute
     }
     '/app/_app/metrics/': {
       id: '/app/_app/metrics/'
@@ -2912,6 +2948,18 @@ const AppAppAssetRouteWithChildren = AppAppAssetRoute._addFileChildren(
   AppAppAssetRouteChildren,
 )
 
+interface AppAppNewUserRouteChildren {
+  AppAppNewUserIndexRoute: typeof AppAppNewUserIndexRoute
+}
+
+const AppAppNewUserRouteChildren: AppAppNewUserRouteChildren = {
+  AppAppNewUserIndexRoute: AppAppNewUserIndexRoute,
+}
+
+const AppAppNewUserRouteWithChildren = AppAppNewUserRoute._addFileChildren(
+  AppAppNewUserRouteChildren,
+)
+
 interface AppAppDatasetsDatasetIdPermissionsRouteChildren {
   AppAppDatasetsDatasetIdPermissionsDatasetGroupsRoute: typeof AppAppDatasetsDatasetIdPermissionsDatasetGroupsRoute
   AppAppDatasetsDatasetIdPermissionsOverviewRoute: typeof AppAppDatasetsDatasetIdPermissionsOverviewRoute
@@ -2961,6 +3009,7 @@ const AppAppDatasetsDatasetIdRouteWithChildren =
 interface AppAppRouteChildren {
   AppAppAssetRoute: typeof AppAppAssetRouteWithChildren
   AppAppHomeRoute: typeof AppAppHomeRoute
+  AppAppNewUserRoute: typeof AppAppNewUserRouteWithChildren
   AppAppDatasetsDatasetIdRoute: typeof AppAppDatasetsDatasetIdRouteWithChildren
   AppAppChatsIndexRoute: typeof AppAppChatsIndexRoute
   AppAppCollectionsIndexRoute: typeof AppAppCollectionsIndexRoute
@@ -2974,6 +3023,7 @@ interface AppAppRouteChildren {
 const AppAppRouteChildren: AppAppRouteChildren = {
   AppAppAssetRoute: AppAppAssetRouteWithChildren,
   AppAppHomeRoute: AppAppHomeRoute,
+  AppAppNewUserRoute: AppAppNewUserRouteWithChildren,
   AppAppDatasetsDatasetIdRoute: AppAppDatasetsDatasetIdRouteWithChildren,
   AppAppChatsIndexRoute: AppAppChatsIndexRoute,
   AppAppCollectionsIndexRoute: AppAppCollectionsIndexRoute,

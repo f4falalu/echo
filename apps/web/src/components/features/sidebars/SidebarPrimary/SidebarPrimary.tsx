@@ -41,8 +41,6 @@ import {
   toggleInviteModal,
   useInviteModalStore,
 } from '@/context/GlobalStore/useInviteModalStore';
-import { useGetSelectedAssetTypeLoose } from '@/context/Routes/useAppRoutes';
-import { useWhyDidYouUpdate } from '@/hooks/useWhyDidYouUpdate';
 import { cn } from '@/lib/classMerge';
 import { InvitePeopleModal } from '../../modals/InvitePeopleModal';
 import { SupportModal } from '../../modals/SupportModal';
