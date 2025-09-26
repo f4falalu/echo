@@ -1,5 +1,6 @@
 import { updateMessage, updateMessageEntries } from '@buster/database/queries';
 import { wrapTraced } from 'braintrust';
+import { cleanupState } from '../../shared/cleanup-state';
 import { createRawToolResultEntry } from '../../shared/create-raw-llm-tool-result-entry';
 import {
   DONE_TOOL_NAME,
@@ -55,7 +56,9 @@ export function createDoneToolExecute(context: DoneToolContext, state: DoneToolS
         throw new Error('Tool call ID is required');
       }
 
-      return processDone(state, state.toolCallId, context.messageId, context);
+      const result = await processDone(state, state.toolCallId, context.messageId, context);
+      cleanupState(state);
+      return result;
     },
     { name: 'Done Tool' }
   );
