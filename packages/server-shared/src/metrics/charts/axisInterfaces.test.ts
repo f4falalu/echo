@@ -99,7 +99,6 @@ describe('ScatterAxisSchema', () => {
         category: [],
         size: [],
         tooltip: null,
-        colorBy: null,
       });
     }
   });
@@ -213,7 +212,6 @@ describe('PieChartAxisSchema', () => {
         x: [],
         y: [],
         tooltip: null,
-        colorBy: null,
       });
     }
   });
