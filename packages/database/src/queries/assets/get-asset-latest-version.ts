@@ -4,7 +4,7 @@ import { db } from '../../connection';
 import { dashboardFiles, metricFiles, reportFiles } from '../../schema';
 import { type ResponseMessageFileType, ResponseMessageFileTypeSchema } from '../../schema-types';
 
-const GetAssetLatestVersionInputSchema = z.object({
+export const GetAssetLatestVersionInputSchema = z.object({
   assetId: z.string().uuid().describe('Asset ID to get version for'),
   assetType: ResponseMessageFileTypeSchema.describe('Type of asset'),
 });
