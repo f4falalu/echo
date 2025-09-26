@@ -31,10 +31,6 @@ export const Route = createFileRoute('/app')({
         throw redirect({ href: BUSTER_SIGN_UP_URL, replace: true, statusCode: 307 });
       }
 
-      if (user && !user.user.name) {
-        throw redirect({ to: '/app/new-user', replace: true, statusCode: 307 });
-      }
-
       return {
         supabaseSession,
       };

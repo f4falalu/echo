@@ -167,7 +167,7 @@ const ContactAdminCard = ({ userRole }: ContactAdminCardProps) => {
   const roleLabel = userRole ? translateRole(userRole) : 'User';
 
   return (
-    <div className="flex flex-col rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+    <div className="flex flex-col rounded border border-gray-200 bg-white p-6">
       <div className="mb-4 flex items-center justify-between">
         <Text className="text-xl font-medium text-gray-800">Contact Admin Required</Text>
         <div className="rounded-full bg-blue-100 px-3 py-1">

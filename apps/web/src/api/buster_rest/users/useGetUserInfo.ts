@@ -67,6 +67,13 @@ export const useIsUserRegistered = () => {
   const userBasicInfo = useGetUserBasicInfo();
   const isAnonymousUser = useIsAnonymousUser();
   const isUserRegistered = !!userOrganization?.id && !!userBasicInfo?.name && !isAnonymousUser;
+  console.log(
+    'isUserRegistered',
+    userOrganization?.id,
+    userBasicInfo?.name,
+    isAnonymousUser,
+    userBasicInfo
+  );
   return isUserRegistered;
 };
 
