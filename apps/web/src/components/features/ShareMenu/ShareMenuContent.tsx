@@ -26,7 +26,6 @@ export const ShareMenuContent: React.FC<{
 
   const embedlinkUrl: string = useMemo(() => {
     let url: ParsedLocation | string = '';
-    console.log('assetType', assetType);
     if (!assetId) {
       return '';
     }
