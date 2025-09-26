@@ -136,6 +136,7 @@ export const barBuilder = ({
     barGroupType === 'percentage-stack' ||
     (barGroupType === 'stack' && columnSetting?.showDataLabelsAsPercentage);
   const color = colors[index % colors.length];
+  const datasetColor = dataset.colors;
 
   const percentageMode = isPercentageStackedBar
     ? 'stacked'
@@ -150,7 +151,7 @@ export const barBuilder = ({
     order,
     yAxisKey: yKey,
     data: dataset.data,
-    backgroundColor: color,
+    backgroundColor: datasetColor || color,
     borderRadius: (columnSetting?.barRoundness || 0) / 2,
     tooltipData: dataset.tooltipData,
     xAxisKeys,
