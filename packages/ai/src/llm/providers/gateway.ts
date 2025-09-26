@@ -6,7 +6,15 @@ export const DEFAULT_ANTHROPIC_OPTIONS = {
   gateway: {
     order: ['bedrock', 'anthropic', 'vertex'],
   },
-  anthropic: { cacheControl: { type: 'ephemeral' } },
+  anthropic: {
+    cacheControl: { type: 'ephemeral' },
+  },
+  bedrock: {
+    cacheControl: { type: 'ephemeral' },
+    additionalModelRequestFields: {
+      anthropic_beta: ['fine-grained-tool-streaming-2025-05-14'],
+    },
+  }
 };
 
 export const DEFAULT_OPENAI_OPTIONS = {
