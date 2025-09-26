@@ -275,7 +275,7 @@ describe('getDashboardHandler', () => {
       });
 
       await expect(getDashboardHandler({ dashboardId: 'dashboard-123' }, mockUser)).rejects.toThrow(
-        new HTTPException(403, { message: 'Public access has expired' })
+        new HTTPException(403, { message: 'Public access to this dashboard has expired' })
       );
     });
 

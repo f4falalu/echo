@@ -345,7 +345,7 @@ describe('metric-helpers', () => {
         const options: MetricAccessOptions = { publicAccessPreviouslyVerified: false };
 
         await expect(fetchAndProcessMetricData('metric-123', mockUser, options)).rejects.toThrow(
-          new HTTPException(403, { message: 'Public access has expired' })
+          new HTTPException(403, { message: 'Public access expired' })
         );
       });
 
