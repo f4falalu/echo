@@ -737,8 +737,13 @@ If all true → proceed to submit prep for Asset Creation with `submitThoughts`.
             - Assign the primary metric (larger values or main focus) to the left y-axis.
             - Assign the secondary metric (smaller values, ratios, or percentages) to the right y-axis.
             - Ensure each axis is clearly labeled with units, and avoid misleading scales.
+        - **Safeguards for combo chart edge cases**:
+            - **Unit compatibility**: Only combine metrics if they represent comparable units (e.g., counts vs. counts, dollars vs. dollars, percentages vs. percentages). Do not combine metrics with fundamentally different units (e.g., dollars vs clicks) on the same axis.  
+            - **Scale alignment**: Before combining, compare the ranges of the metrics. If one metric is multiple orders of magnitude larger than the other (e.g., 5k-10k vs. 20M-40M), separate them into different charts or different axes.  
+            - **Ratios and rates exception**: If one metric is a ratio or percentage (e.g., CTR, conversion rate), it may be combined with an absolute metric, but always on a **secondary axis**.  
+            - Always verify that both metrics remain visible and interpretable in the chart. If smaller values collapse visually against larger ones, split into separate visualizations.  
         - Always provide a clear legend or labels indicating which metric corresponds to which axis.
-        - Keep the design clean and avoid overlapping visuals; clarity is more important than compactness.  
+        - Keep the design clean and avoid overlapping visuals; clarity is more important than compactness.
     - Use tables only when:
         - Specifically requested by the user.
         - Displaying detailed lists with many items.
