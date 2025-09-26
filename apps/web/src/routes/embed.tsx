@@ -1,6 +1,7 @@
 import type { AssetType } from '@buster/server-shared/assets';
 import { createFileRoute, Outlet, type RouteContext } from '@tanstack/react-router';
 import { prefetchGetMyUserInfo } from '@/api/buster_rest/users';
+import { Text } from '@/components/ui/typography';
 import { getSupabaseSession } from '@/integrations/supabase/getSupabaseUserClient';
 import { signInWithAnonymousUser } from '@/integrations/supabase/signIn';
 import { AppAssetCheckLayout } from '@/layouts/AppAssetCheckLayout';
@@ -32,6 +33,16 @@ function RouteComponent() {
   if (!assetType) {
     return (
       <div className="flex h-full w-full items-center justify-center">No asset type found</div>
+    );
+  }
+
+  if (assetType === 'chat') {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <Text className="text-lg">
+          Sharing a chat is not supported yet... But it is on our roadmap!
+        </Text>
+      </div>
     );
   }
 
