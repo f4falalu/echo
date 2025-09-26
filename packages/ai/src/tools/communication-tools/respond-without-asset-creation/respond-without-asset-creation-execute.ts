@@ -1,4 +1,4 @@
-import { updateMessageEntries } from '@buster/database/queries';
+import { updateMessage, updateMessageEntries } from '@buster/database/queries';
 import { wrapTraced } from 'braintrust';
 import { cleanupState } from '../../shared/cleanup-state';
 import { createRawToolResultEntry } from '../../shared/create-raw-llm-tool-result-entry';
@@ -38,6 +38,11 @@ async function processRespondWithoutAssetCreation(
       messageId,
       rawLlmMessages,
     });
+
+    // Mark the message as completed
+    await updateMessage(messageId, {
+      isCompleted: true,
+    });
   } catch (error) {
     console.error('[respond-without-asset-creation] Error updating message entries:', error);
   }
@@ -52,17 +57,16 @@ export function createRespondWithoutAssetCreationExecute(
 ) {
   return wrapTraced(
     async (
-      _input: RespondWithoutAssetCreationInput
+      _input: RespondWithoutAssetCreationInput,
+      options?: { toolCallId?: string }
     ): Promise<RespondWithoutAssetCreationOutput> => {
-      if (!state.toolCallId) {
+      // Use toolCallId from state if available, otherwise from options
+      const toolCallId = state.toolCallId || options?.toolCallId;
+      if (!toolCallId) {
         throw new Error('Tool call ID is required');
       }
 
-      const result = await processRespondWithoutAssetCreation(
-        state,
-        state.toolCallId,
-        context.messageId
-      );
+      const result = await processRespondWithoutAssetCreation(state, toolCallId, context.messageId);
       cleanupState(state);
       return result;
     },
