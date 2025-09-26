@@ -3137,6 +3137,7 @@ export const WithProblematicXAxisQuarter2: Story = {
       size: [],
       tooltip: null,
       category: [],
+      colorBy: null,
     },
     barGroupType: 'group',
     metricHeader: null,
@@ -3362,6 +3363,48 @@ export const WithColorByXAxis: Story = {
       x: ['month'],
       y: ['sales'],
       category: [],
+      tooltip: null,
+      colorBy: { columnId: 'type' },
+    },
+  },
+};
+
+export const WithColorByXAndCategoryAxis: Story = {
+  args: {
+    selectedChartType: 'line',
+    showLegend: true,
+    data: ['Basketball', 'Football'].flatMap((sport, lineIndex) => {
+      const months = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
+      return months.flatMap((month, index) => {
+        const types = ['Home', 'Away', 'Draw'];
+        return types.map((type, typeIndex) => {
+          const test = typeIndex === 1 ? -1.5 : typeIndex * 1.25;
+          return {
+            month,
+            sales: 420 + (+index + lineIndex * 12 + typeIndex * 7.5) * test,
+            category: sport,
+            type,
+          };
+        });
+      });
+    }),
+    barAndLineAxis: {
+      x: ['month'],
+      y: ['sales'],
+      category: ['category'],
       tooltip: null,
       colorBy: { columnId: 'type' },
     },
