@@ -1534,6 +1534,7 @@ export const BarChartWithSortedDayOfWeek: Story = {
       y: ['message_count'],
       category: [],
       tooltip: null,
+      colorBy: [],
     },
     columnSettings: {
       day_of_week: {
