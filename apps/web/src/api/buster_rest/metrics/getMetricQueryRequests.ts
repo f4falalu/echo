@@ -13,7 +13,7 @@ import type {
   BusterMetricDataExtended,
 } from '@/api/asset_interfaces/metric';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
-import { silenceAssetErrors } from '@/api/repsonse-helpers/silenece-asset-errors';
+import { silenceAssetErrors } from '@/api/response-helpers/silenece-asset-errors';
 import {
   setProtectedAssetPasswordError,
   useProtectedAssetPassword,
@@ -69,7 +69,7 @@ export const useGetMetric = <TData = BusterMetric>(
     versionNumber: versionNumberProp,
   }: {
     id: string | undefined;
-    versionNumber?: number | 'LATEST'; //if null it will not use a params from the query params
+    versionNumber: number | 'LATEST' | undefined; //if null it will not use a params from the query params
   },
   params?: Omit<UseQueryOptions<BusterMetric, RustApiError, TData>, 'queryKey' | 'queryFn'>
 ) => {
@@ -83,7 +83,9 @@ export const useGetMetric = <TData = BusterMetric>(
 
   const { isFetched: isFetchedInitial, isError: isErrorInitial } = useQuery({
     ...metricsQueryKeys.metricsGetMetric(id || '', 'LATEST'),
-    queryFn: () => getMetricQueryFn({ id, version: 'LATEST', queryClient, password }),
+    queryFn: () => {
+      return getMetricQueryFn({ id, version: 'LATEST', queryClient, password });
+    },
     retry(_failureCount, error) {
       if (error?.message !== undefined && id) {
         setProtectedAssetPasswordError({
@@ -93,16 +95,19 @@ export const useGetMetric = <TData = BusterMetric>(
       }
       return false;
     },
-    enabled: (params?.enabled ?? true) && !!id,
     select: undefined,
     ...params,
+    enabled: (params?.enabled ?? true) && !!id,
   });
 
   return useQuery({
     ...metricsQueryKeys.metricsGetMetric(id || '', selectedVersionNumber),
-    enabled: !!id && !!latestVersionNumber && isFetchedInitial && !isErrorInitial,
-    queryFn: () => getMetricQueryFn({ id, version: selectedVersionNumber, queryClient, password }),
+    queryFn: () => {
+      return getMetricQueryFn({ id, version: selectedVersionNumber, queryClient, password });
+    },
+    ...params,
     select: params?.select,
+    enabled: !!id && !!latestVersionNumber && isFetchedInitial && !isErrorInitial,
   });
 };
 
@@ -147,7 +152,7 @@ export const useGetMetricData = <TData = BusterMetricDataExtended>(
     cacheDataId,
   }: {
     id: string | undefined;
-    versionNumber?: number | 'LATEST';
+    versionNumber: number | 'LATEST' | undefined;
     cacheDataId?: string;
   },
   params?: Omit<UseQueryOptions<BusterMetricData, RustApiError, TData>, 'queryKey' | 'queryFn'>

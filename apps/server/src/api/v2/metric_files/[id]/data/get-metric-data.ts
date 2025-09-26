@@ -38,30 +38,12 @@ export async function getMetricDataHandler(
   versionNumber?: number,
   reportFileId?: string
 ): Promise<MetricDataResponse> {
-  // Get user's organization
-  const userOrg = await getUserOrganizationId(user.id);
-
-  if (!userOrg) {
-    throw new HTTPException(403, {
-      message: 'You must be part of an organization to access metric data',
-    });
-  }
-
-  const { organizationId } = userOrg;
-
   // Retrieve metric definition from database with data source info
   const metric = await getMetricWithDataSource({ metricId, versionNumber });
 
   if (!metric) {
     throw new HTTPException(404, {
       message: 'Metric not found',
-    });
-  }
-
-  // Verify metric belongs to user's organization
-  if (metric.organizationId !== organizationId) {
-    throw new HTTPException(403, {
-      message: 'You do not have permission to view this metric',
     });
   }
 
@@ -76,8 +58,12 @@ export async function getMetricDataHandler(
     assetId: metricId,
     assetType: 'metric_file',
     requiredRole: 'can_view',
-    organizationId,
+    organizationId: metric.organizationId,
     workspaceSharing: metric.workspaceSharing ?? 'none',
+    publiclyAccessible: metric.publiclyAccessible,
+    publicExpiryDate: metric.publicExpiryDate ?? undefined,
+    publicPassword: metric.publicPassword ?? undefined,
+    userSuppliedPassword: undefined,
   });
 
   if (!hasAccess) {
@@ -86,20 +72,30 @@ export async function getMetricDataHandler(
     });
   }
 
+  // Determine the actual version number we're working with
+  const resolvedVersion = metric.versionNumber;
+
   // Check R2 cache if report_file_id is provided
   if (reportFileId) {
     console.info('Checking R2 cache for metric data', {
       metricId,
       reportFileId,
-      organizationId,
+      organizationId: metric.organizationId,
+      version: resolvedVersion,
     });
 
     try {
-      const cachedData = await getCachedMetricData(organizationId, metricId, reportFileId);
+      const cachedData = await getCachedMetricData(
+        metric.organizationId,
+        metricId,
+        reportFileId,
+        resolvedVersion
+      );
       if (cachedData) {
         console.info('Cache hit - returning cached metric data', {
           metricId,
           reportFileId,
+          version: resolvedVersion,
           rowCount: cachedData.data?.length || 0,
         });
         return cachedData;
@@ -107,11 +103,13 @@ export async function getMetricDataHandler(
       console.info('Cache miss - will fetch from data source', {
         metricId,
         reportFileId,
+        version: resolvedVersion,
       });
     } catch (error) {
       console.error('Error checking cache, falling back to data source', {
         metricId,
         reportFileId,
+        version: resolvedVersion,
         error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
@@ -160,6 +158,7 @@ export async function getMetricDataHandler(
       data_metadata: result.dataMetadata,
       metricId,
       has_more_records: hasMore || result.hasMoreRecords,
+      ...(resolvedVersion !== undefined && { version: resolvedVersion }),
     };
 
     // Cache the data if report_file_id is provided (pass-through write)
@@ -167,15 +166,23 @@ export async function getMetricDataHandler(
       console.info('Writing metric data to cache', {
         metricId,
         reportFileId,
-        organizationId,
+        organizationId: metric.organizationId,
+        version: resolvedVersion,
         rowCount: trimmedData.length,
       });
 
       // Fire and forget - don't wait for cache write
-      setCachedMetricData(organizationId, metricId, reportFileId, response).catch((error) => {
+      setCachedMetricData(
+        metric.organizationId,
+        metricId,
+        reportFileId,
+        response,
+        resolvedVersion
+      ).catch((error) => {
         console.error('Failed to cache metric data', {
           metricId,
           reportFileId,
+          version: resolvedVersion,
           error: error instanceof Error ? error.message : 'Unknown error',
         });
       });

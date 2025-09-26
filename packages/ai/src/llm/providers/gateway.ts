@@ -4,20 +4,27 @@ import { BraintrustMiddleware } from 'braintrust';
 
 export const DEFAULT_ANTHROPIC_OPTIONS = {
   gateway: {
-    order: ['anthropic', 'bedrock', 'vertex'],
+    order: ['bedrock', 'anthropic', 'vertex'],
   },
-  headers: {},
-  anthropic: { cacheControl: { type: 'ephemeral' } },
+  anthropic: {
+    cacheControl: { type: 'ephemeral' },
+  },
+  bedrock: {
+    cacheControl: { type: 'ephemeral' },
+    additionalModelRequestFields: {
+      anthropic_beta: ['fine-grained-tool-streaming-2025-05-14'],
+    },
+  }
 };
 
 export const DEFAULT_OPENAI_OPTIONS = {
   gateway: {
     order: ['openai'],
-    openai: {
-      parallelToolCalls: false,
-      reasoningEffort: 'minimal',
-      verbosity: 'low',
-    },
+  },
+  openai: {
+    // parallelToolCalls: false,
+    reasoningEffort: 'minimal',
+    verbosity: 'low',
   },
 };
 

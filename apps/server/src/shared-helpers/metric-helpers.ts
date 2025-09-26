@@ -12,6 +12,7 @@ import {
   DEFAULT_CHART_THEME,
   type DataMetadata,
   type GetMetricResponse,
+  type Metric,
   type MetricYml,
 } from '@buster/server-shared/metrics';
 import type { AssetPermissionRole, VerificationStatus } from '@buster/server-shared/share';
@@ -76,46 +77,18 @@ export async function fetchAndProcessMetricData(
     requiredRole: 'can_view',
     organizationId: metricFile.organizationId,
     workspaceSharing: metricFile.workspaceSharing || 'none',
+    publiclyAccessible: metricFile.publiclyAccessible ?? false,
+    publicExpiryDate: metricFile.publicExpiryDate ?? undefined,
+    publicPassword: metricFile.publicPassword ?? undefined,
+    userSuppliedPassword: password,
   });
 
   effectiveRole = permissionResult.effectiveRole ? permissionResult.effectiveRole : effectiveRole;
 
-  // Check public access if needed
-  if (!effectiveRole) {
-    if (!metricFile.publiclyAccessible) {
-      console.warn(`Permission denied for user ${user.id} to metric ${metricId}`);
-      throw new HTTPException(403, {
-        message: "You don't have permission to view this metric",
-      });
-    }
-
-    // Check if public access has expired
-    const today = new Date();
-    if (metricFile.publicExpiryDate && new Date(metricFile.publicExpiryDate) < today) {
-      console.warn(`Public access expired for metric ${metricId}`);
-      throw new HTTPException(403, {
-        message: 'Public access to this metric has expired',
-      });
-    }
-
-    // Check password if required
-    if (metricFile.publicPassword) {
-      if (!password) {
-        console.warn(`Public password required for metric ${metricId}`);
-        throw new HTTPException(418, {
-          message: 'Password required for public access',
-        });
-      }
-
-      if (password !== metricFile.publicPassword) {
-        console.warn(`Incorrect public password for metric ${metricId}`);
-        throw new HTTPException(403, {
-          message: 'Incorrect password for public access',
-        });
-      }
-    }
-
-    effectiveRole = 'can_view';
+  if (!permissionResult.hasAccess || !effectiveRole) {
+    throw new HTTPException(403, {
+      message: "You don't have permission to view this metric",
+    });
   }
 
   // Parse version history
@@ -297,4 +270,40 @@ export async function buildMetricResponse(
   };
 
   return response;
+}
+
+export async function getMetricsInAncestorAssetFromMetricIds(
+  metricIds: string[],
+  user: User
+): Promise<Record<string, Metric>> {
+  const metricsObj: Record<string, Metric> = {};
+
+  // Process metrics in chunks of 4 to manage concurrency
+  const results = [];
+  const chunkSize = 4;
+
+  for (let i = 0; i < metricIds.length; i += chunkSize) {
+    const chunk = metricIds.slice(i, i + chunkSize);
+    const chunkPromises = chunk.map(async (metricId) => {
+      const processedData = await fetchAndProcessMetricData(metricId, user, {
+        publicAccessPreviouslyVerified: true, // Access is inherited from dashboard access at a minimum
+      });
+
+      // Build the metric response
+      const metric = await buildMetricResponse(processedData, user.id);
+      return { metricId, metric };
+    });
+
+    const chunkResults = await Promise.all(chunkPromises);
+    results.push(...chunkResults);
+  }
+
+  // Filter out failed metrics and build the response object
+  for (const result of results) {
+    if (result) {
+      metricsObj[result.metricId] = result.metric;
+    }
+  }
+
+  return metricsObj;
 }

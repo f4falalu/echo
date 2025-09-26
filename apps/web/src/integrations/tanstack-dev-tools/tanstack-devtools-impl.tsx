@@ -1,6 +1,7 @@
 import { ClientOnly } from '@tanstack/react-router';
 import sample from 'lodash/sample';
 import React, { lazy, Suspense, useState } from 'react';
+import { LazyErrorBoundary } from '@/components/features/global/LazyErrorBoundary';
 import { useMount } from '@/hooks/useMount';
 import { isServer } from '@/lib/window';
 import image1 from './images/image1.png';
@@ -71,7 +72,7 @@ const LazyMetricStoreDevtools = !import.meta.env.SSR
 // The actual devtools component implementation
 const TanstackDevtoolsImpl: React.FC = React.memo(() => {
   useMount(() => {
-    if (import.meta.env.PROD) console.log('🐓 Rendering TanstackDevtoolsImpl');
+    if (import.meta.env.PROD) console.info('🐓 Rendering TanstackDevtoolsImpl');
   });
   const isServerOrSSR = isServer && import.meta.env.SSR;
 
@@ -85,45 +86,47 @@ const TanstackDevtoolsImpl: React.FC = React.memo(() => {
   }
 
   return (
-    <ClientOnly>
-      <Suspense fallback={<span className="hidden">...</span>}>
-        <TanstackDevtools
-          config={{
-            position: 'bottom-left',
-            hideUntilHover: true,
-            defaultOpen: false,
-            openHotkey: ['Meta', 'D'],
-            triggerImage: randomImage,
-          }}
-          plugins={[
-            {
-              name: 'Tanstack Query',
-              render: (
-                <Suspense fallback={<span className="hidden">...</span>}>
-                  <ReactQueryDevtoolsPanel />
-                </Suspense>
-              ),
-            },
-            {
-              name: 'Tanstack Router',
-              render: (
-                <Suspense fallback={<span className="hidden">...</span>}>
-                  <LazyTanStackRouterDevtoolsPanel />
-                </Suspense>
-              ),
-            },
-            {
-              name: 'Metric Original Store',
-              render: (
-                <Suspense fallback={<span className="hidden">...</span>}>
-                  <LazyMetricStoreDevtools />
-                </Suspense>
-              ),
-            },
-          ]}
-        />
-      </Suspense>
-    </ClientOnly>
+    <LazyErrorBoundary>
+      <ClientOnly>
+        <Suspense fallback={<span className="hidden">...</span>}>
+          <TanstackDevtools
+            config={{
+              position: 'bottom-left',
+              hideUntilHover: true,
+              defaultOpen: false,
+              openHotkey: ['Meta', 'D'],
+              triggerImage: randomImage,
+            }}
+            plugins={[
+              {
+                name: 'Tanstack Query',
+                render: (
+                  <Suspense fallback={<span className="hidden">...</span>}>
+                    <ReactQueryDevtoolsPanel />
+                  </Suspense>
+                ),
+              },
+              {
+                name: 'Tanstack Router',
+                render: (
+                  <Suspense fallback={<span className="hidden">...</span>}>
+                    <LazyTanStackRouterDevtoolsPanel />
+                  </Suspense>
+                ),
+              },
+              {
+                name: 'Metric Original Store',
+                render: (
+                  <Suspense fallback={<span className="hidden">...</span>}>
+                    <LazyMetricStoreDevtools />
+                  </Suspense>
+                ),
+              },
+            ]}
+          />
+        </Suspense>
+      </ClientOnly>
+    </LazyErrorBoundary>
   );
 });
 
