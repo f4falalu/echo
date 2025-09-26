@@ -1,4 +1,8 @@
-import { updateMessage, updateMessageEntries } from '@buster/database/queries';
+import {
+  updateMessage,
+  updateMessageEntries,
+  waitForPendingUpdates,
+} from '@buster/database/queries';
 import { wrapTraced } from 'braintrust';
 import { cleanupState } from '../../shared/cleanup-state';
 import { createRawToolResultEntry } from '../../shared/create-raw-llm-tool-result-entry';
@@ -57,6 +61,10 @@ export function createDoneToolExecute(context: DoneToolContext, state: DoneToolS
       }
 
       const result = await processDone(state, state.toolCallId, context.messageId, context);
+
+      // Wait for all pending updates from delta/finish to complete before returning
+      await waitForPendingUpdates(context.messageId);
+
       cleanupState(state);
       return result;
     },
