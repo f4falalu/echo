@@ -1,5 +1,9 @@
 import { db } from '@buster/database/connection';
-import { updateMessageEntries, updateReportWithVersion } from '@buster/database/queries';
+import {
+  updateMessageEntries,
+  updateReportWithVersion,
+  waitForPendingReportUpdates,
+} from '@buster/database/queries';
 import { reportFiles } from '@buster/database/schema';
 import type { ChatMessageResponseMessage } from '@buster/server-shared/chats';
 import type { ToolCallOptions } from 'ai';
@@ -166,6 +170,8 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
               content: state.snapshotContent,
               name: name,
             });
+            // Wait for the name update to fully complete in the queue
+            await waitForPendingReportUpdates(state.reportId);
             console.info('[modify-reports-delta] Updated report name', {
               reportId: state.reportId,
               name,
@@ -326,6 +332,9 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
                     name: state.reportName || undefined,
                     versionHistory,
                   });
+
+                  // Wait for the database update to fully complete in the queue
+                  await waitForPendingReportUpdates(state.reportId);
 
                   console.info('[modify-reports-delta] Database write completed', {
                     reportId: state.reportId,

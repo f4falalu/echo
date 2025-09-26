@@ -35,6 +35,17 @@ type VersionHistory = Record<string, VersionHistoryEntry>;
 const updateQueues = new Map<string, Promise<void>>();
 
 /**
+ * Wait for all pending updates for a given reportId to complete.
+ * This ensures all queued updates are flushed to the database before proceeding.
+ */
+export async function waitForPendingReportUpdates(reportId: string): Promise<void> {
+  const pendingQueue = updateQueues.get(reportId);
+  if (pendingQueue) {
+    await pendingQueue;
+  }
+}
+
+/**
  * Internal function that performs the actual update logic.
  * This is separated so it can be queued.
  */

@@ -1,5 +1,9 @@
 import { db } from '@buster/database/connection';
-import { updateMessageEntries, updateMetricsToReports } from '@buster/database/queries';
+import {
+  updateMessageEntries,
+  updateMetricsToReports,
+  waitForPendingReportUpdates,
+} from '@buster/database/queries';
 import { updateReportWithVersion } from '@buster/database/queries';
 import { reportFiles } from '@buster/database/schema';
 import type { ChatMessageResponseMessage } from '@buster/server-shared/chats';
@@ -201,6 +205,9 @@ async function processEditOperations(
       name: reportName,
       versionHistory: newVersionHistory,
     });
+
+    // Wait for the database update to fully complete in the queue
+    await waitForPendingReportUpdates(reportId);
 
     // Update cache with the modified content for future operations
     updateCachedSnapshot(reportId, currentContent, newVersionHistory);
