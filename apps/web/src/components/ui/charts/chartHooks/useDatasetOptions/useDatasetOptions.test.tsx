@@ -91,7 +91,7 @@ describe('useDatasetOptions', () => {
           x: ['month'],
           y: ['sales'],
           tooltip: ['level'], // Include the level field in tooltip so it's available for coloring
-          colorBy: { columnId: 'level' },
+          colorBy: ['level'],
         },
         selectedChartType: 'bar' as ChartType,
         columnLabelFormats: mockColumnLabelFormats,
@@ -176,7 +176,7 @@ describe('useDatasetOptions', () => {
           y: ['sales'],
           y2: ['profit'],
           tooltip: ['type'],
-          colorBy: { columnId: 'type' },
+          colorBy: ['type'],
         },
         selectedChartType: 'combo' as ChartType,
         columnLabelFormats: mockComboColumnLabelFormats,

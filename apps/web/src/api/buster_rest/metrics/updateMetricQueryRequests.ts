@@ -339,10 +339,8 @@ export const useUpdateMetric = (params: {
   const { mutateAsync: saveMetric } = useSaveMetric({ updateOnSave });
 
   const saveMetricToServer = async (newMetric: BusterMetric, prevMetric: BusterMetric) => {
-    const changedValues = prepareMetricUpdateMetric(newMetric, prevMetric);
-    if (changedValues) {
-      await saveMetric({ ...changedValues, update_version: updateVersion });
-    }
+    const changedValues = prepareMetricUpdateMetric(newMetric, prevMetric); //why do I do this now?
+    await saveMetric({ ...changedValues, update_version: updateVersion });
   };
 
   const combineAndUpdateMetric = ({

@@ -20,7 +20,7 @@ describe('getChartTypeDropZones', () => {
         barLayout: 'vertical',
       });
 
-      expect(result).toHaveLength(4);
+      expect(result).toHaveLength(5);
       expect(result[0]).toEqual({
         id: SelectAxisContainerId.XAxis,
         title: 'X-Axis',
@@ -32,11 +32,16 @@ describe('getChartTypeDropZones', () => {
         items: ['value1'],
       });
       expect(result[2]).toEqual({
+        id: SelectAxisContainerId.ColorBy,
+        title: 'Color By',
+        items: [],
+      });
+      expect(result[3]).toEqual({
         id: SelectAxisContainerId.CategoryAxis,
         title: 'Category',
         items: ['category1'],
       });
-      expect(result[3]).toEqual({
+      expect(result[4]).toEqual({
         id: SelectAxisContainerId.Tooltip,
         title: 'Tooltip',
         items: ['tooltip1', 'tooltip2'],
@@ -58,7 +63,7 @@ describe('getChartTypeDropZones', () => {
         barLayout: 'horizontal',
       });
 
-      expect(result).toHaveLength(4);
+      expect(result).toHaveLength(5);
       // For horizontal bar, Y axis shows as X-Axis title but uses Y axis ID
       expect(result[0]).toEqual({
         id: SelectAxisContainerId.YAxis,
@@ -72,11 +77,16 @@ describe('getChartTypeDropZones', () => {
         items: ['column1'],
       });
       expect(result[2]).toEqual({
+        id: SelectAxisContainerId.ColorBy,
+        title: 'Color By',
+        items: [],
+      });
+      expect(result[3]).toEqual({
         id: SelectAxisContainerId.CategoryAxis,
         title: 'Category',
         items: ['category1'],
       });
-      expect(result[3]).toEqual({
+      expect(result[4]).toEqual({
         id: SelectAxisContainerId.Tooltip,
         title: 'Tooltip',
         items: [],
@@ -98,7 +108,7 @@ describe('getChartTypeDropZones', () => {
         barLayout: 'horizontal',
       });
 
-      expect(result).toHaveLength(4);
+      expect(result).toHaveLength(5);
       // Even with empty arrays, the zones should still be created with swapped titles
       expect(result[0]).toEqual({
         id: SelectAxisContainerId.YAxis,
@@ -110,12 +120,12 @@ describe('getChartTypeDropZones', () => {
         title: 'Y-Axis', // X data appears as Y-Axis in horizontal mode
         items: [],
       });
-      expect(result[2]).toEqual({
+      expect(result[3]).toEqual({
         id: SelectAxisContainerId.CategoryAxis,
         title: 'Category',
         items: [],
       });
-      expect(result[3]).toEqual({
+      expect(result[4]).toEqual({
         id: SelectAxisContainerId.Tooltip,
         title: 'Tooltip',
         items: ['hover_info', 'extra_data'],
