@@ -36,8 +36,10 @@ function RouteComponent() {
   }
 
   return (
-    <AppAssetCheckLayout assetType={assetType}>
-      <Outlet />
-    </AppAssetCheckLayout>
+    <main className="h-full w-full bg-page-background overflow-y-auto">
+      <AppAssetCheckLayout assetType={assetType}>
+        <Outlet />
+      </AppAssetCheckLayout>
+    </main>
   );
 }

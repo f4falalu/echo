@@ -15,6 +15,7 @@ import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useBuildLocation } from '@/context/Routes/useRouteBuilder';
 import { cn } from '@/lib/classMerge';
 import { createDayjsDate } from '@/lib/date';
+import { timeout } from '@/lib/timeout';
 import type { ShareMenuContentBodyProps } from './ShareMenuContentBody';
 
 export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = React.memo(
@@ -73,6 +74,8 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
       } else {
         const _exhaustiveCheck: never = assetType;
       }
+      await timeout(100);
+      if (v) onCopyLink(true);
     };
 
     const onSetPasswordProtected = async (v: boolean) => {
