@@ -29,7 +29,7 @@ export interface InputTextAreaProps
 }
 
 export interface InputTextAreaRef extends HTMLTextAreaElement {
-  forceRecalculateHeight: () => void;
+  forceRecalculateHeight?: () => void;
 }
 
 export const InputTextArea = React.forwardRef<InputTextAreaRef, InputTextAreaProps>(
