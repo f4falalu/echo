@@ -1,5 +1,14 @@
-import { type UpdateMessageEntriesParams, updateMessage, updateMessageEntries } from '@buster/database/queries';
-import type { ResponseMessageFileType } from '@buster/server-shared/chats';
+import {
+  type UpdateMessageEntriesParams,
+  getAssetLatestVersion,
+  updateChat,
+  updateMessage,
+  updateMessageEntries,
+} from '@buster/database/queries';
+import {
+  type ResponseMessageFileType,
+  ResponseMessageFileTypeSchema,
+} from '@buster/database/schema-types';
 import type { ToolCallOptions } from 'ai';
 import {
   OptimisticJsonParser,
@@ -42,7 +51,7 @@ export function createDoneToolDelta(context: DoneToolContext, doneToolState: Don
     type AssetToReturn = {
       assetId: string;
       assetName: string;
-      assetType: ResponseMessageFileType; // expected: 'metric_file' | 'dashboard_file' | 'report_file'
+      assetType: ResponseMessageFileType;
     };
 
     function isAssetToReturn(value: unknown): value is AssetToReturn {
@@ -53,7 +62,7 @@ export function createDoneToolDelta(context: DoneToolContext, doneToolState: Don
       const typeVal = obj.assetType;
       const typeOk =
         typeof typeVal === 'string' &&
-        (typeVal === 'metric_file' || typeVal === 'dashboard_file' || typeVal === 'report_file');
+        ResponseMessageFileTypeSchema.options.includes(typeVal as ResponseMessageFileType);
       return idOk && nameOk && typeOk;
     }
 
@@ -72,12 +81,16 @@ export function createDoneToolDelta(context: DoneToolContext, doneToolState: Don
     }
 
     // Insert any newly completed asset items as response messages (dedupe via state)
+    // Note: Reports are not added as file response messages, only non-report assets
     if (assetsToInsert.length > 0 && context.messageId) {
       const alreadyAdded = new Set(doneToolState.addedAssetIds || []);
       const newAssets = assetsToInsert.filter((a) => !alreadyAdded.has(a.assetId));
 
-      if (newAssets.length > 0) {
-        const fileResponses = newAssets.map((a) => ({
+      // Filter out report_file assets from file responses - they don't get response messages
+      const nonReportAssets = newAssets.filter((a) => a.assetType !== 'report_file');
+
+      if (nonReportAssets.length > 0) {
+        const fileResponses = nonReportAssets.map((a) => ({
           id: a.assetId,
           type: 'file' as const,
           file_type: a.assetType,
@@ -104,11 +117,19 @@ export function createDoneToolDelta(context: DoneToolContext, doneToolState: Don
           // Update state to prevent duplicates on next deltas
           doneToolState.addedAssetIds = [
             ...(doneToolState.addedAssetIds || []),
-            ...newAssets.map((a) => a.assetId),
+            ...nonReportAssets.map((a) => a.assetId),
           ];
         } catch (error) {
           console.error('[done-tool] Failed to add asset response entries from delta:', error);
         }
+      }
+
+      // Store ALL assets (including reports) for chat update later
+      if (newAssets.length > 0) {
+        doneToolState.addedAssets = [
+          ...(doneToolState.addedAssets || []),
+          ...newAssets.map((a) => ({ assetId: a.assetId, assetType: a.assetType })),
+        ];
       }
     }
 
@@ -131,6 +152,29 @@ export function createDoneToolDelta(context: DoneToolContext, doneToolState: Don
           await updateMessage(context.messageId, {
             finalReasoningMessage: `Reasoned for ${timeString}`,
           });
+
+          // Update chat's most_recent fields with the first asset that was returned
+          if (doneToolState.addedAssets && doneToolState.addedAssets.length > 0 && context.chatId) {
+            try {
+              const firstAsset = doneToolState.addedAssets[0];
+
+              if (firstAsset) {
+                // Get the actual version number from the database
+                const versionNumber = await getAssetLatestVersion({
+                  assetId: firstAsset.assetId,
+                  assetType: firstAsset.assetType,
+                });
+
+                await updateChat(context.chatId, {
+                  mostRecentFileId: firstAsset.assetId,
+                  mostRecentFileType: firstAsset.assetType,
+                  mostRecentVersionNumber: versionNumber,
+                });
+              }
+            } catch (error) {
+              console.error('[done-tool] Failed to update chat most_recent fields:', error);
+            }
+          }
         } catch (error) {
           console.error('[done-tool] Failed to set final reasoning message in delta:', error);
         }

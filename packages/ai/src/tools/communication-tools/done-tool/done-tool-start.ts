@@ -22,13 +22,18 @@ export function createDoneToolStart(context: DoneToolContext, doneToolState: Don
     doneToolState.toolCallId = options.toolCallId;
     doneToolState.args = undefined;
     doneToolState.finalResponse = undefined;
+    doneToolState.addedAssetIds = [];
+    doneToolState.addedAssets = [];
 
     // Selection logic moved to delta; skip extracting files here
     if (options.messages) {
-      console.info('[done-tool-start] Skipping file selection; handled in delta for optimistic insertion', {
-        messageCount: options.messages?.length,
-        toolCallId: options.toolCallId,
-      });
+      console.info(
+        '[done-tool-start] Skipping file selection; handled in delta for optimistic insertion',
+        {
+          messageCount: options.messages?.length,
+          toolCallId: options.toolCallId,
+        }
+      );
     }
 
     // Do not create the done text response here; wait until assets are inserted via delta

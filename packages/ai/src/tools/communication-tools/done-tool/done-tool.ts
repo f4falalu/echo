@@ -9,11 +9,17 @@ import { createDoneToolStart } from './done-tool-start';
 export const DONE_TOOL_NAME = 'doneTool';
 
 export const DoneToolInputSchema = z.object({
-  assetsToReturn: z.array(z.object({
-    assetId: z.string().uuid(),
-    assetName: z.string(),
-    assetType: AssetTypeSchema,
-  })).describe('This should always be the first argument returned by the done tool.  This should be the top-level asset that the user is trying to work with.  Metrics, when involved in dashboards and reports, should always be bundled into their respective top-level assets.  If a user asks to modify a metric on a dashboard or report then the dashboard or report should be returned here. A good rule of thumb is if any dashboard or report exists in the chat and a metric is part of it, the metric should not be returned.'),
+  assetsToReturn: z
+    .array(
+      z.object({
+        assetId: z.string().uuid(),
+        assetName: z.string(),
+        assetType: AssetTypeSchema,
+      })
+    )
+    .describe(
+      'This should always be the first argument returned by the done tool.  This should be the top-level asset that the user is trying to work with.  Metrics, when involved in dashboards and reports, should always be bundled into their respective top-level assets.  If a user asks to modify a metric on a dashboard or report then the dashboard or report should be returned here. A good rule of thumb is if any dashboard or report exists in the chat and a metric is part of it, the metric should not be returned.'
+    ),
   finalResponse: z
     .string()
     .min(1, 'Final response is required')
@@ -50,6 +56,21 @@ const DoneToolStateSchema = z.object({
     .array(z.string())
     .optional()
     .describe('Asset IDs that have already been inserted as response messages to avoid duplicates'),
+  addedAssets: z
+    .array(
+      z.object({
+        assetId: z.string(),
+        assetType: z.enum([
+          'metric_file',
+          'dashboard_file',
+          'report_file',
+          'analyst_chat',
+          'collection',
+        ]),
+      })
+    )
+    .optional()
+    .describe('Assets that have been added with their types for chat update'),
 });
 
 export type DoneToolInput = z.infer<typeof DoneToolInputSchema>;
@@ -63,6 +84,7 @@ export function createDoneTool(context: DoneToolContext) {
     args: undefined,
     finalResponse: undefined,
     addedAssetIds: [],
+    addedAssets: [],
   };
 
   const execute = createDoneToolExecute(context, state);
