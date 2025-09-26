@@ -9,7 +9,7 @@ import type {
 // Mock dependencies
 vi.mock('@buster/database/queries', () => ({
   updateMessageEntries: vi.fn().mockResolvedValue({ success: true }),
-  batchUpdateReport: vi.fn().mockResolvedValue({ success: true }),
+  updateReportWithVersion: vi.fn().mockResolvedValue(undefined),
   updateMetricsToReports: vi.fn().mockResolvedValue({ created: 0, updated: 0, deleted: 0 }),
 }));
 
@@ -32,6 +32,23 @@ vi.mock('../../../shared/create-raw-llm-tool-result-entry', () => ({
     type: 'tool-result',
     content: 'result content',
   }),
+}));
+
+vi.mock('../../../shared/cleanup-state', () => ({
+  cleanupState: vi.fn(),
+}));
+
+vi.mock('../../file-tracking-helper', () => ({
+  trackFileAssociations: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock('../helpers/metric-extraction', () => ({
+  extractAndCacheMetricsWithUserContext: vi.fn().mockResolvedValue(undefined),
+  extractMetricIds: vi.fn().mockReturnValue([]),
+}));
+
+vi.mock('../report-snapshot-cache', () => ({
+  updateCachedSnapshot: vi.fn(),
 }));
 
 import { updateMessageEntries } from '@buster/database/queries';
@@ -141,7 +158,7 @@ describe('create-reports-execute', () => {
     });
 
     it('should create initial entries on first execution', async () => {
-      state.initialEntriesCreated = undefined;
+      state.initialEntriesCreated = false;
       state.file = undefined;
 
       const input: CreateReportsInput = {

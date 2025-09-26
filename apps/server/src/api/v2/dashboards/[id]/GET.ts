@@ -17,6 +17,7 @@ import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import yaml from 'js-yaml';
+import { throwUnauthorizedError } from '../../../../shared-helpers/asset-public-access';
 import { getPubliclyEnabledByUser } from '../../../../shared-helpers/get-publicly-enabled-by-user';
 import { getMetricsInAncestorAssetFromMetricIds } from '../../../../shared-helpers/metric-helpers';
 
@@ -130,8 +131,11 @@ export async function getDashboardHandler(
   if (!hasAccess || !effectiveRole) {
     // This should never be hit because we have already thrown errors for no public access
     console.warn(`Permission denied for user ${user.id} to dashboard ${dashboardId}`);
-    throw new HTTPException(403, {
-      message: "You don't have permission to view this dashboard",
+    throwUnauthorizedError({
+      publiclyAccessible: dashboardFile.publiclyAccessible ?? false,
+      publicExpiryDate: dashboardFile.publicExpiryDate ?? undefined,
+      publicPassword: dashboardFile.publicPassword ?? undefined,
+      userSuppliedPassword: password,
     });
   }
 

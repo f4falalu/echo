@@ -1,10 +1,15 @@
 import { db } from '@buster/database/connection';
-import { updateMessageEntries, updateMetricsToReports } from '@buster/database/queries';
-import { batchUpdateReport } from '@buster/database/queries';
+import {
+  updateMessageEntries,
+  updateMetricsToReports,
+  waitForPendingReportUpdates,
+} from '@buster/database/queries';
+import { updateReportWithVersion } from '@buster/database/queries';
 import { reportFiles } from '@buster/database/schema';
 import type { ChatMessageResponseMessage } from '@buster/server-shared/chats';
 import { wrapTraced } from 'braintrust';
 import { and, eq, isNull } from 'drizzle-orm';
+import { cleanupState } from '../../../shared/cleanup-state';
 import { createRawToolResultEntry } from '../../../shared/create-raw-llm-tool-result-entry';
 import { trackFileAssociations } from '../../file-tracking-helper';
 import {
@@ -177,29 +182,32 @@ async function processEditOperations(
 
   // Write all changes to database in one operation
   try {
-    // Wait for the last delta write to complete before doing final update
-    if (state?.lastUpdate) {
-      console.info('[modify-reports-execute] Waiting for last delta write to complete');
+    // Wait for the last delta processing to complete before doing final update
+    if (state?.lastProcessing) {
+      console.info('[modify-reports-execute] Waiting for last delta processing to complete');
       try {
-        // Wait for the last write in the chain to complete
-        await state.lastUpdate;
+        // Wait for the last processing in the chain to complete
+        await state.lastProcessing;
         console.info(
-          '[modify-reports-execute] Last delta write completed, proceeding with final update'
+          '[modify-reports-execute] Last delta processing completed, proceeding with final update'
         );
       } catch (error) {
         console.warn(
-          '[modify-reports-execute] Error waiting for last delta write, proceeding with final update:',
+          '[modify-reports-execute] Error waiting for last delta processing, proceeding with final update:',
           error
         );
       }
     }
 
-    await batchUpdateReport({
+    await updateReportWithVersion({
       reportId,
       content: currentContent,
       name: reportName,
       versionHistory: newVersionHistory,
     });
+
+    // Wait for the database update to fully complete in the queue
+    await waitForPendingReportUpdates(reportId);
 
     // Update cache with the modified content for future operations
     updateCachedSnapshot(reportId, currentContent, newVersionHistory);
@@ -529,6 +537,7 @@ export function createModifyReportsExecute(
         });
 
         // Return the result directly
+        cleanupState(state);
         return result;
       } catch (error) {
         const executionTime = Date.now() - startTime;
@@ -604,10 +613,12 @@ export function createModifyReportsExecute(
         // Only throw for critical errors (auth, database connection)
         // For other errors, return them in the response
         if (isAuthError || isDatabaseError) {
+          cleanupState(state);
           throw error;
         }
 
         // Return error information to the agent
+        cleanupState(state);
         return {
           success: false,
           message: `Failed to modify report: ${errorMessage}`,

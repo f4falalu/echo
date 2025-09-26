@@ -19,6 +19,7 @@ import type { AssetPermissionRole, VerificationStatus } from '@buster/server-sha
 import { HTTPException } from 'hono/http-exception';
 import yaml from 'js-yaml';
 import { z } from 'zod';
+import { throwUnauthorizedError } from './asset-public-access';
 import { getPubliclyEnabledByUser } from './get-publicly-enabled-by-user';
 
 export const MetricAccessOptionsSchema = z.object({
@@ -86,8 +87,11 @@ export async function fetchAndProcessMetricData(
   effectiveRole = permissionResult.effectiveRole ? permissionResult.effectiveRole : effectiveRole;
 
   if (!permissionResult.hasAccess || !effectiveRole) {
-    throw new HTTPException(403, {
-      message: "You don't have permission to view this metric",
+    throwUnauthorizedError({
+      publiclyAccessible: metricFile.publiclyAccessible ?? false,
+      publicExpiryDate: metricFile.publicExpiryDate ?? undefined,
+      publicPassword: metricFile.publicPassword ?? undefined,
+      userSuppliedPassword: password,
     });
   }
 
