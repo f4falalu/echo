@@ -6,28 +6,16 @@ branding:
   color: 'green'
 
 inputs:
-  api-key:
-    description: 'Buster API key (falls back to BUSTER_API_KEY)'
-    required: false
-    default: ''
-  host:
-    description: 'Buster API host URL (falls back to BUSTER_HOST or https://api.buster.so)'
-    required: false
-    default: ''
   directory:
     description: 'Directory containing buster.yml and models to deploy'
     required: false
     default: '.'
   environment:
-    description: 'Target environment (e.g., production, staging)'
+    description: 'Target environment for deployment (e.g., production, staging)'
     required: false
     default: ''
-  force:
-    description: 'Force deployment (adds --force)'
-    required: false
-    default: 'true'
   verbose:
-    description: 'Verbose output (adds --verbose)'
+    description: 'Enable verbose output'
     required: false
     default: 'false'
 
@@ -38,38 +26,23 @@ runs:
       shell: bash
       run: |
         if ! command -v buster &>/dev/null && ! command -v buster.exe &>/dev/null; then
-          echo "Buster CLI not found. Add a step to install it (e.g., buster-so/buster-actions/install)."
+          echo "❌ Buster CLI not found. Please install with buster-so/buster-actions/install first."
           exit 1
         fi
 
-    - name: Set credentials/env
-      shell: bash
-      run: |
-        set -e
-        API_KEY="${{ inputs.api-key }}"
-        if [[ -z "$API_KEY" ]]; then
-          API_KEY="${BUSTER_API_KEY:-}"
-        fi
-        if [[ -z "$API_KEY" ]]; then
-          echo "No API key provided. Set input 'api-key' or env BUSTER_API_KEY."
-          exit 1
-        fi
-        echo "BUSTER_API_KEY=$API_KEY" >> "$GITHUB_ENV"
-
-        HOST="${{ inputs.host }}"
-        if [[ -z "$HOST" ]]; then
-          HOST="${BUSTER_HOST:-https://api.buster.so}"
-        fi
-        echo "BUSTER_HOST=$HOST" >> "$GITHUB_ENV"
-
-    - name: Deploy
+    - name: Deploy to Buster
       shell: bash
       working-directory: ${{ inputs.directory }}
       run: |
         set -e
+        if [[ -z "$BUSTER_API_KEY" ]]; then
+          echo "❌ Missing BUSTER_API_KEY env var"
+          exit 1
+        fi
+
         CMD="buster deploy"
         [[ -n "${{ inputs.environment }}" ]] && CMD="$CMD --environment ${{ inputs.environment }}"
-        [[ "${{ inputs.force }}" == "true" ]] && CMD="$CMD --force"
         [[ "${{ inputs.verbose }}" == "true" ]] && CMD="$CMD --verbose"
+
         echo "Running: $CMD"
         $CMD
