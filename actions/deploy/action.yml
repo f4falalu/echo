@@ -80,20 +80,6 @@ runs:
         echo "BUSTER_API_KEY=$API_KEY" >> $GITHUB_ENV
         echo "BUSTER_HOST=$HOST" >> $GITHUB_ENV
 
-    - name: Check for buster.yml
-      shell: bash
-      working-directory: ${{ inputs.directory }}
-      run: |
-        if [[ ! -f "buster.yml" ]]; then
-          echo "❌ No buster.yml found in ${{ inputs.directory }}"
-          echo "💡 Run 'buster init' to create a project configuration"
-          exit 1
-        fi
-        
-        echo "✅ Found buster.yml"
-        echo "📋 Project configuration:"
-        head -n 20 buster.yml | sed 's/^/    /'
-
     - name: Deploy to Buster
       id: deploy
       shell: bash
