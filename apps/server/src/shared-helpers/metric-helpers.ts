@@ -19,8 +19,8 @@ import type { AssetPermissionRole, VerificationStatus } from '@buster/server-sha
 import { HTTPException } from 'hono/http-exception';
 import yaml from 'js-yaml';
 import { z } from 'zod';
-import { getPubliclyEnabledByUser } from './get-publicly-enabled-by-user';
 import { throwUnauthorizedError } from './asset-public-access';
+import { getPubliclyEnabledByUser } from './get-publicly-enabled-by-user';
 
 export const MetricAccessOptionsSchema = z.object({
   /** If public access has been verified by a parent resource set to true */

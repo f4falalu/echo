@@ -21,9 +21,9 @@ const textAreaVariants = cva('leading-1.3', {
 
 export interface InputTextAreaProps
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement>,
-  Omit<TextareaAutosizeProps, 'style'>,
-  VariantProps<typeof inputTextAreaVariants>,
-  VariantProps<typeof textAreaVariants> {
+    Omit<TextareaAutosizeProps, 'style'>,
+    VariantProps<typeof inputTextAreaVariants>,
+    VariantProps<typeof textAreaVariants> {
   onPressMetaEnter?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
   onPressEnter?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
 }

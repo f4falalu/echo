@@ -17,9 +17,9 @@ import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import yaml from 'js-yaml';
+import { throwUnauthorizedError } from '../../../../shared-helpers/asset-public-access';
 import { getPubliclyEnabledByUser } from '../../../../shared-helpers/get-publicly-enabled-by-user';
 import { getMetricsInAncestorAssetFromMetricIds } from '../../../../shared-helpers/metric-helpers';
-import { throwUnauthorizedError } from '../../../../shared-helpers/asset-public-access';
 
 interface GetDashboardHandlerParams {
   dashboardId: string;
