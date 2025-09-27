@@ -61,7 +61,7 @@ export const useSeriesOptions = ({
       sizeKey,
       columnSettings,
     });
-  }, [datasetOptions, columnSettings, columnLabelFormats, xAxisKeys, sizeKey]);
+  }, [datasetOptions, columnSettings, columnLabelFormats, xAxisKeys, sizeKey, selectedChartType]);
 
   const sizeOptions: SeriesBuilderProps['sizeOptions'] = useMemo(() => {
     if (!sizeKey || sizeKey.length === 0) {
@@ -113,6 +113,7 @@ export const useSeriesOptions = ({
     barShowTotalAtTop,
     yAxisKeys,
     y2AxisKeys,
+    selectedChartType,
   ]);
 
   return {
