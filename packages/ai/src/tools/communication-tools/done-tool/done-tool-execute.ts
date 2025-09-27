@@ -13,7 +13,10 @@ import {
   type DoneToolOutput,
   type DoneToolState,
 } from './done-tool';
-import { createDoneToolRawLlmMessageEntry } from './helpers/done-tool-transform-helper';
+import {
+  createDoneToolRawLlmMessageEntry,
+  createDoneToolResponseMessage,
+} from './helpers/done-tool-transform-helper';
 
 // Process done tool execution with todo management
 async function processDone(
@@ -33,6 +36,9 @@ async function processDone(
     finalResponse: input.finalResponse,
   };
 
+  // Create the response message with complete data
+  const doneToolResponseEntry = createDoneToolResponseMessage(updatedState, toolCallId);
+  
   // Create both the tool call and result messages to maintain proper ordering
   const rawLlmMessage = createDoneToolRawLlmMessageEntry(updatedState, toolCallId);
   const rawToolResultEntry = createRawToolResultEntry(toolCallId, DONE_TOOL_NAME, output);
@@ -46,6 +52,8 @@ async function processDone(
     await updateMessageEntries({
       messageId,
       rawLlmMessages,
+      // Include the response message with the complete finalResponse
+      responseMessages: doneToolResponseEntry ? [doneToolResponseEntry] : undefined,
     });
 
     // Mark the message as completed
