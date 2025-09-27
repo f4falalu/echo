@@ -92,7 +92,7 @@ export const BusterChartJSComponent = React.memo(
         lineGroupType,
         barGroupType,
       });
-      const previousData = usePreviousRef(data);
+      const previousDataLabels = usePreviousRef(data.labels);
 
       const { chartPlugins, chartOptions } = useChartSpecificOptions({
         selectedChartType,
@@ -182,7 +182,7 @@ export const BusterChartJSComponent = React.memo(
 
       const updateMode = useMemoizedFn((): UpdateMode => {
         if (!ref) return 'default';
-        const areLabelsChanged = previousData?.labels !== data.labels;
+        const areLabelsChanged = previousDataLabels !== data.labels;
         if (areLabelsChanged) return 'default'; //this will disable animation - this was 'none', I am not sure why...
         return 'default';
       });
