@@ -556,22 +556,21 @@ definitions:
                   
                   Example: Sales by month
                   - With category=['region']: Creates separate lines/bars for each region (North, South, East, West)
-                  - With colorBy.columnId='region': Colors bars by region but keeps them as one series
+                  - With colorBy=['region']: Colors bars by region but keeps them as one series
               tooltip:
                 type: [array, 'null']
                 items:
                   type: string
                 description: Column names for tooltip. If null, y axis is used. Default: null
               colorBy:
-                type: [object, 'null']
+                type: [array, 'null']
+                items:
+                  type: string
                 description: |
-                  Optional color configuration to apply colors based on a column's values.
+                  Optional array of column names to apply colors based on column values.
                   Use this when you want visual differentiation without creating separate series.
                   Perfect for: Status indicators (red/yellow/green), priority levels, or any categorical color coding.
-                properties:
-                  columnId:
-                    type: [string, 'null']
-                    description: LOWERCASE column name whose values will determine colors
+                  Example: ['region'] - colors bars by region values
             required:
               - x
               - y
@@ -641,14 +640,13 @@ definitions:
                   type: string
                 description: Column names for tooltip. If null, y axis is used. Default: null
               colorBy:
-                type: [object, 'null']
+                type: [array, 'null']
+                items:
+                  type: string
                 description: |
-                  Optional color configuration to apply colors to scatter points based on a column's values.
+                  Optional array of column names to apply colors to scatter points based on column values.
                   Use when you want all points in one series with color-coded differentiation.
-                properties:
-                  columnId:
-                    type: [string, 'null']
-                    description: LOWERCASE column name whose values will determine point colors
+                  Example: ['priority'] - colors points by priority values
             required:
               - x
               - y
@@ -681,14 +679,13 @@ definitions:
                   type: string
                 description: Column names for tooltip. If null, y axis is used. Default: null
               colorBy:
-                type: [object, 'null']
+                type: [array, 'null']
+                items:
+                  type: string
                 description: |
-                  Optional color configuration for pie slices based on x-axis values.
+                  Optional array of column names for pie slice colors based on column values.
                   Allows custom color mapping for specific slice categories.
-                properties:
-                  columnId:
-                    type: [string, 'null']
-                    description: LOWERCASE column name whose values will determine slice colors
+                  Example: ['category'] - colors slices by category values
             required:
               - x
               - y
@@ -732,14 +729,13 @@ definitions:
                   type: string
                 description: Column names for tooltip. If null, y axis is used. Default: null
               colorBy:
-                type: [object, 'null']
+                type: [array, 'null']
+                items:
+                  type: string
                 description: |
-                  Optional color configuration to apply colors based on a column's values in combo chart.
+                  Optional array of column names to apply colors based on column values in combo chart.
                   Useful for color-coding bars while lines remain as separate series.
-                properties:
-                  columnId:
-                    type: [string, 'null']
-                    description: LOWERCASE column name whose values will determine colors
+                  Example: ['region'] - colors bars by region values
             required:
               - x
               - y
