@@ -38,7 +38,7 @@ async function processDone(
 
   // Create the response message with complete data
   const doneToolResponseEntry = createDoneToolResponseMessage(updatedState, toolCallId);
-  
+
   // Create both the tool call and result messages to maintain proper ordering
   const rawLlmMessage = createDoneToolRawLlmMessageEntry(updatedState, toolCallId);
   const rawToolResultEntry = createRawToolResultEntry(toolCallId, DONE_TOOL_NAME, output);

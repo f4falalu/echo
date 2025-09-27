@@ -468,7 +468,7 @@ describe('formatLabel', () => {
         formatLabel('123', {
           columnType: 'number',
           style: 'string',
-          replaceMissingDataWith: 1,
+          replaceMissingDataWith: 1 as 0,
         })
       ).toBe('123');
     });
