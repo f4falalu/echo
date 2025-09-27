@@ -81,7 +81,7 @@ export const useSeriesOptions = ({
       minValue: Number(assosciatedColumn?.min_value),
       maxValue: Number(assosciatedColumn?.max_value),
     };
-  }, [sizeKey]);
+  }, [sizeKey, columnMetadata]);
 
   const datasets: ChartProps<ChartJSChartType>['data']['datasets'] = useMemo(() => {
     return dataBuilderRecord[selectedChartType]({
