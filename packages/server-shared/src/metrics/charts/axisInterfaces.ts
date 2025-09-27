@@ -17,7 +17,7 @@ export const BarAndLineAxisSchema = z
      *
      * Example: Monthly sales chart
      * - category=['region'] → 4 separate lines/bar groups (North, South, East, West)
-     * - colorBy.columnId='region' → 1 series with bars colored by region
+     * - colorBy=['region'] → 1 series with bars colored by region
      *
      * THE LLM SHOULD NEVER SET MULTIPLE CATEGORY COLUMNS. ONLY THE USER CAN SET THIS.
      */
@@ -54,7 +54,7 @@ export const ScatterAxisSchema = z
      *
      * Example: Customer satisfaction vs response time
      * - category=['department'] → Separate point series for Sales, Support, Engineering
-     * - colorBy.columnId='priority' → All points in one series, colored by priority level
+     * - colorBy=['priority'] → All points in one series, colored by priority level
      *
      * THE LLM SHOULD NEVER SET MULTIPLE CATEGORY COLUMNS. ONLY THE USER CAN SET THIS.
      */
@@ -89,7 +89,7 @@ export const ComboChartAxisSchema = z
      *
      * Example: Monthly sales chart
      * - category=['region'] → 4 separate lines/bar groups (North, South, East, West)
-     * - colorBy.columnId='region' → 1 series with bars colored by region
+     * - colorBy=['region'] → 1 series with bars colored by region
      *
      * THE LLM SHOULD NEVER SET MULTIPLE CATEGORY COLUMNS. ONLY THE USER CAN SET THIS.
      */
