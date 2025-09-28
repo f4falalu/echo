@@ -1,5 +1,6 @@
 import type { SuggestionProps } from '@tiptap/suggestion';
 import React, { useEffect, useImperativeHandle, useState } from 'react';
+import { cn } from '@/lib/utils';
 import type {
   MentionInputTriggerItem,
   MentionOnSelectParams,
@@ -19,10 +20,10 @@ export interface MentionListImperativeHandle {
 export type MentionListProps<T = string> = SuggestionProps<
   MentionInputTriggerItem<T>,
   MentionTriggerItem<T> & { trigger: string }
-> & { trigger: string; emptyState?: React.ReactNode };
+> & { trigger: string; emptyState?: React.ReactNode; className?: string };
 
 function MentionListInner<T = string>(
-  { trigger, emptyState, items, command }: MentionListProps<T>,
+  { trigger, emptyState, items, command, className }: MentionListProps<T>,
   ref: React.ForwardedRef<MentionListImperativeHandle>
 ) {
   const [selectedItem, setSelectedItem] = useState<T | undefined>(undefined);
@@ -97,7 +98,13 @@ function MentionListInner<T = string>(
   }));
 
   return (
-    <div className="flex flex-col p-1 bg-background rounded border w-full min-w-[200px] max-w-[280px] overflow-hidden">
+    <div
+      className={cn(
+        'flex flex-col p-1 bg-background rounded border w-full min-w-[200px] max-w-[280px] overflow-x-auto',
+        'max-h-[300px] overflow-y-auto',
+        className
+      )}
+    >
       {items.length ? (
         items.map((item, index: number) => (
           <MentionListSelector<T>

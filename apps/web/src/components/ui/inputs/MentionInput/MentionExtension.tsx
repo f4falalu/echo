@@ -25,6 +25,8 @@ export const MentionExtension = (suggestions: MentionSuggestionExtension[]) =>
         label: '',
         value: '',
         trigger: '',
+        pillLabel: '',
+        doNotAddPipeOnSelect: false,
       } satisfies MentionPillAttributes;
     },
     addCommands() {

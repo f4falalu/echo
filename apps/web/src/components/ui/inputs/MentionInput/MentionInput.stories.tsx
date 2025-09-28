@@ -42,6 +42,17 @@ const looneyTunesCharacters: MentionInputTriggerItem[] = [
     value: 'Tweety Bird',
     label: 'Tweety Bird',
   },
+  {
+    type: 'separator',
+  },
+  {
+    value: 'Taz',
+    label: 'Taz',
+  },
+  {
+    value: 'Sylvester',
+    label: 'Sylvester',
+  },
 ];
 
 const theSimpsonsCharacters: MentionInputTriggerItem[] = [
@@ -72,16 +83,16 @@ const theSimpsonsCharacters: MentionInputTriggerItem[] = [
 ].map((item) => ({
   ...item,
   label: (
-    <span className="inline gap-x-1 space-x-1">
+    <span className="gap-x-1 space-x-1">
       <img
         src={faker.image.url({
           width: 16,
           height: 16,
         })}
         alt=""
-        className="w-3 h-3 rounded-full bg-item-active inline align-middle"
+        className="w-3 h-3 rounded-full bg-item-active inline-block align-middle"
       />
-      <span>{item.label}</span>
+      <span className="inline-block">{item.label}</span>
     </span>
   ),
 }));
@@ -101,13 +112,14 @@ const arthurCharacters: MentionInputTriggerItem[] = [
   },
 ].map((item) => ({
   ...item,
+  pillLabel: item.label,
   label: (
-    <span className="flex flex-col justify-between space-y-2 min-w-72 py-2">
+    <span className="flex flex-col justify-between space-y-2 py-2 overflow-hidden">
       <h3 className="font-semibold text-gray-900 text-base leading-tight">{item.label}</h3>
       <div className="flex flex-col space-y-2">
-        <div className="flex items-center text-sm text-gray-600">
-          <span className="w-16 text-gray-500 font-medium">Address:</span>
-          <span>
+        <div className="flex items-center text-sm text-gray-600 overflow-hidden">
+          <span className="w-16 text-gray-500 font-medium truncate">Address:</span>
+          <span className="truncate">
             {faker.location.streetAddress()}, {faker.location.city()}
           </span>
         </div>
@@ -168,9 +180,124 @@ const arthurSuggestions = createMentionSuggestionExtension({
   },
 });
 
+const spongebobCharacters: MentionInputTriggerItem[] = [
+  {
+    type: 'group',
+    items: [
+      {
+        value: 'SpongeBob SquarePants',
+        label: 'SpongeBob SquarePants',
+      },
+      {
+        value: 'Patrick Star',
+        label: 'Patrick Star',
+      },
+      {
+        value: 'Squidward Tentacles',
+        label: 'Squidward Tentacles',
+      },
+      {
+        value: 'Mr. Krabs',
+        label: 'Mr. Krabs',
+      },
+    ],
+    label: 'SpongeBob SquarePants Characters',
+  },
+  {
+    type: 'separator',
+  },
+  {
+    type: 'group',
+    items: [
+      {
+        value: 'Courage the Cowardly Dog',
+        label: 'Courage the Cowardly Dog',
+      },
+      {
+        value: 'Muriel Bagge',
+        label: 'Muriel Bagge',
+      },
+      {
+        value: 'Shaggy',
+        label: 'Shaggy',
+      },
+      {
+        value: 'Snake',
+        label: 'Snake',
+      },
+    ],
+    label: 'Courage the Cowardly Dog Characters',
+  },
+  {
+    type: 'separator',
+  },
+  {
+    type: 'group',
+    label: 'Foster`s Home',
+    items: [
+      {
+        value: 'Bloo',
+        label: 'Bloo',
+      },
+      {
+        value: 'Mac',
+        label: 'Mac',
+      },
+      {
+        value: 'Wilt',
+        label: 'Wilt',
+      },
+      {
+        value: 'Eduardo',
+        label: 'Eduardo',
+      },
+    ],
+  },
+  {
+    type: 'separator',
+  },
+  {
+    type: 'group',
+    label: 'Scooby-Doo Characters',
+    items: [
+      {
+        value: 'Scooby-Doo',
+        label: 'Scooby-Doo',
+      },
+      {
+        value: 'Shaggy',
+        label: 'Shaggy',
+      },
+      {
+        value: 'Velma',
+        label: 'Velma',
+      },
+      {
+        value: 'Daphne',
+        label: 'Daphne',
+      },
+    ],
+  },
+];
+
+const spongebobSuggestions = createMentionSuggestionExtension({
+  trigger: '%',
+  items: spongebobCharacters,
+  pillStyling: {
+    className: () => {
+      return 'bg-yellow-100 border-yellow-300 text-yellow-500 hover:bg-yellow-200';
+    },
+  },
+});
+
 export const Default: Story = {
   args: {
-    mentions: [looneyTunesSuggestions, theSimpsonsSuggestions, arthurSuggestions],
+    mentions: [
+      looneyTunesSuggestions,
+      theSimpsonsSuggestions,
+      arthurSuggestions,
+      spongebobSuggestions,
+    ],
   },
   parameters: {
     docs: {
