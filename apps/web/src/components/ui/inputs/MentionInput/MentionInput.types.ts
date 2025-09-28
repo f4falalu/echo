@@ -18,7 +18,8 @@ export type MentionStylePillStorageMap = Map<string, MentionStylePillProps>;
 
 type MentionTriggerItemBase<T = string> = {
   value: T;
-  label: string | React.ReactNode;
+  label: string | React.ReactNode; //must be all spans, is pillLabel if provided this is ignored in the pill
+  pillLabel?: string | React.ReactNode; //must be all spans
   labelMatches?: string[]; //if this is provided, we will use it to filter the items
   icon?: React.ReactNode;
   onSelect?: (d: MentionOnSelectParams) => void;
