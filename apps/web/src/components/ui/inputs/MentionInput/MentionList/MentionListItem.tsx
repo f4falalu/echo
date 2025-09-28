@@ -1,5 +1,8 @@
+import { useEffect, useRef } from 'react';
 import { Text } from '@/components/ui/typography/Text';
+import { useInViewport } from '@/hooks/useInViewport';
 import { cn } from '@/lib/utils';
+import { useMentionListRef } from './MentionList';
 import type { MentionTriggerItemExtended } from './MentionListSelector';
 
 export function MentionListItem<T = string>({
@@ -13,10 +16,14 @@ export function MentionListItem<T = string>({
   onSelectItem,
   secondaryContent,
 }: MentionTriggerItemExtended<T>) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
   return (
     <div
+      ref={containerRef}
       onClick={() => onSelectItem(value)}
       onMouseEnter={() => setSelectedItem(value)}
+      data-testid={`mention-list-item-${value}`}
       data-disabled={disabled}
       data-loading={loading}
       data-selected={isSelected}

@@ -13,7 +13,6 @@ export const MentionPill = <T extends string>({
   editor,
 }: ReactNodeViewProps<MentionTriggerItem<T>>) => {
   const { trigger, label, value, pillLabel } = node.attrs as MentionPillAttributes;
-  console.log('node', node);
   const pillStyling = editor.storage.mention.pillStylingByTrigger.get(trigger);
   const pillClassName =
     typeof pillStyling?.className === 'function'
