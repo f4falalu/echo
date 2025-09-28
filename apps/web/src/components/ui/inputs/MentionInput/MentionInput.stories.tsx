@@ -1,9 +1,11 @@
+import { faker } from '@faker-js/faker';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { testSuggestions } from '@/components/features/input/Mentions/TestSuggests';
+import { createMentionSuggestionExtension } from './createMentionSuggestionOption';
 import { MentionInput } from './MentionInput';
+import type { MentionInputTriggerItem } from './MentionInput.types';
 
 const meta = {
-  title: 'Components/UI/Inputs/MentionInput',
+  title: 'UI/Inputs/MentionInput',
   component: MentionInput,
   parameters: {
     layout: 'centered',
@@ -12,7 +14,7 @@ const meta = {
   decorators: [
     (Story) => {
       return (
-        <div className="w-full p-3 m-3">
+        <div className="w-full p-3 m-3 bg-background">
           <Story />
         </div>
       );
@@ -23,9 +25,137 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const looneyTunesCharacters: MentionInputTriggerItem[] = [
+  {
+    value: 'Bugs Bunny',
+    label: 'Bugs Bunny',
+  },
+  {
+    value: 'Daffy Duck',
+    label: 'Daffy Duck',
+  },
+  {
+    value: 'Porky Pig',
+    label: 'Porky Pig',
+  },
+  {
+    value: 'Tweety Bird',
+    label: 'Tweety Bird',
+  },
+];
+
+const theSimpsonsCharacters: MentionInputTriggerItem[] = [
+  {
+    value: 'Homer Simpson',
+    label: 'Homer Simpson',
+  },
+  {
+    value: 'Marge Simpson',
+    label: 'Marge Simpson',
+  },
+  {
+    value: 'Bart Simpson',
+    label: 'Bart Simpson',
+  },
+  {
+    value: 'Lisa Simpson',
+    label: 'Lisa Simpson',
+  },
+  {
+    value: 'Maggie Simpson',
+    label: 'Maggie Simpson',
+  },
+  {
+    value: 'Ned Flanders',
+    label: 'Ned Flanders',
+  },
+].map((item) => ({
+  ...item,
+  label: (
+    <div className="flex items-center gap-x-2">
+      <img
+        src={faker.image.url({
+          width: 20,
+          height: 20,
+        })}
+        alt={item.label}
+        className="w-4 h-4 rounded-full bg-item-active"
+      />
+      {item.label}
+    </div>
+  ),
+}));
+
+const arthurCharacters: MentionInputTriggerItem[] = [
+  {
+    value: 'Arthur Read',
+    label: 'Arthur Read',
+  },
+  {
+    value: 'Buster Baxter',
+    label: 'Buster Baxter',
+  },
+  {
+    value: 'Mr Ratburn',
+    label: 'Mr Ratburn',
+  },
+].map((item) => ({
+  ...item,
+  label: (
+    <div className="flex items-center px-3 py-2 rounded-md bg-gradient-to-r from-white to-gray-50 border border-gray-100 hover:border-gray-200 transition-colors">
+      <div className="flex flex-col">
+        <span className="font-medium text-gray-900 text-sm">{item.label}</span>
+        <span className="text-xs text-gray-500">Character</span>
+      </div>
+    </div>
+  ),
+}));
+
+export const looneyTunesSuggestions = createMentionSuggestionExtension({
+  trigger: '@',
+  items: looneyTunesCharacters,
+  popoverContent: (props) => {
+    return <div>Hello {props.value}</div>;
+  },
+  pillStyling: {
+    className: () => {
+      return 'bg-purple-100 border-purple-300 text-purple-500 hover:bg-purple-200';
+    },
+  },
+  onChangeTransform: (v) => {
+    return `[@${String(v.label)}](${String(v.value)})`;
+  },
+});
+
+const theSimpsonsSuggestions = createMentionSuggestionExtension({
+  trigger: '#',
+  items: theSimpsonsCharacters,
+  pillStyling: {
+    className: () => {
+      return 'bg-blue-100 border-blue-300 text-blue-500 hover:bg-blue-200';
+    },
+  },
+  popoverContent: (props) => {
+    return <div>Howdy {props.value}</div>;
+  },
+});
+
+const arthurSuggestions = createMentionSuggestionExtension({
+  trigger: '$',
+  items: arthurCharacters,
+  pillStyling: {
+    className: () => {
+      return 'bg-green-100 border-green-300 text-green-500 hover:bg-green-200';
+    },
+  },
+  popoverContent: (props) => {
+    return <div>Ciao {props.value}</div>;
+  },
+});
+
 export const Default: Story = {
   args: {
-    mentions: [testSuggestions()],
+    mentions: [looneyTunesSuggestions, theSimpsonsSuggestions, arthurSuggestions],
   },
   parameters: {
     docs: {

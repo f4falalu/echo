@@ -56,8 +56,8 @@ export type MentionInputTriggerItem<T = string> =
   | MentionInputTriggerSeparator;
 
 export type MentionStylePillProps = {
-  className?: string;
-  style?: React.CSSProperties;
+  className?: string | ((props: MentionPillAttributes) => string);
+  style?: React.CSSProperties | ((props: MentionPillAttributes) => React.CSSProperties);
 };
 
 //The tip tap type for a suggestion

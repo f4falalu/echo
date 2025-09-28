@@ -1,6 +1,5 @@
 import { ClientOnly } from '@tanstack/react-router';
 import Document from '@tiptap/extension-document';
-import type { MentionNodeAttrs } from '@tiptap/extension-mention';
 import Paragraph from '@tiptap/extension-paragraph';
 import Text from '@tiptap/extension-text';
 import {
