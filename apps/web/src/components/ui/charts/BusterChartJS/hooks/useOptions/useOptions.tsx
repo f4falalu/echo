@@ -141,6 +141,7 @@ export const useOptions = ({
     y2AxisScaleType,
     y2AxisStartAxisAtZero,
     columnMetadata,
+    yAxis,
   });
 
   const isHorizontalBar = useMemo(() => {
@@ -204,6 +205,7 @@ export const useOptions = ({
     const isLargeDataset = numberOfDataPoints > LINE_DECIMATION_THRESHOLD;
 
     return {
+      skipNull: true,
       indexAxis: isHorizontalBar ? 'y' : 'x',
       backgroundColor: colors,
       borderColor: colors,

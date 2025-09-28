@@ -1,4 +1,4 @@
-import { updateMessageEntries } from '@buster/database';
+import { updateMessageEntries } from '@buster/database/queries';
 import type { ToolCallOptions } from 'ai';
 import { createModifyReportsReasoningEntry } from './helpers/modify-reports-transform-helper';
 import type { ModifyReportsContext, ModifyReportsState } from './modify-reports-tool';
@@ -11,7 +11,6 @@ export function modifyReportsStart(context: ModifyReportsContext, state: ModifyR
     state.reportId = undefined;
     state.reportName = undefined;
     state.edits = [];
-    state.currentContent = undefined;
     state.finalContent = undefined;
     state.version_number = undefined;
     state.startTime = Date.now();

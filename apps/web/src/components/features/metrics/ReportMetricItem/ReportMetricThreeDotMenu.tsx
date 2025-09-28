@@ -21,11 +21,13 @@ import {
 export const ReportMetricThreeDotMenu = ({
   metricId,
   metricVersionNumber,
+  reportId,
 }: {
   metricId: string;
   metricVersionNumber: number | undefined;
+  reportId: string;
 }) => {
-  const items = useReportMetricThreeDotMenu({ metricId, metricVersionNumber });
+  const items = useReportMetricThreeDotMenu({ metricId, metricVersionNumber, reportId });
 
   return <MetricHeaderSecondaryWrapperDropdown dropdownItems={items} />;
 };
@@ -33,9 +35,11 @@ export const ReportMetricThreeDotMenu = ({
 const useReportMetricThreeDotMenu = ({
   metricId,
   metricVersionNumber,
+  reportId,
 }: {
   metricId: string;
   metricVersionNumber: number | undefined;
+  reportId: string;
 }): IDropdownItems => {
   const editor = useEditorRef();
   const element = useElement();
@@ -52,7 +56,11 @@ const useReportMetricThreeDotMenu = ({
     metricId,
     metricVersionNumber,
   });
-  const downloadCSV = useDownloadMetricDataCSV({ metricId, metricVersionNumber });
+  const downloadCSV = useDownloadMetricDataCSV({
+    metricId,
+    metricVersionNumber,
+    cacheDataId: reportId,
+  });
   const downloadPNG = useDownloadPNGSelectMenu({ metricId, metricVersionNumber });
   const renameMetric = useRenameMetricOnPage({
     metricId,

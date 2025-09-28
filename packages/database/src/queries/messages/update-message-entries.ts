@@ -3,7 +3,7 @@ import { and, eq, isNull } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
 import { messages } from '../../schema';
-import { ReasoningMessageSchema, ResponseMessageSchema } from '../../schemas/message-schemas';
+import { ReasoningMessageSchema, ResponseMessageSchema } from '../../schema-types/message-schemas';
 import { fetchMessageEntries } from './helpers/fetch-message-entries';
 import {
   mergeRawLlmMessages,
@@ -21,16 +21,25 @@ const UpdateMessageEntriesSchema = z.object({
 
 export type UpdateMessageEntriesParams = z.infer<typeof UpdateMessageEntriesSchema>;
 
+// Simple in-memory queue for each messageId
+const updateQueues = new Map<string, Promise<{ success: boolean }>>();
+
 /**
- * Updates message entries with cache-first approach for streaming.
- * Cache is the source of truth during streaming, DB is updated for persistence.
- *
- * Merge logic:
- * - responseMessages: upsert by 'id' field, maintaining order
- * - reasoningMessages: upsert by 'id' field, maintaining order
- * - rawLlmMessages: upsert by combination of 'role' and 'toolCallId', maintaining order
+ * Wait for all pending updates for a given messageId to complete.
+ * This ensures all queued updates are flushed to the database before proceeding.
  */
-export async function updateMessageEntries({
+export async function waitForPendingUpdates(messageId: string): Promise<void> {
+  const pendingQueue = updateQueues.get(messageId);
+  if (pendingQueue) {
+    await pendingQueue;
+  }
+}
+
+/**
+ * Internal function that performs the actual update logic.
+ * This is separated so it can be queued.
+ */
+async function performUpdate({
   messageId,
   rawLlmMessages,
   responseMessages,
@@ -94,4 +103,42 @@ export async function updateMessageEntries({
     console.error('Failed to update message entries:', error);
     throw new Error(`Failed to update message entries for message ${messageId}`);
   }
+}
+
+/**
+ * Updates message entries with cache-first approach for streaming.
+ * Cache is the source of truth during streaming, DB is updated for persistence.
+ *
+ * Updates are queued per messageId to ensure they execute in order.
+ *
+ * Merge logic:
+ * - responseMessages: upsert by 'id' field, maintaining order
+ * - reasoningMessages: upsert by 'id' field, maintaining order
+ * - rawLlmMessages: upsert by combination of 'role' and 'toolCallId', maintaining order
+ */
+export async function updateMessageEntries(
+  params: UpdateMessageEntriesParams
+): Promise<{ success: boolean }> {
+  const { messageId } = params;
+
+  // Get the current promise for this messageId, or use a resolved promise as the starting point
+  const currentQueue = updateQueues.get(messageId) ?? Promise.resolve({ success: true });
+
+  // Chain the new update to run after the current queue completes
+  const newQueue = currentQueue
+    .then(() => performUpdate(params))
+    .catch(() => performUpdate(params)); // Still try to run even if previous failed
+
+  // Update the queue for this messageId
+  updateQueues.set(messageId, newQueue);
+
+  // Clean up the queue entry once this update completes
+  newQueue.finally(() => {
+    // Only remove if this is still the current queue
+    if (updateQueues.get(messageId) === newQueue) {
+      updateQueues.delete(messageId);
+    }
+  });
+
+  return newQueue;
 }

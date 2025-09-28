@@ -74,14 +74,16 @@ const ModifyReportsStateSchema = z.object({
   reportId: z.string().uuid().optional(),
   reportName: z.string().optional(),
   edits: z.array(ModifyReportsEditStateSchema).optional(),
-  currentContent: z.string().optional(),
   finalContent: z.string().optional(),
   version_number: z.number().optional(),
   startTime: z.number().optional(),
   responseMessageCreated: z.boolean().optional(),
   snapshotContent: z.string().optional(),
-  workingContent: z.string().optional(),
-  reportsModifiedInMessage: z.set(z.string()).optional(),
+  lastSavedContent: z
+    .string()
+    .optional()
+    .describe('Track the last content saved to DB to avoid redundant updates'),
+  reportModifiedInMessage: z.boolean().optional(),
   snapshotVersion: z.number().optional(),
   versionHistory: z
     .record(
@@ -92,14 +94,20 @@ const ModifyReportsStateSchema = z.object({
       })
     )
     .optional(),
+  isComplete: z.boolean().optional().describe('Whether the tool execution is complete'),
 });
 
 // Export types
 export type ModifyReportsInput = z.infer<typeof ModifyReportsInputSchema>;
 export type ModifyReportsOutput = z.infer<typeof ModifyReportsOutputSchema>;
 export type ModifyReportsContext = z.infer<typeof ModifyReportsContextSchema>;
-export type ModifyReportsState = z.infer<typeof ModifyReportsStateSchema>;
 export type ModifyReportsEditState = z.infer<typeof ModifyReportsEditStateSchema>;
+
+// Extend the inferred type to include Promise fields (not supported by Zod directly)
+export type ModifyReportsState = z.infer<typeof ModifyReportsStateSchema> & {
+  lastUpdate?: Promise<void>; // Track the last write promise for sequential chaining (deprecated, use lastProcessing)
+  lastProcessing?: Promise<void>; // Track the entire processing chain for proper sequencing
+};
 
 // Factory function that accepts agent context and maps to tool context
 export function createModifyReportsTool(context: ModifyReportsContext) {
@@ -109,13 +117,12 @@ export function createModifyReportsTool(context: ModifyReportsContext) {
     reportId: undefined,
     reportName: undefined,
     edits: [],
-    currentContent: undefined,
     finalContent: undefined,
     version_number: undefined,
     toolCallId: undefined,
     responseMessageCreated: false,
     snapshotContent: undefined,
-    reportsModifiedInMessage: new Set(),
+    reportModifiedInMessage: false,
   };
 
   // Create all functions with the context and state passed

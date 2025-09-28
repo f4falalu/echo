@@ -1,4 +1,4 @@
-import { type UpdateMessageEntriesParams, updateMessageEntries } from '@buster/database';
+import { type UpdateMessageEntriesParams, updateMessageEntries } from '@buster/database/queries';
 import type { ToolCallOptions } from 'ai';
 import type { DoneToolContext, DoneToolInput, DoneToolState } from './done-tool';
 import {
@@ -19,6 +19,7 @@ export function createDoneToolFinish(context: DoneToolContext, doneToolState: Do
       messageId: context.messageId,
     };
 
+    // Only add the final text response here; by now files have been inserted via delta
     if (doneToolResponseEntry) {
       entries.responseMessages = [doneToolResponseEntry];
     }

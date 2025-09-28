@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AssetTypeSchema } from '../assets/asset-types.types';
+import { AssetTypeSchema } from '../assets';
 
 export const GetTitleRequestSchema = z.object({
   assetId: z.string().uuid(),

@@ -7,9 +7,9 @@ import type {
 } from './create-reports-tool';
 
 // Mock dependencies
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   updateMessageEntries: vi.fn().mockResolvedValue({ success: true }),
-  batchUpdateReport: vi.fn().mockResolvedValue({ success: true }),
+  updateReportWithVersion: vi.fn().mockResolvedValue(undefined),
   updateMetricsToReports: vi.fn().mockResolvedValue({ created: 0, updated: 0, deleted: 0 }),
 }));
 
@@ -34,7 +34,24 @@ vi.mock('../../../shared/create-raw-llm-tool-result-entry', () => ({
   }),
 }));
 
-import { updateMessageEntries } from '@buster/database';
+vi.mock('../../../shared/cleanup-state', () => ({
+  cleanupState: vi.fn(),
+}));
+
+vi.mock('../../file-tracking-helper', () => ({
+  trackFileAssociations: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock('../helpers/metric-extraction', () => ({
+  extractAndCacheMetricsWithUserContext: vi.fn().mockResolvedValue(undefined),
+  extractMetricIds: vi.fn().mockReturnValue([]),
+}));
+
+vi.mock('../report-snapshot-cache', () => ({
+  updateCachedSnapshot: vi.fn(),
+}));
+
+import { updateMessageEntries } from '@buster/database/queries';
 
 describe('create-reports-execute', () => {
   let context: CreateReportsContext;
@@ -55,35 +72,29 @@ describe('create-reports-execute', () => {
 
     state = {
       toolCallId: 'tool-call-123',
-      files: [],
+      file: undefined,
       startTime: Date.now(),
     };
   });
 
   describe('responseMessages creation', () => {
-    it('should add all reports to responseMessages', async () => {
+    it('should add report to responseMessages', async () => {
       // Setup state with a successful report
-      state.files = [
-        {
-          id: 'report-1',
-          file_name: 'Sales Report Q4',
-          file_type: 'report',
-          version_number: 1,
-          status: 'completed',
-        },
-      ];
+      state.file = {
+        id: 'report-1',
+        file_name: 'Sales Report Q4',
+        file_type: 'report_file',
+        version_number: 1,
+        status: 'completed',
+      };
 
       const input: CreateReportsInput = {
-        files: [
-          {
-            name: 'Sales Report Q4',
-            content: `
-              # Sales Report Q4
-              <metric metricId="24db2cc8-79b0-488f-bd45-8b5412d1bf08" />
-              Sales increased by 25%.
-            `,
-          },
-        ],
+        name: 'Sales Report Q4',
+        content: `
+          # Sales Report Q4
+          <metric metricId="24db2cc8-79b0-488f-bd45-8b5412d1bf08" />
+          Sales increased by 25%.
+        `,
       };
 
       // Mock that the report contains metrics
@@ -102,7 +113,7 @@ describe('create-reports-execute', () => {
       expect(updateCall.responseMessages?.[0]).toMatchObject({
         id: 'report-1',
         type: 'file',
-        file_type: 'report',
+        file_type: 'report_file',
         file_name: 'Sales Report Q4',
         version_number: 1,
       });
@@ -110,26 +121,20 @@ describe('create-reports-execute', () => {
 
     it('should add reports without metrics to responseMessages', async () => {
       // Setup state with a successful report
-      state.files = [
-        {
-          id: 'report-2',
-          file_name: 'Simple Report',
-          file_type: 'report',
-          version_number: 1,
-          status: 'completed',
-        },
-      ];
+      state.file = {
+        id: 'report-2',
+        file_name: 'Simple Report',
+        file_type: 'report_file',
+        version_number: 1,
+        status: 'completed',
+      };
 
       const input: CreateReportsInput = {
-        files: [
-          {
-            name: 'Simple Report',
-            content: `
-              # Simple Report
-              This report has no metrics, just text analysis.
-            `,
-          },
-        ],
+        name: 'Simple Report',
+        content: `
+          # Simple Report
+          This report has no metrics, just text analysis.
+        `,
       };
 
       const execute = createCreateReportsExecute(context, state);
@@ -146,84 +151,19 @@ describe('create-reports-execute', () => {
       expect(updateCall?.responseMessages?.[0]).toMatchObject({
         id: 'report-2',
         type: 'file',
-        file_type: 'report',
+        file_type: 'report_file',
         file_name: 'Simple Report',
         version_number: 1,
       });
     });
 
-    it('should handle multiple reports all in responseMessages', async () => {
-      // Setup state with multiple reports
-      state.files = [
-        {
-          id: 'report-1',
-          file_name: 'Report With Metrics',
-          file_type: 'report',
-          version_number: 1,
-          status: 'completed',
-        },
-        {
-          id: 'report-2',
-          file_name: 'Report Without Metrics',
-          file_type: 'report',
-          version_number: 1,
-          status: 'completed',
-        },
-        {
-          id: 'report-3',
-          file_name: 'Another Report With Metrics',
-          file_type: 'report',
-          version_number: 1,
-          status: 'completed',
-        },
-      ];
-
-      const input: CreateReportsInput = {
-        files: [
-          {
-            name: 'Report With Metrics',
-            content: '<metric metricId="uuid-1" />',
-          },
-          {
-            name: 'Report Without Metrics',
-            content: 'Just text',
-          },
-          {
-            name: 'Another Report With Metrics',
-            content: '<metric metricId="uuid-2" />',
-          },
-        ],
-      };
-
-      const execute = createCreateReportsExecute(context, state);
-      await execute(input);
-
-      // Check that all reports were added to responseMessages
-      expect(mockUpdateMessageEntries).toHaveBeenCalled();
-      // Get the last call (final entries) which should have responseMessages
-      const lastCallIndex = mockUpdateMessageEntries.mock.calls.length - 1;
-      const updateCall = mockUpdateMessageEntries.mock.calls[lastCallIndex]?.[0];
-
-      expect(updateCall?.responseMessages).toBeDefined();
-      expect(updateCall?.responseMessages).toHaveLength(3); // All 3 reports
-
-      const responseIds = updateCall?.responseMessages?.map((msg: any) => msg.id) || [];
-      expect(responseIds).toContain('report-1');
-      expect(responseIds).toContain('report-3');
-      expect(responseIds).toContain('report-2');
-    });
-
     it('should create initial entries on first execution', async () => {
-      state.initialEntriesCreated = undefined;
-      state.files = [];
+      state.initialEntriesCreated = false;
+      state.file = undefined;
 
       const input: CreateReportsInput = {
-        files: [
-          {
-            name: 'Test Report',
-            content: 'Test content',
-          },
-        ],
+        name: 'Test Report',
+        content: 'Test content',
       };
 
       const execute = createCreateReportsExecute(context, state);
@@ -244,23 +184,17 @@ describe('create-reports-execute', () => {
 
     it('should not create initial entries if already created', async () => {
       state.initialEntriesCreated = true;
-      state.files = [
-        {
-          id: 'report-1',
-          file_name: 'Test Report',
-          file_type: 'report',
-          version_number: 1,
-          status: 'completed',
-        },
-      ];
+      state.file = {
+        id: 'report-1',
+        file_name: 'Test Report',
+        file_type: 'report_file',
+        version_number: 1,
+        status: 'completed',
+      };
 
       const input: CreateReportsInput = {
-        files: [
-          {
-            name: 'Test Report',
-            content: '<metric metricId="uuid-1" />',
-          },
-        ],
+        name: 'Test Report',
+        content: '<metric metricId="uuid-1" />',
       };
 
       const execute = createCreateReportsExecute(context, state);
@@ -270,84 +204,59 @@ describe('create-reports-execute', () => {
       expect(mockUpdateMessageEntries).toHaveBeenCalledTimes(1);
     });
 
-    it('should handle reports with failed status', async () => {
-      // Simulate a scenario where one report was created during delta but another failed
-      // Report 1 has an ID (was created), Report 2 has no ID (creation failed)
-      state.files = [
-        {
-          id: 'report-1',
-          file_name: 'Success Report',
-          file_type: 'report',
-          version_number: 1,
-          status: 'completed',
-        },
-        {
-          id: '', // No ID means report creation failed during delta
-          file_name: 'Failed Report',
-          file_type: 'report',
-          version_number: 1,
-          status: 'failed',
-          error: 'Report creation failed during streaming',
-        },
-      ];
+    it('should handle report with failed status', async () => {
+      // Simulate a scenario where report creation failed during delta
+      state.file = {
+        id: '', // No ID means report creation failed during delta
+        file_name: 'Failed Report',
+        file_type: 'report_file',
+        version_number: 1,
+        status: 'failed',
+        error: 'Report creation failed during streaming',
+      };
 
       const input: CreateReportsInput = {
-        files: [
-          {
-            name: 'Success Report',
-            content: '<metric metricId="uuid-1" />',
-          },
-          {
-            name: 'Failed Report',
-            content: '<metric metricId="uuid-2" />',
-          },
-        ],
+        name: 'Failed Report',
+        content: '<metric metricId="uuid-2" />',
       };
 
       const execute = createCreateReportsExecute(context, state);
       const result = await execute(input);
 
-      // Result should show one success and one failure
-      // Report 1 succeeds because it has an ID, Report 2 fails because it has no ID
-      expect(result.files).toHaveLength(1);
-      expect(result.failed_files).toHaveLength(1);
+      // Result should show failure
+      expect(result.file).toBeUndefined();
+      expect(result.error).toBeDefined();
+      expect(result.error).toContain('Report creation failed during streaming');
 
-      // Only the successful report should be in responseMessages
-      // Get the last call (final entries) which should have responseMessages
+      // No responseMessages should be created for failed report
+      // Get the last call (final entries)
       const lastCallIndex = mockUpdateMessageEntries.mock.calls.length - 1;
       const updateCall = mockUpdateMessageEntries.mock.calls[lastCallIndex]?.[0];
-      expect(updateCall?.responseMessages).toHaveLength(1);
-      expect(updateCall?.responseMessages?.[0]?.id).toBe('report-1');
+      expect(updateCall?.responseMessages).toBeUndefined();
     });
 
     it('should handle missing messageId in context', async () => {
       // Remove messageId from context
       context.messageId = undefined;
 
-      state.files = [
-        {
-          id: 'report-1',
-          file_name: 'Test Report',
-          file_type: 'report',
-          version_number: 1,
-          status: 'completed',
-        },
-      ];
+      state.file = {
+        id: 'report-1',
+        file_name: 'Test Report',
+        file_type: 'report_file',
+        version_number: 1,
+        status: 'completed',
+      };
 
       const input: CreateReportsInput = {
-        files: [
-          {
-            name: 'Test Report',
-            content: '<metric metricId="uuid-1" />',
-          },
-        ],
+        name: 'Test Report',
+        content: '<metric metricId="uuid-1" />',
       };
 
       const execute = createCreateReportsExecute(context, state);
       const result = await execute(input);
 
       // Should complete successfully but not call updateMessageEntries
-      expect(result.files).toHaveLength(1);
+      expect(result.file).toBeDefined();
       expect(mockUpdateMessageEntries).not.toHaveBeenCalled();
     });
   });

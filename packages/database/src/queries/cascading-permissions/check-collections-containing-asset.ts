@@ -1,34 +1,32 @@
 import { and, eq, isNull } from 'drizzle-orm';
 import { db } from '../../connection';
 import { collections, collectionsToAssets } from '../../schema';
-import type { AssetType } from '../../schema-types';
+import type { AssetType, WorkspaceSharing } from '../../schema-types';
+
+export interface CollectionWithSharing {
+  id: string;
+  organizationId: string;
+  workspaceSharing: WorkspaceSharing | null;
+}
 
 export async function checkCollectionsContainingAsset(
   assetId: string,
-  assetType: 'metric' | 'dashboard' | 'chat'
-): Promise<{ id: string }[]> {
-  // Map our asset type strings to the enum values expected by the database
-  const assetTypeMap: Record<string, AssetType> = {
-    metric: 'metric_file',
-    dashboard: 'dashboard_file',
-    chat: 'chat',
-  };
-
-  const dbAssetType = assetTypeMap[assetType];
-  if (!dbAssetType) {
-    throw new Error(`Invalid asset type: ${assetType}`);
-  }
+  assetType: Extract<AssetType, 'metric_file' | 'dashboard_file' | 'chat' | 'report_file'>
+): Promise<CollectionWithSharing[]> {
+  // The asset type parameter already matches the AssetType enum values
 
   const result = await db
     .select({
       id: collections.id,
+      organizationId: collections.organizationId,
+      workspaceSharing: collections.workspaceSharing,
     })
     .from(collectionsToAssets)
     .innerJoin(collections, eq(collections.id, collectionsToAssets.collectionId))
     .where(
       and(
         eq(collectionsToAssets.assetId, assetId),
-        eq(collectionsToAssets.assetType, dbAssetType),
+        eq(collectionsToAssets.assetType, assetType),
         isNull(collectionsToAssets.deletedAt),
         isNull(collections.deletedAt)
       )

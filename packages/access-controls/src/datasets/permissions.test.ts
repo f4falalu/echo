@@ -7,7 +7,7 @@ import {
 } from './permissions';
 
 // Mock database queries
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   getPermissionedDatasets: vi.fn(),
   hasDatasetAccess: vi.fn(),
   hasAllDatasetsAccess: vi.fn(),
@@ -33,7 +33,7 @@ describe('Dataset Permissions', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
 
-    const db = await import('@buster/database');
+    const db = await import('@buster/database/queries');
     mockGetPermissionedDatasets = vi.mocked(db.getPermissionedDatasets);
     mockHasDatasetAccess = vi.mocked(db.hasDatasetAccess);
     mockHasAllDatasetsAccess = vi.mocked(db.hasAllDatasetsAccess);

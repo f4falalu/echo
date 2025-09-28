@@ -1,4 +1,4 @@
-import { getApiKeyOrganization, validateApiKey } from '@buster/database';
+import { getApiKeyOrganization, validateApiKey } from '@buster/database/queries';
 import { type ApiKeyContext, PublicChatError, PublicChatErrorCode } from '@buster/server-shared';
 import type { Context, Next } from 'hono';
 

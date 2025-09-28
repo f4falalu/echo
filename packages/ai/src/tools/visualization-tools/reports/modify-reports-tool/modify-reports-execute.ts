@@ -1,13 +1,15 @@
+import { db } from '@buster/database/connection';
 import {
-  batchUpdateReport,
-  db,
-  reportFiles,
   updateMessageEntries,
   updateMetricsToReports,
-} from '@buster/database';
+  waitForPendingReportUpdates,
+} from '@buster/database/queries';
+import { updateReportWithVersion } from '@buster/database/queries';
+import { reportFiles } from '@buster/database/schema';
 import type { ChatMessageResponseMessage } from '@buster/server-shared/chats';
 import { wrapTraced } from 'braintrust';
 import { and, eq, isNull } from 'drizzle-orm';
+import { cleanupState } from '../../../shared/cleanup-state';
 import { createRawToolResultEntry } from '../../../shared/create-raw-llm-tool-result-entry';
 import { trackFileAssociations } from '../../file-tracking-helper';
 import {
@@ -15,7 +17,7 @@ import {
   extractMetricIds,
 } from '../helpers/metric-extraction';
 import { shouldIncrementVersion, updateVersionHistory } from '../helpers/report-version-helper';
-import { updateCachedSnapshot } from '../report-snapshot-cache';
+import { getCachedSnapshot, updateCachedSnapshot } from '../report-snapshot-cache';
 import {
   createModifyReportsRawLlmMessageEntry,
   createModifyReportsReasoningEntry,
@@ -82,7 +84,8 @@ async function processEditOperations(
   edits: Array<{ operation?: 'replace' | 'append'; code_to_replace: string; code: string }>,
   messageId?: string,
   snapshotContent?: string,
-  versionHistory?: VersionHistory
+  versionHistory?: VersionHistory,
+  state?: ModifyReportsState
 ): Promise<{
   success: boolean;
   finalContent?: string;
@@ -101,33 +104,44 @@ async function processEditOperations(
     baseContent = snapshotContent;
     baseVersionHistory = versionHistory || null;
   } else {
-    // Fallback: Get current report content and version history from DB
-    const existingReport = await db
-      .select({
-        content: reportFiles.content,
-        versionHistory: reportFiles.versionHistory,
-      })
-      .from(reportFiles)
-      .where(and(eq(reportFiles.id, reportId), isNull(reportFiles.deletedAt)))
-      .limit(1);
+    // Check cache first (write-through cache from delta)
+    const cached = getCachedSnapshot(reportId);
 
-    if (!existingReport.length) {
-      return {
-        success: false,
-        errors: ['Report not found'],
-      };
+    if (cached) {
+      console.info('[modify-reports-execute] Using cached snapshot', {
+        reportId,
+      });
+      baseContent = cached.content;
+      baseVersionHistory = cached.versionHistory as VersionHistory | null;
+    } else {
+      // Fallback: Get current report content and version history from DB
+      const existingReport = await db
+        .select({
+          content: reportFiles.content,
+          versionHistory: reportFiles.versionHistory,
+        })
+        .from(reportFiles)
+        .where(and(eq(reportFiles.id, reportId), isNull(reportFiles.deletedAt)))
+        .limit(1);
+
+      if (!existingReport.length) {
+        return {
+          success: false,
+          errors: ['Report not found'],
+        };
+      }
+
+      const report = existingReport[0];
+      if (!report) {
+        return {
+          success: false,
+          errors: ['Report not found'],
+        };
+      }
+
+      baseContent = report.content;
+      baseVersionHistory = report.versionHistory as VersionHistory | null;
     }
-
-    const report = existingReport[0];
-    if (!report) {
-      return {
-        success: false,
-        errors: ['Report not found'],
-      };
-    }
-
-    baseContent = report.content;
-    baseVersionHistory = report.versionHistory as VersionHistory | null;
   }
 
   let currentContent = baseContent;
@@ -168,12 +182,32 @@ async function processEditOperations(
 
   // Write all changes to database in one operation
   try {
-    await batchUpdateReport({
+    // Wait for the last delta processing to complete before doing final update
+    if (state?.lastProcessing) {
+      console.info('[modify-reports-execute] Waiting for last delta processing to complete');
+      try {
+        // Wait for the last processing in the chain to complete
+        await state.lastProcessing;
+        console.info(
+          '[modify-reports-execute] Last delta processing completed, proceeding with final update'
+        );
+      } catch (error) {
+        console.warn(
+          '[modify-reports-execute] Error waiting for last delta processing, proceeding with final update:',
+          error
+        );
+      }
+    }
+
+    await updateReportWithVersion({
       reportId,
       content: currentContent,
       name: reportName,
       versionHistory: newVersionHistory,
     });
+
+    // Wait for the database update to fully complete in the queue
+    await waitForPendingReportUpdates(reportId);
 
     // Update cache with the modified content for future operations
     updateCachedSnapshot(reportId, currentContent, newVersionHistory);
@@ -185,18 +219,22 @@ async function processEditOperations(
       metricIds,
     });
 
-    await updateMetricsToReports({
-      reportId,
-      metricIds,
-    });
+    if (metricIds.length > 0) {
+      await updateMetricsToReports({
+        reportId,
+        metricIds,
+      });
+    }
 
     if (messageId) {
       await trackFileAssociations({
         messageId,
-        files: {
-          id: reportId,
-          version: newVersionNumber,
-        },
+        files: [
+          {
+            id: reportId,
+            version: newVersionNumber,
+          },
+        ],
       });
     }
 
@@ -229,7 +267,8 @@ const modifyReportsFile = wrapTraced(
     params: ModifyReportsInput,
     context: ModifyReportsContext,
     snapshotContent?: string,
-    versionHistory?: VersionHistory
+    versionHistory?: VersionHistory,
+    state?: ModifyReportsState
   ): Promise<ModifyReportsOutput> => {
     // Get context values
     const userId = context.userId;
@@ -289,7 +328,8 @@ const modifyReportsFile = wrapTraced(
       params.edits,
       messageId,
       snapshotContent, // Pass immutable snapshot
-      versionHistory // Pass snapshot version history
+      versionHistory, // Pass snapshot version history
+      state // Pass state to access lastUpdate
     );
 
     // Track file associations if this is a new version (not part of same turn)
@@ -374,12 +414,14 @@ export function createModifyReportsExecute(
 
       try {
         // Always process using the complete input as source of truth
+        // Execute should be the final authority, not delta
         console.info('[modify-reports] Processing modifications from complete input');
         const result = await modifyReportsFile(
           input,
           context,
           state.snapshotContent, // Pass immutable snapshot from state
-          state.versionHistory // Pass snapshot version history from state
+          state.versionHistory, // Pass snapshot version history from state
+          state // Pass state to access lastUpdate
         );
 
         if (!result) {
@@ -410,13 +452,13 @@ export function createModifyReportsExecute(
             // Create response message for modified report
             const responseMessages: ChatMessageResponseMessage[] = [];
 
-            // Add to response messages if modification was successful
-            // AND we haven't already created a response message during delta streaming
-            if (success && finalContent && !state.responseMessageCreated) {
+            // Always create/update response message with final content from execute
+            // Execute is the source of truth, even if delta created one already
+            if (success && finalContent) {
               responseMessages.push({
                 id: input.id,
                 type: 'file' as const,
-                file_type: 'report' as const,
+                file_type: 'report_file' as const,
                 file_name: input.name,
                 version_number: versionNumber,
                 filter_version_id: null,
@@ -495,6 +537,7 @@ export function createModifyReportsExecute(
         });
 
         // Return the result directly
+        cleanupState(state);
         return result;
       } catch (error) {
         const executionTime = Date.now() - startTime;
@@ -534,7 +577,7 @@ export function createModifyReportsExecute(
               file: {
                 id: state.reportId || input.id || '',
                 name: state.reportName || input.name || 'Untitled Report',
-                content: state.finalContent || state.currentContent || '',
+                content: state.finalContent || '',
                 version_number: state.version_number || 0,
                 updated_at: new Date().toISOString(),
               },
@@ -570,17 +613,19 @@ export function createModifyReportsExecute(
         // Only throw for critical errors (auth, database connection)
         // For other errors, return them in the response
         if (isAuthError || isDatabaseError) {
+          cleanupState(state);
           throw error;
         }
 
         // Return error information to the agent
+        cleanupState(state);
         return {
           success: false,
           message: `Failed to modify report: ${errorMessage}`,
           file: {
             id: input.id || '',
             name: input.name || 'Unknown',
-            content: state.finalContent || state.currentContent || '',
+            content: state.finalContent || '',
             version_number: state.version_number || 0,
             updated_at: new Date().toISOString(),
           },

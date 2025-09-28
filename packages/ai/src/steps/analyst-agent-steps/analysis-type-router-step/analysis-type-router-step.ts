@@ -1,21 +1,23 @@
-import { messageAnalysisModeEnum } from '@buster/database';
+import { MessageAnalysisModeSchema } from '@buster/database/schema-types';
 import { generateObject } from 'ai';
 import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { GPT5Mini } from '../../../llm/gpt-5-mini';
 import { DEFAULT_OPENAI_OPTIONS } from '../../../llm/providers/gateway';
+import { AnalysisModeSchema } from '../../../types/analysis-mode.types';
+import { isOverloadedError } from '../../../utils/with-agent-retry';
 import { formatAnalysisTypeRouterPrompt } from './format-analysis-type-router-prompt';
 
 // Zod schemas first - following Zod-first approach
 export const analysisTypeRouterParamsSchema = z.object({
   messages: z.array(z.custom<ModelMessage>()).describe('The conversation history'),
-  messageAnalysisMode: z.enum(messageAnalysisModeEnum.enumValues).optional(),
+  messageAnalysisMode: MessageAnalysisModeSchema.optional(),
 });
 
 export const analysisTypeRouterResultSchema = z.object({
-  analysisType: z.enum(['standard', 'investigation']).describe('The chosen analysis type'),
-  reasoning: z.string().describe('Explanation for why this analysis type was chosen'),
+  analysisMode: AnalysisModeSchema.describe('The chosen analysis mode'),
+  reasoning: z.string().describe('Explanation for why this analysis mode was chosen'),
 });
 
 // Export types from schemas
@@ -83,6 +85,12 @@ async function generateAnalysisTypeWithLLM(messages: ModelMessage[]): Promise<{
       reasoning: result.reasoning,
     };
   } catch (llmError) {
+    // Re-throw overloaded errors so they can be retried
+    if (isOverloadedError(llmError)) {
+      console.info('[AnalysisTypeRouter] Overloaded error detected, re-throwing for retry');
+      throw llmError;
+    }
+
     console.warn('[AnalysisTypeRouter] LLM failed to generate valid response:', {
       error: llmError instanceof Error ? llmError.message : 'Unknown error',
       errorType: llmError instanceof Error ? llmError.name : 'Unknown',
@@ -107,7 +115,7 @@ export async function runAnalysisTypeRouterStep(
       );
 
       return {
-        analysisType: params.messageAnalysisMode,
+        analysisMode: params.messageAnalysisMode,
         reasoning: 'Using the message analysis mode provided',
       };
     }
@@ -120,14 +128,14 @@ export async function runAnalysisTypeRouterStep(
     });
 
     return {
-      analysisType: result.choice,
+      analysisMode: result.choice,
       reasoning: result.reasoning,
     };
   } catch (error) {
     console.error('[analysis-type-router-step] Unexpected error:', error);
     // Default to standard analysis on error
     return {
-      analysisType: 'standard',
+      analysisMode: 'standard',
       reasoning: 'Defaulting to standard analysis due to routing error',
     };
   }

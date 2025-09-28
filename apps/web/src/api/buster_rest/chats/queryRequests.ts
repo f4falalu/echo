@@ -12,6 +12,7 @@ import type { BusterChatMessage } from '@/api/asset_interfaces/chat';
 import type { IBusterChat } from '@/api/asset_interfaces/chat/iChatInterfaces';
 import { chatQueryKeys } from '@/api/query_keys/chat';
 import { collectionQueryKeys } from '@/api/query_keys/collection';
+import { silenceAssetErrors } from '@/api/response-helpers/silenece-asset-errors';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { updateChatToIChat } from '@/lib/chat';
@@ -26,7 +27,6 @@ import {
   deleteChat,
   duplicateChat,
   getChat,
-  getListChats,
   getListLogs,
   shareChat,
   unshareChat,
@@ -34,12 +34,13 @@ import {
   updateChatMessageFeedback,
   updateChatShare,
 } from './requests';
+import { getListChats } from './requestsV2';
 
 export const useGetListChats = (
-  filters?: Omit<Parameters<typeof getListChats>[0], 'page_token' | 'page_size'>
+  filters?: Omit<Parameters<typeof getListChats>[0], 'page' | 'page_size'>
 ) => {
   const filtersCompiled: Parameters<typeof getListChats>[0] = useMemo(
-    () => ({ admin_view: false, page_token: 0, page_size: 5000, ...filters }),
+    () => ({ admin_view: false, page: 1, page_size: 5000, ...filters }),
     [filters]
   );
 
@@ -99,7 +100,7 @@ const getChatQueryFn = (params: Parameters<typeof getChat>[0], queryClient: Quer
     const lastMessage = iChatMessages[lastMessageId];
     if (lastMessage) {
       for (const responseMessage of Object.values(lastMessage.response_messages)) {
-        if (responseMessage.type === 'file' && responseMessage.file_type === 'metric') {
+        if (responseMessage.type === 'file' && responseMessage.file_type === 'metric_file') {
           prefetchGetMetricDataClient(
             { id: responseMessage.id, version_number: responseMessage.version_number },
             queryClient
@@ -146,6 +147,7 @@ export const prefetchGetChat = async (
     await queryClient.prefetchQuery({
       ...query,
       queryFn: () => getChatQueryFn(params, queryClient),
+      retry: silenceAssetErrors,
     });
   }
   return existingData || queryClient.getQueryData(query.queryKey);
@@ -410,6 +412,7 @@ export const useUpdateChatShare = () => {
       const queryKey = chatQueryKeys.chatsGetChat(variables.id).queryKey;
       queryClient.setQueryData(queryKey, (previousData: IBusterChat | undefined) => {
         if (!previousData) return previousData;
+
         return create(previousData, (draft: IBusterChat) => {
           draft.individual_permissions = (
             draft.individual_permissions?.map((t) => {
@@ -427,6 +430,9 @@ export const useUpdateChatShare = () => {
           }
           if (variables.params.public_expiry_date !== undefined) {
             draft.public_expiry_date = variables.params.public_expiry_date;
+          }
+          if (variables.params.workspace_sharing !== undefined) {
+            draft.workspace_sharing = variables.params.workspace_sharing;
           }
         });
       });

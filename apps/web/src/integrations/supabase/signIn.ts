@@ -35,9 +35,6 @@ const handleOAuthSignIn = async (
     },
   });
 
-  console.log('data-signInWithOAuth', data);
-  console.log('url-signInWithOAuth', data.url);
-
   if (error) {
     console.error('error-signInWithOAuth', error);
     return { success: false, error: error.message };

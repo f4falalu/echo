@@ -35,8 +35,8 @@ export const mockBusterChatMessage: BusterChatMessage = {
         {
           title: 'Found Files',
           pills: [
-            { text: 'File 1', type: 'metric', id: 'file-1' },
-            { text: 'File 2', type: 'dashboard', id: 'file-2' },
+            { text: 'File 1', type: 'metric_file', id: 'file-1' },
+            { text: 'File 2', type: 'dashboard_file', id: 'file-2' },
             { text: 'File 3', type: 'collection', id: 'file-3' },
           ],
         },
@@ -52,7 +52,7 @@ export const mockBusterChatMessage: BusterChatMessage = {
       files: {
         'file-1': {
           id: 'file-1',
-          file_type: 'metric',
+          file_type: 'metric_file',
           file_name: 'test.ts',
           version_number: 1,
           status: 'completed',
@@ -82,7 +82,7 @@ bilbo_baggins:
         },
         'file-2': {
           id: 'file-2',
-          file_type: 'dashboard',
+          file_type: 'dashboard_file',
           file_name: 'example.js',
           version_number: 1,
           status: 'loading',

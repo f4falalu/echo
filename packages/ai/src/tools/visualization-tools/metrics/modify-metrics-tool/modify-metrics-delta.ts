@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { updateMessageEntries } from '@buster/database';
+import { updateMessageEntries } from '@buster/database/queries';
 import type { ToolCallOptions } from 'ai';
 import {
   OptimisticJsonParser,
@@ -62,7 +62,7 @@ export function createModifyMetricsDelta(context: ModifyMetricsContext, state: M
             updatedFiles.push({
               id: id,
               file_name: existingFile?.file_name,
-              file_type: 'metric',
+              file_type: 'metric_file',
               version_number: existingFile?.version_number || 1,
               file: ymlContent
                 ? {

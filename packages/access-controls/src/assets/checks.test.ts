@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { checkPermission, computeEffectivePermission, hasAnyAccess } from './checks';
+import { checkPermission, computeEffectivePermission } from './checks';
 import type { AssetPermissionResult } from './checks';
 
 // Mock database queries
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   checkAssetPermission: vi.fn(),
   getUserOrganizationsByUserId: vi.fn(),
 }));
@@ -29,7 +29,7 @@ describe('Asset Permission Checks', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
 
-    const db = await import('@buster/database');
+    const db = await import('@buster/database/queries');
     mockCheckAssetPermission = vi.mocked(db.checkAssetPermission);
     mockGetUserOrganizationsByUserId = vi.mocked(db.getUserOrganizationsByUserId);
 
@@ -45,7 +45,7 @@ describe('Asset Permission Checks', () => {
     const defaultCheck = {
       userId: 'user123',
       assetId: 'asset123',
-      assetType: 'dashboard' as const,
+      assetType: 'dashboard_file' as const,
       requiredRole: 'can_view' as const,
     };
 
@@ -204,7 +204,7 @@ describe('Asset Permission Checks', () => {
       expect(mockSetCachedPermission).toHaveBeenCalledWith(
         'user123',
         'asset123',
-        'dashboard',
+        'dashboard_file',
         'can_view',
         { hasAccess: false }
       );
@@ -212,7 +212,7 @@ describe('Asset Permission Checks', () => {
   });
 
   describe('computeEffectivePermission', () => {
-    const mockOrgs = [{ id: 'org123', role: 'viewer' }];
+    const mockOrgs = [{ id: 'org123', role: 'viewer' as const }];
 
     it('should return owner for workspace_admin', () => {
       const result = computeEffectivePermission(null, 'none', 'org123', [
@@ -257,35 +257,6 @@ describe('Asset Permission Checks', () => {
       );
 
       expect(result).toBe(null);
-    });
-  });
-
-  describe('hasAnyAccess', () => {
-    it('should check for minimum can_view permission', async () => {
-      mockGetUserOrganizationsByUserId.mockResolvedValue([]);
-      mockCheckAssetPermission.mockResolvedValue({
-        hasAccess: true,
-        role: 'can_view',
-        accessPath: 'direct',
-      });
-
-      const result = await hasAnyAccess('user123', 'asset123', 'dashboard');
-
-      expect(result).toBe(true);
-      expect(mockCheckAssetPermission).toHaveBeenCalled();
-    });
-
-    it('should return false if no access', async () => {
-      mockGetCachedPermission.mockReturnValue(undefined);
-      mockGetUserOrganizationsByUserId.mockResolvedValue([]);
-      mockCheckAssetPermission.mockResolvedValue({
-        hasAccess: false,
-      });
-      mockCheckCascadingPermissions.mockResolvedValue(false);
-
-      const result = await hasAnyAccess('user123', 'asset123', 'dashboard');
-
-      expect(result).toBe(false);
     });
   });
 });

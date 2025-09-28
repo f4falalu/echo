@@ -1,5 +1,5 @@
-import { getOrganization, updateOrganization } from '@buster/database';
-import type { User } from '@buster/database';
+import { getOrganization, updateOrganization } from '@buster/database/queries';
+import type { User } from '@buster/database/queries';
 import type {
   UpdateOrganizationRequest,
   UpdateOrganizationResponse,

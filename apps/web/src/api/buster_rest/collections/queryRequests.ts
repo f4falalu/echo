@@ -10,7 +10,7 @@ import { create } from 'mutative';
 import { useMemo } from 'react';
 import type { BusterCollection } from '@/api/asset_interfaces/collection';
 import { collectionQueryKeys } from '@/api/query_keys/collection';
-import { getProtectedAssetPassword } from '@/context/BusterAssets/useProtectedAssetStore';
+import { useProtectedAssetPassword } from '@/context/BusterAssets/useProtectedAssetStore';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { isQueryStale } from '@/lib/query';
 import type { RustApiError } from '../../errors';
@@ -65,27 +65,35 @@ export const prefetchGetCollectionsList = async (
   return queryClient;
 };
 
-const useFetchCollection = () => {
-  return async (collectionId: string) => {
-    const password = getProtectedAssetPassword(collectionId);
-    return collectionsGetCollection({ id: collectionId, password });
-  };
-};
-
 export const useGetCollection = <T = BusterCollection>(
   collectionId: string | undefined,
   params?: Omit<UseQueryOptions<BusterCollection, RustApiError, T>, 'queryKey' | 'queryFn'>
 ) => {
-  const fetchCollection = useFetchCollection();
+  const password = useProtectedAssetPassword(collectionId || '');
   return useQuery({
     ...collectionQueryKeys.collectionsGetCollection(collectionId || ''),
     queryFn: () => {
-      return fetchCollection(collectionId || '');
+      return collectionsGetCollection({ id: collectionId || '', password });
     },
     enabled: !!collectionId,
     select: params?.select,
     ...params,
   });
+};
+
+export const prefetchGetCollection = async (
+  queryClient: QueryClient,
+  params: Parameters<typeof collectionsGetCollection>[0]
+) => {
+  const options = collectionQueryKeys.collectionsGetCollection(params.id);
+  const existingData = queryClient.getQueryData(options.queryKey);
+  if (!existingData && params.id) {
+    await queryClient.prefetchQuery({
+      ...options,
+      queryFn: () => collectionsGetCollection(params),
+    });
+  }
+  return existingData || queryClient.getQueryData(options.queryKey);
 };
 
 export const useCreateCollection = () => {
@@ -303,14 +311,13 @@ export const useRemoveAssetFromCollection = (useInvalidate = true) => {
 
 export const useAddAndRemoveAssetsFromCollection = () => {
   const queryClient = useQueryClient();
-  const fetchCollection = useFetchCollection();
   const { mutateAsync: addAssetToCollection } = useAddAssetToCollection(false);
   const { mutateAsync: removeAssetFromCollection } = useRemoveAssetFromCollection(false);
 
   const addAndRemoveAssetsToCollection = async (variables: {
     collectionId: string;
     assets: {
-      type: Exclude<ShareAssetType, 'collection'>;
+      type: ShareAssetType;
       id: string;
     }[];
   }) => {
@@ -318,7 +325,9 @@ export const useAddAndRemoveAssetsFromCollection = () => {
       collectionQueryKeys.collectionsGetCollection(variables.collectionId).queryKey
     );
     if (!currentCollection) {
-      currentCollection = await fetchCollection(variables.collectionId);
+      currentCollection = await prefetchGetCollection(queryClient, {
+        id: variables.collectionId,
+      });
       queryClient.setQueryData(
         collectionQueryKeys.collectionsGetCollection(variables.collectionId).queryKey,
         currentCollection

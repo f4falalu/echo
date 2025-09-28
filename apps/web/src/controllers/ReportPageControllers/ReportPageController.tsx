@@ -7,8 +7,8 @@ import DynamicReportEditor from '@/components/ui/report/DynamicReportEditor';
 import type { IReportEditor } from '@/components/ui/report/ReportEditor';
 import { ReportEditorSkeleton } from '@/components/ui/report/ReportEditorSkeleton';
 import type { BusterReportEditor } from '@/components/ui/report/types';
+import { useGetScrollAreaRef } from '@/components/ui/scroll-area/useGetScrollAreaRef';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
-import { useMount } from '@/hooks/useMount';
 import { useEditorContext } from '@/layouts/AssetContainer/ReportAssetContainer';
 import { cn } from '@/lib/utils';
 import { chatQueryKeys } from '../../api/query_keys/chat';
@@ -44,7 +44,7 @@ export const ReportPageController: React.FC<{
       // Check if the current report ID matches any file being generated
       const responseMessages = Object.values(currentMessage.response_messages || {});
       return responseMessages.some(
-        (msg) => msg.type === 'file' && msg.file_type === 'report' && msg.id === reportId
+        (msg) => msg.type === 'file' && msg.file_type === 'report_file' && msg.id === reportId
       );
     }, [currentMessage, isStreamingMessage, messageId, reportId]);
 
@@ -82,26 +82,18 @@ export const ReportPageController: React.FC<{
 
     useTrackAndUpdateReportChanges({ reportId, subscribe: isStreamingMessage });
 
-    const containerRef = useRef<HTMLDivElement>(null);
-    const controllerRef = useRef<HTMLDivElement>(null);
-
-    useMount(() => {
-      const matchClass = 'scroll-area-viewport';
-      const closestMatch = controllerRef.current?.closest(`.${matchClass}`);
-
-      if (closestMatch) {
-        containerRef.current = closestMatch as HTMLDivElement;
-      }
-    });
+    const nodeRef = useRef<HTMLDivElement>(null);
+    const { scrollAreaRef } = useGetScrollAreaRef({ nodeRef });
 
     return (
       <div
         id="report-page-controller"
-        ref={controllerRef}
+        ref={nodeRef}
         className={cn('relative h-full space-y-1.5 overflow-hidden', className)}
       >
         {report ? (
           <DynamicReportEditor
+            key={reportId}
             value={content}
             placeholder="Start typing..."
             className={commonClassName}
@@ -113,7 +105,7 @@ export const ReportPageController: React.FC<{
             mode={mode}
             onReady={onReady}
             isStreaming={isStreamingMessage}
-            containerRef={containerRef}
+            scrollAreaRef={scrollAreaRef}
             preEditorChildren={
               <ReportPageHeader
                 name={report?.name}

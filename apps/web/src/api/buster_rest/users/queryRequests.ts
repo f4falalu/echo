@@ -9,6 +9,7 @@ import {
 import { organizationQueryKeys } from '@/api/query_keys/organization';
 import { userQueryKeys } from '@/api/query_keys/users';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { timeout } from '@/lib/timeout';
 import type { RustApiError } from '../../errors';
 import { useCreateOrganization } from '../organizations/queryRequests';
 import {
@@ -25,14 +26,13 @@ export const useGetMyUserInfo = <TData = UserResponse>(
   return useQuery({
     ...userQueryKeys.userGetUserMyself,
     queryFn: getMyUserInfo,
-    enabled: false, //This is a server only query,
     select: props?.select,
     ...props,
   });
 };
 
 export const prefetchGetMyUserInfo = async (queryClient: QueryClient) => {
-  await queryClient.ensureQueryData({
+  await queryClient.prefetchQuery({
     ...userQueryKeys.userGetUserMyself,
     queryFn: () => getMyUserInfo(),
   });
@@ -101,12 +101,12 @@ export const useInviteUser = () => {
 };
 
 export const useCreateUserOrganization = () => {
-  const { data: userResponse, refetch: refetchUserResponse } = useGetMyUserInfo({});
+  const { data: userResponse, refetch: refetchUserResponse } = useGetMyUserInfo();
   const { mutateAsync: createOrganization } = useCreateOrganization();
   const { mutateAsync: updateUserInfo } = useUpdateUser();
 
-  const onCreateUserOrganization = useMemoizedFn(
-    async ({ name, company }: { name: string; company: string }) => {
+  return useMutation({
+    mutationFn: async ({ name, company }: { name: string; company: string }) => {
       const alreadyHasOrganization = !!userResponse?.organizations?.[0];
       if (!alreadyHasOrganization) await createOrganization({ name: company });
       if (userResponse) {
@@ -114,13 +114,10 @@ export const useCreateUserOrganization = () => {
           userId: userResponse.user.id,
           name,
         });
-        await refetchUserResponse();
       }
-      await refetchUserResponse();
-    }
-  );
-
-  return onCreateUserOrganization;
+      await Promise.all([timeout(450), refetchUserResponse()]);
+    },
+  });
 };
 
 export const useGetSuggestedPrompts = (params: Parameters<typeof getSuggestedPrompts>[0]) => {

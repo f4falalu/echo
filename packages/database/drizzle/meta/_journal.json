@@ -675,13 +675,6 @@
       "breakpoints": true
     },
     {
-      "idx": 96,
-      "version": "7",
-      "when": 1757697778519,
-      "tag": "0096_chubby_agent_zero",
-      "breakpoints": true
-    },
-    {
       "idx": 97,
       "version": "7",
       "when": 1757702231051,
@@ -714,6 +707,69 @@
       "version": "7",
       "when": 1757975000317,
       "tag": "0101_superb_norman_osborn",
+      "breakpoints": true
+    },
+    {
+      "idx": 102,
+      "version": "7",
+      "when": 1758044404631,
+      "tag": "0102_unusual_moon_knight",
+      "breakpoints": true
+    },
+    {
+      "idx": 103,
+      "version": "7",
+      "when": 1758134310925,
+      "tag": "0103_colossal_stellaris",
+      "breakpoints": true
+    },
+    {
+      "idx": 104,
+      "version": "7",
+      "when": 1758141670999,
+      "tag": "0104_organic_zuras",
+      "breakpoints": true
+    },
+    {
+      "idx": 105,
+      "version": "7",
+      "when": 1758208025186,
+      "tag": "0105_flimsy_drax",
+      "breakpoints": true
+    },
+    {
+      "idx": 106,
+      "version": "7",
+      "when": 1758209931606,
+      "tag": "0106_heavy_lady_ursula",
+      "breakpoints": true
+    },
+    {
+      "idx": 107,
+      "version": "7",
+      "when": 1758309016682,
+      "tag": "0107_deprecate_tables",
+      "breakpoints": true
+    },
+    {
+      "idx": 108,
+      "version": "7",
+      "when": 1758568913678,
+      "tag": "0108_amazing_cassandra_nova",
+      "breakpoints": true
+    },
+    {
+      "idx": 109,
+      "version": "7",
+      "when": 1758572594466,
+      "tag": "0109_icy_supernaut",
+      "breakpoints": true
+    },
+    {
+      "idx": 110,
+      "version": "7",
+      "when": 1758658933810,
+      "tag": "0110_third_ozymandias",
       "breakpoints": true
     }
   ]

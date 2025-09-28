@@ -6,6 +6,7 @@ import { useMemo, useRef } from 'react';
 import { useGetChatMemoized, useGetChatMessageMemoized } from '@/api/buster_rest/chats';
 import { reportsQueryKeys } from '@/api/query_keys/reports';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { useUnmount } from '@/hooks/useUnmount';
 import type { BusterChatMessage } from '../../asset_interfaces/chat';
 import { useChatUpdate } from '../../buster_rest/chats/useChatUpdate';
 import { chatQueryKeys } from '../../query_keys/chat';
@@ -32,6 +33,7 @@ export const useTrackAndUpdateMessageChanges = (
   {
     chatId,
     messageId,
+    isStreamingMessage,
   }: {
     chatId: string | undefined;
     messageId: string;
@@ -44,12 +46,11 @@ export const useTrackAndUpdateMessageChanges = (
   const getChatMemoized = useGetChatMemoized();
   const queryClient = useQueryClient();
 
-  const subscribe = !!chatId && !!messageId && messageId !== 'undefined';
+  const subscribe = !!chatId && !!messageId && messageId !== 'undefined' && isStreamingMessage;
 
-  const shape = useMemo(
-    () => messageShape({ chatId: chatId || '', messageId }),
-    [chatId, messageId]
-  );
+  const shape = useMemo(() => {
+    return messageShape({ chatId: chatId || '', messageId });
+  }, [chatId, messageId]);
 
   return useShapeStream(
     shape,
@@ -83,7 +84,8 @@ export const useTrackAndUpdateMessageChanges = (
               const reasoningMessage = iChatMessage.response_messages?.[id];
               return (
                 reasoningMessage &&
-                (reasoningMessage as ChatMessageResponseMessage_File)?.file_type === 'dashboard'
+                (reasoningMessage as ChatMessageResponseMessage_File)?.file_type ===
+                  'dashboard_file'
               );
             });
             if (hasFiles) {
@@ -114,14 +116,14 @@ const useCheckIfWeHaveAFollowupDashboard = (messageId: string) => {
   const method = (message: Partial<BusterChatMessage>) => {
     if (!hasSeenFileByMessageId.current[messageId]) {
       const allFiles = Object.values(message.response_messages || {}).filter(
-        (x) => (x as ChatMessageResponseMessage_File).file_type === 'dashboard'
+        (x) => (x as ChatMessageResponseMessage_File).file_type === 'dashboard_file'
       ) as ChatMessageResponseMessage_File[];
       if (allFiles.length > 0) {
         hasSeenFileByMessageId.current[messageId] = true;
 
         for (const file of allFiles) {
           const fileType = (file as ChatMessageResponseMessage_File).file_type;
-          if (fileType === 'dashboard') {
+          if (fileType === 'dashboard_file') {
             const queryKey = dashboardQueryKeys
               .dashboardGetDashboard(file.id, file.version_number)
               .queryKey.slice(0, 3);
@@ -129,7 +131,7 @@ const useCheckIfWeHaveAFollowupDashboard = (messageId: string) => {
               exact: false,
               queryKey,
             });
-          } else if (fileType === 'metric') {
+          } else if (fileType === 'metric_file') {
             const queryKey = metricsQueryKeys
               .metricsGetMetric(file.id, file.version_number)
               .queryKey.slice(0, 3);
@@ -137,7 +139,7 @@ const useCheckIfWeHaveAFollowupDashboard = (messageId: string) => {
               exact: false,
               queryKey,
             });
-          } else if (fileType === 'report') {
+          } else if (fileType === 'report_file') {
             const queryKey = reportsQueryKeys
               .reportsGetReport(file.id, file.version_number)
               .queryKey.slice(0, 3);
@@ -164,7 +166,9 @@ export const useTrackAndUpdateNewMessages = ({ chatId }: { chatId: string | unde
 
   const subscribe = !!chatId;
 
-  const shape = useMemo(() => messagesShape({ chatId: chatId || '', columns: ['id'] }), [chatId]);
+  const shape = useMemo(() => {
+    return messagesShape({ chatId: chatId || '', columns: ['id'] });
+  }, [chatId]);
 
   return useShapeStream(
     shape,

@@ -1,4 +1,4 @@
-import { updateMessage, updateMessageEntries } from '@buster/database';
+import { updateMessage, updateMessageEntries } from '@buster/database/queries';
 import type { ToolCallOptions } from 'ai';
 import type { UpdateMessageEntriesParams } from '../../../../../database/src/queries/messages/update-message-entries';
 import {
@@ -66,7 +66,6 @@ export function createMessageUserClarifyingQuestionStart(
         }
 
         await updateMessage(context.messageId, {
-          isCompleted: true,
           finalReasoningMessage: `Reasoned for ${timeString}`,
         });
       }

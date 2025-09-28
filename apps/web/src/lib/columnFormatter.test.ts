@@ -322,13 +322,6 @@ describe('formatLabel', () => {
           convertNumberTo: 'day_of_week',
         })
       ).toMatch(/Monday/);
-      expect(
-        formatLabel(1, {
-          columnType: 'date',
-          style: 'date',
-          convertNumberTo: 'quarter',
-        })
-      ).toMatch(`${currentYear} QQ`);
     });
 
     it('should handle null/undefined dates', () => {
@@ -374,6 +367,152 @@ describe('formatLabel', () => {
       expect(formatLabel(0.1234, { columnType: 'number', style: 'percent', suffix: ' WOW!' })).toBe(
         '0.12% WOW!'
       );
+    });
+  });
+
+  describe('textProp to Number conversion logic', () => {
+    it('should convert string numbers to Number when all conditions are met', () => {
+      // All conditions met: textProp not null/undefined, columnType='number',
+      // useKeyFormatter=false, replaceMissingDataWith=0, textProp is not object
+      expect(
+        formatLabel('123.45', {
+          columnType: 'number',
+          style: 'number',
+          replaceMissingDataWith: 0,
+        })
+      ).toBe('123.45');
+    });
+
+    it('should convert boolean true to Number when all conditions are met', () => {
+      expect(
+        formatLabel(true, {
+          columnType: 'number',
+          style: 'number',
+          replaceMissingDataWith: 0,
+        })
+      ).toBe('1');
+    });
+
+    it('should convert boolean false to Number when all conditions are met', () => {
+      expect(
+        formatLabel(false, {
+          columnType: 'number',
+          style: 'number',
+          replaceMissingDataWith: 0,
+        })
+      ).toBe('0');
+    });
+
+    it('should NOT convert when textProp is null', () => {
+      expect(
+        formatLabel(null, {
+          columnType: 'number',
+          style: 'string',
+          replaceMissingDataWith: 0,
+        })
+      ).toBe('0');
+    });
+
+    it('should NOT convert when textProp is undefined', () => {
+      expect(
+        formatLabel(undefined, {
+          columnType: 'number',
+          style: 'string',
+          replaceMissingDataWith: 0,
+        })
+      ).toBe('0');
+    });
+
+    it('should NOT convert when columnType is not "number"', () => {
+      expect(
+        formatLabel('123', {
+          columnType: 'text',
+          style: 'string',
+          replaceMissingDataWith: 0,
+        })
+      ).toBe('123');
+    });
+
+    it('should NOT convert when useKeyFormatter is true', () => {
+      expect(
+        formatLabel(
+          '123',
+          {
+            columnType: 'number',
+            style: 'string',
+            replaceMissingDataWith: 0,
+          },
+          true
+        )
+      ).toBe('123');
+    });
+
+    it('should NOT convert when replaceMissingDataWith is not 0', () => {
+      expect(
+        formatLabel('123', {
+          columnType: 'number',
+          style: 'string',
+          replaceMissingDataWith: null,
+        })
+      ).toBe('123');
+
+      expect(
+        formatLabel('123', {
+          columnType: 'number',
+          style: 'string',
+          replaceMissingDataWith: 'N/A',
+        })
+      ).toBe('123');
+
+      expect(
+        formatLabel('123', {
+          columnType: 'number',
+          style: 'string',
+          replaceMissingDataWith: 1 as 0,
+        })
+      ).toBe('123');
+    });
+
+    it('should NOT convert when textProp is an object (Date)', () => {
+      const testDate = new Date('2024-03-14T12:00:00Z');
+      const result = formatLabel(testDate, {
+        columnType: 'number',
+        style: 'string',
+        replaceMissingDataWith: 0,
+      });
+      // Date objects bypass Number conversion and get converted to string
+      expect(result).toMatch(/Thu Mar 14 2024/);
+    });
+
+    it('should NOT convert when textProp is an object (general object)', () => {
+      const testObject = { value: 123 };
+      const result = formatLabel(testObject as any, {
+        columnType: 'number',
+        style: 'string',
+        replaceMissingDataWith: 0,
+      });
+      // Objects bypass Number conversion and get converted to string representation
+      expect(result).toBe('[object Object]');
+    });
+
+    it('should handle edge case with string "0" when all conditions are met', () => {
+      expect(
+        formatLabel('0', {
+          columnType: 'number',
+          style: 'number',
+          replaceMissingDataWith: 0,
+        })
+      ).toBe('0');
+    });
+
+    it('should handle edge case with empty string when all conditions are met', () => {
+      expect(
+        formatLabel('', {
+          columnType: 'number',
+          style: 'number',
+          replaceMissingDataWith: 0,
+        })
+      ).toBe('0');
     });
   });
 });

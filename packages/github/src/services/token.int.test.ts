@@ -1,16 +1,8 @@
 import { randomUUID } from 'node:crypto';
-import {
-  createGithubIntegration,
-  createSecret,
-  db,
-  deleteSecret,
-  getSecretByName,
-  githubIntegrations,
-  organizations,
-  updateGithubIntegration,
-  users,
-} from '@buster/database';
-import { eq } from 'drizzle-orm';
+import { db, eq } from '@buster/database/connection';
+import { createGithubIntegration, getSecretByName } from '@buster/database/queries';
+import { githubIntegrations, organizations, users } from '@buster/database/schema';
+import { deleteSecret } from '@buster/database/schema-types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   generateTestId,
@@ -19,7 +11,6 @@ import {
   rateLimitDelay,
   skipIfNoGitHubCredentials,
 } from '../../../../apps/server/src/api/v2/github/test-helpers/github-test-setup';
-import { createGitHubApp } from '../client/app';
 import {
   deleteInstallationToken,
   generateTokenVaultKey,

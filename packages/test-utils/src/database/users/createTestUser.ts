@@ -1,4 +1,5 @@
-import { db, users } from '@buster/database';
+import { db } from '@buster/database/connection';
+import { users } from '@buster/database/schema';
 import { v4 as uuidv4 } from 'uuid';
 
 /**

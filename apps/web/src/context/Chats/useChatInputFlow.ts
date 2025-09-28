@@ -52,11 +52,6 @@ export const useChatInputFlow = ({
     )
       return;
 
-    if (loading) {
-      onStopChat();
-      return;
-    }
-
     const trimmedInputValue = inputValue.trim();
 
     const method = async () => {
@@ -66,6 +61,7 @@ export const useChatInputFlow = ({
         await onFollowUpChat({ prompt: trimmedInputValue, chatId });
       } else if (selectedAssetType === 'collection') {
         // maybe we will support this one day. Good day that'll be. Until then, we will just dream.
+        console.warn('collection mode is not supported yet');
       } else if (isFileMode) {
         if (!selectedAssetId) return;
         await onStartChatFromFile({
@@ -95,6 +91,30 @@ export const useChatInputFlow = ({
       }, 350);
     };
 
+    if (loading) {
+      await openConfirmModal({
+        title: 'Stop chat',
+        content: 'Do you want to stop the chat before continuing?',
+        primaryButtonProps: {
+          text: 'No, finish my message',
+        },
+        cancelButtonProps: {
+          text: 'Submit new message',
+        },
+        onOk: async () => {
+          return;
+        },
+        onCancel: async () => {
+          onResetToOriginal();
+          await onStopChat(false);
+          await timeout(350);
+          await method();
+          return;
+        },
+      });
+      return;
+    }
+
     if (!isFileChanged) {
       return method();
     }
@@ -121,17 +141,16 @@ export const useChatInputFlow = ({
     });
   });
 
-  const onStopChat = useMemoizedFn(() => {
+  const onStopChat = useMemoizedFn(async (focus: boolean = true) => {
     if (!chatId) return;
-    onStopChatContext({ chatId });
-    setTimeout(() => {
-      textAreaRef.current?.focus();
-      textAreaRef.current?.select();
-    }, 100);
+    await onStopChatContext({ chatId });
+    if (focus) {
+      setTimeout(() => {
+        textAreaRef.current?.focus();
+        textAreaRef.current?.select();
+      }, 100);
+    }
   });
 
-  return useMemo(
-    () => ({ onSubmitPreflight, onStopChat, isFileChanged }),
-    [onSubmitPreflight, onStopChat, isFileChanged]
-  );
+  return { onSubmitPreflight, onStopChat, isFileChanged };
 };

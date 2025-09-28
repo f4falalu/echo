@@ -1,17 +1,15 @@
-import { useGetSupabaseUser } from '@/context/Supabase';
-
-export type SignInType = 'google' | 'github' | 'azure' | 'email' | null;
+import { useCookieState } from '@/hooks/useCookieState';
+import type { SignInTypes } from './useAuthMutations';
 
 export const useLastUsed = () => {
-  const supabaseUser = useGetSupabaseUser();
-
-  const isAnonymousUser = !!supabaseUser?.is_anonymous;
-  const isCurrentlySignedIn = !isAnonymousUser && !!supabaseUser?.id;
+  const [lastUsedMethod, setLastUsedMethod] = useCookieState<SignInTypes>('lastUsedMethod', {
+    defaultValue: null,
+    expirationTime: 90 * 24 * 60 * 60 * 1000, // 90 days
+  });
 
   return {
-    isAnonymousUser,
-    isCurrentlySignedIn,
-    supabaseUser,
+    lastUsedMethod,
+    setLastUsedMethod,
   };
 };
 

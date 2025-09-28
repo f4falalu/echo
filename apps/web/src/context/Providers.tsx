@@ -1,8 +1,10 @@
 import type React from 'react';
 import type { PropsWithChildren } from 'react';
+import { isDev } from '@/config/dev';
 import { BusterPosthogProvider } from '@/context/Posthog';
+import { useAppVersion } from './AppVersion/useAppVersion';
+import { useWelcomeConsole } from './AppVersion/useWelcomeConsole';
 import { BusterStyleProvider } from './BusterStyles';
-
 import {
   SupabaseContextProvider,
   type SupabaseContextType,
@@ -14,11 +16,15 @@ export const RootProviders: React.FC<PropsWithChildren> = ({ children }) => {
 
 export const AppProviders: React.FC<PropsWithChildren<SupabaseContextType>> = ({
   children,
-  user,
-  accessToken,
+  supabaseSession,
 }) => {
+  if (!isDev) {
+    useAppVersion();
+    useWelcomeConsole();
+  }
+
   return (
-    <SupabaseContextProvider user={user} accessToken={accessToken}>
+    <SupabaseContextProvider supabaseSession={supabaseSession}>
       <BusterPosthogProvider>{children}</BusterPosthogProvider>
     </SupabaseContextProvider>
   );

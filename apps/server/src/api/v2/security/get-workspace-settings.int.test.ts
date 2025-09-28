@@ -1,6 +1,7 @@
-import { db, eq, organizations } from '@buster/database';
-import type { User } from '@buster/database';
-import type { OrganizationRole } from '@buster/server-shared/organization';
+import { db, eq } from '@buster/database/connection';
+import type { User } from '@buster/database/queries';
+import { organizations } from '@buster/database/schema';
+import type { UserOrganizationRole } from '@buster/server-shared/organization';
 import type { InferSelectModel } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -65,7 +66,7 @@ describe('getWorkspaceSettingsHandler (integration)', () => {
     });
 
     it('should work for users with different roles', async () => {
-      const roles: OrganizationRole[] = [
+      const roles: UserOrganizationRole[] = [
         'querier',
         'restricted_querier',
         'data_admin',

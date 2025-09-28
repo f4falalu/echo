@@ -38,13 +38,16 @@ const createChainableMock = () => {
 };
 
 // Mock the database module
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/connection', () => ({
   getDb: vi.fn(() => createChainableMock()),
   and: vi.fn((...args) => ({ type: 'and', args })),
   eq: vi.fn((a, b) => ({ type: 'eq', a, b })),
   isNull: vi.fn((field) => ({ type: 'isNull', field })),
   inArray: vi.fn((field, array) => ({ type: 'inArray', field, array })),
   count: vi.fn(() => ({ type: 'count' })),
+}));
+
+vi.mock('@buster/database/schema', () => ({
   usersToOrganizations: {},
   datasets: {},
   permissionGroups: {},
@@ -90,7 +93,7 @@ describe('Access Controls Unit Tests - Organization Default Permission Group', (
       mockDb.from.mockReturnValueOnce(mockDb);
       mockDb.where.mockResolvedValueOnce([]);
 
-      vi.mocked(await import('@buster/database')).getDb.mockReturnValue(mockDb);
+      vi.mocked(await import('@buster/database/connection')).getDb.mockReturnValue(mockDb);
 
       const { getPermissionedDatasets } = await import('./access-controls');
       const result = await getPermissionedDatasets(testUserId, 0, 10);
@@ -132,7 +135,7 @@ describe('Access Controls Unit Tests - Organization Default Permission Group', (
       mockDb.limit.mockReturnValueOnce(mockDb);
       mockDb.offset.mockResolvedValueOnce(mockDatasets);
 
-      vi.mocked(await import('@buster/database')).getDb.mockReturnValue(mockDb);
+      vi.mocked(await import('@buster/database/connection')).getDb.mockReturnValue(mockDb);
 
       const { getPermissionedDatasets } = await import('./access-controls');
       const result = await getPermissionedDatasets(testUserId, 0, 10);
@@ -150,13 +153,13 @@ describe('Access Controls Unit Tests - Organization Default Permission Group', (
     });
 
     it('should return false when dataset is deleted', async () => {
-      const { getDb } = await import('@buster/database');
+      const { getDb } = await import('@buster/database/connection');
 
       vi.resetModules();
       vi.clearAllMocks();
 
       const mockDb = createChainableMock();
-      vi.mocked(await import('@buster/database')).getDb.mockReturnValue(mockDb);
+      vi.mocked(await import('@buster/database/connection')).getDb.mockReturnValue(mockDb);
 
       const { hasDatasetAccess } = await import('./access-controls');
 
@@ -192,13 +195,13 @@ describe('Access Controls Unit Tests - Organization Default Permission Group', (
     });
 
     it('should return false when not all datasets exist', async () => {
-      const { getDb } = await import('@buster/database');
+      const { getDb } = await import('@buster/database/connection');
 
       vi.resetModules();
       vi.clearAllMocks();
 
       const mockDb = createChainableMock();
-      vi.mocked(await import('@buster/database')).getDb.mockReturnValue(mockDb);
+      vi.mocked(await import('@buster/database/connection')).getDb.mockReturnValue(mockDb);
 
       const { hasAllDatasetsAccess } = await import('./access-controls');
 
@@ -219,14 +222,14 @@ describe('Access Controls Unit Tests - Organization Default Permission Group', (
 
   describe('Edge Cases', () => {
     it('should handle database connection errors gracefully', async () => {
-      const { getDb } = await import('@buster/database');
+      const { getDb } = await import('@buster/database/connection');
 
       vi.resetModules();
       vi.clearAllMocks();
 
       const mockDb = createChainableMock();
       mockDb.select.mockRejectedValueOnce(new Error('Database connection failed'));
-      vi.mocked(await import('@buster/database')).getDb.mockReturnValue(mockDb);
+      vi.mocked(await import('@buster/database/connection')).getDb.mockReturnValue(mockDb);
 
       const { getPermissionedDatasets } = await import('./access-controls');
 
@@ -261,8 +264,8 @@ describe('Utils', () => {
     });
 
     it('should handle lowercase inputs', () => {
-      const result = formatPermissionName('dashboard', 'write');
-      expect(result).toBe('dashboard:write');
+      const result = formatPermissionName('dashboard_file', 'write');
+      expect(result).toBe('dashboard_file:write');
     });
   });
 

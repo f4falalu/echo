@@ -19,13 +19,13 @@ export const useGetIsSelectedFile = ({
   const isSelectedVersion = versionNumber === selectedVersionNumber || !selectedVersionNumber;
 
   switch (responseMessage.file_type) {
-    case 'metric': {
+    case 'metric_file': {
       return { isSelectedFile: isSelectedFile && isSelectedVersion };
     }
-    case 'dashboard': {
+    case 'dashboard_file': {
       return { isSelectedFile: isSelectedFile && isSelectedVersion };
     }
-    case 'report': {
+    case 'report_file': {
       return { isSelectedFile: isSelectedFile && isSelectedVersion };
     }
     case 'reasoning': {

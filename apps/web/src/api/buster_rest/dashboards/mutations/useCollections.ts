@@ -20,7 +20,7 @@ export const useAddDashboardToCollection = () => {
       collectionIds.map((collectionId) =>
         addAssetToCollection({
           id: collectionId,
-          assets: dashboardIds.map((dashboardId) => ({ id: dashboardId, type: 'dashboard' })),
+          assets: dashboardIds.map((dashboardId) => ({ id: dashboardId, type: 'dashboard_file' })),
         })
       )
     );
@@ -64,7 +64,7 @@ export const useRemoveDashboardFromCollection = () => {
       collectionIds.map((collectionId) =>
         removeAssetFromCollection({
           id: collectionId,
-          assets: dashboardIds.map((dashboardId) => ({ id: dashboardId, type: 'dashboard' })),
+          assets: dashboardIds.map((dashboardId) => ({ id: dashboardId, type: 'dashboard_file' })),
         })
       )
     );

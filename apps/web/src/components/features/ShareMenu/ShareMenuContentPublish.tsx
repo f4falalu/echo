@@ -15,7 +15,7 @@ import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useBuildLocation } from '@/context/Routes/useRouteBuilder';
 import { cn } from '@/lib/classMerge';
 import { createDayjsDate } from '@/lib/date';
-import { createFullURL } from '@/lib/routes';
+import { timeout } from '@/lib/timeout';
 import type { ShareMenuContentBodyProps } from './ShareMenuContentBody';
 
 export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = React.memo(
@@ -27,8 +27,8 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
     onCopyLink,
     publicExpirationDate,
     className,
+    embedLinkURL,
   }) => {
-    const buildLocation = useBuildLocation();
     const { openInfoMessage } = useBusterNotifications();
     const { mutateAsync: onShareMetric, isPending: isPublishingMetric } = useUpdateMetricShare();
     const { mutateAsync: onShareDashboard, isPending: isPublishingDashboard } =
@@ -51,58 +51,6 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
       return publicExpirationDate ? new Date(publicExpirationDate) : null;
     }, [publicExpirationDate]);
 
-    const linkUrl: string = useMemo(() => {
-      if (assetType === 'metric') {
-        return createFullURL(
-          buildLocation({
-            to: '/app/metrics/$metricId/chart',
-            params: {
-              metricId: assetId,
-            },
-          })
-        );
-      } else if (assetType === 'dashboard') {
-        return createFullURL(
-          buildLocation({
-            to: '/app/dashboards/$dashboardId',
-            params: {
-              dashboardId: assetId,
-            },
-          })
-        );
-      } else if (assetType === 'collection') {
-        return createFullURL(
-          buildLocation({
-            to: '/app/collections/$collectionId',
-            params: {
-              collectionId: assetId,
-            },
-          })
-        );
-      } else if (assetType === 'report') {
-        return createFullURL(
-          buildLocation({
-            to: '/app/reports/$reportId',
-            params: {
-              reportId: assetId,
-            },
-          })
-        );
-      } else if (assetType === 'chat') {
-        return createFullURL(
-          buildLocation({
-            to: '/app/chats/$chatId',
-            params: {
-              chatId: assetId,
-            },
-          })
-        );
-      }
-
-      const _exhaustiveCheck: never = assetType;
-      return '';
-    }, [assetId, assetType]);
-
     const onTogglePublish = async (v?: boolean) => {
       const linkExp = linkExpiry ? linkExpiry.toISOString() : null;
       const payload: Parameters<typeof onShareMetric>[0] = {
@@ -113,19 +61,21 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
           public_expiry_date: linkExp || undefined,
         },
       };
-      if (assetType === 'metric') {
+      if (assetType === 'metric_file') {
         await onShareMetric(payload);
-      } else if (assetType === 'dashboard') {
+      } else if (assetType === 'dashboard_file') {
         await onShareDashboard(payload);
       } else if (assetType === 'collection') {
         await onShareCollection(payload);
-      } else if (assetType === 'report') {
+      } else if (assetType === 'report_file') {
         await onShareReport(payload);
       } else if (assetType === 'chat') {
         await onShareChat(payload);
       } else {
         const _exhaustiveCheck: never = assetType;
       }
+      await timeout(100);
+      if (v) onCopyLink(true);
     };
 
     const onSetPasswordProtected = async (v: boolean) => {
@@ -141,13 +91,13 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
         },
       };
 
-      if (assetType === 'metric') {
+      if (assetType === 'metric_file') {
         await onShareMetric(payload);
-      } else if (assetType === 'dashboard') {
+      } else if (assetType === 'dashboard_file') {
         await onShareDashboard(payload);
       } else if (assetType === 'collection') {
         await onShareCollection(payload);
-      } else if (assetType === 'report') {
+      } else if (assetType === 'report_file') {
         await onShareReport(payload);
       } else if (assetType === 'chat') {
         await onShareChat(payload);
@@ -168,13 +118,13 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
         },
       };
 
-      if (assetType === 'metric') {
+      if (assetType === 'metric_file') {
         await onShareMetric(payload);
-      } else if (assetType === 'dashboard') {
+      } else if (assetType === 'dashboard_file') {
         await onShareDashboard(payload);
       } else if (assetType === 'collection') {
         await onShareCollection(payload);
-      } else if (assetType === 'report') {
+      } else if (assetType === 'report_file') {
         await onShareReport(payload);
       } else if (assetType === 'chat') {
         await onShareChat(payload);
@@ -196,8 +146,13 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
               <IsPublishedInfo isPublished={publicly_accessible} />
 
               <div className="flex w-full space-x-0.5">
-                <Input size="small" readOnly value={linkUrl} />
-                <Button variant="default" className="flex" prefix={<Link />} onClick={onCopyLink} />
+                <Input size="small" readOnly value={embedLinkURL} />
+                <Button
+                  variant="default"
+                  className="flex"
+                  prefix={<Link />}
+                  onClick={() => onCopyLink(true)}
+                />
               </div>
 
               <LinkExpiration linkExpiry={linkExpiry} onChangeLinkExpiry={onSetExpirationDate} />
@@ -235,7 +190,7 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
             >
               Unpublish
             </Button>
-            <Button block onClick={onCopyLink}>
+            <Button block onClick={() => onCopyLink(true)}>
               Copy link
             </Button>
           </div>
@@ -246,7 +201,7 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
 );
 ShareMenuContentPublish.displayName = 'ShareMenuContentPublish';
 
-const IsPublishedInfo: React.FC<{ isPublished: boolean }> = React.memo(({ isPublished }) => {
+const IsPublishedInfo: React.FC<{ isPublished: boolean }> = ({ isPublished }) => {
   if (!isPublished) return null;
 
   return (
@@ -255,8 +210,7 @@ const IsPublishedInfo: React.FC<{ isPublished: boolean }> = React.memo(({ isPubl
       <Text variant="link">Live on the web</Text>
     </div>
   );
-});
-IsPublishedInfo.displayName = 'IsPublishedInfo';
+};
 
 const LinkExpiration: React.FC<{
   linkExpiry: Date | null;

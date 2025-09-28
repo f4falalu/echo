@@ -1,4 +1,3 @@
-import type { ReportElementWithId } from '@buster/server-shared/reports';
 import type { Value } from 'platejs';
 import { type TPlateEditor, useEditorRef, usePlateEditor } from 'platejs/react';
 import { useEffect, useMemo, useRef } from 'react';
@@ -16,15 +15,15 @@ export const useReportEditor = ({
   readOnly,
   useFixedToolbarKit = false,
   initialElements,
-  containerRef,
+  scrollAreaRef,
 }: {
   value: string | undefined; //markdown
-  initialElements?: Value | ReportElementWithId[];
+  initialElements?: Value;
   readOnly: boolean | undefined;
   useFixedToolbarKit?: boolean;
   isStreaming: boolean;
   mode?: 'export' | 'default';
-  containerRef?: React.RefObject<HTMLDivElement | null>;
+  scrollAreaRef?: React.RefObject<HTMLDivElement | null>;
 }) => {
   const plugins = useMemo(() => {
     const filteredKeys: string[] = [];
@@ -32,12 +31,7 @@ export const useReportEditor = ({
       filteredKeys.push(FIXED_TOOLBAR_KIT_KEY);
     }
 
-    return [
-      ...EditorKit({ containerRef }),
-      GlobalVariablePlugin.configure({
-        options: { mode },
-      }),
-    ].filter((p) => !filteredKeys.includes(p.key));
+    return EditorKit({ scrollAreaRef, mode }).filter((p) => !filteredKeys.includes(p.key));
   }, []);
 
   const editor = usePlateEditor({
@@ -95,7 +89,11 @@ const useEditorServerUpdates = ({
     } else if (editor && value && !hasInitialized.current && isEmptyEditor(editor)) {
       hasInitialized.current = true;
       markdownToPlatejs(editor, value).then((elements) => {
-        editor.tf.setValue(elements);
+        editor.tf.reset();
+        editor.tf.init({
+          value: elements,
+          autoSelect: false,
+        });
       });
     } else {
       editor?.getPlugin(StreamContentPlugin)?.api.streamContent.stop();

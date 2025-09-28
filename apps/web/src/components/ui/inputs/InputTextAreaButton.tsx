@@ -4,7 +4,7 @@ import { cn } from '@/lib/classMerge';
 import { Button } from '../buttons/Button';
 import ShapeSquare from '../icons/NucleoIconFilled/shape-square';
 import { ArrowUp } from '../icons/NucleoIconOutlined';
-import { InputTextArea, type InputTextAreaProps } from './InputTextArea';
+import { InputTextArea, type InputTextAreaProps, type InputTextAreaRef } from './InputTextArea';
 
 const inputTextAreaButtonVariants = cva(
   'relative flex flex-col w-full items-center overflow-visible rounded-xl cursor-text border border-border transition-all duration-200',
@@ -29,7 +29,7 @@ export interface InputTextAreaButtonProps extends Omit<InputTextAreaProps, 'vari
   inputClassName?: string;
 }
 
-export const InputTextAreaButton = forwardRef<HTMLTextAreaElement, InputTextAreaButtonProps>(
+export const InputTextAreaButton = forwardRef<InputTextAreaRef, InputTextAreaButtonProps>(
   (
     {
       className,
@@ -51,7 +51,7 @@ export const InputTextAreaButton = forwardRef<HTMLTextAreaElement, InputTextArea
   ) => {
     const onSubmitPreflight = () => {
       if (disabled) return;
-      const text = (textRef as React.RefObject<HTMLTextAreaElement | null>).current?.value || '';
+      const text = (textRef as React.RefObject<InputTextAreaRef | null>).current?.value || '';
       onSubmit(text);
     };
 
@@ -74,11 +74,11 @@ export const InputTextAreaButton = forwardRef<HTMLTextAreaElement, InputTextArea
       >
         <InputTextArea
           ref={textRef}
-          disabled={disabled || loading}
+          disabled={disabled}
           variant="ghost"
           className={cn(
             'leading-1.3 w-full px-5! pt-4! pr-10 align-middle',
-            loading && 'cursor-not-allowed! opacity-70',
+            loading && 'opacity-80',
             inputClassName
           )}
           style={style}

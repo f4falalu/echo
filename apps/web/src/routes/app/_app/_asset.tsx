@@ -4,27 +4,23 @@ import { getTitle as getAssetTitle } from '@/api/buster_rest/title';
 import { AppAssetCheckLayout } from '@/layouts/AppAssetCheckLayout';
 
 export const Route = createFileRoute('/app/_app/_asset')({
+  ssr: false,
   component: RouteComponent,
-  loaderDeps: ({ search }) => ({ search }),
   context: () => ({ getAssetTitle }),
   beforeLoad: async ({ matches }) => {
     const assetType = [...matches].reverse().find(({ staticData }) => staticData?.assetType)
       ?.staticData?.assetType as AssetType;
-    return {
-      assetType,
-    };
+    return { assetType };
   },
   loader: async ({ context }) => {
     const { assetType } = context;
-    return {
-      assetType,
-    };
+    return { assetType };
   },
 });
 
 const stableCtxSelector = (ctx: RouteContext) => ctx.assetType;
 function RouteComponent() {
-  const assetType = Route.useRouteContext({ select: stableCtxSelector }) || 'metric';
+  const assetType = Route.useLoaderData({ select: stableCtxSelector }) || 'metric_file';
 
   return (
     <AppAssetCheckLayout assetType={assetType}>

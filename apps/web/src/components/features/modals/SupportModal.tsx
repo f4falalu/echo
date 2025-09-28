@@ -153,7 +153,9 @@ const FeedbackForm = React.memo(
     return (
       <div className="flex flex-col space-y-4">
         <InputTextArea
+          className="max-h-[500px]"
           rows={5}
+          maxRows={10}
           value={feedback}
           autoFocus
           onChange={(e) => setFeedback(e.target.value)}
@@ -200,6 +202,7 @@ const HelpRequestForm = React.memo(
           </Text>
           <InputTextArea
             rows={5}
+            maxRows={10}
             value={helpRequest}
             onChange={(e) => setHelpRequest(e.target.value)}
             placeholder="A thorough and precise description of the the problem you are having..."

@@ -1,21 +1,18 @@
 import {
-  type CreateAssetPermissionParams,
   type ListAssetPermissionsParams,
   type RemoveAssetPermissionParams,
   bulkCreateAssetPermissions,
   createAssetPermission,
   findUserByEmail,
-  getUserAssetPermission,
   listAssetPermissions,
   removeAssetPermission,
-} from '@buster/database';
+} from '@buster/database/queries';
+import type { AssetType } from '@buster/database/schema-types';
 // TODO: Import createUser when implemented in database package
-// import { createUser } from '@buster/database';
 import type {
   AssetPermission,
   AssetPermissionRole,
   AssetPermissionWithUser,
-  AssetType,
   IdentityType,
   WorkspaceSharing,
 } from '../types/asset-permissions';
@@ -33,14 +30,6 @@ export async function createPermission(params: {
   role: AssetPermissionRole;
   createdBy: string;
 }): Promise<AssetPermission> {
-  // Validate asset type is not deprecated
-  if (params.assetType === 'dashboard' || params.assetType === 'thread') {
-    throw new AccessControlError(
-      'deprecated_asset_type',
-      `Asset type ${params.assetType} is deprecated`
-    );
-  }
-
   try {
     const permission = await createAssetPermission({
       identityId: params.identityId,
@@ -189,15 +178,7 @@ export async function bulkCreatePermissions(params: {
 }): Promise<AssetPermission[]> {
   const { permissions, createdBy } = params;
 
-  // Validate all asset types
-  for (const perm of permissions) {
-    if (perm.assetType === 'dashboard' || perm.assetType === 'thread') {
-      throw new AccessControlError(
-        'deprecated_asset_type',
-        `Asset type ${perm.assetType} is deprecated`
-      );
-    }
-  }
+  // All remaining asset types are valid
 
   try {
     const created = await bulkCreateAssetPermissions({
@@ -226,6 +207,10 @@ export async function hasAssetPermission(params: {
   requiredRole: AssetPermissionRole;
   organizationId?: string;
   workspaceSharing?: WorkspaceSharing;
+  publiclyAccessible?: boolean;
+  publicExpiryDate?: string | undefined;
+  publicPassword?: string | undefined;
+  userSuppliedPassword?: string | undefined;
 }): Promise<boolean> {
   const { checkPermission } = await import('./checks');
 

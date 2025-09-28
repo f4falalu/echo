@@ -1,4 +1,4 @@
-import { updateMessageEntries } from '@buster/database';
+import { updateMessageEntries } from '@buster/database/queries';
 import { materialize } from '@buster/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createModifyDashboardsTool } from './modify-dashboards-tool';
@@ -21,7 +21,7 @@ vi.mock('./modify-dashboards-execute', () => ({
         {
           id: 'dash-1',
           name: 'Sales Dashboard',
-          file_type: 'dashboard',
+          file_type: 'dashboard_file',
           created_at: '2024-01-01T00:00:00Z',
           updated_at: '2024-01-01T00:00:00Z',
           version_number: 2,
@@ -29,7 +29,7 @@ vi.mock('./modify-dashboards-execute', () => ({
         {
           id: 'dash-2',
           name: 'Marketing Dashboard',
-          file_type: 'dashboard',
+          file_type: 'dashboard_file',
           created_at: '2024-01-01T00:00:00Z',
           updated_at: '2024-01-01T00:00:00Z',
           version_number: 3,
@@ -202,7 +202,7 @@ describe('modify-dashboards-tool streaming integration', () => {
           {
             id: 'dash-1',
             name: 'Sales Dashboard',
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             created_at: '2024-01-01T00:00:00Z',
             updated_at: '2024-01-01T00:00:00Z',
             version_number: 2,

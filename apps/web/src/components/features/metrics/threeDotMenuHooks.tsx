@@ -1,7 +1,7 @@
 import { useNavigate } from '@tanstack/react-router';
 import React, { useCallback, useMemo, useState } from 'react';
 import type { BusterMetric } from '@/api/asset_interfaces/metric';
-import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
+import { useDownloadMetricFile, useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
 import {
   createDropdownItem,
   createDropdownItems,
@@ -25,10 +25,11 @@ import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import { useStartChatFromAsset } from '@/context/BusterAssets/useStartChatFromAsset';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { ensureElementExists } from '@/lib/element';
-import { downloadElementToImage, exportJSONToCSV } from '@/lib/exportUtils';
+import { downloadElementToImage } from '@/lib/exportUtils';
+import { canEdit } from '../../../lib/share';
 import { FollowUpWithAssetContent } from '../assets/FollowUpWithAsset';
 import { useFavoriteStar } from '../favorites';
-import { ASSET_ICONS } from '../icons/assetIcons';
+import { getShareAssetConfig } from '../ShareMenu/helpers';
 import { useListMetricVersionDropdownItems } from '../versionHistory/useListMetricVersionDropdownItems';
 import { METRIC_CHART_CONTAINER_ID } from './MetricChartCard/config';
 import { METRIC_CHART_TITLE_INPUT_ID } from './MetricChartCard/MetricViewChartHeader';
@@ -39,7 +40,7 @@ export const useMetricVersionHistorySelectMenu = ({
   metricId: string;
 }): IDropdownItem => {
   const { data } = useGetMetric(
-    { id: metricId },
+    { id: metricId, versionNumber: 'LATEST' },
     {
       select: useCallback(
         (x: BusterMetric) => ({
@@ -73,11 +74,20 @@ export const useMetricVersionHistorySelectMenu = ({
   );
 };
 
-export const useFavoriteMetricSelectMenu = ({ metricId }: { metricId: string }) => {
-  const { data: name } = useGetMetric({ id: metricId }, { select: (x) => x.name });
+export const useFavoriteMetricSelectMenu = ({
+  metricId,
+  versionNumber,
+}: {
+  metricId: string;
+  versionNumber: number | undefined;
+}) => {
+  const { data: name } = useGetMetric(
+    { id: metricId, versionNumber },
+    { select: useCallback((x: BusterMetric) => x.name, []) }
+  );
   const { isFavorited, onFavoriteClick } = useFavoriteStar({
     id: metricId,
-    type: 'metric',
+    type: 'metric_file',
     name: name || '',
   });
 
@@ -104,7 +114,7 @@ export const useMetricDrilldownItem = ({ metricId }: { metricId: string }): IDro
       items: [
         <FollowUpWithAssetContent
           key="drilldown-and-filter"
-          assetType="metric"
+          assetType="metric_file"
           assetId={metricId}
           placeholder="Describe how you want to drill down or filter..."
           buttonText="Submit request"
@@ -145,8 +155,10 @@ export const useRenameMetricOnPage = ({
           () => document.getElementById(METRIC_CHART_TITLE_INPUT_ID) as HTMLInputElement
         );
         if (input) {
-          input.focus();
-          input.select();
+          setTimeout(() => {
+            input.focus();
+            input.select();
+          }, 250);
         }
       },
     }),
@@ -157,33 +169,31 @@ export const useRenameMetricOnPage = ({
 export const useDownloadMetricDataCSV = ({
   metricId,
   metricVersionNumber,
+  cacheDataId,
 }: {
   metricId: string;
   metricVersionNumber: number | undefined;
+  cacheDataId?: string;
 }) => {
-  const [isDownloading, setIsDownloading] = useState(false);
-  const { data: metricData } = useGetMetricData(
-    { id: metricId, versionNumber: metricVersionNumber },
-    { enabled: false }
-  );
-  const { data: name } = useGetMetric({ id: metricId }, { select: (x) => x.name });
+  const { mutateAsync: handleDownload, isPending: isDownloading } = useDownloadMetricFile();
 
   return useMemo(
-    () => ({
-      label: 'Download as CSV',
-      value: 'download-csv',
-      icon: <Download4 />,
-      loading: isDownloading,
-      onClick: async () => {
-        const data = metricData?.data;
-        if (data && name) {
-          setIsDownloading(true);
-          await exportJSONToCSV(data, name);
-          setIsDownloading(false);
-        }
-      },
-    }),
-    [metricData, isDownloading, name]
+    () =>
+      createDropdownItem({
+        label: 'Download as CSV',
+        value: 'download-csv',
+        icon: <Download4 />,
+        loading: isDownloading,
+        closeOnSelect: false,
+        onClick: async () => {
+          await handleDownload({
+            id: metricId,
+            report_file_id: cacheDataId,
+            metric_version_number: metricVersionNumber,
+          });
+        },
+      }),
+    [isDownloading]
   );
 };
 
@@ -197,11 +207,11 @@ export const useDownloadPNGSelectMenu = ({
   const { openErrorMessage } = useBusterNotifications();
   const { data: name } = useGetMetric(
     { id: metricId, versionNumber: metricVersionNumber },
-    { select: (x) => x.name }
+    { select: useCallback((x: BusterMetric) => x.name, []) }
   );
   const { data: selectedChartType } = useGetMetric(
-    { id: metricId },
-    { select: (x) => x.chart_config?.selectedChartType }
+    { id: metricId, versionNumber: metricVersionNumber },
+    { select: useCallback((x: BusterMetric) => x.chart_config?.selectedChartType, []) }
   );
 
   const canDownload = selectedChartType && selectedChartType !== 'table';
@@ -278,7 +288,7 @@ export const useNavigatetoMetricItem = ({
       },
       {
         value: 'results-chart',
-        label: 'Results chart',
+        label: 'View results',
         icon: <Table />,
         link: {
           to: '/app/metrics/$metricId/results',
@@ -292,7 +302,7 @@ export const useNavigatetoMetricItem = ({
       },
       {
         value: 'sql-chart',
-        label: 'SQL chart',
+        label: 'View SQL',
         icon: <Code />,
         link: {
           to: '/app/metrics/$metricId/sql',
@@ -374,10 +384,22 @@ export const useNavigateToDashboardMetricItem = ({
   }, [metricId, metricVersionNumber, dashboardId, dashboardVersionNumber]);
 };
 
-export const useEditMetricWithAI = ({ metricId }: { metricId: string }): IDropdownItem => {
+export const useEditMetricWithAI = ({
+  metricId,
+  versionNumber,
+}: {
+  metricId: string;
+  versionNumber: number | undefined;
+}): IDropdownItem => {
+  const { data: shareAssetConfig } = useGetMetric(
+    { id: metricId, versionNumber },
+    { select: getShareAssetConfig }
+  );
+  const isEditor = canEdit(shareAssetConfig?.permission);
+
   const { onCreateFileClick, loading } = useStartChatFromAsset({
     assetId: metricId,
-    assetType: 'metric',
+    assetType: 'metric_file',
   });
 
   return useMemo(
@@ -387,8 +409,9 @@ export const useEditMetricWithAI = ({ metricId }: { metricId: string }): IDropdo
         value: 'edit-with-ai',
         icon: <PenSparkle />,
         onClick: onCreateFileClick,
+        disabled: !isEditor,
         loading,
       }),
-    [metricId, onCreateFileClick, loading]
+    [metricId, onCreateFileClick, loading, isEditor]
   );
 };

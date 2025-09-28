@@ -6,10 +6,7 @@ import {
   collections,
   collectionsToAssets,
   dashboardFiles,
-  dashboardVersions,
-  dashboards,
   dataSources,
-  databaseMetadata,
   datasetGroups,
   datasetGroupsPermissions,
   datasetPermissions,
@@ -17,7 +14,6 @@ import {
   datasetsToDatasetGroups,
   datasetsToPermissionGroups,
   messages,
-  messagesDeprecated,
   messagesToFiles,
   metricFiles,
   metricFilesToDashboardFiles,
@@ -29,15 +25,8 @@ import {
   permissionGroupsToUsers,
   reportFiles,
   s3Integrations,
-  schemaMetadata,
-  storedValuesSyncJobs,
-  tableMetadata,
   teams,
   teamsToUsers,
-  terms,
-  termsToDatasets,
-  threadsDeprecated,
-  threadsToDashboards,
   userFavorites,
   users,
   usersToOrganizations,
@@ -58,14 +47,11 @@ export const organizationsRelations = relations(organizations, ({ many }) => ({
   apiKeys: many(apiKeys),
   teams: many(teams),
   permissionGroups: many(permissionGroups),
-  terms: many(terms),
   collections: many(collections),
-  dashboards: many(dashboards),
   dataSources: many(dataSources),
   datasetGroups: many(datasetGroups),
   datasetPermissions: many(datasetPermissions),
   datasetGroupsPermissions: many(datasetGroupsPermissions),
-  threadsDeprecateds: many(threadsDeprecated),
   datasets: many(datasets),
   chats: many(chats),
   usersToOrganizations: many(usersToOrganizations),
@@ -88,44 +74,17 @@ export const usersRelations = relations(users, ({ many }) => ({
   permissionGroups_updatedBy: many(permissionGroups, {
     relationName: 'permissionGroups_updatedBy_users_id',
   }),
-  terms_createdBy: many(terms, {
-    relationName: 'terms_createdBy_users_id',
-  }),
-  terms_updatedBy: many(terms, {
-    relationName: 'terms_updatedBy_users_id',
-  }),
   collections_createdBy: many(collections, {
     relationName: 'collections_createdBy_users_id',
   }),
   collections_updatedBy: many(collections, {
     relationName: 'collections_updatedBy_users_id',
   }),
-  dashboards_publiclyEnabledBy: many(dashboards, {
-    relationName: 'dashboards_publiclyEnabledBy_users_id',
-  }),
-  dashboards_createdBy: many(dashboards, {
-    relationName: 'dashboards_createdBy_users_id',
-  }),
-  dashboards_updatedBy: many(dashboards, {
-    relationName: 'dashboards_updatedBy_users_id',
-  }),
   dataSources_createdBy: many(dataSources, {
     relationName: 'dataSources_createdBy_users_id',
   }),
   dataSources_updatedBy: many(dataSources, {
     relationName: 'dataSources_updatedBy_users_id',
-  }),
-  threadsDeprecateds_createdBy: many(threadsDeprecated, {
-    relationName: 'threadsDeprecated_createdBy_users_id',
-  }),
-  threadsDeprecateds_updatedBy: many(threadsDeprecated, {
-    relationName: 'threadsDeprecated_updatedBy_users_id',
-  }),
-  threadsDeprecateds_publiclyEnabledBy: many(threadsDeprecated, {
-    relationName: 'threadsDeprecated_publiclyEnabledBy_users_id',
-  }),
-  messagesDeprecateds_sentBy: many(messagesDeprecated, {
-    relationName: 'messagesDeprecated_sentBy_users_id',
   }),
   datasets_createdBy: many(datasets, {
     relationName: 'datasets_createdBy_users_id',
@@ -156,7 +115,6 @@ export const usersRelations = relations(users, ({ many }) => ({
     relationName: 'metricFiles_publiclyEnabledBy_users_id',
   }),
   permissionGroupsToUsers: many(permissionGroupsToUsers),
-  threadsToDashboards: many(threadsToDashboards),
   userFavorites: many(userFavorites),
   teamsToUsers: many(teamsToUsers),
   metricFilesToDashboardFiles: many(metricFilesToDashboardFiles),
@@ -224,24 +182,6 @@ export const permissionGroupsRelations = relations(permissionGroups, ({ one, man
   datasetsToPermissionGroups: many(datasetsToPermissionGroups),
 }));
 
-export const termsRelations = relations(terms, ({ one, many }) => ({
-  organization: one(organizations, {
-    fields: [terms.organizationId],
-    references: [organizations.id],
-  }),
-  user_createdBy: one(users, {
-    fields: [terms.createdBy],
-    references: [users.id],
-    relationName: 'terms_createdBy_users_id',
-  }),
-  user_updatedBy: one(users, {
-    fields: [terms.updatedBy],
-    references: [users.id],
-    relationName: 'terms_updatedBy_users_id',
-  }),
-  termsToDatasets: many(termsToDatasets),
-}));
-
 export const collectionsRelations = relations(collections, ({ one }) => ({
   organization: one(organizations, {
     fields: [collections.organizationId],
@@ -256,37 +196,6 @@ export const collectionsRelations = relations(collections, ({ one }) => ({
     fields: [collections.updatedBy],
     references: [users.id],
     relationName: 'collections_updatedBy_users_id',
-  }),
-}));
-
-export const dashboardsRelations = relations(dashboards, ({ one, many }) => ({
-  user_publiclyEnabledBy: one(users, {
-    fields: [dashboards.publiclyEnabledBy],
-    references: [users.id],
-    relationName: 'dashboards_publiclyEnabledBy_users_id',
-  }),
-  organization: one(organizations, {
-    fields: [dashboards.organizationId],
-    references: [organizations.id],
-  }),
-  user_createdBy: one(users, {
-    fields: [dashboards.createdBy],
-    references: [users.id],
-    relationName: 'dashboards_createdBy_users_id',
-  }),
-  user_updatedBy: one(users, {
-    fields: [dashboards.updatedBy],
-    references: [users.id],
-    relationName: 'dashboards_updatedBy_users_id',
-  }),
-  dashboardVersions: many(dashboardVersions),
-  threadsToDashboards: many(threadsToDashboards),
-}));
-
-export const dashboardVersionsRelations = relations(dashboardVersions, ({ one }) => ({
-  dashboard: one(dashboards, {
-    fields: [dashboardVersions.dashboardId],
-    references: [dashboards.id],
   }),
 }));
 
@@ -306,11 +215,7 @@ export const dataSourcesRelations = relations(dataSources, ({ one, many }) => ({
     relationName: 'dataSources_updatedBy_users_id',
   }),
   datasets: many(datasets),
-  storedValuesSyncJobs: many(storedValuesSyncJobs),
   metricFiles: many(metricFiles),
-  databaseMetadata: many(databaseMetadata),
-  schemaMetadata: many(schemaMetadata),
-  tableMetadata: many(tableMetadata),
 }));
 
 export const datasetGroupsRelations = relations(datasetGroups, ({ one, many }) => ({
@@ -335,7 +240,6 @@ export const datasetPermissionsRelations = relations(datasetPermissions, ({ one 
 
 export const datasetsRelations = relations(datasets, ({ one, many }) => ({
   datasetPermissions: many(datasetPermissions),
-  messagesDeprecateds: many(messagesDeprecated),
   dataSource: one(dataSources, {
     fields: [datasets.dataSourceId],
     references: [dataSources.id],
@@ -355,7 +259,6 @@ export const datasetsRelations = relations(datasets, ({ one, many }) => ({
     relationName: 'datasets_updatedBy_users_id',
   }),
   metricFilesToDatasets: many(metricFilesToDatasets),
-  termsToDatasets: many(termsToDatasets),
   datasetsToPermissionGroups: many(datasetsToPermissionGroups),
   datasetsToDatasetGroups: many(datasetsToDatasetGroups),
 }));
@@ -368,49 +271,6 @@ export const datasetGroupsPermissionsRelations = relations(datasetGroupsPermissi
   organization: one(organizations, {
     fields: [datasetGroupsPermissions.organizationId],
     references: [organizations.id],
-  }),
-}));
-
-export const threadsDeprecatedRelations = relations(threadsDeprecated, ({ one, many }) => ({
-  user_createdBy: one(users, {
-    fields: [threadsDeprecated.createdBy],
-    references: [users.id],
-    relationName: 'threadsDeprecated_createdBy_users_id',
-  }),
-  user_updatedBy: one(users, {
-    fields: [threadsDeprecated.updatedBy],
-    references: [users.id],
-    relationName: 'threadsDeprecated_updatedBy_users_id',
-  }),
-  user_publiclyEnabledBy: one(users, {
-    fields: [threadsDeprecated.publiclyEnabledBy],
-    references: [users.id],
-    relationName: 'threadsDeprecated_publiclyEnabledBy_users_id',
-  }),
-  threadsDeprecated: one(threadsDeprecated, {
-    fields: [threadsDeprecated.parentThreadId],
-    references: [threadsDeprecated.id],
-    relationName: 'threadsDeprecated_parentThreadId_threadsDeprecated_id',
-  }),
-  threadsDeprecateds: many(threadsDeprecated, {
-    relationName: 'threadsDeprecated_parentThreadId_threadsDeprecated_id',
-  }),
-  organization: one(organizations, {
-    fields: [threadsDeprecated.organizationId],
-    references: [organizations.id],
-  }),
-  threadsToDashboards: many(threadsToDashboards),
-}));
-
-export const messagesDeprecatedRelations = relations(messagesDeprecated, ({ one }) => ({
-  user_sentBy: one(users, {
-    fields: [messagesDeprecated.sentBy],
-    references: [users.id],
-    relationName: 'messagesDeprecated_sentBy_users_id',
-  }),
-  dataset: one(datasets, {
-    fields: [messagesDeprecated.datasetId],
-    references: [datasets.id],
   }),
 }));
 
@@ -470,13 +330,6 @@ export const dashboardFilesRelations = relations(dashboardFiles, ({ one, many })
   metricFilesToDashboardFiles: many(metricFilesToDashboardFiles),
 }));
 
-export const storedValuesSyncJobsRelations = relations(storedValuesSyncJobs, ({ one }) => ({
-  dataSource: one(dataSources, {
-    fields: [storedValuesSyncJobs.dataSourceId],
-    references: [dataSources.id],
-  }),
-}));
-
 export const metricFilesRelations = relations(metricFiles, ({ one, many }) => ({
   user_createdBy: one(users, {
     fields: [metricFiles.createdBy],
@@ -519,17 +372,6 @@ export const metricFilesToDatasetsRelations = relations(metricFilesToDatasets, (
   }),
 }));
 
-export const termsToDatasetsRelations = relations(termsToDatasets, ({ one }) => ({
-  term: one(terms, {
-    fields: [termsToDatasets.termId],
-    references: [terms.id],
-  }),
-  dataset: one(datasets, {
-    fields: [termsToDatasets.datasetId],
-    references: [datasets.id],
-  }),
-}));
-
 export const datasetsToPermissionGroupsRelations = relations(
   datasetsToPermissionGroups,
   ({ one }) => ({
@@ -552,21 +394,6 @@ export const datasetsToDatasetGroupsRelations = relations(datasetsToDatasetGroup
   datasetGroup: one(datasetGroups, {
     fields: [datasetsToDatasetGroups.datasetGroupId],
     references: [datasetGroups.id],
-  }),
-}));
-
-export const threadsToDashboardsRelations = relations(threadsToDashboards, ({ one }) => ({
-  threadsDeprecated: one(threadsDeprecated, {
-    fields: [threadsToDashboards.threadId],
-    references: [threadsDeprecated.id],
-  }),
-  dashboard: one(dashboards, {
-    fields: [threadsToDashboards.dashboardId],
-    references: [dashboards.id],
-  }),
-  user: one(users, {
-    fields: [threadsToDashboards.addedBy],
-    references: [users.id],
   }),
 }));
 
@@ -690,38 +517,4 @@ export const usersToOrganizationsRelations = relations(usersToOrganizations, ({ 
   }),
 }));
 
-export const databaseMetadataRelations = relations(databaseMetadata, ({ one, many }) => ({
-  dataSource: one(dataSources, {
-    fields: [databaseMetadata.dataSourceId],
-    references: [dataSources.id],
-  }),
-  schemaMetadata: many(schemaMetadata),
-  tableMetadata: many(tableMetadata),
-}));
-
-export const schemaMetadataRelations = relations(schemaMetadata, ({ one, many }) => ({
-  dataSource: one(dataSources, {
-    fields: [schemaMetadata.dataSourceId],
-    references: [dataSources.id],
-  }),
-  databaseMetadata: one(databaseMetadata, {
-    fields: [schemaMetadata.databaseId],
-    references: [databaseMetadata.id],
-  }),
-  tableMetadata: many(tableMetadata),
-}));
-
-export const tableMetadataRelations = relations(tableMetadata, ({ one }) => ({
-  dataSource: one(dataSources, {
-    fields: [tableMetadata.dataSourceId],
-    references: [dataSources.id],
-  }),
-  databaseMetadata: one(databaseMetadata, {
-    fields: [tableMetadata.databaseId],
-    references: [databaseMetadata.id],
-  }),
-  schemaMetadata: one(schemaMetadata, {
-    fields: [tableMetadata.schemaId],
-    references: [schemaMetadata.id],
-  }),
-}));
+// Metadata tables have been deprecated and moved to deprecated schema

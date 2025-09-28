@@ -1,4 +1,4 @@
-import type { GetReportResponse } from '@buster/server-shared/reports';
+import type { GetReportResponse, ReportResponse } from '@buster/server-shared/reports';
 import type { VerificationStatus } from '@buster/server-shared/share';
 import React, { useCallback, useMemo } from 'react';
 import {
@@ -58,7 +58,7 @@ export const ReportThreeDotMenu = React.memo(
     const favoriteItem = useFavoriteReportSelectMenu({ reportId });
     const versionHistory = useVersionHistorySelectMenu({ reportId });
     const undoRedo = useUndoRedo();
-    const duplicateReport = useDuplicateReportSelectMenu({ reportId });
+    // const duplicateReport = useDuplicateReportSelectMenu({ reportId }); TODO: EITHER Implement backend or remove feature
     // const verificationItem = useReportVerificationSelectMenu(); // Hidden - not supported yet
     const refreshReportItem = useRefreshReportSelectMenu({ reportId });
     const { dropdownItem: downloadPdfItem, exportPdfContainer } = useDownloadPdfSelectMenu({
@@ -80,14 +80,12 @@ export const ReportThreeDotMenu = React.memo(
         isEffectiveOwner && !isViewingOldVersion && shareMenu,
         saveToLibrary,
         favoriteItem,
-        { type: 'divider' },
-        ...undoRedo,
-        { type: 'divider' },
-        versionHistory,
+        ...(isEditor ? [{ type: 'divider' }, ...undoRedo] : []),
+        ...(isEditor ? [{ type: 'divider' }, versionHistory] : []),
         // verificationItem, // Hidden - not supported yet
         { type: 'divider' },
         isEditor && refreshReportItem,
-        duplicateReport,
+        // duplicateReport, TODO: EITHER Implement backend or remove feature
         downloadPdfItem,
       ].filter(Boolean) as IDropdownItems;
     }, [
@@ -103,7 +101,7 @@ export const ReportThreeDotMenu = React.memo(
       versionHistory,
       isEditor,
       refreshReportItem,
-      duplicateReport,
+      // duplicateReport, TODO: EITHER Implement backend or remove feature
       downloadPdfItem,
     ]);
 
@@ -121,9 +119,15 @@ export const ReportThreeDotMenu = React.memo(
 ReportThreeDotMenu.displayName = 'ReportThreeDotMenu';
 
 const useEditWithAI = ({ reportId }: { reportId: string }): IDropdownItem => {
+  const { data: shareAssetConfig } = useGetReport(
+    { id: reportId },
+    { select: getShareAssetConfig }
+  );
+  const isEditor = canEdit(shareAssetConfig?.permission);
+
   const { onCreateFileClick, loading } = useStartChatFromAsset({
     assetId: reportId,
-    assetType: 'report',
+    assetType: 'report_file',
   });
 
   return useMemo(
@@ -133,9 +137,10 @@ const useEditWithAI = ({ reportId }: { reportId: string }): IDropdownItem => {
         value: 'edit-with-ai',
         icon: <PenSparkle />,
         onClick: onCreateFileClick,
+        disabled: !isEditor,
         loading,
       }),
-    [reportId, onCreateFileClick, loading]
+    [reportId, onCreateFileClick, loading, isEditor]
   );
 };
 
@@ -145,7 +150,7 @@ const useSaveToLibrary = ({ reportId }: { reportId: string }): IDropdownItem => 
 
   const { data: selectedCollections } = useGetReport(
     { id: reportId },
-    { select: (x) => x.collections?.map((x) => x.id) }
+    { select: useCallback((x: ReportResponse) => x.collections?.map((x) => x.id), []) }
   );
   const { openInfoMessage } = useBusterNotifications();
 
@@ -191,11 +196,12 @@ const useSaveToLibrary = ({ reportId }: { reportId: string }): IDropdownItem => 
 };
 
 // Favorites for report (toggle add/remove)
+const stableReportNameSelector = (state: ReportResponse) => state.name;
 const useFavoriteReportSelectMenu = ({ reportId }: { reportId: string }): IDropdownItem => {
-  const { data: name } = useGetReport({ id: reportId }, { select: (x) => x.name });
+  const { data: name } = useGetReport({ id: reportId }, { select: stableReportNameSelector });
   const { isFavorited, onFavoriteClick } = useFavoriteStar({
     id: reportId,
-    type: 'report',
+    type: 'report_file',
     name: name || '',
   });
 
@@ -284,7 +290,8 @@ const useReportVerificationSelectMenu = (): IDropdownItem => {
 const useRefreshReportSelectMenu = ({ reportId }: { reportId: string }): IDropdownItem => {
   const { onCreateFileClick, loading: isPending } = useStartChatFromAsset({
     assetId: reportId,
-    assetType: 'report',
+    assetType: 'report_file',
+    prompt: 'Hey Buster. Please refresh the report with the latest data.',
   });
 
   const onClick = useMemoizedFn(async () => {
@@ -335,7 +342,7 @@ const useDownloadPdfSelectMenu = ({
   exportPdfContainer: React.ReactNode;
 } => {
   const { openErrorMessage } = useBusterNotifications();
-  const { data: reportName } = useGetReport({ id: reportId }, { select: (x) => x.name });
+  const { data: reportName } = useGetReport({ id: reportId }, { select: stableReportNameSelector });
   const { exportReportAsPDF, cancelExport, ExportContainer } = useReportPageExport({
     reportId,
     reportName: reportName || '',
@@ -408,7 +415,6 @@ const useDuplicateReportSelectMenu = ({ reportId }: { reportId: string }): IDrop
       value: 'duplicate-report',
       icon: <DuplicatePlus />,
       onClick: () => {
-        console.log('Duplicate report');
         alert('This feature is not available yet');
       },
     }),

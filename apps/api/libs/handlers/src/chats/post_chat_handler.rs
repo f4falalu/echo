@@ -69,7 +69,7 @@ use database::types::version_history::{VersionContent, VersionHistory};
 #[derive(Debug, Clone)]
 struct CompletedFileInfo {
     id: String,
-    file_type: String, // "metric" or "dashboard"
+    file_type: String, // "metric_file" or "dashboard"
     file_name: String,
     version_number: i32,
     content: String, // Added to store file content for parsing
@@ -319,26 +319,25 @@ pub async fn post_chat_handler(
 
         // Explicitly update the chat in the database with most_recent_file information
         // to ensure it behaves like files generated in a chat
-        let asset_type_string = match asset_type_value {
-            AssetType::MetricFile => Some("metric".to_string()),
-            AssetType::DashboardFile => Some("dashboard".to_string()),
+        let asset_type_for_db = match asset_type_value {
+            AssetType::MetricFile | AssetType::DashboardFile | AssetType::ReportFile => Some(asset_type_value),
             _ => None,
         };
 
-        if let Some(file_type) = asset_type_string {
+        if let Some(file_type) = asset_type_for_db {
             // Update the chat directly to ensure it has the most_recent_file information
             let mut conn = get_pg_pool().get().await?;
             diesel::update(chats::table.find(chat_id))
                 .set((
                     chats::most_recent_file_id.eq(Some(asset_id_value)),
-                    chats::most_recent_file_type.eq(Some(file_type.clone())),
+                    chats::most_recent_file_type.eq(Some(file_type)),
                     chats::updated_at.eq(Utc::now()),
                 ))
                 .execute(&mut conn)
                 .await?;
 
             tracing::info!(
-                "Updated chat {} with most_recent_file_id: {}, most_recent_file_type: {}",
+                "Updated chat {} with most_recent_file_id: {}, most_recent_file_type: {:?}",
                 chat_id,
                 asset_id_value,
                 file_type
@@ -1118,8 +1117,9 @@ async fn process_completed_files(
 
                             // Determine file type for chat update
                             let file_type_for_chat = match file_content.file_type.as_str() {
-                                "dashboard" => Some("dashboard".to_string()),
-                                "metric" => Some("metric".to_string()),
+                                "dashboard" | "dashboard_file" => Some(AssetType::DashboardFile),
+                                "metric" | "metric_file" => Some(AssetType::MetricFile),
+                                "report" | "report_file" => Some(AssetType::ReportFile),
                                 _ => None,
                             };
 
@@ -1676,7 +1676,7 @@ fn tool_create_metrics(id: String, content: String, delta_duration: Duration) ->
 
         let buster_file = BusterFile {
             id: file_id_str.clone(),
-            file_type: "metric".to_string(),
+            file_type: "metric_file".to_string(),
             file_name: file.name.clone(),
             version_number: file.version_number,
             status: "completed".to_string(), // Mark as completed
@@ -1693,13 +1693,13 @@ fn tool_create_metrics(id: String, content: String, delta_duration: Duration) ->
     // Process failed files
     for failure in create_metrics_result.failed_files { // This is Vec<FailedFileCreation>
         // Generate a deterministic ID for the failed file (might not exist in DB)
-        let failed_file_id = generate_deterministic_uuid(&id, &failure.name, "metric")?;
+        let failed_file_id = generate_deterministic_uuid(&id, &failure.name, "metric_file")?;
         let failed_file_id_str = failed_file_id.to_string();
         file_ids.push(failed_file_id_str.clone());
 
         let buster_file = BusterFile {
             id: failed_file_id_str.clone(),
-            file_type: "metric".to_string(),
+            file_type: "metric_file".to_string(),
             file_name: failure.name.clone(),
             version_number: 0, // Or indicate somehow it failed before versioning
             status: "failed".to_string(), // Mark as failed
@@ -1776,7 +1776,7 @@ fn tool_modify_metrics(id: String, content: String, delta_duration: Duration) ->
 
         let buster_file = BusterFile {
             id: file_id_str.clone(),
-            file_type: "metric".to_string(),
+            file_type: "metric_file".to_string(),
             file_name: file.name.clone(),
             version_number: file.version_number, 
             status: "completed".to_string(), // Mark as completed
@@ -1797,7 +1797,7 @@ fn tool_modify_metrics(id: String, content: String, delta_duration: Duration) ->
         // This part is tricky as the ID isn't directly in FailedFileModification
         // We might need to adjust FailedFileModification or how failures are reported
         // For now, let's try to generate a deterministic ID based on name, but this isn't ideal
-         let failed_file_id = generate_deterministic_uuid(&id, &failure.file_name, "metric")?;
+         let failed_file_id = generate_deterministic_uuid(&id, &failure.file_name, "metric_file")?;
          let failed_file_id_str = failed_file_id.to_string();
         // If we had the original UUID, we'd use that
         // let failed_file_id_str = failure.id.to_string(); // Hypothetical
@@ -1805,7 +1805,7 @@ fn tool_modify_metrics(id: String, content: String, delta_duration: Duration) ->
 
         let buster_file = BusterFile {
             id: failed_file_id_str.clone(),
-            file_type: "metric".to_string(),
+            file_type: "metric_file".to_string(),
             file_name: failure.file_name.clone(),
             version_number: 0, // Indicate modification failed
             status: "failed".to_string(), // Mark as failed
@@ -2408,12 +2408,12 @@ fn transform_assistant_tool_message(
             // --- Placeholder for File Tools ---
             "create_metrics" | "update_metrics" | "create_dashboards" | "update_dashboards" => {
                  // Determine file type based on tool name
-                let file_type = if tool_name.contains("metric") { "metric" } else { "dashboard" };
+                let file_type = if tool_name.contains("metric") { "metric_file" } else { "dashboard_file" };
 
                 // --- START: Process InProgress Chunks ---
                 if progress == MessageProgress::InProgress {
                     // Process the chunk using the appropriate parser method
-                    let parse_result = if file_type == "metric" {
+                    let parse_result = if file_type == "metric_file" {
                         parser.process_metric_chunk(tool_id.clone(), &tool_call.function.arguments)
                     } else {
                         parser.process_dashboard_chunk(tool_id.clone(), &tool_call.function.arguments)
@@ -3078,12 +3078,12 @@ async fn apply_file_filtering_rules(
 
     let metrics_this_turn: Vec<_> = completed_files_this_turn
         .iter()
-        .filter(|f| f.file_type == "metric")
+        .filter(|f| f.file_type == "metric_file")
         .cloned()
         .collect();
     let dashboards_this_turn: Vec<_> = completed_files_this_turn
         .iter()
-        .filter(|f| f.file_type == "dashboard")
+        .filter(|f| f.file_type == "dashboard_file")
         .cloned()
         .collect();
 

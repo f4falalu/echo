@@ -1,6 +1,7 @@
 import { ClientOnly } from '@tanstack/react-router';
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { LazyErrorBoundary } from '@/components/features/global/LazyErrorBoundary';
 import { isDev } from '@/config/dev';
 import { env } from '@/env';
 import { isServer } from '@/lib/window';
@@ -29,12 +30,12 @@ export const TanstackDevtools: React.FC = React.memo(() => {
   }, []);
 
   useHotkeys(
-    'shift+a',
+    'shift+d+t', //shaft (T)anstack+(D)evtools
     () => {
-      console.log('🐓 Setting useDevTools to true');
+      console.info('🐓 Setting useDevTools to true');
       setUseDevTools(true);
     },
-    { enabled: ENABLE_TANSTACK_PANEL }
+    { enabled: ENABLE_TANSTACK_PANEL, preventDefault: true }
   );
 
   if (!ENABLE_TANSTACK_PANEL || !mounted || !useDevTools) {
@@ -43,9 +44,11 @@ export const TanstackDevtools: React.FC = React.memo(() => {
 
   return (
     <ClientOnly>
-      <Suspense fallback={null}>
-        <LazyTanstackDevtools />
-      </Suspense>
+      <LazyErrorBoundary>
+        <Suspense fallback={<span className="hidden">...</span>}>
+          <LazyTanstackDevtools />
+        </Suspense>
+      </LazyErrorBoundary>
     </ClientOnly>
   );
 });

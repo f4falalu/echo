@@ -12,17 +12,21 @@ export const validateSearch = z.object({
 });
 
 export const staticData = {
-  assetType: 'metric' as AssetType,
+  assetType: 'metric_file' as AssetType,
+};
+
+export const beforeLoad = ({ search }: { search: { metric_version_number?: number } }) => {
+  return {
+    metric_version_number: search.metric_version_number,
+  };
 };
 
 export const loader = async <T extends { metricId: string }>({
   params: { metricId },
-  context: { queryClient },
-  deps: { metric_version_number },
+  context: { queryClient, metric_version_number },
 }: {
   params: T;
-  deps: { metric_version_number?: number };
-  context: { queryClient: QueryClient };
+  context: { queryClient: QueryClient; metric_version_number?: number };
 }): Promise<{
   title: string | undefined;
 }> => {

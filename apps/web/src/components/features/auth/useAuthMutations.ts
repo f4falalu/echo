@@ -8,19 +8,34 @@ import {
   signInWithGoogle,
   signUpWithEmailAndPassword,
 } from '@/integrations/supabase/signIn';
+import { useLastUsed } from './useLastUsed';
+
+export type SignInTypes = 'google' | 'github' | 'azure' | 'email' | null;
 
 // Reusable OAuth mutation hook
 export const useOAuthMutation = (
-  mutationFn: () => Promise<{ success: boolean; url?: string; error?: string }>
+  mutationFn: () => Promise<{ success: boolean; url?: string; error?: string }>,
+  type: SignInTypes,
+  setLastUsedMethod: (method: SignInTypes) => void
 ) => {
   return useMutation({
-    mutationFn,
+    mutationFn: async () => {
+      const result = await mutationFn();
+      if (!result.success) {
+        throw new Error(result.error || `${type} authentication failed`);
+      }
+      return result;
+    },
     onSuccess: (data) => {
       if (data.success && data.url) {
+        setLastUsedMethod(type);
         window.location.href = data.url;
       }
     },
-    throwOnError: true,
+    retry: false,
+    onError: (error) => {
+      console.error(error);
+    },
   });
 };
 
@@ -30,13 +45,13 @@ export const useCombinedMutationState = (
     isPending: boolean;
     error: unknown;
     reset: () => void;
-    name: string;
+    name: SignInTypes;
   }>
 ) => {
   const isLoading = mutations.some((m) => m.isPending);
 
-  const loadingType: 'google' | 'github' | 'azure' | 'email' | null =
-    (mutations.find((m) => m.isPending)?.name as 'google' | 'github' | 'azure' | 'email') || null;
+  const loadingType: SignInTypes =
+    (mutations.find((m) => m.isPending)?.name as SignInTypes) || null;
 
   const errorMessages = mutations
     .filter((m) => m.error)
@@ -58,37 +73,63 @@ export const createMutationHandler = (mutation: { mutate: () => void }) =>
 // Complete auth mutations hook
 export const useAuthMutations = (redirectTo?: string | null, onSignUpSuccess?: () => void) => {
   const navigate = useNavigate();
+  const { setLastUsedMethod } = useLastUsed();
 
   // OAuth Mutations
-  const googleSignInMutation = useOAuthMutation(() => signInWithGoogle({ data: { redirectTo } }));
-  const githubSignInMutation = useOAuthMutation(() => signInWithGithub({ data: { redirectTo } }));
-  const azureSignInMutation = useOAuthMutation(() => signInWithAzure({ data: { redirectTo } }));
+  const googleSignInMutation = useOAuthMutation(
+    () => signInWithGoogle({ data: { redirectTo } }),
+    'google',
+    setLastUsedMethod
+  );
+  const githubSignInMutation = useOAuthMutation(
+    () => signInWithGithub({ data: { redirectTo } }),
+    'github',
+    setLastUsedMethod
+  );
+  const azureSignInMutation = useOAuthMutation(
+    () => signInWithAzure({ data: { redirectTo } }),
+    'azure',
+    setLastUsedMethod
+  );
 
   // Email/Password Mutations
   const emailSignInMutation = useMutation({
-    mutationFn: ({ email, password }: { email: string; password: string }) =>
-      signInWithEmailAndPassword({ data: { email, password, redirectUrl: redirectTo } }),
-    onSuccess: async (data) => {
-      if (!data.error) {
-        await navigate({ to: redirectTo || '/app/home' });
+    mutationFn: async ({ email, password }: { email: string; password: string }) => {
+      const result = await signInWithEmailAndPassword({
+        data: { email, password, redirectUrl: redirectTo },
+      });
+      if (result.error) {
+        throw new Error(result.message);
       }
-      if (data.error) {
-        throw new Error(data.message);
-      }
+      return result;
     },
-    throwOnError: true,
+    onSuccess: async () => {
+      setLastUsedMethod('email');
+      await navigate({ to: redirectTo || '/app/home' });
+    },
+    retry: false,
+    onError: (error) => {
+      console.error(error);
+    },
   });
 
   const emailSignUpMutation = useMutation({
-    mutationFn: ({ email, password }: { email: string; password: string }) =>
-      signUpWithEmailAndPassword({ data: { email, password, redirectTo } }),
-    onSuccess: (data) => {
-      if (data.error) {
-        throw new Error(data.error);
+    mutationFn: async ({ email, password }: { email: string; password: string }) => {
+      const result = await signUpWithEmailAndPassword({ data: { email, password, redirectTo } });
+      if (!result.success) {
+        throw new Error(result.error || 'Sign up failed');
       }
-      if (data.success && onSignUpSuccess) {
+      return result;
+    },
+    onSuccess: () => {
+      setLastUsedMethod('email');
+      if (onSignUpSuccess) {
         onSignUpSuccess();
       }
+    },
+    retry: false,
+    onError: (error) => {
+      console.error(error);
     },
   });
 

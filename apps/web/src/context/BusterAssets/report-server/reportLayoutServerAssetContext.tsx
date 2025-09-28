@@ -10,23 +10,27 @@ export const validateSearch = z.object({
   report_version_number: z.coerce.number().optional(),
 });
 
+export const beforeLoad = ({ search }: { search: { report_version_number?: number } }) => {
+  return {
+    report_version_number: search.report_version_number,
+  };
+};
+
 export const loader = async ({
   params: { reportId },
-  context: { queryClient },
-  deps: { report_version_number },
+  context: { queryClient, report_version_number },
 }: {
   params: { reportId: string; chatId?: string };
-  deps: { report_version_number?: number };
-  context: { queryClient: QueryClient };
+  context: { queryClient: QueryClient; report_version_number?: number };
 }): Promise<{ title: string | undefined }> => {
-  const data = await prefetchGetReport(reportId, report_version_number, queryClient);
+  const data = await prefetchGetReport(queryClient, reportId, report_version_number);
   return {
     title: data?.name,
   };
 };
 
 export const staticData = {
-  assetType: 'report' as AssetType,
+  assetType: 'report_file' as AssetType,
 };
 
 export const head = ({ loaderData }: { loaderData?: { title: string | undefined } } = {}) => ({

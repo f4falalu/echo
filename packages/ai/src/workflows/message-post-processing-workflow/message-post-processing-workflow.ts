@@ -1,5 +1,5 @@
 import type { PermissionedDataset } from '@buster/access-controls';
-import { UserPersonalizationConfigSchema } from '@buster/database';
+import { UserPersonalizationConfigSchema } from '@buster/database/schema-types';
 import { z } from 'zod';
 import { runFlagChatStep } from '../../steps/message-post-processing-steps/flag-chat-step/flag-chat-step';
 import { runFormatFollowUpMessageStep } from '../../steps/message-post-processing-steps/format-follow-up-message-step/format-follow-up-message-step';

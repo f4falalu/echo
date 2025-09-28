@@ -2,10 +2,10 @@
 
 import type { PermissionedDataset } from '@buster/access-controls';
 import {
+  MessageAnalysisModeSchema,
   UserPersonalizationConfigSchema,
   type UserPersonalizationConfigType,
-  messageAnalysisModeEnum,
-} from '@buster/database';
+} from '@buster/database/schema-types';
 import type { ModelMessage } from 'ai';
 import { z } from 'zod';
 import {
@@ -25,6 +25,9 @@ import { CREATE_METRICS_TOOL_NAME } from '../../tools/visualization-tools/metric
 import { MODIFY_METRICS_TOOL_NAME } from '../../tools/visualization-tools/metrics/modify-metrics-tool/modify-metrics-tool';
 import { CREATE_REPORTS_TOOL_NAME } from '../../tools/visualization-tools/reports/create-reports-tool/create-reports-tool';
 import { MODIFY_REPORTS_TOOL_NAME } from '../../tools/visualization-tools/reports/modify-reports-tool/modify-reports-tool';
+import { extractUserAndDoneToolMessages } from '../../utils';
+import { withStepRetry } from '../../utils/with-step-retry';
+import type { StepRetryOptions } from '../../utils/with-step-retry';
 import {
   type AnalystWorkflowOutput,
   type ChartInfo,
@@ -37,7 +40,7 @@ import {
 const AnalystWorkflowInputSchema = z.object({
   messages: z.array(z.custom<ModelMessage>()),
   messageId: z.string().uuid(),
-  messageAnalysisMode: z.enum(messageAnalysisModeEnum.enumValues).optional(),
+  messageAnalysisMode: MessageAnalysisModeSchema.optional(),
   chatId: z.string().uuid(),
   userId: z.string().uuid(),
   organizationId: z.string().uuid(),
@@ -72,7 +75,7 @@ export async function runAnalystWorkflow(
   const userPersonalizationMessageContent =
     generatePersonalizationMessageContent(userPersonalizationConfig);
 
-  const { todos, values, analysisType } = await runAnalystPrepSteps(input);
+  const { todos, values, analysisMode } = await runAnalystPrepSteps(input);
 
   // Add all messages from extract-values step (tool call, result, and optional user message)
   messages.push(...values.messages);
@@ -91,7 +94,7 @@ export async function runAnalystWorkflow(
       sql_dialect_guidance: input.dataSourceSyntax,
       datasets: input.datasets,
       workflowStartTime,
-      analysisMode: analysisType,
+      analysisMode,
       analystInstructions,
       organizationDocs,
       userPersonalizationMessageContent,
@@ -130,6 +133,7 @@ export async function runAnalystWorkflow(
         userId: input.userId,
         datasets: input.datasets,
         workflowStartTime,
+        analysisMode,
         analystInstructions,
         organizationDocs,
         userPersonalizationMessageContent,
@@ -210,7 +214,7 @@ export async function runAnalystWorkflow(
     endTime: workflowEndTime,
     totalExecutionTimeMs: workflowEndTime - workflowStartTime,
 
-    analysisMode: analysisType === 'investigation' ? 'investigation' : 'standard',
+    analysisMode: analysisMode === 'investigation' ? 'investigation' : 'standard',
 
     messages,
 
@@ -241,11 +245,17 @@ const AnalystPrepStepSchema = z.object({
   dataSourceId: z.string().uuid(),
   chatId: z.string().uuid(),
   messageId: z.string().uuid(),
-  messageAnalysisMode: z.enum(messageAnalysisModeEnum.enumValues).optional(),
+  messageAnalysisMode: MessageAnalysisModeSchema.optional(),
   userPersonalizationConfig: UserPersonalizationConfigSchema.optional(),
 });
 
 type AnalystPrepStepInput = z.infer<typeof AnalystPrepStepSchema>;
+
+// Default retry configuration for pre-agent preparation steps
+const DEFAULT_PREP_STEP_RETRY_CONFIG: Omit<StepRetryOptions, 'stepName'> = {
+  maxAttempts: 3,
+  baseDelayMs: 2000,
+};
 
 async function runAnalystPrepSteps({
   messages,
@@ -257,31 +267,88 @@ async function runAnalystPrepSteps({
 }: AnalystPrepStepInput): Promise<{
   todos: CreateTodosResult;
   values: ExtractValuesSearchResult;
-  analysisType: AnalysisTypeRouterResult['analysisType'];
+  analysisMode: AnalysisTypeRouterResult['analysisMode'];
 }> {
+  const filteredToUserAndDoneToolMessages = extractUserAndDoneToolMessages(messages);
   const shouldInjectUserPersonalizationTodo = Boolean(userPersonalizationConfig);
-  const [todos, values, , analysisType] = await Promise.all([
-    runCreateTodosStep({
-      messages,
-      messageId,
-      shouldInjectUserPersonalizationTodo,
-    }),
-    runExtractValuesAndSearchStep({
-      messages,
-      dataSourceId,
-    }),
-    runGenerateChatTitleStep({
-      messages,
-      chatId,
-      messageId,
-    }),
-    runAnalysisTypeRouterStep({
-      messages,
-      messageAnalysisMode,
-    }),
+  const [todos, values, , analysisMode] = await Promise.all([
+    withStepRetry(
+      () =>
+        runCreateTodosStep({
+          messages,
+          messageId,
+          shouldInjectUserPersonalizationTodo,
+        }),
+      {
+        ...DEFAULT_PREP_STEP_RETRY_CONFIG,
+        stepName: 'create-todos',
+        onRetry: (attempt, error) => {
+          console.info('[create-todos] Retrying after error', {
+            messageId,
+            attempt,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+        },
+      }
+    ),
+    withStepRetry(
+      () =>
+        runExtractValuesAndSearchStep({
+          messages: filteredToUserAndDoneToolMessages,
+          dataSourceId,
+        }),
+      {
+        ...DEFAULT_PREP_STEP_RETRY_CONFIG,
+        stepName: 'extract-values',
+        onRetry: (attempt, error) => {
+          console.info('[extract-values] Retrying after error', {
+            messageId,
+            attempt,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+        },
+      }
+    ),
+    withStepRetry(
+      () =>
+        runGenerateChatTitleStep({
+          messages: filteredToUserAndDoneToolMessages,
+          chatId,
+          messageId,
+        }),
+      {
+        ...DEFAULT_PREP_STEP_RETRY_CONFIG,
+        stepName: 'generate-chat-title',
+        onRetry: (attempt, error) => {
+          console.info('[generate-chat-title] Retrying after error', {
+            messageId,
+            attempt,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+        },
+      }
+    ),
+    withStepRetry(
+      () =>
+        runAnalysisTypeRouterStep({
+          messages: filteredToUserAndDoneToolMessages,
+          messageAnalysisMode,
+        }),
+      {
+        ...DEFAULT_PREP_STEP_RETRY_CONFIG,
+        stepName: 'analysis-type-router',
+        onRetry: (attempt, error) => {
+          console.info('[analysis-type-router] Retrying after error', {
+            messageId,
+            attempt,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+        },
+      }
+    ),
   ]);
 
-  return { todos, values, analysisType: analysisType.analysisType };
+  return { todos, values, analysisMode: analysisMode.analysisMode };
 }
 
 function generatePersonalizationMessageContent(

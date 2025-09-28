@@ -22,7 +22,8 @@ import { WorkspaceAvatar } from './WorkspaceAvatar';
 
 export const ShareMenuContentBody: React.FC<{
   selectedOptions: ShareMenuTopBarOptions;
-  onCopyLink: () => void;
+  onCopyLink: (isEmbed: boolean) => void;
+  embedLinkURL: string;
   shareAssetConfig: ShareConfig;
   assetId: string;
   assetType: ShareAssetType;
@@ -37,6 +38,7 @@ export const ShareMenuContentBody: React.FC<{
     canEditPermissions,
     assetType,
     className = '',
+    embedLinkURL,
   }) => {
     const Component = ContentRecord[selectedOptions];
     const individual_permissions = shareAssetConfig.individual_permissions;
@@ -56,6 +58,7 @@ export const ShareMenuContentBody: React.FC<{
         canEditPermissions={canEditPermissions}
         className={className}
         shareAssetConfig={shareAssetConfig}
+        embedLinkURL={embedLinkURL}
       />
     );
   }
@@ -87,13 +90,13 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
 
     const updateByAssetType = useMemoizedFn(
       async (payload: Parameters<typeof onUpdateMetricShare>[0], assetType: ShareAssetType) => {
-        if (assetType === 'metric') {
+        if (assetType === 'metric_file') {
           return await onUpdateMetricShare(payload);
-        } else if (assetType === 'dashboard') {
+        } else if (assetType === 'dashboard_file') {
           return await onUpdateDashboardShare(payload);
         } else if (assetType === 'collection') {
           return await onUpdateCollectionShare(payload);
-        } else if (assetType === 'report') {
+        } else if (assetType === 'report_file') {
           return await onUpdateReportShare(payload);
         } else if (assetType === 'chat') {
           return await onUpdateChatShare(payload);
@@ -122,13 +125,13 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
           id: assetId,
           data: [email],
         };
-        if (assetType === 'metric') {
+        if (assetType === 'metric_file') {
           await onUnshareMetric(payload);
-        } else if (assetType === 'dashboard') {
+        } else if (assetType === 'dashboard_file') {
           await onUnshareDashboard(payload);
         } else if (assetType === 'collection') {
           await onUnshareCollection(payload);
-        } else if (assetType === 'report') {
+        } else if (assetType === 'report_file') {
           await onUnshareReport(payload);
         } else if (assetType === 'chat') {
           await onUnshareChat(payload);
@@ -198,7 +201,8 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
 ShareMenuContentShare.displayName = 'ShareMenuContentShare';
 
 export interface ShareMenuContentBodyProps {
-  onCopyLink: () => void;
+  onCopyLink: (isEmbed: boolean) => void;
+  embedLinkURL: string;
   individual_permissions: ShareConfig['individual_permissions'];
   publicly_accessible: boolean;
   publicExpirationDate: string | null | undefined;

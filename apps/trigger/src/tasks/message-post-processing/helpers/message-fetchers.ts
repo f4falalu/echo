@@ -1,4 +1,5 @@
-import { and, eq, getDb, isNotNull, isNull, lte, messages } from '@buster/database';
+import { and, eq, getDb, isNotNull, isNull, lte } from '@buster/database/connection';
+import { messages } from '@buster/database/schema';
 import { DataFetchError, type PostProcessingResult } from '../types';
 
 /**

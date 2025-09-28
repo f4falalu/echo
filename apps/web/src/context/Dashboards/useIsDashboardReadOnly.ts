@@ -13,14 +13,14 @@ export const useIsDashboardReadOnly = ({
   dashboardId: string;
   readOnly?: boolean;
 }) => {
-  const isVersionHistoryMode = useChatIsVersionHistoryMode({ type: 'dashboard' });
+  const isVersionHistoryMode = useChatIsVersionHistoryMode({ type: 'dashboard_file' });
   const { dashboardVersionNumber } = useGetDashboardParams();
   const {
     data: dashboardData,
     isFetched,
     isError,
   } = useGetDashboard(
-    { id: dashboardId },
+    { id: dashboardId, versionNumber: 'LATEST' },
     {
       select: useCallback((x: BusterDashboardResponse) => {
         return {

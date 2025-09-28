@@ -1,7 +1,7 @@
 import type { AssetType } from '@buster/server-shared/assets';
 import type { ResponseMessageFileType } from '@buster/server-shared/chats';
-import { useQuery } from '@tanstack/react-query';
-import { useMemo } from 'react';
+import { type QueryKey, useQuery } from '@tanstack/react-query';
+import { useCallback, useMemo } from 'react';
 import type { RustApiError } from '@/api/errors';
 import { chatQueryKeys } from '@/api/query_keys/chat';
 import { collectionQueryKeys } from '@/api/query_keys/collection';
@@ -14,22 +14,69 @@ interface AssetAccess {
   passwordRequired: boolean;
   isPublic: boolean;
   isDeleted: boolean;
+  isFetched: boolean;
 }
 
-const getAssetAccess = (error: RustApiError | null): AssetAccess => {
-  if (!error) {
-    return { hasAccess: true, passwordRequired: false, isPublic: false, isDeleted: false };
+const getAssetAccess = (
+  error: RustApiError | null,
+  isFetched: boolean,
+  selectedQuery: QueryKey,
+  hasData: boolean
+): AssetAccess => {
+  if (error) {
+    console.error('Error in getAssetAccess', error, isFetched, selectedQuery);
   }
 
-  if (error.status === 418) {
-    return { hasAccess: false, passwordRequired: true, isPublic: true, isDeleted: false };
+  // 418 is password required
+  if (error?.status === 418) {
+    return {
+      hasAccess: false,
+      passwordRequired: true,
+      isPublic: true,
+      isDeleted: false,
+      isFetched: true,
+    };
   }
 
-  if (error.status === 410) {
-    return { hasAccess: false, passwordRequired: false, isPublic: false, isDeleted: true };
+  // 410 is deleted
+  if (error?.status === 410) {
+    return {
+      hasAccess: false,
+      passwordRequired: false,
+      isPublic: false,
+      isDeleted: true,
+      isFetched: true,
+    };
   }
 
-  return { hasAccess: false, passwordRequired: false, isPublic: false, isDeleted: false };
+  // 403 is no access
+  if (error?.status === 403) {
+    return {
+      hasAccess: false,
+      passwordRequired: false,
+      isPublic: false,
+      isDeleted: false,
+      isFetched: true,
+    };
+  }
+
+  if (typeof error?.status === 'number' || !hasData) {
+    return {
+      hasAccess: false,
+      passwordRequired: false,
+      isPublic: false,
+      isDeleted: false,
+      isFetched: true,
+    };
+  }
+
+  return {
+    hasAccess: true,
+    passwordRequired: false,
+    isPublic: false,
+    isDeleted: false,
+    isFetched,
+  };
 };
 
 export const useGetAssetPasswordConfig = (
@@ -39,33 +86,45 @@ export const useGetAssetPasswordConfig = (
 ) => {
   const chosenVersionNumber = versionNumber || 'LATEST';
 
-  const selectedQuery = useMemo(() => {
-    if (type === 'metric') {
-      return metricsQueryKeys.metricsGetMetric(assetId, chosenVersionNumber);
-    }
-    if (type === 'dashboard') {
-      return dashboardQueryKeys.dashboardGetDashboard(assetId, chosenVersionNumber);
-    }
-    if (type === 'report') {
-      return reportsQueryKeys.reportsGetReport(assetId, chosenVersionNumber);
-    }
-    if (type === 'collection') {
-      return collectionQueryKeys.collectionsGetCollection(assetId);
-    }
-    if (type === 'reasoning') {
-      return chatQueryKeys.chatsGetChat(assetId);
-    }
+  const selectedQuery = useMemo(
+    () => getSelectedQuery(type, assetId, chosenVersionNumber),
+    [type, assetId, chosenVersionNumber]
+  );
 
-    const _exhaustiveCheck: 'chat' = type;
-
-    return chatQueryKeys.chatsGetChat(assetId);
-  }, [type, assetId, chosenVersionNumber]);
-
-  const { error } = useQuery({
+  const { error, isFetched, data, ...rest } = useQuery({
     queryKey: selectedQuery.queryKey,
-    enabled: false,
-    notifyOnChangeProps: ['error'],
+    enabled: true,
+    select: useCallback((v: unknown) => !!v, []),
+    notifyOnChangeProps: ['error', 'isFetched', 'data'],
+    retry: false,
+    initialData: false,
   });
 
-  return getAssetAccess(error);
+  return getAssetAccess(error, isFetched, selectedQuery.queryKey, !!data);
+};
+
+const getSelectedQuery = (
+  type: AssetType | ResponseMessageFileType,
+  assetId: string,
+  chosenVersionNumber: number | 'LATEST'
+) => {
+  if (type === 'metric_file') {
+    return metricsQueryKeys.metricsGetMetric(assetId, chosenVersionNumber);
+  }
+  if (type === 'dashboard_file') {
+    return dashboardQueryKeys.dashboardGetDashboard(assetId, chosenVersionNumber);
+  }
+  if (type === 'report_file') {
+    return reportsQueryKeys.reportsGetReport(assetId, chosenVersionNumber);
+  }
+  if (type === 'collection') {
+    return collectionQueryKeys.collectionsGetCollection(assetId);
+  }
+  if (type === 'reasoning') {
+    return chatQueryKeys.chatsGetChat(assetId);
+  }
+
+  const _exhaustiveCheck: 'chat' = type;
+
+  return chatQueryKeys.chatsGetChat(assetId);
 };

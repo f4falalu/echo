@@ -2,17 +2,14 @@ import {
   type CheckAssetPermissionParams,
   checkAssetPermission as checkDbAssetPermission,
   getUserOrganizationsByUserId,
-} from '@buster/database';
-import type { User } from '@buster/database';
-import type {
-  AssetPermissionRole,
-  AssetType,
-  OrganizationMembership,
-  WorkspaceSharing,
-} from '../types';
+} from '@buster/database/queries';
+import type { User } from '@buster/database/queries';
+import type { AssetType } from '@buster/database/schema-types';
+import type { AssetPermissionRole, OrganizationMembership, WorkspaceSharing } from '../types';
 import { getHighestPermission, isPermissionSufficient } from '../types/asset-permissions';
 import { getCachedPermission, setCachedPermission } from './cache';
 import { checkCascadingPermissions } from './cascading-permissions';
+import { hasPublicAccess } from './public-access-check';
 
 export interface AssetPermissionCheck {
   userId: string;
@@ -21,22 +18,43 @@ export interface AssetPermissionCheck {
   requiredRole: AssetPermissionRole;
   organizationId?: string;
   workspaceSharing?: WorkspaceSharing;
+  publiclyAccessible?: boolean;
+  publicExpiryDate?: string | undefined;
+  publicPassword?: string | undefined;
+  userSuppliedPassword?: string | undefined;
 }
 
 export interface AssetPermissionResult {
   hasAccess: boolean;
   effectiveRole?: AssetPermissionRole;
-  accessPath?: 'direct' | 'workspace_sharing' | 'cascading' | 'admin';
+  accessPath?: 'direct' | 'workspace_sharing' | 'cascading' | 'admin' | 'public';
 }
 
 /**
  * Check if a user has sufficient permission to perform an action on an asset
  */
 export async function checkPermission(check: AssetPermissionCheck): Promise<AssetPermissionResult> {
-  const { userId, assetId, assetType, requiredRole, organizationId, workspaceSharing } = check;
+  const {
+    userId,
+    assetId,
+    assetType,
+    requiredRole,
+    organizationId,
+    workspaceSharing,
+    publiclyAccessible,
+    publicExpiryDate,
+    publicPassword,
+    userSuppliedPassword,
+  } = check;
 
-  // Check cache first
-  const cached = getCachedPermission(userId, assetId, assetType, requiredRole);
+  // Check cache first (only for single role checks)
+  const cached = getCachedPermission(
+    userId,
+    assetId,
+    assetType,
+    requiredRole,
+    userSuppliedPassword
+  );
   if (cached !== undefined) {
     return cached;
   }
@@ -52,13 +70,7 @@ export async function checkPermission(check: AssetPermissionCheck): Promise<Asse
   const dbParams: CheckAssetPermissionParams = {
     userId,
     assetId,
-    assetType: assetType as
-      | 'dashboard'
-      | 'thread'
-      | 'chat'
-      | 'metric_file'
-      | 'dashboard_file'
-      | 'collection',
+    assetType,
   };
   if (organizationId !== undefined) {
     dbParams.organizationId = organizationId;
@@ -92,7 +104,33 @@ export async function checkPermission(check: AssetPermissionCheck): Promise<Asse
           effectiveRole: workspaceRole,
           accessPath: 'workspace_sharing' as const,
         };
-        setCachedPermission(userId, assetId, assetType, requiredRole, result);
+        // Only cache single role checks
+        if (!Array.isArray(requiredRole)) {
+          setCachedPermission(userId, assetId, assetType, requiredRole, result);
+        }
+        return result;
+      }
+    }
+  }
+
+  console.info('publiclyAccessible', publiclyAccessible);
+
+  if (publiclyAccessible) {
+    const hasPublicAccessCheck = hasPublicAccess(
+      publiclyAccessible,
+      publicExpiryDate,
+      publicPassword,
+      userSuppliedPassword
+    );
+    if (hasPublicAccessCheck) {
+      const accessRole: AssetPermissionRole = 'can_view';
+      if (isPermissionSufficient(accessRole, requiredRole)) {
+        const result = {
+          hasAccess: true,
+          effectiveRole: accessRole,
+          accessPath: 'public' as const,
+        };
+        setCachedPermission(userId, assetId, assetType, requiredRole, result, userSuppliedPassword);
         return result;
       }
     }
@@ -102,7 +140,12 @@ export async function checkPermission(check: AssetPermissionCheck): Promise<Asse
   if (requiredRole === 'can_view') {
     // Create a user object for cascading permissions check
     const user: Pick<User, 'id'> = { id: userId };
-    const hasCascadingAccess = await checkCascadingPermissions(assetId, assetType, user as User);
+    const hasCascadingAccess = await checkCascadingPermissions(
+      assetId,
+      assetType,
+      user as User,
+      userSuppliedPassword
+    );
     if (hasCascadingAccess) {
       const result = {
         hasAccess: true,
@@ -115,7 +158,10 @@ export async function checkPermission(check: AssetPermissionCheck): Promise<Asse
   }
 
   const result = { hasAccess: false };
-  setCachedPermission(userId, assetId, assetType, requiredRole, result);
+  // Only cache single role checks
+  if (!Array.isArray(requiredRole)) {
+    setCachedPermission(userId, assetId, assetType, requiredRole, result);
+  }
   return result;
 }
 
@@ -171,22 +217,4 @@ function mapWorkspaceSharingToRole(workspaceSharing: WorkspaceSharing): AssetPer
     default:
       return null;
   }
-}
-
-/**
- * Check if a user has any access to an asset (simplified check)
- */
-export async function hasAnyAccess(
-  userId: string,
-  assetId: string,
-  assetType: AssetType
-): Promise<boolean> {
-  const result = await checkPermission({
-    userId,
-    assetId,
-    assetType,
-    requiredRole: 'can_view', // Minimum permission level
-  });
-
-  return result.hasAccess;
 }

@@ -1,0 +1,51 @@
+fileType: momentic/test
+id: ac7ccb7b-489d-4b37-9bd6-bda9193004b6
+name: create-report
+description: Start a new chat to create a dashboard. Verify that it is created
+  and saved properly
+schemaVersion: 1.0.21
+advanced:
+  viewport:
+    width: 1920
+    height: 1080
+  browserType: Chromium
+retries: 0
+envs:
+  - name: development
+    default: true
+steps:
+  - id: d4112b77-f85e-4574-9fed-79b7e021ae61
+    type: MODULE
+    moduleId: defc36e9-b0a7-4bfe-940f-7901493d5e5e
+  - id: a9c567ec-c1db-4c3b-a468-76f6abda57af
+    type: PRESET_ACTION
+    command:
+      id: 9bfcb30e-8eab-4a62-9f43-ecae73e1a5a8
+      clearContent: true
+      type: TYPE
+      target:
+        type: description
+        elementDescriptor: The text input box with Ask Buster a question..
+      value: Create me a report detailing which products had more orders in 2024.
+  - id: 3055c1c9-a374-4bb0-a572-2803797b76e6
+    type: PRESET_ACTION
+    command:
+      id: dddcebc7-8154-4810-b589-2a61086f2e00
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: Click the submit question button in text box
+  - id: 613cbed8-7896-411f-b56e-0b97f0891b68
+    type: MODULE
+    moduleId: 805447d3-e699-46f6-b1d2-0132840b3f20
+  - id: 811ac890-555e-452f-9c2d-0452a50b93c8
+    type: MODULE
+    moduleId: 782571e2-3c8e-49fe-a59e-0685924c5a43
+  - id: dd1f65e1-62a6-4903-89c7-f9fa43ca061d
+    type: PRESET_ACTION
+    command:
+      id: 77dac8f0-36ba-4a68-941d-cd20e5b52a57
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: Reports in the left side navigation panel

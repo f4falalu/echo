@@ -58,7 +58,6 @@ export const WithValue: Story = {
           {...args}
           value={value}
           onChange={(v) => {
-            console.log('onChange', v);
             setValue(v);
           }}
         />

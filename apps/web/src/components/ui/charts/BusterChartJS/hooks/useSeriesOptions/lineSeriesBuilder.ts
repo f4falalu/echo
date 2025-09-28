@@ -13,6 +13,8 @@ import { formatLabelForDataset } from '../../../commonHelpers';
 import type { ChartProps } from '../../core';
 import { formatBarAndLineDataLabel } from '../../helpers';
 import { defaultLabelOptionConfig } from '../useChartSpecificOptions/labelOptionConfig';
+import { barSeriesBuilder_labels } from './barSeriesBuilder';
+import { createTickDates } from './createTickDate';
 import { createTrendlineOnSeries } from './createTrendlines';
 import type { SeriesBuilderProps } from './interfaces';
 import type { LabelBuilderProps } from './useSeriesOptions';
@@ -88,6 +90,7 @@ export const lineBuilder = (
 
   const colorLength = colors.length;
   const color = colors[index % colorLength] || '';
+  const datasetColor = dataset.colors;
 
   // Pre-calculate point dimensions
   const hoverRadius = lineSymbolSize * HOVER_RADIUS_MULTIPLIER;
@@ -213,29 +216,13 @@ export const lineSeriesBuilder_labels = ({
   xAxisKeys,
   columnLabelFormats,
 }: LabelBuilderProps): (string | Date)[] => {
-  const xColumnLabelFormat = columnLabelFormats[xAxisKeys[0] || ''] || DEFAULT_COLUMN_LABEL_FORMAT;
-  const useDateLabels =
-    xAxisKeys.length === 1 &&
-    datasetOptions.ticks[0]?.length === 1 &&
-    xColumnLabelFormat.columnType === 'date' &&
-    xColumnLabelFormat.style === 'date';
-  const ticksKey = datasetOptions.ticksKey;
-
-  if (useDateLabels) {
-    return datasetOptions.ticks.flatMap((item) => {
-      return item.map<Date>((item) => {
-        return createDayjsDate(item as string).toDate(); //do not join because it will turn into a string
-      });
-    });
+  const dateTicks = createTickDates(datasetOptions.ticks, xAxisKeys, columnLabelFormats);
+  if (dateTicks) {
+    return dateTicks;
   }
 
-  return datasetOptions.ticks.flatMap((item) => {
-    return item
-      .map<string>((item, index) => {
-        const key = ticksKey[index]?.key || '';
-        const columnLabelFormat = columnLabelFormats[key];
-        return formatLabel(item, columnLabelFormat);
-      })
-      .join(JOIN_CHARACTER);
+  return barSeriesBuilder_labels({
+    datasetOptions,
+    columnLabelFormats,
   });
 };

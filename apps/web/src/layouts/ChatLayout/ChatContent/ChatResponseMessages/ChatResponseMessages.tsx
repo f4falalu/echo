@@ -1,6 +1,9 @@
 import React from 'react';
-import type { BusterChatMessage } from '@/api/asset_interfaces/chat';
-import { useGetChatMessage } from '@/api/buster_rest/chats';
+import {
+  useGetChatMessageFinalReasoningMessage,
+  useGetChatMessageLastReasoningMessageId,
+  useGetChatMessageResponseMessageIds,
+} from '@/context/Chats/useGetChatMessage';
 import { ChatMessageOptions } from '../ChatMessageOptions';
 import { MessageContainer } from '../MessageContainer';
 import { ChatResponseMessageSelector } from './ChatResponseMessageSelector';
@@ -13,22 +16,12 @@ interface ChatResponseMessagesProps {
   messageIndex: number;
 }
 
-const stableResponseMessageIdsSelector = (x: BusterChatMessage) => x?.response_message_ids || [];
-const stableLastReasoningMessageIdSelector = (x: BusterChatMessage) =>
-  x?.reasoning_message_ids?.[x.reasoning_message_ids.length - 1];
-const stableFinalReasoningMessageSelector = (x: BusterChatMessage) => x?.final_reasoning_message;
-
 export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.memo(
   ({ chatId, isStreamFinished, messageId, messageIndex }) => {
-    const { data: responseMessageIds } = useGetChatMessage(messageId, {
-      select: stableResponseMessageIdsSelector,
-    });
-    const { data: lastReasoningMessageId } = useGetChatMessage(messageId, {
-      select: stableLastReasoningMessageIdSelector,
-    });
-    const { data: finalReasoningMessage } = useGetChatMessage(messageId, {
-      select: stableFinalReasoningMessageSelector,
-    });
+    const responseMessageIds = useGetChatMessageResponseMessageIds({ messageId });
+    const lastReasoningMessageId = useGetChatMessageLastReasoningMessageId({ messageId });
+    const finalReasoningMessage = useGetChatMessageFinalReasoningMessage({ messageId });
+
     const showReasoningMessage =
       messageIndex === 0 ? !!lastReasoningMessageId || !isStreamFinished : true;
 
@@ -51,14 +44,13 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
         )}
 
         {responseMessageIds?.map((responseMessageId) => (
-          <React.Fragment key={responseMessageId}>
-            <ChatResponseMessageSelector
-              responseMessageId={responseMessageId}
-              messageId={messageId}
-              isStreamFinished={isStreamFinished}
-              chatId={chatId}
-            />
-          </React.Fragment>
+          <ChatResponseMessageSelector
+            key={responseMessageId}
+            responseMessageId={responseMessageId}
+            messageId={messageId}
+            isStreamFinished={isStreamFinished}
+            chatId={chatId}
+          />
         ))}
 
         {isStreamFinished && <ChatMessageOptions messageId={messageId} chatId={chatId} />}

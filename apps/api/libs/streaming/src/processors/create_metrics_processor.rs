@@ -120,7 +120,7 @@ impl Processor for CreateMetricsProcessor {
                                 file_id_str.clone(),
                                 File {
                                     id: file_id_str.clone(),
-                                    file_type: "metric".to_string(),
+                                    file_type: "metric_file".to_string(),
                                     file_name: name.to_string(),
                                     version_number: 1,
                                     status: "loading".to_string(),

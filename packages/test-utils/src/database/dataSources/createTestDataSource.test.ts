@@ -3,7 +3,7 @@ import { cleanupTestEnvironment, setupTestEnvironment } from '../../envHelpers/e
 
 const mockGetOrganizationDataSource = vi.fn();
 
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   getOrganizationDataSource: mockGetOrganizationDataSource,
 }));
 
@@ -41,7 +41,7 @@ describe('Organization Data Source Helper - Unit Tests', () => {
     mockCreateTestDataSource.mockResolvedValue(mockDataSource);
     mockGetOrganizationDataSource.mockResolvedValue(mockResult);
 
-    const { getOrganizationDataSource } = await import('@buster/database');
+    const { getOrganizationDataSource } = await import('@buster/database/queries');
     const { createTestDataSource } = await import('./createTestDataSource');
 
     const { dataSourceId, organizationId, dataSourceType } = await createTestDataSource();
@@ -57,7 +57,7 @@ describe('Organization Data Source Helper - Unit Tests', () => {
       new Error('Organization ID must be a valid UUID')
     );
 
-    const { getOrganizationDataSource } = await import('@buster/database');
+    const { getOrganizationDataSource } = await import('@buster/database/queries');
     const input = { organizationId: 'invalid-uuid' };
 
     await expect(getOrganizationDataSource(input)).rejects.toThrow(
@@ -70,7 +70,7 @@ describe('Organization Data Source Helper - Unit Tests', () => {
       new Error('No data sources found for organization')
     );
 
-    const { getOrganizationDataSource } = await import('@buster/database');
+    const { getOrganizationDataSource } = await import('@buster/database/queries');
     const input = {
       organizationId: '00000000-0000-0000-0000-000000000000',
     };
@@ -94,7 +94,7 @@ describe('Organization Data Source Helper - Unit Tests', () => {
       )
     );
 
-    const { getOrganizationDataSource } = await import('@buster/database');
+    const { getOrganizationDataSource } = await import('@buster/database/queries');
     const { createTestDataSource } = await import('./createTestDataSource');
 
     const { organizationId } = await createTestDataSource();

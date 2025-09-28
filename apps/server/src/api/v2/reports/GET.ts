@@ -1,5 +1,5 @@
-import type { User } from '@buster/database';
-import { getReportsWithPermissions } from '@buster/database';
+import type { User } from '@buster/database/queries';
+import { getReportsWithPermissions } from '@buster/database/queries';
 import type { GetReportsListRequest, GetReportsListResponse } from '@buster/server-shared/reports';
 import { GetReportsListRequestSchema } from '@buster/server-shared/reports';
 import { zValidator } from '@hono/zod-validator';

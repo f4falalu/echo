@@ -65,8 +65,8 @@ pub async fn generate_asset_messages(
             let asset_data = json!({
                 "id": asset_id.to_string(),
                 "name": metric.name,
-                "file_type": "metric",
-                "asset_type": "metric",
+                "file_type": "metric_file",
+                "asset_type": "metric_file",
                 "yml_content": yml_content,
                 "result_message": "0 records were returned",
                 "results": results,
@@ -75,7 +75,7 @@ pub async fn generate_asset_messages(
                 "updated_at": metric.updated_at
             });
 
-            (asset_data, "metric", Vec::new())
+            (asset_data, "metric_file", Vec::new())
         }
         AssetType::DashboardFile => {
             let dashboard = dashboard_files::table
@@ -121,8 +121,8 @@ pub async fn generate_asset_messages(
                             let metric_data = json!({
                                 "id": metric.id.to_string(),
                                 "name": metric.name,
-                                "file_type": "metric",
-                                "asset_type": "metric",
+                                "file_type": "metric_file",
+                                "asset_type": "metric_file",
                                 "yml_content": yml_content,
                                 "created_at": metric.created_at,
                                 "version_number": metric.version_history.get_version_number(),
@@ -277,10 +277,9 @@ pub async fn create_message_file_association(
         .await;
 
     if let Ok(chat_id) = message_result {
-        // Determine file type string
+        // Check if this is a supported file type
         let file_type = match asset_type {
-            AssetType::MetricFile => "metric".to_string(),
-            AssetType::DashboardFile => "dashboard".to_string(),
+            AssetType::MetricFile | AssetType::DashboardFile | AssetType::ReportFile => asset_type,
             _ => return Ok(()),
         };
 

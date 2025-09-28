@@ -1,7 +1,8 @@
 import { and, eq, isNull, or } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
-import { assetPermissionRoleEnum, assetPermissions, assetTypeEnum } from '../../schema';
+import { assetPermissions } from '../../schema';
+import { AssetTypeSchema } from '../../schema-types';
 
 /**
  * Input schema for type safety
@@ -9,7 +10,7 @@ import { assetPermissionRoleEnum, assetPermissions, assetTypeEnum } from '../../
 export const GetAssetPermissionInputSchema = z.object({
   userId: z.string().uuid(),
   assetId: z.string().uuid(),
-  assetType: z.enum(assetTypeEnum.enumValues),
+  assetType: AssetTypeSchema,
 });
 export type GetAssetPermissionInput = z.infer<typeof GetAssetPermissionInputSchema>;
 

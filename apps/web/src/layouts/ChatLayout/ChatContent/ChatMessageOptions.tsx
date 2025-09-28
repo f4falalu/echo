@@ -1,5 +1,6 @@
 import { useNavigate } from '@tanstack/react-router';
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
+import type { BusterChatMessage } from '@/api/asset_interfaces/chat';
 import {
   useDuplicateChat,
   useGetChatMessage,
@@ -29,13 +30,20 @@ export const ChatMessageOptions: React.FC<{
   const permission = useChatPermission(chatId);
   const canEditChat = canEdit(permission);
   const { data: feedback } = useGetChatMessage(messageId, {
-    select: ({ feedback }) => feedback,
+    select: useCallback((x: BusterChatMessage) => x?.feedback, []),
+    notifyOnChangeProps: ['data'],
   });
   const { data: updatedAt } = useGetChatMessage(messageId, {
-    select: ({ updated_at }) => updated_at,
+    select: useCallback((x: BusterChatMessage) => x?.updated_at, []),
+    notifyOnChangeProps: ['data'],
   });
   const { data: postProcessingMessage } = useGetChatMessage(messageId, {
-    select: ({ post_processing_message }) => post_processing_message,
+    select: useCallback((x: BusterChatMessage) => x?.post_processing_message, []),
+    notifyOnChangeProps: ['data'],
+  });
+  const { data: hasFinalReasoningMessage } = useGetChatMessage(messageId, {
+    select: useCallback((x: BusterChatMessage) => !!x?.final_reasoning_message, []),
+    notifyOnChangeProps: ['data'],
   });
 
   const updatedAtFormatted = useMemo(() => {
@@ -66,6 +74,8 @@ export const ChatMessageOptions: React.FC<{
       },
     });
   });
+
+  if (!hasFinalReasoningMessage) return null;
 
   return (
     <div className="flex items-center gap-1">

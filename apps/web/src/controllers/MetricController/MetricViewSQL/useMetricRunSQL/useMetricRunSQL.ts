@@ -7,7 +7,6 @@ import {
   useGetMetricDataMemoized,
   useGetMetricMemoized,
 } from '@/api/buster_rest/metrics/metricQueryHelpers';
-import { useGetLatestMetricVersionMemoized } from '@/api/buster_rest/metrics/metricVersionNumber';
 import { useUpdateMetric } from '@/api/buster_rest/metrics/queryRequests';
 import { useRunSQL as useRunSQLQuery } from '@/api/buster_rest/sql';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
@@ -40,7 +39,6 @@ export const useMetricRunSQL = () => {
     isPending: isRunningSQL,
   } = useRunSQLQuery();
   const { openSuccessNotification } = useBusterNotifications();
-  const getLatestMetricVersion = useGetLatestMetricVersionMemoized();
 
   const originalConfigs = useRef<{
     chartConfig: ChartConfigProps;

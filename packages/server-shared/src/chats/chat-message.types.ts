@@ -1,5 +1,5 @@
-import type { ChatMessageReasoningMessage, ChatMessageResponseMessage } from '@buster/database';
 import { z } from 'zod';
+import { AssetTypeSchema, BaseAssetTypeSchema } from '../assets/asset-types.types';
 import { PostProcessingMessageSchema } from '../message';
 
 // Re-create the schemas locally to avoid ESM/CommonJS issues
@@ -22,7 +22,12 @@ const ResponseMessage_FileMetadataSchema = z.object({
   timestamp: z.number().optional(),
 });
 
-const ResponseMessageFileTypeSchema = z.enum(['metric', 'dashboard', 'reasoning', 'report']);
+const ResponseMessageFileTypeSchema = z.enum([
+  'metric_file',
+  'dashboard_file',
+  'reasoning',
+  'report_file',
+]);
 
 const ResponseMessage_FileSchema = z.object({
   id: z.string(),
@@ -51,9 +56,7 @@ const ReasoningMessage_TextSchema = z.object({
 });
 
 const ReasoningFileTypeSchema = z.enum([
-  'metric',
-  'dashboard',
-  'report',
+  ...BaseAssetTypeSchema.options,
   'reasoning',
   'agent-action',
   'todo',
@@ -81,10 +84,8 @@ const ReasoningMessage_FilesSchema = z.object({
   files: z.record(z.string(), ReasoningFileSchema),
 });
 
-const ReasoingMessage_ThoughtFileTypeSchema = z.enum([
-  'metric',
-  'dashboard',
-  'collection',
+const ReasoningMessage_ThoughtFileTypeSchema = z.enum([
+  ...AssetTypeSchema.exclude(['chat']).options,
   'dataset',
   'term',
   'topic',
@@ -94,7 +95,7 @@ const ReasoingMessage_ThoughtFileTypeSchema = z.enum([
 
 const ReasoningMessage_PillSchema = z.object({
   text: z.string(),
-  type: ReasoingMessage_ThoughtFileTypeSchema,
+  type: ReasoningMessage_ThoughtFileTypeSchema,
   id: z.string(),
 });
 

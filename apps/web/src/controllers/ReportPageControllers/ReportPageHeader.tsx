@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { EditableTitle } from '@/components/ui/typography/EditableTitle';
+import { InputTextArea } from '@/components/ui/inputs/InputTextArea';
 import { Paragraph } from '@/components/ui/typography/Paragraph';
 import { formatDate } from '@/lib/date';
 import { cn } from '@/lib/utils';
@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 const DEFAULT_CREATED_BY = 'Created by Buster';
 
 export const ReportPageHeader = React.forwardRef<
-  HTMLInputElement,
+  HTMLTextAreaElement,
   {
     className?: string;
     name?: string;
@@ -24,15 +24,15 @@ export const ReportPageHeader = React.forwardRef<
 
   return (
     <div className={cn('flex flex-col space-y-1.5', className)}>
-      <EditableTitle
+      <InputTextArea
         readOnly={isStreaming || readOnly}
-        className="text-foreground! h-9"
-        level={1}
+        className="text-foreground! h-9 font-semibold text-3xl p-0"
         ref={ref}
-        onChange={onChangeName}
+        variant={'ghost'}
+        onChange={(e) => onChangeName(e.target.value)}
       >
         {name}
-      </EditableTitle>
+      </InputTextArea>
       <Paragraph size={'base'} variant={'tertiary'} className="select-none">
         {updatedAtFormatted && (
           <>

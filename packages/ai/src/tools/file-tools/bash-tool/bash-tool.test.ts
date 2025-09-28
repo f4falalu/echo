@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createBashTool } from './bash-tool';
 
 // Mock the dependencies
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   updateMessageEntries: vi.fn(),
 }));
 

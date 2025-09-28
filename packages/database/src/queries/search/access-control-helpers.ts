@@ -1,14 +1,17 @@
-import { and, eq, isNull, or } from 'drizzle-orm';
+import { and, eq, isNull, ne, or } from 'drizzle-orm';
 import { db } from '../../connection';
 import {
   assetPermissions,
+  assetSearchV2,
+  chats,
+  collections,
   collectionsToAssets,
   dashboardFiles,
   messages,
   messagesToFiles,
   metricFilesToDashboardFiles,
   metricFilesToReportFiles,
-  textSearch,
+  reportFiles,
 } from '../../schema';
 
 /**
@@ -17,14 +20,14 @@ import {
 export function getDirectPermissionedAssets(userId: string, organizationId: string) {
   return db
     .selectDistinct({
-      assetId: textSearch.assetId,
+      assetId: assetSearchV2.assetId,
     })
-    .from(textSearch)
+    .from(assetSearchV2)
     .innerJoin(
       assetPermissions,
       and(
-        eq(assetPermissions.assetId, textSearch.assetId),
-        eq(assetPermissions.assetType, textSearch.assetType)
+        eq(assetPermissions.assetId, assetSearchV2.assetId),
+        eq(assetPermissions.assetType, assetSearchV2.assetType)
       )
     )
     .where(
@@ -37,7 +40,7 @@ export function getDirectPermissionedAssets(userId: string, organizationId: stri
           )
         ),
         isNull(assetPermissions.deletedAt),
-        isNull(textSearch.deletedAt)
+        isNull(assetSearchV2.deletedAt)
       )
     );
 }
@@ -48,17 +51,18 @@ export function getDirectPermissionedAssets(userId: string, organizationId: stri
 export function getChatInheritedPermissionedAssets(userId: string, organizationId: string) {
   return db
     .selectDistinct({
-      assetId: textSearch.assetId,
+      assetId: assetSearchV2.assetId,
     })
-    .from(textSearch)
+    .from(assetSearchV2)
     .innerJoin(
       messagesToFiles,
-      and(eq(messagesToFiles.fileId, textSearch.assetId), isNull(messagesToFiles.deletedAt))
+      and(eq(messagesToFiles.fileId, assetSearchV2.assetId), isNull(messagesToFiles.deletedAt))
     )
     .innerJoin(
       messages,
       and(eq(messages.id, messagesToFiles.messageId), isNull(messages.deletedAt))
     )
+    .innerJoin(chats, and(eq(chats.id, messages.chatId), isNull(chats.deletedAt)))
     .innerJoin(
       assetPermissions,
       and(eq(assetPermissions.assetId, messages.chatId), eq(assetPermissions.assetType, 'chat'))
@@ -70,10 +74,11 @@ export function getChatInheritedPermissionedAssets(userId: string, organizationI
           and(
             eq(assetPermissions.identityType, 'organization'),
             eq(assetPermissions.identityId, organizationId)
-          )
+          ),
+          ne(chats.workspaceSharing, 'none')
         ),
         isNull(assetPermissions.deletedAt),
-        isNull(textSearch.deletedAt)
+        isNull(assetSearchV2.deletedAt)
       )
     );
 }
@@ -84,16 +89,20 @@ export function getChatInheritedPermissionedAssets(userId: string, organizationI
 export function getCollectionInheritedPermissionedAssets(userId: string, organizationId: string) {
   return db
     .selectDistinct({
-      assetId: textSearch.assetId,
+      assetId: assetSearchV2.assetId,
     })
-    .from(textSearch)
+    .from(assetSearchV2)
     .innerJoin(
       collectionsToAssets,
       and(
-        eq(collectionsToAssets.assetId, textSearch.assetId),
-        eq(collectionsToAssets.assetType, textSearch.assetType),
+        eq(collectionsToAssets.assetId, assetSearchV2.assetId),
+        eq(collectionsToAssets.assetType, assetSearchV2.assetType),
         isNull(collectionsToAssets.deletedAt)
       )
+    )
+    .innerJoin(
+      collections,
+      and(eq(collections.id, collectionsToAssets.collectionId), isNull(collections.deletedAt))
     )
     .innerJoin(
       assetPermissions,
@@ -109,10 +118,11 @@ export function getCollectionInheritedPermissionedAssets(userId: string, organiz
           and(
             eq(assetPermissions.identityType, 'organization'),
             eq(assetPermissions.identityId, organizationId)
-          )
+          ),
+          ne(collections.workspaceSharing, 'none')
         ),
         isNull(assetPermissions.deletedAt),
-        isNull(textSearch.deletedAt)
+        isNull(assetSearchV2.deletedAt)
       )
     );
 }
@@ -123,13 +133,13 @@ export function getCollectionInheritedPermissionedAssets(userId: string, organiz
 export function getDashboardInheritedPermissionedAssets(userId: string, organizationId: string) {
   return db
     .selectDistinct({
-      assetId: textSearch.assetId,
+      assetId: assetSearchV2.assetId,
     })
-    .from(textSearch)
+    .from(assetSearchV2)
     .innerJoin(
       metricFilesToDashboardFiles,
       and(
-        eq(metricFilesToDashboardFiles.metricFileId, textSearch.assetId),
+        eq(metricFilesToDashboardFiles.metricFileId, assetSearchV2.assetId),
         isNull(metricFilesToDashboardFiles.deletedAt)
       )
     )
@@ -154,11 +164,12 @@ export function getDashboardInheritedPermissionedAssets(userId: string, organiza
           and(
             eq(assetPermissions.identityType, 'organization'),
             eq(assetPermissions.identityId, organizationId)
-          )
+          ),
+          ne(dashboardFiles.workspaceSharing, 'none')
         ),
         isNull(assetPermissions.deletedAt),
-        isNull(textSearch.deletedAt),
-        eq(textSearch.assetType, 'metric_file')
+        isNull(assetSearchV2.deletedAt),
+        eq(assetSearchV2.assetType, 'metric_file')
       )
     );
 }
@@ -169,15 +180,19 @@ export function getDashboardInheritedPermissionedAssets(userId: string, organiza
 export function getReportInheritedPermissionedAssets(userId: string, organizationId: string) {
   return db
     .selectDistinct({
-      assetId: textSearch.assetId,
+      assetId: assetSearchV2.assetId,
     })
-    .from(textSearch)
+    .from(assetSearchV2)
     .innerJoin(
       metricFilesToReportFiles,
       and(
-        eq(metricFilesToReportFiles.metricFileId, textSearch.assetId),
+        eq(metricFilesToReportFiles.metricFileId, assetSearchV2.assetId),
         isNull(metricFilesToReportFiles.deletedAt)
       )
+    )
+    .innerJoin(
+      reportFiles,
+      and(eq(reportFiles.id, metricFilesToReportFiles.reportFileId), isNull(reportFiles.deletedAt))
     )
     .innerJoin(
       assetPermissions,
@@ -193,41 +208,12 @@ export function getReportInheritedPermissionedAssets(userId: string, organizatio
           and(
             eq(assetPermissions.identityType, 'organization'),
             eq(assetPermissions.identityId, organizationId)
-          )
+          ),
+          ne(reportFiles.workspaceSharing, 'none')
         ),
         isNull(assetPermissions.deletedAt),
-        isNull(textSearch.deletedAt),
-        eq(textSearch.assetType, 'metric_file')
-      )
-    );
-}
-
-/**
- * Get messages with permissions inherited from their parent chats
- */
-export function getMessagePermissionedAssets(userId: string, organizationId: string) {
-  return db
-    .selectDistinct({
-      assetId: textSearch.assetId,
-    })
-    .from(textSearch)
-    .innerJoin(messages, eq(messages.id, textSearch.assetId))
-    .innerJoin(
-      assetPermissions,
-      and(eq(assetPermissions.assetId, messages.chatId), eq(assetPermissions.assetType, 'chat'))
-    )
-    .where(
-      and(
-        or(
-          and(eq(assetPermissions.identityType, 'user'), eq(assetPermissions.identityId, userId)),
-          and(
-            eq(assetPermissions.identityType, 'organization'),
-            eq(assetPermissions.identityId, organizationId)
-          )
-        ),
-        isNull(assetPermissions.deletedAt),
-        isNull(textSearch.deletedAt),
-        eq(textSearch.assetType, 'message')
+        isNull(assetSearchV2.deletedAt),
+        eq(assetSearchV2.assetType, 'metric_file')
       )
     );
 }
@@ -240,14 +226,12 @@ export function getAllUserAccessibleAssets(userId: string, organizationId: strin
   const chatInherited = getChatInheritedPermissionedAssets(userId, organizationId);
   const collectionInherited = getCollectionInheritedPermissionedAssets(userId, organizationId);
   const dashboardInherited = getDashboardInheritedPermissionedAssets(userId, organizationId);
-  const messagePermissions = getMessagePermissionedAssets(userId, organizationId);
   const reportInherited = getReportInheritedPermissionedAssets(userId, organizationId);
 
   return directPermissions
     .union(chatInherited)
     .union(collectionInherited)
     .union(dashboardInherited)
-    .union(messagePermissions)
     .union(reportInherited);
 }
 

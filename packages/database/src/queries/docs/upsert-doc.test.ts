@@ -124,10 +124,10 @@ describe('upsertDoc', () => {
     organizationId: '123e4567-e89b-12d3-a456-426614174000',
   };
 
-  let mockInsert: any;
-  let mockValues: any;
-  let mockOnConflictDoUpdate: any;
-  let mockReturning: any;
+  let mockInsert: ReturnType<typeof vi.fn>;
+  let mockValues: ReturnType<typeof vi.fn>;
+  let mockOnConflictDoUpdate: ReturnType<typeof vi.fn>;
+  let mockReturning: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     vi.clearAllMocks();

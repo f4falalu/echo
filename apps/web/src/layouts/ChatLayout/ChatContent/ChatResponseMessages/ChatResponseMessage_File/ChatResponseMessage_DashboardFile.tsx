@@ -1,8 +1,7 @@
 import { type ChartType, DEFAULT_CHART_CONFIG } from '@buster/server-shared/metrics';
 import { Link, type RegisteredRouter } from '@tanstack/react-router';
 import { AnimatePresence, type MotionProps, motion } from 'framer-motion';
-import React, { useMemo } from 'react';
-import type { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat/chatMessageInterfaces';
+import React, { useCallback, useMemo } from 'react';
 import type { BusterDashboardResponse } from '@/api/asset_interfaces/dashboard';
 import { useGetDashboard, usePrefetchGetDashboardClient } from '@/api/buster_rest/dashboards';
 import { useGetMetricMemoized } from '@/api/buster_rest/metrics/metricQueryHelpers';
@@ -40,7 +39,12 @@ export const ChatResponseMessage_DashboardFile: React.FC<ResponseMessageFileProp
       isLoading,
     } = useGetDashboard(
       { id, versionNumber: version_number },
-      { select: ({ dashboard, metrics }) => ({ dashboard, metrics }) }
+      {
+        select: useCallback(
+          ({ dashboard, metrics }: BusterDashboardResponse) => ({ dashboard, metrics }),
+          []
+        ),
+      }
     );
 
     const hasMetrics = Object.keys(dashboardResponse?.metrics || {}).length > 0;
@@ -245,26 +249,16 @@ const SelectDashboardButtonAndText: React.FC<{
   dashboardId: string;
   fileName: string;
   versionNumber: number;
-}> = React.memo(({ fileName, dashboardId, chatId, versionNumber }) => {
+}> = React.memo(({ fileName }) => {
   return (
     <div className="flex w-full items-center justify-between space-x-1.5 overflow-hidden">
       <Text size={'base'} truncate>
         {fileName}
       </Text>
-      <Link
-        to="/app/chats/$chatId/dashboards/$dashboardId"
-        params={{
-          chatId,
-          dashboardId,
-        }}
-        search={{
-          dashboard_version_number: versionNumber,
-        }}
-      >
-        <Button size={'small'} variant={'default'} className="min-w-fit">
-          View dashboard
-        </Button>
-      </Link>
+
+      <Button size={'small'} variant={'default'} className="min-w-fit">
+        View dashboard
+      </Button>
     </div>
   );
 });

@@ -26,7 +26,7 @@ describe('create-metrics-transform-helper', () => {
           {
             id: 'metric-1',
             file_name: 'test-metric',
-            file_type: 'metric',
+            file_type: 'metric_file',
             version_number: 1,
             file: {
               text: 'test content',
@@ -51,7 +51,7 @@ describe('create-metrics-transform-helper', () => {
           files: {
             'metric-1': {
               id: 'metric-1',
-              file_type: 'metric',
+              file_type: 'metric_file',
               file_name: 'test-metric',
               version_number: 1,
               status: 'loading',
@@ -71,7 +71,7 @@ describe('create-metrics-transform-helper', () => {
           {
             id: 'metric-1',
             file_name: undefined,
-            file_type: 'metric',
+            file_type: 'metric_file',
             version_number: 1,
             file: {
               text: 'test content',
@@ -81,7 +81,7 @@ describe('create-metrics-transform-helper', () => {
           {
             id: 'metric-2',
             file_name: 'valid-metric',
-            file_type: 'metric',
+            file_type: 'metric_file',
             version_number: 1,
             file: {
               text: 'valid content',
@@ -122,7 +122,7 @@ describe('create-metrics-transform-helper', () => {
           {
             id: 'metric-1',
             file_name: 'test-metric',
-            file_type: 'metric',
+            file_type: 'metric_file',
             version_number: 1,
             file: {
               text: 'test content',
@@ -162,7 +162,7 @@ describe('create-metrics-transform-helper', () => {
           {
             id: 'metric-1',
             file_name: '',
-            file_type: 'metric',
+            file_type: 'metric_file',
             version_number: 1,
             file: {
               text: 'test content',
@@ -172,7 +172,7 @@ describe('create-metrics-transform-helper', () => {
           {
             id: 'metric-2',
             file_name: 'valid-metric',
-            file_type: 'metric',
+            file_type: 'metric_file',
             version_number: 1,
             file: {
               text: '',
@@ -182,7 +182,7 @@ describe('create-metrics-transform-helper', () => {
           {
             id: 'metric-3',
             file_name: 'good-metric',
-            file_type: 'metric',
+            file_type: 'metric_file',
             version_number: 1,
             file: {
               text: 'good content',

@@ -26,9 +26,19 @@ export const metricsGetList = (
     initialDataUpdatedAt: 0,
   });
 
-export const metricsGetData = (id: string, version_number: number | 'LATEST') =>
+export const metricsGetData = (
+  id: string,
+  version_number: number | 'LATEST',
+  cacheDataId?: string
+) =>
   queryOptions<BusterMetricDataExtended>({
-    queryKey: ['metrics', 'data', id, version_number || 'LATEST'] as const,
+    queryKey: [
+      'metrics',
+      'data',
+      id,
+      version_number || 'LATEST',
+      cacheDataId || 'live-data',
+    ] as const,
     staleTime: 1000 * 60 * 30, // 30 minutes,
   });
 

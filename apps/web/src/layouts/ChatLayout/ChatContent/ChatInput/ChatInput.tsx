@@ -33,13 +33,15 @@ export const ChatInput: React.FC = React.memo(() => {
   });
 
   const onChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
     setInputValue(e.target.value);
   };
 
   useEffect(() => {
     if (hasChat) {
       requestAnimationFrame(() => {
-        textAreaRef.current?.focus();
+        textAreaRef.current?.focus?.();
       });
     }
   }, [hasChat, textAreaRef]);
@@ -51,7 +53,7 @@ export const ChatInput: React.FC = React.memo(() => {
       )}
     >
       {!canEditChat ? (
-        <div className="w-full p-4 bg-muted/50 rounded-lg border">
+        <div className="w-full p-4 bg-muted/50 rounded border">
           <Text variant="secondary" size="sm" className="text-center">
             This chat is view-only. You don't have permission to send messages.
           </Text>

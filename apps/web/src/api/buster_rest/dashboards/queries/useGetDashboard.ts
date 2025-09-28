@@ -8,7 +8,11 @@ import {
 import { useMemo } from 'react';
 import type { RustApiError } from '@/api/errors';
 import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
-import { setProtectedAssetPasswordError } from '@/context/BusterAssets/useProtectedAssetStore';
+import {
+  setProtectedAssetPasswordError,
+  useProtectedAssetPassword,
+} from '@/context/BusterAssets/useProtectedAssetStore';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { isQueryStale } from '@/lib/query';
 import { hasOrganizationId } from '../../users/userQueryHelpers';
 import {
@@ -26,19 +30,21 @@ import { dashboardsGetList } from '../requests';
 export const useGetDashboard = <TData = GetDashboardResponse>(
   {
     id: idProp,
-    versionNumber: versionNumberProp = 'LATEST',
-  }: { id: string | undefined; versionNumber?: number | 'LATEST' },
+    versionNumber: versionNumberProp,
+  }: { id: string | undefined; versionNumber: number | 'LATEST' | undefined },
   params?: Omit<UseQueryOptions<GetDashboardResponse, RustApiError, TData>, 'queryKey' | 'queryFn'>
 ) => {
   const id = idProp || '';
+  const password = useProtectedAssetPassword(id);
   const queryFn = useGetDashboardAndInitializeMetrics();
 
   const { selectedVersionNumber } = useGetDashboardVersionNumber(id, versionNumberProp);
 
   const { isFetched: isFetchedInitial, isError: isErrorInitial } = useQuery({
     ...dashboardQueryKeys.dashboardGetDashboard(id, 'LATEST'),
-    queryFn: () => queryFn(id, 'LATEST'),
-    enabled: false,
+    queryFn: () =>
+      queryFn({ id, version_number: 'LATEST', shouldInitializeMetrics: true, password }),
+    enabled: true,
     retry(_failureCount, error) {
       if (error?.message !== undefined) {
         setProtectedAssetPasswordError({
@@ -54,7 +60,13 @@ export const useGetDashboard = <TData = GetDashboardResponse>(
 
   return useQuery({
     ...dashboardQueryKeys.dashboardGetDashboard(id, selectedVersionNumber),
-    queryFn: () => queryFn(id, selectedVersionNumber),
+    queryFn: () =>
+      queryFn({
+        id,
+        version_number: selectedVersionNumber,
+        shouldInitializeMetrics: true,
+        password,
+      }),
     enabled: isFetchedInitial && !isErrorInitial,
     select: params?.select,
   });
@@ -69,16 +81,23 @@ export const usePrefetchGetDashboardClient = <TData = GetDashboardResponse>(
 ) => {
   const queryClient = useQueryClient();
   const queryFn = useGetDashboardAndInitializeMetrics({ prefetchData: false });
-  return (id: string, versionNumber: number | 'LATEST' = 'LATEST') => {
+
+  return useMemoizedFn((id: string, versionNumber: number | 'LATEST') => {
     const getDashboardQueryKey = dashboardQueryKeys.dashboardGetDashboard(id, versionNumber);
     const isStale = isQueryStale(getDashboardQueryKey, queryClient) || params?.staleTime === 0;
     if (!isStale) return;
     return queryClient.prefetchQuery({
       ...dashboardQueryKeys.dashboardGetDashboard(id, versionNumber),
-      queryFn: () => queryFn(id, versionNumber),
+      queryFn: () =>
+        queryFn({
+          id,
+          version_number: versionNumber,
+          shouldInitializeMetrics: true,
+          password: undefined,
+        }),
       ...params,
     });
-  };
+  });
 };
 
 /**

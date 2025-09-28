@@ -1,6 +1,6 @@
-import type { User } from '@buster/database';
-import { db, getUserOrganizationId, getUserShortcuts, users } from '@buster/database';
-import { eq } from '@buster/database';
+import { db, eq } from '@buster/database/connection';
+import { type User, getUserOrganizationId, getUserShortcuts } from '@buster/database/queries';
+import { users } from '@buster/database/schema';
 import type { ListShortcutsResponse } from '@buster/server-shared/shortcuts';
 import { HTTPException } from 'hono/http-exception';
 

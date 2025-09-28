@@ -1,6 +1,5 @@
 // Mock database before any imports that might use it
-vi.mock('@buster/database', () => ({
-  getUserOrganizationId: vi.fn(),
+vi.mock('@buster/database/connection', () => ({
   db: {
     select: vi.fn(),
     from: vi.fn(),
@@ -10,13 +9,21 @@ vi.mock('@buster/database', () => ({
     update: vi.fn(),
     transaction: vi.fn(),
   },
+
+  eq: vi.fn(),
+  and: vi.fn(),
+  isNull: vi.fn(),
+}));
+
+vi.mock('@buster/database/queries', () => ({
+  getUserOrganizationId: vi.fn(),
+}));
+
+vi.mock('@buster/database/schema', () => ({
   organizations: {},
   datasets: {},
   datasetsToPermissionGroups: {},
   permissionGroups: {},
-  eq: vi.fn(),
-  and: vi.fn(),
-  isNull: vi.fn(),
 }));
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';

@@ -9,6 +9,7 @@ import type {
 import isEmpty from 'lodash/isEmpty';
 import React, { useMemo } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
+import { ErrorCard } from '@/components/ui/error/ErrorCard';
 import { useUpdateMetricChart } from '@/context/Metrics/useUpdateMetricChart';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { chartTypeToAxis, zoneIdToAxis } from './config';
@@ -23,7 +24,7 @@ export const SelectAxis: React.FC<
     Required<CategoryAxisStyleConfig> &
     Required<Y2AxisConfig> &
     ISelectAxisContext
-> = React.memo(({ selectedChartType, columnMetadata, selectedAxis, ...props }) => {
+> = React.memo(({ selectedChartType, columnMetadata, selectedAxis, barLayout, ...props }) => {
   const { onUpdateMetricChartConfig } = useUpdateMetricChart({ metricId: props.metricId });
 
   const items: SelectAxisItem[] = useMemo(() => {
@@ -32,7 +33,7 @@ export const SelectAxis: React.FC<
 
   const dropZones: DropZone[] = useMemo(() => {
     if (!isEmpty(selectedAxis) && !isEmpty(items)) {
-      return getChartTypeDropZones({ chartType: selectedChartType, selectedAxis });
+      return getChartTypeDropZones({ chartType: selectedChartType, selectedAxis, barLayout });
     }
     return [];
   }, [selectedAxis, selectedChartType, items]);
@@ -58,11 +59,7 @@ export const SelectAxis: React.FC<
 
   const memoizedErrorComponent = useMemo(() => {
     return (
-      <div className="bg-danger-background flex min-h-28 items-center justify-center rounded border border-red-500">
-        <span className="text-danger-foreground p-3 text-center">
-          There was an error loading the chart config. Please contact Buster support.
-        </span>
-      </div>
+      <ErrorCard message="There was an error loading the chart config. Please contact Buster support." />
     );
   }, []);
 
@@ -77,6 +74,7 @@ export const SelectAxis: React.FC<
         selectedAxis={selectedAxis}
         selectedChartType={selectedChartType}
         columnMetadata={columnMetadata}
+        barLayout={barLayout}
       >
         <SelectAxisDropzones items={items} dropZones={dropZones} onChange={onChange} />
       </SelectAxisProvider>

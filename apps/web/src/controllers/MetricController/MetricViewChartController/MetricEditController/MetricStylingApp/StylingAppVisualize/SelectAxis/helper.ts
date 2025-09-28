@@ -1,16 +1,10 @@
-import type { ChartConfigProps, ChartType } from '@buster/server-shared/metrics';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import isEmpty from 'lodash/isEmpty';
 import { SelectAxisContainerId } from './config';
 import type { DropZone } from './SelectAxisDragContainer/interfaces';
 
 const EMPTY_ARRAY: string[] = []; //This is to avoid a reference change
-const EMPTY_DROP_ZONE: DropZone[] = [
-  // {
-  //   id: SelectAxisContainerId.Available,
-  //   title: '',
-  //   items: EMPTY_ARRAY
-  // }
-];
+const EMPTY_DROP_ZONE: DropZone[] = [];
 
 export const ZoneIdToTitle: Record<SelectAxisContainerId, string> = {
   [SelectAxisContainerId.XAxis]: 'X-Axis',
@@ -21,12 +15,17 @@ export const ZoneIdToTitle: Record<SelectAxisContainerId, string> = {
   [SelectAxisContainerId.Tooltip]: 'Tooltip',
   [SelectAxisContainerId.Available]: 'Available',
   [SelectAxisContainerId.Metric]: 'Metric',
+  [SelectAxisContainerId.ColorBy]: 'Color By',
 };
 
-const makeDropZone = (id: SelectAxisContainerId, items: string[]): DropZone => {
+const makeDropZone = (
+  id: SelectAxisContainerId,
+  items: string[],
+  overrideTitleId?: SelectAxisContainerId
+): DropZone => {
   return {
     id,
-    title: ZoneIdToTitle[id],
+    title: ZoneIdToTitle[overrideTitleId || id],
     items,
   };
 };
@@ -34,12 +33,18 @@ const makeDropZone = (id: SelectAxisContainerId, items: string[]): DropZone => {
 const makeXAxisDropZone = (xItems: string[]): DropZone =>
   makeDropZone(SelectAxisContainerId.XAxis, xItems);
 
+const makeReverseXAxisDropZone = (xItems: string[]): DropZone =>
+  makeDropZone(SelectAxisContainerId.XAxis, xItems, SelectAxisContainerId.YAxis);
+
 const makeYAxisDropZone = (yItems: string[]): DropZone =>
   makeDropZone(SelectAxisContainerId.YAxis, yItems);
 
+const makeReverseYAxisDropZone = (yItems: string[]): DropZone =>
+  makeDropZone(SelectAxisContainerId.YAxis, yItems, SelectAxisContainerId.XAxis);
+
 const makeYComboAxisDropZone = (yItems: string[]): DropZone => {
   const res = makeDropZone(SelectAxisContainerId.YAxis, yItems);
-  res.title = 'Left Y-Axis'; //🥺
+  res.title = 'Left Y-Axis';
   return res;
 };
 
@@ -58,15 +63,28 @@ const makeTooltipDropZone = (tooltipItems: string[] | null | undefined): DropZon
 const makeY2AxisDropZone = (y2Items: string[] | null | undefined): DropZone =>
   makeDropZone(SelectAxisContainerId.Y2Axis, y2Items ?? EMPTY_ARRAY);
 
+const makeColorByDropZone = (colorByItems: string[] | null | undefined): DropZone =>
+  makeDropZone(SelectAxisContainerId.ColorBy, colorByItems ?? EMPTY_ARRAY);
+
 export const chartTypeToDropZones: Record<
   ChartConfigProps['selectedChartType'],
-  (selectedAxis: Parameters<typeof getChartTypeDropZones>[0]['selectedAxis']) => DropZone[]
+  (
+    selectedAxis: Parameters<typeof getChartTypeDropZones>[0]['selectedAxis'],
+    barLayout: Parameters<typeof getChartTypeDropZones>[0]['barLayout']
+  ) => DropZone[]
 > = {
-  bar: (selectedAxis) => {
+  bar: (selectedAxis, barLayout) => {
     const _selectedAxis = selectedAxis as ChartConfigProps['barAndLineAxis'];
+    const isHorizontalBar = barLayout === 'horizontal';
+
     return [
-      makeXAxisDropZone(_selectedAxis.x),
-      makeYAxisDropZone(_selectedAxis.y),
+      isHorizontalBar
+        ? makeReverseYAxisDropZone(_selectedAxis.y)
+        : makeXAxisDropZone(_selectedAxis.x),
+      isHorizontalBar
+        ? makeReverseXAxisDropZone(_selectedAxis.x)
+        : makeYAxisDropZone(_selectedAxis.y),
+      makeColorByDropZone(_selectedAxis.colorBy),
       makeCategoryAxisDropZone(_selectedAxis.category),
       makeTooltipDropZone(_selectedAxis.tooltip),
     ];
@@ -76,6 +94,7 @@ export const chartTypeToDropZones: Record<
     return [
       makeXAxisDropZone(_selectedAxis.x),
       makeYAxisDropZone(_selectedAxis.y),
+      makeColorByDropZone(_selectedAxis.colorBy),
       makeCategoryAxisDropZone(_selectedAxis.category),
       makeTooltipDropZone(_selectedAxis.tooltip),
     ];
@@ -120,6 +139,7 @@ export const chartTypeToDropZones: Record<
 export const getChartTypeDropZones = ({
   chartType,
   selectedAxis,
+  barLayout,
 }: {
   chartType: ChartConfigProps['selectedChartType'];
   selectedAxis:
@@ -127,6 +147,7 @@ export const getChartTypeDropZones = ({
     | ChartConfigProps['pieChartAxis']
     | ChartConfigProps['scatterAxis']
     | ChartConfigProps['barAndLineAxis'];
+  barLayout: ChartConfigProps['barLayout'];
 }): DropZone[] => {
-  return chartTypeToDropZones[chartType](selectedAxis);
+  return chartTypeToDropZones[chartType](selectedAxis, barLayout);
 };

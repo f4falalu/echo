@@ -1,4 +1,5 @@
-import { db, messages } from '@buster/database';
+import { db } from '@buster/database/connection';
+import { messages } from '@buster/database/schema';
 import { v4 as uuidv4 } from 'uuid';
 
 /**

@@ -51,6 +51,7 @@ describe('BigQueryAdapter', () => {
           private_key: 'test-key',
           client_email: 'test@test.iam.gserviceaccount.com',
         },
+        location: 'US',
       });
     });
 
@@ -67,6 +68,7 @@ describe('BigQueryAdapter', () => {
       expect(BigQuery).toHaveBeenCalledWith({
         projectId: 'test-project',
         keyFilename: '/path/to/key.json',
+        location: 'US',
       });
     });
 
@@ -79,6 +81,33 @@ describe('BigQueryAdapter', () => {
 
       // BigQuery will treat invalid JSON as a file path, so initialization should succeed
       await expect(adapter.initialize(credentials)).resolves.not.toThrow();
+    });
+
+    it('should handle service account key as parsed object', async () => {
+      const serviceAccountObject = {
+        type: 'service_account',
+        project_id: 'test-project',
+        private_key_id: 'key123',
+        private_key: '-----BEGIN PRIVATE KEY-----\ntest\n-----END PRIVATE KEY-----',
+        client_email: 'test@test-project.iam.gserviceaccount.com',
+      };
+
+      const credentials: BigQueryCredentials = {
+        type: DataSourceType.BigQuery,
+        project_id: 'test-project',
+        service_account_key: serviceAccountObject,
+      };
+
+      await adapter.initialize(credentials);
+
+      const { BigQuery } = await import('@google-cloud/bigquery');
+      expect(BigQuery).toHaveBeenCalledWith(
+        expect.objectContaining({
+          projectId: 'test-project',
+          credentials: serviceAccountObject,
+          location: 'US',
+        })
+      );
     });
 
     it('should allow initialization without credentials (uses ADC)', async () => {
@@ -105,6 +134,7 @@ describe('BigQueryAdapter', () => {
       expect(BigQuery).toHaveBeenCalledWith(
         expect.objectContaining({
           projectId: 'test-project',
+          location: 'US',
         })
       );
     });
@@ -123,6 +153,7 @@ describe('BigQueryAdapter', () => {
       expect(BigQuery).toHaveBeenCalledWith(
         expect.objectContaining({
           projectId: 'test-project',
+          location: 'us-central1',
         })
       );
     });
@@ -155,8 +186,16 @@ describe('BigQueryAdapter', () => {
 
     it('should execute simple query without parameters', async () => {
       const mockRows = [{ id: 1, name: 'Test' }];
+      const mockMetadata = {
+        schema: {
+          fields: [
+            { name: 'id', type: 'INT64', mode: 'NULLABLE' },
+            { name: 'name', type: 'STRING', mode: 'NULLABLE' },
+          ],
+        },
+      };
       const mockJob = {
-        getQueryResults: vi.fn().mockResolvedValueOnce([mockRows]),
+        getQueryResults: vi.fn().mockResolvedValueOnce([mockRows, null, mockMetadata]),
       };
 
       mockBigQuery.createQueryJob.mockResolvedValueOnce([mockJob]);
@@ -173,15 +212,26 @@ describe('BigQueryAdapter', () => {
       expect(result).toEqual({
         rows: mockRows,
         rowCount: 1,
-        fields: [],
+        fields: [
+          { name: 'id', type: 'bigint', nullable: true, length: 0, precision: 0 },
+          { name: 'name', type: 'text', nullable: true, length: 0, precision: 0 },
+        ],
         hasMoreRows: false,
       });
     });
 
     it('should execute parameterized query', async () => {
       const mockRows = [{ id: 1, name: 'Test' }];
+      const mockMetadata = {
+        schema: {
+          fields: [
+            { name: 'id', type: 'INT64', mode: 'NULLABLE' },
+            { name: 'name', type: 'STRING', mode: 'NULLABLE' },
+          ],
+        },
+      };
       const mockJob = {
-        getQueryResults: vi.fn().mockResolvedValueOnce([mockRows]),
+        getQueryResults: vi.fn().mockResolvedValueOnce([mockRows, null, mockMetadata]),
       };
 
       mockBigQuery.createQueryJob.mockResolvedValueOnce([mockJob]);
@@ -200,8 +250,13 @@ describe('BigQueryAdapter', () => {
 
     it('should handle maxRows limit', async () => {
       const mockRows = Array.from({ length: 10 }, (_, i) => ({ id: i + 1 }));
+      const mockMetadata = {
+        schema: {
+          fields: [{ name: 'id', type: 'INT64', mode: 'NULLABLE' }],
+        },
+      };
       const mockJob = {
-        getQueryResults: vi.fn().mockResolvedValueOnce([mockRows]),
+        getQueryResults: vi.fn().mockResolvedValueOnce([mockRows, null, mockMetadata]),
       };
 
       mockBigQuery.createQueryJob.mockResolvedValueOnce([mockJob]);
@@ -219,8 +274,13 @@ describe('BigQueryAdapter', () => {
 
     it('should detect when there are more rows', async () => {
       const mockRows = Array.from({ length: 11 }, (_, i) => ({ id: i + 1 }));
+      const mockMetadata = {
+        schema: {
+          fields: [{ name: 'id', type: 'INT64', mode: 'NULLABLE' }],
+        },
+      };
       const mockJob = {
-        getQueryResults: vi.fn().mockResolvedValueOnce([mockRows]),
+        getQueryResults: vi.fn().mockResolvedValueOnce([mockRows, null, mockMetadata]),
       };
 
       mockBigQuery.createQueryJob.mockResolvedValueOnce([mockJob]);
@@ -232,8 +292,9 @@ describe('BigQueryAdapter', () => {
     });
 
     it('should use custom timeout when provided', async () => {
+      const mockMetadata = { schema: { fields: [] } };
       const mockJob = {
-        getQueryResults: vi.fn().mockResolvedValueOnce([[]]),
+        getQueryResults: vi.fn().mockResolvedValueOnce([[], null, mockMetadata]),
       };
 
       mockBigQuery.createQueryJob.mockResolvedValueOnce([mockJob]);
@@ -248,8 +309,9 @@ describe('BigQueryAdapter', () => {
     });
 
     it('should pass options to createQueryJob', async () => {
+      const mockMetadata = { schema: { fields: [] } };
       const mockJob = {
-        getQueryResults: vi.fn().mockResolvedValueOnce([[]]),
+        getQueryResults: vi.fn().mockResolvedValueOnce([[], null, mockMetadata]),
       };
 
       mockBigQuery.createQueryJob.mockResolvedValueOnce([mockJob]);
@@ -281,8 +343,13 @@ describe('BigQueryAdapter', () => {
     });
 
     it('should handle empty result sets', async () => {
+      const mockMetadata = {
+        schema: {
+          fields: [{ name: 'id', type: 'INT64', mode: 'NULLABLE' }],
+        },
+      };
       const mockJob = {
-        getQueryResults: vi.fn().mockResolvedValueOnce([[]]),
+        getQueryResults: vi.fn().mockResolvedValueOnce([[], null, mockMetadata]),
       };
 
       mockBigQuery.createQueryJob.mockResolvedValueOnce([mockJob]);
@@ -291,13 +358,15 @@ describe('BigQueryAdapter', () => {
 
       expect(result.rows).toEqual([]);
       expect(result.rowCount).toBe(0);
-      expect(result.fields).toEqual([]);
+      expect(result.fields).toEqual([
+        { name: 'id', type: 'bigint', nullable: true, length: 0, precision: 0 },
+      ]);
     });
 
     it('should handle results without schema metadata', async () => {
       const mockRows = [{ id: 1 }];
       const mockJob = {
-        getQueryResults: vi.fn().mockResolvedValueOnce([mockRows]),
+        getQueryResults: vi.fn().mockResolvedValueOnce([mockRows, null, {}]),
       };
 
       mockBigQuery.createQueryJob.mockResolvedValueOnce([mockJob]);
@@ -309,8 +378,16 @@ describe('BigQueryAdapter', () => {
 
     it('should handle repeated fields', async () => {
       const mockRows = [{ id: 1, tags: ['tag1', 'tag2'] }];
+      const mockMetadata = {
+        schema: {
+          fields: [
+            { name: 'id', type: 'INT64', mode: 'NULLABLE' },
+            { name: 'tags', type: 'STRING', mode: 'REPEATED' },
+          ],
+        },
+      };
       const mockJob = {
-        getQueryResults: vi.fn().mockResolvedValueOnce([mockRows]),
+        getQueryResults: vi.fn().mockResolvedValueOnce([mockRows, null, mockMetadata]),
       };
 
       mockBigQuery.createQueryJob.mockResolvedValueOnce([mockJob]);
@@ -331,8 +408,9 @@ describe('BigQueryAdapter', () => {
 
       await adapter.initialize(credentials);
 
+      const mockMetadata = {};
       const mockJob = {
-        getQueryResults: vi.fn().mockResolvedValueOnce([[]]),
+        getQueryResults: vi.fn().mockResolvedValueOnce([[], null, mockMetadata]),
       };
 
       mockBigQuery.createQueryJob.mockResolvedValueOnce([mockJob]);

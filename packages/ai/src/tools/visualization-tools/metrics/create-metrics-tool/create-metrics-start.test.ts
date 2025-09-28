@@ -1,11 +1,11 @@
-import { updateMessageEntries } from '@buster/database';
+import { updateMessageEntries } from '@buster/database/queries';
 import type { ToolCallOptions } from 'ai';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createCreateMetricsStart } from './create-metrics-start';
 import type { CreateMetricsState } from './create-metrics-tool';
 
 // Mock the database module
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   updateMessageEntries: vi.fn(),
 }));
 

@@ -1,6 +1,6 @@
-import { type UpdateMessageEntriesParams, updateMessageEntries } from '@buster/database';
+import { type UpdateMessageEntriesParams, updateMessageEntries } from '@buster/database/queries';
 import { wrapTraced } from 'braintrust';
-import { normalizeEscapedText } from '../../../utils/streaming/escape-normalizer';
+import { cleanupState } from '../../shared/cleanup-state';
 import { createRawToolResultEntry } from '../../shared/create-raw-llm-tool-result-entry';
 import {
   createSequentialThinkingRawLlmMessageEntry,
@@ -79,7 +79,9 @@ export function createSequentialThinkingExecute(
         throw new Error('Tool call ID is required');
       }
 
-      return await processSequentialThinking(state, context);
+      const result = await processSequentialThinking(state, context);
+      cleanupState(state);
+      return result;
     },
     { name: SEQUENTIAL_THINKING_TOOL_NAME }
   );

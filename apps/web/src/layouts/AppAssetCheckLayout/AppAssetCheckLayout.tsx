@@ -5,6 +5,7 @@ import type React from 'react';
 import { FileIndeterminateLoader } from '@/components/features/loaders/FileIndeterminateLoader';
 import { AppNoPageAccess } from '@/controllers/AppNoPageAccess';
 import { AppPasswordAccess } from '@/controllers/AppPasswordAccess';
+import { AppAssetNotFound } from '../../controllers/AppAssetNotFound';
 import { getAssetIdAndVersionNumber } from './getAssetIdAndVersionNumberServer';
 import { useGetAssetPasswordConfig } from './useGetAssetPasswordConfig';
 import { useShowLoader } from './useShowLoader';
@@ -20,10 +21,8 @@ export const AppAssetCheckLayout: React.FC<
 > = ({ children, assetType }) => {
   const params = useParams({ strict: false });
   const search = useSearch({ strict: false });
-
   const { assetId, versionNumber } = getAssetIdAndVersionNumber(assetType, params, search);
-
-  const { hasAccess, isPublic, passwordRequired } = useGetAssetPasswordConfig(
+  const { hasAccess, isPublic, passwordRequired, isFetched } = useGetAssetPasswordConfig(
     assetId,
     assetType,
     versionNumber
@@ -32,14 +31,19 @@ export const AppAssetCheckLayout: React.FC<
   const showLoader = useShowLoader(assetId, assetType, versionNumber);
 
   let content: React.ReactNode;
-  if (!hasAccess && !isPublic) {
-    content = <AppNoPageAccess assetId={assetId} type={assetType} />;
-  } else if (isPublic && passwordRequired) {
+
+  if (!isFetched) {
+    return null;
+  } else if (!assetId || !assetType) {
+    return <AppAssetNotFound assetId={assetId} type={assetType} />;
+  } else if (isPublic && passwordRequired && !hasAccess) {
     content = (
       <AppPasswordAccess assetId={assetId} type={assetType}>
         {children}
       </AppPasswordAccess>
     );
+  } else if (!hasAccess) {
+    content = <AppNoPageAccess assetId={assetId} type={assetType} />;
   } else {
     content = children;
   }

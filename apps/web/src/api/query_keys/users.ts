@@ -20,16 +20,19 @@ const favoritesGetList = queryOptions<UserFavoriteResponse>({
   staleTime: 1000 * 60 * 20, // 20 minutes,
   initialData: [],
   initialDataUpdatedAt: 0,
+  retry: () => false, //used to silence the retry error
 });
 
 const userGetUserMyself = queryOptions<UserResponse | null>({
   queryKey: ['myself'] as const,
-  staleTime: 1000 * 60 * 20, // 20 minutes
+  staleTime: 1000 * 60 * 30, // 30 minutes
+  retry: () => false, //used to silence the retry error
 });
 
 const userGetUser = (userId: string) =>
   queryOptions<OrganizationUser>({
     queryKey: ['users', userId, 'organization'] as const,
+    retry: () => false, //used to silence the retry error
   });
 
 const userGetUserPermissionsGroups = (userId: string) =>

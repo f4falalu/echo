@@ -5,6 +5,7 @@ import {
   AnalystStreamOptionsSchema,
   createAnalystAgent,
 } from '../../../agents/analyst-agent/analyst-agent';
+import { withAgentRetry } from '../../../utils/with-agent-retry';
 
 export const RunAnalystAgentStepInputSchema = z.object({
   options: AnalystAgentOptionsSchema,
@@ -23,7 +24,19 @@ export async function runAnalystAgentStep({
   streamOptions,
 }: RunAnalystAgentStepInput): Promise<RunAnalystAgentStepOutput> {
   try {
-    const analystAgent = createAnalystAgent(options);
+    // Create the agent and wrap it with retry logic
+    const analystAgent = withAgentRetry(createAnalystAgent(options), {
+      messageId: options.messageId,
+      maxAttempts: 3,
+      baseDelayMs: 2000,
+      onRetry: (attempt, recoveredMessageCount) => {
+        console.info('Analyst Agent step retrying after error', {
+          messageId: options.messageId,
+          attempt,
+          recoveredMessageCount,
+        });
+      },
+    });
 
     const result = await analystAgent.stream(streamOptions);
 

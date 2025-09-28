@@ -3,7 +3,7 @@ import type { InferSelectModel } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
 import { chats, messages, userFavorites, users } from '../../schema';
-import { messageAnalysisModeEnum } from '../../schema';
+import { MessageAnalysisModeSchema } from '../../schema-types';
 
 // Type inference from schema
 export type Chat = InferSelectModel<typeof chats>;
@@ -34,7 +34,7 @@ export const CreateMessageInputSchema = z.object({
   content: z.string(),
   userId: z.string().uuid(),
   messageId: z.string().uuid().optional(),
-  messageAnalysisMode: z.enum(messageAnalysisModeEnum.enumValues).optional(),
+  messageAnalysisMode: MessageAnalysisModeSchema.optional(),
   metadata: z.record(z.any()).optional(),
 });
 

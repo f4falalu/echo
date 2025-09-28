@@ -1,11 +1,11 @@
-import type { User } from '@buster/database';
+import type { User } from '@buster/database/queries';
 import type { deploy } from '@buster/server-shared';
 import { HTTPException } from 'hono/http-exception';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { deployHandler } from './POST';
 
 // Mock all database functions
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   getUserOrganizationId: vi.fn(),
   getDataSourceByName: vi.fn(),
   upsertDataset: vi.fn(),
@@ -18,13 +18,13 @@ vi.mock('@buster/database/connection', () => ({
   },
 }));
 
+import { db } from '@buster/database/connection';
 import {
   getDataSourceByName,
   getUserOrganizationId,
   upsertDataset,
   upsertDoc,
-} from '@buster/database';
-import { db } from '@buster/database/connection';
+} from '@buster/database/queries';
 
 const mockGetUserOrganizationId = vi.mocked(getUserOrganizationId);
 const mockGetDataSourceByName = vi.mocked(getDataSourceByName);

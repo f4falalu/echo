@@ -1,19 +1,24 @@
+import type { AssetType } from '@buster/server-shared/assets';
 import type { QueryClient } from '@tanstack/react-query';
 import { prefetchGetMetric } from '@/api/buster_rest/metrics';
 import { useGetMetricParams } from '@/context/Metrics/useGetMetricParams';
 import { MetricViewChartController } from '@/controllers/MetricController/MetricViewChartController';
+import { AppAssetCheckLayout } from '@/layouts/AppAssetCheckLayout';
 
 export const ssr = true;
 
 export const component = () => {
-  const { metricId } = useGetMetricParams();
+  const { metricId, metricVersionNumber } = useGetMetricParams();
   return (
-    <MetricViewChartController
-      metricId={metricId}
-      className="h-full w-full"
-      cardClassName="max-h-full!"
-      readOnly
-    />
+    <AppAssetCheckLayout assetType={'metric_file'}>
+      <MetricViewChartController
+        metricId={metricId}
+        versionNumber={metricVersionNumber}
+        className="h-full w-full"
+        cardClassName="max-h-full!"
+        readOnly
+      />
+    </AppAssetCheckLayout>
   );
 };
 
@@ -37,4 +42,8 @@ export const loader = async ({
   return {
     title: metric?.name,
   };
+};
+
+export const staticData = {
+  assetType: 'metric_file' as AssetType,
 };

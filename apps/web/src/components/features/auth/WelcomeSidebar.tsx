@@ -1,4 +1,3 @@
-import { Link } from '@tanstack/react-router';
 import type React from 'react';
 import { BusterLogoWithText } from '@/assets/svg/BusterLogoWithText';
 import { Text } from '@/components/ui/typography';
@@ -10,9 +9,9 @@ export const WelcomeToBuster: React.FC<{
     <div className="flex h-full w-full flex-col justify-between p-10">
       <div>
         <div className="w-[130px]">
-          <Link to={'/'}>
+          <a href="https://www.buster.so/" target="_blank" rel="noopener noreferrer">
             <BusterLogoWithText />
-          </Link>
+          </a>
         </div>
         <div className="mt-24">
           <h1
@@ -23,7 +22,7 @@ export const WelcomeToBuster: React.FC<{
           >
             Welcome to Buster.
           </h1>
-          <div className="text-lg">Stand up a PoC in 30 minutes.</div>
+          <div className="text-lg">Explore company data & build reports with AI.</div>
         </div>
       </div>
       <div>

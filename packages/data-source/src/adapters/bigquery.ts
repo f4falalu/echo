@@ -1,9 +1,18 @@
-import { BigQuery, type BigQueryOptions, type Query } from '@google-cloud/bigquery';
+import {
+  BigQuery,
+  type BigQueryOptions,
+  type Query,
+  type QueryRowsResponse,
+} from '@google-cloud/bigquery';
+import type bigquery from '@google-cloud/bigquery/build/src/types';
 import type { DataSourceIntrospector } from '../introspection/base';
 import { BigQueryIntrospector } from '../introspection/bigquery';
 import { type BigQueryCredentials, type Credentials, DataSourceType } from '../types/credentials';
 import type { QueryParameter } from '../types/query';
 import { type AdapterQueryResult, BaseAdapter, type FieldMetadata } from './base';
+import { fixBigQueryTableReferences } from './helpers/bigquery-sql-fixer';
+import { normalizeRowValues } from './helpers/normalize-values';
+import { getBigQuerySimpleType, mapBigQueryType } from './type-mappings/bigquery';
 
 /**
  * BigQuery database adapter
@@ -23,21 +32,25 @@ export class BigQueryAdapter extends BaseAdapter {
 
       // Handle service account authentication
       if (bigqueryCredentials.service_account_key) {
-        try {
-          // Try to parse as JSON string
-          const keyData = JSON.parse(bigqueryCredentials.service_account_key);
-          options.credentials = keyData;
-        } catch {
-          // If parsing fails, treat as file path
-          options.keyFilename = bigqueryCredentials.service_account_key;
+        // Check if it's already an object
+        if (typeof bigqueryCredentials.service_account_key === 'object') {
+          options.credentials = bigqueryCredentials.service_account_key;
+        } else if (typeof bigqueryCredentials.service_account_key === 'string') {
+          try {
+            // Try to parse as JSON string
+            const keyData = JSON.parse(bigqueryCredentials.service_account_key);
+            options.credentials = keyData;
+          } catch {
+            // If parsing fails, treat as file path
+            options.keyFilename = bigqueryCredentials.service_account_key;
+          }
         }
       } else if (bigqueryCredentials.key_file_path) {
         options.keyFilename = bigqueryCredentials.key_file_path;
       }
 
-      if (bigqueryCredentials.location) {
-        options.location = bigqueryCredentials.location;
-      }
+      // Set location - default to US if not specified
+      options.location = bigqueryCredentials.location || 'US';
 
       this.client = new BigQuery(options);
       this.credentials = credentials;
@@ -62,8 +75,18 @@ export class BigQueryAdapter extends BaseAdapter {
     }
 
     try {
+      // Fix SQL to ensure proper escaping of identifiers with special characters
+      const fixedSql = fixBigQueryTableReferences(sql);
+
+      // Debug logging to verify the fix is applied
+      if (sql !== fixedSql) {
+        console.log('[BigQuery] SQL fixed for special characters:');
+        console.log('  Original:', sql);
+        console.log('  Fixed:   ', fixedSql);
+      }
+
       const options: Query = {
-        query: sql,
+        query: fixedSql,
         useLegacySql: false,
       };
 
@@ -84,12 +107,12 @@ export class BigQueryAdapter extends BaseAdapter {
       // Handle parameterized queries - BigQuery uses named parameters
       if (params && params.length > 0) {
         // Convert positional parameters to named parameters
-        let processedSql = sql;
+        let processedSql = fixedSql;
         const namedParams: Record<string, QueryParameter> = {};
 
         // Replace ? placeholders with @param0, @param1, etc.
         let paramIndex = 0;
-        processedSql = sql.replace(/\?/g, () => {
+        processedSql = fixedSql.replace(/\?/g, () => {
           const paramName = `param${paramIndex}`;
           const paramValue = params[paramIndex];
           if (paramValue !== undefined) {
@@ -104,10 +127,65 @@ export class BigQueryAdapter extends BaseAdapter {
       }
 
       const [job] = await this.client.createQueryJob(options);
-      const [rows] = await job.getQueryResults();
+      const queryResults: QueryRowsResponse = await job.getQueryResults();
 
-      // Convert BigQuery rows to plain objects
-      let resultRows: Record<string, unknown>[] = rows.map((row) => ({ ...row }));
+      // QueryRowsResponse is [RowMetadata[]] or [RowMetadata[], Query | null, QueryResultsResponse]
+      const rows = queryResults[0];
+
+      // The third element contains the API response with schema when present
+      // QueryResultsResponse is bigquery.IGetQueryResultsResponse | bigquery.IQueryResponse
+      const apiResponse = queryResults.length > 2 ? queryResults[2] : null;
+
+      // Extract field metadata from BigQuery schema first (we need this for unwrapping)
+      const fields: FieldMetadata[] = [];
+      const timestampFields = new Set<string>();
+      if (apiResponse && 'schema' in apiResponse && apiResponse.schema) {
+        const tableSchema = apiResponse.schema as bigquery.ITableSchema;
+        if (tableSchema.fields && Array.isArray(tableSchema.fields)) {
+          for (const field of tableSchema.fields) {
+            // Track which fields are timestamp/datetime types
+            if (
+              field.type === 'TIMESTAMP' ||
+              field.type === 'DATETIME' ||
+              field.type === 'DATE' ||
+              field.type === 'TIME'
+            ) {
+              timestampFields.add(field.name || '');
+            }
+
+            const normalizedType = mapBigQueryType(field.type || 'STRING');
+            fields.push({
+              name: field.name || '',
+              type: normalizedType,
+              nullable: field.mode !== 'REQUIRED',
+              // BigQuery doesn't provide length/precision in standard schema
+              length: 0,
+              precision: 0,
+            });
+          }
+        }
+      }
+
+      // Convert BigQuery rows to plain objects and normalize values
+      // Unwrap timestamp fields that BigQuery returns as objects
+      let resultRows: Record<string, unknown>[] = rows.map((row) => {
+        const processedRow: Record<string, unknown> = {};
+        for (const [key, value] of Object.entries(row)) {
+          // If this is a timestamp field and the value is an object with a 'value' property,
+          // extract the actual timestamp string
+          if (
+            timestampFields.has(key) &&
+            typeof value === 'object' &&
+            value !== null &&
+            'value' in value
+          ) {
+            processedRow[key] = (value as { value: unknown }).value;
+          } else {
+            processedRow[key] = value;
+          }
+        }
+        return normalizeRowValues(processedRow);
+      });
 
       // Check if we have more rows than requested
       if (maxRows && resultRows.length > maxRows) {
@@ -115,9 +193,6 @@ export class BigQueryAdapter extends BaseAdapter {
         // Remove the extra row we fetched to check for more
         resultRows = resultRows.slice(0, maxRows);
       }
-
-      // BigQuery doesn't provide detailed field metadata in the same way as other databases
-      const fields: FieldMetadata[] = [];
 
       return {
         rows: resultRows,

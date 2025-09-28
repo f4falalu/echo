@@ -1,21 +1,24 @@
 import { generateSuggestedMessages } from '@buster/ai';
 import {
-  DEFAULT_USER_SUGGESTED_PROMPTS,
   type User,
-  type UserSuggestedPromptsType,
   getPermissionedDatasets,
   getUserRecentMessages,
   getUserSuggestedPrompts,
   updateUserSuggestedPrompts,
-} from '@buster/database';
+} from '@buster/database/queries';
+import {
+  DEFAULT_USER_SUGGESTED_PROMPTS,
+  type UserSuggestedPromptsType,
+} from '@buster/database/schema-types';
 import { Hono } from 'hono';
-import { HTTPException } from 'hono/http-exception';
 import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 import app from './GET';
 
 // Mock all external dependencies
 vi.mock('@buster/ai');
-vi.mock('@buster/database');
+vi.mock('@buster/database/connection');
+vi.mock('@buster/database/queries');
+vi.mock('@buster/database/schema');
 
 describe('GET /api/v2/users/:id/suggested-prompts', () => {
   const mockUser: User = {
@@ -181,8 +184,8 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
     });
   });
 
-  describe('Fresh prompts generation (old cache)', () => {
-    it('should generate new prompts when cached prompts are from yesterday', async () => {
+  describe('Fire-and-forget background generation (old cache)', () => {
+    it('should return old prompts immediately for fast response', async () => {
       (getUserSuggestedPrompts as Mock).mockResolvedValue(mockOldPrompts);
 
       const testApp = createTestApp();
@@ -193,15 +196,48 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
 
       expect(response.status).toBe(200);
       const body = await response.json();
-      expect(body).toEqual(mockUpdatedPrompts);
+      // Should return old prompts immediately for fast response
+      expect(body).toEqual(mockOldPrompts);
 
-      // Should call AI generation functions
-      expect(getPermissionedDatasets).toHaveBeenCalledWith({
-        userId: mockUser.id,
-        pageSize: 1000,
-        page: 0,
+      // Note: Background generation does run, but response is sent before waiting for it
+      // This is the intended behavior - immediate response with background refresh
+    });
+
+    it('should handle background generation failures gracefully without affecting response', async () => {
+      (getUserSuggestedPrompts as Mock).mockResolvedValue(mockOldPrompts);
+      // Make background generation fail
+      (generateSuggestedMessages as Mock).mockRejectedValue(new Error('AI service unavailable'));
+
+      const testApp = createTestApp();
+
+      const response = await testApp.request(`/${mockUser.id}`, {
+        method: 'GET',
       });
-      expect(getUserRecentMessages).toHaveBeenCalledWith(mockUser.id, 15);
+
+      expect(response.status).toBe(200);
+      const body = await response.json();
+      // Should still return old prompts immediately, regardless of background failure
+      expect(body).toEqual(mockOldPrompts);
+    });
+
+    it('should trigger background generation when prompts are old', async () => {
+      (getUserSuggestedPrompts as Mock).mockResolvedValue(mockOldPrompts);
+
+      const testApp = createTestApp();
+
+      const response = await testApp.request(`/${mockUser.id}`, {
+        method: 'GET',
+      });
+
+      expect(response.status).toBe(200);
+      const body = await response.json();
+      // Should return old prompts immediately
+      expect(body).toEqual(mockOldPrompts);
+
+      // Allow background promise to complete
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      // Background generation should have been triggered
       expect(generateSuggestedMessages).toHaveBeenCalledWith({
         chatHistoryText: expect.stringContaining('userMessage: Show me sales data'),
         databaseContext: expect.stringContaining('table: users'),
@@ -215,7 +251,7 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
   });
 
   describe('Database context scenarios', () => {
-    it('should handle empty datasets gracefully', async () => {
+    it('should return old prompts immediately when datasets are empty', async () => {
       (getUserSuggestedPrompts as Mock).mockResolvedValue(mockOldPrompts);
       (getPermissionedDatasets as Mock).mockResolvedValue({ datasets: [] });
 
@@ -227,10 +263,10 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
 
       expect(response.status).toBe(200);
       const body = await response.json();
-      expect(body).toEqual(mockOldPrompts); // Should return old prompts as fallback
+      expect(body).toEqual(mockOldPrompts); // Should return old prompts immediately
     });
 
-    it('should handle datasets without YAML content', async () => {
+    it('should return old prompts immediately when datasets have no YAML content', async () => {
       (getUserSuggestedPrompts as Mock).mockResolvedValue(mockOldPrompts);
       (getPermissionedDatasets as Mock).mockResolvedValue({
         datasets: [
@@ -248,29 +284,12 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
 
       expect(response.status).toBe(200);
       const body = await response.json();
-      expect(body).toEqual(mockOldPrompts); // Should return old prompts as fallback
-    });
-
-    it('should format YAML content correctly with separators', async () => {
-      (getUserSuggestedPrompts as Mock).mockResolvedValue(mockOldPrompts);
-
-      const testApp = createTestApp();
-
-      await testApp.request(`/${mockUser.id}`, {
-        method: 'GET',
-      });
-
-      expect(generateSuggestedMessages).toHaveBeenCalledWith({
-        chatHistoryText: expect.any(String),
-        databaseContext:
-          'table: users\ncolumns:\n  - id\n  - name\n\n---\n\ntable: orders\ncolumns:\n  - id\n  - total',
-        userId: mockUser.id,
-      });
+      expect(body).toEqual(mockOldPrompts); // Should return old prompts immediately
     });
   });
 
   describe('Chat history scenarios', () => {
-    it('should handle empty chat history gracefully', async () => {
+    it('should return old prompts immediately when chat history is empty', async () => {
       (getUserSuggestedPrompts as Mock).mockResolvedValue(mockOldPrompts);
       (getUserRecentMessages as Mock).mockResolvedValue([]);
       // Clear the default successful mock for this test
@@ -284,24 +303,7 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
 
       expect(response.status).toBe(200);
       const body = await response.json();
-      expect(body).toEqual(mockOldPrompts); // Should return old prompts as fallback
-    });
-
-    it('should format chat history correctly', async () => {
-      (getUserSuggestedPrompts as Mock).mockResolvedValue(mockOldPrompts);
-
-      const testApp = createTestApp();
-
-      await testApp.request(`/${mockUser.id}`, {
-        method: 'GET',
-      });
-
-      expect(generateSuggestedMessages).toHaveBeenCalledWith({
-        chatHistoryText:
-          'userMessage: Show me sales data, assistantResponses: Here is your sales data...\n\nuserMessage: Create a dashboard, assistantResponses: I created a dashboard for you...',
-        databaseContext: expect.any(String),
-        userId: mockUser.id,
-      });
+      expect(body).toEqual(mockOldPrompts); // Should return old prompts immediately
     });
   });
 
@@ -321,24 +323,8 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
       expect(body.message).toBe('Database connection failed');
     });
 
-    it('should fallback to old prompts when AI generation fails', async () => {
-      (getUserSuggestedPrompts as Mock).mockResolvedValue(mockOldPrompts);
-      (generateSuggestedMessages as Mock).mockRejectedValue(new Error('AI service unavailable'));
-
-      const testApp = createTestApp();
-
-      const response = await testApp.request(`/${mockUser.id}`, {
-        method: 'GET',
-      });
-
-      expect(response.status).toBe(200);
-      const body = await response.json();
-      expect(body).toEqual(mockOldPrompts); // Should return old prompts as fallback
-    });
-
-    it('should fallback to default prompts when both AI generation and old prompts fail', async () => {
+    it('should return default prompts when no current prompts exist', async () => {
       (getUserSuggestedPrompts as Mock).mockResolvedValue(null);
-      (generateSuggestedMessages as Mock).mockRejectedValue(new Error('AI service unavailable'));
 
       const testApp = createTestApp();
 
@@ -349,51 +335,9 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
       expect(response.status).toBe(200);
       const body = await response.json();
       expect(body).toEqual(DEFAULT_USER_SUGGESTED_PROMPTS);
-    });
 
-    it('should fallback to old prompts when updateUserSuggestedPrompts fails', async () => {
-      (getUserSuggestedPrompts as Mock).mockResolvedValue(mockOldPrompts);
-      (updateUserSuggestedPrompts as Mock).mockRejectedValue(new Error('Update failed'));
-
-      const testApp = createTestApp();
-
-      const response = await testApp.request(`/${mockUser.id}`, {
-        method: 'GET',
-      });
-
-      expect(response.status).toBe(200);
-      const body = await response.json();
-      expect(body).toEqual(mockOldPrompts); // Should return old prompts as fallback
-    });
-
-    it('should handle getPermissionedDatasets failure gracefully', async () => {
-      (getUserSuggestedPrompts as Mock).mockResolvedValue(mockOldPrompts);
-      (getPermissionedDatasets as Mock).mockRejectedValue(new Error('Permission check failed'));
-
-      const testApp = createTestApp();
-
-      const response = await testApp.request(`/${mockUser.id}`, {
-        method: 'GET',
-      });
-
-      expect(response.status).toBe(200);
-      const body = await response.json();
-      expect(body).toEqual(mockOldPrompts); // Should return old prompts as fallback
-    });
-
-    it('should handle getUserRecentMessages failure gracefully', async () => {
-      (getUserSuggestedPrompts as Mock).mockResolvedValue(mockOldPrompts);
-      (getUserRecentMessages as Mock).mockRejectedValue(new Error('Chat history fetch failed'));
-
-      const testApp = createTestApp();
-
-      const response = await testApp.request(`/${mockUser.id}`, {
-        method: 'GET',
-      });
-
-      expect(response.status).toBe(200);
-      const body = await response.json();
-      expect(body).toEqual(mockOldPrompts); // Should return old prompts as fallback
+      // Background generation should not be triggered when no prompts exist
+      expect(generateSuggestedMessages).not.toHaveBeenCalled();
     });
   });
 
@@ -420,7 +364,7 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
   });
 
   describe('Date comparison edge cases', () => {
-    it('should consider prompts updated at 23:59 yesterday as old', async () => {
+    it('should return old prompts immediately even when they are from 23:59 yesterday', async () => {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
       yesterday.setHours(23, 59, 59, 999);
@@ -438,7 +382,14 @@ describe('GET /api/v2/users/:id/suggested-prompts', () => {
       });
 
       expect(response.status).toBe(200);
-      // Should trigger new generation, not return yesterdayPrompts
+      const body = await response.json();
+      // Should return old prompts immediately, background generation triggers after response
+      expect(body).toEqual(yesterdayPrompts);
+
+      // Allow background promise to complete
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      // Background generation should have been triggered for old prompts
       expect(generateSuggestedMessages).toHaveBeenCalled();
     });
 

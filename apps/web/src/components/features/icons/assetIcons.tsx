@@ -1,4 +1,6 @@
+import type { AssetType } from '@buster/server-shared';
 import type { ShareAssetType } from '@buster/server-shared/share';
+import type { JSX } from 'react';
 import {
   FileContent,
   Folder5,
@@ -25,15 +27,15 @@ export const ASSET_ICONS = {
 
 export const assetTypeToIcon = (assetType: ShareAssetType) => {
   switch (assetType) {
-    case 'metric':
+    case 'metric_file':
       return ASSET_ICONS.metrics;
-    case 'dashboard':
+    case 'dashboard_file':
       return ASSET_ICONS.dashboards;
     case 'collection':
       return ASSET_ICONS.collections;
     case 'chat':
       return ASSET_ICONS.chats;
-    case 'report':
+    case 'report_file':
       return ASSET_ICONS.reports;
     default: {
       const _result: never = assetType;

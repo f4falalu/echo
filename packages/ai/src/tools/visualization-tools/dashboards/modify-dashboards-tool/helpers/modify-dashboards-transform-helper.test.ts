@@ -15,7 +15,7 @@ describe('modify-dashboards-transform-helper', () => {
           {
             id: 'dash-1',
             file_name: 'Sales Dashboard',
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             version_number: 1,
             file: { text: 'content1' },
             status: 'loading',
@@ -23,7 +23,7 @@ describe('modify-dashboards-transform-helper', () => {
           {
             id: 'dash-2',
             file_name: 'Marketing Dashboard',
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             version_number: 1,
             file: { text: 'content2' },
             status: 'loading',
@@ -42,7 +42,7 @@ describe('modify-dashboards-transform-helper', () => {
         expect(result.file_ids).toEqual(['dash-1', 'dash-2']);
         expect(result.files['dash-1']).toMatchObject({
           id: 'dash-1',
-          file_type: 'dashboard',
+          file_type: 'dashboard_file',
           file_name: 'Sales Dashboard',
           status: 'loading',
           file: { text: 'content1' },
@@ -81,7 +81,7 @@ describe('modify-dashboards-transform-helper', () => {
           {
             id: 'dash-1',
             file_name: 'Dashboard 1',
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             version_number: 1,
             file: { text: 'content1' },
             status: 'loading',
@@ -89,7 +89,7 @@ describe('modify-dashboards-transform-helper', () => {
           {
             id: '',
             file_name: 'Dashboard 2',
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             version_number: 1,
             file: { text: 'content2' },
             status: 'loading',
@@ -114,7 +114,7 @@ describe('modify-dashboards-transform-helper', () => {
         files: [
           {
             id: 'dash-1',
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             version_number: 1,
             file: { text: 'content1' },
             status: 'loading',
@@ -138,7 +138,7 @@ describe('modify-dashboards-transform-helper', () => {
           {
             id: 'dash-1',
             file_name: 'Sales Dashboard',
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             version_number: 3,
             file: { text: 'content1' },
             status: 'completed',
@@ -164,7 +164,7 @@ describe('modify-dashboards-transform-helper', () => {
           {
             id: 'dash-1',
             file_name: 'Dashboard 1',
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             version_number: 1,
             file: { text: 'content1' },
             status: 'loading',
@@ -172,7 +172,7 @@ describe('modify-dashboards-transform-helper', () => {
           {
             id: 'dash-2',
             file_name: 'Dashboard 2',
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             version_number: 1,
             file: { text: 'content2' },
             status: 'loading',
@@ -220,7 +220,7 @@ describe('modify-dashboards-transform-helper', () => {
           {
             id: 'dash-1',
             file_name: 'Dashboard 1',
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             version_number: 1,
             file: { text: 'content1' },
             status: 'loading',
@@ -228,14 +228,14 @@ describe('modify-dashboards-transform-helper', () => {
           {
             id: 'dash-2',
             file_name: 'Dashboard 2',
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             version_number: 1,
             status: 'loading',
           },
           {
             id: 'dash-3',
             file_name: 'Dashboard 3',
-            file_type: 'dashboard',
+            file_type: 'dashboard_file',
             version_number: 1,
             file: { text: '' },
             status: 'loading',

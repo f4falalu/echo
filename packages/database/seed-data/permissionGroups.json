@@ -1,0 +1,32 @@
+[
+  {
+    "id": "83e090f0-d160-4372-8484-6ab6b9b07048",
+    "name": "Dallin Special Group",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "createdBy": "c2dd64cd-f7f3-4884-bc91-d46ae431901e",
+    "updatedBy": "c2dd64cd-f7f3-4884-bc91-d46ae431901e",
+    "createdAt": "2025-05-02 17:28:30.253863+00",
+    "updatedAt": "2025-05-02 17:28:30.253866+00",
+    "deletedAt": null
+  },
+  {
+    "id": "b25e4d5a-178e-4441-a7eb-761e9dcec16f",
+    "name": "Sales",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "createdBy": "c2dd64cd-f7f3-4884-bc91-d46ae431901e",
+    "updatedBy": "c2dd64cd-f7f3-4884-bc91-d46ae431901e",
+    "createdAt": "2025-05-02 17:30:31.717155+00",
+    "updatedAt": "2025-05-02 17:30:31.717157+00",
+    "deletedAt": null
+  },
+  {
+    "id": "7c067290-22bf-457a-819a-770285832b8c",
+    "name": "Random Group",
+    "organizationId": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce",
+    "createdBy": "c2dd64cd-f7f3-4884-bc91-d46ae431901e",
+    "updatedBy": "c2dd64cd-f7f3-4884-bc91-d46ae431901e",
+    "createdAt": "2025-05-02 17:31:27.491935+00",
+    "updatedAt": "2025-05-02 17:31:27.491938+00",
+    "deletedAt": null
+  }
+]

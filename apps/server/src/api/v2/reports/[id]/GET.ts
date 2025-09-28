@@ -1,61 +1,89 @@
-import { hasAssetPermission } from '@buster/access-controls';
-import { getReport, getReportMetadata } from '@buster/database';
-import type { GetReportResponse } from '@buster/server-shared/reports';
+import { checkPermission } from '@buster/access-controls';
+import { type User, getMetricIdsInReport, getReportFileById } from '@buster/database/queries';
+import {
+  GetReportParamsSchema,
+  GetReportQuerySchema,
+  type GetReportResponse,
+} from '@buster/server-shared/reports';
+import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
+import { throwUnauthorizedError } from '../../../../shared-helpers/asset-public-access';
+import { getMetricsInAncestorAssetFromMetricIds } from '../../../../shared-helpers/metric-helpers';
 import { standardErrorHandler } from '../../../../utils/response';
 
 export async function getReportHandler(
   reportId: string,
-  user: { id: string }
+  user: User,
+  versionNumber?: number | undefined,
+  password?: string | undefined
 ): Promise<GetReportResponse> {
-  // Get report metadata for access control
-  let reportData: Awaited<ReturnType<typeof getReportMetadata>>;
-  try {
-    reportData = await getReportMetadata({ reportId });
-  } catch (error) {
-    console.error('Error getting report metadata:', error);
-    throw new HTTPException(404, { message: 'Report not found' });
-  }
+  const [report, metricIds] = await Promise.all([
+    getReportFileById({
+      reportId,
+      userId: user.id,
+      versionNumber,
+    }),
+    getMetricIdsInReport({ reportId }),
+  ]);
 
-  if (!reportData) {
-    throw new HTTPException(404, { message: 'Report not found' });
-  }
-
-  // Check access using existing asset permission system
-  const hasAccess = await hasAssetPermission({
+  const permission = await checkPermission({
     userId: user.id,
     assetId: reportId,
     assetType: 'report_file',
     requiredRole: 'can_view',
-    organizationId: reportData.organizationId,
-    workspaceSharing: reportData.workspaceSharing,
+    workspaceSharing: report.workspace_sharing,
+    organizationId: report.organization_id,
+    publiclyAccessible: report.publicly_accessible,
+    publicExpiryDate: report.public_expiry_date ?? undefined,
+    publicPassword: report.public_password ?? undefined,
+    userSuppliedPassword: password,
   });
 
-  if (!hasAccess) {
-    throw new HTTPException(403, { message: 'You do not have access to this report' });
+  if (!permission.hasAccess || !permission.effectiveRole) {
+    throwUnauthorizedError({
+      publiclyAccessible: report.publicly_accessible ?? false,
+      publicExpiryDate: report.public_expiry_date ?? undefined,
+      publicPassword: report.public_password ?? undefined,
+      userSuppliedPassword: password,
+    });
   }
 
-  // If access is granted, get the full report data
-  const report = await getReport({ reportId, userId: user.id });
+  const metrics = await getMetricsInAncestorAssetFromMetricIds(metricIds, user);
 
-  const response: GetReportResponse = report;
+  const response: GetReportResponse = {
+    ...report,
+    permission: permission.effectiveRole,
+    metrics,
+  };
 
   return response;
 }
 
 const app = new Hono()
-  .get('/', async (c) => {
-    const reportId = c.req.param('id');
-    const user = c.get('busterUser');
+  .get(
+    '/',
+    zValidator('param', GetReportParamsSchema),
+    zValidator('query', GetReportQuerySchema),
+    async (c) => {
+      const { id: reportId } = c.req.valid('param');
+      const query = c.req.valid('query');
+      const { password, version_number: versionNumber } = query;
+      const user = c.get('busterUser');
 
-    if (!reportId) {
-      throw new HTTPException(404, { message: 'Report ID is required' });
+      if (!reportId) {
+        throw new HTTPException(404, { message: 'Report ID is required' });
+      }
+
+      const response: GetReportResponse = await getReportHandler(
+        reportId,
+        user,
+        versionNumber,
+        password
+      );
+      return c.json(response);
     }
-
-    const response: GetReportResponse = await getReportHandler(reportId, user);
-    return c.json(response);
-  })
+  )
   .onError(standardErrorHandler);
 
 export default app;

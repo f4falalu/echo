@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+import { LazyErrorBoundary } from '@/components/features/global/LazyErrorBoundary';
 import { type UsePageReadyOptions, usePageReady } from '@/hooks/usePageReady';
 import type { ReportEditorProps } from './ReportEditor';
 import { ReportEditorSkeleton } from './ReportEditorSkeleton';
@@ -31,9 +32,11 @@ export const DynamicReportEditor = ({ loadingOptions, ...props }: DynamicReportE
   }
 
   return (
-    <Suspense fallback={<ReportEditorSkeleton />}>
-      <DynamicReportEditorBase {...props} />
-    </Suspense>
+    <LazyErrorBoundary>
+      <Suspense fallback={<ReportEditorSkeleton />}>
+        <DynamicReportEditorBase {...props} />
+      </Suspense>
+    </LazyErrorBoundary>
   );
 };
 

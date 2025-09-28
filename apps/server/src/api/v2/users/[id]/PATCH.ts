@@ -1,4 +1,4 @@
-import { getUserInformation, updateUser } from '@buster/database';
+import { getUserInformation, updateUser } from '@buster/database/queries';
 import {
   GetUserByIdRequestSchema,
   type GetUserByIdResponse,

@@ -12,20 +12,30 @@ const mockDbWhere = vi.fn();
 const mockDbFrom = vi.fn();
 const mockDbSelect = vi.fn();
 
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   updateMessageEntries: vi.fn().mockResolvedValue({ success: true }),
-  batchUpdateReport: vi.fn().mockResolvedValue({ success: true }),
+  updateReportWithVersion: vi.fn().mockResolvedValue(undefined),
   updateMetricsToReports: vi.fn().mockResolvedValue({ created: 0, updated: 0, deleted: 0 }),
+  waitForPendingReportUpdates: vi.fn().mockResolvedValue(undefined),
+}));
+vi.mock('@buster/database/schema', () => ({
+  reportFiles: {},
+}));
+vi.mock('@buster/database/connection', () => ({
   db: {
-    select: () => ({
-      from: () => ({
-        where: () => ({
-          limit: mockDbLimit,
+    select: vi.fn().mockReturnValue({
+      from: vi.fn().mockReturnValue({
+        where: vi.fn().mockReturnValue({
+          limit: vi.fn().mockResolvedValue([
+            {
+              content: '# Original Report\nSome content here.',
+              versionHistory: null,
+            },
+          ]),
         }),
       }),
     }),
   },
-  reportFiles: {},
 }));
 
 vi.mock('../helpers/report-version-helper', () => ({
@@ -61,7 +71,18 @@ vi.mock('../../../shared/create-raw-llm-tool-result-entry', () => ({
   }),
 }));
 
-import { db, updateMessageEntries } from '@buster/database';
+vi.mock('../helpers/metric-extraction', () => ({
+  extractAndCacheMetricsWithUserContext: vi.fn().mockResolvedValue(undefined),
+  extractMetricIds: vi.fn().mockReturnValue([]),
+}));
+
+vi.mock('../report-snapshot-cache', () => ({
+  getCachedSnapshot: vi.fn().mockReturnValue(null),
+  updateCachedSnapshot: vi.fn().mockResolvedValue(undefined),
+}));
+
+import { db } from '@buster/database/connection';
+import { updateMessageEntries } from '@buster/database/queries';
 
 describe('modify-reports-execute', () => {
   let context: ModifyReportsContext;
@@ -146,7 +167,7 @@ Updated content with metrics.`;
       expect(updateCall.responseMessages[0]).toMatchObject({
         id: 'report-123',
         type: 'file',
-        file_type: 'report',
+        file_type: 'report_file',
         file_name: 'Modified Sales Report',
       });
     });
@@ -199,7 +220,7 @@ Updated content with metrics.`;
       expect(updateCall.responseMessages?.[0]).toMatchObject({
         id: 'report-123',
         type: 'file',
-        file_type: 'report',
+        file_type: 'report_file',
         file_name: 'Modified Report',
         version_number: 2,
       });
@@ -353,10 +374,20 @@ Updated content with metrics.`;
     });
 
     it('should handle report not found in database', async () => {
+      // Override the database mock for this specific test to return empty array
+      const mockDbSelect = vi.fn().mockReturnValue({
+        from: vi.fn().mockReturnValue({
+          where: vi.fn().mockReturnValue({
+            limit: vi.fn().mockResolvedValue([]),
+          }),
+        }),
+      });
+
+      (db.select as ReturnType<typeof vi.fn>) = mockDbSelect;
+
       // Mock no report found - snapshot will be undefined since report doesn't exist
       // This should trigger the fallback to fetch from DB
       state.snapshotContent = undefined;
-      mockDbLimit.mockResolvedValue([]);
 
       const input: ModifyReportsInput = {
         id: 'non-existent-report',
@@ -380,6 +411,104 @@ Updated content with metrics.`;
       expect(mockUpdateMessageEntries).toHaveBeenCalled();
       const updateCall = mockUpdateMessageEntries.mock.calls[0]?.[0];
       expect(updateCall.responseMessages).toBeUndefined();
+    });
+
+    it('should wait for lastUpdate promise before executing final write', async () => {
+      // This test validates the fix for the race condition where delta writes
+      // could complete out of order, causing data inconsistency
+
+      // Create a delayed promise to simulate an in-progress delta write
+      let resolveLastUpdate: () => void;
+      const lastUpdatePromise = new Promise<void>((resolve) => {
+        resolveLastUpdate = resolve;
+      });
+
+      // Set up state with an in-progress lastProcessing
+      state.lastProcessing = lastUpdatePromise;
+      state.snapshotContent = '# Original Report';
+
+      mockDbLimit.mockResolvedValue([
+        {
+          content: '# Original Report',
+          versionHistory: null,
+        },
+      ]);
+
+      const input: ModifyReportsInput = {
+        id: 'report-concurrent',
+        name: 'Concurrent Write Test',
+        edits: [
+          {
+            operation: 'replace' as const,
+            code_to_replace: '# Original Report',
+            code: '# Final Version',
+          },
+        ],
+      };
+
+      const execute = createModifyReportsExecute(context, state);
+
+      // Start the execute (it should wait for lastProcessing)
+      const executePromise = execute(input);
+
+      // Give it a moment to ensure it's waiting
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      // updateReportWithVersion should not have been called yet
+      const mockUpdateReportWithVersion = vi.mocked(
+        await import('@buster/database/queries').then((m) => m.updateReportWithVersion)
+      );
+      expect(mockUpdateReportWithVersion).not.toHaveBeenCalled();
+
+      // Now resolve the lastProcessing promise
+      resolveLastUpdate!();
+
+      // Wait for execute to complete
+      const result = await executePromise;
+
+      // Now updateReportWithVersion should have been called
+      expect(mockUpdateReportWithVersion).toHaveBeenCalled();
+      expect(result.success).toBe(true);
+      expect(result.file.content).toContain('# Final Version');
+    });
+
+    it('should handle lastUpdate promise rejection gracefully', async () => {
+      // Create a rejected promise to simulate a failed delta write
+      const lastUpdatePromise = Promise.reject(new Error('Delta write failed'));
+
+      // Set up state with a rejected lastProcessing
+      state.lastProcessing = lastUpdatePromise;
+      state.snapshotContent = '# Original Report';
+
+      mockDbLimit.mockResolvedValue([
+        {
+          content: '# Original Report',
+          versionHistory: null,
+        },
+      ]);
+
+      const input: ModifyReportsInput = {
+        id: 'report-error-handling',
+        name: 'Error Handling Test',
+        edits: [
+          {
+            operation: 'replace' as const,
+            code_to_replace: '# Original Report',
+            code: '# Updated Report',
+          },
+        ],
+      };
+
+      const execute = createModifyReportsExecute(context, state);
+
+      // Execute should still complete successfully despite the failed lastUpdate
+      const result = await execute(input);
+
+      expect(result.success).toBe(true);
+      expect(result.file.content).toContain('# Updated Report');
+
+      // Should log a warning about the failed delta write
+      // (In a real test, you might spy on console.warn)
     });
 
     it('should only check metrics on successful modifications', async () => {

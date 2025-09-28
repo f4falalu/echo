@@ -1,12 +1,14 @@
 import { generateSuggestedMessages } from '@buster/ai';
 import {
-  DEFAULT_USER_SUGGESTED_PROMPTS,
-  type UserSuggestedPromptsType,
   getPermissionedDatasets,
   getUserRecentMessages,
   getUserSuggestedPrompts,
   updateUserSuggestedPrompts,
-} from '@buster/database';
+} from '@buster/database/queries';
+import {
+  DEFAULT_USER_SUGGESTED_PROMPTS,
+  type UserSuggestedPromptsType,
+} from '@buster/database/schema-types';
 import {
   GetSuggestedPromptsRequestSchema,
   type GetSuggestedPromptsResponse,
@@ -42,32 +44,27 @@ const app = new Hono()
         today.getMonth() === updatedDate.getMonth() &&
         today.getDate() === updatedDate.getDate();
 
-      if (isToday) {
-        return c.json(currentSuggestedPrompts);
+      if (!isToday) {
+        // Fire-and-forget: Start background update but don't await
+        // NODEJS will handle the event loop promise after returning.
+        // Not the best error handling, so if there is an issue we should move this to a background trigger task.
+        buildNewSuggestedPrompts(userId)
+          .then(() => {
+            console.info(`[GET SuggestedPrompts] Background update completed for user: ${userId}`);
+          })
+          .catch((error) => {
+            console.error(
+              `[GET SuggestedPrompts] Background update failed for user ${userId}:`,
+              error
+            );
+          });
       }
+
+      return c.json(currentSuggestedPrompts);
     }
 
-    const timeoutMs = 10000; // 10 seconds timeout
-
-    const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => {
-        reject(new Error('Request timeout after 10 seconds. Returning current suggested prompts.'));
-      }, timeoutMs);
-    });
-
-    try {
-      const newPrompts: GetSuggestedPromptsResponse = await Promise.race([
-        buildNewSuggestedPrompts(userId),
-        timeoutPromise,
-      ]);
-      return c.json(newPrompts);
-    } catch {
-      if (currentSuggestedPrompts) {
-        return c.json(currentSuggestedPrompts);
-      }
-      const defaultPrompts: GetSuggestedPromptsResponse = DEFAULT_USER_SUGGESTED_PROMPTS;
-      return c.json(defaultPrompts);
-    }
+    const defaultPrompts: GetSuggestedPromptsResponse = DEFAULT_USER_SUGGESTED_PROMPTS;
+    return c.json(defaultPrompts);
   })
   .onError(standardErrorHandler);
 
@@ -99,7 +96,10 @@ async function buildNewSuggestedPrompts(userId: string): Promise<UserSuggestedPr
 
     return updatedPrompts;
   } catch (error) {
-    console.error('[GET SuggestedPrompts] Error building new suggested prompts:', error);
+    console.warn(
+      '[GET SuggestedPrompts] Error building new suggested prompts. Returning current prompts or defaults. Error:',
+      error
+    );
     throw error;
   }
 }
@@ -134,7 +134,7 @@ async function getDatabaseContext(userId: string): Promise<string> {
 
     return datasetsWithYaml;
   } catch (error) {
-    console.error('[GET SuggestedPrompts] Error fetching database context:', error);
+    console.warn('[GET SuggestedPrompts] Error fetching database context:', error);
     return '';
   }
 }
@@ -173,7 +173,7 @@ async function getUserChatHistoryText(userId: string): Promise<string> {
 
     return formatChatHistoryText(recentMessages);
   } catch (error) {
-    console.error('[GET SuggestedPrompts] Error fetching chat history:', error);
+    console.warn('[GET SuggestedPrompts] Error fetching chat history:', error);
     return '';
   }
 }

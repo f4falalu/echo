@@ -247,7 +247,7 @@ impl ToolExecutor for CreateMetricFilesTool {
                             created_files.push(FileWithId {
                                 id: metric_records[i].id,
                                 name: metric_records[i].name.clone(),
-                                file_type: "metric".to_string(),
+                                file_type: "metric_file".to_string(),
                                 yml_content, // Use the successfully serialized content
                                 result_message: Some(results_vec[i].0.clone()),
                                 results: Some(results_vec[i].1.clone()),

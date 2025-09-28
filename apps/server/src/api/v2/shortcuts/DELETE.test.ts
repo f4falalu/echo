@@ -1,5 +1,5 @@
-import type { User } from '@buster/database';
-import * as dbQueries from '@buster/database';
+import type { User } from '@buster/database/queries';
+import * as dbQueries from '@buster/database/queries';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { deleteShortcutHandler } from './[id]/DELETE';
 import {
@@ -9,7 +9,7 @@ import {
 } from './services/shortcut-errors';
 
 // Mock database functions
-vi.mock('@buster/database', () => ({
+vi.mock('@buster/database/queries', () => ({
   getUserOrganizationId: vi.fn(),
   getShortcutById: vi.fn(),
   deleteShortcut: vi.fn(),

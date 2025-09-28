@@ -1,10 +1,13 @@
-import { type SQL, and, count, desc, eq, exists, isNull, ne, or } from 'drizzle-orm';
+import { type SQL, and, count, desc, eq, exists, isNull, ne, or, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
 import { assetPermissions, reportFiles, teamsToUsers, users } from '../../schema';
+import {
+  type PaginatedResponse,
+  createPaginatedResponse,
+  withPagination,
+} from '../../schema-types';
 import { getUserOrganizationId } from '../organizations';
-import { type PaginatedResponse, createPaginatedResponse } from '../shared-types';
-import { withPagination } from '../shared-types/with-pagination';
 
 export const GetReportsWithPermissionsInputSchema = z.object({
   userId: z.string().uuid('User ID must be a valid UUID'),
@@ -182,8 +185,30 @@ export async function getReportsWithPermissions(
         created_by_id: reportFiles.createdBy,
         created_by_name: users.name,
         created_by_avatar: users.avatarUrl,
-        // Get the user's permission for this report
-        permission: assetPermissions.role,
+        // Get the user's permission for this report, with owner fallback for creators
+        permission: sql<string | null>`
+          CASE
+            WHEN ${assetPermissions.role} IS NOT NULL THEN ${assetPermissions.role}
+            WHEN ${reportFiles.createdBy} = ${userId} THEN 'owner'
+            ELSE NULL
+          END
+        `,
+        // Calculate is_shared directly in SQL
+        // Check if report is shared with OTHER users or teams (not just the current user)
+        is_shared: sql<boolean>`
+          ${reportFiles.publiclyAccessible} = true 
+          OR ${reportFiles.workspaceSharing} != 'none' 
+          OR EXISTS (
+            SELECT 1 FROM asset_permissions ap
+            WHERE ap.asset_id = ${reportFiles.id}
+              AND ap.asset_type = 'report_file'
+              AND (
+                (ap.identity_type = 'user' AND ap.identity_id != ${userId})
+                OR ap.identity_type = 'team'
+              )
+              AND ap.deleted_at IS NULL
+          )
+        `,
       })
       .from(reportFiles)
       .innerJoin(users, eq(reportFiles.createdBy, users.id))
@@ -213,16 +238,8 @@ export async function getReportsWithPermissions(
 
     const total = totalResult[0]?.count ?? 0;
 
-    // Transform the data to include is_shared flag
-    const transformedData = data.map((report) => ({
-      ...report,
-      is_shared: report.created_by_id !== userId,
-      // If no explicit permission but user is creator, they're the owner
-      permission: report.permission || (report.created_by_id === userId ? 'owner' : null),
-    }));
-
     return createPaginatedResponse({
-      data: transformedData,
+      data,
       page,
       page_size,
       total,

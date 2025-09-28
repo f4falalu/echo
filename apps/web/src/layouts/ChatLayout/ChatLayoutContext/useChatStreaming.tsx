@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import type { BusterChat, BusterChatMessage, IBusterChat } from '@/api/asset_interfaces/chat';
-import { useGetChatMessageMemoized } from '@/api/buster_rest/chats';
+import { useGetChat, useGetChatMessageMemoized } from '@/api/buster_rest/chats';
 import { prefetchGetMetricDataClient } from '@/api/buster_rest/metrics';
 import { useTrackAndUpdateChatChanges } from '@/api/buster-electric/chats';
 import {
@@ -14,6 +14,7 @@ import { useBlackboxMessage } from '@/context/BlackBox/useBlackboxMessage';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { updateChatToIChat } from '@/lib/chat';
 
+const stableChatTitleSelector = (chat: IBusterChat) => chat.title;
 export const useChatStreaming = ({
   chatId,
   isStreamingMessage,
@@ -26,6 +27,10 @@ export const useChatStreaming = ({
   const { checkBlackBoxMessage, removeBlackBoxMessage } = useBlackboxMessage();
   const queryClient = useQueryClient();
   const getChatMessageMemoized = useGetChatMessageMemoized();
+  const { data: chatTitle } = useGetChat(
+    { id: chatId || '' },
+    { select: stableChatTitleSelector, notifyOnChangeProps: ['data'] }
+  );
 
   const _prefetchLastMessageMetricData = (
     iChat: IBusterChat,
@@ -35,7 +40,7 @@ export const useChatStreaming = ({
     const lastMessage = iChatMessages[lastMessageId];
     if (lastMessage?.response_message_ids) {
       for (const responseMessage of Object.values(lastMessage.response_messages)) {
-        if (responseMessage.type === 'file' && responseMessage.file_type === 'metric') {
+        if (responseMessage.type === 'file' && responseMessage.file_type === 'metric_file') {
           prefetchGetMetricDataClient(
             { id: responseMessage.id, version_number: responseMessage.version_number },
             queryClient
@@ -68,7 +73,10 @@ export const useChatStreaming = ({
     ) => {
       const lastResponseMessageId = d.response_message_ids[d.response_message_ids.length - 1];
       const lastResponseMessage = d.response_messages[lastResponseMessageId];
-      if (lastResponseMessage?.type === 'file' && lastResponseMessage?.file_type === 'metric') {
+      if (
+        lastResponseMessage?.type === 'file' &&
+        lastResponseMessage?.file_type === 'metric_file'
+      ) {
         prefetchGetMetricDataClient(
           { id: lastResponseMessage.id, version_number: lastResponseMessage.version_number },
           queryClient

@@ -1,4 +1,5 @@
-import { db, messagesToFiles } from '@buster/database';
+import { db } from '@buster/database/connection';
+import { messagesToFiles } from '@buster/database/schema';
 
 export interface FileTrackingInput {
   messageId: string;

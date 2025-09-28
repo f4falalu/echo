@@ -1,4 +1,10 @@
-import { batchUpdateReport, db, reportFiles, updateMessageEntries } from '@buster/database';
+import { db } from '@buster/database/connection';
+import {
+  updateMessageEntries,
+  updateReportWithVersion,
+  waitForPendingReportUpdates,
+} from '@buster/database/queries';
+import { reportFiles } from '@buster/database/schema';
 import type { ChatMessageResponseMessage } from '@buster/server-shared/chats';
 import type { ToolCallOptions } from 'ai';
 import { and, eq, isNull } from 'drizzle-orm';
@@ -70,6 +76,7 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
           if (cached) {
             // Use cached snapshot
             state.snapshotContent = cached.content;
+            state.lastSavedContent = cached.content; // Initialize with current content
 
             type VersionHistoryEntry = {
               content: string;
@@ -110,6 +117,7 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
 
             if (existingReport.length > 0 && existingReport[0]) {
               state.snapshotContent = existingReport[0].content;
+              state.lastSavedContent = existingReport[0].content; // Initialize with current content
 
               type VersionHistoryEntry = {
                 content: string;
@@ -156,12 +164,14 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
         // If we have a snapshot and report ID, update the name in the database
         if (state.snapshotContent !== undefined && state.reportId) {
           try {
-            // We need to provide content for batchUpdateReport, so use the snapshot
-            await batchUpdateReport({
+            // We need to provide content for updateReportWithVersion, so use the snapshot
+            await updateReportWithVersion({
               reportId: state.reportId,
               content: state.snapshotContent,
               name: name,
             });
+            // Wait for the name update to fully complete in the queue
+            await waitForPendingReportUpdates(state.reportId);
             console.info('[modify-reports-delta] Updated report name', {
               reportId: state.reportId,
               name,
@@ -200,7 +210,11 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
             );
             const rawCode = getOptimisticValue<string>(editMap, TOOL_KEYS.code, '');
             // Unescape JSON string sequences, then normalize any double-escaped characters
-            const code = rawCode ? normalizeEscapedText(unescapeJsonString(rawCode)) : '';
+            // Note: We preserve the code even if it's empty string, as that might be intentional
+            const code =
+              rawCode !== undefined
+                ? normalizeEscapedText(unescapeJsonString(rawCode || ''))
+                : undefined;
 
             if (code !== undefined) {
               // Use explicit operation if provided, otherwise infer from code_to_replace
@@ -229,51 +243,59 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
                 }
               }
 
-              // Apply the edit to a COPY of the snapshot and update database in real-time
-              // Only process the first edit for now (multiple edits would need careful handling)
-              if (index === 0) {
-                // IMPORTANT: Work with a copy, never mutate the original snapshot
-                let newContent = state.snapshotContent;
+              // Don't process individual edits here - we'll apply all edits at once below
+            }
+          }
+        }
+
+        // Queue the entire processing operation to ensure sequential execution
+        if (state.edits && state.edits.length > 0 && state.snapshotContent !== undefined) {
+          // Initialize the promise chain if this is the first processing
+          if (!state.lastProcessing) {
+            state.lastProcessing = Promise.resolve();
+          }
+
+          // Chain this processing to happen after the previous one completes
+          state.lastProcessing = state.lastProcessing
+            .then(async () => {
+              // Apply ALL edits sequentially starting from the immutable snapshot
+              // Start fresh from snapshot every time
+              let currentContent = state.snapshotContent; // We checked it's defined above
+
+              // Apply each edit in sequence
+              for (const edit of state.edits || []) {
+                // Skip if edit is null/undefined, but allow empty strings for code
+                if (!edit || edit.code === undefined || edit.code === null) continue;
+
+                const operation = edit.operation;
+                const codeToReplace = edit.code_to_replace || '';
+                const code = edit.code;
 
                 if (operation === 'append') {
-                  // For append, add the streaming code to the end of the snapshot copy
-                  newContent = state.snapshotContent + code;
+                  currentContent = (currentContent || '') + code;
                 } else if (operation === 'replace' && codeToReplace) {
-                  // First, count occurrences of code_to_replace in the original snapshot
-                  const matches = state.snapshotContent.split(codeToReplace).length - 1;
-
-                  if (matches === 0) {
-                    // Pattern not found, skip update
-                    console.warn('[modify-reports-delta] Pattern not found in snapshot', {
+                  // Check if the pattern exists
+                  if (!currentContent || !currentContent.includes(codeToReplace)) {
+                    console.warn('[modify-reports-delta] Pattern not found during final apply', {
                       codeToReplace: codeToReplace.substring(0, 50),
                       reportId: state.reportId,
                     });
+                    edit.status = 'failed';
+                    edit.error = 'Pattern not found';
                     continue;
                   }
-                  if (matches > 1) {
-                    // Multiple matches found, skip update to avoid ambiguity
-                    console.warn(
-                      '[modify-reports-delta] Multiple matches found, skipping replace',
-                      {
-                        codeToReplace: codeToReplace.substring(0, 50),
-                        matchCount: matches,
-                        reportId: state.reportId,
-                      }
-                    );
-                    continue;
-                  }
-                  // Exactly one match found, now check if code has changed
-                  if (code === codeToReplace) {
-                    // Code hasn't changed yet, skip the database update
-                    continue;
-                  }
-                  // Code has diverged, perform the replacement on a copy
-                  newContent = state.snapshotContent.replace(codeToReplace, code);
+                  // Apply the replacement
+                  currentContent = (currentContent || '').replace(codeToReplace, code);
                 }
 
+                edit.status = 'completed';
+              }
+
+              // Only update if content actually changed from what we last saved
+              if (currentContent !== state.lastSavedContent) {
                 // Check if we should increment version (not if report was created in current turn)
                 const incrementVersion = await shouldIncrementVersion(
-                  state.reportId,
+                  state.reportId || '',
                   context.messageId
                 );
 
@@ -283,36 +305,49 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
                 state.version_number = newVersion;
 
                 // Track this modification for this tool invocation
-                if (!state.reportsModifiedInMessage) {
-                  state.reportsModifiedInMessage = new Set();
-                }
-                state.reportsModifiedInMessage.add(state.reportId);
+                state.reportModifiedInMessage = true;
 
-                // Update version history
+                // Update version history with the final content after all edits
                 const now = new Date().toISOString();
                 const versionHistory = {
                   ...(state.versionHistory || {}),
                   [newVersion.toString()]: {
-                    content: newContent,
+                    content: currentContent || '',
                     updated_at: now,
                     version_number: newVersion,
                   },
                 };
 
-                // Update the database with the new content and version
+                // Update the database with the result of all edits
                 try {
-                  await batchUpdateReport({
+                  // We're already inside a check for state.reportId being defined
+                  if (!state.reportId) {
+                    throw new Error('Report ID is unexpectedly undefined');
+                  }
+
+                  // Perform the database write
+                  await updateReportWithVersion({
                     reportId: state.reportId,
-                    content: newContent,
+                    content: currentContent || '',
                     name: state.reportName || undefined,
                     versionHistory,
                   });
 
-                  // Update cache with the new content for subsequent modifications
-                  updateCachedSnapshot(state.reportId, newContent, versionHistory);
+                  // Wait for the database update to fully complete in the queue
+                  await waitForPendingReportUpdates(state.reportId);
+
+                  console.info('[modify-reports-delta] Database write completed', {
+                    reportId: state.reportId,
+                    version: newVersion,
+                  });
+
+                  // Keep lastUpdate in sync for backward compatibility (already set via processing chain)
+
+                  // No cache update during delta - execute will handle write-through
 
                   // Update state with the final content (but keep snapshot immutable)
-                  state.finalContent = newContent;
+                  state.finalContent = currentContent || '';
+                  state.lastSavedContent = currentContent || ''; // Track what we just saved
                   state.versionHistory = versionHistory;
                   // DO NOT update state.snapshotContent - it must remain immutable
 
@@ -322,7 +357,7 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
                       {
                         id: state.reportId,
                         type: 'file' as const,
-                        file_type: 'report' as const,
+                        file_type: 'report_file' as const,
                         file_name: state.reportName || 'Untitled Report',
                         version_number: newVersion,
                         filter_version_id: null,
@@ -349,16 +384,29 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
                 } catch (error) {
                   console.error('[modify-reports-delta] Error updating report content:', error);
                   if (state.edits) {
-                    const edit = state.edits[index];
-                    if (edit) {
-                      edit.status = 'failed';
-                      edit.error = error instanceof Error ? error.message : 'Update failed';
-                    }
+                    state.edits.forEach((edit) => {
+                      if (edit) {
+                        edit.status = 'failed';
+                        edit.error = error instanceof Error ? error.message : 'Update failed';
+                      }
+                    });
                   }
+                  // Re-throw to be caught by the outer catch
+                  throw error;
                 }
               }
-            }
-          }
+            })
+            .catch((error) => {
+              // Log error but don't break the chain - allow subsequent processing to continue
+              console.error('[modify-reports-delta] Processing failed:', error);
+              // Don't re-throw - let the chain continue for resilience
+            });
+
+          // Clean up the processing entry once this completes
+          state.lastProcessing.finally(() => {
+            // Only remove if this is still the current processing
+            // This cleanup is handled by the execute function
+          });
         }
       }
     }

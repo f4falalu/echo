@@ -1,11 +1,7 @@
-import {
-  chats,
-  checkForDuplicateMessages,
-  db,
-  eq,
-  messages,
-  updateMessage,
-} from '@buster/database';
+import { db, eq } from '@buster/database/connection';
+import { checkForDuplicateMessages, updateMessage } from '@buster/database/queries';
+import { chats, messages } from '@buster/database/schema';
+import type { AssetType } from '@buster/server-shared';
 import {
   SlackMessagingService,
   addReaction,
@@ -387,7 +383,12 @@ export const slackAgentTask: ReturnType<
       const maxRapidPolls = 20; // 20 attempts = 20 seconds total
       let rapidPollCount = 0;
       let isComplete = false;
-      let analystResult: { ok: boolean; output?: unknown; error?: unknown } | null = null;
+      let analystResult: {
+        ok: boolean;
+        output?: unknown;
+        error?: unknown;
+        canceled?: boolean;
+      } | null = null;
 
       while (rapidPollCount < maxRapidPolls && !hasStartedRunning && !isComplete) {
         await wait.for({ seconds: rapidPollInterval / 1000 });
@@ -495,6 +496,8 @@ export const slackAgentTask: ReturnType<
             isComplete = true;
             if (run.status === 'COMPLETED') {
               analystResult = { ok: true, output: run.output };
+            } else if (run.status === 'CANCELED') {
+              analystResult = { ok: false, canceled: true };
             } else {
               analystResult = { ok: false, error: run.error || 'Task failed' };
             }
@@ -609,10 +612,12 @@ export const slackAgentTask: ReturnType<
           if (run.status === 'COMPLETED') {
             isComplete = true;
             analystResult = { ok: true, output: run.output };
+          } else if (run.status === 'CANCELED') {
+            isComplete = true;
+            analystResult = { ok: false, canceled: true };
           } else if (
             run.status === 'SYSTEM_FAILURE' ||
             run.status === 'CRASHED' ||
-            run.status === 'CANCELED' ||
             run.status === 'TIMED_OUT'
           ) {
             isComplete = true;
@@ -629,6 +634,86 @@ export const slackAgentTask: ReturnType<
       if (!isComplete) {
         logger.error('Analyst task polling timed out');
         analystResult = { ok: false, error: 'Task timed out' };
+      }
+
+      if (analystResult && !analystResult.ok && analystResult.canceled) {
+        logger.log('Analyst task was canceled mid-execution', {
+          runId: analystHandle.id,
+        });
+
+        try {
+          if (progressMessageTs) {
+            await messagingService.deleteMessage(
+              accessToken,
+              chatDetails.slackChannelId,
+              progressMessageTs
+            );
+          }
+
+          await removeReaction({
+            accessToken,
+            channelId: chatDetails.slackChannelId,
+            messageTs: mentionMessageTs,
+            emoji: 'hourglass_flowing_sand',
+          });
+        } catch (error) {
+          logger.warn(
+            'Error cleaning up initial message and reaction after canceled analyst task',
+            {
+              messageTs: progressMessageTs,
+              error: error instanceof Error ? error.message : 'Unknown error',
+            }
+          );
+        }
+
+        try {
+          const canceledMessage =
+            'Your request was canceled mid-execution. If this was a mistake, please ask your question again.';
+          const messageBlocks = [
+            {
+              type: 'section' as const,
+              text: {
+                type: 'plain_text' as const,
+                text: canceledMessage,
+              },
+            },
+            {
+              type: 'actions' as const,
+              elements: [
+                {
+                  type: 'button' as const,
+                  text: {
+                    type: 'plain_text' as const,
+                    text: 'Open in Buster',
+                    emoji: false,
+                  },
+                  url: `${busterUrl}/app/chats/${payload.chatId}`,
+                },
+              ],
+            },
+          ];
+          const completeCanceledMessage = {
+            text: canceledMessage,
+            thread_ts: chatDetails.slackThreadTs,
+            blocks: messageBlocks,
+          };
+
+          await messagingService.sendMessage(
+            accessToken,
+            chatDetails.slackChannelId,
+            completeCanceledMessage
+          );
+        } catch (error) {
+          logger.warn('Failed to send canceled message to Slack', {
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+        }
+
+        return {
+          success: false,
+          messageId: '',
+          triggerRunId: '',
+        };
       }
 
       // Handle analyst task result
@@ -658,7 +743,7 @@ export const slackAgentTask: ReturnType<
       let responseText = "I've finished working on your request!";
       let chatFileInfo: {
         mostRecentFileId: string | null;
-        mostRecentFileType: string | null;
+        mostRecentFileType: AssetType | null;
         mostRecentVersionNumber: number | null;
       } | null = null;
 
@@ -755,7 +840,16 @@ export const slackAgentTask: ReturnType<
           chatFileInfo?.mostRecentFileType &&
           chatFileInfo?.mostRecentVersionNumber !== null
         ) {
-          buttonUrl = `${busterUrl}/app/chats/${payload.chatId}/${chatFileInfo.mostRecentFileType}s/${chatFileInfo.mostRecentFileId}?${chatFileInfo.mostRecentFileType}_version_number=${chatFileInfo.mostRecentVersionNumber}`;
+          if (chatFileInfo.mostRecentFileType === 'dashboard_file') {
+            buttonUrl += `/dashboards/${chatFileInfo.mostRecentFileId}?dashboard_version_number=${chatFileInfo.mostRecentVersionNumber}`;
+          } else if (chatFileInfo.mostRecentFileType === 'metric_file') {
+            buttonUrl += `/metrics/${chatFileInfo.mostRecentFileId}?metric_version_number=${chatFileInfo.mostRecentVersionNumber}`;
+          } else if (chatFileInfo.mostRecentFileType === 'report_file') {
+            buttonUrl += `/reports/${chatFileInfo.mostRecentFileId}?report_version_number=${chatFileInfo.mostRecentVersionNumber}`;
+          } else {
+            const _exhaustiveCheck: 'chat' | 'collection' = chatFileInfo.mostRecentFileType;
+            buttonUrl = `${busterUrl}/app/chats/${payload.chatId}`;
+          }
         }
 
         // Convert markdown to Slack format

@@ -1,4 +1,4 @@
-import type { OrganizationRole } from '@buster/server-shared/organization';
+import type { UserOrganizationRole } from '@buster/server-shared/organization';
 import type { UpdateWorkspaceSettingsRequest } from '@buster/server-shared/security';
 import { describe, expect, it } from 'vitest';
 import { WorkspaceSettingsService } from './workspace-settings-service';
@@ -23,7 +23,7 @@ describe('WorkspaceSettingsService', () => {
     it('should include empty default_datasets array', () => {
       const settings = {
         restrictNewUserInvitations: false,
-        defaultRole: 'admin' as OrganizationRole,
+        defaultRole: 'admin' as UserOrganizationRole,
       } as Parameters<typeof service.formatWorkspaceSettingsResponse>[0];
       const result = service.formatWorkspaceSettingsResponse(settings);
       expect(result.default_datasets).toEqual([]);
@@ -32,11 +32,11 @@ describe('WorkspaceSettingsService', () => {
     it('should handle all boolean values correctly', () => {
       const settingsTrue = {
         restrictNewUserInvitations: true,
-        defaultRole: 'member' as OrganizationRole,
+        defaultRole: 'member' as UserOrganizationRole,
       } as Parameters<typeof service.formatWorkspaceSettingsResponse>[0];
       const settingsFalse = {
         restrictNewUserInvitations: false,
-        defaultRole: 'member' as OrganizationRole,
+        defaultRole: 'member' as UserOrganizationRole,
       } as Parameters<typeof service.formatWorkspaceSettingsResponse>[0];
 
       expect(
@@ -60,7 +60,7 @@ describe('WorkspaceSettingsService', () => {
       for (const role of roles) {
         const settings: Parameters<typeof service.formatWorkspaceSettingsResponse>[0] = {
           restrictNewUserInvitations: false,
-          defaultRole: role as OrganizationRole,
+          defaultRole: role as UserOrganizationRole,
         };
         const result = service.formatWorkspaceSettingsResponse(settings);
         expect(result.default_role).toBe(role);
@@ -89,7 +89,7 @@ describe('WorkspaceSettingsService', () => {
 
     it('should handle partial updates (only default_role)', () => {
       const request: UpdateWorkspaceSettingsRequest = {
-        default_role: 'admin' as OrganizationRole,
+        default_role: 'admin' as UserOrganizationRole,
       } as Parameters<typeof service.buildUpdateData>[0];
       const result = service.buildUpdateData(request);
 
@@ -100,7 +100,7 @@ describe('WorkspaceSettingsService', () => {
     it('should handle full updates', () => {
       const request: UpdateWorkspaceSettingsRequest = {
         restrict_new_user_invitations: false,
-        default_role: 'member' as OrganizationRole,
+        default_role: 'member' as UserOrganizationRole,
       } as Parameters<typeof service.buildUpdateData>[0];
       const result = service.buildUpdateData(request);
 

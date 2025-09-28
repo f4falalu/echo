@@ -63,6 +63,7 @@ export const Default: Story = {
       y: ['sales', 'units', 'returns'],
       category: [],
       tooltip: null,
+      colorBy: [],
     },
     columnLabelFormats: {
       sales: {
@@ -70,7 +71,7 @@ export const Default: Story = {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
-        displayName: 'SALES',
+        displayName: 'Sales',
       } as ColumnLabelFormat,
       units: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
@@ -109,6 +110,7 @@ export const MultipleYAxis: Story = {
       y: ['sales', 'units'],
       category: [],
       tooltip: null,
+      colorBy: [],
     } satisfies BarAndLineAxis,
     columnLabelFormats: {
       category: {
@@ -159,6 +161,11 @@ export const WithCategory: Story = {
         sales: 800,
       },
       {
+        region: 'North',
+        product: 'Product 3',
+        sales: 820,
+      },
+      {
         region: 'South',
         product: 'Product 1',
         sales: 1200,
@@ -168,12 +175,33 @@ export const WithCategory: Story = {
         product: 'Product 2',
         sales: 300,
       },
+      {
+        region: 'South',
+        product: 'Product 3',
+        sales: 220,
+      },
+      {
+        region: 'East',
+        product: 'Product 1',
+        sales: 1000,
+      },
+      {
+        region: 'East',
+        product: 'Product 2',
+        sales: 800,
+      },
+      {
+        region: 'East',
+        product: 'Product 3',
+        sales: 920,
+      },
     ],
     barAndLineAxis: {
       x: ['region'],
       y: ['sales'],
       category: ['product'],
       tooltip: null,
+      colorBy: [],
     },
     columnLabelFormats: {
       region: {
@@ -219,6 +247,7 @@ export const WithCategoryAndMultipleYAxis: Story = {
       y: ['sales', 'units'],
       category: ['product'],
       tooltip: null,
+      colorBy: [],
     },
     columnLabelFormats: {
       region: {
@@ -267,6 +296,7 @@ export const DateXAxis: Story = {
       y: ['sales', 'units'],
       category: [],
       tooltip: null,
+      colorBy: [],
     },
     columnLabelFormats: {
       date: {
@@ -305,6 +335,7 @@ export const HorizontalBar: Story = {
       y: ['sales'],
       category: [],
       tooltip: null,
+      colorBy: [],
     },
     columnLabelFormats: {
       category: {
@@ -348,6 +379,7 @@ export const WithDataLabels: Story = {
       y: ['sales', 'units'],
       category: [],
       tooltip: null,
+      colorBy: [],
     },
     columnSettings: {
       sales: {
@@ -401,6 +433,7 @@ export const WithDataLabelsAndStackTotal: Story = {
       y: ['units', 'sales'],
       category: [],
       tooltip: null,
+      colorBy: [],
     },
     barGroupType: 'stack',
     barShowTotalAtTop: true,
@@ -503,6 +536,7 @@ export const LargeDataset: Story = {
       y: ['sales', 'units', 'returns'],
       category: [],
       tooltip: null,
+      colorBy: [],
     },
     columnLabelFormats: {
       category: {
@@ -543,6 +577,7 @@ export const LargeDatasetWithDualYAxis: Story = {
       y2: ['units'],
       category: [],
       tooltip: null,
+      colorBy: [],
     },
     columnLabelFormats: {
       category: {
@@ -583,6 +618,7 @@ export const WithSorting: Story = {
       y: ['sales'],
       category: [],
       tooltip: null,
+      colorBy: [],
     },
     barSortBy: ['asc'],
   },
@@ -600,6 +636,7 @@ export const WithDatesInXAxis: Story = {
       y: ['sales'],
       category: [],
       tooltip: null,
+      colorBy: [],
     },
     columnLabelFormats: {
       date: {
@@ -628,6 +665,7 @@ export const WithDatesInXAxisAndSorting: Story = {
       y: ['sales'],
       category: [],
       tooltip: null,
+      colorBy: [],
     },
     barSortBy: ['asc'],
     columnLabelFormats: {
@@ -658,6 +696,7 @@ export const HorizontalBarWithGoalLine: Story = {
       y: ['sales'],
       category: [],
       tooltip: null,
+      colorBy: [],
     },
     columnLabelFormats: {
       category: {
@@ -724,6 +763,7 @@ export const GroupedBar: Story = {
       y: ['sales'],
       category: ['product'],
       tooltip: null,
+      colorBy: [],
     },
     barGroupType: 'group',
     columnLabelFormats: {
@@ -785,6 +825,7 @@ export const PercentageStackedBar: Story = {
       y: ['sales'],
       category: ['product'],
       tooltip: null,
+      colorBy: [],
     },
     barGroupType: 'percentage-stack',
     columnSettings: {
@@ -846,6 +887,7 @@ export const ExtraLargeDataset: Story = {
       y: ['sales'],
       category: [],
       tooltip: null,
+      colorBy: [],
     },
     columnLabelFormats: {
       category: {
@@ -888,6 +930,7 @@ export const ExtraLargeDatasetWithCategory: Story = {
       y: ['sales'],
       category: [],
       tooltip: null,
+      colorBy: [],
     },
     columnLabelFormats: {
       category: {
@@ -934,6 +977,7 @@ export const ManyUnPlottedTooltipItems: Story = {
       y: ['sales'],
       category: [],
       tooltip: ['sales', 'customerRating', 'stockLevel', 'returnRate'],
+      colorBy: [],
     },
     columnSettings: {
       sales: {
@@ -1053,6 +1097,7 @@ export const WithMultipleXAxis: Story = {
       y: ['sales'],
       category: [],
       tooltip: null,
+      colorBy: [],
     } satisfies BarAndLineAxis,
   },
 };
@@ -1146,79 +1191,6 @@ export const WithTrendlines: Story = {
   },
 };
 
-//IT got the x and y axis mixed up... which is fair...
-export const ProblematicBarChart: Story = {
-  args: {
-    selectedChartType: 'bar',
-    barLayout: 'horizontal',
-    barAndLineAxis: {
-      x: ['metric_clv_all_time'],
-      y: ['customer_name'],
-      category: [],
-      tooltip: null,
-    },
-    columnLabelFormats: {
-      customer_name: {
-        ...DEFAULT_COLUMN_LABEL_FORMAT,
-        columnType: 'text',
-        style: 'string',
-        numberSeparatorStyle: null,
-        replaceMissingDataWith: null,
-      },
-      metric_clv_all_time: {
-        ...DEFAULT_COLUMN_LABEL_FORMAT,
-        columnType: 'number',
-        style: 'currency',
-        numberSeparatorStyle: ',',
-        replaceMissingDataWith: 0,
-        currency: 'USD',
-      },
-    },
-    data: [
-      {
-        customer_name: 'Customer A',
-        metric_clv_all_time: 800000.0,
-      },
-      {
-        customer_name: 'Customer B',
-        metric_clv_all_time: 780000.0,
-      },
-      {
-        customer_name: 'Customer C',
-        metric_clv_all_time: 760000.0,
-      },
-      {
-        customer_name: 'Customer D',
-        metric_clv_all_time: 740000.0,
-      },
-      {
-        customer_name: 'Customer E',
-        metric_clv_all_time: 720000.0,
-      },
-      {
-        customer_name: 'Customer F',
-        metric_clv_all_time: 700000.0,
-      },
-      {
-        customer_name: 'Customer G',
-        metric_clv_all_time: 680000.0,
-      },
-      {
-        customer_name: 'Customer H',
-        metric_clv_all_time: 660000.0,
-      },
-      {
-        customer_name: 'Customer I',
-        metric_clv_all_time: 640000.0,
-      },
-      {
-        customer_name: 'Customer J',
-        metric_clv_all_time: 620000.0,
-      },
-    ],
-  },
-};
-
 export const WithYearInXAxis: Story = {
   args: {
     ...Default.args,
@@ -1242,5 +1214,446 @@ export const WithYearInXAxis: Story = {
         currency: 'USD',
       } as ColumnLabelFormat,
     },
+  },
+};
+
+export const WithColorByXAxis: Story = {
+  args: {
+    ...Default.args,
+    showLegend: true,
+    data: [
+      {
+        sales: 1000,
+        type: 'Type 1',
+        level: 'Level 1',
+      },
+      {
+        sales: 2000,
+        type: 'Type 2',
+        level: 'Level 2',
+      },
+      {
+        sales: 1200,
+        type: 'Type 3',
+        level: 'Level 1',
+      },
+    ],
+    barAndLineAxis: {
+      x: ['type'],
+      y: ['sales'],
+      category: [],
+      tooltip: null,
+      colorBy: ['level'],
+    },
+  },
+};
+
+export const WithColorBy: Story = {
+  args: {
+    ...Default.args,
+    showLegend: true,
+    data: [
+      {
+        sales: 1000,
+        type: 'Type 1',
+        level: 'Level 1',
+      },
+      {
+        sales: 2000,
+        type: 'Type 2',
+        level: 'Level 2',
+      },
+      {
+        sales: 1200,
+        type: 'Type 3',
+        level: 'Level 1',
+      },
+      {
+        sales: 1500,
+        type: 'Type 4',
+        level: 'Level 1',
+      },
+      {
+        sales: 1500,
+        type: 'Type 5',
+        level: 'Level 3',
+      },
+      {
+        sales: 900,
+        type: 'Type 6',
+        level: 'Level 4',
+      },
+    ],
+    barAndLineAxis: {
+      x: ['type'],
+      y: ['sales'],
+      category: [],
+      tooltip: null,
+      colorBy: ['level'],
+    },
+  },
+};
+
+export const BarChartWithProblemData: Story = {
+  args: {
+    barLayout: 'vertical',
+    barGroupType: 'percentage-stack',
+    barAndLineAxis: {
+      x: ['customer_motivation'],
+      y: ['percentage_within_motivation'],
+      category: ['category_name'],
+      tooltip: null,
+      colorBy: [],
+    },
+    columnSettings: {
+      category_name: {
+        lineType: 'normal',
+        lineStyle: 'line',
+        lineWidth: 2,
+        barRoundness: 8,
+        lineSymbolSize: 0,
+        showDataLabels: false,
+        columnVisualization: 'bar',
+        showDataLabelsAsPercentage: false,
+      },
+      purchase_count: {
+        lineType: 'normal',
+        lineStyle: 'line',
+        lineWidth: 2,
+        barRoundness: 8,
+        lineSymbolSize: 0,
+        showDataLabels: false,
+        columnVisualization: 'bar',
+        showDataLabelsAsPercentage: false,
+      },
+      customer_motivation: {
+        lineType: 'normal',
+        lineStyle: 'line',
+        lineWidth: 2,
+        barRoundness: 8,
+        lineSymbolSize: 0,
+        showDataLabels: false,
+        columnVisualization: 'bar',
+        showDataLabelsAsPercentage: false,
+      },
+      percentage_within_motivation: {
+        lineType: 'normal',
+        lineStyle: 'line',
+        lineWidth: 2,
+        barRoundness: 8,
+        lineSymbolSize: 0,
+        showDataLabels: false,
+        columnVisualization: 'bar',
+        showDataLabelsAsPercentage: false,
+      },
+    },
+    disableTooltip: false,
+    yAxisScaleType: 'linear',
+    y2AxisScaleType: 'linear',
+    barShowTotalAtTop: false,
+    selectedChartType: 'bar',
+    columnLabelFormats: {
+      category_name: {
+        style: 'string',
+        prefix: '',
+        suffix: '',
+        currency: 'USD',
+        columnType: 'text',
+        dateFormat: 'auto',
+        multiplier: 1,
+        displayName: '',
+        compactNumbers: false,
+        useRelativeTime: false,
+        numberSeparatorStyle: null,
+        maximumFractionDigits: 2,
+        minimumFractionDigits: 0,
+        replaceMissingDataWith: null,
+      } as ColumnLabelFormat,
+      purchase_count: {
+        style: 'number',
+        prefix: '',
+        suffix: '',
+        currency: 'USD',
+        columnType: 'number',
+        dateFormat: 'auto',
+        multiplier: 1,
+        displayName: '',
+        compactNumbers: true,
+        useRelativeTime: false,
+        numberSeparatorStyle: ',',
+        maximumFractionDigits: 2,
+        minimumFractionDigits: 0,
+        replaceMissingDataWith: 0,
+      } as ColumnLabelFormat,
+      customer_motivation: {
+        style: 'string',
+        prefix: '',
+        suffix: '',
+        currency: 'USD',
+        columnType: 'text',
+        dateFormat: 'auto',
+        multiplier: 1,
+        displayName: '',
+        compactNumbers: false,
+        useRelativeTime: false,
+        numberSeparatorStyle: null,
+        maximumFractionDigits: 2,
+        minimumFractionDigits: 0,
+        replaceMissingDataWith: null,
+      } as ColumnLabelFormat,
+      percentage_within_motivation: {
+        style: 'percent',
+        prefix: '',
+        suffix: '',
+        currency: 'USD',
+        columnType: 'number',
+        dateFormat: 'auto',
+        multiplier: 1,
+        displayName: '',
+        compactNumbers: false,
+        useRelativeTime: false,
+        numberSeparatorStyle: ',',
+        maximumFractionDigits: 1,
+        minimumFractionDigits: 1,
+        replaceMissingDataWith: 0,
+      } as ColumnLabelFormat,
+    },
+    showLegendHeadline: false,
+    xAxisLabelRotation: 'auto',
+    xAxisShowAxisLabel: true,
+    xAxisShowAxisTitle: true,
+    yAxisShowAxisLabel: true,
+    yAxisShowAxisTitle: true,
+    y2AxisShowAxisLabel: true,
+    y2AxisShowAxisTitle: true,
+    y2AxisStartAxisAtZero: true,
+    data: [
+      {
+        customer_motivation: 'Recreation',
+        category_name: 'Accessories',
+        purchase_count: 33143,
+        percentage_within_motivation: 67.31,
+      },
+      {
+        customer_motivation: 'Recreation',
+        category_name: 'Bikes',
+        purchase_count: 8427,
+        percentage_within_motivation: 17.11,
+      },
+      {
+        customer_motivation: 'Recreation',
+        category_name: 'Clothing',
+        purchase_count: 7321,
+        percentage_within_motivation: 14.87,
+      },
+      {
+        customer_motivation: 'Recreation',
+        category_name: 'Components',
+        purchase_count: 350,
+        percentage_within_motivation: 0.71,
+      },
+      {
+        customer_motivation: 'Transportation',
+        category_name: 'Bikes',
+        purchase_count: 4433,
+        percentage_within_motivation: 71.88,
+      },
+      {
+        customer_motivation: 'Transportation',
+        category_name: 'Clothing',
+        purchase_count: 1615,
+        percentage_within_motivation: 26.19,
+      },
+      {
+        customer_motivation: 'Transportation',
+        category_name: 'Components',
+        purchase_count: 119,
+        percentage_within_motivation: 1.93,
+      },
+    ],
+    columnMetadata: [
+      {
+        name: 'customer_motivation',
+        min_value: 'Recreation',
+        max_value: 'Transportation',
+        unique_values: 2,
+        simple_type: 'text',
+        type: 'text',
+      },
+      {
+        name: 'category_name',
+        min_value: 'Accessories',
+        max_value: 'Components',
+        unique_values: 4,
+        simple_type: 'text',
+        type: 'text',
+      },
+      {
+        name: 'purchase_count',
+        min_value: 119,
+        max_value: 33143,
+        unique_values: 7,
+        simple_type: 'number',
+        type: 'int8',
+      },
+      {
+        name: 'percentage_within_motivation',
+        min_value: 0.71,
+        max_value: 71.88,
+        unique_values: 7,
+        simple_type: 'number',
+        type: 'numeric',
+      },
+    ],
+  },
+};
+
+export const BarChartWithSortedDayOfWeek: Story = {
+  args: {
+    colors: [
+      '#B399FD',
+      '#FC8497',
+      '#FBBC30',
+      '#279EFF',
+      '#E83562',
+      '#41F8FF',
+      '#F3864F',
+      '#C82184',
+      '#31FCB4',
+      '#E83562',
+    ],
+    barLayout: 'vertical',
+    barSortBy: ['desc'],
+    goalLines: [],
+    gridLines: true,
+    trendlines: [],
+    barGroupType: 'group',
+    xAxisDataZoom: false,
+    barAndLineAxis: {
+      x: ['day_of_week'],
+      y: ['message_count'],
+      category: [],
+      tooltip: null,
+      colorBy: [],
+    },
+    columnSettings: {
+      day_of_week: {
+        lineType: 'normal',
+        lineStyle: 'line',
+        lineWidth: 2,
+        barRoundness: 8,
+        lineSymbolSize: 0,
+        showDataLabels: false,
+        columnVisualization: 'bar',
+        showDataLabelsAsPercentage: false,
+      },
+      message_count: {
+        lineType: 'normal',
+        lineStyle: 'line',
+        lineWidth: 2,
+        barRoundness: 8,
+        lineSymbolSize: 0,
+        showDataLabels: false,
+        columnVisualization: 'bar',
+        showDataLabelsAsPercentage: false,
+      },
+    },
+    disableTooltip: false,
+    yAxisScaleType: 'linear',
+    y2AxisScaleType: 'linear',
+    barShowTotalAtTop: false,
+    selectedChartType: 'bar',
+    columnLabelFormats: {
+      day_of_week: {
+        style: 'date',
+        prefix: '',
+        suffix: '',
+        currency: 'USD',
+        columnType: 'number',
+        dateFormat: 'auto',
+        multiplier: 1,
+        displayName: 'Day of Week',
+        compactNumbers: false,
+        convertNumberTo: 'day_of_week',
+        useRelativeTime: false,
+        numberSeparatorStyle: null,
+        maximumFractionDigits: 2,
+        minimumFractionDigits: 0,
+        replaceMissingDataWith: null,
+      } as ColumnLabelFormat,
+      message_count: {
+        style: 'number',
+        prefix: '',
+        suffix: '',
+        currency: 'USD',
+        columnType: 'number',
+        dateFormat: 'auto',
+        multiplier: 1,
+        displayName: 'Messages Sent',
+        compactNumbers: false,
+        useRelativeTime: false,
+        numberSeparatorStyle: ',',
+        maximumFractionDigits: 2,
+        minimumFractionDigits: 0,
+        replaceMissingDataWith: 0,
+      } as ColumnLabelFormat,
+    },
+    showLegendHeadline: false,
+    xAxisLabelRotation: 'auto',
+    xAxisShowAxisLabel: true,
+    xAxisShowAxisTitle: true,
+    yAxisShowAxisLabel: true,
+    yAxisShowAxisTitle: true,
+    y2AxisShowAxisLabel: true,
+    y2AxisShowAxisTitle: true,
+    y2AxisStartAxisAtZero: true,
+    columnMetadata: [
+      {
+        name: 'day_of_week',
+        min_value: 0,
+        max_value: 6,
+        unique_values: 7,
+        simple_type: 'number',
+        type: 'numeric',
+      },
+      {
+        name: 'message_count',
+        min_value: 2,
+        max_value: 140,
+        unique_values: 7,
+        simple_type: 'number',
+        type: 'int8',
+      },
+    ],
+    data: [
+      {
+        day_of_week: 0,
+        message_count: 2,
+      },
+      {
+        day_of_week: 1,
+        message_count: 127,
+      },
+      {
+        day_of_week: 2,
+        message_count: 119,
+      },
+      {
+        day_of_week: 3,
+        message_count: 140,
+      },
+      {
+        day_of_week: 4,
+        message_count: 122,
+      },
+      {
+        day_of_week: 5,
+        message_count: 106,
+      },
+      {
+        day_of_week: 6,
+        message_count: 5,
+      },
+    ],
   },
 };

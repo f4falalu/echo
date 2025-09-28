@@ -7,7 +7,7 @@ import { ClosePageButton } from '@/components/features/chat/ClosePageButton';
 import { DashboardThreeDotMenu } from '@/components/features/dashboard/DashboardThreeDotMenu';
 import { useIsChatMode, useIsFileMode } from '@/context/Chats/useMode';
 import { useIsDashboardReadOnly } from '@/context/Dashboards/useIsDashboardReadOnly';
-import { getIsEffectiveOwner } from '@/lib/share';
+import { canEdit, getIsEffectiveOwner } from '@/lib/share';
 import { FileButtonContainer } from '../FileButtonContainer';
 import { HideButtonContainer } from '../HideButtonContainer';
 
@@ -20,25 +20,29 @@ export const DashboardContainerHeaderButtons: React.FC<{
   const { isViewingOldVersion } = useIsDashboardReadOnly({
     dashboardId: dashboardId || '',
   });
-  const { error: dashboardError, data: permission } = useGetDashboard(
-    { id: dashboardId },
+  const { data: permission } = useGetDashboard(
+    { id: dashboardId, versionNumber: dashboardVersionNumber },
     { select: useCallback((x: BusterDashboardResponse) => x.permission, []) }
   );
 
   const isEffectiveOwner = getIsEffectiveOwner(permission);
+  const isEditor = canEdit(permission);
 
   return (
     <FileButtonContainer>
       {isEffectiveOwner && !isViewingOldVersion && (
-        <ShareDashboardButton dashboardId={dashboardId} />
+        <ShareDashboardButton
+          dashboardId={dashboardId}
+          dashboardVersionNumber={dashboardVersionNumber}
+        />
       )}
       <DashboardThreeDotMenu
         dashboardId={dashboardId}
         isViewingOldVersion={isViewingOldVersion}
         dashboardVersionNumber={dashboardVersionNumber}
       />
-      <HideButtonContainer show={isFileMode}>
-        <CreateChatButton assetId={dashboardId} assetType="dashboard" />
+      <HideButtonContainer show={isFileMode && isEditor}>
+        <CreateChatButton assetId={dashboardId} assetType="dashboard_file" />
       </HideButtonContainer>
       {isChatMode && <ClosePageButton />}
     </FileButtonContainer>

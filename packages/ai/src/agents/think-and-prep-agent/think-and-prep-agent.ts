@@ -1,9 +1,5 @@
 import type { PermissionedDataset } from '@buster/access-controls';
-import {
-  UserPersonalizationConfigSchema,
-  type UserPersonalizationConfigType,
-  messageAnalysisModeEnum,
-} from '@buster/database';
+import { waitForPendingUpdates } from '@buster/database/queries';
 import { type ModelMessage, hasToolCall, stepCountIs, streamText } from 'ai';
 import { wrapTraced } from 'braintrust';
 import z from 'zod';
@@ -24,11 +20,9 @@ import {
 } from '../../tools/communication-tools/submit-thoughts-tool/submit-thoughts-tool';
 import { EXECUTE_SQL_TOOL_NAME } from '../../tools/database-tools/execute-sql/execute-sql';
 import { SEQUENTIAL_THINKING_TOOL_NAME } from '../../tools/planning-thinking-tools/sequential-thinking-tool/sequential-thinking-tool';
+import { type AnalysisMode, AnalysisModeSchema } from '../../types/analysis-mode.types';
 import { type AgentContext, repairToolCall } from '../../utils/tool-call-repair';
-import {
-  type AnalysisMode,
-  getThinkAndPrepAgentSystemPrompt,
-} from './get-think-and-prep-agent-system-prompt';
+import { getThinkAndPrepAgentSystemPrompt } from './get-think-and-prep-agent-system-prompt';
 
 export const THINK_AND_PREP_AGENT_NAME = 'thinkAndPrepAgent';
 
@@ -52,9 +46,7 @@ export const ThinkAndPrepAgentOptionsSchema = z.object({
   datasets: z
     .array(z.custom<PermissionedDataset>())
     .describe('The datasets available to the user.'),
-  analysisMode: z
-    .enum(['standard', 'investigation'])
-    .default('standard')
+  analysisMode: AnalysisModeSchema.default('standard')
     .describe('The analysis mode to determine which prompt to use.')
     .optional(),
   workflowStartTime: z.number().describe('The start time of the workflow'),
@@ -238,6 +230,11 @@ export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAge
               toolCalls: event.toolCalls?.length || 0,
               hasToolResults: !!event.toolResults,
             });
+          },
+          onFinish: async () => {
+            console.info('Think and Prep Agent finished');
+            // Ensure all pending database updates complete before stream terminates
+            await waitForPendingUpdates(messageId);
           },
         }),
       {

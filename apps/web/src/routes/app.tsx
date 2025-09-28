@@ -1,35 +1,22 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
-import { prefetchListDatasources } from '@/api/buster_rest/data_source';
-import { prefetchGetDatasets } from '@/api/buster_rest/datasets';
-import { prefetchGetUserFavorites } from '@/api/buster_rest/users/favorites/queryRequests';
 import { prefetchGetMyUserInfo } from '@/api/buster_rest/users/queryRequests';
 import { getAppLayout } from '@/api/server-functions/getAppLayout';
 import { AppProviders } from '@/context/Providers';
-import { getSupabaseSession, getSupabaseUser } from '@/integrations/supabase/getSupabaseUserClient';
-import { preventBrowserCacheHeaders } from '@/middleware/shared-headers';
-import type { LayoutSize } from '../components/ui/layouts/AppLayout';
-
-const PRIMARY_APP_LAYOUT_ID = 'primary-sidebar';
-const DEFAULT_LAYOUT: LayoutSize = ['230px', 'auto'];
+import { getSupabaseSession } from '@/integrations/supabase/getSupabaseUserClient';
+import { BUSTER_SIGN_UP_URL } from '../config/externalRoutes';
 
 export const Route = createFileRoute('/app')({
-  head: () => {
-    return {
-      meta: [...preventBrowserCacheHeaders],
-    };
-  },
   context: ({ context }) => ({ ...context, getAppLayout }),
   beforeLoad: async () => {
     try {
-      const { isExpired, accessToken = '' } = await getSupabaseSession();
-
+      const supabaseSession = await getSupabaseSession();
+      const { isExpired, accessToken = '' } = supabaseSession;
       if (isExpired || !accessToken) {
         console.error('Access token is expired or not found');
         throw redirect({ to: '/auth/login', replace: true, statusCode: 307 });
       }
-
       return {
-        accessToken,
+        supabaseSession,
       };
     } catch (error) {
       console.error('Error in app route beforeLoad:', error);
@@ -37,39 +24,30 @@ export const Route = createFileRoute('/app')({
     }
   },
   loader: async ({ context }) => {
-    const { queryClient, accessToken } = context;
+    const { queryClient, supabaseSession } = context;
     try {
-      const [initialLayout, user] = await Promise.all([
-        getAppLayout({ id: PRIMARY_APP_LAYOUT_ID }),
-        getSupabaseUser(),
-        prefetchGetMyUserInfo(queryClient),
-        prefetchGetUserFavorites(queryClient),
-        prefetchListDatasources(queryClient),
-        prefetchGetDatasets(queryClient),
-      ]);
-
-      if (!user) {
-        console.error('User not found - redirecting to login');
-        throw redirect({ to: '/auth/login', replace: true, statusCode: 307 });
+      const [user] = await Promise.all([prefetchGetMyUserInfo(queryClient)]);
+      if (user && user?.organizations?.length === 0) {
+        throw redirect({ href: BUSTER_SIGN_UP_URL, replace: true, statusCode: 307 });
       }
 
       return {
-        initialLayout,
-        layoutId: PRIMARY_APP_LAYOUT_ID,
-        defaultLayout: DEFAULT_LAYOUT,
-        accessToken,
-        user,
+        supabaseSession,
       };
     } catch (error) {
-      console.error('Error in app route loader:', error);
+      if (error instanceof Response && error.status === 307) {
+        return {
+          supabaseSession,
+        };
+      }
       throw redirect({ to: '/auth/login', replace: true, statusCode: 307 });
     }
   },
   component: () => {
-    const { user, accessToken } = Route.useLoaderData();
+    const { supabaseSession } = Route.useLoaderData();
 
     return (
-      <AppProviders user={user} accessToken={accessToken}>
+      <AppProviders supabaseSession={supabaseSession}>
         <Outlet />
       </AppProviders>
     );

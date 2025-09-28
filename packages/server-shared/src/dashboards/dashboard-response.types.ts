@@ -4,7 +4,6 @@ import { ShareConfigSchema, ShareRoleSchema } from '../share';
 import { DashboardSchema } from './dashboard.types';
 
 export const GetDashboardResponseSchema = z.object({
-  access: ShareRoleSchema,
   metrics: z.record(z.string(), MetricSchema),
   dashboard: DashboardSchema,
   collections: z.array(

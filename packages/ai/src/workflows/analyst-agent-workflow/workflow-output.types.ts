@@ -7,6 +7,7 @@ import { CREATE_METRICS_TOOL_NAME } from '../../tools/visualization-tools/metric
 import { MODIFY_METRICS_TOOL_NAME } from '../../tools/visualization-tools/metrics/modify-metrics-tool/modify-metrics-tool';
 import { CREATE_REPORTS_TOOL_NAME } from '../../tools/visualization-tools/reports/create-reports-tool/create-reports-tool';
 import { MODIFY_REPORTS_TOOL_NAME } from '../../tools/visualization-tools/reports/modify-reports-tool/modify-reports-tool';
+import { type AnalysisMode, AnalysisModeSchema } from '../../types/analysis-mode.types';
 
 // Tool call tracking
 export const ToolCallInfoSchema = z.object({
@@ -42,7 +43,7 @@ export type DataSnapshot = z.infer<typeof DataSnapshotSchema>;
 export const ChartInfoSchema = z.object({
   id: z.string(),
   name: z.string(),
-  type: z.enum(['metric', 'dashboard', 'report']),
+  type: z.enum(['metric_file', 'dashboard_file', 'report_file']),
   chartType: z.string().optional(), // from selectedChartType
   chartConfig: z.custom<ChartConfigProps>().optional(),
   sql: z.string().optional(),
@@ -67,11 +68,6 @@ export const UserRequestSegmentSchema = z.object({
 });
 
 export type UserRequestSegment = z.infer<typeof UserRequestSegmentSchema>;
-
-// Analysis mode from the analysis type router
-export const AnalysisModeSchema = z.enum(['standard', 'investigation']);
-
-export type AnalysisMode = z.infer<typeof AnalysisModeSchema>;
 
 // Complete workflow output
 export const AnalystWorkflowOutputSchema = z.object({
@@ -201,7 +197,7 @@ export function extractChartInfo(toolCall: ToolCallInfo, toolResult: unknown): C
       charts.push({
         id: String(file.id || ''),
         name: String(file.name || ''),
-        type: 'metric',
+        type: 'metric_file',
         chartType,
         chartConfig,
         sql,
@@ -233,7 +229,7 @@ export function extractChartInfo(toolCall: ToolCallInfo, toolResult: unknown): C
       charts.push({
         id: String(file.id || ''),
         name: String(file.name || ''),
-        type: 'dashboard',
+        type: 'dashboard_file',
         ymlContent,
         createdAt: Date.now(),
         toolCallId: toolCall.toolCallId,
@@ -263,7 +259,7 @@ export function extractChartInfo(toolCall: ToolCallInfo, toolResult: unknown): C
       charts.push({
         id: String(file.id || ''),
         name: String(file.name || ''),
-        type: 'report',
+        type: 'report_file',
         ymlContent,
         createdAt: Date.now(),
         toolCallId: toolCall.toolCallId,

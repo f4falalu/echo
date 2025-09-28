@@ -1,5 +1,5 @@
 import type { PermissionedDataset } from '@buster/access-controls';
-import type { UserPersonalizationConfigType } from '@buster/database';
+import type { UserPersonalizationConfigType } from '@buster/database/schema-types';
 import type { CoreMessage } from 'ai';
 import { describe, expect, it } from 'vitest';
 import type { PostProcessingResult } from '../types';

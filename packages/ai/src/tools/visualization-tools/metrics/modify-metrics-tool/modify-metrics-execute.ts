@@ -1,7 +1,9 @@
 import { createPermissionErrorMessage, validateSqlPermissions } from '@buster/access-controls';
 import type { Credentials } from '@buster/data-source';
 import { createMetadataFromResults, executeMetricQuery } from '@buster/data-source';
-import { db, metricFiles, updateMessageEntries } from '@buster/database';
+import { db } from '@buster/database/connection';
+import { updateMessageEntries } from '@buster/database/queries';
+import { metricFiles } from '@buster/database/schema';
 import {
   type ChartConfigProps,
   type DataMetadata,
@@ -13,7 +15,9 @@ import { eq, inArray } from 'drizzle-orm';
 import * as yaml from 'yaml';
 import { z } from 'zod';
 import { getDataSourceCredentials } from '../../../../utils/get-data-source';
+import { cleanupState } from '../../../shared/cleanup-state';
 import { createRawToolResultEntry } from '../../../shared/create-raw-llm-tool-result-entry';
+import { truncateQueryResults } from '../../../shared/smart-truncate';
 import { trackFileAssociations } from '../../file-tracking-helper';
 import { validateAndAdjustBarLineAxes } from '../helpers/bar-line-axis-validator';
 import { ensureTimeFrameQuoted } from '../helpers/time-frame-helper';
@@ -143,8 +147,11 @@ async function validateSql(
         retryDelays: [1000, 3000, 6000], // 1s, 3s, 6s
       });
 
-      // Truncate results to 25 records for display in validation
-      const displayResults = result.data.slice(0, 25);
+      // Apply smart truncation to results before display
+      const truncatedData = truncateQueryResults(result.data);
+
+      // Take first 25 records for display in validation
+      const displayResults = truncatedData.slice(0, 25);
 
       let message: string;
       if (result.data.length === 0) {
@@ -218,7 +225,7 @@ async function processMetricFile(
       const metricFile: FileWithId = {
         id: existingFile.id,
         name: finalMetricYml.name,
-        file_type: 'metric',
+        file_type: 'metric_file',
         result_message: 'SQL unchanged, validation skipped',
         results: [],
         created_at: existingFile.createdAt,
@@ -254,7 +261,7 @@ async function processMetricFile(
     const metricFile: FileWithId = {
       id: existingFile.id,
       name: finalMetricYml.name,
-      file_type: 'metric',
+      file_type: 'metric_file',
       result_message: sqlValidationResult.message || '',
       results: sqlValidationResult.results || [],
       created_at: existingFile.createdAt,
@@ -628,6 +635,7 @@ export function createModifyMetricsExecute(
           filesFailed: result?.failed_files?.length || 0,
         });
 
+        cleanupState(state);
         return result as ModifyMetricsOutput;
       } catch (error) {
         console.error('[modify-metrics] Execution error:', error);
@@ -673,6 +681,7 @@ export function createModifyMetricsExecute(
           }
         }
 
+        cleanupState(state);
         throw error;
       }
     },

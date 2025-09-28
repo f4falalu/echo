@@ -37,11 +37,11 @@ export function SlashInputElement(props: PlateElementProps<TSlashInputElement>) 
       <InlineCombobox
         element={element}
         trigger="/"
-        className="bg-item-select relative rounded pl-2 pr-1.5 mr-1 overflow-hidden w-fit flex items-center"
+        className="bg-item-select relative rounded pl-2 pr-1.5 mr-1 overflow-hidden w-fit flex items-center text-gray-dark"
       >
         <InlineComboboxInput
           placeholder={placeholder}
-          className="bg-item-select text-gray-light ml-1 rounded-r"
+          className="bg-item-select text-gray-light ml-0.5 rounded-r"
         />
 
         <InlineComboboxContent>

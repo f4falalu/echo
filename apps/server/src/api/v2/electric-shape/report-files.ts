@@ -1,6 +1,5 @@
 import { hasAssetPermission } from '@buster/access-controls';
-import { getReportMetadata, type reportFiles } from '@buster/database';
-import type { GetReportResponse } from '@buster/server-shared/reports';
+import { getReportMetadata } from '@buster/database/queries';
 import type { Context } from 'hono';
 import { z } from 'zod';
 import { errorResponse } from '../../../utils/response';
@@ -68,6 +67,10 @@ export const reportFilesProxyRouter = async (
     requiredRole: 'can_view',
     organizationId: reportData.organizationId,
     workspaceSharing: reportData.workspaceSharing,
+    publiclyAccessible: reportData.publiclyAccessible,
+    publicExpiryDate: reportData.publicExpiryDate ?? undefined,
+    publicPassword: reportData.publicPassword ?? undefined,
+    userSuppliedPassword: undefined,
   });
 
   if (!hasAccess) {

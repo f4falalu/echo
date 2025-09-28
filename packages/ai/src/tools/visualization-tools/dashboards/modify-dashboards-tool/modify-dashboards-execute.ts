@@ -1,5 +1,6 @@
-import { db, updateMessageEntries } from '@buster/database';
-import { dashboardFiles, metricFiles, metricFilesToDashboardFiles } from '@buster/database';
+import { db } from '@buster/database/connection';
+import { updateMessageEntries } from '@buster/database/queries';
+import { dashboardFiles, metricFiles, metricFilesToDashboardFiles } from '@buster/database/schema';
 import { wrapTraced } from 'braintrust';
 import { and, eq, inArray, isNull } from 'drizzle-orm';
 import * as yaml from 'yaml';
@@ -8,6 +9,7 @@ import {
   type DashboardYml,
   DashboardYmlSchema,
 } from '../../../../../../server-shared/src/dashboards/dashboard.types';
+import { cleanupState } from '../../../shared/cleanup-state';
 import { createRawToolResultEntry } from '../../../shared/create-raw-llm-tool-result-entry';
 import { trackFileAssociations } from '../../file-tracking-helper';
 import {
@@ -50,9 +52,12 @@ function getLatestVersionNumber(versionHistory: VersionHistory | null): number {
   if (!versionHistory || Object.keys(versionHistory).length === 0) {
     return 0;
   }
-  // Get all version numbers from the record values
-  const versionNumbers = Object.values(versionHistory).map((v) => v.version_number);
-  return Math.max(...versionNumbers);
+  // Get all version numbers from the record values, filtering out null/undefined/NaN
+  const versionNumbers = Object.values(versionHistory)
+    .map((v) => v.version_number)
+    .filter((n) => typeof n === 'number' && !Number.isNaN(n));
+
+  return versionNumbers.length > 0 ? Math.max(...versionNumbers) : 0;
 }
 
 // Helper function to add dashboard version to history
@@ -220,7 +225,7 @@ async function processDashboardFile(file: { id: string; yml_content: string }): 
   const dashboardFile: FileWithId = {
     id: file.id,
     name: dashboard.name,
-    file_type: 'dashboard',
+    file_type: 'dashboard_file',
     created_at: existingFile.createdAt,
     updated_at: new Date().toISOString(),
     version_number: latestVersion,
@@ -578,6 +583,7 @@ export function createModifyDashboardsExecute(
           filesFailed: result?.failed_files?.length || 0,
         });
 
+        cleanupState(state);
         return result as ModifyDashboardsOutput;
       } catch (error) {
         const executionTime = Date.now() - startTime;
@@ -627,6 +633,7 @@ export function createModifyDashboardsExecute(
           }
         }
 
+        cleanupState(state);
         throw error;
       }
     },

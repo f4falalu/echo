@@ -27,6 +27,7 @@ export const DashboardMetricItem: React.FC<DashboardMetricItemBaseProps> = React
     isDragOverlay = false,
     numberOfMetrics,
     readOnly = false,
+    dashboardVersionNumber,
   }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const hasBeenInViewport = useHasBeenInViewport(containerRef, {
@@ -51,6 +52,7 @@ export const DashboardMetricItem: React.FC<DashboardMetricItemBaseProps> = React
         animate={animate}
         useHeaderLink={!readOnly}
         renderChartContent={hasBeenInViewport}
+        disableTooltip={isDragOverlay}
         headerSecondaryContent={
           !isDragOverlay &&
           !readOnly && (
@@ -58,6 +60,7 @@ export const DashboardMetricItem: React.FC<DashboardMetricItemBaseProps> = React
               metricId={metricId}
               metricVersionNumber={metricVersionNumber}
               dashboardId={dashboardId}
+              dashboardVersionNumber={dashboardVersionNumber}
             />
           )
         }

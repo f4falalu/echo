@@ -16,7 +16,7 @@ const columns: BusterListColumn<ReportListItem>[] = [
   {
     dataIndex: 'name',
     title: 'Name',
-    render: (name, record) => <TitleCell name={name} chatId={record?.id} />,
+    render: (name, record) => <TitleCell name={name} reportId={record?.id} />,
   },
   {
     dataIndex: 'updated_at',
@@ -29,10 +29,10 @@ const columns: BusterListColumn<ReportListItem>[] = [
     },
   },
   {
-    dataIndex: 'publicly_accessible',
+    dataIndex: 'is_shared',
     title: 'Sharing',
     width: 65,
-    render: (_v, record) => getShareStatus({ is_shared: record.publicly_accessible }),
+    render: (_v, record) => getShareStatus({ is_shared: record.is_shared }),
   },
   {
     dataIndex: 'created_by_name',
@@ -54,8 +54,6 @@ export const ReportItemsContainer: React.FC<{
   loading: boolean;
 }> = ({ reports = [], loading }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
-  const renderedDates = useRef<Record<string, string>>({});
-  const renderedOwners = useRef<Record<string, React.ReactNode>>({});
 
   const onSelectChange = useMemoizedFn((selectedRowKeys: string[]) => {
     setSelectedRowKeys(selectedRowKeys);
@@ -136,7 +134,7 @@ const EmptyState: React.FC<{
 });
 EmptyState.displayName = 'EmptyState';
 
-const TitleCell = React.memo<{ name: string; chatId: string }>(({ name, chatId }) => {
+const TitleCell = React.memo<{ name: string; reportId: string }>(({ name, reportId }) => {
   const onFavoriteDivClick = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
   });
@@ -146,8 +144,8 @@ const TitleCell = React.memo<{ name: string; chatId: string }>(({ name, chatId }
       <Text truncate>{name}</Text>
       <div className="mr-2 flex items-center" onClick={onFavoriteDivClick}>
         <FavoriteStar
-          id={chatId}
-          type={'chat'}
+          id={reportId}
+          type={'report_file'}
           iconStyle="tertiary"
           title={name}
           className="opacity-0 group-hover:opacity-100"

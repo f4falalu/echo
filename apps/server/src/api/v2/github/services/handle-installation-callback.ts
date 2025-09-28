@@ -1,11 +1,11 @@
 import {
   createGithubIntegration,
   getGithubIntegrationByInstallationId,
-  type githubIntegrations,
   markGithubIntegrationAsFailed,
   softDeleteGithubIntegration,
   updateGithubIntegration,
-} from '@buster/database';
+} from '@buster/database/queries';
+import type { githubIntegrations } from '@buster/database/schema';
 import {
   GitHubErrorCode,
   type InstallationCallbackRequest,

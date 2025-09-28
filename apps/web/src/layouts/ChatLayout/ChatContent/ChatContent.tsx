@@ -1,6 +1,7 @@
 import { ClientOnly } from '@tanstack/react-router';
 import React, { useRef } from 'react';
 import { ScrollToBottomButton } from '@/components/features/buttons/ScrollToBottomButton';
+import { SCROLL_AREA_VIEWPORT_CLASS } from '@/components/ui/scroll-area';
 import { useGetChatMessageIds } from '@/context/Chats';
 import { useAutoScroll } from '@/hooks/useAutoScroll';
 import { useMount } from '@/hooks/useMount';
@@ -24,7 +25,7 @@ export const ChatContent: React.FC<{ chatId: string | undefined }> = React.memo(
   useMount(() => {
     const container = document
       .getElementById(CHAT_CONTAINER_ID)
-      ?.querySelector('.scroll-area-viewport') as HTMLElement;
+      ?.querySelector(`.${SCROLL_AREA_VIEWPORT_CLASS}`) as HTMLElement;
     if (!container) return;
     containerRef.current = container;
     enableAutoScroll();

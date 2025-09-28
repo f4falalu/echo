@@ -1,12 +1,17 @@
 import type { DataResult } from '@buster/server-shared/metrics';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import type { BusterMetric } from '@/api/asset_interfaces';
 import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
 import type { AppSplitterRef, LayoutSize } from '@/components/ui/layouts/AppSplitter';
-import { AppVerticalCodeSplitter } from '@/components/ui/layouts/AppVerticalCodeSplitter';
+import {
+  AppVerticalCodeSplitter,
+  type AppVerticalCodeSplitterProps,
+} from '@/components/ui/layouts/AppVerticalCodeSplitter';
 import { useChatIsVersionHistoryMode } from '@/context/Chats/useIsVersionHistoryMode';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useMetricResultsLayout } from './useMetricResultsLayout';
 import { useMetricRunSQL } from './useMetricRunSQL';
+import { useViewSQLBlocker } from './useViewSQLBlocker';
 
 export const MetricViewSQLController: React.FC<{
   metricId: string;
@@ -18,7 +23,7 @@ export const MetricViewSQLController: React.FC<{
 
   const autoSaveId = `view-sql-${metricId}`;
 
-  const isVersionHistoryMode = useChatIsVersionHistoryMode({ type: 'metric' });
+  const isVersionHistoryMode = useChatIsVersionHistoryMode({ type: 'metric_file' });
 
   const {
     runSQL,
@@ -30,13 +35,16 @@ export const MetricViewSQLController: React.FC<{
     isRunningSQL,
   } = useMetricRunSQL();
 
-  const { data: metric } = useGetMetric(
+  const { data: metric, isFetched: isFetchedMetric } = useGetMetric(
     { id: metricId, versionNumber },
     {
-      select: ({ sql, data_source_id }) => ({
-        sql,
-        data_source_id,
-      }),
+      select: useCallback(
+        ({ sql, data_source_id }: BusterMetric) => ({
+          sql,
+          data_source_id,
+        }),
+        []
+      ),
     }
   );
   const { data: metricData, isFetched: isFetchedInitialData } = useGetMetricData(
@@ -46,12 +54,10 @@ export const MetricViewSQLController: React.FC<{
 
   const [sql, setSQL] = useState(metric?.sql || '');
 
+  const isSQLChanged = sql !== metric?.sql;
+  const disableSave = !sql || isRunningSQL || !isSQLChanged;
   const dataSourceId = metric?.data_source_id || '';
   const data: DataResult | null = metricData?.dataFromRerun || metricData?.data || null;
-
-  const disableSave = useMemo(() => {
-    return !sql || isRunningSQL || sql === metric?.sql;
-  }, [sql, isRunningSQL, metric?.sql]);
 
   const onRunQuery = useMemoizedFn(async () => {
     try {
@@ -84,6 +90,11 @@ export const MetricViewSQLController: React.FC<{
     });
   });
 
+  const onResetToOriginal = useMemoizedFn(async () => {
+    setSQL(metric?.sql || '');
+    resetRunSQLData({ metricId });
+  });
+
   const { defaultLayout } = useMetricResultsLayout({
     appSplitterRef,
     autoSaveId,
@@ -95,6 +106,27 @@ export const MetricViewSQLController: React.FC<{
     }
   }, [metric?.sql]);
 
+  const saveButton: AppVerticalCodeSplitterProps['saveButton'] = useMemo(() => {
+    return {
+      label: 'Save',
+      onClick: onSaveSQL,
+      loading: isSavingMetric,
+      disabled: disableSave,
+      tooltip: disableSave ? 'SQL is not changed' : 'Save SQL',
+    };
+  }, [onSaveSQL, isSavingMetric, disableSave]);
+
+  const runButton: AppVerticalCodeSplitterProps['runButton'] = useMemo(() => {
+    return {
+      label: 'Run',
+      onClick: onRunQuery,
+      loading: isRunningSQL,
+      disabled: false,
+    };
+  }, [onRunQuery, isRunningSQL]);
+
+  useViewSQLBlocker({ sql, originalSql: metric?.sql, enabled: isFetchedMetric, onResetToOriginal });
+
   return (
     <div ref={containerRef} className="h-full w-full p-5">
       <AppVerticalCodeSplitter
@@ -103,15 +135,14 @@ export const MetricViewSQLController: React.FC<{
         sql={sql}
         setSQL={setSQL}
         runSQLError={runSQLError || saveMetricError}
-        onRunQuery={onRunQuery}
-        onSaveSQL={onSaveSQL}
         data={data || []}
         readOnly={isVersionHistoryMode}
-        disabledSave={disableSave}
         fetchingData={isRunningSQL || isSavingMetric || !isFetchedInitialData}
         defaultLayout={defaultLayout}
         topHidden={false}
         initialLayout={initialLayout}
+        saveButton={saveButton}
+        runButton={runButton}
       />
     </div>
   );

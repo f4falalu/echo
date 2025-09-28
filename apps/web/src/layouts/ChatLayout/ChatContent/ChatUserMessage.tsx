@@ -36,13 +36,18 @@ export const ChatUserMessage: React.FC<{
 
   const handleCopy = useCallback(
     (e?: React.ClipboardEvent) => {
-      // Prevent default copy behavior
-      //I do not know why this is needed, but it is...
+      // Check if user has selected text
+      const selection = window.getSelection();
+      const selectedText = selection?.toString().trim() || '';
+      const hasSelection = selectedText.length > 0;
+
+      // Always override copy behavior to provide clean text
       if (e?.clipboardData) {
         e.preventDefault();
-        e.clipboardData.setData('text/plain', request || '');
+        // Copy selected text if there is a selection, otherwise copy full message
+        e.clipboardData.setData('text/plain', hasSelection ? selectedText : request || '');
       } else {
-        navigator.clipboard.writeText(request || '');
+        navigator.clipboard.writeText(hasSelection ? selectedText : request || '');
       }
       openSuccessMessage('Copied to clipboard');
     },
@@ -66,11 +71,10 @@ export const ChatUserMessage: React.FC<{
         />
       ) : (
         <>
-          <div>
-            <Paragraph className="break-words whitespace-pre-wrap" onCopy={handleCopy}>
-              {request}
-            </Paragraph>
-          </div>
+          <Paragraph className="break-words whitespace-pre-line" onCopy={handleCopy}>
+            {request}
+          </Paragraph>
+
           {isStreamFinished && canEditChat && (
             <RequestMessageTooltip
               isTooltipOpen={isTooltipOpen}

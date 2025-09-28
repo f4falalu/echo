@@ -1,6 +1,8 @@
 import type { UserOrganization } from '@buster/server-shared/user';
 
-export const checkIfUserIsAdmin = (userOrganization?: UserOrganization | null): boolean => {
+export const checkIfUserIsAdmin = (
+  userOrganization?: Pick<UserOrganization, 'role'> | null
+): boolean => {
   if (!userOrganization) return false;
 
   if (!userOrganization) return false;

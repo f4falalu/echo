@@ -113,7 +113,7 @@ pub async fn search(
                 score: rank,
                 type_: SearchObjectType::Collection,
             }),
-            "dashboard" => SearchObject::Dashboard(GenericSearchResult {
+            "dashboard_file" => SearchObject::Dashboard(GenericSearchResult {
                 id,
                 name: content,
                 updated_at,
@@ -121,7 +121,7 @@ pub async fn search(
                 score: rank,
                 type_: SearchObjectType::Dashboard,
             }),
-            "metric" => SearchObject::Metric(GenericSearchResult {
+            "metric_file" => SearchObject::Metric(GenericSearchResult {
                 id,
                 name: content,
                 updated_at,
@@ -283,7 +283,7 @@ pub async fn list_recent_assets(
                 score: 0.0,
                 type_: SearchObjectType::Collection,
             }),
-            "dashboard" => SearchObject::Dashboard(GenericSearchResult {
+            "dashboard_file" => SearchObject::Dashboard(GenericSearchResult {
                 id,
                 name: content.to_string(),
                 updated_at,
@@ -291,7 +291,7 @@ pub async fn list_recent_assets(
                 score: 0.0,
                 type_: SearchObjectType::Dashboard,
             }),
-            "metric" => SearchObject::Metric(GenericSearchResult {
+            "metric_file" => SearchObject::Metric(GenericSearchResult {
                 id,
                 name: content.to_string(),
                 updated_at,

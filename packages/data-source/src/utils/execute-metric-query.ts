@@ -100,6 +100,9 @@ export async function executeMetricQuery(
           // Trim results to requested limit if we have more
           const data = hasMoreRecords ? allResults.slice(0, maxRows) : allResults;
 
+          // Create metadata from original results and column information BEFORE conversion
+          const dataMetadata = createMetadataFromResults(data, result.columns);
+
           // Convert data to match expected type (string | number | null)
           const typedData = data.map((row) => {
             const typedRow: Record<string, string | number | null> = {};
@@ -117,9 +120,6 @@ export async function executeMetricQuery(
             }
             return typedRow;
           });
-
-          // Create metadata from results and column information
-          const dataMetadata = createMetadataFromResults(typedData, result.columns);
 
           // Validate and parse result metadata if available
           const validatedMetadata = resultMetadataSchema.safeParse(result.metadata);

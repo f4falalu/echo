@@ -1,4 +1,4 @@
-import type { MessageContextOutput, OrganizationDataSourceOutput } from '@buster/database';
+import type { MessageContextOutput, OrganizationDataSourceOutput } from '@buster/database/queries';
 import type { CoreMessage } from 'ai';
 import { describe, expect, test } from 'vitest';
 

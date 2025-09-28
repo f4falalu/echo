@@ -1,41 +1,13 @@
+import type { AssetType } from '@buster/database/schema-types';
 import { z } from 'zod';
 
 // Internal types for asset permissions
-
 // Identity types for permissions
 export const IdentityTypeSchema = z.enum(['user', 'team', 'organization']);
 export type IdentityType = z.infer<typeof IdentityTypeSchema>;
 
-// Asset types - matching the database schema
-export const AssetTypeSchema = z.enum([
-  'dashboard',
-  'thread',
-  'collection',
-  'chat',
-  'metric_file',
-  'dashboard_file',
-  'report_file',
-  'data_source',
-  'metric',
-  'filter',
-  'dataset',
-  'tool',
-  'source',
-  'collection_file',
-  'dataset_permission',
-  'message',
-]);
-export type AssetType = z.infer<typeof AssetTypeSchema>;
-
 // Types that support cascading permissions
-export type CascadingAssetType =
-  | 'metric'
-  | 'dashboard'
-  | 'chat'
-  | 'metric_file'
-  | 'dashboard_file'
-  | 'report_file'
-  | 'collection';
+export type CascadingAssetType = AssetType;
 
 // Permission roles - matching database AssetPermissionRole enum
 export const AssetPermissionRoleSchema = z.enum([
@@ -96,6 +68,19 @@ export function isPermissionSufficient(
 ): boolean {
   if (!userRole) return false;
   return permissionLevelOrder[userRole] >= permissionLevelOrder[requiredRole];
+}
+
+/**
+ * Check if a user role is sufficient for ANY of the required roles
+ * Useful when checking if a user meets at least one of multiple permission requirements
+ */
+export function isPermissionSufficientForAny(
+  userRole: AssetPermissionRole | null,
+  requiredRoles: AssetPermissionRole | AssetPermissionRole[]
+): boolean {
+  if (!userRole) return false;
+  const roles = Array.isArray(requiredRoles) ? requiredRoles : [requiredRoles];
+  return roles.some((role) => isPermissionSufficient(userRole, role));
 }
 
 export function getHighestPermission(

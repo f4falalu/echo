@@ -37,7 +37,7 @@ const canAccess = await checkPermission({
   user: currentUser,
   action: 'read',
   resource: {
-    type: 'dashboard',
+    type: 'dashboard_file',
     id: 'dash-123',
     organizationId: 'org-456'
   }
@@ -290,7 +290,7 @@ describe('checkPermission', () => {
     const result = await checkPermission({
       user: { id: '1', role: 'owner' },
       action: 'delete',
-      resource: { type: 'dashboard', id: '123', organizationId: 'org1' }
+      resource: { type: 'dashboard_file', id: '123', organizationId: 'org1' }
     });
     
     expect(result).toBe(true);
@@ -300,7 +300,7 @@ describe('checkPermission', () => {
     const result = await checkPermission({
       user: { id: '2', role: 'viewer' },
       action: 'write',
-      resource: { type: 'dashboard', id: '123', organizationId: 'org1' }
+      resource: { type: 'dashboard_file', id: '123', organizationId: 'org1' }
     });
     
     expect(result).toBe(false);

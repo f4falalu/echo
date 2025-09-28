@@ -1,4 +1,4 @@
-import { getOrganization } from '@buster/database';
+import { getOrganization } from '@buster/database/queries';
 import type { GetOrganizationResponse } from '@buster/server-shared/organization';
 import { Hono } from 'hono';
 import { requireOrganization } from '../../../middleware/auth';

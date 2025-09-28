@@ -7,10 +7,13 @@ import type {
   DuplicateMetricResponse,
   GetMetricDataRequest,
   GetMetricListRequest,
-  GetMetricRequest,
+  GetMetricParams,
+  GetMetricQuery,
   GetMetricResponse,
   ListMetricsResponse,
   MetricDataResponse,
+  MetricDownloadParams,
+  MetricDownloadQueryParams,
   MetricDownloadResponse,
   ShareDeleteResponse,
   ShareUpdateResponse,
@@ -27,20 +30,16 @@ import { mainApi, mainApiV2 } from '../instances';
 export const getMetric = async ({
   id,
   ...params
-}: GetMetricRequest): Promise<GetMetricResponse> => {
-  return mainApi
-    .get<GetMetricResponse>(`/metric_files/${id}`, {
-      params,
-    })
-    .then((res) => {
-      return res.data;
-    });
+}: GetMetricParams & GetMetricQuery): Promise<GetMetricResponse> => {
+  return mainApiV2
+    .get<GetMetricResponse>(`/metric_files/${id}`, { params })
+    .then(({ data }) => data);
 };
 
 export const getMetricData = async ({
   id,
   ...params
-}: GetMetricDataRequest): Promise<MetricDataResponse> => {
+}: GetMetricDataRequest & GetMetricParams): Promise<MetricDataResponse> => {
   return mainApiV2
     .get<MetricDataResponse>(`/metric_files/${id}/data`, { params })
     .then((res) => res.data);
@@ -103,8 +102,11 @@ export const updateMetricShare = async ({
 };
 
 // Download metric file
-export const downloadMetricFile = async (id: string): Promise<MetricDownloadResponse> => {
+export const downloadMetricFile = async ({
+  id,
+  ...params
+}: MetricDownloadParams & MetricDownloadQueryParams): Promise<MetricDownloadResponse> => {
   return mainApiV2
-    .get<MetricDownloadResponse>(`/metric_files/${id}/download`)
+    .get<MetricDownloadResponse>(`/metric_files/${id}/download`, { params })
     .then((res) => res.data);
 };

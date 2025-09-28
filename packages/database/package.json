@@ -3,14 +3,6 @@
   "version": "1.0.0",
   "type": "module",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    },
-    "./types": {
-      "types": "./dist/types.d.ts",
-      "default": "./dist/types.js"
-    },
     "./helpers/*": {
       "types": "./dist/helpers/*/index.d.ts",
       "default": "./dist/helpers/*/index.js"
@@ -18,6 +10,18 @@
     "./connection": {
       "types": "./dist/connection.d.ts",
       "default": "./dist/connection.js"
+    },
+    "./schema-types": {
+      "types": "./dist/schema-types/index.d.ts",
+      "default": "./dist/schema-types/index.js"
+    },
+    "./schema": {
+      "types": "./dist/schema.d.ts",
+      "default": "./dist/schema.js"
+    },
+    "./queries": {
+      "types": "./dist/queries/index.d.ts",
+      "default": "./dist/queries/index.js"
     }
   },
   "main": "dist/index.js",
@@ -26,25 +30,15 @@
     "prebuild": "[ \"$SKIP_ENV_CHECK\" = \"true\" ] || tsx scripts/validate-env.ts",
     "build": "tsc",
     "build:dry-run": "tsc",
-    "build:commonjs": "tsc --module commonjs --moduleResolution node",
-    "build:commonjs:watch": "npm run build:commonjs && tsc --module commonjs --moduleResolution node --watch",
-    "db:check": "drizzle-kit check",
-    "db:generate": "drizzle-kit generate",
-    "db:generate:custom": "drizzle-kit generate --custom",
-    "db:introspect": "drizzle-kit introspect",
+    "db:init": "echo 'Initializing database...'",
+    "db:seed": "tsx scripts/seed.ts",
+    "db:dump": "tsx scripts/dump.ts",
     "db:migrate": "drizzle-kit migrate",
-    "db:pull": "drizzle-kit pull",
+    "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
-    "db:reset": "supabase db reset",
-    "db:seed": "bun run scripts/seed.ts",
-    "db:start-supabase": "supabase start",
-    "db:stop": "supabase stop",
     "db:studio": "drizzle-kit studio",
-    "db:init": "echo 'dev:init should be run from turbo.json' && true",
     "dev": "tsc --watch",
     "lint": "biome check --write",
-    "stop": "pnpm run db:stop",
-    "start": "echo 'Running db:init from turbo.json' && pnpm run db:init",
     "test": "vitest run",
     "test:unit": "DATABASE_URL=mock://test SUPABASE_URL=mock://test SUPABASE_SERVICE_ROLE_KEY=mock SUPABASE_ANON_KEY=mock vitest run --exclude '**/*.int.test.ts' --exclude '**/*.integration.test.ts' --passWithNoTests",
     "test:integration": "vitest run **/*.int.test.ts **/*.integration.test.ts",
@@ -56,6 +50,7 @@
     "@buster/env-utils": "workspace:*",
     "@buster/typescript-config": "workspace:*",
     "@buster/vitest-config": "workspace:*",
+    "@buster-app/supabase": "workspace:*",
     "ai": "catalog:",
     "drizzle-kit": "^0.31.4",
     "drizzle-orm": "catalog:",

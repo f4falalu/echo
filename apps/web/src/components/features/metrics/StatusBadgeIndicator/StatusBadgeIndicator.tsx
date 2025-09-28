@@ -18,7 +18,7 @@ export const StatusBadgeIndicator: React.FC<{
   const Icon = getIcon(status);
   const colorClasses = getColorClasses(status);
   const tooltipText = getTooltipText(status);
-  const isNotVerified = status === 'notVerified' || 'notRequested';
+  const isNotVerified = status === 'notRequested';
   const sharedClass = cn('flex items-center justify-center rounded-full', colorClasses);
   return (
     <AppTooltip title={showTooltip ? tooltipText : ''}>
@@ -41,7 +41,6 @@ const statusRecordIcon: Record<VerificationStatus, React.FC<{ size?: number }>> 
   requested: () => <HalfIcon />,
   inReview: () => <ThreeFourthIcon />,
   backlogged: () => <CircleXmark />,
-  notVerified: () => <StatusNotRequestedIcon />,
   notRequested: () => <StatusNotRequestedIcon />,
 };
 
@@ -54,7 +53,6 @@ const statusRecordColors: Record<VerificationStatus, string> = {
   requested: 'text-[#F2BE01]!',
   inReview: 'text-[#7C3AED]!',
   backlogged: 'text-icon-color',
-  notVerified: 'text-icon-color',
   notRequested: 'text-icon-color',
 };
 

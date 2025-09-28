@@ -1,5 +1,6 @@
+import type { AssetType } from '@buster/database/schema-types';
 import { LRUCache } from 'lru-cache';
-import type { AssetPermissionRole, AssetType } from '../types';
+import type { AssetPermissionRole } from '../types';
 import type { AssetPermissionResult } from './checks';
 
 // Cache key format: userId:assetId:assetType:requiredRole
@@ -32,8 +33,12 @@ export function getPermissionCacheKey(
   userId: string,
   assetId: string,
   assetType: AssetType,
-  requiredRole: AssetPermissionRole
+  requiredRole: AssetPermissionRole,
+  password?: string
 ): CacheKey {
+  if (password) {
+    return `${userId}:${assetId}:${assetType}:${requiredRole}:${password}`;
+  }
   return `${userId}:${assetId}:${assetType}:${requiredRole}`;
 }
 
@@ -44,9 +49,10 @@ export function getCachedPermission(
   userId: string,
   assetId: string,
   assetType: AssetType,
-  requiredRole: AssetPermissionRole
+  requiredRole: AssetPermissionRole,
+  password?: string
 ): AssetPermissionResult | undefined {
-  const key = getPermissionCacheKey(userId, assetId, assetType, requiredRole);
+  const key = getPermissionCacheKey(userId, assetId, assetType, requiredRole, password);
   const cached = permissionCache.get(key);
 
   if (cached !== undefined) {
@@ -66,9 +72,10 @@ export function setCachedPermission(
   assetId: string,
   assetType: AssetType,
   requiredRole: AssetPermissionRole,
-  result: AssetPermissionResult
+  result: AssetPermissionResult,
+  password?: string
 ): void {
-  const key = getPermissionCacheKey(userId, assetId, assetType, requiredRole);
+  const key = getPermissionCacheKey(userId, assetId, assetType, requiredRole, password);
   permissionCache.set(key, result);
 }
 
@@ -254,7 +261,7 @@ function invalidateCascadingRelatedAssets(_assetId: string, assetType: AssetType
   }
 
   // When a dashboard permission changes, invalidate metric cascading caches
-  if (assetType === 'dashboard' || assetType === 'dashboard_file') {
+  if (assetType === 'dashboard_file') {
     for (const key of Array.from(cascadingCache.keys())) {
       if (key.includes(':metric') || key.includes(':metric_file')) {
         cascadingCache.delete(key);

@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import { useGetUserBasicInfo } from '@/api/buster_rest/users/useGetUserInfo';
-import { useSignOut } from '@/components/features/auth/SignOutHandler';
+import { useGetUserBasicInfo, useIsUserAdmin } from '@/api/buster_rest/users/useGetUserInfo';
+import { useSignOut } from '@/components/features/auth/useSignOut';
 import { AvatarUserButton } from '@/components/ui/avatar/AvatarUserButton';
 import { Button } from '@/components/ui/buttons';
 import { Dropdown, type DropdownProps } from '@/components/ui/dropdown/Dropdown';
@@ -55,61 +55,69 @@ export const SidebarUserFooter: React.FC = React.memo(() => {
 
 SidebarUserFooter.displayName = 'SidebarUserFooter';
 
-const topItems: DropdownProps['items'] = [
-  {
-    label: 'Settings',
-    value: 'setting',
-    icon: <Gear />,
-    link: {
-      to: '/app/settings/profile',
-    },
-  },
-  {
-    label: 'Datasources',
-    value: 'datasources',
-    link: {
-      to: '/app/settings/datasources',
-    },
-    icon: <Database />,
-  },
-  {
-    label: 'Invite & manage members',
-    value: 'invite-manage-members',
-    icon: <UserGroup />,
-    link: {
-      to: '/app/settings/users',
-    },
-  },
-  { type: 'divider' },
-  {
-    label: 'Docs',
-    value: 'docs',
-    link: BUSTER_DOCS_URL,
-    linkIcon: 'arrow-external',
-    icon: <Book2 />,
-  },
-  {
-    label: 'Contact support',
-    value: 'contact-support',
-    icon: <Message />,
-    onClick: () => toggleContactSupportModal('help'),
-  },
-  {
-    label: 'Leave feedback',
-    value: 'leave-feedback',
-    icon: <Flag />,
-    onClick: () => toggleContactSupportModal('feedback'),
-  },
-  { type: 'divider' },
-];
+const topItems = ({ isAdmin }: { isAdmin: boolean }) =>
+  (
+    [
+      {
+        label: 'Settings',
+        value: 'setting',
+        icon: <Gear />,
+        link: {
+          to: '/app/settings/profile',
+        },
+      },
+      {
+        label: 'Datasources',
+        value: 'datasources',
+        link: {
+          to: '/app/settings/datasources',
+        },
+        icon: <Database />,
+        show: isAdmin,
+      },
+      {
+        label: 'Invite & manage members',
+        value: 'invite-manage-members',
+        icon: <UserGroup />,
+        link: {
+          to: '/app/settings/users',
+        },
+      },
+      { type: 'divider' },
+      {
+        label: 'Docs',
+        value: 'docs',
+        link: BUSTER_DOCS_URL,
+        linkIcon: 'arrow-external',
+        icon: <Book2 />,
+      },
+      {
+        label: 'Contact support',
+        value: 'contact-support',
+        icon: <Message />,
+        onClick: () => toggleContactSupportModal('help'),
+      },
+      {
+        label: 'Leave feedback',
+        value: 'leave-feedback',
+        icon: <Flag />,
+        onClick: () => toggleContactSupportModal('feedback'),
+      },
+      { type: 'divider' },
+    ] satisfies (DropdownProps['items'][number] & { show?: boolean })[]
+  ).reduce<DropdownProps['items']>((acc, { show, ...item }) => {
+    if (show ?? true) acc.push(item);
+    return acc;
+  }, []);
 
 const SidebarUserDropdown: React.FC<{
   children: React.ReactNode;
   signOut: () => void;
 }> = ({ children, signOut }) => {
+  const isAdmin = useIsUserAdmin();
   const allItems: DropdownProps['items'] = useMemo(() => {
     return [
-      ...topItems,
+      ...topItems({ isAdmin }),
       {
         label: 'Logout',
         value: 'logout',
@@ -117,7 +125,7 @@ const SidebarUserDropdown: React.FC<{
         icon: <ArrowRightFromLine />,
       },
     ];
-  }, []);
+  }, [isAdmin]);
 
   return (
     <Dropdown align="start" side="top" items={allItems}>

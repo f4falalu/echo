@@ -4,7 +4,6 @@ import React, { useMemo, useState } from 'react';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useMount } from '@/hooks/useMount';
 import { usePreviousRef } from '@/hooks/usePrevious';
-import { useColors } from '../chartHooks';
 import type { BusterChartTypeComponentProps } from '../interfaces/chartComponentInterfaces';
 import {
   Chart,
@@ -18,6 +17,8 @@ import type { ChartJSOrUndefined, ChartProps } from './core/types';
 import { useGoalLines, useOptions, useSeriesOptions } from './hooks';
 import { useChartSpecificOptions } from './hooks/useChartSpecificOptions';
 
+const stableColumnMetadata: BusterChartTypeComponentProps['columnMetadata'] = [];
+
 export const BusterChartJSComponent = React.memo(
   React.forwardRef<ChartJSOrUndefined, BusterChartTypeComponentProps>(
     (
@@ -29,7 +30,7 @@ export const BusterChartJSComponent = React.memo(
         selectedChartType,
         selectedAxis,
         className = '',
-        colors: colorsProp,
+        colors,
         pieDonutWidth,
         pieInnerLabelTitle,
         pieInnerLabelAggregate,
@@ -52,7 +53,7 @@ export const BusterChartJSComponent = React.memo(
         datasetOptions,
         yAxisShowAxisTitle,
         xAxisShowAxisTitle,
-        columnMetadata = [],
+        columnMetadata = stableColumnMetadata,
         y2AxisShowAxisLabel,
         y2AxisScaleType,
         y2AxisStartAxisAtZero,
@@ -74,14 +75,6 @@ export const BusterChartJSComponent = React.memo(
       },
       ref
     ) => {
-      const colors = useColors({
-        colors: colorsProp,
-        yAxisKeys,
-        y2AxisKeys,
-        datasetOptions: datasetOptions.datasets,
-        selectedChartType,
-      });
-
       const data: ChartProps<ChartJSChartType>['data'] = useSeriesOptions({
         selectedChartType,
         y2AxisKeys,
@@ -99,7 +92,7 @@ export const BusterChartJSComponent = React.memo(
         lineGroupType,
         barGroupType,
       });
-      const previousData = usePreviousRef(data);
+      const previousDataLabels = usePreviousRef(data.labels);
 
       const { chartPlugins, chartOptions } = useChartSpecificOptions({
         selectedChartType,
@@ -189,7 +182,7 @@ export const BusterChartJSComponent = React.memo(
 
       const updateMode = useMemoizedFn((): UpdateMode => {
         if (!ref) return 'default';
-        const areLabelsChanged = previousData?.labels !== data.labels;
+        const areLabelsChanged = previousDataLabels !== data.labels;
         if (areLabelsChanged) return 'default'; //this will disable animation - this was 'none', I am not sure why...
         return 'default';
       });

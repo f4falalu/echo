@@ -43,6 +43,7 @@ export const Editor = React.forwardRef<HTMLDivElement, EditorProps>(
     return (
       <PlateContent
         ref={ref}
+        spellCheck={false}
         className={cn(
           editorVariants({
             readOnly,

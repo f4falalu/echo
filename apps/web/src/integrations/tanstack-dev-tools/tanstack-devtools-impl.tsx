@@ -1,14 +1,27 @@
 import { ClientOnly } from '@tanstack/react-router';
-import React, { lazy, Suspense } from 'react';
+import sample from 'lodash/sample';
+import React, { lazy, Suspense, useState } from 'react';
+import { LazyErrorBoundary } from '@/components/features/global/LazyErrorBoundary';
 import { useMount } from '@/hooks/useMount';
 import { isServer } from '@/lib/window';
+import image1 from './images/image1.png';
+import image2 from './images/image2.png';
+import image3 from './images/image3.png';
+import image4 from './images/image4.png';
+import image5 from './images/image5.png';
+import image6 from './images/image6.png';
+import image7 from './images/image7.png';
 
 const isProduction = import.meta.env.PROD;
+
+const arrayOfImages = [image1, image2, image3, image4, image5, image6, image7];
+
+const randomImage = sample(arrayOfImages);
 
 // Only create lazy components if we're in the browser
 const LazyTanstackDevtools = !import.meta.env.SSR
   ? lazy(() =>
-      import('@tanstack/react-devtools/production').then((mod) => ({
+      import('@tanstack/react-devtools').then((mod) => ({
         default: mod.TanStackDevtools,
       }))
     )
@@ -16,7 +29,7 @@ const LazyTanstackDevtools = !import.meta.env.SSR
 
 const LazyTanstackDevtoolsInProd = !import.meta.env.SSR
   ? lazy(() =>
-      import('@tanstack/react-devtools/production').then((mod) => ({
+      import('@tanstack/react-devtools').then((mod) => ({
         default: mod.TanStackDevtools,
       }))
     )
@@ -59,7 +72,7 @@ const LazyMetricStoreDevtools = !import.meta.env.SSR
 // The actual devtools component implementation
 const TanstackDevtoolsImpl: React.FC = React.memo(() => {
   useMount(() => {
-    if (import.meta.env.PROD) console.log('🐓 Rendering TanstackDevtoolsImpl');
+    if (import.meta.env.PROD) console.info('🐓 Rendering TanstackDevtoolsImpl');
   });
   const isServerOrSSR = isServer && import.meta.env.SSR;
 
@@ -73,43 +86,47 @@ const TanstackDevtoolsImpl: React.FC = React.memo(() => {
   }
 
   return (
-    <ClientOnly>
-      <Suspense fallback={null}>
-        <TanstackDevtools
-          config={{
-            position: 'bottom-left',
-            hideUntilHover: true,
-            defaultOpen: false,
-          }}
-          plugins={[
-            {
-              name: 'Tanstack Query',
-              render: (
-                <Suspense fallback={null}>
-                  <ReactQueryDevtoolsPanel />
-                </Suspense>
-              ),
-            },
-            {
-              name: 'Tanstack Router',
-              render: (
-                <Suspense fallback={null}>
-                  <LazyTanStackRouterDevtoolsPanel />
-                </Suspense>
-              ),
-            },
-            {
-              name: 'Metric Original Store',
-              render: (
-                <Suspense fallback={null}>
-                  <LazyMetricStoreDevtools />
-                </Suspense>
-              ),
-            },
-          ]}
-        />
-      </Suspense>
-    </ClientOnly>
+    <LazyErrorBoundary>
+      <ClientOnly>
+        <Suspense fallback={<span className="hidden">...</span>}>
+          <TanstackDevtools
+            config={{
+              position: 'bottom-left',
+              hideUntilHover: true,
+              defaultOpen: false,
+              openHotkey: ['Meta', 'D'],
+              triggerImage: randomImage,
+            }}
+            plugins={[
+              {
+                name: 'Tanstack Query',
+                render: (
+                  <Suspense fallback={<span className="hidden">...</span>}>
+                    <ReactQueryDevtoolsPanel />
+                  </Suspense>
+                ),
+              },
+              {
+                name: 'Tanstack Router',
+                render: (
+                  <Suspense fallback={<span className="hidden">...</span>}>
+                    <LazyTanStackRouterDevtoolsPanel />
+                  </Suspense>
+                ),
+              },
+              {
+                name: 'Metric Original Store',
+                render: (
+                  <Suspense fallback={<span className="hidden">...</span>}>
+                    <LazyMetricStoreDevtools />
+                  </Suspense>
+                ),
+              },
+            ]}
+          />
+        </Suspense>
+      </ClientOnly>
+    </LazyErrorBoundary>
   );
 });
 

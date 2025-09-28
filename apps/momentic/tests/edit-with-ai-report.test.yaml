@@ -1,0 +1,85 @@
+fileType: momentic/test
+id: e1c95324-310b-48e4-beee-97fa99b2cba4
+name: edit-with-ai-report
+description: Click into an existing report and hit modify with ai. Edit the
+  report through the chat.
+schemaVersion: 1.0.21
+advanced:
+  viewport:
+    width: 1920
+    height: 1080
+  browserType: Chromium
+retries: 0
+envs:
+  - name: development
+    default: true
+steps:
+  - id: cbc160a7-92b0-4154-a318-7840a1566c44
+    type: MODULE
+    moduleId: defc36e9-b0a7-4bfe-940f-7901493d5e5e
+  - id: 4f1e9740-ce75-4906-87cb-4bc356bc9bfe
+    type: PRESET_ACTION
+    command:
+      id: 14e30e64-1edd-49dd-b2af-bda5de7030c0
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: Reports on the left side navigation panel
+  - id: 8feed9dd-09a8-4c2c-b684-e9540f2081a1
+    type: PRESET_ACTION
+    command:
+      id: 4e43c0b0-a91a-4e55-bf0b-4d74782f486b
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the bottom report title in the list of reports
+  - id: 5c331e38-5313-4386-a268-ca5e6d274b32
+    type: PRESET_ACTION
+    command:
+      id: 99bd9a97-228f-4a8d-8e1b-a388dc1e88b6
+      type: AI_ASSERTION
+      assertion: Confirm there is a report on the page with a title and some text with
+        at least one metric. The metric can be a graph, chart, or value.
+  - id: 8d30d08b-4866-409f-9d4f-97ade9eabf2b
+    type: PRESET_ACTION
+    command:
+      id: 8278a540-baee-44d6-add9-d239f41c98f8
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the 3 dots ... above the report at the top
+  - id: 68004556-eedf-4d5f-adeb-0a010a654ac9
+    type: PRESET_ACTION
+    command:
+      id: 8d7f0464-fb48-4ae1-a9db-a78da87d9e6b
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: Refresh the report on the drop down of options
+  - id: 4ba5179d-2c40-482c-b95c-0a65ed95441f
+    type: PRESET_ACTION
+    command:
+      id: 6b3c19fa-341f-405c-80f2-38a500c55086
+      type: WAIT_FOR_URL
+      matcher:
+        type: SUBSTRING
+        url: /reasoning
+      timeout: 15
+  - id: 9ccfc73f-9bd8-4085-924e-66ed344c244d
+    type: PRESET_ACTION
+    command:
+      id: ae8183c6-53e8-4ce7-83e7-3912d4454cba
+      type: WAIT
+      delay: 10
+  - id: 5140d67e-86b9-4e85-8deb-e8dae79446d6
+    type: PRESET_ACTION
+    command:
+      id: c369d02a-a84d-4139-be57-b0cd3e3241e0
+      type: AI_ASSERTION
+      assertion: We must confirm that on the right side there is a stream of
+        "reasoning messages" these may look like text, code blocks, sql
+        statements, etc. I want to verify that they are there and that there is
+        content.
+  - id: 7d7d43ef-094a-4b0c-acf4-03639c8efcfb
+    type: MODULE
+    moduleId: 782571e2-3c8e-49fe-a59e-0685924c5a43

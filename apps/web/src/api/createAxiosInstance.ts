@@ -1,11 +1,10 @@
 import { isServer } from '@tanstack/react-query';
 import type { AxiosRequestHeaders } from 'axios';
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
-import { Route as AuthRoute } from '@/routes/auth.login';
-import { checkTokenValidity } from './auth_helpers/check-token-validity';
+import qs from 'qs';
+import { getSupabaseSession } from '@/integrations/supabase/getSupabaseUserClient';
 import { BASE_URL_V2 } from './config';
 import { rustErrorHandler } from './errors';
-import { getSupabaseSessionServerFn } from './server-functions/getSupabaseSession';
 
 const AXIOS_TIMEOUT = 120000; // 2 minutes
 
@@ -15,6 +14,9 @@ export const createAxiosInstance = (baseURL = BASE_URL_V2) => {
     timeout: AXIOS_TIMEOUT,
     headers: {
       'Content-Type': 'application/json',
+    },
+    paramsSerializer: (params) => {
+      return qs.stringify(params, { arrayFormat: 'repeat' }); //💰
     },
   });
 
@@ -26,31 +28,11 @@ export const createAxiosInstance = (baseURL = BASE_URL_V2) => {
     async (error: AxiosError) => {
       const errorCode = error.response?.status;
 
-      //402 is the payment required error code
-      if (errorCode === 402) {
-        window.location.href = AuthRoute.to;
-        return Promise.reject(rustErrorHandler(error));
-      }
-
       // Handle 401 Unauthorized - token might be expired
       if (errorCode === 401 && !isServer) {
-        // Only retry once to avoid infinite loops
-        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
-        if (originalRequest && !originalRequest._retry) {
-          originalRequest._retry = true;
-
-          try {
-            // Force token refresh and retry the request
-            console.info('401 error detected, attempting to refresh token and retry request');
-
-            // The request interceptor will handle getting the new token
-            return apiInstance(originalRequest);
-          } catch (refreshError) {
-            console.error('Failed to refresh token and retry request:', refreshError);
-            // If refresh fails, redirect to login or show error
-            window.location.href = AuthRoute.to;
-          }
-        }
+        console.info(
+          '401 error detected, you are not authorized to access this resource. Wamp wamp 🎺 '
+        );
       }
 
       return Promise.reject(rustErrorHandler(error));
@@ -62,41 +44,37 @@ export const createAxiosInstance = (baseURL = BASE_URL_V2) => {
 };
 
 export const defaultAxiosRequestHandler = async (config: InternalAxiosRequestConfig<unknown>) => {
-  let token: string | undefined = '';
-
   try {
-    if (isServer) {
-      try {
-        token = await getSupabaseSessionServerFn().then(
-          ({ data: { session } }) => session.access_token
-        );
-      } catch (supabaseError) {
-        // Handle headers already sent error gracefully
-        if (
-          supabaseError instanceof Error &&
-          supabaseError.message.includes('ERR_HTTP_HEADERS_SENT')
-        ) {
-          console.warn('Headers already sent when getting auth token, proceeding without token');
-          // Continue without token rather than crashing
-          return config;
-        }
-        throw supabaseError;
-      }
-    } else {
-      // Always check token validity before making requests
-      const tokenResult = await checkTokenValidity();
-      token = tokenResult?.access_token || '';
-    }
+    const session = await getSupabaseSession();
+    const { accessToken: token } = session;
 
     if (!token) {
-      throw new Error('User authentication error - no token found');
+      console.warn('No token found', config.url, session);
+      //embed route were having an issue with this...
+      //window.location.href = AuthRoute.to;
+      //return Promise.reject(new Error('No token found'));
     }
 
     (config.headers as AxiosRequestHeaders).Authorization = `Bearer ${token}`;
 
     return config;
   } catch (error) {
-    console.error('Error getting auth token for request:', error);
-    throw new Error('User authentication error - failed to get valid token');
+    // Log the error but don't throw to prevent unhandled rejections
+    console.error(
+      'Error in axios request handler:',
+      {
+        url: config.url,
+        method: config.method,
+        headers: config.headers,
+        data: config.data,
+        params: config.params,
+        baseURL: config.baseURL,
+        timeout: config.timeout,
+      },
+      error
+    );
+
+    // Return config without auth header - let the backend handle unauthorized requests
+    return config;
   }
 };

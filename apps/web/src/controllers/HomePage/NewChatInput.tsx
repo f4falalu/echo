@@ -30,6 +30,8 @@ export const NewChatInput: React.FC<{
   });
 
   const onChange = useMemoizedFn((e: ChangeEvent<HTMLTextAreaElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
     setInputValue(e.target.value);
   });
 

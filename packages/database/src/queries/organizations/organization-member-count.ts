@@ -3,18 +3,12 @@ import { z } from 'zod';
 import { db } from '../../connection';
 import { usersToOrganizations } from '../../schema';
 
-const GetOrganizationMemberCountInputSchema = z.object({
-  organizationId: z.string().uuid(),
-});
-
 /**
  * Get the count of active members in an organization
  * Takes an organization ID and returns the number of users associated with that organization
  */
 export async function getOrganizationMemberCount(organizationId: string): Promise<number> {
   try {
-    const validated = GetOrganizationMemberCountInputSchema.parse({ organizationId });
-
     const result = await db
       .select({
         count: count(),
@@ -22,7 +16,7 @@ export async function getOrganizationMemberCount(organizationId: string): Promis
       .from(usersToOrganizations)
       .where(
         and(
-          eq(usersToOrganizations.organizationId, validated.organizationId),
+          eq(usersToOrganizations.organizationId, organizationId),
           isNull(usersToOrganizations.deletedAt),
           eq(usersToOrganizations.status, 'active')
         )

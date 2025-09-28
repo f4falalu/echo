@@ -1,4 +1,3 @@
-import type { ReportElementsWithIds, ReportElementWithId } from '@buster/server-shared/reports';
 import type { AnyPluginConfig, Value } from 'platejs';
 import { Plate, type TPlateEditor } from 'platejs/react';
 import React, { useEffect, useImperativeHandle, useRef } from 'react';
@@ -15,7 +14,7 @@ import { useReportEditor } from './useReportEditor';
 export interface ReportEditorProps {
   // We accept the generic Value type but recommend using ReportTypes.Value for type safety
   value?: string; //markdown
-  initialElements?: Value | ReportElementWithId[];
+  initialElements?: Value;
   placeholder?: string;
   readOnly?: boolean;
   isStreaming?: boolean; //if true, the editor will be updated with the value prop when it is changed, everything will be readonly
@@ -30,7 +29,7 @@ export interface ReportEditorProps {
   mode?: 'export' | 'default';
   preEditorChildren?: React.ReactNode;
   postEditorChildren?: React.ReactNode;
-  containerRef?: React.RefObject<HTMLDivElement | null>; //used for the scroll areas
+  scrollAreaRef?: React.RefObject<HTMLDivElement | null>; //used for the scroll areas
 }
 
 export type IReportEditor = TPlateEditor<Value, AnyPluginConfig>;
@@ -61,16 +60,15 @@ export const ReportEditor = React.memo(
         isStreaming = false,
         preEditorChildren,
         postEditorChildren,
-        containerRef,
+        scrollAreaRef,
       },
       ref
     ) => {
       // Initialize the editor instance using the custom useEditor hook
       const isReady = useRef(false);
-      const editorContainerRef = useRef<HTMLDivElement>(null);
 
       const { isAutoScrollEnabled, enableAutoScroll, disableAutoScroll, scrollToBottom } =
-        useAutoScroll(editorContainerRef, {
+        useAutoScroll(scrollAreaRef, {
           enabled: isStreaming,
           bottomThreshold: 50,
           observeSubTree: true,
@@ -83,7 +81,7 @@ export const ReportEditor = React.memo(
         value,
         initialElements,
         useFixedToolbarKit,
-        containerRef,
+        scrollAreaRef,
       });
 
       const onReset = useMemoizedFn(() => {
@@ -109,7 +107,7 @@ export const ReportEditor = React.memo(
         editor: TPlateEditor<Value, AnyPluginConfig>;
       }) => {
         if (isReady.current && !readOnly && onValueChange && !isStreaming) {
-          platejsToMarkdown(editor, value as ReportElementsWithIds)
+          platejsToMarkdown(editor, value)
             .then((markdown) => {
               onValueChange(markdown);
             })
@@ -141,7 +139,6 @@ export const ReportEditor = React.memo(
       return (
         <Plate editor={editor} onValueChange={onValueChangeDebounced}>
           <EditorContainer
-            ref={editorContainerRef}
             variant={variant}
             readOnly={readOnly}
             className={cn('editor-container relative', containerClassName)}

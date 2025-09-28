@@ -1,4 +1,4 @@
-import type { AssetType } from './asset-permissions';
+import type { AssetType } from '@buster/database/schema-types';
 
 // Internal types for cascading permissions
 

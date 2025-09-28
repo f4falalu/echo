@@ -1,4 +1,4 @@
-import type { User } from '@buster/database';
+import type { User } from '@buster/database/queries';
 import {
   type CreateS3IntegrationRequest,
   CreateS3IntegrationRequestSchema,

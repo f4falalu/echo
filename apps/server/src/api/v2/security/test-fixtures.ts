@@ -1,4 +1,5 @@
-import type { User, organizations } from '@buster/database';
+import type { User } from '@buster/database/queries';
+import type { organizations } from '@buster/database/schema';
 import type { InferSelectModel } from 'drizzle-orm';
 
 type Organization = InferSelectModel<typeof organizations>;

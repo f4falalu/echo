@@ -37,9 +37,9 @@ export function validateAndAdjustBarLineAxes(
 
   const allYColumnsNumeric = yAxisNumericStatus.every((isNumeric: boolean) => isNumeric);
 
-  // If all Y columns are numeric, no adjustment needed
+  // If all Y columns are numeric, check if we need to auto-set percentage-stack
   if (allYColumnsNumeric) {
-    return metricChartConfig;
+    return autoSetPercentageStack(metricChartConfig, yColumns, columnLabelFormats);
   }
 
   // At least one Y column is non-numeric, check if we can swap with X
@@ -80,4 +80,38 @@ export function validateAndAdjustBarLineAxes(
   throw new Error(
     `Bar and line charts require numeric values on the Y axis. The following columns are non-numeric: ${columnTypes}. Please adjust your SQL query to ensure numeric columns are used for the Y axis, or use a different chart type.`
   );
+}
+
+/**
+ * Automatically sets barGroupType to 'percentage-stack' if Y-axis columns are percentage-styled
+ * @param chartConfig The chart configuration
+ * @param yColumns The Y-axis column names
+ * @param columnLabelFormats The column format configurations
+ * @returns Updated chart configuration with auto-adjusted barGroupType if needed
+ */
+function autoSetPercentageStack(
+  chartConfig: ChartConfigProps,
+  yColumns: string[],
+  columnLabelFormats: ChartConfigProps['columnLabelFormats']
+): ChartConfigProps {
+  // Only apply to bar charts (line charts use lineGroupType)
+  if (chartConfig.selectedChartType !== 'bar') {
+    return chartConfig;
+  }
+
+  // Check if any Y-axis column has percent style
+  const hasPercentStyle = yColumns.some((col: string) => {
+    const format = columnLabelFormats?.[col];
+    return format?.style === 'percent';
+  });
+
+  // If we have percent-styled columns and barGroupType is 'stack', auto-change to 'percentage-stack'
+  if (hasPercentStyle && chartConfig.barGroupType === 'stack') {
+    return {
+      ...chartConfig,
+      barGroupType: 'percentage-stack',
+    };
+  }
+
+  return chartConfig;
 }

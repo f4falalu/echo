@@ -1,6 +1,7 @@
 import type { GetDashboardResponse } from '@buster/server-shared/dashboards';
 import { useNavigate } from '@tanstack/react-router';
 import React, { useCallback, useMemo } from 'react';
+import type { BusterDashboard, BusterDashboardResponse } from '@/api/asset_interfaces/dashboard';
 import {
   useAddDashboardToCollection,
   useDeleteDashboards,
@@ -14,7 +15,7 @@ import { DASHBOARD_TITLE_INPUT_ID } from '@/controllers/DashboardController/Dash
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { onOpenDashboardContentModal } from '../../../context/Dashboards/dashboard-content-store';
 import { ensureElementExists } from '../../../lib/element';
-import { getIsEffectiveOwner } from '../../../lib/share';
+import { canEdit, getIsEffectiveOwner } from '../../../lib/share';
 import type { IDropdownItem, IDropdownItems } from '../../ui/dropdown';
 import { createDropdownItem, DropdownContent } from '../../ui/dropdown';
 import {
@@ -36,11 +37,13 @@ import { useListDashboardVersionDropdownItems } from '../versionHistory/useListD
 
 export const useDashboardVersionHistorySelectMenu = ({
   dashboardId,
+  dashboardVersionNumber,
 }: {
   dashboardId: string;
+  dashboardVersionNumber: number | undefined;
 }): IDropdownItem => {
   const { data } = useGetDashboard(
-    { id: dashboardId },
+    { id: dashboardId, versionNumber: dashboardVersionNumber },
     {
       select: useCallback(
         (x: GetDashboardResponse) => ({
@@ -74,12 +77,23 @@ export const useDashboardVersionHistorySelectMenu = ({
   );
 };
 
-export const useCollectionSelectMenu = ({ dashboardId }: { dashboardId: string }) => {
+export const useCollectionSelectMenu = ({
+  dashboardId,
+  dashboardVersionNumber,
+}: {
+  dashboardId: string;
+  dashboardVersionNumber: number | undefined;
+}) => {
   const { mutateAsync: saveDashboardToCollection } = useAddDashboardToCollection();
   const { mutateAsync: removeDashboardFromCollection } = useRemoveDashboardFromCollection();
   const { data: selectedCollections } = useGetDashboard(
-    { id: dashboardId },
-    { select: (x) => x.collections?.map((collection) => collection.id) }
+    { id: dashboardId, versionNumber: dashboardVersionNumber },
+    {
+      select: useCallback(
+        (x: BusterDashboardResponse) => x.collections?.map((collection) => collection.id),
+        []
+      ),
+    }
   );
   const { openInfoMessage } = useBusterNotifications();
 
@@ -124,14 +138,20 @@ export const useCollectionSelectMenu = ({ dashboardId }: { dashboardId: string }
   return collectionDropdownItem;
 };
 
-export const useFavoriteDashboardSelectMenu = ({ dashboardId }: { dashboardId: string }) => {
+export const useFavoriteDashboardSelectMenu = ({
+  dashboardId,
+  dashboardVersionNumber,
+}: {
+  dashboardId: string;
+  dashboardVersionNumber: number | undefined;
+}) => {
   const { data: title } = useGetDashboard(
-    { id: dashboardId },
-    { select: (x) => x?.dashboard?.name }
+    { id: dashboardId, versionNumber: dashboardVersionNumber },
+    { select: useCallback((x: BusterDashboardResponse) => x?.dashboard?.name, []) }
   );
   const { isFavorited, onFavoriteClick } = useFavoriteStar({
     id: dashboardId,
-    type: 'dashboard',
+    type: 'dashboard_file',
     name: title || '',
   });
 
@@ -200,7 +220,7 @@ export const useRenameDashboardSelectMenu = ({
             setTimeout(() => {
               input.focus();
               input.select();
-            }, 50);
+            }, 200);
           }
         },
       }),
@@ -256,8 +276,17 @@ export const useOpenFullScreenDashboard = ({ dashboardId }: { dashboardId: strin
   );
 };
 
-export const useShareMenuSelectMenu = ({ dashboardId }: { dashboardId: string }) => {
-  const { data: dashboard } = useGetDashboard({ id: dashboardId }, { select: getShareAssetConfig });
+export const useShareMenuSelectMenu = ({
+  dashboardId,
+  dashboardVersionNumber,
+}: {
+  dashboardId: string;
+  dashboardVersionNumber: number | undefined;
+}) => {
+  const { data: dashboard } = useGetDashboard(
+    { id: dashboardId, versionNumber: dashboardVersionNumber },
+    { select: getShareAssetConfig }
+  );
   const isOwner = getIsEffectiveOwner(dashboard?.permission);
 
   return useMemo(
@@ -273,7 +302,7 @@ export const useShareMenuSelectMenu = ({ dashboardId }: { dashboardId: string })
                 key={dashboardId}
                 shareAssetConfig={dashboard}
                 assetId={dashboardId}
-                assetType={'dashboard'}
+                assetType={'dashboard_file'}
               />,
             ]
           : undefined,
@@ -282,10 +311,22 @@ export const useShareMenuSelectMenu = ({ dashboardId }: { dashboardId: string })
   );
 };
 
-export const useEditDashboardWithAI = ({ dashboardId }: { dashboardId: string }) => {
+export const useEditDashboardWithAI = ({
+  dashboardId,
+  dashboardVersionNumber,
+}: {
+  dashboardId: string;
+  dashboardVersionNumber: number | undefined;
+}) => {
+  const { data: dashboard } = useGetDashboard(
+    { id: dashboardId, versionNumber: dashboardVersionNumber },
+    { select: getShareAssetConfig }
+  );
+  const isEditor = canEdit(dashboard?.permission);
+
   const { onCreateFileClick, loading } = useStartChatFromAsset({
     assetId: dashboardId,
-    assetType: 'dashboard',
+    assetType: 'dashboard_file',
   });
 
   return useMemo(
@@ -295,8 +336,9 @@ export const useEditDashboardWithAI = ({ dashboardId }: { dashboardId: string })
         value: 'edit-with-ai',
         icon: <PenSparkle />,
         onClick: onCreateFileClick,
+        disabled: !isEditor,
         loading,
       }),
-    [dashboardId, onCreateFileClick, loading]
+    [dashboardId, onCreateFileClick, loading, isEditor]
   );
 };

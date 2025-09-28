@@ -10,7 +10,10 @@ import {
   useSelected,
   withHOC,
 } from 'platejs/react';
-import React, { type PropsWithChildren, useMemo, useRef } from 'react';
+import React, { type PropsWithChildren, useCallback, useMemo, useRef } from 'react';
+import type { BusterMetric, BusterMetricData } from '@/api/asset_interfaces/metric';
+import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
+import { useGetReportParams } from '@/context/Reports/useGetReportParams';
 import { useSize } from '@/hooks/useSize';
 import { cn } from '@/lib/classMerge';
 import { GlobalVariablePlugin } from '../../plugins/global-variable-kit';
@@ -30,14 +33,28 @@ export const MetricElement = withHOC(
     const metricVersionNumber = props.element.metricVersionNumber;
     const readOnly = useReadOnly();
     const mode = props.editor.getOption(GlobalVariablePlugin, 'mode');
+    const { reportId } = useGetReportParams();
     const isSelected = useSelected();
     const isFocused = useFocused();
     const showFocused = isSelected && isFocused;
-    const className = cn(showFocused && 'ring-ring bg-brand/5 ring-1 ring-offset-4');
+    const className = cn(
+      'max-h-[390px]',
+      showFocused && 'ring-ring bg-brand/5 ring-1 ring-offset-4'
+    );
+
+    const { data: selectedChartType } = useGetMetric(
+      { id: metricId, versionNumber: metricVersionNumber },
+      { select: useCallback((x: BusterMetric) => x?.chart_config?.selectedChartType, []) }
+    );
+    const { isFetched: isFetchedMetricData } = useGetMetricData(
+      { id: metricId, versionNumber: metricVersionNumber, cacheDataId: reportId },
+      { select: useCallback((x: BusterMetricData) => x, []) }
+    );
+    const isTable = selectedChartType === 'table' && isFetchedMetricData;
 
     const content = metricId ? (
       <MetricToolbar selectedMetricId={metricId}>
-        <MetricResizeContainer>
+        <MetricResizeContainer isTable={isTable}>
           <MetricContent
             metricId={metricId}
             metricVersionNumber={metricVersionNumber}
@@ -69,16 +86,16 @@ export const MetricElement = withHOC(
   }
 );
 
-const MetricResizeContainer: React.FC<PropsWithChildren> = ({ children }) => {
+const MetricResizeContainer: React.FC<PropsWithChildren<{ isTable: boolean }>> = ({
+  children,
+  isTable,
+}) => {
   const width = (useResizableValue('width') as number) || 700;
   const ref = useRef<HTMLDivElement>(null);
   const element = useElement();
   const editor = useEditorRef();
   const editorWidth = useSize(ref)?.width ?? 700;
   const isSelected = useSelected();
-  // const { isDragging, handleRef } = useDraggable({
-  //   element: element,
-  // });
   const align = 'center'; // Default align for metrics
 
   const selectNode = () => {
@@ -86,11 +103,11 @@ const MetricResizeContainer: React.FC<PropsWithChildren> = ({ children }) => {
   };
 
   const height = useMemo(() => {
+    if (isTable) return undefined;
     const ratio = 9 / 16;
     if (typeof width !== 'number') return (editorWidth ?? 400) * ratio;
-
     return width * ratio;
-  }, [width, editorWidth]);
+  }, [width, editorWidth, isTable]);
 
   return (
     <figure
@@ -118,8 +135,8 @@ const MetricResizeContainer: React.FC<PropsWithChildren> = ({ children }) => {
         <div
           // ref={handleRef}
           className={cn(
-            'min-h-64',
-            !height && 'min-h-[390px]'
+            !isTable && 'min-h-[390px]',
+            !height && !isTable && 'min-h-[390px]'
             //   isDragging && 'cursor-grabbing opacity-50'
           )}
           style={{ height }}

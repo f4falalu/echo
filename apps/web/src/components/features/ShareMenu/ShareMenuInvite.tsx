@@ -49,7 +49,11 @@ export const ShareMenuInvite: React.FC<ShareMenuInviteProps> = React.memo(
 
     const disableSubmit = !inputHasText(inputValue) || !isValidEmail(inputValue);
     const isInviting =
-      isInvitingMetric || isInvitingDashboard || isInvitingCollection || isInvitingChat;
+      isInvitingMetric ||
+      isInvitingDashboard ||
+      isInvitingCollection ||
+      isInvitingChat ||
+      isInvitingReport;
 
     const options: SelectItem<string>[] = useMemo(() => {
       return (
@@ -102,15 +106,15 @@ export const ShareMenuInvite: React.FC<ShareMenuInviteProps> = React.memo(
         ],
       };
 
-      if (assetType === 'metric') {
+      if (assetType === 'metric_file') {
         await onShareMetric(payload);
-      } else if (assetType === 'dashboard') {
+      } else if (assetType === 'dashboard_file') {
         await onShareDashboard(payload);
       } else if (assetType === 'collection') {
         await onShareCollection(payload);
       } else if (assetType === 'chat') {
         await onShareChat(payload);
-      } else if (assetType === 'report') {
+      } else if (assetType === 'report_file') {
         await onShareReport(payload);
       } else {
         const _exhaustiveCheck: never = assetType;

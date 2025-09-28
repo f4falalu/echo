@@ -1,4 +1,5 @@
-import { db, messages, reportFiles } from '@buster/database';
+import { db } from '@buster/database/connection';
+import { messages, reportFiles } from '@buster/database/schema';
 import { and, eq, isNull } from 'drizzle-orm';
 
 /**

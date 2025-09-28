@@ -1,5 +1,5 @@
-import { getS3IntegrationByOrganizationId, getSecretByName } from '@buster/database';
-import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest';
+import { getS3IntegrationByOrganizationId, getSecretByName } from '@buster/database/queries';
+import { type Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createGCSProvider } from './providers/gcs-provider';
 import { createR2Provider } from './providers/r2-provider';
 import { createS3Provider } from './providers/s3-provider';
@@ -11,7 +11,8 @@ import {
 } from './storage-factory';
 import type { StorageConfig } from './types';
 
-vi.mock('@buster/database');
+vi.mock('@buster/database/connection');
+vi.mock('@buster/database/queries');
 vi.mock('./providers/s3-provider');
 vi.mock('./providers/r2-provider');
 vi.mock('./providers/gcs-provider');
@@ -112,7 +113,14 @@ describe('Storage Factory', () => {
     const originalEnv = process.env;
 
     beforeEach(() => {
-      process.env = { ...originalEnv };
+      // Create a clean environment without any R2 variables from the actual environment
+      process.env = Object.keys(originalEnv).reduce((acc, key) => {
+        // Keep all non-R2 environment variables
+        if (!key.startsWith('R2_')) {
+          acc[key] = originalEnv[key];
+        }
+        return acc;
+      }, {} as NodeJS.ProcessEnv);
     });
 
     afterEach(() => {
@@ -176,12 +184,21 @@ describe('Storage Factory', () => {
     const originalEnv = process.env;
 
     beforeEach(() => {
-      process.env = {
-        ...originalEnv,
-        R2_ACCOUNT_ID: 'default-account',
-        R2_ACCESS_KEY_ID: 'default-key',
-        R2_SECRET_ACCESS_KEY: 'default-secret',
-      };
+      // Create a clean environment with only the R2 credentials we want for testing
+      // Don't inherit R2_BUCKET or other R2 variables from the actual environment
+      process.env = Object.keys(originalEnv).reduce((acc, key) => {
+        // Keep all non-R2 environment variables
+        if (!key.startsWith('R2_')) {
+          acc[key] = originalEnv[key];
+        }
+        return acc;
+      }, {} as NodeJS.ProcessEnv);
+
+      // Now set only the R2 variables we want for this test
+      process.env.R2_ACCOUNT_ID = 'default-account';
+      process.env.R2_ACCESS_KEY_ID = 'default-key';
+      process.env.R2_SECRET_ACCESS_KEY = 'default-secret';
+      // Intentionally not setting R2_BUCKET so it uses the default 'metric-exports'
     });
 
     afterEach(() => {
