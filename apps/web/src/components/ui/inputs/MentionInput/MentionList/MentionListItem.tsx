@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import { Text } from '@/components/ui/typography/Text';
-import { useInViewport } from '@/hooks/useInViewport';
 import { cn } from '@/lib/utils';
 import { useMentionListRef } from './MentionList';
 import type { MentionTriggerItemExtended } from './MentionListSelector';
@@ -12,17 +11,26 @@ export function MentionListItem<T = string>({
   icon,
   loading,
   disabled,
-  setSelectedItem,
   onSelectItem,
   secondaryContent,
-}: MentionTriggerItemExtended<T>) {
+}: Omit<MentionTriggerItemExtended<T>, 'setSelectedItem'>) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const listRef = useMentionListRef();
+
+  useEffect(() => {
+    if (isSelected && containerRef.current && listRef?.current) {
+      containerRef.current.scrollIntoView({
+        behavior: 'instant',
+        block: 'nearest',
+        inline: 'nearest',
+      });
+    }
+  }, [isSelected, listRef]);
 
   return (
     <div
       ref={containerRef}
       onClick={() => onSelectItem(value)}
-      onMouseEnter={() => setSelectedItem(value)}
       data-testid={`mention-list-item-${value}`}
       data-disabled={disabled}
       data-loading={loading}

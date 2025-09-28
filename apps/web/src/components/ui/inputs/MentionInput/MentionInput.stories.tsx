@@ -142,7 +142,7 @@ export const looneyTunesSuggestions = createMentionSuggestionExtension({
   trigger: '@',
   items: looneyTunesCharacters,
   popoverContent: (props) => {
-    return <div>Hello {props.value}</div>;
+    return <div className="p-2">Hello {props.value}</div>;
   },
   pillStyling: {
     className: () => {
@@ -163,7 +163,7 @@ const theSimpsonsSuggestions = createMentionSuggestionExtension({
     },
   },
   popoverContent: (props) => {
-    return <div>Howdy {props.value}</div>;
+    return <div className="p-2">Howdy {props.value}</div>;
   },
 });
 
@@ -176,11 +176,11 @@ const arthurSuggestions = createMentionSuggestionExtension({
     },
   },
   popoverContent: (props) => {
-    return <div>Ciao {props.value}</div>;
+    return <div className="p-2">Ciao {props.value}</div>;
   },
 });
 
-const spongebobCharacters: MentionInputTriggerItem[] = [
+const manyCharacters: MentionInputTriggerItem[] = [
   {
     type: 'group',
     items: [
@@ -265,8 +265,8 @@ const spongebobCharacters: MentionInputTriggerItem[] = [
         label: 'Scooby-Doo',
       },
       {
-        value: 'Shaggy',
-        label: 'Shaggy',
+        value: 'Shaggy-Doo',
+        label: 'Shaggy-Doo',
       },
       {
         value: 'Velma',
@@ -282,11 +282,14 @@ const spongebobCharacters: MentionInputTriggerItem[] = [
 
 const spongebobSuggestions = createMentionSuggestionExtension({
   trigger: '%',
-  items: spongebobCharacters,
+  items: manyCharacters,
   pillStyling: {
     className: () => {
       return 'bg-yellow-100 border-yellow-300 text-yellow-500 hover:bg-yellow-200';
     },
+  },
+  popoverContent: (props) => {
+    return <div className="p-5 bg-red-100">This is a custom popover content for {props.value}</div>;
   },
 });
 
