@@ -10,10 +10,10 @@ export const DEFAULT_ANTHROPIC_OPTIONS = {
     cacheControl: { type: 'ephemeral' },
   },
   bedrock: {
-    cacheControl: { type: 'ephemeral' },
-    additionalModelRequestFields: {
-      anthropic_beta: ['fine-grained-tool-streaming-2025-05-14'],
-    },
+    cachePoint: { type: 'default' }
+  },
+  additionalModelRequestFields: {
+    anthropic_beta: ['fine-grained-tool-streaming-2025-05-14'],
   },
 };
 
