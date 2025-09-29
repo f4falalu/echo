@@ -3,12 +3,12 @@ import { ChatError, ChatErrorCode } from '@buster/server-shared/chats';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { initializeChat } from './chat-service';
 
-import { canUserAccessChatCached, checkPermission } from '@buster/access-controls';
+import { checkPermission } from '@buster/access-controls';
 // Import mocked functions
 import {
+  createChat,
   createMessage,
   getChatWithDetails,
-  getMessagesForChat,
   getMessagesForChatWithUserDetails,
   getOrganizationMemberCount,
   getUsersWithAssetPermissions,
@@ -134,13 +134,11 @@ describe('chat-service', () => {
     });
 
     it('should add message to existing chat when chat_id is provided', async () => {
-      vi.mocked(canUserAccessChatCached).mockResolvedValue(true);
       vi.mocked(getChatWithDetails).mockResolvedValue({
         chat: mockChat,
         user: { id: 'user-123', name: 'Test User', avatarUrl: null } as any,
         isFavorited: false,
       });
-      vi.mocked(getMessagesForChat).mockResolvedValue([mockMessage]);
       vi.mocked(createMessage).mockResolvedValue({
         ...mockMessage,
         id: 'msg-456',
