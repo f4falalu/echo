@@ -2,14 +2,17 @@ import { Command } from 'cmdk';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import type { MentionInputRef } from '../MentionInput';
-import type { BusterInputProps, BusterOnSelectParams } from './BusterInput.types';
-import { BusterInputContainer } from './BusterInputContainer';
-import { BusterInputEmpty } from './BusterInputEmpty';
-import { BusterInputList } from './BusterInputList';
-import { BusterItemsSelector } from './BusterItemSelector';
-import { BusterMentionsInput } from './BusterMentionsInput';
+import type {
+  MentionInputSuggestionsOnSelectParams,
+  MentionInputSuggestionsProps,
+} from './MentionInputSuggestions.types';
+import { MentionInputSuggestionsContainer } from './MentionInputSuggestionsContainer';
+import { MentionInputSuggestionsEmpty } from './MentionInputSuggestionsEmpty';
+import { MentionInputSuggestionsItemsSelector } from './MentionInputSuggestionsItemSelector';
+import { MentionInputSuggestionsList } from './MentionInputSuggestionsList';
+import { MentionInputSuggestionsMentionsInput } from './MentionInputSuggestionsMentionsInput';
 
-export const BusterInput = ({
+export const MentionInputSuggestions = ({
   placeholder,
   defaultValue,
   value: valueProp,
@@ -23,9 +26,10 @@ export const BusterInput = ({
   secondaryActions,
   variant = 'default',
   onChange,
-  ariaLabel = 'Buster Input',
+  ariaLabel = 'Mention Input Suggestions',
   readOnly,
   autoFocus,
+  children,
   //suggestions
   suggestionItems,
   closeSuggestionOnSelect = true,
@@ -36,7 +40,7 @@ export const BusterInput = ({
   //mentions
   onMentionItemClick,
   mentions,
-}: BusterInputProps) => {
+}: MentionInputSuggestionsProps) => {
   const [hasClickedSelect, setHasClickedSelect] = useState(false);
   const [value, setValue] = useState(valueProp ?? defaultValue);
   const commandListNavigatedRef = useRef(false);
@@ -54,29 +58,31 @@ export const BusterInput = ({
     onChange?.(value);
   }, []);
 
-  const onSelectItem = useMemoizedFn(({ onClick, ...params }: BusterOnSelectParams) => {
-    const { addValueToInput, loading, inputValue, label, disabled } = params;
-    if (disabled) {
-      console.warn('Item is disabled', params);
-      return;
+  const onSelectItem = useMemoizedFn(
+    ({ onClick, ...params }: MentionInputSuggestionsOnSelectParams) => {
+      const { addValueToInput, loading, inputValue, label, disabled } = params;
+      if (disabled) {
+        console.warn('Item is disabled', params);
+        return;
+      }
+      if (submitting) {
+        console.warn('Input is submitting');
+        return;
+      }
+      if (loading) {
+        console.warn('Item is loading', params);
+        return;
+      }
+      if (addValueToInput) {
+        const stringValue = inputValue ?? String(label);
+        mentionsInputRef.current?.editor?.commands.setContent(stringValue);
+        setValue(stringValue);
+      }
+      onClick?.();
+      if (closeSuggestionOnSelect) setHasClickedSelect(true);
+      onSuggestionItemClick?.(params);
     }
-    if (submitting) {
-      console.warn('Input is submitting');
-      return;
-    }
-    if (loading) {
-      console.warn('Item is loading', params);
-      return;
-    }
-    if (addValueToInput) {
-      const stringValue = inputValue ?? String(label);
-      mentionsInputRef.current?.editor?.commands.setContent(stringValue);
-      setValue(stringValue);
-    }
-    onClick?.();
-    if (closeSuggestionOnSelect) setHasClickedSelect(true);
-    onSuggestionItemClick?.(params);
-  });
+  );
 
   const onSubmitPreflight = useMemoizedFn((value: string) => {
     if (submitting) {
@@ -123,16 +129,8 @@ export const BusterInput = ({
 
   return (
     <Command ref={commandRef} value={value} label={ariaLabel} className="relative">
-      <BusterInputContainer
-        onSubmit={onSubmitPreflight}
-        onStop={onStopPreflight}
-        submitting={submitting}
-        disabled={disabledGlobal}
-        sendIcon={sendIcon}
-        secondaryActions={secondaryActions}
-        variant={variant}
-      >
-        <BusterMentionsInput
+      <MentionInputSuggestionsContainer>
+        <MentionInputSuggestionsMentionsInput
           ref={mentionsInputRef}
           defaultValue={defaultValue}
           readOnly={readOnly}
@@ -147,16 +145,19 @@ export const BusterInput = ({
           onPressEnter={onPressEnter || onSubmit}
           commandListNavigatedRef={commandListNavigatedRef}
         />
-      </BusterInputContainer>
-      <BusterInputList show={showSuggestionList}>
-        <BusterItemsSelector
+        {children}
+      </MentionInputSuggestionsContainer>
+      <MentionInputSuggestionsList show={showSuggestionList}>
+        <MentionInputSuggestionsItemsSelector
           suggestionItems={suggestionItems}
           onSelect={onSelectItem}
           addValueToInput={addSuggestionValueToInput}
           closeOnSelect={closeSuggestionOnSelect}
         />
-        {emptyComponent && <BusterInputEmpty>{emptyComponent}</BusterInputEmpty>}
-      </BusterInputList>
+        {emptyComponent && (
+          <MentionInputSuggestionsEmpty>{emptyComponent}</MentionInputSuggestionsEmpty>
+        )}
+      </MentionInputSuggestionsList>
     </Command>
   );
 };

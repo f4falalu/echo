@@ -1,17 +1,17 @@
 import { Command } from 'cmdk';
 import type React from 'react';
 import { cn } from '@/lib/utils';
-import type { BusterInputDropdownGroup, BusterOnSelectParams } from './BusterInput.types';
-import { BusterItemsSelector } from './BusterItemSelector';
+import type { MentionInputSuggestionsDropdownGroup, MentionInputSuggestionsOnSelectParams } from './MentionInputSuggestions.types';
+import { MentionInputSuggestionsItemsSelector } from './MentionInputSuggestionsItemSelector';
 
-export type BusterInputGroupProps = BusterInputDropdownGroup & {
-  onSelect: (params: BusterOnSelectParams) => void;
+export type MentionInputSuggestionsGroupProps = MentionInputSuggestionsDropdownGroup & {
+  onSelect: (params: MentionInputSuggestionsOnSelectParams) => void;
 } & {
   className?: string;
   style?: React.CSSProperties;
 };
 
-export const BusterInputGroup = ({
+export const MentionInputSuggestionsGroup = ({
   suggestionItems,
   label,
   onSelect,
@@ -19,7 +19,7 @@ export const BusterInputGroup = ({
   className,
   closeOnSelect,
   style,
-}: BusterInputGroupProps) => {
+}: MentionInputSuggestionsGroupProps) => {
   return (
     <Command.Group
       className={cn(
@@ -29,7 +29,7 @@ export const BusterInputGroup = ({
       style={style}
       heading={label}
     >
-      <BusterItemsSelector
+      <MentionInputSuggestionsItemsSelector
         suggestionItems={suggestionItems}
         onSelect={onSelect}
         addValueToInput={addValueToInput}

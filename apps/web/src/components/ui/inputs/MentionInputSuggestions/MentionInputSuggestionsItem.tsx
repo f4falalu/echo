@@ -1,16 +1,16 @@
 import { Command } from 'cmdk';
 import type React from 'react';
 import { cn } from '@/lib/utils';
-import type { BusterInputDropdownItem, BusterOnSelectParams } from './BusterInput.types';
+import type { MentionInputSuggestionsDropdownItem, MentionInputSuggestionsOnSelectParams } from './MentionInputSuggestions.types';
 
-export type BusterInputItemProps = {
-  onSelect: (d: BusterOnSelectParams) => void;
-} & BusterInputDropdownItem & {
+export type MentionInputSuggestionsItemProps = {
+  onSelect: (d: MentionInputSuggestionsOnSelectParams) => void;
+} & MentionInputSuggestionsDropdownItem & {
     className?: string;
     style?: React.CSSProperties;
   };
 
-export const BusterInputItem = ({
+export const MentionInputSuggestionsItem = ({
   value,
   inputValue,
   label,
@@ -24,7 +24,7 @@ export const BusterInputItem = ({
   addValueToInput,
   onSelect,
   ...props
-}: BusterInputItemProps) => {
+}: MentionInputSuggestionsItemProps) => {
   return (
     <Command.Item
       className={cn(

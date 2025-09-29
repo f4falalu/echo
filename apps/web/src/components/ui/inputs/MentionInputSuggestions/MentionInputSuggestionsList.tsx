@@ -1,19 +1,19 @@
 import { Command } from 'cmdk';
 import type React from 'react';
 
-interface BusterInputListProps {
+interface MentionInputSuggestionsListProps {
   className?: string;
   style?: React.CSSProperties;
   children: React.ReactNode;
   show?: boolean;
 }
 
-export const BusterInputList = ({
+export const MentionInputSuggestionsList = ({
   className,
   style,
   children,
   show = true,
-}: BusterInputListProps) => {
+}: MentionInputSuggestionsListProps) => {
   if (!show) return null;
   return (
     <Command.List className={className} style={style}>

@@ -100,6 +100,7 @@ export type MentionInputProps = {
   readOnly?: boolean;
   disabled?: boolean;
   commandListNavigatedRef?: React.RefObject<boolean>;
+  variant?: 'default' | 'ghost';
 };
 
 export type MentionInputRef = {

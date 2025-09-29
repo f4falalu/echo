@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
-import { BusterInput } from './BusterInput';
-import type { BusterInputProps } from './BusterInput.types';
+import { MentionInputSuggestions } from './MentionInputSuggestions';
+import type { MentionInputSuggestionsProps } from './MentionInputSuggestions.types';
 
-const meta: Meta<typeof BusterInput> = {
-  title: 'UI/Inputs/BusterInput',
-  component: BusterInput,
+const meta: Meta<typeof MentionInputSuggestions> = {
+  title: 'UI/Inputs/MentionInputSuggestions',
+  component: MentionInputSuggestions,
   decorators: [
     (Story) => (
       <div style={{ width: '300px', minHeight: '500px' }}>
@@ -16,9 +16,9 @@ const meta: Meta<typeof BusterInput> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof BusterInput>;
+type Story = StoryObj<typeof MentionInputSuggestions>;
 
-const items: BusterInputProps['suggestionItems'] = [
+const items: MentionInputSuggestionsProps['suggestionItems'] = [
   ...Array.from({ length: 3 }, (_, i) => ({
     label: `Item ${i + 1}`,
     value: `item${i + 1}`,
@@ -40,7 +40,7 @@ const items: BusterInputProps['suggestionItems'] = [
   },
 ];
 
-const mentions: BusterInputProps['mentions'] = [
+const mentions: MentionInputSuggestionsProps['mentions'] = [
   // {
   //   trigger: '@',
   //   items: [
@@ -79,5 +79,6 @@ export const Default: Story = {
     suggestionItems: items,
     mentions,
     onSubmit: fn(),
+    children: <div className="bg-red-100 min-h-20">Hello</div>,
   },
 };

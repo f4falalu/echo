@@ -3,6 +3,7 @@ import Document from '@tiptap/extension-document';
 import Paragraph from '@tiptap/extension-paragraph';
 import Text from '@tiptap/extension-text';
 import { EditorContent, EditorContext, useEditor } from '@tiptap/react';
+import { cva } from 'class-variance-authority';
 import { forwardRef, useImperativeHandle, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { MentionExtension } from './MentionExtension';
@@ -13,6 +14,15 @@ import type {
 } from './MentionInput.types';
 import { SubmitOnEnter } from './SubmitEnterExtension';
 import { onUpdateTransformer } from './update-transformers';
+
+const variants = cva('outline-0', {
+  variants: {
+    variant: {
+      default: '',
+      ghost: '',
+    },
+  },
+});
 
 export const MentionInput = forwardRef<MentionInputRef, MentionInputProps>(
   (
@@ -29,9 +39,11 @@ export const MentionInput = forwardRef<MentionInputRef, MentionInputProps>(
       disabled,
       onPressEnter,
       commandListNavigatedRef,
+      variant = 'default',
     },
     ref
   ) => {
+    const classes = variants({ variant });
     const mentionsByTrigger = useMemo(() => {
       return mentions.reduce(
         (acc, mention) => {
@@ -61,7 +73,7 @@ export const MentionInput = forwardRef<MentionInputRef, MentionInputProps>(
       editable: !disabled && !readOnly,
       editorProps: {
         attributes: {
-          class: cn('p-1 border rounded outline-0', className),
+          class: cn('p-1', classes, className),
         },
       },
       onUpdate: ({ editor }) => {

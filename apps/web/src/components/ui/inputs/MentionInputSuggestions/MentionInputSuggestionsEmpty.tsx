@@ -2,7 +2,7 @@ import { Command } from 'cmdk';
 import type React from 'react';
 import { cn } from '@/lib/utils';
 
-export const BusterInputEmpty = ({
+export const MentionInputSuggestionsEmpty = ({
   children,
   ...props
 }: React.ComponentPropsWithoutRef<typeof Command.Empty>) => {

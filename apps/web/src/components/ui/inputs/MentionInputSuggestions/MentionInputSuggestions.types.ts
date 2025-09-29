@@ -11,7 +11,7 @@ export type GroupOverrideProps = {
   closeOnSelect: boolean | undefined;
 };
 
-export type BusterInputDropdownItem<T = string> = {
+export type MentionInputSuggestionsDropdownItem<T = string> = {
   value: T;
   inputValue?: string; //if this is undefined, the label will be used (string casted), must have addValueToInput set to true
   label: string | React.ReactNode;
@@ -25,9 +25,9 @@ export type BusterInputDropdownItem<T = string> = {
   addValueToInput?: boolean; //defaults to group addValueToInput
 };
 
-export type BusterOnSelectParams = NonNullable<
+export type MentionInputSuggestionsOnSelectParams = NonNullable<
   Pick<
-    NonNullable<BusterInputDropdownItem>,
+    NonNullable<MentionInputSuggestionsDropdownItem>,
     | 'value'
     | 'label'
     | 'addValueToInput'
@@ -39,19 +39,19 @@ export type BusterOnSelectParams = NonNullable<
   >
 >;
 
-export type BusterInputDropdownGroup<T = string> = {
+export type MentionInputSuggestionsDropdownGroup<T = string> = {
   label: string | React.ReactNode;
-  suggestionItems: BusterInputDropdownItem<T>[];
+  suggestionItems: MentionInputSuggestionsDropdownItem<T>[];
   addValueToInput?: boolean;
   closeOnSelect?: boolean;
   type: 'group';
 };
 
-export type BusterInputSeperator = {
+export type MentionInputSuggestionsSeparator = {
   type: 'separator';
 };
 
-export type BusterInputProps<T = string> = {
+export type MentionInputSuggestionsProps<T = string> = {
   defaultValue: string;
   value?: string;
   onChange?: (value: string) => void;
@@ -63,30 +63,31 @@ export type BusterInputProps<T = string> = {
   onStop: () => void;
   variant?: 'default';
   autoFocus?: boolean;
-  sendIcon?: React.ReactNode;
-  secondaryActions?: React.ReactNode;
   placeholder?: string;
   ariaLabel?: string;
   emptyComponent?: React.ReactNode | string | false; //if false, no empty component will be shown
+  children?: React.ReactNode;
+  sendIcon?: React.ReactNode;
+  secondaryActions?: React.ReactNode;
   //mentions
   onMentionItemClick?: (params: MentionTriggerItem<T>) => void;
   mentions: MentionSuggestionExtension[];
   //suggestions
   suggestionItems: (
-    | BusterInputDropdownItem<T>
-    | BusterInputDropdownGroup<T>
-    | BusterInputSeperator
+    | MentionInputSuggestionsDropdownItem<T>
+    | MentionInputSuggestionsDropdownGroup<T>
+    | MentionInputSuggestionsSeparator
   )[];
-  onSuggestionItemClick?: (params: Omit<BusterOnSelectParams, 'onClick'>) => void;
+  onSuggestionItemClick?: (params: Omit<MentionInputSuggestionsOnSelectParams, 'onClick'>) => void;
   addSuggestionValueToInput?: boolean; //defaults to true
   closeSuggestionOnSelect?: boolean; //defaults to true
 } & Pick<React.ComponentProps<typeof Command>, 'filter' | 'shouldFilter'>;
 
-export type BusterInputContainerProps = {
+export type MentionInputSuggestionsContainerProps = {
   children: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
 } & Pick<
-  BusterInputProps,
+  MentionInputSuggestionsProps,
   'sendIcon' | 'secondaryActions' | 'submitting' | 'disabled' | 'onStop' | 'onSubmit' | 'variant'
 >;
