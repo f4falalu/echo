@@ -29,3 +29,10 @@ export {
   GetAssetLatestVersionInputSchema,
   type GetAssetLatestVersionInput,
 } from './get-asset-latest-version';
+
+export {
+  getUsersWithAssetPermissions,
+  GetUsersWithAssetPermissionsInputSchema,
+  type GetUsersWithAssetPermissionsInput,
+  type GetUsersWithAssetPermissionsResult,
+} from './get-users-with-asset-permissions';

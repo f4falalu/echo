@@ -5,7 +5,7 @@ import {
   getAssetsAssociatedWithMetric,
   getMetricFileById,
   getOrganizationMemberCount,
-  getUsersWithMetricPermissions,
+  getUsersWithAssetPermissions,
 } from '@buster/database/queries';
 import {
   type ChartConfigProps,
@@ -215,7 +215,7 @@ export async function buildMetricResponse(
   // Get the extra metric info concurrently
   const [individualPermissions, workspaceMemberCount, associatedAssets, publicEnabledBy] =
     await Promise.all([
-      getUsersWithMetricPermissions({ metricId: metricFile.id }),
+      getUsersWithAssetPermissions({ assetId: metricFile.id, assetType: 'metric_file' }),
       getOrganizationMemberCount(metricFile.organizationId),
       getAssetsAssociatedWithMetric(metricFile.id, userId),
       getPubliclyEnabledByUser(metricFile.publiclyEnabledBy),
