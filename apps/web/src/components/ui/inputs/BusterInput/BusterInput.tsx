@@ -95,26 +95,29 @@ export const BusterInput = ({
       if (showSuggestionList && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
         commandListNavigatedRef.current = true;
       }
+
+      // If Enter is pressed and command list was navigated, manually trigger selection
+      if (showSuggestionList && event.key === 'Enter' && commandListNavigatedRef.current) {
+        event.preventDefault();
+        event.stopPropagation();
+        // Find the currently selected item and trigger its click
+        const selectedItem = commandElement?.querySelector('[data-selected="true"]') as HTMLElement;
+        if (selectedItem) {
+          selectedItem.click();
+        }
+      }
     };
     const commandElement = commandRef.current;
     if (commandElement) {
-      commandElement.addEventListener('keydown', handleKeyDown);
+      commandElement.addEventListener('keydown', handleKeyDown, true); // Use capture phase
       return () => {
-        commandElement.removeEventListener('keydown', handleKeyDown);
+        commandElement.removeEventListener('keydown', handleKeyDown, true);
       };
     }
   }, [showSuggestionList]);
 
   return (
-    <Command
-      ref={commandRef}
-      value={value}
-      label={ariaLabel}
-      className="relative"
-      onValueChange={(v) => {
-        console.log('onValueChange', v);
-      }}
-    >
+    <Command ref={commandRef} value={value} label={ariaLabel} className="relative">
       <BusterInputContainer
         onSubmit={onSubmitPreflight}
         onStop={onStopPreflight}

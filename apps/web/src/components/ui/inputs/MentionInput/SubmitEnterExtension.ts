@@ -15,9 +15,9 @@ export const SubmitOnEnter = ({
     addKeyboardShortcuts() {
       return {
         Enter: ({ editor }) => {
-          // If command list has been navigated with arrow keys, let the command list handle Enter
+          // If command list has been navigated, don't handle here - let the parent handle it
           if (commandListNavigatedRef?.current) {
-            return !!onPressEnter; // Let the command list handle this
+            return !!onPressEnter;
           }
 
           // Otherwise, let Tiptap handle the Enter key
