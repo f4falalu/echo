@@ -1,13 +1,7 @@
 import { checkPermission } from '@buster/access-controls';
 import type { User } from '@buster/database/queries';
-import {
-  getChatWithDetails,
-  getMessagesForChatWithUserDetails,
-} from '@buster/database/queries';
-import {
-  type GetChatResponse,
-  GetChatRequestSchema,
-} from '@buster/server-shared/chats';
+import { getChatWithDetails, getMessagesForChatWithUserDetails } from '@buster/database/queries';
+import { GetChatRequestSchema, type GetChatResponse } from '@buster/server-shared/chats';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
