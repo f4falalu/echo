@@ -2,7 +2,7 @@ import { Command } from 'cmdk';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { cn } from '@/lib/utils';
-import type { MentionInputRef } from '../MentionInput';
+import type { MentionInputProps, MentionInputRef } from '../MentionInput';
 import type {
   MentionInputSuggestionsOnSelectParams,
   MentionInputSuggestionsProps,
@@ -19,10 +19,8 @@ export const MentionInputSuggestions = ({
   value: valueProp,
   emptyComponent,
   submitting,
-  onSubmit,
   onPressEnter,
-  disabled: disabledGlobal = false,
-  onStop,
+  disabled = false,
   onChange,
   ariaLabel = 'Mention Input Suggestions',
   readOnly,
@@ -53,13 +51,16 @@ export const MentionInputSuggestions = ({
 
   const showSuggestionList = !hasClickedSelect && suggestionItems.length > 0;
 
-  const onChangeInputValue = useCallback((value: string) => {
-    setValue(value);
-    setHasClickedSelect(false);
-    // Reset command list navigation when user types
-    commandListNavigatedRef.current = false;
-    onChange?.(value);
-  }, []);
+  const onChangeInputValue: MentionInputProps['onChange'] = useCallback(
+    (transformedValue, arrayValue, rawValue) => {
+      setValue(value);
+      setHasClickedSelect(false);
+      // Reset command list navigation when user types
+      commandListNavigatedRef.current = false;
+      onChange?.(transformedValue, arrayValue, rawValue);
+    },
+    []
+  );
 
   const onSelectItem = useMemoizedFn(
     ({ onClick, ...params }: MentionInputSuggestionsOnSelectParams) => {
@@ -87,22 +88,6 @@ export const MentionInputSuggestions = ({
       setHasResults(false);
     }
   );
-
-  const onSubmitPreflight = useMemoizedFn((value: string) => {
-    if (submitting) {
-      console.warn('Input is submitting');
-      return;
-    }
-    if (disabledGlobal) {
-      console.warn('Input is disabledGlobal');
-      return;
-    }
-    onSubmit(value);
-  });
-
-  const onStopPreflight = useMemoizedFn(() => {
-    onStop();
-  });
 
   // Track arrow key navigation in the command list
   useEffect(() => {
@@ -151,8 +136,9 @@ export const MentionInputSuggestions = ({
           value={value}
           onChange={onChangeInputValue}
           onMentionItemClick={onMentionItemClick}
-          onPressEnter={onPressEnter || onSubmit}
+          onPressEnter={onPressEnter}
           commandListNavigatedRef={commandListNavigatedRef}
+          disabled={disabled}
         />
         {children}
       </MentionInputSuggestionsContainer>

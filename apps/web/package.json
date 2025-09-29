@@ -122,6 +122,7 @@
     "@tiptap/extension-document": "^3.5.0",
     "@tiptap/extension-mention": "^3.5.0",
     "@tiptap/extension-paragraph": "^3.5.0",
+    "@tiptap/extension-placeholder": "^3.6.2",
     "@tiptap/extension-text": "^3.5.0",
     "@tiptap/pm": "^3.5.0",
     "@tiptap/react": "^3.5.0",

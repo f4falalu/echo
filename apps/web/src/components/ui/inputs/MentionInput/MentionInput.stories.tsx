@@ -296,6 +296,8 @@ const spongebobSuggestions = createMentionSuggestionExtension({
 
 export const Default: Story = {
   args: {
+    className: 'min-w-64',
+    placeholder: 'Enter text here...',
     mentions: [
       looneyTunesSuggestions,
       theSimpsonsSuggestions,

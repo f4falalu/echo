@@ -101,6 +101,7 @@ export type MentionInputProps = {
   disabled?: boolean;
   commandListNavigatedRef?: React.RefObject<boolean>;
   variant?: 'default' | 'ghost';
+  placeholder?: string;
 };
 
 export type MentionInputRef = {

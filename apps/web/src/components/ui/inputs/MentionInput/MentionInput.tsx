@@ -1,6 +1,7 @@
 import { ClientOnly } from '@tanstack/react-router';
 import Document from '@tiptap/extension-document';
 import Paragraph from '@tiptap/extension-paragraph';
+import Placeholder from '@tiptap/extension-placeholder';
 import Text from '@tiptap/extension-text';
 import { EditorContent, EditorContext, useEditor } from '@tiptap/react';
 import { cva } from 'class-variance-authority';
@@ -39,6 +40,7 @@ export const MentionInput = forwardRef<MentionInputRef, MentionInputProps>(
       disabled,
       onPressEnter,
       commandListNavigatedRef,
+      placeholder = '',
       variant = 'default',
     },
     ref
@@ -61,6 +63,7 @@ export const MentionInput = forwardRef<MentionInputRef, MentionInputProps>(
         Document,
         Paragraph,
         Text,
+        Placeholder.configure({ placeholder }),
         MentionExtension(mentions),
         SubmitOnEnter({
           mentionsByTrigger,
@@ -100,7 +103,11 @@ export const MentionInput = forwardRef<MentionInputRef, MentionInputProps>(
     return (
       <ClientOnly>
         <EditorContext.Provider value={providerValue}>
-          <EditorContent className="outline-0" editor={editor} style={style} />
+          <EditorContent
+            className="outline-0 [&_p.is-editor-empty:first-child:before]:text-gray-light/80 [&_p.is-editor-empty:first-child:before]:content-[attr(data-placeholder)] [&_p.is-editor-empty:first-child:before]:float-left [&_p.is-editor-empty:first-child:before]:h-0 [&_p.is-editor-empty:first-child:before]:pointer-events-none"
+            editor={editor}
+            style={style}
+          />
         </EditorContext.Provider>
       </ClientOnly>
     );

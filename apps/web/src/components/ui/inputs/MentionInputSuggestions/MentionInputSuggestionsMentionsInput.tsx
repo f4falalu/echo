@@ -6,7 +6,7 @@ import type { MentionInputSuggestionsProps } from './MentionInputSuggestions.typ
 
 export type MentionInputSuggestionsMentionsInputProps = Pick<
   MentionInputSuggestionsProps,
-  'mentions' | 'value' | 'placeholder' | 'defaultValue' | 'onMentionItemClick'
+  'mentions' | 'value' | 'placeholder' | 'defaultValue' | 'onMentionItemClick' | 'disabled'
 > & {
   onChange: MentionInputProps['onChange'];
   onPressEnter: MentionInputProps['onPressEnter'];

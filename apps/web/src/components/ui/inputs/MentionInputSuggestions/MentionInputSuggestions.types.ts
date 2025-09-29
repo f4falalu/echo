@@ -54,13 +54,11 @@ export type MentionInputSuggestionsSeparator = {
 export type MentionInputSuggestionsProps<T = string> = {
   defaultValue: string;
   value?: string;
-  onChange?: (value: string) => void;
   submitting?: boolean;
   disabled?: boolean;
   readOnly?: boolean;
-  onSubmit: (value: string) => void;
+  onChange?: MentionInputProps['onChange'];
   onPressEnter: MentionInputProps['onPressEnter'];
-  onStop: () => void;
   autoFocus?: boolean;
   placeholder?: string;
   ariaLabel?: string;
@@ -87,4 +85,4 @@ export type MentionInputSuggestionsContainerProps = {
   children: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
-} & Pick<MentionInputSuggestionsProps, 'submitting' | 'disabled' | 'onStop' | 'onSubmit'>;
+} & Pick<MentionInputSuggestionsProps, 'submitting' | 'disabled' | 'onPressEnter'>;
