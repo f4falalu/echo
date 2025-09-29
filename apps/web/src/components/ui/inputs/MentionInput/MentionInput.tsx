@@ -73,8 +73,8 @@ export const MentionInput = forwardRef<MentionInputRef, MentionInputProps>(
         Placeholder.configure({ placeholder }),
         MentionExtension(mentions),
         SubmitOnEnter({
-          mentionsByTrigger,
           onPressEnter,
+          mentionsByTrigger,
           commandListNavigatedRef,
         }),
       ],

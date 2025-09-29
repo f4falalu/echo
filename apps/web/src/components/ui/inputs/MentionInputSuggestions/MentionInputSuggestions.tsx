@@ -156,7 +156,6 @@ export const MentionInputSuggestions = forwardRef<
     return (
       <Command
         ref={commandRef}
-        value={value}
         label={ariaLabel}
         className={cn('relative border rounded overflow-hidden bg-background shadow', className)}
         shouldFilter={shouldFilter}

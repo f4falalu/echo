@@ -2,6 +2,7 @@ import type { ListShortcutsResponse } from '@buster/server-shared/shortcuts';
 import type { GetSuggestedPromptsResponse } from '@buster/server-shared/user';
 import sampleSize from 'lodash/sampleSize';
 import React, { useMemo, useRef, useState } from 'react';
+import { createShortcutsMentionsSuggestions } from '@/components/features/input/Mentions/ShortcutsSuggestions/ShortcutsSuggestions';
 import { Plus } from '@/components/ui/icons';
 import type { MentionSuggestionExtension } from '@/components/ui/inputs/MentionInput';
 import type {
@@ -48,7 +49,7 @@ export const BusterChatInputBase: React.FC<BusterChatInput> = React.memo(
     }, [uniqueSuggestions, shortcutsSuggestions]);
 
     const mentions: MentionSuggestionExtension[] = useMemo(() => {
-      return [];
+      return [createShortcutsMentionsSuggestions(shortcuts)];
     }, [shortcuts]);
 
     const onDictate = useMemoizedFn((transcript: string) => {
@@ -153,6 +154,7 @@ const useShortcuts = (
         value: shortcut.name,
         label: shortcut.name,
         icon: '/',
+        inputValue: `/ ${shortcut.name}`,
       };
     });
 
@@ -161,6 +163,7 @@ const useShortcuts = (
       value: 'createShortcut',
       label: 'Create shortcut',
       icon: <Plus />,
+      inputValue: '/ Create shortcut',
       onClick: () => {
         console.log('createShortcut');
       },

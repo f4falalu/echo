@@ -10,21 +10,21 @@ import {
 } from '@/components/ui/inputs/MentionInput';
 import { ShortcutPopoverContent } from './ShortcutPopoverContent';
 
-export const createShortcutsSuggestions = (shortcutsResponse: ListShortcutsResponse) => {
-  return useMemo(
-    () =>
-      createMentionSuggestionExtension({
-        trigger: '/',
-        items: createAllItems(shortcutsResponse),
-        popoverContent: ShortcutPopoverContent,
-      }),
-    [shortcutsResponse]
-  );
+export const createShortcutsMentionsSuggestions = (
+  shortcuts: ListShortcutsResponse['shortcuts']
+) => {
+  return createMentionSuggestionExtension({
+    trigger: '/',
+    items: createAllItems(shortcuts),
+    popoverContent: ShortcutPopoverContent,
+  });
 };
 
-const createAllItems = (shortcutsResponse: ListShortcutsResponse): MentionInputTriggerItem[] => {
+const createAllItems = (
+  shortcuts: ListShortcutsResponse['shortcuts']
+): MentionInputTriggerItem[] => {
   return [
-    ...shortcutsResponse.shortcuts.map(createShortcut),
+    ...shortcuts.map(createShortcut),
     { type: 'separator' },
     {
       value: 'manageShortcuts',

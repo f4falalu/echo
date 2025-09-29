@@ -57,6 +57,8 @@ export const createMentionSuggestionExtension = ({
         element.style.left = `${rect.left}px`;
         element.style.top = `${rect.top}px`;
         element.style.transform = `translateY(1.15lh)`;
+        element.classList.add('z-50');
+        element.classList.add('shadow');
 
         document.body.appendChild(component.element);
       },
