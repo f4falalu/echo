@@ -1,5 +1,6 @@
 import React from 'react';
-import { Magnifier, Sparkle2 } from '@/components/ui/icons';
+import { Button } from '@/components/ui/buttons';
+import { ArrowUp, Magnifier, Sparkle2 } from '@/components/ui/icons';
 import Atom from '@/components/ui/icons/NucleoIconOutlined/atom';
 import { Popover } from '@/components/ui/popover';
 import { AppSegmented, type AppSegmentedProps } from '@/components/ui/segmented';
@@ -28,6 +29,21 @@ export const BusterChatInputButtons = ({
   return (
     <div className="flex justify-between items-center gap-2">
       <AppSegmented value={mode} options={modesOptions} onChange={(v) => onModeChange(v.value)} />
+
+      <div>
+        <Button
+          rounding={'large'}
+          variant="black"
+          prefix={<ArrowUp />}
+          onClick={submitting ? onStop : onSubmit}
+          loading={submitting}
+          disabled={disabled}
+          className={cn(
+            'origin-center transform-gpu transition-all duration-300 ease-out will-change-transform',
+            !disabled && 'hover:scale-110 active:scale-95'
+          )}
+        />
+      </div>
     </div>
   );
 };
