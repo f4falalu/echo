@@ -1,25 +1,36 @@
 {
   "$schema": "https://turborepo.com/schema.json",
-  "extends": ["//"],
+  "extends": [
+    "//"
+  ],
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**"]
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
     },
     "db:init": {
       "cache": false,
       "persistent": false,
-      "dependsOn": ["db:seed", "@buster-app/supabase#start"]
+      "dependsOn": [
+        "db:seed",
+        "@buster-app/supabase#start"
+      ]
     },
     "db:migrate": {
       "cache": false,
-      "persistent": false,
-      "dependsOn": ["@buster-app/supabase#start"]
+      "persistent": false
     },
     "db:seed": {
       "cache": false,
       "persistent": false,
-      "dependsOn": ["db:migrate", "@buster-app/supabase#start"]
+      "dependsOn": [
+        "db:migrate",
+        "@buster-app/supabase#start"
+      ]
     },
     "db:dump": {
       "cache": false,
