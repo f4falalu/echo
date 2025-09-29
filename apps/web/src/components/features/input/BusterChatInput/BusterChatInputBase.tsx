@@ -80,6 +80,7 @@ export const BusterChatInputBase: React.FC<BusterChatInput> = React.memo(
           disabled={disabled}
           mode="auto"
           onModeChange={() => {}}
+          onDictate={() => {}}
         />
       </MentionInputSuggestions>
     );

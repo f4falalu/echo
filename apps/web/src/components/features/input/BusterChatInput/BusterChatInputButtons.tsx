@@ -1,7 +1,10 @@
-import React from 'react';
+import type React from 'react';
+import { useEffect } from 'react';
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import { Button } from '@/components/ui/buttons';
 import { ArrowUp, Magnifier, Sparkle2 } from '@/components/ui/icons';
 import Atom from '@/components/ui/icons/NucleoIconOutlined/atom';
+import Microphone from '@/components/ui/icons/NucleoIconOutlined/microphone';
 import { Popover } from '@/components/ui/popover';
 import { AppSegmented, type AppSegmentedProps } from '@/components/ui/segmented';
 import { Text } from '@/components/ui/typography';
@@ -16,6 +19,7 @@ type BusterChatInputButtons = {
   disabled: boolean;
   mode: BusterChatInputMode;
   onModeChange: (mode: BusterChatInputMode) => void;
+  onDictate: (transcript: string) => void;
 };
 
 export const BusterChatInputButtons = ({
@@ -25,15 +29,48 @@ export const BusterChatInputButtons = ({
   disabled,
   mode,
   onModeChange,
+  onDictate,
 }: BusterChatInputButtons) => {
+  const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } =
+    useSpeechRecognition();
+
+  const startListening = () => {
+    SpeechRecognition.startListening({ continuous: true });
+  };
+
+  const stopListening = () => {
+    SpeechRecognition.stopListening();
+  };
+
+  useEffect(() => {
+    if (listening && transcript) {
+      onDictate(transcript);
+    }
+  }, [listening, transcript, onDictate]);
+
   return (
     <div className="flex justify-between items-center gap-2">
       <AppSegmented value={mode} options={modesOptions} onChange={(v) => onModeChange(v.value)} />
 
-      <div>
+      <div className="flex items-center gap-2">
+        {browserSupportsSpeechRecognition && (
+          <Button
+            rounding={'large'}
+            variant={'ghost'}
+            prefix={<Microphone />}
+            onClick={listening ? stopListening : startListening}
+            loading={submitting}
+            disabled={disabled}
+            className={cn(
+              'origin-center transform-gpu transition-all duration-300 ease-out will-change-transform text-text-secondary',
+              !disabled && 'hover:scale-110 active:scale-95',
+              listening && 'bg-item-select text-foreground'
+            )}
+          />
+        )}
         <Button
           rounding={'large'}
-          variant="black"
+          variant={'default'}
           prefix={<ArrowUp />}
           onClick={submitting ? onStop : onSubmit}
           loading={submitting}

@@ -48,7 +48,6 @@ export const MentionInputSuggestions = ({
   const commandListNavigatedRef = useRef(false);
   const commandRef = useRef<HTMLDivElement>(null);
   const mentionsInputRef = useRef<MentionInputRef>(null);
-  console.log(hasResults);
 
   const showSuggestionList = !hasClickedSelect && suggestionItems.length > 0;
 
@@ -116,6 +115,8 @@ export const MentionInputSuggestions = ({
       };
     }
   }, [showSuggestionList]);
+
+  useImperativeHandle(ref, () => ({}), []);
 
   return (
     <Command
