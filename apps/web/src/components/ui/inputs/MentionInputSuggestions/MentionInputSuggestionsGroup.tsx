@@ -1,7 +1,10 @@
 import { Command } from 'cmdk';
 import type React from 'react';
 import { cn } from '@/lib/utils';
-import type { MentionInputSuggestionsDropdownGroup, MentionInputSuggestionsOnSelectParams } from './MentionInputSuggestions.types';
+import type {
+  MentionInputSuggestionsDropdownGroup,
+  MentionInputSuggestionsOnSelectParams,
+} from './MentionInputSuggestions.types';
 import { MentionInputSuggestionsItemsSelector } from './MentionInputSuggestionsItemSelector';
 
 export type MentionInputSuggestionsGroupProps = MentionInputSuggestionsDropdownGroup & {
@@ -9,6 +12,8 @@ export type MentionInputSuggestionsGroupProps = MentionInputSuggestionsDropdownG
 } & {
   className?: string;
   style?: React.CSSProperties;
+  hasResults: boolean;
+  setHasResults: (hasResults: boolean) => void;
 };
 
 export const MentionInputSuggestionsGroup = ({
@@ -19,6 +24,7 @@ export const MentionInputSuggestionsGroup = ({
   className,
   closeOnSelect,
   style,
+  ...rest
 }: MentionInputSuggestionsGroupProps) => {
   return (
     <Command.Group
@@ -34,6 +40,7 @@ export const MentionInputSuggestionsGroup = ({
         onSelect={onSelect}
         addValueToInput={addValueToInput}
         closeOnSelect={closeOnSelect}
+        {...rest}
       />
     </Command.Group>
   );

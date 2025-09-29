@@ -16,7 +16,6 @@ export type MentionInputSuggestionsDropdownItem<T = string> = {
   value: T;
   inputValue?: string; //if this is undefined, the label will be used (string casted), must have addValueToInput set to true
   label: string | React.ReactNode;
-  shortcut?: string;
   icon?: React.ReactNode;
   onClick?: () => void;
   disabled?: boolean;

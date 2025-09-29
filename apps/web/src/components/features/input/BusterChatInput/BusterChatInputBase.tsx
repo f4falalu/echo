@@ -2,8 +2,10 @@ import type { ListShortcutsResponse } from '@buster/server-shared/shortcuts';
 import type { GetSuggestedPromptsResponse } from '@buster/server-shared/user';
 import sampleSize from 'lodash/sampleSize';
 import React, { useMemo, useRef, useState } from 'react';
+import { Plus } from '@/components/ui/icons';
 import type { MentionSuggestionExtension } from '@/components/ui/inputs/MentionInput';
 import type {
+  MentionInputSuggestionsDropdownItem,
   MentionInputSuggestionsProps,
   MentionInputSuggestionsRef,
 } from '@/components/ui/inputs/MentionInputSuggestions';
@@ -145,12 +147,33 @@ const useShortcuts = (
   shortcuts: ListShortcutsResponse['shortcuts']
 ): MentionInputSuggestionsProps['suggestionItems'] => {
   return useMemo(() => {
-    return shortcuts.map((shortcut) => {
+    const shortcutsItems = shortcuts.map<MentionInputSuggestionsDropdownItem>((shortcut) => {
       return {
         type: 'item',
         value: shortcut.name,
         label: shortcut.name,
+        icon: '/',
       };
     });
+
+    shortcutsItems.push({
+      type: 'item',
+      value: 'createShortcut',
+      label: 'Create shortcut',
+      icon: <Plus />,
+      onClick: () => {
+        console.log('createShortcut');
+      },
+    });
+
+    return [
+      {
+        type: 'group',
+        label: 'Shortcuts',
+        suggestionItems: shortcutsItems,
+        addValueToInput: false,
+        closeOnSelect: true,
+      },
+    ];
   }, [shortcuts]);
 };
