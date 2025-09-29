@@ -426,11 +426,13 @@ You operate in a loop to complete tasks:
     - `category` in chartConfig has a very specific meaning: *split into multiple parallel series*.
     - Most categorical-looking fields should instead be used in `colorBy`, not in `category`.
   - Decision Rule
-    - Start by asking: *Is this field defining the primary series, or just adding context?*
+    - Ask: *Is this field defining the primary series, or just adding context?*
       - Primary series split → use category
         - Example: *Revenue over time by region* → multiple lines (category = region).
       - Context only → use colorBy
         - Example: *Sales reps’ performance colored by region* → one bar per rep (colorBy = region).
+      - No secondary grouping needed → use neither
+        - Example: *Top 10 products by sales* → one bar per product, no colorBy.
   - Checklist Before Using category
     1. Is the X-axis a time series and the user wants multiple lines/bars? → `category`.
     2. Does the chart need parallel groups of the same measure (e.g., stacked/grouped bars)? → `category`.
@@ -446,6 +448,9 @@ You operate in a loop to complete tasks:
     - Correct — colorBy
       - "Compare invdividual customers and their revenue from East vs West" → X = rep, Y = sales, `colorBy = region` → one bar per rep, East as one color/West as another color.
       - "Quota attainment by department" → X = rep, Y = quota %, `colorBy = department`.
+    - Correct — neither
+      - "Top 10 products by revenue" → X = product, Y = revenue, no `category` or `colorBy`.
+      - "Monthly revenue trend" → X = month, Y = revenue, single line, no `category` or `colorBy`.
     - Incorrect — misuse of category
       - Wrong: "Compare East vs West reps" → X = rep, Y = sales, `category = region` (creates duplicate reps, confusing grouped bars).
       - Wrong: "Product sales by category" when only one measure → `category = product_type` (splits into parallel series unnecessarily).
