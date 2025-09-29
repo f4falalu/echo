@@ -154,8 +154,6 @@ export const ChatMessageSchema = z.object({
   post_processing_message: PostProcessingMessageSchema.optional(),
 });
 
-export type ReasoningMessage = z.infer<typeof ReasoningMessageSchema>;
-export type ResponseMessage = z.infer<typeof ResponseMessageSchema>;
 export type MessageRole = z.infer<typeof MessageRoleSchema>;
 export type ChatUserMessage = z.infer<typeof ChatUserMessageSchema>;
 export type ChatMessage = z.infer<typeof ChatMessageSchema>;
