@@ -15,6 +15,7 @@ export const BusterInput = ({
   emptyComponent,
   submitting,
   onSubmit,
+  onPressEnter,
   disabled: disabledGlobal = false,
   onStop,
   sendIcon,
@@ -105,6 +106,7 @@ export const BusterInput = ({
           shouldFilter={shouldFilter}
           filter={filter}
           onMentionItemClick={onMentionItemClick}
+          onPressEnter={onPressEnter || onSubmit}
         />
       </BusterInputContainer>
       <BusterInputList show={showSuggestionList}>

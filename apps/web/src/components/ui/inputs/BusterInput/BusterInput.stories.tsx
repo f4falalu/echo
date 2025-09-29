@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { fn } from 'storybook/test';
 import { BusterInput } from './BusterInput';
 import type { BusterInputProps } from './BusterInput.types';
 
 const meta: Meta<typeof BusterInput> = {
   title: 'UI/Inputs/BusterInput',
   component: BusterInput,
-  tags: ['autodocs'],
   decorators: [
     (Story) => (
       <div style={{ width: '300px', minHeight: '500px' }}>
@@ -78,5 +78,6 @@ export const Default: Story = {
     value: 'Sample text value',
     suggestionItems: items,
     mentions,
+    onSubmit: fn(),
   },
 };

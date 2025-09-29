@@ -1,7 +1,7 @@
 import type { Command } from 'cmdk';
 import type React from 'react';
 import type { MentionSuggestionExtension } from '../MentionInput';
-import type { MentionTriggerItem } from '../MentionInput/MentionInput.types';
+import type { MentionInputProps, MentionTriggerItem } from '../MentionInput/MentionInput.types';
 
 /**
  * @description Override the addValueToInput and closeOnSelect props for the item based on the group props
@@ -59,6 +59,7 @@ export type BusterInputProps<T = string> = {
   disabled?: boolean;
   readOnly?: boolean;
   onSubmit: (value: string) => void;
+  onPressEnter: MentionInputProps['onPressEnter'];
   onStop: () => void;
   variant?: 'default';
   autoFocus?: boolean;

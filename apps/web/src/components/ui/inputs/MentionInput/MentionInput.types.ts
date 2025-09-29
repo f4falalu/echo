@@ -90,6 +90,7 @@ export type MentionOnChangeParams = (
 export type MentionInputProps = {
   mentions: MentionSuggestionExtension[];
   onChange: MentionOnChangeParams;
+  onPressEnter?: MentionOnChangeParams;
   onFocus?: (v: EditorEvents['focus']) => void;
   onBlur?: (v: EditorEvents['blur']) => void;
   defaultValue?: string;
