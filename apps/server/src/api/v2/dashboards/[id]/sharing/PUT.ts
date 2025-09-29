@@ -2,41 +2,41 @@ import { checkPermission } from '@buster/access-controls';
 import {
   bulkCreateAssetPermissions,
   findUsersByEmails,
-  getReportFileById,
+  getDashboardById,
   getUserOrganizationId,
-  updateReport,
+  updateDashboard,
 } from '@buster/database/queries';
 import type { User } from '@buster/database/queries';
-import type { ShareUpdateResponse, UpdateReportResponse } from '@buster/server-shared/reports';
+import type { GetDashboardResponse } from '@buster/server-shared/dashboards';
 import { type ShareUpdateRequest, ShareUpdateRequestSchema } from '@buster/server-shared/share';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-import { getReportHandler } from '../GET';
+import { getDashboardHandler } from '../GET';
 
-export async function updateReportShareHandler(
-  reportId: string,
+export async function updateDashboardShareHandler(
+  dashboardId: string,
   request: ShareUpdateRequest,
   user: User & { organizationId: string }
 ) {
-  // Check if report exists
-  const report = await getReportFileById({ reportId, userId: user.id });
-  if (!report) {
-    throw new HTTPException(404, { message: 'Report not found' });
+  // Check if dashboard exists
+  const dashboard = await getDashboardById({ dashboardId });
+  if (!dashboard) {
+    throw new HTTPException(404, { message: 'Dashboard not found' });
   }
 
   const permissionCheck = await checkPermission({
     userId: user.id,
-    assetId: reportId,
-    assetType: 'report_file',
+    assetId: dashboardId,
+    assetType: 'dashboard_file',
     requiredRole: 'full_access',
-    workspaceSharing: report.workspace_sharing,
-    organizationId: report.organization_id,
+    workspaceSharing: dashboard.workspaceSharing,
+    organizationId: dashboard.organizationId,
   });
 
   if (!permissionCheck.hasAccess) {
     throw new HTTPException(403, {
-      message: 'You do not have permission to update sharing for this report',
+      message: 'You do not have permission to update sharing for this dashboard',
     });
   }
 
@@ -81,8 +81,8 @@ export async function updateReportShareHandler(
       permissions.push({
         identityId: targetUser.id,
         identityType: 'user' as const,
-        assetId: reportId,
-        assetType: 'report_file' as const,
+        assetId: dashboardId,
+        assetType: 'dashboard_file' as const,
         role: mappedRole,
         createdBy: user.id,
       });
@@ -94,31 +94,28 @@ export async function updateReportShareHandler(
     }
   }
 
-  // Update report sharing settings
-  await updateReport(
-    {
-      reportId,
-      userId: user.id,
-      publicly_accessible,
-      public_expiry_date,
-      public_password,
-      workspace_sharing,
-    },
-    false
-  );
+  // Update dashboard sharing settings
+  await updateDashboard({
+    dashboardId,
+    userId: user.id,
+    publicly_accessible,
+    public_expiry_date,
+    public_password,
+    workspace_sharing,
+  });
 
-  const updatedReport: UpdateReportResponse = await getReportHandler(reportId, user);
+  const updatedDashboard: GetDashboardResponse = await getDashboardHandler({ dashboardId }, user);
 
-  return updatedReport;
+  return updatedDashboard;
 }
 
 const app = new Hono().put('/', zValidator('json', ShareUpdateRequestSchema), async (c) => {
-  const reportId = c.req.param('id');
+  const dashboardId = c.req.param('id');
   const request = c.req.valid('json');
   const user = c.get('busterUser');
 
-  if (!reportId) {
-    throw new HTTPException(404, { message: 'Report not found' });
+  if (!dashboardId) {
+    throw new HTTPException(404, { message: 'Dashboard not found' });
   }
 
   const userOrg = await getUserOrganizationId(user.id);
@@ -127,12 +124,16 @@ const app = new Hono().put('/', zValidator('json', ShareUpdateRequestSchema), as
     throw new HTTPException(403, { message: 'User is not associated with an organization' });
   }
 
-  const updatedReport: ShareUpdateResponse = await updateReportShareHandler(reportId, request, {
-    ...user,
-    organizationId: userOrg.organizationId,
-  });
+  const updatedDashboard: GetDashboardResponse = await updateDashboardShareHandler(
+    dashboardId,
+    request,
+    {
+      ...user,
+      organizationId: userOrg.organizationId,
+    }
+  );
 
-  return c.json(updatedReport);
+  return c.json(updatedDashboard);
 });
 
 export default app;
