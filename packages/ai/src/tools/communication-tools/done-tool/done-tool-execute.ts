@@ -38,7 +38,7 @@ async function processDone(
 
   // Create the response message with complete data
   const doneToolResponseEntry = createDoneToolResponseMessage(updatedState, toolCallId);
-  
+
   // Create both the tool call and result messages to maintain proper ordering
   const rawLlmMessage = createDoneToolRawLlmMessageEntry(updatedState, toolCallId);
   const rawToolResultEntry = createRawToolResultEntry(toolCallId, DONE_TOOL_NAME, output);
@@ -75,9 +75,13 @@ export function createDoneToolExecute(context: DoneToolContext, state: DoneToolS
         throw new Error('Tool call ID is required');
       }
 
+      // CRITICAL: Wait for ALL pending updates from delta/finish to complete FIRST
+      // This ensures execute's update is always the last one in the queue
+      await waitForPendingUpdates(context.messageId);
+
+      // Now do the final authoritative update with the complete input
       const result = await processDone(state, state.toolCallId, context.messageId, context, input);
 
-      // Wait for all pending updates from delta/finish to complete before returning
       await waitForPendingUpdates(context.messageId);
 
       cleanupState(state);

@@ -35,6 +35,7 @@ export const createTickDates = (
     if (isAQuarter !== -1) {
       return createQuarterTickDates(ticks, xColumnLabelFormats, isAQuarter);
     }
+
     const dateTicks = ticks.flatMap((item) => {
       return item.map<Date>((item) => {
         return createDayjsDate(item as string).toDate(); //do not join because it will turn into a string

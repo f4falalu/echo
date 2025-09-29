@@ -149,23 +149,29 @@ describe('getChartTypeDropZones', () => {
         barLayout: 'vertical', // barLayout doesn't affect line charts
       });
 
-      expect(result).toHaveLength(4);
+      expect(result).toHaveLength(5);
       expect(result[0]).toEqual({
         id: SelectAxisContainerId.XAxis,
         title: 'X-Axis',
         items: ['date_column'],
       });
+
       expect(result[1]).toEqual({
         id: SelectAxisContainerId.YAxis,
         title: 'Y-Axis',
         items: ['sales', 'profit'],
       });
       expect(result[2]).toEqual({
+        id: SelectAxisContainerId.ColorBy,
+        title: 'Color By',
+        items: [],
+      });
+      expect(result[3]).toEqual({
         id: SelectAxisContainerId.CategoryAxis,
         title: 'Category',
         items: [],
       });
-      expect(result[3]).toEqual({
+      expect(result[4]).toEqual({
         id: SelectAxisContainerId.Tooltip,
         title: 'Tooltip',
         items: ['additional_info'],
