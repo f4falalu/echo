@@ -364,6 +364,186 @@ export class SnowflakeAdapter extends BaseAdapter {
   }
 
   /**
+   * Check if a table exists in Snowflake
+   */
+  override async tableExists(database: string, schema: string, tableName: string): Promise<boolean> {
+    this.ensureConnected();
+
+    if (!this.connection) {
+      throw new Error('Snowflake connection not initialized');
+    }
+
+    try {
+      const sql = `
+        SELECT COUNT(*) as count
+        FROM "${database}".INFORMATION_SCHEMA.TABLES
+        WHERE TABLE_SCHEMA = '${schema.toUpperCase()}'
+        AND TABLE_NAME = '${tableName.toUpperCase()}'
+      `;
+
+      const result = await this.query(sql);
+      const firstRow = result.rows[0] as { count?: number } | undefined;
+      return !!firstRow && (firstRow.count ?? 0) > 0;
+    } catch (error) {
+      console.error('Error checking table existence:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Create the Buster logs table in Snowflake
+   */
+  override async createLogsTable(
+    database: string,
+    schema: string,
+    tableName: string = 'BUSTER_QUERY_LOGS'
+  ): Promise<void> {
+    this.ensureConnected();
+
+    if (!this.connection) {
+      throw new Error('Snowflake connection not initialized');
+    }
+
+    const createTableSQL = `
+      CREATE TABLE IF NOT EXISTS "${database}"."${schema}"."${tableName}" (
+        message_id VARCHAR(255),
+        user_email VARCHAR(500),
+        user_name VARCHAR(500),
+        chat_id VARCHAR(255),
+        chat_link VARCHAR(500),
+        request_message TEXT,
+        created_at TIMESTAMP_TZ,
+        duration_seconds NUMBER,
+        confidence_score VARCHAR(50),
+        assumptions VARIANT,
+        inserted_at TIMESTAMP_TZ DEFAULT CURRENT_TIMESTAMP()
+      )
+    `;
+
+    try {
+      await this.query(createTableSQL);
+      console.info(`Table ${database}.${schema}.${tableName} created successfully`);
+    } catch (error) {
+      throw classifyError(error);
+    }
+  }
+
+  /**
+   * Insert a log record into the Snowflake table
+   */
+  override async insertLogRecord(
+    database: string,
+    schema: string,
+    tableName: string,
+    record: {
+      messageId: string;
+      userEmail: string;
+      userName: string;
+      chatId: string;
+      chatLink: string;
+      requestMessage: string;
+      createdAt: Date;
+      durationSeconds: number;
+      confidenceScore: string;
+      assumptions: unknown[];
+    }
+  ): Promise<void> {
+    this.ensureConnected();
+
+    if (!this.connection) {
+      throw new Error('Snowflake connection not initialized');
+    }
+
+    // Convert assumptions array to JSON string for VARIANT column
+    const assumptionsJson = JSON.stringify(record.assumptions);
+
+    const insertSQL = `
+      INSERT INTO "${database}"."${schema}"."${tableName}" (
+        message_id, 
+        user_email, 
+        user_name, 
+        chat_id,
+        chat_link,
+        request_message,
+        created_at, 
+        duration_seconds, 
+        confidence_score, 
+        assumptions
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, PARSE_JSON(?))
+    `;
+
+    const params = [
+      record.messageId,
+      record.userEmail,
+      record.userName,
+      record.chatId,
+      record.chatLink,
+      record.requestMessage,
+      record.createdAt.toISOString(),
+      record.durationSeconds,
+      record.confidenceScore,
+      assumptionsJson,
+    ];
+
+    try {
+      await this.query(insertSQL, params);
+      console.info(`Log record inserted for message ${record.messageId}`);
+    } catch (error) {
+      throw classifyError(error);
+    }
+  }
+
+  /**
+   * Execute a write operation (INSERT, UPDATE, DELETE)
+   * This is a generic method for any write operations
+   */
+  override async executeWrite(
+    sql: string,
+    params?: QueryParameter[],
+    timeout?: number
+  ): Promise<{ rowCount: number }> {
+    this.ensureConnected();
+
+    if (!this.connection) {
+      throw new Error('Snowflake connection not initialized');
+    }
+
+    // Update activity timestamp
+    this.lastActivity = Date.now();
+
+    try {
+      // For write operations, we don't need streaming
+      const result = await new Promise<{ rowCount: number }>((resolve, reject) => {
+        if (!this.connection) {
+          reject(new Error('Failed to acquire Snowflake connection'));
+          return;
+        }
+
+        this.connection.execute({
+          sqlText: sql,
+          binds: params as snowflake.Binds,
+          streamResult: false, // Don't stream for write operations
+          complete: (err: SnowflakeError | undefined, stmt: SnowflakeStatement, rows?: any[]) => {
+            if (err) {
+              reject(new Error(`Snowflake write operation failed: ${err.message}`));
+              return;
+            }
+
+            // For write operations, Snowflake returns affected row count
+            resolve({
+              rowCount: Array.isArray(rows) ? rows.length : 0,
+            });
+          },
+        });
+      });
+
+      return result;
+    } catch (error) {
+      throw classifyError(error, { sql, timeout: timeout || TIMEOUT_CONFIG.query.default });
+    }
+  }
+
+  /**
    * Static method to cleanup warm connections
    * Should be called on application shutdown
    */

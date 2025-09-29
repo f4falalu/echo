@@ -100,6 +100,58 @@ export abstract class BaseAdapter implements DatabaseAdapter {
   abstract introspect(): DataSourceIntrospector;
 
   /**
+   * Optional: Check if a logs table exists (for writeback functionality)
+   */
+  async tableExists?(database: string, schema: string, tableName: string): Promise<boolean> {
+    throw new Error('Logs writeback not implemented for this adapter');
+  }
+
+  /**
+   * Optional: Create the Buster logs table (for writeback functionality)
+   */
+  async createLogsTable?(
+    database: string,
+    schema: string,
+    tableName?: string
+  ): Promise<void> {
+    throw new Error('Logs writeback not implemented for this adapter');
+  }
+
+  /**
+   * Optional: Insert a log record into the table (for writeback functionality)
+   */
+  async insertLogRecord?(
+    database: string,
+    schema: string,
+    tableName: string,
+    record: {
+      messageId: string;
+      userEmail: string;
+      userName: string;
+      chatId: string;
+      chatLink: string;
+      requestMessage: string;
+      createdAt: Date;
+      durationSeconds: number;
+      confidenceScore: string;
+      assumptions: unknown[];
+    }
+  ): Promise<void> {
+    throw new Error('Logs writeback not implemented for this adapter');
+  }
+
+  /**
+   * Optional: Execute a write operation (INSERT, UPDATE, DELETE)
+   */
+  async executeWrite?(
+    sql: string,
+    params?: QueryParameter[],
+    timeout?: number
+  ): Promise<{ rowCount: number }> {
+    throw new Error('Write operations not implemented for this adapter');
+  }
+
+  /**
    * Check if the adapter is connected
    */
   protected ensureConnected(): void {

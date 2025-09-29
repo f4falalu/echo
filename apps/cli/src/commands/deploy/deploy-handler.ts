@@ -198,7 +198,13 @@ async function processProject(
   }
 
   // 7. Prepare unified deployment request (pure)
-  const deployRequest = prepareDeploymentRequest(validModels, docs);
+  const deployRequest = prepareDeploymentRequest(
+    validModels,
+    docs,
+    true, // deleteAbsentModels
+    true, // deleteAbsentDocs
+    config.logs // Pass logs config from buster.yml
+  );
 
   // 8. Create model-to-file mapping for result processing (pure)
   const modelFileMap = createModelFileMap(

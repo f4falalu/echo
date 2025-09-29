@@ -1,18 +1,26 @@
+import { createAdapter } from '@buster/data-source';
+import type { SnowflakeAdapter } from '@buster/data-source';
 import { db } from '@buster/database/connection';
 import {
+  deleteLogsWriteBackConfig,
   getDataSourceByName,
+  getDataSourceCredentials,
   getUserOrganizationId,
   upsertDataset,
   upsertDoc,
+  upsertLogsWriteBackConfig,
 } from '@buster/database/queries';
 import type { User } from '@buster/database/queries';
+import { dataSources } from '@buster/database/schema';
 import type { deploy } from '@buster/server-shared';
+import { and, eq, isNull } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';
 
 type UnifiedDeployRequest = deploy.UnifiedDeployRequest;
 type UnifiedDeployResponse = deploy.UnifiedDeployResponse;
 type ModelDeployResult = deploy.ModelDeployResult;
 type DocDeployResult = deploy.DocDeployResult;
+type LogsWritebackResult = deploy.LogsWritebackResult;
 
 /**
  * Deploy handler for unified model and doc deployment
@@ -158,9 +166,21 @@ export async function deployHandler(
       // if (request.deleteAbsentModels) { ... }
       // if (request.deleteAbsentDocs) { ... }
 
+      // Handle logs writeback configuration
+      let logsWritebackResult: LogsWritebackResult | undefined;
+
+      if (request.logsWriteback !== undefined) {
+        logsWritebackResult = await handleLogsWritebackConfig(
+          request.logsWriteback,
+          userOrg.organizationId,
+          tx
+        );
+      }
+
       return {
         models: modelResult,
         docs: docResult,
+        logsWriteback: logsWritebackResult,
       };
     });
 
@@ -177,5 +197,112 @@ export async function deployHandler(
     throw new HTTPException(500, {
       message: error instanceof Error ? error.message : 'Deployment failed',
     });
+  }
+}
+
+/**
+ * Handle logs writeback configuration
+ */
+async function handleLogsWritebackConfig(
+  config: deploy.LogsWritebackConfig,
+  organizationId: string,
+  tx: any
+): Promise<LogsWritebackResult> {
+  try {
+    // If config is null or disabled, delete existing configuration
+    if (!config || !config.enabled) {
+      const deleted = await deleteLogsWriteBackConfig(organizationId);
+      return {
+        configured: false,
+        error: deleted ? undefined : 'No existing configuration to delete',
+      };
+    }
+
+    // Get the first Snowflake data source for the organization
+    // TODO: In future, we might want to allow specifying which data source
+    const [dataSource] = await tx
+      .select()
+      .from(dataSources)
+      .where(
+        and(
+          eq(dataSources.organizationId, organizationId),
+          eq(dataSources.type, 'Snowflake'),
+          isNull(dataSources.deletedAt)
+        )
+      )
+      .limit(1);
+
+    if (!dataSource) {
+      return {
+        configured: false,
+        error: 'No Snowflake data source found for organization',
+      };
+    }
+
+    // Upsert the configuration
+    await upsertLogsWriteBackConfig({
+      organizationId,
+      dataSourceId: dataSource.id,
+      database: config.database,
+      schema: config.schema,
+      tableName: config.tableName || 'BUSTER_QUERY_LOGS',
+    });
+
+    // Get credentials and create adapter to check/create table
+    const credentials = await getDataSourceCredentials({
+      dataSourceId: dataSource.id,
+    });
+
+    if (!credentials) {
+      return {
+        configured: true,
+        database: config.database,
+        schema: config.schema,
+        tableName: config.tableName || 'BUSTER_QUERY_LOGS',
+        error: 'Could not retrieve data source credentials',
+      };
+    }
+
+    // Create adapter and check/create table
+    const adapter = (await createAdapter(credentials as any)) as SnowflakeAdapter;
+
+    try {
+      await adapter.initialize(credentials as any);
+
+      // Check if table exists
+      const tableExists = await adapter.tableExists(
+        config.database,
+        config.schema,
+        config.tableName || 'BUSTER_QUERY_LOGS'
+      );
+
+      let tableCreated = false;
+      if (!tableExists) {
+        // Create the table
+        await adapter.createLogsTable(
+          config.database,
+          config.schema,
+          config.tableName || 'BUSTER_QUERY_LOGS'
+        );
+        tableCreated = true;
+      }
+
+      return {
+        configured: true,
+        tableCreated,
+        database: config.database,
+        schema: config.schema,
+        tableName: config.tableName || 'BUSTER_QUERY_LOGS',
+      };
+    } finally {
+      // Clean up adapter connection
+      await adapter.close();
+    }
+  } catch (error) {
+    console.error('Failed to configure logs writeback:', error);
+    return {
+      configured: false,
+      error: error instanceof Error ? error.message : 'Configuration failed',
+    };
   }
 }

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { LogsConfigSchema } from '../deploy/schemas';
 
 // ============================================================================
 // Model Schemas - Define the structure of semantic layer models
@@ -162,6 +163,7 @@ export const ProjectContextSchema = z.object({
 
 export const BusterConfigSchema = z.object({
   projects: z.array(ProjectContextSchema).min(1),
+  logs: LogsConfigSchema.optional().describe('Logs writeback configuration'),
 });
 
 // ============================================================================
