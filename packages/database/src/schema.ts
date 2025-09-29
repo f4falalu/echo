@@ -847,6 +847,7 @@ export const chats = pgTable(
       withTimezone: true,
       mode: 'string',
     }),
+    publicPassword: text('public_password'),
     mostRecentFileId: uuid('most_recent_file_id'),
     mostRecentFileType: assetTypeEnum('most_recent_file_type'),
     mostRecentVersionNumber: integer('most_recent_version_number'),

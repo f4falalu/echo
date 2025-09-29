@@ -78,12 +78,8 @@ export class BigQueryAdapter extends BaseAdapter {
       // Fix SQL to ensure proper escaping of identifiers with special characters
       const fixedSql = fixBigQueryTableReferences(sql);
 
-      // Debug logging to verify the fix is applied
-      if (sql !== fixedSql) {
-        console.log('[BigQuery] SQL fixed for special characters:');
-        console.log('  Original:', sql);
-        console.log('  Fixed:   ', fixedSql);
-      }
+      // Debug logging removed - was using console.log which violates linting rules
+      // The fix is still applied, just without logging
 
       const options: Query = {
         query: fixedSql,

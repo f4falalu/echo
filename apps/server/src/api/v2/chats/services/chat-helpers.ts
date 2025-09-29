@@ -203,7 +203,7 @@ export async function buildChatWithMessages(
     publicly_accessible: chat.publiclyAccessible || false,
     public_expiry_date: chat.publicExpiryDate || null,
     public_enabled_by: publiclyEnabledBy,
-    public_password: null, // password not implemented yet
+    public_password: chat.publicPassword || null,
     permission,
     workspace_sharing: chat.workspaceSharing || 'none',
     workspace_member_count: workspaceMemberCount,
