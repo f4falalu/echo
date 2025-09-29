@@ -1,5 +1,5 @@
 import type { MentionNodeAttrs, MentionOptions } from '@tiptap/extension-mention';
-import type { EditorEvents } from '@tiptap/react';
+import type { Editor, EditorEvents } from '@tiptap/react';
 import type { MentionPillAttributes } from './MentionPill';
 
 export type MentionOnSelectParams<T = unknown> = {
@@ -100,6 +100,10 @@ export type MentionInputProps = {
   readOnly?: boolean;
   disabled?: boolean;
   commandListNavigatedRef?: React.RefObject<boolean>;
+};
+
+export type MentionInputRef = {
+  editor: Editor | null;
 };
 
 declare module '@tiptap/core' {

@@ -1,6 +1,7 @@
 import { Command } from 'cmdk';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import type { MentionInputRef } from '../MentionInput';
 import type { BusterInputProps, BusterOnSelectParams } from './BusterInput.types';
 import { BusterInputContainer } from './BusterInputContainer';
 import { BusterInputEmpty } from './BusterInputEmpty';
@@ -41,6 +42,7 @@ export const BusterInput = ({
   const commandListNavigatedRef = useRef(false);
 
   const commandRef = useRef<HTMLDivElement>(null);
+  const mentionsInputRef = useRef<MentionInputRef>(null);
 
   const showSuggestionList = !hasClickedSelect && suggestionItems.length > 0;
 
@@ -53,7 +55,7 @@ export const BusterInput = ({
   }, []);
 
   const onSelectItem = useMemoizedFn(({ onClick, ...params }: BusterOnSelectParams) => {
-    const { addValueToInput, value, loading, inputValue, label, disabled } = params;
+    const { addValueToInput, loading, inputValue, label, disabled } = params;
     if (disabled) {
       console.warn('Item is disabled', params);
       return;
@@ -66,8 +68,11 @@ export const BusterInput = ({
       console.warn('Item is loading', params);
       return;
     }
-    console.log('onSelectItem', addValueToInput, params);
-    if (addValueToInput) setValue(inputValue ?? String(label));
+    if (addValueToInput) {
+      const stringValue = inputValue ?? String(label);
+      mentionsInputRef.current?.editor?.commands.setContent(stringValue);
+      setValue(stringValue);
+    }
     onClick?.();
     if (closeSuggestionOnSelect) setHasClickedSelect(true);
     onSuggestionItemClick?.(params);
@@ -128,6 +133,7 @@ export const BusterInput = ({
         variant={variant}
       >
         <BusterMentionsInput
+          ref={mentionsInputRef}
           defaultValue={defaultValue}
           readOnly={readOnly}
           autoFocus={autoFocus}
