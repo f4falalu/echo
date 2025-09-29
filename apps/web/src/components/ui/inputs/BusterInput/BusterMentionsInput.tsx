@@ -31,8 +31,7 @@ export const BusterMentionsInput = forwardRef<MentionInputRef, BusterMentionsInp
         <Command.Input
           value={value}
           autoFocus={false}
-          //  className="sr-only hidden h-0 border-0 p-0"
-          className="absolute -top-5 left-0 w-full outline-1 outline-amber-200 pointer-events-none"
+          className="sr-only hidden h-0 border-0 p-0 pointer-events-none w-full"
           aria-hidden="true"
         />
       </React.Fragment>
