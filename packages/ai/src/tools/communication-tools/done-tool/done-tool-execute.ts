@@ -75,10 +75,12 @@ export function createDoneToolExecute(context: DoneToolContext, state: DoneToolS
         throw new Error('Tool call ID is required');
       }
 
-      const result = await processDone(state, state.toolCallId, context.messageId, context, input);
-
-      // Wait for all pending updates from delta/finish to complete before returning
+      // CRITICAL: Wait for ALL pending updates from delta/finish to complete FIRST
+      // This ensures execute's update is always the last one in the queue
       await waitForPendingUpdates(context.messageId);
+
+      // Now do the final authoritative update with the complete input
+      const result = await processDone(state, state.toolCallId, context.messageId, context, input);
 
       cleanupState(state);
       return result;

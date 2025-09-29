@@ -4,7 +4,7 @@ import {
   getCollectionsAssociatedWithDashboard,
   getDashboardById,
   getOrganizationMemberCount,
-  getUsersWithDashboardPermissions,
+  getUsersWithAssetPermissions,
 } from '@buster/database/queries';
 import {
   GetDashboardParamsSchema,
@@ -205,7 +205,7 @@ export async function getDashboardHandler(
   // Get the extra dashboard info concurrently
   const [individualPermissions, workspaceMemberCount, collections, publicEnabledBy] =
     await Promise.all([
-      getUsersWithDashboardPermissions({ dashboardId }),
+      getUsersWithAssetPermissions({ assetId: dashboardId, assetType: 'dashboard_file' }),
       getOrganizationMemberCount(dashboardFile.organizationId),
       getCollectionsAssociatedWithDashboard(dashboardId, user.id),
       getPubliclyEnabledByUser(dashboardFile.publiclyEnabledBy),
