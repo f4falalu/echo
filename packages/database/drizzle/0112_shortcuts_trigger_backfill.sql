@@ -13,13 +13,11 @@ BEGIN
         INSERT INTO users (
             email,
             name,
-            is_guest,
             created_at,
             updated_at
         ) VALUES (
             'support@buster.so',
             'Buster',
-            false,
             now(),
             now()
         )
