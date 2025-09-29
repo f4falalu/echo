@@ -113,8 +113,6 @@ export async function checkPermission(check: AssetPermissionCheck): Promise<Asse
     }
   }
 
-  console.info('publiclyAccessible', publiclyAccessible);
-
   if (publiclyAccessible) {
     const hasPublicAccessCheck = hasPublicAccess(
       publiclyAccessible,

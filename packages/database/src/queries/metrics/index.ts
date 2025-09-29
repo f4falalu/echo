@@ -39,11 +39,3 @@ export {
   type AssociatedAsset,
   type AssetsAssociatedWithMetric,
 } from './get-permissioned-asset-associations';
-
-export {
-  getUsersWithMetricPermissions,
-  GetUsersWithMetricPermissionsInputSchema,
-  GetUsersWithMetricPermissionsResultSchema,
-  type GetUsersWithMetricPermissionsInput,
-  type GetUsersWithMetricPermissionsResult,
-} from './get-users-with-metric-permissions-by-id';
