@@ -57,9 +57,11 @@ export type BusterInputProps<T = string> = {
   onChange?: (value: string) => void;
   submitting?: boolean;
   disabled?: boolean;
+  readOnly?: boolean;
   onSubmit: (value: string) => void;
   onStop: () => void;
   variant?: 'default';
+  autoFocus?: boolean;
   sendIcon?: React.ReactNode;
   secondaryActions?: React.ReactNode;
   placeholder?: string;
@@ -67,7 +69,7 @@ export type BusterInputProps<T = string> = {
   emptyComponent?: React.ReactNode | string | false; //if false, no empty component will be shown
   //mentions
   onMentionItemClick?: (params: MentionTriggerItem<T>) => void;
-  mentions?: MentionSuggestionExtension[];
+  mentions: MentionSuggestionExtension[];
   //suggestions
   suggestionItems: (
     | BusterInputDropdownItem<T>

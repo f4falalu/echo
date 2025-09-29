@@ -1,4 +1,5 @@
 import type { MentionNodeAttrs, MentionOptions } from '@tiptap/extension-mention';
+import type { EditorEvents } from '@tiptap/react';
 import type { MentionPillAttributes } from './MentionPill';
 
 export type MentionOnSelectParams<T = unknown> = {
@@ -85,6 +86,19 @@ export type MentionOnChangeParams = (
   arrayValue: MentionArrayItem[],
   rawValue: string
 ) => void;
+
+export type MentionInputProps = {
+  mentions: MentionSuggestionExtension[];
+  onChange: MentionOnChangeParams;
+  onFocus?: (v: EditorEvents['focus']) => void;
+  onBlur?: (v: EditorEvents['blur']) => void;
+  defaultValue?: string;
+  autoFocus?: boolean;
+  style?: React.CSSProperties;
+  className?: string;
+  readOnly?: boolean;
+  disabled?: boolean;
+};
 
 declare module '@tiptap/core' {
   interface Storage {

@@ -22,6 +22,8 @@ export const BusterInput = ({
   variant = 'default',
   onChange,
   ariaLabel = 'Buster Input',
+  readOnly,
+  autoFocus,
   //suggestions
   suggestionItems,
   closeSuggestionOnSelect = true,
@@ -58,6 +60,7 @@ export const BusterInput = ({
       console.warn('Item is loading', params);
       return;
     }
+    console.log('onSelectItem', addValueToInput, params);
     if (addValueToInput) setValue(inputValue ?? String(label));
     onClick?.();
     if (closeSuggestionOnSelect) setHasClickedSelect(true);
@@ -92,13 +95,13 @@ export const BusterInput = ({
         variant={variant}
       >
         <BusterMentionsInput
-          autoFocus
           defaultValue={defaultValue}
-          readOnly
+          readOnly={readOnly}
+          autoFocus={autoFocus}
           placeholder={placeholder}
           mentions={mentions}
           value={value}
-          onChangeInputValue={onChangeInputValue}
+          onChange={onChangeInputValue}
           shouldFilter={shouldFilter}
           filter={filter}
           onMentionItemClick={onMentionItemClick}

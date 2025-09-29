@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { fn } from 'storybook/test';
 import { createMentionSuggestionExtension } from './createMentionSuggestionOption';
 import { MentionInput } from './MentionInput';
 import type { MentionInputTriggerItem } from './MentionInput.types';
@@ -55,48 +56,6 @@ const looneyTunesCharacters: MentionInputTriggerItem[] = [
   },
 ];
 
-const theSimpsonsCharacters: MentionInputTriggerItem[] = [
-  {
-    value: 'Homer Simpson',
-    label: 'Homer Simpson',
-  },
-  {
-    value: 'Marge Simpson',
-    label: 'Marge Simpson',
-  },
-  {
-    value: 'Bart Simpson',
-    label: 'Bart Simpson',
-  },
-  {
-    value: 'Lisa Simpson',
-    label: 'Lisa Simpson',
-  },
-  {
-    value: 'Maggie Simpson',
-    label: 'Maggie Simpson',
-  },
-  {
-    value: 'Ned Flanders',
-    label: 'Ned Flanders',
-  },
-].map((item) => ({
-  ...item,
-  label: (
-    <span className="gap-x-1 space-x-1">
-      <img
-        src={faker.image.url({
-          width: 16,
-          height: 16,
-        })}
-        alt=""
-        className="w-3 h-3 rounded-full bg-item-active inline-block align-middle"
-      />
-      <span className="inline-block">{item.label}</span>
-    </span>
-  ),
-}));
-
 const arthurCharacters: MentionInputTriggerItem[] = [
   {
     value: 'Arthur Read',
@@ -138,7 +97,7 @@ const arthurCharacters: MentionInputTriggerItem[] = [
   ),
 }));
 
-export const looneyTunesSuggestions = createMentionSuggestionExtension({
+const looneyTunesSuggestions = createMentionSuggestionExtension({
   trigger: '@',
   items: looneyTunesCharacters,
   popoverContent: (props) => {
@@ -150,9 +109,51 @@ export const looneyTunesSuggestions = createMentionSuggestionExtension({
     },
   },
   onChangeTransform: (v) => {
-    return `[@${String(v.label)}](${String(v.value)})`;
+    return `We can totally transform this into anything we want. The original value was [@${String(v.label)}](${String(v.value)})`;
   },
 });
+
+const theSimpsonsCharacters: MentionInputTriggerItem[] = [
+  {
+    value: 'Homer Simpson',
+    label: 'Homer Simpson',
+  },
+  {
+    value: 'Marge Simpson',
+    label: 'Marge Simpson',
+  },
+  {
+    value: 'Bart Simpson',
+    label: 'Bart Simpson',
+  },
+  {
+    value: 'Lisa Simpson',
+    label: 'Lisa Simpson',
+  },
+  {
+    value: 'Maggie Simpson',
+    label: 'Maggie Simpson',
+  },
+  {
+    value: 'Ned Flanders',
+    label: 'Ned Flanders',
+  },
+].map((item) => ({
+  ...item,
+  label: (
+    <span className="gap-x-1 space-x-1">
+      <img
+        src={faker.image.url({
+          width: 16,
+          height: 16,
+        })}
+        alt=""
+        className="w-3 h-3 rounded-full bg-item-active inline-block align-middle"
+      />
+      <span className="inline-block">{item.label}</span>
+    </span>
+  ),
+}));
 
 const theSimpsonsSuggestions = createMentionSuggestionExtension({
   trigger: '#',
@@ -301,6 +302,7 @@ export const Default: Story = {
       arthurSuggestions,
       spongebobSuggestions,
     ],
+    onChange: fn(),
   },
   parameters: {
     docs: {
