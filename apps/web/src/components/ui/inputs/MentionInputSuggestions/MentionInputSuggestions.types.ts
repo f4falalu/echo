@@ -14,7 +14,7 @@ export type GroupOverrideProps = {
 
 export type MentionInputSuggestionsDropdownItem<T = string> = {
   value: T;
-  inputValue?: string; //if this is undefined, the label will be used (string casted), must have addValueToInput set to true
+  inputValue?: string; //this will be the value added to the input pill when addValueToInput is true
   label: string | React.ReactNode;
   icon?: React.ReactNode;
   onClick?: () => void;
@@ -23,6 +23,7 @@ export type MentionInputSuggestionsDropdownItem<T = string> = {
   closeOnSelect?: boolean; //defaults to parent
   type?: 'item';
   addValueToInput?: boolean; //defaults to group addValueToInput
+  keywords?: string[];
 };
 
 export type MentionInputSuggestionsOnSelectParams = NonNullable<
@@ -32,10 +33,11 @@ export type MentionInputSuggestionsOnSelectParams = NonNullable<
     | 'label'
     | 'addValueToInput'
     | 'onClick'
-    | 'inputValue'
     | 'closeOnSelect'
     | 'disabled'
     | 'loading'
+    | 'keywords'
+    | 'inputValue'
   >
 >;
 

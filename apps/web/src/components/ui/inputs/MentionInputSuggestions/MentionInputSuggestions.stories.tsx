@@ -24,6 +24,9 @@ const items: MentionInputSuggestionsProps['suggestionItems'] = [
     value: `item${i + 1}`,
   })),
   {
+    type: 'separator',
+  },
+  {
     label: 'Item (disabled)',
     value: 'item-disabled',
     disabled: true,
@@ -78,7 +81,6 @@ export const Default: Story = {
     value: 'Sample text value',
     suggestionItems: items,
     mentions,
-    onSubmit: fn(),
-    children: <div className="bg-red-100 min-h-20">Hello</div>,
+    children: <div className="bg-red-100 min-h-10">Hello</div>,
   },
 };

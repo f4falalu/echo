@@ -85,7 +85,7 @@ export const MentionInputSuggestions = forwardRef<
 
     const onSelectItem = useMemoizedFn(
       ({ onClick, ...params }: MentionInputSuggestionsOnSelectParams) => {
-        const { addValueToInput, loading, inputValue, label, disabled } = params;
+        const { addValueToInput, loading, label, disabled, inputValue } = params;
         if (disabled) {
           console.warn('Item is disabled', params);
           return;
@@ -153,13 +153,21 @@ export const MentionInputSuggestions = forwardRef<
       [value]
     );
 
+    function customFilter(value: string, search: string, keywords?: string[]): number {
+      console.log(value, search, keywords);
+      // Example: exact matches rank higher, case insensitive includes rank lower
+      if (value.toLowerCase() === search.toLowerCase()) return 2;
+      if (value.toLowerCase().includes(search.toLowerCase())) return 1;
+      return 0;
+    }
+
     return (
       <Command
         ref={commandRef}
         label={ariaLabel}
         className={cn('relative border rounded overflow-hidden bg-background shadow', className)}
-        shouldFilter={shouldFilter}
-        filter={filter}
+        shouldFilter={true}
+        filter={customFilter}
       >
         <MentionInputSuggestionsContainer className={inputContainerClassName}>
           <MentionInputSuggestionsMentionsInput

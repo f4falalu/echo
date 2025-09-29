@@ -29,6 +29,7 @@ export const MentionInputSuggestionsMentionsInput = forwardRef<
         value={value}
         autoFocus={false}
         className="sr-only hidden h-0 border-0 p-0 pointer-events-none w-full"
+        // className="absolute -top-1 left-0 w-full h-full border border-red-500"
         aria-hidden="true"
       />
     </React.Fragment>

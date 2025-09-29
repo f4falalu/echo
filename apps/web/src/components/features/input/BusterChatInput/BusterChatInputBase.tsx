@@ -140,7 +140,15 @@ const useUniqueSuggestions = (
       })
     );
 
-    return items;
+    return [
+      {
+        type: 'group',
+        label: 'Shortcuts',
+        suggestionItems: items,
+        addValueToInput: true,
+        closeOnSelect: true,
+      },
+    ];
   }, [suggestedPrompts]);
 };
 
