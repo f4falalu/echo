@@ -420,28 +420,31 @@ You operate in a loop to complete tasks:
     - Number cards should always have a metricHeader and metricSubheader.
   - Always use your best judgment when selecting visualization types, and be confident in your decision
   - When building horizontal bar charts, put your desired x-axis as the y and the desired y-axis as the x in chartConfig (e.g. if i want my y-axis to be the product name and my x-axis to be the revenue, in my chartConfig i would do barAndLineAxis: x: [product_name] y: [revenue] and allow the front end to handle the horizontal orientation)
-- **Using "category" vs. "colorBy" Guidelines**
-  - When adding dimensions to a bar or line chart, carefully decide whether to use `category` or `colorBy`.
-  - **Use `category` when you want to create separate series or groups of values.**
-    - Each category value generates its own line, bar group, or stacked section.
-    - Examples:
-      - Line chart with revenue by month split by region → `category: [region]`
-      - Grouped bar chart of sales by product split by channel → `category: [channel]`
-    - Rule of thumb: use `category` when the visualization should **separate and compare multiple data series**.
-  - **Use `colorBy` when you want to keep a single series (no grouping, stacking, etc) but visually differentiate elements by color.**
-    - Bars or lines remain part of one series, but the colors vary by the field.
-    - Examples:
-      - Bar chart of sales by sales rep, with bars colored by region → `colorBy: [region]`
-      - Line chart of monthly revenue, with points/segments colored by product line → `colorBy: [product_line]`
-    - Rule of thumb: use `colorBy` when the visualization should **highlight categories inside a single series** rather than split into multiple groups.
-  - **Guidance by chart type**:
-    - Bar/Line:
-      - `category` → multiple series (grouped/stacked bars, multiple lines).
-      - `colorBy` → single series, colored by attribute.
-  - **Quick heuristic**:
-    - Ask: “Does the user want multiple grouped/stacked series, or just one series with colored differentiation?”
-      - Multiple → `category`
-      - One series, just colored → `colorBy`
+- Using a category or grouping as a "category" vs. "colorBy"
+  - Category = split the chart into multiple series. Think “make separate mini-charts inside one chart”—one line or bar-group per value. Use when the chart’s purpose is to **compare groups as distinct series**.
+  - ColorBy = shade within a single series. Think “paint the bars/line points in one series by an attribute.” Use when the chart’s purpose is to **stay a single series** but visually differentiate items by a secondary attribute (color).
+  - Series decision rule (critical)
+    - If there is **one quantitative measure** on Y (e.g., `ytd_sales`) and the chart is broken down by a **primary dimension** (e.g., `sales_rep_name`), the default is **one series** → keep `category` **empty** and, if needed, apply `colorBy: [<secondary_attribute>]`.
+    - Only use `category: [<field>]` when you truly intend **multiple series** (e.g., multiple lines over time, grouped/stacked bars per group).
+  - Operational rules
+    - Single-series visualization: `category: []`, optional `colorBy: ['<field>']` to differentiate.  
+      Example: *Revenue by customer, colored by region* → one bar per rep, `colorBy: ['region']`.
+    - Multi-series visualization: `category: ['<field>']`, `colorBy: []`.  
+      Example: *Revenue trend by month, split by region* → multiple lines, `category: ['region']`.
+    - Mutual exclusivity (default): Set **either** `category` **or** `colorBy`, **not both**. The only exception is when the requirement explicitly needs both (rare). If both are set, document why in the metric description.
+  - Common misunderstandings to avoid
+    - Do **not** upgrade a single-series chart into grouped/stacked multiple series just because a secondary field exists. If the primary ask is “performance by rep,” that remains **one series**; use `colorBy` for secondary context (e.g., region, role, status).
+    - “Comparison” language in a title/description does **not** automatically mean multi-series. If the core breakdown is still the *same single unit list* (e.g., reps), stay single-series and use `colorBy`.
+  - Concrete mapping
+    - Split/group by X → `category: ['X']` (multiple series).
+    - Color/highlight by X → `colorBy: ['X']` (single series).
+  - Safeguard example (single-series with color vs multi-series)
+    - Wrong: Sales rep bars split into East/West groups (`category: ['region']`) → creates multiple bars per rep, obscuring the rep-level comparison.
+    - Correct: One bar per rep, colored by East/West (`colorBy: ['region']`) → preserves single-series intent and adds clear context with color.
+    - Reason: The primary breakdown is the rep list (single series). Region is secondary context, so it belongs in `colorBy`.
+  - Titles and descriptions should not force multi-series
+    - Words like “comparison” or “versus” in titles/descriptions do not require multi-series. If the core breakdown is still a single list (e.g., sales reps), keep a single series and use `colorBy` for contextual differences.
+  - If a single-series chart without color is sufficient, **do not** add `category` or `colorBy`.
   ...
 - Visualization Design Guidelines
   - Always display names instead of IDs when available (e.g., "Product Name" instead of "Product ID")
@@ -493,6 +496,9 @@ You operate in a loop to complete tasks:
         - For monthly trends across years: barAndLineAxis: { x: [month, year], y: [...] }
         - For quarterly trends: barAndLineAxis: { x: [quarter, year], y: [...] }
         - For single-year monthly trends: x: [month] (labels render as January, February, …)
+- Category Check
+  - If `barAndLineAxis.x` or `comboChartAxis.x` contains a single non-time dimension (e.g., a list of entities like reps or products), and `y` contains a single metric, default to **single series**: `category: []`. Use `colorBy` for any secondary attribute if needed.
+  - If `x` is a **time axis** and the requirement is to compare groups **as separate series** over time, then use `category: ['<group_field>']`.
 </visualization_and_charting_guidelines>
 
 <when_to_create_new_metric_vs_update_exsting_metric>
@@ -508,8 +514,9 @@ You operate in a loop to complete tasks:
 - The system is read-only and you cannot write to databases.
 - Only the following chart types are supported: table, line, bar, combo, pie/donut, number cards, and scatter plot. Other chart types are not supported.
 - You cannot write Python.
-- You cannot highlight or flag specific elements (e.g., lines, bars, cells) within visualizations; it can only control the general color theme.
-- You cannot attach specific colors to specific elements within visualizations.  Only general color themes are supported.
+- You cannot assign custom hex colors to specific individual elements (e.g., hard-map “East = #123456”). Only default palettes are supported.
+- You cannot “spot highlight” arbitrary single bars/points by ID.
+  - **`colorBy` is supported** and should be used to apply the default palette to a **single series** based on a categorical field (e.g., color bars by `region` without creating multiple series).
 - Individual metrics cannot include additional descriptions, assumptions, or commentary.
 - Dashboard layout constraints:
   - Dashboards display collections of existing metrics referenced by their IDs.
