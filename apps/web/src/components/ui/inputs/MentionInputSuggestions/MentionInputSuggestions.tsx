@@ -45,8 +45,9 @@ export const MentionInputSuggestions = ({
 }: MentionInputSuggestionsProps) => {
   const [hasClickedSelect, setHasClickedSelect] = useState(false);
   const [value, setValue] = useState(valueProp ?? defaultValue);
-  const commandListNavigatedRef = useRef(false);
+  const [hasResults, setHasResults] = useState(false);
 
+  const commandListNavigatedRef = useRef(false);
   const commandRef = useRef<HTMLDivElement>(null);
   const mentionsInputRef = useRef<MentionInputRef>(null);
 
@@ -83,6 +84,7 @@ export const MentionInputSuggestions = ({
       onClick?.();
       if (closeSuggestionOnSelect) setHasClickedSelect(true);
       onSuggestionItemClick?.(params);
+      setHasResults(false);
     }
   );
 
@@ -135,6 +137,8 @@ export const MentionInputSuggestions = ({
       value={value}
       label={ariaLabel}
       className={cn('relative border rounded overflow-hidden bg-background shadow', className)}
+      shouldFilter={shouldFilter}
+      filter={filter}
     >
       <MentionInputSuggestionsContainer className={inputContainerClassName}>
         <MentionInputSuggestionsMentionsInput
@@ -146,27 +150,30 @@ export const MentionInputSuggestions = ({
           mentions={mentions}
           value={value}
           onChange={onChangeInputValue}
-          shouldFilter={shouldFilter}
-          filter={filter}
           onMentionItemClick={onMentionItemClick}
           onPressEnter={onPressEnter || onSubmit}
           commandListNavigatedRef={commandListNavigatedRef}
         />
         {children}
       </MentionInputSuggestionsContainer>
+      {hasResults && <div className="border-b mb-1.5" />}
       <MentionInputSuggestionsList
         show={showSuggestionList}
-        className={suggestionsContainerClassName}
+        className={cn(suggestionsContainerClassName, hasResults && 'pb-1.5')}
       >
         <MentionInputSuggestionsItemsSelector
           suggestionItems={suggestionItems}
           onSelect={onSelectItem}
           addValueToInput={addSuggestionValueToInput}
           closeOnSelect={closeSuggestionOnSelect}
+          hasResults={hasResults}
+          setHasResults={setHasResults}
         />
-        {emptyComponent && (
-          <MentionInputSuggestionsEmpty>{emptyComponent}</MentionInputSuggestionsEmpty>
-        )}
+
+        <MentionInputSuggestionsEmpty
+          setHasResults={setHasResults}
+          emptyComponent={emptyComponent}
+        />
       </MentionInputSuggestionsList>
     </Command>
   );

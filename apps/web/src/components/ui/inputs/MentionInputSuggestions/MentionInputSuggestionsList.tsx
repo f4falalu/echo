@@ -16,8 +16,9 @@ export const MentionInputSuggestionsList = ({
   show = true,
 }: MentionInputSuggestionsListProps) => {
   if (!show) return null;
+
   return (
-    <Command.List className={cn('border-t px-3 py-1.5', className)} style={style}>
+    <Command.List className={cn('px-3', className)} style={style}>
       {children}
     </Command.List>
   );

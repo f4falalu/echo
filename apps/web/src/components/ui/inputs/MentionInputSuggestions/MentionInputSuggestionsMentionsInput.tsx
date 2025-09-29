@@ -6,13 +6,7 @@ import type { MentionInputSuggestionsProps } from './MentionInputSuggestions.typ
 
 export type MentionInputSuggestionsMentionsInputProps = Pick<
   MentionInputSuggestionsProps,
-  | 'mentions'
-  | 'value'
-  | 'placeholder'
-  | 'defaultValue'
-  | 'shouldFilter'
-  | 'filter'
-  | 'onMentionItemClick'
+  'mentions' | 'value' | 'placeholder' | 'defaultValue' | 'onMentionItemClick'
 > & {
   onChange: MentionInputProps['onChange'];
   onPressEnter: MentionInputProps['onPressEnter'];
@@ -26,10 +20,11 @@ export type MentionInputSuggestionsMentionsInputProps = Pick<
 export const MentionInputSuggestionsMentionsInput = forwardRef<
   MentionInputRef,
   MentionInputSuggestionsMentionsInputProps
->(({ value: valueProp, placeholder, defaultValue, mentions, value, ...props }, ref) => {
+>(({ mentions, ...props }, ref) => {
+  const { value } = props;
   return (
     <React.Fragment>
-      <MentionInput ref={ref} mentions={mentions} defaultValue={value} {...props} />
+      <MentionInput ref={ref} mentions={mentions} {...props} />
       <Command.Input
         value={value}
         autoFocus={false}

@@ -1,13 +1,19 @@
 import { Command } from 'cmdk';
 import type React from 'react';
+import { useMount } from '@/hooks/useMount';
 import { cn } from '@/lib/utils';
-import type { MentionInputSuggestionsDropdownItem, MentionInputSuggestionsOnSelectParams } from './MentionInputSuggestions.types';
+import type {
+  MentionInputSuggestionsDropdownItem,
+  MentionInputSuggestionsOnSelectParams,
+} from './MentionInputSuggestions.types';
 
 export type MentionInputSuggestionsItemProps = {
   onSelect: (d: MentionInputSuggestionsOnSelectParams) => void;
 } & MentionInputSuggestionsDropdownItem & {
     className?: string;
     style?: React.CSSProperties;
+    hasResults: boolean;
+    setHasResults: (hasResults: boolean) => void;
   };
 
 export const MentionInputSuggestionsItem = ({
@@ -23,6 +29,8 @@ export const MentionInputSuggestionsItem = ({
   type,
   addValueToInput,
   onSelect,
+  hasResults,
+  setHasResults,
   ...props
 }: MentionInputSuggestionsItemProps) => {
   return (
@@ -47,6 +55,21 @@ export const MentionInputSuggestionsItem = ({
       }}
     >
       {label}
+      {!hasResults && <SetHasResults hasResults={hasResults} setHasResults={setHasResults} />}
     </Command.Item>
   );
+};
+
+const SetHasResults = ({
+  hasResults,
+  setHasResults,
+}: {
+  hasResults: boolean;
+  setHasResults: (hasResults: boolean) => void;
+}) => {
+  useMount(() => {
+    if (!hasResults) setHasResults(true);
+  });
+
+  return null;
 };

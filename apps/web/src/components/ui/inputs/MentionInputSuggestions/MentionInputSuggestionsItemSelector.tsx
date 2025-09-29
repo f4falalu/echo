@@ -1,7 +1,7 @@
 import type {
-  MentionInputSuggestionsProps,
-  MentionInputSuggestionsOnSelectParams,
   GroupOverrideProps,
+  MentionInputSuggestionsOnSelectParams,
+  MentionInputSuggestionsProps,
 } from './MentionInputSuggestions.types';
 import { MentionInputSuggestionsGroup } from './MentionInputSuggestionsGroup';
 import { MentionInputSuggestionsItem } from './MentionInputSuggestionsItem';
@@ -12,16 +12,19 @@ export const MentionInputSuggestionsItemSelector = ({
   onSelect,
   addValueToInput,
   closeOnSelect,
+  ...rest
 }: {
   item: MentionInputSuggestionsProps['suggestionItems'][number];
   onSelect: (params: MentionInputSuggestionsOnSelectParams) => void;
+  hasResults: boolean;
+  setHasResults: (hasResults: boolean) => void;
 } & GroupOverrideProps) => {
   if (item.type === 'separator') {
     return <MentionInputSuggestionsSeparator />;
   }
 
   if (item.type === 'group') {
-    return <MentionInputSuggestionsGroup {...item} onSelect={onSelect} />;
+    return <MentionInputSuggestionsGroup {...item} onSelect={onSelect} {...rest} />;
   }
 
   return (
@@ -30,28 +33,23 @@ export const MentionInputSuggestionsItemSelector = ({
       onSelect={onSelect}
       addValueToInput={item?.addValueToInput ?? addValueToInput}
       closeOnSelect={item?.closeOnSelect ?? closeOnSelect}
+      {...rest}
     />
   );
 };
 
 export const MentionInputSuggestionsItemsSelector = ({
   suggestionItems,
-  onSelect,
-  addValueToInput,
-  closeOnSelect,
+  ...rest
 }: {
   suggestionItems: MentionInputSuggestionsProps['suggestionItems'];
   onSelect: (params: MentionInputSuggestionsOnSelectParams) => void;
+  hasResults: boolean;
+  setHasResults: (hasResults: boolean) => void;
 } & GroupOverrideProps) => {
   if (!suggestionItems) return null;
   return suggestionItems.map((item, index) => (
-    <MentionInputSuggestionsItemSelector
-      key={keySelector(item, index)}
-      item={item}
-      onSelect={onSelect}
-      addValueToInput={addValueToInput}
-      closeOnSelect={closeOnSelect}
-    />
+    <MentionInputSuggestionsItemSelector key={keySelector(item, index)} item={item} {...rest} />
   ));
 };
 
