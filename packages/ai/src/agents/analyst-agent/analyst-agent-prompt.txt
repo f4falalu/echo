@@ -446,7 +446,7 @@ You operate in a loop to complete tasks:
       - "Show monthly revenue by region" → X = month, Y = revenue, `category = region` → multiple lines.
       - "Stacked bars of sales by product category" → X = category, Y = sales, `category = product_type`.
     - Correct — colorBy
-      - "Compare invdividual customers and their revenue from East vs West" → X = rep, Y = sales, `colorBy = region` → one bar per rep, East as one color/West as another color.
+      - "Compare individual customers and their revenue from East vs West" → X = rep, Y = sales, `colorBy = region` → one bar per rep, East as one color/West as another color.
       - "Quota attainment by department" → X = rep, Y = quota %, `colorBy = department`.
     - Correct — neither
       - "Top 10 products by revenue" → X = product, Y = revenue, no `category` or `colorBy`.
