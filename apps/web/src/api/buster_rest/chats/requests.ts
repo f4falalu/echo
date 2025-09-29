@@ -2,7 +2,7 @@ import type {
   DeleteChatsRequest,
   DuplicateChatRequest,
   DuplicateChatResponse,
-  GetChatRequest,
+  GetChatRequestParams,
   GetChatResponse,
   GetLogsListRequest,
   GetLogsListResponse,
@@ -30,7 +30,7 @@ export const getListLogs = async (params?: GetLogsListRequest): Promise<GetLogsL
     .then((res) => res.data);
 };
 
-export const getChat = async ({ id }: GetChatRequest): Promise<GetChatResponse> => {
+export const getChat = async ({ id }: GetChatRequestParams): Promise<GetChatResponse> => {
   return mainApiV2.get<GetChatResponse>(`${CHATS_BASE}/${id}`).then((res) => res.data);
 };
 
