@@ -1,5 +1,4 @@
-import type React from 'react';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import { Button } from '@/components/ui/buttons';
 import { ArrowUp, Magnifier, Sparkle2 } from '@/components/ui/icons';
@@ -7,6 +6,7 @@ import Atom from '@/components/ui/icons/NucleoIconOutlined/atom';
 import Microphone from '@/components/ui/icons/NucleoIconOutlined/microphone';
 import { Popover } from '@/components/ui/popover';
 import { AppSegmented, type AppSegmentedProps } from '@/components/ui/segmented';
+import { AppTooltip } from '@/components/ui/tooltip';
 import { Text } from '@/components/ui/typography';
 import { cn } from '@/lib/utils';
 
@@ -20,70 +20,84 @@ type BusterChatInputButtons = {
   mode: BusterChatInputMode;
   onModeChange: (mode: BusterChatInputMode) => void;
   onDictate: (transcript: string) => void;
+  onDictateListeningChange?: (listening: boolean) => void;
 };
 
-export const BusterChatInputButtons = ({
-  onSubmit,
-  onStop,
-  submitting,
-  disabled,
-  mode,
-  onModeChange,
-  onDictate,
-}: BusterChatInputButtons) => {
-  const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } =
-    useSpeechRecognition();
+export const BusterChatInputButtons = React.memo(
+  ({
+    onSubmit,
+    onStop,
+    submitting,
+    disabled,
+    mode,
+    onModeChange,
+    onDictate,
+    onDictateListeningChange,
+  }: BusterChatInputButtons) => {
+    const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } =
+      useSpeechRecognition();
 
-  const startListening = () => {
-    SpeechRecognition.startListening({ continuous: true });
-  };
+    const startListening = () => {
+      SpeechRecognition.startListening({ continuous: true });
+    };
 
-  const stopListening = () => {
-    SpeechRecognition.stopListening();
-  };
+    const stopListening = () => {
+      SpeechRecognition.stopListening();
+    };
 
-  useEffect(() => {
-    if (listening && transcript) {
-      onDictate(transcript);
-    }
-  }, [listening, transcript, onDictate]);
+    useEffect(() => {
+      if (listening && transcript) {
+        onDictate(transcript);
+      }
+    }, [listening, transcript, onDictate]);
 
-  return (
-    <div className="flex justify-between items-center gap-2">
-      <AppSegmented value={mode} options={modesOptions} onChange={(v) => onModeChange(v.value)} />
+    useEffect(() => {
+      onDictateListeningChange?.(listening);
+    }, [listening, onDictateListeningChange]);
 
-      <div className="flex items-center gap-2">
-        {browserSupportsSpeechRecognition && (
-          <Button
-            rounding={'large'}
-            variant={'ghost'}
-            prefix={<Microphone />}
-            onClick={listening ? stopListening : startListening}
-            loading={submitting}
-            disabled={disabled}
-            className={cn(
-              'origin-center transform-gpu transition-all duration-300 ease-out will-change-transform text-text-secondary',
-              !disabled && 'hover:scale-110 active:scale-95',
-              listening && 'bg-item-select text-foreground'
-            )}
-          />
-        )}
-        <Button
-          rounding={'large'}
-          variant={'default'}
-          prefix={<ArrowUp />}
-          onClick={submitting ? onStop : onSubmit}
-          loading={submitting}
-          disabled={disabled}
-          className={cn(
-            'origin-center transform-gpu transition-all duration-300 ease-out will-change-transform',
-            !disabled && 'hover:scale-110 active:scale-95'
+    return (
+      <div className="flex justify-between items-center gap-2">
+        <AppSegmented value={mode} options={modesOptions} onChange={(v) => onModeChange(v.value)} />
+
+        <div className="flex items-center gap-2">
+          {browserSupportsSpeechRecognition && (
+            <AppTooltip title={listening ? 'Stop Dictation...' : 'Press to Dictate...'}>
+              <Button
+                rounding={'large'}
+                variant={'ghost'}
+                prefix={<Microphone />}
+                onClick={listening ? stopListening : startListening}
+                loading={submitting}
+                disabled={disabled}
+                className={cn(
+                  'origin-center transform-gpu transition-all duration-300 ease-out will-change-transform text-text-secondary',
+                  !disabled && 'hover:scale-110 active:scale-95',
+                  listening && 'bg-item-select text-foreground animate-pulse'
+                )}
+              />
+            </AppTooltip>
           )}
-        />
+          <AppTooltip title={'Submit'}>
+            <Button
+              rounding={'large'}
+              variant={'default'}
+              prefix={<ArrowUp />}
+              onClick={submitting ? onStop : onSubmit}
+              loading={submitting}
+              disabled={disabled}
+              className={cn(
+                'origin-center transform-gpu transition-all duration-300 ease-out will-change-transform',
+                !disabled && 'hover:scale-110 active:scale-95'
+              )}
+            />
+          </AppTooltip>
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  }
+);
+
+BusterChatInputButtons.displayName = 'BusterChatInputButtons';
 
 const ModePopoverContent = ({
   title,

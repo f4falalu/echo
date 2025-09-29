@@ -2,6 +2,7 @@ import type { Command } from 'cmdk';
 import type React from 'react';
 import type { MentionSuggestionExtension } from '../MentionInput';
 import type { MentionInputProps, MentionTriggerItem } from '../MentionInput/MentionInput.types';
+import type { onUpdateTransformer } from '../MentionInput/update-transformers';
 
 /**
  * @description Override the addValueToInput and closeOnSelect props for the item based on the group props
@@ -80,6 +81,12 @@ export type MentionInputSuggestionsProps<T = string> = {
   inputContainerClassName?: string;
   suggestionsContainerClassName?: string;
 } & Pick<React.ComponentProps<typeof Command>, 'filter' | 'shouldFilter'>;
+
+export type MentionInputSuggestionsRef = {
+  value: string;
+  onChangeValue: React.Dispatch<React.SetStateAction<string>>;
+  getValue: () => ReturnType<typeof onUpdateTransformer> | undefined;
+};
 
 export type MentionInputSuggestionsContainerProps = {
   children: React.ReactNode;

@@ -58,6 +58,13 @@ export const MentionInput = forwardRef<MentionInputRef, MentionInputProps>(
       );
     }, [mentions]);
 
+    const getValue = () => {
+      return onUpdateTransformer({
+        editor,
+        mentionsByTrigger,
+      });
+    };
+
     const editor = useEditor({
       extensions: [
         Document,
@@ -94,6 +101,7 @@ export const MentionInput = forwardRef<MentionInputRef, MentionInputProps>(
       ref,
       () => ({
         editor,
+        getValue,
       }),
       [editor]
     );
