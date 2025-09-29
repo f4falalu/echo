@@ -16,6 +16,8 @@ export {
   type GetDashboardByIdInput,
 } from './get-dashboard-by-id';
 
+export { updateDashboard } from './update-dashboard';
+
 export {
   getCollectionsAssociatedWithDashboard,
   type AssociatedCollection,

@@ -282,13 +282,6 @@ export const useUnshareMetric = () => {
         });
       });
     },
-    onSuccess: (data) => {
-      const upgradedMetric = upgradeMetricToIMetric(data, null);
-      queryClient.setQueryData(
-        metricsQueryKeys.metricsGetMetric(data.id, 'LATEST').queryKey,
-        upgradedMetric
-      );
-    },
   });
 };
 

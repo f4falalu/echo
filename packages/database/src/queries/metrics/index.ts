@@ -32,6 +32,8 @@ export {
   type MetricFile,
 } from './get-metric-by-id';
 
+export { updateMetric } from './update-metric';
+
 export {
   getDashboardsAssociatedWithMetric,
   getCollectionsAssociatedWithMetric,

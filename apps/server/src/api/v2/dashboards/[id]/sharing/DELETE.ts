@@ -1,7 +1,7 @@
 import { checkPermission } from '@buster/access-controls';
 import {
   findUsersByEmails,
-  getReportFileById,
+  getDashboardById,
   removeAssetPermission,
 } from '@buster/database/queries';
 import type { User } from '@buster/database/queries';
@@ -12,29 +12,29 @@ import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 
-export async function deleteReportSharingHandler(
-  reportId: string,
+export async function deleteDashboardSharingHandler(
+  dashboardId: string,
   emails: ShareDeleteRequest,
   user: User
 ): Promise<ShareDeleteResponse> {
-  // Get the report to verify it exists and get owner info
-  const report = await getReportFileById({ reportId, userId: user.id });
-  if (!report) {
-    throw new HTTPException(404, { message: 'Report not found' });
+  // Get the dashboard to verify it exists and get owner info
+  const dashboard = await getDashboardById({ dashboardId });
+  if (!dashboard) {
+    throw new HTTPException(404, { message: 'Dashboard not found' });
   }
 
   const permissionCheck = await checkPermission({
     userId: user.id,
-    assetId: reportId,
-    assetType: 'report_file',
+    assetId: dashboardId,
+    assetType: 'dashboard_file',
     requiredRole: 'full_access',
-    workspaceSharing: report.workspace_sharing,
-    organizationId: report.organization_id,
+    workspaceSharing: dashboard.workspaceSharing,
+    organizationId: dashboard.organizationId,
   });
 
   if (!permissionCheck.hasAccess) {
     throw new HTTPException(403, {
-      message: 'You do not have permission to delete sharing for this report',
+      message: 'You do not have permission to delete sharing for this dashboard',
     });
   }
 
@@ -53,7 +53,7 @@ export async function deleteReportSharingHandler(
     }
 
     // Don't allow removing permissions from the owner
-    if (targetUser.id === report.created_by_id) {
+    if (targetUser.id === dashboard.createdBy) {
       continue; // Skip the owner
     }
 
@@ -61,8 +61,8 @@ export async function deleteReportSharingHandler(
     await removeAssetPermission({
       identityId: targetUser.id,
       identityType: 'user',
-      assetId: reportId,
-      assetType: 'report_file',
+      assetId: dashboardId,
+      assetType: 'dashboard_file',
       updatedBy: user.id,
     });
 
@@ -77,15 +77,15 @@ export async function deleteReportSharingHandler(
 }
 
 const app = new Hono().delete('/', zValidator('json', ShareDeleteRequestSchema), async (c) => {
-  const reportId = c.req.param('id');
+  const dashboardId = c.req.param('id');
   const emails = c.req.valid('json');
   const user = c.get('busterUser');
 
-  if (!reportId) {
-    throw new HTTPException(400, { message: 'Report ID is required' });
+  if (!dashboardId) {
+    throw new HTTPException(400, { message: 'Dashboard ID is required' });
   }
 
-  const result = await deleteReportSharingHandler(reportId, emails, user);
+  const result = await deleteDashboardSharingHandler(dashboardId, emails, user);
 
   return c.json(result);
 });

@@ -2,46 +2,45 @@ import { checkPermission } from '@buster/access-controls';
 import {
   bulkCreateAssetPermissions,
   findUsersByEmails,
-  getReportFileById,
+  getChatById,
   getUserOrganizationId,
-  updateReport,
+  updateChatSharing,
 } from '@buster/database/queries';
 import type { User } from '@buster/database/queries';
-import type { ShareUpdateResponse, UpdateReportResponse } from '@buster/server-shared/reports';
+import type { GetChatResponse } from '@buster/server-shared/chats';
 import { type ShareUpdateRequest, ShareUpdateRequestSchema } from '@buster/server-shared/share';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-import { getReportHandler } from '../GET';
+import { getChatHandler } from '../GET';
 
-export async function updateReportShareHandler(
-  reportId: string,
+export async function updateChatShareHandler(
+  chatId: string,
   request: ShareUpdateRequest,
   user: User & { organizationId: string }
 ) {
-  // Check if report exists
-  const report = await getReportFileById({ reportId, userId: user.id });
-  if (!report) {
-    throw new HTTPException(404, { message: 'Report not found' });
+  // Check if chat exists
+  const chat = await getChatById(chatId);
+  if (!chat) {
+    throw new HTTPException(404, { message: 'Chat not found' });
   }
 
   const permissionCheck = await checkPermission({
     userId: user.id,
-    assetId: reportId,
-    assetType: 'report_file',
+    assetId: chatId,
+    assetType: 'chat',
     requiredRole: 'full_access',
-    workspaceSharing: report.workspace_sharing,
-    organizationId: report.organization_id,
+    workspaceSharing: chat.workspaceSharing,
+    organizationId: chat.organizationId,
   });
 
   if (!permissionCheck.hasAccess) {
     throw new HTTPException(403, {
-      message: 'You do not have permission to update sharing for this report',
+      message: 'You do not have permission to update sharing for this chat',
     });
   }
 
-  const { publicly_accessible, public_expiry_date, public_password, workspace_sharing, users } =
-    request;
+  const { publicly_accessible, public_expiry_date, workspace_sharing, users } = request;
 
   // Handle user permissions if provided
   if (users && users.length > 0) {
@@ -81,8 +80,8 @@ export async function updateReportShareHandler(
       permissions.push({
         identityId: targetUser.id,
         identityType: 'user' as const,
-        assetId: reportId,
-        assetType: 'report_file' as const,
+        assetId: chatId,
+        assetType: 'chat' as const,
         role: mappedRole,
         createdBy: user.id,
       });
@@ -94,31 +93,34 @@ export async function updateReportShareHandler(
     }
   }
 
-  // Update report sharing settings
-  await updateReport(
-    {
-      reportId,
-      userId: user.id,
-      publicly_accessible,
-      public_expiry_date,
-      public_password,
-      workspace_sharing,
-    },
-    false
-  );
+  // Update chat sharing settings - only pass defined values
+  const updateOptions: Parameters<typeof updateChatSharing>[2] = {};
+  if (publicly_accessible !== undefined) {
+    updateOptions.publicly_accessible = publicly_accessible;
+  }
+  if (public_expiry_date !== undefined) {
+    updateOptions.public_expiry_date = public_expiry_date;
+  }
+  if (workspace_sharing !== undefined) {
+    updateOptions.workspace_sharing = workspace_sharing;
+  }
+  await updateChatSharing(chatId, user.id, updateOptions);
 
-  const updatedReport: UpdateReportResponse = await getReportHandler(reportId, user);
+  const updatedChat: GetChatResponse = await getChatHandler({
+    chatId,
+    user,
+  });
 
-  return updatedReport;
+  return updatedChat;
 }
 
 const app = new Hono().put('/', zValidator('json', ShareUpdateRequestSchema), async (c) => {
-  const reportId = c.req.param('id');
+  const chatId = c.req.param('id');
   const request = c.req.valid('json');
   const user = c.get('busterUser');
 
-  if (!reportId) {
-    throw new HTTPException(404, { message: 'Report not found' });
+  if (!chatId) {
+    throw new HTTPException(404, { message: 'Chat not found' });
   }
 
   const userOrg = await getUserOrganizationId(user.id);
@@ -127,12 +129,12 @@ const app = new Hono().put('/', zValidator('json', ShareUpdateRequestSchema), as
     throw new HTTPException(403, { message: 'User is not associated with an organization' });
   }
 
-  const updatedReport: ShareUpdateResponse = await updateReportShareHandler(reportId, request, {
+  const updatedChat: GetChatResponse = await updateChatShareHandler(chatId, request, {
     ...user,
     organizationId: userOrg.organizationId,
   });
 
-  return c.json(updatedReport);
+  return c.json(updatedChat);
 });
 
 export default app;
