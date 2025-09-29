@@ -61,14 +61,11 @@ export type MentionInputSuggestionsProps<T = string> = {
   onSubmit: (value: string) => void;
   onPressEnter: MentionInputProps['onPressEnter'];
   onStop: () => void;
-  variant?: 'default';
   autoFocus?: boolean;
   placeholder?: string;
   ariaLabel?: string;
   emptyComponent?: React.ReactNode | string | false; //if false, no empty component will be shown
   children?: React.ReactNode;
-  sendIcon?: React.ReactNode;
-  secondaryActions?: React.ReactNode;
   //mentions
   onMentionItemClick?: (params: MentionTriggerItem<T>) => void;
   mentions: MentionSuggestionExtension[];
@@ -81,13 +78,13 @@ export type MentionInputSuggestionsProps<T = string> = {
   onSuggestionItemClick?: (params: Omit<MentionInputSuggestionsOnSelectParams, 'onClick'>) => void;
   addSuggestionValueToInput?: boolean; //defaults to true
   closeSuggestionOnSelect?: boolean; //defaults to true
+  className?: string;
+  inputContainerClassName?: string;
+  suggestionsContainerClassName?: string;
 } & Pick<React.ComponentProps<typeof Command>, 'filter' | 'shouldFilter'>;
 
 export type MentionInputSuggestionsContainerProps = {
   children: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
-} & Pick<
-  MentionInputSuggestionsProps,
-  'sendIcon' | 'secondaryActions' | 'submitting' | 'disabled' | 'onStop' | 'onSubmit' | 'variant'
->;
+} & Pick<MentionInputSuggestionsProps, 'submitting' | 'disabled' | 'onStop' | 'onSubmit'>;

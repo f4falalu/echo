@@ -73,7 +73,7 @@ export const MentionInput = forwardRef<MentionInputRef, MentionInputProps>(
       editable: !disabled && !readOnly,
       editorProps: {
         attributes: {
-          class: cn('p-1', classes, className),
+          class: cn(classes, className),
         },
       },
       onUpdate: ({ editor }) => {

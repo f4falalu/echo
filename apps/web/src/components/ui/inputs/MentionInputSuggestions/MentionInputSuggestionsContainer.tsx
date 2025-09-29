@@ -11,7 +11,7 @@ export const MentionInputSuggestionsContainer: React.FC<
   return (
     <div
       data-testid="mention-input-suggestions-container"
-      className={cn('flex flex-col border rounded overflow-hidden', className)}
+      className={cn('flex flex-col overflow-hidden px-5 py-3', className)}
       style={style}
     >
       {children}

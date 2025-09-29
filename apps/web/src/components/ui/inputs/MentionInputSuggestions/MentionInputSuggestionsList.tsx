@@ -1,5 +1,6 @@
 import { Command } from 'cmdk';
 import type React from 'react';
+import { cn } from '@/lib/utils';
 
 interface MentionInputSuggestionsListProps {
   className?: string;
@@ -16,7 +17,7 @@ export const MentionInputSuggestionsList = ({
 }: MentionInputSuggestionsListProps) => {
   if (!show) return null;
   return (
-    <Command.List className={className} style={style}>
+    <Command.List className={cn('border-t px-3 py-1.5', className)} style={style}>
       {children}
     </Command.List>
   );

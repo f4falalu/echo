@@ -1,6 +1,7 @@
 import { Command } from 'cmdk';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { cn } from '@/lib/utils';
 import type { MentionInputRef } from '../MentionInput';
 import type {
   MentionInputSuggestionsOnSelectParams,
@@ -22,14 +23,15 @@ export const MentionInputSuggestions = ({
   onPressEnter,
   disabled: disabledGlobal = false,
   onStop,
-  sendIcon,
-  secondaryActions,
-  variant = 'default',
   onChange,
   ariaLabel = 'Mention Input Suggestions',
   readOnly,
   autoFocus,
   children,
+  //container
+  className,
+  inputContainerClassName,
+  suggestionsContainerClassName,
   //suggestions
   suggestionItems,
   closeSuggestionOnSelect = true,
@@ -128,8 +130,13 @@ export const MentionInputSuggestions = ({
   }, [showSuggestionList]);
 
   return (
-    <Command ref={commandRef} value={value} label={ariaLabel} className="relative">
-      <MentionInputSuggestionsContainer>
+    <Command
+      ref={commandRef}
+      value={value}
+      label={ariaLabel}
+      className={cn('relative border rounded overflow-hidden bg-background shadow', className)}
+    >
+      <MentionInputSuggestionsContainer className={inputContainerClassName}>
         <MentionInputSuggestionsMentionsInput
           ref={mentionsInputRef}
           defaultValue={defaultValue}
@@ -147,7 +154,10 @@ export const MentionInputSuggestions = ({
         />
         {children}
       </MentionInputSuggestionsContainer>
-      <MentionInputSuggestionsList show={showSuggestionList}>
+      <MentionInputSuggestionsList
+        show={showSuggestionList}
+        className={suggestionsContainerClassName}
+      >
         <MentionInputSuggestionsItemsSelector
           suggestionItems={suggestionItems}
           onSelect={onSelectItem}
