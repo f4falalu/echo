@@ -5,15 +5,22 @@ import { onUpdateTransformer } from './update-transformers';
 export const SubmitOnEnter = ({
   onPressEnter,
   mentionsByTrigger,
+  commandListNavigatedRef,
 }: {
   onPressEnter?: MentionInputProps['onPressEnter'];
   mentionsByTrigger: Record<string, MentionSuggestionExtension>;
+  commandListNavigatedRef?: React.RefObject<boolean>;
 }) =>
   Extension.create({
     addKeyboardShortcuts() {
       return {
         Enter: ({ editor }) => {
-          console.log('Enter', onPressEnter);
+          // If command list has been navigated with arrow keys, let the command list handle Enter
+          if (commandListNavigatedRef?.current) {
+            return !!onPressEnter; // Let the command list handle this
+          }
+
+          // Otherwise, let Tiptap handle the Enter key
           if (onPressEnter) {
             const { transformedValue, transformedJson, editorText } = onUpdateTransformer({
               editor,

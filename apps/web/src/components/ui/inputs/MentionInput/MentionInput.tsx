@@ -22,6 +22,7 @@ export const MentionInput = ({
   readOnly,
   disabled,
   onPressEnter,
+  commandListNavigatedRef,
 }: MentionInputProps) => {
   const mentionsByTrigger = useMemo(() => {
     return mentions.reduce(
@@ -44,6 +45,7 @@ export const MentionInput = ({
       SubmitOnEnter({
         mentionsByTrigger,
         onPressEnter,
+        commandListNavigatedRef,
       }),
     ],
     content: defaultValue,

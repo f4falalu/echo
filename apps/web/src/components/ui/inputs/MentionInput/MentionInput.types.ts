@@ -99,6 +99,7 @@ export type MentionInputProps = {
   className?: string;
   readOnly?: boolean;
   disabled?: boolean;
+  commandListNavigatedRef?: React.RefObject<boolean>;
 };
 
 declare module '@tiptap/core' {

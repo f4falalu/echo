@@ -1,5 +1,5 @@
 import { Command } from 'cmdk';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import type { BusterInputProps, BusterOnSelectParams } from './BusterInput.types';
 import { BusterInputContainer } from './BusterInputContainer';
@@ -38,12 +38,17 @@ export const BusterInput = ({
 }: BusterInputProps) => {
   const [hasClickedSelect, setHasClickedSelect] = useState(false);
   const [value, setValue] = useState(valueProp ?? defaultValue);
+  const commandListNavigatedRef = useRef(false);
+
+  const commandRef = useRef<HTMLDivElement>(null);
 
   const showSuggestionList = !hasClickedSelect && suggestionItems.length > 0;
 
   const onChangeInputValue = useCallback((value: string) => {
     setValue(value);
     setHasClickedSelect(false);
+    // Reset command list navigation when user types
+    commandListNavigatedRef.current = false;
     onChange?.(value);
   }, []);
 
@@ -84,8 +89,32 @@ export const BusterInput = ({
     onStop();
   });
 
+  // Track arrow key navigation in the command list
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (showSuggestionList && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
+        commandListNavigatedRef.current = true;
+      }
+    };
+    const commandElement = commandRef.current;
+    if (commandElement) {
+      commandElement.addEventListener('keydown', handleKeyDown);
+      return () => {
+        commandElement.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [showSuggestionList]);
+
   return (
-    <Command label={ariaLabel} className="relative">
+    <Command
+      ref={commandRef}
+      value={value}
+      label={ariaLabel}
+      className="relative"
+      onValueChange={(v) => {
+        console.log('onValueChange', v);
+      }}
+    >
       <BusterInputContainer
         onSubmit={onSubmitPreflight}
         onStop={onStopPreflight}
@@ -107,6 +136,7 @@ export const BusterInput = ({
           filter={filter}
           onMentionItemClick={onMentionItemClick}
           onPressEnter={onPressEnter || onSubmit}
+          commandListNavigatedRef={commandListNavigatedRef}
         />
       </BusterInputContainer>
       <BusterInputList show={showSuggestionList}>

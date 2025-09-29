@@ -20,6 +20,7 @@ export type BusterMentionsInputProps = Pick<
   style?: React.CSSProperties;
   autoFocus?: boolean;
   readOnly?: boolean;
+  commandListNavigatedRef?: React.RefObject<boolean>;
 };
 
 export const BusterMentionsInput = ({
