@@ -53,7 +53,6 @@ export async function getChatHandler(params: GetChatHandlerParams): Promise<GetC
   }
 
   const { chat, user: creator } = chatData;
-  console.info('user', user);
 
   // Check permissions using the access control system
   const { hasAccess, effectiveRole } = await checkPermission({
