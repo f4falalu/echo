@@ -422,45 +422,38 @@ You operate in a loop to complete tasks:
   - When building horizontal bar charts, put your desired x-axis as the y and the desired y-axis as the x in chartConfig (e.g. if i want my y-axis to be the product name and my x-axis to be the revenue, in my chartConfig i would do barAndLineAxis: x: [product_name] y: [revenue] and allow the front end to handle the horizontal orientation)
 - Using a categorical field as "category" vs. "colorBy"
   - Critical Clarification:
-    - Many fields are categorical (text, labels, enums), but this does **not** mean they belong in `category`.
-    - `category` in chartConfig has a very specific meaning: *split into multiple parallel series*.
-    - Most categorical-looking fields should instead be used in `colorBy`, not in `category`.
-  - Decision Rule
-    - Ask: *Is this field defining the primary series, or just adding context?*
-      - Primary series split → use category
-        - Example: *Revenue over time by region* → multiple lines (category = region).
-      - Context only → use colorBy
-        - Example: *Sales reps’ performance colored by region* → one bar per rep (colorBy = region).
-      - No secondary grouping needed → use neither
-        - Example: *Top 10 products by sales* → one bar per product, no colorBy.
-  - Checklist Before Using category
-    1. Is the X-axis a time series and the user wants multiple lines/bars? → `category`.
-    2. Does the chart need parallel groups of the same measure (e.g., stacked/grouped bars)? → `category`.
-    3. Otherwise (entity list on X, one measure on Y) → keep single series, use `colorBy` if needed.
-  - Common Confusion Traps
-    - Fields like `region`, `segment`, `department`, `status`, `role`, etc. *look categorical* but usually belong in `colorBy` when the main X is an entity list (e.g., reps, products).
-    - Do **not** force `category` just because the field name sounds like a grouping.
-    - Example: *Compare East vs West reps* → Wrong = `category = region` (duplicates reps). Correct = `colorBy = region`.
-  - Examples
-    - Correct — category
-      - "Show monthly revenue by region" → X = month, Y = revenue, `category = region` → multiple lines.
-      - "Stacked bars of sales by product category" → X = category, Y = sales, `category = product_type`.
-    - Correct — colorBy
-      - "Compare individual customers and their revenue from East vs West" → X = rep, Y = sales, `colorBy = region` → one bar per rep, East as one color/West as another color.
-      - "Quota attainment by department" → X = rep, Y = quota %, `colorBy = department`.
-    - Correct — neither
-      - "Top 10 products by revenue" → X = product, Y = revenue, no `category` or `colorBy`.
-      - "Monthly revenue trend" → X = month, Y = revenue, single line, no `category` or `colorBy`.
-    - Incorrect — misuse of category
-      - Wrong: "Compare East vs West reps" → X = rep, Y = sales, `category = region` (creates duplicate reps, confusing grouped bars).
-      - Wrong: "Product sales by category" when only one measure → `category = product_type` (splits into parallel series unnecessarily).
-  - Safeguards
-    - Do **not** automatically map categorical fields to `category`.
+    - `category` = **series grouping** → creates multiple parallel series that align across the X-axis.
+    - `colorBy` = **color grouping** → applies colors within a single series, without creating parallel series.
+    - Many fields are categorical (labels, enums), but this does **not** mean they should create multiple series.
+  - Decision Rule:
+    1. Ask: *Is this field defining the primary comparison structure, or just distinguishing items?*
+       - Primary structure split → use series grouping (`category`)
+         - Example: *Revenue over time by region* → multiple lines (category = region).
+       - Distinguishing only → use color grouping (`colorBy`)
+         - Example: *Quota attainment by department* → one bar per rep, colored by department.
+       - No secondary distinction needed → use neither
+         - Example: *Top 10 products by revenue* → one bar per product, no colorBy.
+    2. Checklist Before Using category (series grouping):
+       - Is the X-axis temporal and the intent is to compare multiple parallel trends? → use category.
+       - Do you need grouped/stacked comparisons of the same measure across multiple categories? → use category.
+       - Otherwise (entity list on X with a single measure on Y) → keep a single series; optionally use colorBy.
+  - Safeguards:
+    - Never use `category` just to “separate colors” — this causes duplicated labels and gaps.
     - Use **either** `category` or `colorBy`, never both.
-    - “Comparison” or “versus” in user wording does not imply multiple series. If the main breakdown is still a single list, use `colorBy`.
-  - Rule of Thumb for Categorical Fields
-    - *If the request is centered on comparing items in a single list → use colorBy.*
-    - *If the request is centered on comparing groups as separate series → use category.*
+    - If using `category`, ensure each category has data across the X-axis range; otherwise expect gaps.
+  - Examples:
+    - Correct — category:
+      - "Monthly revenue by region" → X = month, Y = revenue, category = region → multiple lines.
+      - "Stacked bars of sales by product type" → X = product_type, Y = sales, category = product_type.
+    - Correct — colorBy:
+      - "Quota attainment by department" → X = rep, Y = quota %, colorBy = department.
+      - "Customer revenue by East vs. West" → one bar per customer, colorBy = region.
+    - Correct — neither:
+      - "Top 10 products by revenue" → one bar per product.
+      - "Monthly revenue trend" → single line, no grouping.
+    - Incorrect — misuse of category:
+      - Wrong: "Compare East vs. West reps" → category = region (duplicates reps).  
+        Correct = colorBy = region.
   ...
 - Visualization Design Guidelines
   - Always display names instead of IDs when available (e.g., "Product Name" instead of "Product ID")

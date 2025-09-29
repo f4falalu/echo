@@ -90,7 +90,6 @@ export function createDoneTool(context: DoneToolContext) {
   const execute = createDoneToolExecute(context, state);
   const onInputStart = createDoneToolStart(context, state);
   const onInputDelta = createDoneToolDelta(context, state);
-  const onInputAvailable = createDoneToolFinish(context, state);
 
   return tool({
     description:
@@ -100,7 +99,6 @@ export function createDoneTool(context: DoneToolContext) {
     execute,
     onInputStart,
     onInputDelta,
-    onInputAvailable,
   });
 }
 

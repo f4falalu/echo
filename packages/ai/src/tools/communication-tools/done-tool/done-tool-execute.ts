@@ -82,6 +82,8 @@ export function createDoneToolExecute(context: DoneToolContext, state: DoneToolS
       // Now do the final authoritative update with the complete input
       const result = await processDone(state, state.toolCallId, context.messageId, context, input);
 
+      await waitForPendingUpdates(context.messageId);
+
       cleanupState(state);
       return result;
     },
