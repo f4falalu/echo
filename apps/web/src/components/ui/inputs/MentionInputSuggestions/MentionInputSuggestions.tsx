@@ -43,11 +43,12 @@ export const MentionInputSuggestions = ({
 }: MentionInputSuggestionsProps) => {
   const [hasClickedSelect, setHasClickedSelect] = useState(false);
   const [value, setValue] = useState(valueProp ?? defaultValue);
-  const [hasResults, setHasResults] = useState(false);
+  const [hasResults, setHasResults] = useState(!!suggestionItems.length);
 
   const commandListNavigatedRef = useRef(false);
   const commandRef = useRef<HTMLDivElement>(null);
   const mentionsInputRef = useRef<MentionInputRef>(null);
+  console.log(hasResults);
 
   const showSuggestionList = !hasClickedSelect && suggestionItems.length > 0;
 
@@ -140,7 +141,7 @@ export const MentionInputSuggestions = ({
           commandListNavigatedRef={commandListNavigatedRef}
           disabled={disabled}
         />
-        {children}
+        {children && <div className="mt-3">{children}</div>}
       </MentionInputSuggestionsContainer>
       {hasResults && <div className="border-b mb-1.5" />}
       <MentionInputSuggestionsList

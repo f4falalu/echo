@@ -1,12 +1,12 @@
 import type { ListShortcutsResponse } from '@buster/server-shared/shortcuts';
 import type { GetSuggestedPromptsResponse } from '@buster/server-shared/user';
-import sample from 'lodash/sample';
 import sampleSize from 'lodash/sampleSize';
 import React, { useMemo } from 'react';
 import type { MentionSuggestionExtension } from '@/components/ui/inputs/MentionInput';
 import type { MentionInputSuggestionsProps } from '@/components/ui/inputs/MentionInputSuggestions';
 import { MentionInputSuggestions } from '@/components/ui/inputs/MentionInputSuggestions';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { BusterChatInputButtons } from './BusterChatInputButtons';
 
 export type BusterChatInput = {
   defaultValue: string;
@@ -71,7 +71,17 @@ export const BusterChatInputBase: React.FC<BusterChatInput> = React.memo(
         onPressEnter={onPressEnter}
         mentions={mentions}
         suggestionItems={suggestionItems}
-      />
+        placeholder="Ask a question or type ‘/’ for shortcuts..."
+      >
+        <BusterChatInputButtons
+          onSubmit={() => {}}
+          onStop={() => {}}
+          submitting={submitting}
+          disabled={disabled}
+          mode="auto"
+          onModeChange={() => {}}
+        />
+      </MentionInputSuggestions>
     );
   }
 );
@@ -103,7 +113,7 @@ const useUniqueSuggestions = (
     const items: MentionInputSuggestionsProps['suggestionItems'] = fourUniqueSuggestions.map(
       (suggestion) => ({
         type: 'item',
-        value: suggestion.type,
+        value: suggestion.type + suggestion.value,
         label: suggestion.value,
       })
     );

@@ -7,7 +7,7 @@ export const MentionInputSuggestionsSeparator = ({
   ...props
 }: React.ComponentPropsWithoutRef<typeof Command.Separator>) => {
   return (
-    <Command.Separator className={cn('bg-border -mx-1 h-px', props.className)} {...props}>
+    <Command.Separator className={cn('bg-border -mx-1 h-px my-1.5', props.className)} {...props}>
       {children}
     </Command.Separator>
   );
