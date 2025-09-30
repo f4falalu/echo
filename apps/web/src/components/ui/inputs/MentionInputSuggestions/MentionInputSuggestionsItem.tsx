@@ -83,6 +83,7 @@ const PopoverContentWrapper = ({
       align="start"
       className="p-0"
       content={popoverContent}
+      delayDuration={600}
     >
       {children}
     </Popover>
