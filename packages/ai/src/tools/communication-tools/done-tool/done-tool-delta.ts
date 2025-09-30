@@ -1,6 +1,5 @@
 import {
   type UpdateMessageEntriesParams,
-  getAssetLatestVersion,
   updateChat,
   updateMessage,
   updateMessageEntries,
@@ -52,6 +51,7 @@ export function createDoneToolDelta(context: DoneToolContext, doneToolState: Don
       assetId: string;
       assetName: string;
       assetType: ResponseMessageFileType;
+      versionNumber: number;
     };
 
     function isAssetToReturn(value: unknown): value is AssetToReturn {
@@ -63,7 +63,8 @@ export function createDoneToolDelta(context: DoneToolContext, doneToolState: Don
       const typeOk =
         typeof typeVal === 'string' &&
         ResponseMessageFileTypeSchema.options.includes(typeVal as ResponseMessageFileType);
-      return idOk && nameOk && typeOk;
+      const versionOk = typeof obj.versionNumber === 'number' && obj.versionNumber > 0;
+      return idOk && nameOk && typeOk && versionOk;
     }
 
     let assetsToInsert: AssetToReturn[] = [];
@@ -95,7 +96,7 @@ export function createDoneToolDelta(context: DoneToolContext, doneToolState: Don
           type: 'file' as const,
           file_type: a.assetType,
           file_name: a.assetName,
-          version_number: 1,
+          version_number: a.versionNumber,
           filter_version_id: null,
           metadata: [
             {
@@ -128,7 +129,7 @@ export function createDoneToolDelta(context: DoneToolContext, doneToolState: Don
       if (newAssets.length > 0) {
         doneToolState.addedAssets = [
           ...(doneToolState.addedAssets || []),
-          ...newAssets.map((a) => ({ assetId: a.assetId, assetType: a.assetType })),
+          ...newAssets.map((a) => ({ assetId: a.assetId, assetType: a.assetType, versionNumber: a.versionNumber })),
         ];
       }
     }
@@ -159,16 +160,10 @@ export function createDoneToolDelta(context: DoneToolContext, doneToolState: Don
               const firstAsset = doneToolState.addedAssets[0];
 
               if (firstAsset) {
-                // Get the actual version number from the database
-                const versionNumber = await getAssetLatestVersion({
-                  assetId: firstAsset.assetId,
-                  assetType: firstAsset.assetType,
-                });
-
                 await updateChat(context.chatId, {
                   mostRecentFileId: firstAsset.assetId,
                   mostRecentFileType: firstAsset.assetType,
-                  mostRecentVersionNumber: versionNumber,
+                  mostRecentVersionNumber: firstAsset.versionNumber,
                 });
               }
             } catch (error) {

@@ -15,6 +15,7 @@ export const DoneToolInputSchema = z.object({
         assetId: z.string().uuid(),
         assetName: z.string(),
         assetType: AssetTypeSchema,
+        versionNumber: z.number().int().positive().describe('The version number of the asset to return'),
       })
     )
     .describe(
@@ -60,17 +61,12 @@ const DoneToolStateSchema = z.object({
     .array(
       z.object({
         assetId: z.string(),
-        assetType: z.enum([
-          'metric_file',
-          'dashboard_file',
-          'report_file',
-          'analyst_chat',
-          'collection',
-        ]),
+        assetType: AssetTypeSchema,
+        versionNumber: z.number(),
       })
     )
     .optional()
-    .describe('Assets that have been added with their types for chat update'),
+    .describe('Assets that have been added with their types and version numbers for chat update'),
 });
 
 export type DoneToolInput = z.infer<typeof DoneToolInputSchema>;
