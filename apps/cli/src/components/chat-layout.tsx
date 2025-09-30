@@ -1,6 +1,6 @@
 import { Box, Text } from 'ink';
-import TextInput from 'ink-text-input';
 import { useMemo } from 'react';
+import { MultiLineTextInput } from './multi-line-text-input';
 import { SimpleBigText } from './simple-big-text';
 
 export function ChatTitle() {
@@ -26,7 +26,7 @@ export function ChatIntroText() {
   const lines = useMemo(
     () => [
       'You are standing in an open terminal. An AI awaits your commands.',
-      'ENTER to send • \\ + ENTER for a new line • @ to mention files',
+      'ENTER to send • \\n for a new line • @ to mention files',
     ],
     []
   );
@@ -72,13 +72,20 @@ export function ChatInput({ value, placeholder, onChange, onSubmit }: ChatInputP
       borderColor="#4c1d95"
       paddingX={1}
       width="100%"
-      alignItems="center"
       marginTop={1}
+      flexDirection="row"
     >
       <Text color="#a855f7" bold>
         ❯{' '}
       </Text>
-      <TextInput value={value} onChange={onChange} onSubmit={onSubmit} placeholder={placeholder} />
+      <Box flexGrow={1}>
+        <MultiLineTextInput
+          value={value}
+          onChange={onChange}
+          onSubmit={onSubmit}
+          placeholder={placeholder}
+        />
+      </Box>
     </Box>
   );
 }
@@ -107,11 +114,19 @@ export function ChatHistory({ entries }: ChatHistoryProps) {
 
   return (
     <Box flexDirection="column" marginTop={1} width="100%">
-      {entries.map((entry) => (
-        <Box key={entry.id}>
-          <Text color="#e0e7ff">❯ {entry.value}</Text>
-        </Box>
-      ))}
+      {entries.map((entry) => {
+        const lines = entry.value.split('\n');
+        return (
+          <Box key={entry.id} flexDirection="column">
+            {lines.map((line, index) => (
+              <Text key={`${entry.id}-line-${index}`} color="#e0e7ff">
+                {index === 0 ? '❯ ' : '  '}
+                {line}
+              </Text>
+            ))}
+          </Box>
+        );
+      })}
     </Box>
   );
 }
