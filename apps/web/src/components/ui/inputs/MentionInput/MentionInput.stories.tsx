@@ -1,9 +1,11 @@
 import { faker } from '@faker-js/faker';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { useMemo, useRef, useState } from 'react';
 import { fn } from 'storybook/test';
 import { createMentionSuggestionExtension } from './createMentionSuggestionOption';
+import { defaultQueryMentionsFilter } from './defaultQueryMentionsFilter';
 import { MentionInput } from './MentionInput';
-import type { MentionInputTriggerItem } from './MentionInput.types';
+import type { MentionInputRef, MentionInputTriggerItem } from './MentionInput.types';
 
 const meta = {
   title: 'UI/Inputs/MentionInput',
@@ -311,6 +313,165 @@ export const Default: Story = {
       description: {
         story:
           'Basic mention input component that supports @mentions. Type "@" to see the autocomplete suggestions.',
+      },
+    },
+  },
+};
+
+export const DynamicItems: Story = {
+  args: {
+    mentions: [],
+    onChange: fn(),
+  },
+  render: () => {
+    const [dynamicItems, setDynamicItems] = useState<MentionInputTriggerItem[]>([
+      { value: 'Initial Item 1', label: 'Initial Item 1' },
+      { value: 'Initial Item 2', label: 'Initial Item 2' },
+    ]);
+    const mentionInputRef = useRef<MentionInputRef>(null);
+
+    const addRandomItem = () => {
+      const randomNames = [
+        'Alice Johnson',
+        'Bob Smith',
+        'Charlie Brown',
+        'Diana Prince',
+        'Edward Norton',
+        'Fiona Apple',
+        'George Lucas',
+        'Helen Hunt',
+        'Ivan Drago',
+        'Julia Roberts',
+        'Kevin Hart',
+        'Linda Carter',
+      ];
+
+      const randomName = randomNames[Math.floor(Math.random() * randomNames.length)];
+      const randomId = Math.random().toString(36).substring(7);
+
+      const newItem: MentionInputTriggerItem = {
+        value: `${randomName}-${randomId}`,
+        label: (
+          <span className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 flex items-center justify-center text-white text-xs font-semibold">
+              {randomName.charAt(0)}
+            </div>
+            <span>{randomName}</span>
+          </span>
+        ),
+        pillLabel: randomName,
+      };
+
+      setDynamicItems((prev) => [...prev, newItem]);
+    };
+
+    const addMentionToInput = () => {
+      if (mentionInputRef.current && dynamicItems.length > 0) {
+        const randomItem = dynamicItems[Math.floor(Math.random() * dynamicItems.length)];
+        // Only process if it's an actual item (not a separator or group)
+        if ('value' in randomItem && 'label' in randomItem) {
+          mentionInputRef.current.addMentionToInput({
+            value: randomItem.value,
+            label: randomItem.label,
+            pillLabel: 'pillLabel' in randomItem ? randomItem.pillLabel : undefined,
+            trigger: '!',
+          });
+        }
+      }
+    };
+
+    const clearItems = () => {
+      setDynamicItems([]);
+    };
+
+    const dynamicSuggestions = useMemo(
+      () =>
+        createMentionSuggestionExtension({
+          trigger: '!',
+          items: ({ query }) => {
+            // This function is called each time suggestions are needed,
+            // so it will always get the current dynamicItems state
+            console.log(
+              'Getting dynamic items for query:',
+              query,
+              'Current items:',
+              dynamicItems.length
+            );
+            return defaultQueryMentionsFilter(query, dynamicItems);
+          },
+          pillStyling: {
+            className: () => {
+              return 'bg-gradient-to-r from-purple-100 to-pink-100 border-purple-300 text-purple-700 hover:from-purple-200 hover:to-pink-200';
+            },
+          },
+          popoverContent: (props) => {
+            return (
+              <div className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg">
+                <h4 className="font-semibold text-purple-800">Dynamic Item</h4>
+                <p className="text-sm text-purple-600 mt-1">Value: {props.value}</p>
+              </div>
+            );
+          },
+        }),
+      [dynamicItems]
+    );
+
+    return (
+      <div className="space-y-4 w-full max-w-2xl">
+        <MentionInput
+          key={`dynamic-${dynamicItems.length}`}
+          ref={mentionInputRef}
+          className="min-w-64 p-3 border border-gray-200 rounded-lg"
+          placeholder="Type ! to see dynamic mentions..."
+          mentions={[dynamicSuggestions]}
+          onChange={(value) => {
+            console.log('Input changed:', value);
+          }}
+        />
+
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={addRandomItem}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
+          >
+            Add Random Item ({dynamicItems.length} items)
+          </button>
+
+          <button
+            onClick={addMentionToInput}
+            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium disabled:bg-gray-400"
+            disabled={dynamicItems.length === 0}
+          >
+            Insert Random Mention
+          </button>
+
+          <button
+            onClick={clearItems}
+            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium"
+          >
+            Clear All Items
+          </button>
+        </div>
+
+        <div className="text-sm text-gray-600">
+          <p>
+            <strong>Instructions:</strong>
+          </p>
+          <ul className="list-disc list-inside mt-1 space-y-1">
+            <li>Type "!" in the input to trigger the dynamic mention suggestions</li>
+            <li>Use "Add Random Item" to add new items to the mention list</li>
+            <li>Use "Insert Random Mention" to programmatically add a mention to the input</li>
+            <li>Watch how the mention count updates as you add/remove items</li>
+          </ul>
+        </div>
+      </div>
+    );
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Interactive story demonstrating dynamic mention items. You can add items to the mention list dynamically and insert mentions programmatically using the component ref.',
       },
     },
   },
