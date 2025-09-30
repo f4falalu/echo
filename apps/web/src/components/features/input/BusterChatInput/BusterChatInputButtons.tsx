@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import { Button } from '@/components/ui/buttons';
 import { ArrowUp, Magnifier, Sparkle2 } from '@/components/ui/icons';
 import Atom from '@/components/ui/icons/NucleoIconOutlined/atom';
@@ -16,6 +15,7 @@ import { AppTooltip } from '@/components/ui/tooltip';
 import { Text } from '@/components/ui/typography';
 import { cn } from '@/lib/utils';
 import { useMicrophonePermission } from './hooks/useMicrophonePermission';
+import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 
 export type BusterChatInputMode = 'auto' | 'research' | 'deep-research';
 
@@ -42,20 +42,13 @@ export const BusterChatInputButtons = React.memo(
     onDictateListeningChange,
   }: BusterChatInputButtons) => {
     const hasGrantedPermissions = useMicrophonePermission();
-    const { transcript, listening, browserSupportsSpeechRecognition } = useSpeechRecognition();
+    const { transcript, listening, browserSupportsSpeechRecognition, onStartListening, onStopListening } =
+      useSpeechRecognition();
     const hasValue = useMentionInputHasValue();
     const onChangeValue = useMentionInputSuggestionsOnChangeValue();
     const getValue = useMentionInputSuggestionsGetValue();
 
     const disableSubmit = !hasValue;
-
-    const startListening = async () => {
-      SpeechRecognition.startListening({ continuous: true });
-    };
-
-    const stopListening = () => {
-      SpeechRecognition.stopListening();
-    };
 
     useEffect(() => {
       if (listening && transcript) {
@@ -87,7 +80,7 @@ export const BusterChatInputButtons = React.memo(
                 rounding={'large'}
                 variant={'ghost'}
                 prefix={<Microphone />}
-                onClick={listening ? stopListening : startListening}
+                onClick={listening ? onStopListening : onStartListening}
                 loading={false}
                 disabled={disabled}
                 className={cn(
