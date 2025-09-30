@@ -13,8 +13,8 @@ import { Popover } from '@/components/ui/popover';
 import { AppSegmented, type AppSegmentedProps } from '@/components/ui/segmented';
 import { AppTooltip } from '@/components/ui/tooltip';
 import { Text } from '@/components/ui/typography';
-import { cn } from '@/lib/utils';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
+import { cn } from '@/lib/utils';
 
 export type BusterChatInputMode = 'auto' | 'research' | 'deep-research';
 
@@ -73,7 +73,11 @@ export const BusterChatInputButtons = React.memo(
           {browserSupportsSpeechRecognition && (
             <AppTooltip
               title={
-                listening ? (!hasPermission ? 'Audio permissions not enabled' : 'Stop dictation...') : 'Press to dictate...'
+                listening
+                  ? !hasPermission
+                    ? 'Audio permissions not enabled'
+                    : 'Stop dictation...'
+                  : 'Press to dictate...'
               }
             >
               <Button

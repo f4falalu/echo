@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { openErrorNotification } from '@/context/BusterNotifications';
 
 // Type definitions for Web Speech API
 interface SpeechRecognitionErrorEvent extends Event {
@@ -120,11 +121,15 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       console.error('Speech recognition error:', event.error);
+      let message = '';
       if (event.error.includes('language-not-supported')) {
-        setError('Browser does not support dictation');
+        message = 'Browser does not support dictation';
       } else {
-        setError(event.error);
+        message = event.error;
       }
+
+      openErrorNotification({ message });
+      setError(message);
 
       onStopListening();
     };
@@ -150,7 +155,8 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
         setTranscript('');
         recognitionRef.current.start();
       } catch (error) {
-        console.error('Microphone permission denied:', error);
+        console.error('Microphone error:', error);
+        openErrorNotification({ message: `Microphone permission denied: ${error}` });
       }
     }
   }, [listening]);
