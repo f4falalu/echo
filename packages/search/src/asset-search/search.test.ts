@@ -6,7 +6,7 @@ import { performTextSearch } from './search';
 vi.mock('@buster/database/queries', () => ({
   getUserOrganizationId: vi.fn(),
   searchText: vi.fn(),
-  getAssetAncestorsWithTransaction: vi.fn(),
+  getAssetAncestors: vi.fn(),
 }));
 
 vi.mock('./text-processing-helpers', () => ({
@@ -14,11 +14,7 @@ vi.mock('./text-processing-helpers', () => ({
 }));
 
 // Import the mocked functions
-import {
-  getAssetAncestorsWithTransaction,
-  getUserOrganizationId,
-  searchText,
-} from '@buster/database/queries';
+import { getAssetAncestors, getUserOrganizationId, searchText } from '@buster/database/queries';
 import { processSearchResultText } from './text-processing-helpers';
 
 describe('search.ts - Unit Tests', () => {
@@ -36,12 +32,14 @@ describe('search.ts - Unit Tests', () => {
       assetType: 'chat',
       title: 'Test Result 1',
       additionalText: 'This is additional text for result 1',
+      updatedAt: '2024-01-01T00:00:00.000Z',
     },
     {
       assetId: 'asset-2',
       assetType: 'metric_file',
       title: 'Test Result 2',
       additionalText: 'This is additional text for result 2',
+      updatedAt: '2024-01-01T00:00:00.000Z',
     },
   ];
 
@@ -50,8 +48,7 @@ describe('search.ts - Unit Tests', () => {
     pagination: {
       page: 1,
       page_size: 10,
-      total: 2,
-      total_pages: 1,
+      has_more: false,
     },
   };
 
@@ -70,7 +67,7 @@ describe('search.ts - Unit Tests', () => {
       processedTitle: `<b>${title}</b>`,
       processedAdditionalText: `<b>${additionalText}</b>`,
     }));
-    (getAssetAncestorsWithTransaction as Mock).mockResolvedValue(mockAncestors);
+    (getAssetAncestors as Mock).mockResolvedValue(mockAncestors);
   });
 
   describe('performTextSearch', () => {
@@ -110,8 +107,7 @@ describe('search.ts - Unit Tests', () => {
         pagination: {
           page: 1,
           page_size: 10,
-          total: 2,
-          total_pages: 1,
+          has_more: false,
         },
       });
 
@@ -226,14 +222,14 @@ describe('search.ts - Unit Tests', () => {
 
       const result = await performTextSearch(mockUserId, searchRequestWithAncestors);
 
-      expect(getAssetAncestorsWithTransaction).toHaveBeenCalledTimes(2);
-      expect(getAssetAncestorsWithTransaction).toHaveBeenCalledWith(
+      expect(getAssetAncestors).toHaveBeenCalledTimes(2);
+      expect(getAssetAncestors).toHaveBeenCalledWith(
         'asset-1',
         'chat',
         mockUserId,
         mockOrganizationId
       );
-      expect(getAssetAncestorsWithTransaction).toHaveBeenCalledWith(
+      expect(getAssetAncestors).toHaveBeenCalledWith(
         'asset-2',
         'metric_file',
         mockUserId,
@@ -247,7 +243,7 @@ describe('search.ts - Unit Tests', () => {
     it('should not include ancestors when not requested', async () => {
       const result = await performTextSearch(mockUserId, basicSearchRequest);
 
-      expect(getAssetAncestorsWithTransaction).not.toHaveBeenCalled();
+      expect(getAssetAncestors).not.toHaveBeenCalled();
       expect(result.data[0]).not.toHaveProperty('ancestors');
       expect(result.data[1]).not.toHaveProperty('ancestors');
     });
@@ -258,8 +254,7 @@ describe('search.ts - Unit Tests', () => {
         pagination: {
           page: 1,
           page_size: 10,
-          total: 0,
-          total_pages: 0,
+          has_more: false,
         },
       };
 
@@ -269,7 +264,7 @@ describe('search.ts - Unit Tests', () => {
 
       expect(result).toEqual(emptySearchResponse);
       expect(processSearchResultText).not.toHaveBeenCalled();
-      expect(getAssetAncestorsWithTransaction).not.toHaveBeenCalled();
+      expect(getAssetAncestors).not.toHaveBeenCalled();
     });
 
     it('should handle null/undefined additional text', async () => {
@@ -279,6 +274,7 @@ describe('search.ts - Unit Tests', () => {
           assetType: 'chat',
           title: 'Test Result 1',
           additionalText: null,
+          updatedAt: '2024-01-01T00:00:00.000Z',
         },
       ];
 
@@ -333,6 +329,7 @@ describe('search.ts - Unit Tests', () => {
         assetType: 'chat',
         title: `Test Result ${i + 1}`,
         additionalText: `Additional text ${i + 1}`,
+        updatedAt: '2024-01-01T00:00:00.000Z',
       }));
 
       (searchText as Mock).mockResolvedValue({
@@ -341,8 +338,7 @@ describe('search.ts - Unit Tests', () => {
         pagination: {
           page: 1,
           page_size: 10,
-          total: 12,
-          total_pages: 2,
+          has_more: true,
         },
       });
 
@@ -353,8 +349,8 @@ describe('search.ts - Unit Tests', () => {
 
       const result = await performTextSearch(mockUserId, searchRequestWithAncestors);
 
-      // Should call getAssetAncestorsWithTransaction for each result
-      expect(getAssetAncestorsWithTransaction).toHaveBeenCalledTimes(12);
+      // Should call getAssetAncestors for each result
+      expect(getAssetAncestors).toHaveBeenCalledTimes(12);
 
       // Results should have ancestors added
       expect(result.data).toHaveLength(12);
@@ -369,9 +365,7 @@ describe('search.ts - Unit Tests', () => {
         includeAssetAncestors: true,
       };
 
-      (getAssetAncestorsWithTransaction as Mock).mockRejectedValue(
-        new Error('Ancestor lookup failed')
-      );
+      (getAssetAncestors as Mock).mockRejectedValue(new Error('Ancestor lookup failed'));
 
       await expect(performTextSearch(mockUserId, searchRequestWithAncestors)).rejects.toThrow(
         'Ancestor lookup failed'
@@ -384,8 +378,7 @@ describe('search.ts - Unit Tests', () => {
         pagination: {
           page: 2,
           page_size: 25,
-          total: 100,
-          total_pages: 4,
+          has_more: true,
         },
       };
 
@@ -393,8 +386,7 @@ describe('search.ts - Unit Tests', () => {
 
       const result = await performTextSearch(mockUserId, basicSearchRequest);
 
-      expect(result.pagination.total).toBe(100);
-      expect(result.pagination.total_pages).toBe(4);
+      expect(result.pagination.has_more).toBe(true);
       expect(result.pagination.page).toBe(2);
       expect(result.pagination.page_size).toBe(25);
     });

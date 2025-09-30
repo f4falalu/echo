@@ -1,4 +1,4 @@
-import { and, eq, isNull } from 'drizzle-orm';
+import { and, eq, isNull, sql } from 'drizzle-orm';
 import { db } from '../../connection';
 import {
   chats,
@@ -15,6 +15,155 @@ import type { Ancestor, AssetAncestors } from '../../schema-types';
 
 // Type for database transaction
 type DatabaseTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+/**
+ * Get chat ancestors as a subquery
+ */
+export function getChatAncestorsSubquery(assetId: string) {
+  return db
+    .select({
+      id: chats.id,
+      title: chats.title,
+      type: sql<string>`'chat'`.as('type'),
+    })
+    .from(messagesToFiles)
+    .innerJoin(messages, eq(messages.id, messagesToFiles.messageId))
+    .innerJoin(chats, eq(chats.id, messages.chatId))
+    .where(
+      and(
+        eq(messagesToFiles.fileId, assetId),
+        isNull(messagesToFiles.deletedAt),
+        isNull(messages.deletedAt),
+        isNull(chats.deletedAt)
+      )
+    );
+}
+
+/**
+ * Get collection ancestors as a subquery
+ */
+export function getCollectionAncestorsSubquery(assetId: string) {
+  return db
+    .select({
+      id: collections.id,
+      title: collections.name,
+      type: sql<string>`'collection'`.as('type'),
+    })
+    .from(collectionsToAssets)
+    .innerJoin(collections, eq(collections.id, collectionsToAssets.collectionId))
+    .where(
+      and(
+        eq(collectionsToAssets.assetId, assetId),
+        isNull(collectionsToAssets.deletedAt),
+        isNull(collections.deletedAt)
+      )
+    );
+}
+
+/**
+ * Get dashboard ancestors as a subquery (for metric files only)
+ */
+export function getDashboardAncestorsSubquery(metricId: string) {
+  return db
+    .select({
+      id: dashboardFiles.id,
+      title: dashboardFiles.name,
+      type: sql<string>`'dashboard_file'`.as('type'),
+    })
+    .from(metricFilesToDashboardFiles)
+    .innerJoin(dashboardFiles, eq(dashboardFiles.id, metricFilesToDashboardFiles.dashboardFileId))
+    .where(
+      and(
+        eq(metricFilesToDashboardFiles.metricFileId, metricId),
+        isNull(metricFilesToDashboardFiles.deletedAt),
+        isNull(dashboardFiles.deletedAt)
+      )
+    );
+}
+
+/**
+ * Get report ancestors as a subquery (for metric files only)
+ */
+export function getReportAncestorsSubquery(metricId: string) {
+  return db
+    .select({
+      id: reportFiles.id,
+      title: reportFiles.name,
+      type: sql<string>`'report_file'`.as('type'),
+    })
+    .from(metricFilesToReportFiles)
+    .innerJoin(reportFiles, eq(reportFiles.id, metricFilesToReportFiles.reportFileId))
+    .where(
+      and(
+        eq(metricFilesToReportFiles.metricFileId, metricId),
+        isNull(metricFilesToReportFiles.deletedAt),
+        isNull(reportFiles.deletedAt)
+      )
+    );
+}
+
+/**
+ * Get all ancestors for an asset using a single query with UNION
+ */
+export function getAllAncestorsUnified(assetId: string, assetType: string) {
+  const chatAncestors = getChatAncestorsSubquery(assetId);
+  const collectionAncestors = getCollectionAncestorsSubquery(assetId);
+
+  let query = chatAncestors.union(collectionAncestors);
+
+  // Only include dashboard and report ancestors for metric files
+  if (assetType === 'metric_file') {
+    const dashboardAncestors = getDashboardAncestorsSubquery(assetId);
+    const reportAncestors = getReportAncestorsSubquery(assetId);
+    query = query.union(dashboardAncestors).union(reportAncestors);
+  }
+
+  return query;
+}
+
+/**
+ * Optimized function to get all asset ancestors in a single query
+ */
+export async function getAssetAncestors(
+  assetId: string,
+  assetType: string,
+  _userId: string,
+  _organizationId: string
+): Promise<AssetAncestors> {
+  const results = await getAllAncestorsUnified(assetId, assetType);
+
+  // Group results by ancestor type
+  const ancestors: AssetAncestors = {
+    chats: [],
+    collections: [],
+    dashboards: [],
+    reports: [],
+  };
+
+  for (const result of results) {
+    const ancestor: Ancestor = {
+      id: result.id,
+      title: result.title,
+    };
+
+    switch (result.type) {
+      case 'chat':
+        ancestors.chats.push(ancestor);
+        break;
+      case 'collection':
+        ancestors.collections.push(ancestor);
+        break;
+      case 'dashboard_file':
+        ancestors.dashboards.push(ancestor);
+        break;
+      case 'report_file':
+        ancestors.reports.push(ancestor);
+        break;
+    }
+  }
+
+  return ancestors;
+}
 
 export async function getAssetChatAncestors(
   assetId: string,
@@ -153,38 +302,4 @@ export async function getAssetAncestorsWithTransaction(
   });
 
   return results;
-}
-export async function getAssetAncestors(
-  assetId: string,
-  assetType: string,
-  _userId: string,
-  _organizationId: string
-): Promise<AssetAncestors> {
-  // Get chats
-  const chatsPromise = getAssetChatAncestors(assetId);
-
-  // Get collections
-  const collectionsPromise = getAssetCollectionAncestors(assetId);
-
-  // Get dashboards
-  const dashboardsPromise =
-    assetType === 'metric_file' ? getMetricDashboardAncestors(assetId) : Promise.resolve([]);
-
-  // Get Reports
-  const reportsPromise =
-    assetType === 'metric_file' ? getMetricReportAncestors(assetId) : Promise.resolve([]);
-
-  const [chats, collections, dashboards, reports] = await Promise.all([
-    chatsPromise,
-    collectionsPromise,
-    dashboardsPromise,
-    reportsPromise,
-  ]);
-
-  return {
-    chats,
-    collections,
-    dashboards,
-    reports,
-  };
 }
