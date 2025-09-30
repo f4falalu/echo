@@ -1,5 +1,5 @@
 {
-  "id": "e92f38f0-d150-427e-834f-5a9180da1c64",
+  "id": "cbab132e-3504-4b66-8c10-5da4a9c3d3ee",
   "prevId": "e99e0196-f7e5-4e83-ad36-ddf350e50805",
   "version": "7",
   "dialect": "postgresql",
@@ -5494,7 +5494,7 @@
           "type": "jsonb",
           "primaryKey": false,
           "notNull": true,
-          "default": "'{\"suggestedPrompts\":{\"report\":[\"provide a trend analysis of quarterly profits\",\"evaluate product performance across regions\"],\"dashboard\":[\"create a sales performance dashboard\",\"design a revenue forecast dashboard\"],\"visualization\":[\"create a metric for monthly sales\",\"show top vendors by purchase volume\"],\"help\":[\"what types of analyses can you perform?\",\"what questions can I as buster?\",\"what data models are available for queries?\",\"can you explain your forecasting capabilities?\"]},\"updatedAt\":\"2025-09-29T21:30:34.051Z\"}'::jsonb"
+          "default": "'{\"suggestedPrompts\":{\"report\":[\"provide a trend analysis of quarterly profits\",\"evaluate product performance across regions\"],\"dashboard\":[\"create a sales performance dashboard\",\"design a revenue forecast dashboard\"],\"visualization\":[\"create a metric for monthly sales\",\"show top vendors by purchase volume\"],\"help\":[\"what types of analyses can you perform?\",\"what questions can I as buster?\",\"what data models are available for queries?\",\"can you explain your forecasting capabilities?\"]},\"updatedAt\":\"2025-09-30T14:32:04.996Z\"}'::jsonb"
         },
         "personalization_enabled": {
           "name": "personalization_enabled",
