@@ -1,5 +1,12 @@
 import { randomUUID } from 'node:crypto';
-import { updateChat, updateMessage, updateMessageEntries } from '@buster/database/queries';
+import {
+  getAssetLatestVersion,
+  isMessageUpdateQueueClosed,
+  updateChat,
+  updateMessage,
+  updateMessageEntries,
+  waitForPendingUpdates,
+} from '@buster/database/queries';
 import type { ModelMessage, ToolCallOptions } from 'ai';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CREATE_DASHBOARDS_TOOL_NAME } from '../../visualization-tools/dashboards/create-dashboards-tool/create-dashboards-tool';
@@ -13,7 +20,13 @@ import { createDoneToolStart } from './done-tool-start';
 vi.mock('@buster/database/queries', () => ({
   updateChat: vi.fn(),
   updateMessage: vi.fn(),
-  updateMessageEntries: vi.fn(),
+  updateMessageEntries: vi.fn().mockResolvedValue({
+    success: true,
+    sequenceNumber: 0,
+    skipped: false as const,
+  }),
+  waitForPendingUpdates: vi.fn().mockResolvedValue(undefined),
+  isMessageUpdateQueueClosed: vi.fn().mockReturnValue(false),
   getAssetLatestVersion: vi.fn().mockResolvedValue(1),
 }));
 
@@ -32,6 +45,9 @@ describe('done-tool-start', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    isMessageUpdateQueueClosed.mockReturnValue(false);
+    waitForPendingUpdates.mockResolvedValue(undefined);
+    getAssetLatestVersion.mockResolvedValue(1);
   });
 
   describe('mostRecentFile selection', () => {

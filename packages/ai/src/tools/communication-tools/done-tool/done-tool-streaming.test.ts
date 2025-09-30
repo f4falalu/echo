@@ -1,5 +1,5 @@
 import type { ModelMessage, ToolCallOptions } from 'ai';
-import { describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { CREATE_DASHBOARDS_TOOL_NAME } from '../../visualization-tools/dashboards/create-dashboards-tool/create-dashboards-tool';
 import { CREATE_METRICS_TOOL_NAME } from '../../visualization-tools/metrics/create-metrics-tool/create-metrics-tool';
 import { CREATE_REPORTS_TOOL_NAME } from '../../visualization-tools/reports/create-reports-tool/create-reports-tool';
@@ -8,12 +8,61 @@ import { createDoneToolDelta } from './done-tool-delta';
 import { createDoneToolFinish } from './done-tool-finish';
 import { createDoneToolStart } from './done-tool-start';
 
-vi.mock('@buster/database/queries', () => ({
-  updateMessageEntries: vi.fn().mockResolvedValue({ success: true }),
-  updateMessage: vi.fn().mockResolvedValue({ success: true }),
-  updateChat: vi.fn().mockResolvedValue({ success: true }),
-  getAssetLatestVersion: vi.fn().mockResolvedValue(1),
-}));
+const queriesMock = vi.hoisted(() => {
+  let sequence = 0;
+
+  const updateMessageEntries = vi.fn(async () => ({
+    success: true,
+    sequenceNumber: sequence++,
+    skipped: false as const,
+  }));
+  const waitForPendingUpdates = vi.fn().mockResolvedValue(undefined);
+  const isMessageUpdateQueueClosed = vi.fn().mockReturnValue(false);
+  const updateMessage = vi.fn().mockResolvedValue({ success: true });
+  const updateChat = vi.fn().mockResolvedValue({ success: true });
+  const getAssetLatestVersion = vi.fn().mockResolvedValue(1);
+
+  return {
+    updateMessageEntries,
+    waitForPendingUpdates,
+    isMessageUpdateQueueClosed,
+    updateMessage,
+    updateChat,
+    getAssetLatestVersion,
+    reset() {
+      sequence = 0;
+      updateMessageEntries.mockClear();
+      waitForPendingUpdates.mockClear();
+      isMessageUpdateQueueClosed.mockClear();
+      updateMessage.mockClear();
+      updateChat.mockClear();
+      getAssetLatestVersion.mockClear();
+      waitForPendingUpdates.mockResolvedValue(undefined);
+      isMessageUpdateQueueClosed.mockReturnValue(false);
+      getAssetLatestVersion.mockResolvedValue(1);
+    },
+  };
+});
+
+vi.mock('@buster/database/queries', async () => {
+  const actual = await vi.importActual<typeof import('@buster/database/queries')>(
+    '@buster/database/queries'
+  );
+
+  return {
+    ...actual,
+    updateMessageEntries: queriesMock.updateMessageEntries,
+    waitForPendingUpdates: queriesMock.waitForPendingUpdates,
+    isMessageUpdateQueueClosed: queriesMock.isMessageUpdateQueueClosed,
+    updateMessage: queriesMock.updateMessage,
+    updateChat: queriesMock.updateChat,
+    getAssetLatestVersion: queriesMock.getAssetLatestVersion,
+  };
+});
+
+beforeEach(() => {
+  queriesMock.reset();
+});
 
 describe('Done Tool Streaming Tests', () => {
   const mockContext: DoneToolContext = {
