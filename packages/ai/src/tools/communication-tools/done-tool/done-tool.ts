@@ -15,7 +15,11 @@ export const DoneToolInputSchema = z.object({
         assetId: z.string().uuid(),
         assetName: z.string(),
         assetType: AssetTypeSchema,
-        versionNumber: z.number().int().positive().describe('The version number of the asset to return'),
+        versionNumber: z
+          .number()
+          .int()
+          .positive()
+          .describe('The version number of the asset to return'),
       })
     )
     .describe(
@@ -67,6 +71,10 @@ const DoneToolStateSchema = z.object({
     )
     .optional()
     .describe('Assets that have been added with their types and version numbers for chat update'),
+  isFinalizing: z
+    .boolean()
+    .optional()
+    .describe('Indicates the execute phase has started so further deltas should be ignored'),
 });
 
 export type DoneToolInput = z.infer<typeof DoneToolInputSchema>;
@@ -81,6 +89,7 @@ export function createDoneTool(context: DoneToolContext) {
     finalResponse: undefined,
     addedAssetIds: [],
     addedAssets: [],
+    isFinalizing: false,
   };
 
   const execute = createDoneToolExecute(context, state);

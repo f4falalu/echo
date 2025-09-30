@@ -603,6 +603,29 @@ describe('Done Tool Streaming Tests', () => {
       expect(state.args).toBe('{"finalResponse": ""}');
       expect(state.finalResponse).toBeUndefined();
     });
+
+    test('should ignore deltas after execute begins', async () => {
+      vi.clearAllMocks();
+      const state: DoneToolState = {
+        toolCallId: 'test-entry',
+        args: '',
+        finalResponse: 'Complete response',
+        isFinalizing: true,
+      };
+
+      const deltaHandler = createDoneToolDelta(mockContext, state);
+
+      await deltaHandler({
+        inputTextDelta: '{"finalResponse": "Stale"}',
+        toolCallId: 'tool-call-123',
+        messages: [],
+      });
+
+      const queries = await import('@buster/database/queries');
+      expect(queries.updateMessageEntries).not.toHaveBeenCalled();
+      expect(state.args).toBe('');
+      expect(state.finalResponse).toBe('Complete response');
+    });
   });
 
   describe('createDoneToolFinish', () => {

@@ -24,6 +24,7 @@ export function createDoneToolStart(context: DoneToolContext, doneToolState: Don
     doneToolState.finalResponse = undefined;
     doneToolState.addedAssetIds = [];
     doneToolState.addedAssets = [];
+    doneToolState.isFinalizing = false;
 
     // Selection logic moved to delta; skip extracting files here
     if (options.messages) {

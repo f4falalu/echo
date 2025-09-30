@@ -75,6 +75,7 @@ export function createDoneToolExecute(context: DoneToolContext, state: DoneToolS
         throw new Error('Tool call ID is required');
       }
 
+      state.isFinalizing = true;
       // CRITICAL: Wait for ALL pending updates from delta/finish to complete FIRST
       // This ensures execute's update is always the last one in the queue
       await waitForPendingUpdates(context.messageId);
