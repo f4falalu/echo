@@ -14,7 +14,6 @@ import { AppSegmented, type AppSegmentedProps } from '@/components/ui/segmented'
 import { AppTooltip } from '@/components/ui/tooltip';
 import { Text } from '@/components/ui/typography';
 import { cn } from '@/lib/utils';
-import { useMicrophonePermission } from './hooks/useMicrophonePermission';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 
 export type BusterChatInputMode = 'auto' | 'research' | 'deep-research';
@@ -41,9 +40,14 @@ export const BusterChatInputButtons = React.memo(
     onDictate,
     onDictateListeningChange,
   }: BusterChatInputButtons) => {
-    const hasGrantedPermissions = useMicrophonePermission();
-    const { transcript, listening, browserSupportsSpeechRecognition, onStartListening, onStopListening } =
-      useSpeechRecognition();
+    const {
+      transcript,
+      listening,
+      browserSupportsSpeechRecognition,
+      onStartListening,
+      onStopListening,
+      hasPermission,
+    } = useSpeechRecognition();
     const hasValue = useMentionInputHasValue();
     const onChangeValue = useMentionInputSuggestionsOnChangeValue();
     const getValue = useMentionInputSuggestionsGetValue();
@@ -69,11 +73,7 @@ export const BusterChatInputButtons = React.memo(
           {browserSupportsSpeechRecognition && (
             <AppTooltip
               title={
-                listening
-                  ? !hasGrantedPermissions
-                    ? 'Audio permissions not enabled'
-                    : 'Stop dictation...'
-                  : 'Press to dictate...'
+                listening ? (!hasPermission ? 'Audio permissions not enabled' : 'Stop dictation...') : 'Press to dictate...'
               }
             >
               <Button
@@ -87,10 +87,10 @@ export const BusterChatInputButtons = React.memo(
                   'origin-center transform-gpu transition-all duration-300 ease-out will-change-transform text-text-secondary',
                   !disabled && 'hover:scale-110 active:scale-95',
                   listening && 'bg-item-active shadow border text-foreground',
-                  listening && !hasGrantedPermissions && 'bg-red-100! border border-red-300!'
+                  listening && !hasPermission && 'bg-red-100! border border-red-300!'
                 )}
                 style={
-                  listening && !hasGrantedPermissions
+                  listening && !hasPermission
                     ? ({
                         '--icon-color': 'var(--color-red-400)',
                       } as React.CSSProperties)

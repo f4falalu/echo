@@ -43,6 +43,7 @@ interface UseSpeechRecognitionReturn {
   transcript: string;
   browserSupportsSpeechRecognition: boolean;
   error: string | null;
+  hasPermission: boolean;
 }
 
 export function useSpeechRecognition(): UseSpeechRecognitionReturn {
@@ -50,10 +51,33 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
   const [transcript, setTranscript] = useState('');
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [hasPermission, setHasPermission] = useState(false);
+  const finalTranscriptRef = useRef('');
 
   // Check browser support
   const browserSupportsSpeechRecognition =
     typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition);
+
+  // Check microphone permission
+  useEffect(() => {
+    if (typeof navigator === 'undefined' || !navigator.permissions) {
+      return;
+    }
+
+    navigator.permissions
+      .query({ name: 'microphone' as PermissionName })
+      .then((result) => {
+        setHasPermission(result.state === 'granted');
+
+        // Listen for permission changes
+        result.onchange = () => {
+          setHasPermission(result.state === 'granted');
+        };
+      })
+      .catch((err) => {
+        console.error('Permission API error:', err);
+      });
+  }, []);
 
   // Initialize speech recognition
   useEffect(() => {
@@ -74,18 +98,24 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       let interimTranscript = '';
-      let finalTranscript = '';
+      let newFinalTranscript = '';
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const transcriptPiece = event.results[i][0].transcript;
         if (event.results[i].isFinal) {
-          finalTranscript += transcriptPiece;
+          newFinalTranscript += transcriptPiece;
         } else {
           interimTranscript += transcriptPiece;
         }
       }
 
-      setTranscript(finalTranscript || interimTranscript);
+      // Accumulate final transcripts
+      if (newFinalTranscript) {
+        finalTranscriptRef.current += newFinalTranscript;
+      }
+
+      // Set transcript to accumulated final + current interim
+      setTranscript(finalTranscriptRef.current + interimTranscript);
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
@@ -115,6 +145,8 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
       try {
         // Request microphone permission
         await navigator.mediaDevices.getUserMedia({ audio: true });
+        // Reset transcripts when starting
+        finalTranscriptRef.current = '';
         setTranscript('');
         recognitionRef.current.start();
       } catch (error) {
@@ -137,5 +169,6 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
     error,
     transcript,
     browserSupportsSpeechRecognition: Boolean(browserSupportsSpeechRecognition),
+    hasPermission,
   };
 }
