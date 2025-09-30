@@ -2,7 +2,7 @@ import type { ListShortcutsResponse } from '@buster/server-shared/shortcuts';
 import type { GetSuggestedPromptsResponse } from '@buster/server-shared/user';
 import sampleSize from 'lodash/sampleSize';
 import React, { useMemo, useRef, useState } from 'react';
-import { createShortcutsMentionsSuggestions } from '@/components/features/input/Mentions/ShortcutsSuggestions/ShortcutsSuggestions';
+import { useCreateShortcutsMentionsSuggestions } from '@/components/features/input/Mentions/ShortcutsSuggestions/ShortcutsSuggestions';
 import { Plus } from '@/components/ui/icons';
 import type { MentionSuggestionExtension } from '@/components/ui/inputs/MentionInput';
 import type {
@@ -30,6 +30,7 @@ export const BusterChatInputBase: React.FC<BusterChatInput> = React.memo(
     const uniqueSuggestions = useUniqueSuggestions(suggestedPrompts);
     const shortcutsSuggestions = useShortcuts(shortcuts);
 
+    const [openCreateShortcutModal, setOpenCreateShortcutModal] = useState(false);
     const [mode, setMode] = useState<BusterChatInputMode>('auto');
 
     const suggestionItems: MentionInputSuggestionsProps['suggestionItems'] = useMemo(() => {
@@ -48,9 +49,14 @@ export const BusterChatInputBase: React.FC<BusterChatInput> = React.memo(
       return items;
     }, [uniqueSuggestions, shortcutsSuggestions]);
 
+    const shortcutsMentionsSuggestions = useCreateShortcutsMentionsSuggestions(
+      shortcuts,
+      setOpenCreateShortcutModal
+    );
+
     const mentions: MentionSuggestionExtension[] = useMemo(() => {
-      return [createShortcutsMentionsSuggestions(shortcuts)];
-    }, [shortcuts]);
+      return [shortcutsMentionsSuggestions];
+    }, [shortcutsMentionsSuggestions]);
 
     const onDictate = useMemoizedFn((transcript: string) => {
       mentionInputSuggestionsRef.current?.onChangeValue(transcript);

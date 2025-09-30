@@ -1,4 +1,5 @@
 import type { ListShortcutsResponse, Shortcut } from '@buster/server-shared/shortcuts';
+import { useNavigate } from '@tanstack/react-router';
 import { useMemo } from 'react';
 import { Trash } from '@/components/ui/icons';
 import PenWriting from '@/components/ui/icons/NucleoIconOutlined/pen-writing';
@@ -10,41 +11,44 @@ import {
 } from '@/components/ui/inputs/MentionInput';
 import { ShortcutPopoverContent } from './ShortcutPopoverContent';
 
-export const createShortcutsMentionsSuggestions = (
-  shortcuts: ListShortcutsResponse['shortcuts']
+export const useCreateShortcutsMentionsSuggestions = (
+  shortcuts: ListShortcutsResponse['shortcuts'],
+  setOpenCreateShortcutModal: (open: boolean) => void
 ) => {
-  return createMentionSuggestionExtension({
-    trigger: '/',
-    items: createAllItems(shortcuts),
-    popoverContent: ShortcutPopoverContent,
-  });
-};
+  const navigate = useNavigate();
 
-const createAllItems = (
-  shortcuts: ListShortcutsResponse['shortcuts']
-): MentionInputTriggerItem[] => {
-  return [
-    ...shortcuts.map(createShortcut),
-    { type: 'separator' },
-    {
-      value: 'manageShortcuts',
-      label: 'Manage shortcuts',
-      icon: <PenWriting />,
-      doNotAddPipeOnSelect: true,
-      onSelect: (props) => {
-        console.log('manageShortcuts', props);
-      },
-    },
-    {
-      value: 'createShortcut',
-      label: 'Create shortcut',
-      icon: <Plus />,
-      doNotAddPipeOnSelect: true as const,
-      onSelect: (props) => {
-        console.log('createShortcut', props);
-      },
-    },
-  ];
+  return useMemo(
+    () =>
+      createMentionSuggestionExtension({
+        trigger: '/',
+        items: [
+          ...shortcuts.map(createShortcut),
+          { type: 'separator' },
+          {
+            value: 'manageShortcuts',
+            label: 'Manage shortcuts',
+            icon: <PenWriting />,
+            doNotAddPipeOnSelect: true,
+            onSelect: () => {
+              navigate({
+                to: '/app/home/shortcuts',
+              });
+            },
+          },
+          {
+            value: 'createShortcut',
+            label: 'Create shortcut',
+            icon: <Plus />,
+            doNotAddPipeOnSelect: true,
+            onSelect: () => {
+              setOpenCreateShortcutModal(true);
+            },
+          },
+        ],
+        popoverContent: ShortcutPopoverContent,
+      }),
+    [shortcuts, setOpenCreateShortcutModal]
+  );
 };
 
 const createShortcut = (shortcut: Shortcut): MentionInputTriggerItem<string> => {

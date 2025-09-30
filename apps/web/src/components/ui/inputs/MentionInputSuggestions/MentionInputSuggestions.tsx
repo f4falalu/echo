@@ -115,6 +115,14 @@ export const MentionInputSuggestions = forwardRef<
     // Track arrow key navigation in the command list
     useEffect(() => {
       const handleKeyDown = (event: KeyboardEvent) => {
+        // Check if a mention popover is currently open (it's appended to document.body with data-testid="mention-list")
+        const mentionListOpen = document.querySelector('[data-testid="mention-list"]');
+
+        // If mention popover is open, let Tiptap handle all keyboard events (higher priority)
+        if (mentionListOpen) {
+          return;
+        }
+
         if (showSuggestionList && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
           commandListNavigatedRef.current = true;
         }
@@ -156,8 +164,8 @@ export const MentionInputSuggestions = forwardRef<
         ref={commandRef}
         label={ariaLabel}
         className={cn('relative border rounded overflow-hidden bg-background shadow', className)}
-        shouldFilter={true}
-        filter={customFilter}
+        shouldFilter={shouldFilter}
+        filter={filter || customFilter}
       >
         <MentionInputSuggestionsContainer className={inputContainerClassName}>
           <MentionInputSuggestionsMentionsInput

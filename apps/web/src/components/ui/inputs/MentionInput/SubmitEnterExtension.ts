@@ -20,7 +20,7 @@ export const SubmitOnEnter = ({
             return !!onPressEnter;
           }
 
-          // Otherwise, let Tiptap handle the Enter key
+          // Otherwise, handle the Enter key press
           if (onPressEnter) {
             const { transformedValue, transformedJson, editorText } = onUpdateTransformer({
               editor,
