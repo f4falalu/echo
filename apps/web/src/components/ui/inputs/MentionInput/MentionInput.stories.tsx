@@ -388,17 +388,7 @@ export const DynamicItems: Story = {
       () =>
         createMentionSuggestionExtension({
           trigger: '!',
-          items: ({ query }) => {
-            // This function is called each time suggestions are needed,
-            // so it will always get the current dynamicItems state
-            console.log(
-              'Getting dynamic items for query:',
-              query,
-              'Current items:',
-              dynamicItems.length
-            );
-            return defaultQueryMentionsFilter(query, dynamicItems);
-          },
+          items: dynamicItems,
           pillStyling: {
             className: () => {
               return 'bg-gradient-to-r from-purple-100 to-pink-100 border-purple-300 text-purple-700 hover:from-purple-200 hover:to-pink-200';
@@ -419,7 +409,6 @@ export const DynamicItems: Story = {
     return (
       <div className="space-y-4 w-full max-w-2xl">
         <MentionInput
-          key={`dynamic-${dynamicItems.length}`}
           ref={mentionInputRef}
           className="min-w-64 p-3 border border-gray-200 rounded-lg"
           placeholder="Type ! to see dynamic mentions..."
