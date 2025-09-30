@@ -20,14 +20,24 @@ export const createMentionSuggestionExtension = ({
   pillStyling,
 }: {
   trigger: string;
-  items: MentionInputTriggerItem[] | ((props: { query: string }) => MentionInputTriggerItem[]); //if no function is provided we will use a literal string match
+  items:
+    | MentionInputTriggerItem[]
+    | ((props: {
+        query: string;
+        defaultQueryMentionsFilter: typeof defaultQueryMentionsFilter;
+      }) => MentionInputTriggerItem[]); //if no function is provided we will use a literal string match
   popoverContent?: MentionPopoverContentCallback;
   pillStyling?: MentionStylePillProps;
   onChangeTransform?: MentionSuggestionExtension['onChangeTransform'];
 }): MentionSuggestionExtension => ({
   char: trigger,
   items:
-    typeof items === 'function' ? items : ({ query }) => defaultQueryMentionsFilter(query, items),
+    //beware of stale closures here. We should use a ref to get the latest items
+    typeof items === 'function'
+      ? (props) => {
+          return items({ ...props, defaultQueryMentionsFilter });
+        }
+      : ({ query }) => defaultQueryMentionsFilter(query, items),
   render: () => {
     let component: ReactRenderer<MentionListImperativeHandle, MentionListProps<string>>;
 

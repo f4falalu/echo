@@ -1,6 +1,6 @@
 import type { ListShortcutsResponse, Shortcut } from '@buster/server-shared/shortcuts';
 import { useNavigate } from '@tanstack/react-router';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { useDeleteShortcut, useGetShortcut } from '@/api/buster_rest/shortcuts/queryRequests';
 import { ErrorCard } from '@/components/ui/error/ErrorCard';
 import { Trash } from '@/components/ui/icons';
@@ -16,7 +16,6 @@ import type {
   MentionInputSuggestionsProps,
   MentionInputSuggestionsRef,
 } from '@/components/ui/inputs/MentionInputSuggestions';
-import { CircleSpinnerLoader } from '@/components/ui/loaders';
 import { ShortcutPopoverContent } from './ShortcutPopoverContent';
 
 export const SHORTCUT_MENTION_TRIGGER = '/';
@@ -28,34 +27,42 @@ export const useCreateShortcutsMentionsSuggestions = (
   const navigate = useNavigate();
   const createShortcutForMention = useCreateShortcutForMention();
 
+  const currentItemsRef = useRef(shortcuts);
+
+  currentItemsRef.current = shortcuts;
+
   return useMemo(
     () =>
       createMentionSuggestionExtension({
         trigger: SHORTCUT_MENTION_TRIGGER,
-        items: [
-          ...shortcuts.map(createShortcutForMention),
-          { type: 'separator' as const },
-          {
-            value: 'manageShortcuts',
-            label: 'Manage shortcuts',
-            icon: <PenWriting />,
-            doNotAddPipeOnSelect: true,
-            onSelect: () => {
-              navigate({
-                to: '/app/home/shortcuts',
-              });
+        items: ({ defaultQueryMentionsFilter, query }) => {
+          const shortcuts = currentItemsRef.current;
+          const allItems = [
+            ...shortcuts.map(createShortcutForMention),
+            { type: 'separator' as const },
+            {
+              value: 'manageShortcuts',
+              label: 'Manage shortcuts',
+              icon: <PenWriting />,
+              doNotAddPipeOnSelect: true,
+              onSelect: () => {
+                navigate({
+                  to: '/app/home/shortcuts',
+                });
+              },
             },
-          },
-          {
-            value: 'createShortcut',
-            label: 'Create shortcut',
-            icon: <Plus />,
-            doNotAddPipeOnSelect: true,
-            onSelect: () => {
-              setOpenCreateShortcutModal(true);
+            {
+              value: 'createShortcut',
+              label: 'Create shortcut',
+              icon: <Plus />,
+              doNotAddPipeOnSelect: true,
+              onSelect: () => {
+                setOpenCreateShortcutModal(true);
+              },
             },
-          },
-        ],
+          ];
+          return defaultQueryMentionsFilter(query, allItems);
+        },
         popoverContent: ShortcutPopoverContent,
         onChangeTransform: (v) => {
           const foundShortcut = shortcuts.find((shortcut) => shortcut.name === v.label);
@@ -97,8 +104,8 @@ export const useCreateShortcutForMention = () => {
               label: 'Delete',
               icon: <Trash />,
               value: 'delete',
-              onClick: () => {
-                deleteShortcut({ id: shortcut.id });
+              onClick: async () => {
+                await deleteShortcut({ id: shortcut.id });
               },
             },
           ]}

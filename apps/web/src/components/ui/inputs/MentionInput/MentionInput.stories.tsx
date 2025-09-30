@@ -3,7 +3,6 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useMemo, useRef, useState } from 'react';
 import { fn } from 'storybook/test';
 import { createMentionSuggestionExtension } from './createMentionSuggestionOption';
-import { defaultQueryMentionsFilter } from './defaultQueryMentionsFilter';
 import { MentionInput } from './MentionInput';
 import type { MentionInputRef, MentionInputTriggerItem } from './MentionInput.types';
 
@@ -329,6 +328,10 @@ export const DynamicItems: Story = {
       { value: 'Initial Item 2', label: 'Initial Item 2' },
     ]);
     const mentionInputRef = useRef<MentionInputRef>(null);
+    const currentItemsRef = useRef(dynamicItems);
+
+    // Always keep the ref updated with the latest items
+    currentItemsRef.current = dynamicItems;
 
     const addRandomItem = () => {
       const randomNames = [
@@ -384,11 +387,15 @@ export const DynamicItems: Story = {
       setDynamicItems([]);
     };
 
+    // Create a stable function that always uses the current items from the ref
     const dynamicSuggestions = useMemo(
       () =>
         createMentionSuggestionExtension({
           trigger: '!',
-          items: dynamicItems,
+          items: ({ query, defaultQueryMentionsFilter }) => {
+            const latestItems = currentItemsRef.current;
+            return defaultQueryMentionsFilter(query, latestItems);
+          },
           pillStyling: {
             className: () => {
               return 'bg-gradient-to-r from-purple-100 to-pink-100 border-purple-300 text-purple-700 hover:from-purple-200 hover:to-pink-200';
@@ -403,7 +410,7 @@ export const DynamicItems: Story = {
             );
           },
         }),
-      [dynamicItems]
+      [dynamicItems] // Empty dependency array since we're using the ref for fresh data
     );
 
     return (
