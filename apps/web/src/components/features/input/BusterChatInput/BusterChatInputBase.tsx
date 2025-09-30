@@ -4,6 +4,8 @@ import sampleSize from 'lodash/sampleSize';
 import React, { useMemo, useRef, useState } from 'react';
 import { useCreateShortcutsMentionsSuggestions } from '@/components/features/input/Mentions/ShortcutsSuggestions/ShortcutsSuggestions';
 import { Plus } from '@/components/ui/icons';
+import CircleQuestion from '@/components/ui/icons/NucleoIconOutlined/circle-question';
+import FileSparkle from '@/components/ui/icons/NucleoIconOutlined/file-sparkle';
 import type { MentionSuggestionExtension } from '@/components/ui/inputs/MentionInput';
 import type {
   MentionInputSuggestionsDropdownItem,
@@ -12,6 +14,7 @@ import type {
 } from '@/components/ui/inputs/MentionInputSuggestions';
 import { MentionInputSuggestions } from '@/components/ui/inputs/MentionInputSuggestions';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { ASSET_ICONS } from '../../icons/assetIcons';
 import { BusterChatInputButtons, type BusterChatInputMode } from './BusterChatInputButtons';
 
 export type BusterChatInput = {
@@ -74,13 +77,9 @@ export const BusterChatInputBase: React.FC<BusterChatInput> = React.memo(
       onSubmit(value);
     };
 
-    const onStopPreflight = useMemoizedFn(() => {
-      onStop();
-    });
-
     const onPressEnter: MentionInputSuggestionsProps['onPressEnter'] = useMemoizedFn(
       (value, _editorObjects, _rawText) => {
-        //  onSubmitPreflight(value);
+        onSubmitPreflight(value);
       }
     );
 
@@ -116,6 +115,13 @@ export const BusterChatInputBase: React.FC<BusterChatInput> = React.memo(
 
 BusterChatInputBase.displayName = 'BusterChatInputBase';
 
+const iconRecord: Record<keyof GetSuggestedPromptsResponse['suggestedPrompts'], React.ReactNode> = {
+  report: <FileSparkle />,
+  dashboard: <ASSET_ICONS.dashboards />,
+  visualization: <ASSET_ICONS.metrics />,
+  help: <CircleQuestion />,
+};
+
 const useUniqueSuggestions = (
   suggestedPrompts: GetSuggestedPromptsResponse['suggestedPrompts']
 ): MentionInputSuggestionsProps['suggestionItems'] => {
@@ -138,13 +144,15 @@ const useUniqueSuggestions = (
 
     const fourUniqueSuggestions = sampleSize(allSuggestions, 4);
 
-    const items: MentionInputSuggestionsDropdownItem[] = fourUniqueSuggestions.map(
-      (suggestion) => ({
+    const items: MentionInputSuggestionsDropdownItem[] = fourUniqueSuggestions.map((suggestion) => {
+      const icon = iconRecord[suggestion.type] || <ASSET_ICONS.metircsAdd />;
+      return {
         type: 'item',
         value: suggestion.type + suggestion.value,
         label: suggestion.value,
-      })
-    );
+        icon,
+      };
+    });
 
     return [
       {

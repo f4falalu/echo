@@ -57,7 +57,7 @@ const createShortcut = (shortcut: Shortcut): MentionInputTriggerItem<string> => 
     label: shortcut.name,
     icon: <PenWriting />,
     onSelect: (props) => {
-      console.log('createShortcut', props);
+      console.log('onSelect shortcut?', props);
     },
     secondaryContent: (
       <MentionSecondaryContentDropdown
