@@ -49,11 +49,13 @@ export const useChat = () => {
     }
   };
 
-  const onStartNewChat = useMemoizedFn(async ({ prompt }: { prompt: string }) => {
-    return startChat({
-      prompt,
-    });
-  });
+  const onStartNewChat = useMemoizedFn(
+    async ({ prompt, mode }: { prompt: string; mode: 'auto' | 'research' | 'deep-research' }) => {
+      return startChat({
+        prompt,
+      });
+    }
+  );
 
   const onStartChatFromFile = useMemoizedFn(
     async ({

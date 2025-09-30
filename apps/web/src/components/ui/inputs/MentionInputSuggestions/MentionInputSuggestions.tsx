@@ -203,7 +203,7 @@ export const MentionInputSuggestions = forwardRef<
           <SuggestionsSeperator />
           <MentionInputSuggestionsList
             show={showSuggestionList}
-            className={cn(suggestionsContainerClassName)}
+            className={cn('pt-1.5 overflow-y-auto max-h-[35vh]', suggestionsContainerClassName)}
           >
             <MentionInputSuggestionsItemsSelector
               suggestionItems={suggestionItems}
@@ -273,7 +273,7 @@ export const useMentionInputSuggestionsOnChangeValue = () => {
 const SuggestionsSeperator = () => {
   const hasResults = useCommandState((x) => x.filtered.count) > 0;
   if (!hasResults) return null;
-  return <div className="border-b mb-1.5" />;
+  return <div className="border-b" />;
 };
 
 const customFilter = (value: string, search: string, keywords?: string[]): number => {

@@ -24,6 +24,7 @@ export const useListShortcuts = <TData = ListShortcutsResponse>(
     queryFn: listShortcuts,
     select: props?.select,
     ...props,
+    initialData: { shortcuts: [] },
   });
 };
 

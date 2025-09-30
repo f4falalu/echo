@@ -19,6 +19,7 @@ import {
   inviteUser,
   updateOrganizationUser,
 } from './requests';
+import { useGetUserBasicInfo } from './useGetUserInfo';
 
 export const useGetMyUserInfo = <TData = UserResponse>(
   props?: Omit<UseQueryOptions<UserResponse | null, RustApiError, TData>, 'queryKey' | 'queryFn'>
@@ -120,11 +121,22 @@ export const useCreateUserOrganization = () => {
   });
 };
 
-export const useGetSuggestedPrompts = (params: Parameters<typeof getSuggestedPrompts>[0]) => {
-  const queryFn = () => getSuggestedPrompts(params);
+export const useGetSuggestedPrompts = () => {
+  const user = useGetUserBasicInfo();
+  const queryFn = () => getSuggestedPrompts({ userId: user?.id ?? '' });
   return useQuery({
-    ...userQueryKeys.userGetSuggestedPrompts(params.userId),
+    ...userQueryKeys.userGetSuggestedPrompts(user?.id ?? ''),
     queryFn,
+    enabled: !!user?.id,
+    initialData: {
+      suggestedPrompts: {
+        report: [],
+        dashboard: [],
+        visualization: [],
+        help: [],
+      },
+      updatedAt: '',
+    },
   });
 };
 

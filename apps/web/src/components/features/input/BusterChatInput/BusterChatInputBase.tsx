@@ -18,12 +18,12 @@ import type {
   MentionInputSuggestionsRef,
 } from '@/components/ui/inputs/MentionInputSuggestions';
 import { MentionInputSuggestions } from '@/components/ui/inputs/MentionInputSuggestions';
-import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { useMount } from '@/hooks/useMount';
 import { ASSET_ICONS } from '../../icons/assetIcons';
 import { NewShortcutModal } from '../../modals/NewShortcutModal';
 import { BusterChatInputButtons, type BusterChatInputMode } from './BusterChatInputButtons';
 
-export type BusterChatInput = {
+export type BusterChatInputProps = {
   defaultValue: string;
   onSubmit: (d: {
     transformedValue: string;
@@ -36,10 +36,20 @@ export type BusterChatInput = {
   disabled: boolean;
   shortcuts: ListShortcutsResponse['shortcuts'];
   suggestedPrompts: GetSuggestedPromptsResponse['suggestedPrompts'];
+  autoSubmit?: boolean;
 };
 
-export const BusterChatInputBase: React.FC<BusterChatInput> = React.memo(
-  ({ defaultValue, onSubmit, onStop, submitting, disabled, shortcuts, suggestedPrompts }) => {
+export const BusterChatInputBase: React.FC<BusterChatInputProps> = React.memo(
+  ({
+    defaultValue,
+    onSubmit,
+    onStop,
+    autoSubmit,
+    submitting,
+    disabled,
+    shortcuts,
+    suggestedPrompts,
+  }) => {
     const mentionInputSuggestionsRef = useRef<MentionInputSuggestionsRef>(null);
     const uniqueSuggestions = useUniqueSuggestions(suggestedPrompts);
     const [openCreateShortcutModal, setOpenCreateShortcutModal] = useState(false);
@@ -94,6 +104,16 @@ export const BusterChatInputBase: React.FC<BusterChatInput> = React.memo(
       }
       onSubmit({ ...value, mode });
     };
+
+    useMount(() => {
+      if (autoSubmit && defaultValue) {
+        onSubmitPreflight({
+          transformedValue: defaultValue,
+          arrayValue: [],
+          editorText: defaultValue,
+        });
+      }
+    });
 
     return (
       <React.Fragment>
