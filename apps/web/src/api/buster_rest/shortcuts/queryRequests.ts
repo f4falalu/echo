@@ -41,6 +41,7 @@ export const useGetShortcut = (params: Parameters<typeof getShortcut>[0]) => {
   return useQuery({
     ...shortcutsQueryKeys.shortcutsGet(params.id),
     queryFn,
+    enabled: !!params.id,
   });
 };
 

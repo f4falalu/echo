@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useCreateShortcut } from '@/api/buster_rest/shortcuts/queryRequests';
+import React, { useEffect, useState } from 'react';
+import { useCreateShortcut, useGetShortcut } from '@/api/buster_rest/shortcuts/queryRequests';
 import { Input } from '@/components/ui/inputs';
 import { InputTextArea } from '@/components/ui/inputs/InputTextArea';
 import { AppModal } from '@/components/ui/modal';
@@ -9,17 +9,27 @@ import { inputHasText } from '@/lib/text';
 export const NewShortcutModal: React.FC<{
   open: boolean;
   onClose: () => void;
-}> = React.memo(({ open, onClose }) => {
+  shortcutId?: string;
+}> = React.memo(({ open, onClose, shortcutId }) => {
   const { mutateAsync: createShortcut, isPending: isCreatingShortcut } = useCreateShortcut();
+  const { data: shortcut } = useGetShortcut({ id: shortcutId || '' });
   const [name, setName] = useState('');
   const [instructions, setInstructions] = useState('');
 
   const disableSubmit = !inputHasText(name) || !inputHasText(instructions);
+  const isEditMode = !!shortcutId;
 
   const resetModal = () => {
     setName('');
     setInstructions('');
   };
+
+  useEffect(() => {
+    if (shortcut) {
+      setName(shortcut.name);
+      setInstructions(shortcut.instructions);
+    }
+  }, [!!shortcut]);
 
   return (
     <AppModal
