@@ -7,6 +7,7 @@ import { DeployCommand } from './commands/deploy/deploy';
 import { DeployOptionsSchema } from './commands/deploy/schemas';
 import { InitCommand } from './commands/init';
 import { Main } from './commands/main';
+import { SettingsCommand } from './commands/settings';
 import { UpdateCommand } from './commands/update/index';
 import { getCurrentVersion } from './commands/update/update-handler';
 import { checkForUpdate, formatVersion } from './utils/version/index';
@@ -215,6 +216,22 @@ program
   .option('--path <path>', 'Project location (defaults to current directory)')
   .action(async (options) => {
     render(<InitCommand {...options} />);
+  });
+
+// Settings command - manage CLI settings
+program
+  .command('settings')
+  .description('Manage CLI settings')
+  .option('--vim-mode <enabled>', 'Enable or disable vim keybindings (true/false)')
+  .option('--toggle <setting>', 'Toggle vim mode')
+  .option('--show', 'Show current settings')
+  .action(async (options) => {
+    // Parse vim-mode option if provided
+    let vimMode: boolean | undefined;
+    if (options.vimMode !== undefined) {
+      vimMode = options.vimMode === 'true' || options.vimMode === '1' || options.vimMode === 'on';
+    }
+    render(<SettingsCommand vimMode={vimMode} toggle={options.toggle} show={options.show} />);
   });
 
 // Update command - update the CLI to the latest version

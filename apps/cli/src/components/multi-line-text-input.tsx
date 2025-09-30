@@ -1,15 +1,20 @@
 import { Box, Text, useInput } from 'ink';
 import { useEffect, useRef, useState } from 'react';
+import { getSetting } from '../utils/settings';
+import type { VimMode, VimState } from '../utils/vim-mode';
+import { handleVimKeybinding } from '../utils/vim-mode';
 
 interface MultiLineTextInputProps {
   value: string;
   onChange: (value: string) => void;
   onSubmit: () => void;
   onMentionChange?: (mention: string | null, cursorPosition: number) => void;
+  onSlashChange?: (query: string | null, cursorPosition: number) => void;
   onAutocompleteNavigate?: (direction: 'up' | 'down' | 'select' | 'close') => void;
   placeholder?: string;
   focus?: boolean;
   isAutocompleteOpen?: boolean;
+  onVimModeChange?: (mode: VimMode) => void;
 }
 
 export function MultiLineTextInput({
@@ -17,22 +22,43 @@ export function MultiLineTextInput({
   onChange,
   onSubmit,
   onMentionChange,
+  onSlashChange,
   onAutocompleteNavigate,
   placeholder = '',
   focus = true,
   isAutocompleteOpen = false,
+  onVimModeChange,
 }: MultiLineTextInputProps) {
   const [cursorPosition, setCursorPosition] = useState(value.length);
   const [showCursor, setShowCursor] = useState(true);
   const [expectingNewline, setExpectingNewline] = useState(false);
   const cursorBlinkTimer = useRef<NodeJS.Timeout>();
 
+  // Vim mode state
+  const [vimEnabled] = useState(() => getSetting('vimMode'));
+  const [vimState, setVimState] = useState<VimState>({
+    mode: 'insert', // Start in insert mode for better UX
+  });
+  const lastVimCommand = useRef<string>('');
+
+  // Notify parent of vim mode changes
+  useEffect(() => {
+    if (vimEnabled && onVimModeChange) {
+      onVimModeChange(vimState.mode);
+    }
+  }, [vimState.mode, vimEnabled, onVimModeChange]);
+
   // Cursor blinking effect
   useEffect(() => {
     if (focus) {
-      cursorBlinkTimer.current = setInterval(() => {
-        setShowCursor((prev) => !prev);
-      }, 500);
+      // In vim normal mode, cursor should be solid
+      if (vimEnabled && vimState.mode === 'normal') {
+        setShowCursor(true);
+      } else {
+        cursorBlinkTimer.current = setInterval(() => {
+          setShowCursor((prev) => !prev);
+        }, 500);
+      }
     } else {
       setShowCursor(false);
     }
@@ -42,12 +68,40 @@ export function MultiLineTextInput({
         clearInterval(cursorBlinkTimer.current);
       }
     };
-  }, [focus]);
+  }, [focus, vimEnabled, vimState.mode]);
 
   // Update cursor position when value changes externally (e.g., when cleared after submit)
   useEffect(() => {
     setCursorPosition(value.length);
   }, [value]);
+
+  // Detect slash commands
+  useEffect(() => {
+    if (!onSlashChange) return;
+
+    // Check if we're at the beginning or after a newline
+    let slashStart = -1;
+
+    // Look for a slash at the start of the current line
+    const lines = value.substring(0, cursorPosition).split('\n');
+    const currentLine = lines[lines.length - 1];
+    const currentLineStart = cursorPosition - currentLine.length;
+
+    if (currentLine.startsWith('/')) {
+      slashStart = currentLineStart;
+      const slashEnd = cursorPosition;
+      const slashQuery = value.substring(slashStart + 1, slashEnd);
+
+      // Only trigger if we're still in the command (no spaces)
+      if (!slashQuery.includes(' ') && !slashQuery.includes('\n')) {
+        onSlashChange(slashQuery, slashStart);
+        return;
+      }
+    }
+
+    // No active slash command
+    onSlashChange(null, -1);
+  }, [value, cursorPosition, onSlashChange]);
 
   // Detect @ mentions
   useEffect(() => {
@@ -92,6 +146,64 @@ export function MultiLineTextInput({
 
       // Debug: Log what we're receiving
       // console.log('Input:', input, 'Key:', key);
+
+      // Handle vim mode if enabled
+      if (vimEnabled) {
+        const action = handleVimKeybinding(
+          input,
+          key,
+          { ...vimState, lastCommand: lastVimCommand.current },
+          value,
+          cursorPosition
+        );
+
+        // Update last command for compound commands (dd, yy, gg)
+        if (vimState.mode === 'normal' && input && !key.escape) {
+          if (
+            input === lastVimCommand.current &&
+            (input === 'd' || input === 'y' || input === 'g')
+          ) {
+            lastVimCommand.current = '';
+          } else {
+            lastVimCommand.current = input;
+          }
+        }
+
+        // Handle vim actions
+        if (action.preventDefault) {
+          // Apply the action
+          if (action.type === 'mode-change' && action.mode) {
+            setVimState((prev) => ({ ...prev, mode: action.mode }));
+            if (action.mode === 'visual') {
+              setVimState((prev) => ({ ...prev, visualStart: cursorPosition }));
+            }
+          }
+          if (action.cursorPosition !== undefined) {
+            setCursorPosition(action.cursorPosition);
+          }
+          if (action.text !== undefined) {
+            onChange(action.text);
+          }
+          if (action.yankedText !== undefined) {
+            setVimState((prev) => ({ ...prev, yankedText: action.yankedText }));
+          }
+          if (action.mode !== undefined) {
+            setVimState((prev) => ({ ...prev, mode: action.mode }));
+          }
+          return;
+        }
+
+        // In insert mode, handle submit with Enter (when not in autocomplete)
+        if (vimState.mode === 'insert' && key.return && !isAutocompleteOpen) {
+          onSubmit();
+          return;
+        }
+
+        // In normal/visual mode, block regular input
+        if (vimState.mode !== 'insert') {
+          return;
+        }
+      }
 
       // Handle autocomplete navigation when it's open
       if (isAutocompleteOpen && onAutocompleteNavigate) {
@@ -295,9 +407,21 @@ export function MultiLineTextInput({
       }
 
       // Always reserve space for cursor to prevent shifting
+      let cursorChar = '█';
+      if (vimEnabled) {
+        // Different cursor styles for vim modes
+        if (vimState.mode === 'normal') {
+          cursorChar = '▮'; // Block cursor for normal mode
+        } else if (vimState.mode === 'insert') {
+          cursorChar = '│'; // Line cursor for insert mode
+        } else if (vimState.mode === 'visual') {
+          cursorChar = '▬'; // Underscore cursor for visual mode
+        }
+      }
+
       return (
         <Box>
-          <Text>{showCursor ? '█' : ' '}</Text>
+          <Text>{showCursor ? cursorChar : ' '}</Text>
           <Text dimColor>{placeholder}</Text>
         </Box>
       );
@@ -306,6 +430,17 @@ export function MultiLineTextInput({
     const beforeCursor = value.slice(0, cursorPosition);
     const afterCursor = value.slice(cursorPosition);
     let cursorChar = showCursor && focus ? '█' : ' ';
+
+    // Show different cursor styles for vim modes
+    if (vimEnabled && focus && showCursor) {
+      if (vimState.mode === 'normal') {
+        cursorChar = '▮'; // Block cursor for normal mode
+      } else if (vimState.mode === 'insert') {
+        cursorChar = '│'; // Line cursor for insert mode
+      } else if (vimState.mode === 'visual') {
+        cursorChar = '▬'; // Underscore cursor for visual mode
+      }
+    }
 
     // Show special cursor when expecting newline
     if (expectingNewline) {

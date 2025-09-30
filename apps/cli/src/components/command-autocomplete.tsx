@@ -1,34 +1,34 @@
 import { Box, Text } from 'ink';
-import type { FileSearchResult } from '../utils/file-search';
+import type { SlashCommand } from '../utils/slash-commands';
 
-interface FileAutocompleteDisplayProps {
-  items: FileSearchResult[];
+interface CommandAutocompleteProps {
+  commands: SlashCommand[];
   selectedIndex: number;
   maxDisplay?: number;
 }
 
-export function FileAutocompleteDisplay({
-  items,
+export function CommandAutocomplete({
+  commands,
   selectedIndex,
   maxDisplay = 10,
-}: FileAutocompleteDisplayProps) {
-  const displayItems = items.slice(0, maxDisplay);
+}: CommandAutocompleteProps) {
+  const displayCommands = commands.slice(0, maxDisplay);
 
-  if (items.length === 0) {
+  if (commands.length === 0) {
     return null; // Don't show anything when no matches
   }
 
   return (
     <Box flexDirection="column">
-      {displayItems.map((item, index) => {
+      {displayCommands.map((command, index) => {
         const isSelected = index === selectedIndex;
-        const { relativePath } = item;
+        const commandText = `/${command.name}`;
 
         return (
-          <Box key={relativePath}>
+          <Box key={command.name}>
             <Text color={isSelected ? '#ffffff' : '#6b7280'}>
               {isSelected ? '> ' : '  '}
-              {relativePath}
+              {commandText}
             </Text>
           </Box>
         );
