@@ -24,6 +24,7 @@ export function Main() {
   const [vimEnabled] = useState(() => getSetting('vimMode'));
   const [currentVimMode, setCurrentVimMode] = useState<VimMode>('insert');
   const [showSettings, setShowSettings] = useState(false);
+  const [isAutocompleteOpen, setIsAutocompleteOpen] = useState(false);
 
   useInput((value, key) => {
     if (key.ctrl && value === 'c') {
@@ -98,8 +99,13 @@ export function Main() {
           placeholder='Try "Review the changes in my current branch"'
           onVimModeChange={setCurrentVimMode}
           onCommandExecute={handleCommandExecute}
+          onAutocompleteStateChange={setIsAutocompleteOpen}
         />
-        <VimStatus vimMode={currentVimMode} vimEnabled={vimEnabled} />
+        <VimStatus 
+          vimMode={currentVimMode} 
+          vimEnabled={vimEnabled} 
+          hideWhenAutocomplete={isAutocompleteOpen}
+        />
       </Box>
       <ChatFooter />
     </Box>

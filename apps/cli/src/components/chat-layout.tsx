@@ -66,10 +66,11 @@ export function ChatStatusBar() {
 interface VimStatusProps {
   vimMode?: 'normal' | 'insert' | 'visual';
   vimEnabled?: boolean;
+  hideWhenAutocomplete?: boolean;
 }
 
-export function VimStatus({ vimMode, vimEnabled }: VimStatusProps) {
-  if (!vimEnabled || !vimMode) {
+export function VimStatus({ vimMode, vimEnabled, hideWhenAutocomplete }: VimStatusProps) {
+  if (!vimEnabled || !vimMode || hideWhenAutocomplete) {
     return null;
   }
 
@@ -105,6 +106,7 @@ interface ChatInputProps {
   onSubmit: () => void;
   onVimModeChange?: (mode: 'normal' | 'insert' | 'visual') => void;
   onCommandExecute?: (command: SlashCommand) => void;
+  onAutocompleteStateChange?: (isOpen: boolean) => void;
 }
 
 export function ChatInput({
@@ -114,6 +116,7 @@ export function ChatInput({
   onSubmit,
   onVimModeChange,
   onCommandExecute,
+  onAutocompleteStateChange,
 }: ChatInputProps) {
   const [mentionQuery, setMentionQuery] = useState<string | null>(null);
   const [mentionStart, setMentionStart] = useState<number>(-1);
@@ -187,6 +190,12 @@ export function ChatInput({
       setCommandResults([]);
     }
   }, [slashQuery]);
+
+  // Notify parent when autocomplete state changes
+  useEffect(() => {
+    const isOpen = showAutocomplete || showCommandAutocomplete;
+    onAutocompleteStateChange?.(isOpen);
+  }, [showAutocomplete, showCommandAutocomplete, onAutocompleteStateChange]);
 
   // Handle autocomplete navigation
   const handleAutocompleteNavigate = (direction: 'up' | 'down' | 'select' | 'close') => {
