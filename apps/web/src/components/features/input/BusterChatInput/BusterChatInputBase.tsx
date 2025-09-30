@@ -2,7 +2,7 @@ import type { ListShortcutsResponse } from '@buster/server-shared/shortcuts';
 import type { GetSuggestedPromptsResponse } from '@buster/server-shared/user';
 import type { Editor } from '@tiptap/react';
 import sampleSize from 'lodash/sampleSize';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useCreateShortcutsMentionsSuggestions } from '@/components/features/input/Mentions/ShortcutsSuggestions/ShortcutsSuggestions';
 import { Plus } from '@/components/ui/icons';
 import CircleQuestion from '@/components/ui/icons/NucleoIconOutlined/circle-question';
@@ -35,10 +35,11 @@ export const BusterChatInputBase: React.FC<BusterChatInput> = React.memo(
     const uniqueSuggestions = useUniqueSuggestions(suggestedPrompts);
     const [openCreateShortcutModal, setOpenCreateShortcutModal] = useState(false);
     const [mode, setMode] = useState<BusterChatInputMode>('auto');
+
     const shortcutsSuggestions = useShortcuts(
       shortcuts,
       setOpenCreateShortcutModal,
-      mentionInputSuggestionsRef.current?.onChangeValue
+      mentionInputSuggestionsRef
     );
 
     const suggestionItems: MentionInputSuggestionsProps['suggestionItems'] = useMemo(() => {
@@ -66,10 +67,6 @@ export const BusterChatInputBase: React.FC<BusterChatInput> = React.memo(
       return [shortcutsMentionsSuggestions];
     }, [shortcutsMentionsSuggestions]);
 
-    const onDictate = useMemoizedFn((transcript: string) => {
-      mentionInputSuggestionsRef.current?.onChangeValue(transcript);
-    });
-
     const onSubmitPreflight = (value: string) => {
       if (submitting) {
         console.warn('Input is submitting');
@@ -88,14 +85,6 @@ export const BusterChatInputBase: React.FC<BusterChatInput> = React.memo(
       }
     );
 
-    const onSubmitButton = useMemoizedFn(() => {
-      const value = mentionInputSuggestionsRef.current?.getValue();
-
-      if (value) {
-        onSubmitPreflight(value.transformedValue);
-      }
-    });
-
     return (
       <React.Fragment>
         <MentionInputSuggestions
@@ -107,13 +96,12 @@ export const BusterChatInputBase: React.FC<BusterChatInput> = React.memo(
           ref={mentionInputSuggestionsRef}
         >
           <BusterChatInputButtons
-            onSubmit={onSubmitButton}
+            onSubmit={onSubmitPreflight}
             onStop={onStop}
             submitting={submitting}
             disabled={disabled}
             mode={mode}
             onModeChange={setMode}
-            onDictate={onDictate}
           />
         </MentionInputSuggestions>
 
@@ -182,7 +170,7 @@ const useUniqueSuggestions = (
 const useShortcuts = (
   shortcuts: ListShortcutsResponse['shortcuts'],
   setOpenCreateShortcutModal: (open: boolean) => void,
-  onChangeValue: MentionInputSuggestionsRef['onChangeValue'] | undefined
+  mentionInputSuggestionsRef: React.RefObject<MentionInputSuggestionsRef | null>
 ): MentionInputSuggestionsProps['suggestionItems'] => {
   return useMemo(() => {
     const shortcutsItems = shortcuts.map<MentionInputSuggestionsDropdownItem>((shortcut) => {
@@ -193,6 +181,7 @@ const useShortcuts = (
         icon: '/',
         inputValue: `/ ${shortcut.name}`,
         onClick: () => {
+          const onChangeValue = mentionInputSuggestionsRef.current?.onChangeValue;
           onChangeValue?.(shortcut.name);
         },
       };
@@ -218,5 +207,5 @@ const useShortcuts = (
         closeOnSelect: true,
       },
     ];
-  }, [shortcuts]);
+  }, [shortcuts, setOpenCreateShortcutModal, mentionInputSuggestionsRef]);
 };

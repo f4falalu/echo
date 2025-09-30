@@ -2,6 +2,7 @@ import { Command, useCommandState } from 'cmdk';
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { useMounted } from '@/hooks/useMount';
 import { cn } from '@/lib/utils';
 import type { MentionInputProps, MentionInputRef } from '../MentionInput';
 import type {
@@ -157,11 +158,15 @@ export const MentionInputSuggestions = forwardRef<
         onChangeValue,
         getValue,
       }),
-      [value]
+      [value, onChangeValue, getValue]
     );
 
     return (
-      <MentionInputSuggestionsProvider value={value}>
+      <MentionInputSuggestionsProvider
+        value={value}
+        onChangeValue={onChangeValue}
+        getValue={getValue}
+      >
         <Command
           ref={commandRef}
           label={ariaLabel}
@@ -211,21 +216,31 @@ export const MentionInputSuggestions = forwardRef<
   }
 );
 
+MentionInputSuggestions.displayName = 'MentionInputSuggestions';
+
 const MentionInputSuggestionsContext = createContext<{
   value: string;
+  onChangeValue: MentionInputSuggestionsRef['onChangeValue'];
+  getValue: MentionInputSuggestionsRef['getValue'];
 }>({
   value: '',
+  onChangeValue: () => {},
+  getValue: () => undefined,
 });
 
 const MentionInputSuggestionsProvider = ({
   children,
   value,
+  onChangeValue,
+  getValue,
 }: {
   children: React.ReactNode;
   value: string;
+  onChangeValue: MentionInputSuggestionsRef['onChangeValue'];
+  getValue: MentionInputSuggestionsRef['getValue'];
 }) => {
   return (
-    <MentionInputSuggestionsContext.Provider value={{ value }}>
+    <MentionInputSuggestionsContext.Provider value={{ onChangeValue, value, getValue }}>
       {children}
     </MentionInputSuggestionsContext.Provider>
   );
@@ -235,6 +250,24 @@ const stableSelector = (x: { value: string }) => x.value.length > 0;
 export const useMentionInputHasValue = () => {
   const hasValue = useContextSelector(MentionInputSuggestionsContext, stableSelector);
   return hasValue;
+};
+
+const stableSelectorGetValue = (x: { getValue: MentionInputSuggestionsRef['getValue'] }) =>
+  x.getValue;
+export const useMentionInputSuggestionsGetValue = () => {
+  const getValue = useContextSelector(MentionInputSuggestionsContext, stableSelectorGetValue);
+  return getValue;
+};
+
+const stableSelectorOnChangeValue = (x: {
+  onChangeValue: MentionInputSuggestionsRef['onChangeValue'];
+}) => x.onChangeValue;
+export const useMentionInputSuggestionsOnChangeValue = () => {
+  const onChangeValue = useContextSelector(
+    MentionInputSuggestionsContext,
+    stableSelectorOnChangeValue
+  );
+  return onChangeValue;
 };
 
 const SuggestionsSeperator = () => {
