@@ -1,6 +1,5 @@
-import { Command, useCommandState } from 'cmdk';
+import { Command } from 'cmdk';
 import type React from 'react';
-import { useMount } from '@/hooks/useMount';
 import { cn } from '@/lib/utils';
 import { Popover } from '../../popover';
 import type {

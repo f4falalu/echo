@@ -17,7 +17,7 @@ export const MentionSecondaryContentDropdown = ({
       <Button
         variant={'ghost'}
         className={cn(
-          'hover:bg-item-active hidden group-data-[selected=true]/mention-list-item:flex -mr-1.5',
+          'hover:bg-item-active hidden group-hover/mention-list-item:flex group-data-[selected=true]/mention-list-item:flex -mr-1.5',
           open && 'flex!'
         )}
         prefix={<Dots />}

@@ -26,6 +26,7 @@ export const useCreateShortcutsMentionsSuggestions = (
   setOpenCreateShortcutModal: (open: boolean) => void
 ) => {
   const navigate = useNavigate();
+  const createShortcutForMention = useCreateShortcutForMention();
 
   return useMemo(
     () =>
@@ -68,40 +69,45 @@ export const useCreateShortcutsMentionsSuggestions = (
   );
 };
 
-const createShortcutForMention = (shortcut: Shortcut): MentionTriggerItem<string> => {
-  return {
-    value: shortcut.id,
-    label: shortcut.name,
-    icon: <PenWriting />,
-    secondaryContent: (
-      <MentionSecondaryContentDropdown
-        items={[
-          {
-            label: 'Edit',
-            icon: <PenWriting />,
-            value: 'edit',
-            onClick: () => {
-              console.log('edit');
+export const useCreateShortcutForMention = () => {
+  const createShortcutForMention = (shortcut: Shortcut): MentionTriggerItem<string> => {
+    return {
+      value: shortcut.id,
+      label: shortcut.name,
+      icon: <PenWriting />,
+      secondaryContent: (
+        <MentionSecondaryContentDropdown
+          items={[
+            {
+              label: 'Edit',
+              icon: <PenWriting />,
+              value: 'edit',
+              onClick: () => {
+                console.log('edit');
+              },
             },
-          },
-          {
-            label: 'Delete',
-            icon: <Trash />,
-            value: 'delete',
-            onClick: () => {
-              console.log('delete');
+            {
+              label: 'Delete',
+              icon: <Trash />,
+              value: 'delete',
+              onClick: () => {
+                console.log('delete');
+              },
             },
-          },
-        ]}
-      />
-    ),
+          ]}
+        />
+      ),
+    };
   };
+
+  return createShortcutForMention;
 };
 export const useShortcutsSuggestions = (
   shortcuts: ListShortcutsResponse['shortcuts'],
   setOpenCreateShortcutModal: (open: boolean) => void,
   mentionInputSuggestionsRef: React.RefObject<MentionInputSuggestionsRef | null>
 ): MentionInputSuggestionsProps['suggestionItems'] => {
+  const createShortcutForMention = useCreateShortcutForMention();
   return useMemo(() => {
     const shortcutsItems = shortcuts.map<MentionInputSuggestionsDropdownItem>((shortcut) => {
       return {
