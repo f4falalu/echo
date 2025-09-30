@@ -6,6 +6,7 @@ import { Auth } from './commands/auth';
 import { DeployCommand } from './commands/deploy/deploy';
 import { DeployOptionsSchema } from './commands/deploy/schemas';
 import { InitCommand } from './commands/init';
+import { Main } from './commands/main';
 import { UpdateCommand } from './commands/update/index';
 import { getCurrentVersion } from './commands/update/update-handler';
 import { checkForUpdate, formatVersion } from './utils/version/index';
@@ -18,6 +19,10 @@ program
   .name('buster')
   .description('Buster CLI - AI-powered data analytics platform')
   .version(currentVersion);
+
+program.action(() => {
+  render(<Main />);
+});
 
 // Check for updates in the background (non-blocking)
 if (!process.env.CI && !process.env.BUSTER_NO_UPDATE_CHECK) {
