@@ -39,6 +39,7 @@ export function MentionListItem<T = string>({
         'group/mention-list-item',
         'flex items-center justify-between gap-x-1.5 overflow-hidden',
         `cursor-pointer px-2.5 min-h-8 text-base rounded transition-all duration-100`,
+        'hover:bg-item-hover',
         isSelected && 'bg-item-hover'
       )}
     >

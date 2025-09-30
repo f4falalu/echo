@@ -72,6 +72,10 @@ export const useCreateShortcut = () => {
         shortcutsQueryKeys.shortcutsGet(newShortcut.id).queryKey,
         newShortcut
       );
+
+      queryClient.invalidateQueries({
+        queryKey: shortcutsQueryKeys.shortcutsGetList.queryKey,
+      });
     },
   });
 };

@@ -110,7 +110,7 @@ export const useShortcutsSuggestions = (
         label: shortcut.name,
         popoverContent: <ShortcutSuggestionsPopoverContent shortcut={shortcut} />,
         icon: SHORTCUT_MENTION_TRIGGER,
-        inputValue: `/ ${shortcut.name}`,
+        inputValue: `${SHORTCUT_MENTION_TRIGGER} ${shortcut.name}`,
         onClick: () => {
           const addMentionToInput = mentionInputSuggestionsRef.current?.addMentionToInput;
           if (!addMentionToInput) {
