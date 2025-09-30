@@ -1,5 +1,6 @@
 import type { ListShortcutsResponse } from '@buster/server-shared/shortcuts';
 import type { GetSuggestedPromptsResponse } from '@buster/server-shared/user';
+import omit from 'lodash/omit';
 import sampleSize from 'lodash/sampleSize';
 import React, { useMemo, useRef, useState } from 'react';
 import {
@@ -161,8 +162,9 @@ const useUniqueSuggestions = (
   suggestedPrompts: GetSuggestedPromptsResponse['suggestedPrompts']
 ): MentionInputSuggestionsProps['suggestionItems'] => {
   return useMemo(() => {
+    const filteredSuggestedPrompts = omit(suggestedPrompts, ['help']);
     const allSuggestions: { type: keyof typeof suggestedPrompts; value: string }[] = Object.entries(
-      suggestedPrompts
+      filteredSuggestedPrompts
     ).flatMap(([key, value]) => {
       return value.map((prompt) => {
         return {
