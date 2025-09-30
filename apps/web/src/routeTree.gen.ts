@@ -39,11 +39,13 @@ import { Route as AppAppReportsIndexRouteImport } from './routes/app/_app/report
 import { Route as AppAppNewUserIndexRouteImport } from './routes/app/_app/new-user/index'
 import { Route as AppAppMetricsIndexRouteImport } from './routes/app/_app/metrics.index'
 import { Route as AppAppLogsIndexRouteImport } from './routes/app/_app/logs.index'
+import { Route as AppAppHomeIndexRouteImport } from './routes/app/_app/home/index'
 import { Route as AppAppDatasetsIndexRouteImport } from './routes/app/_app/datasets.index'
 import { Route as AppAppDashboardsIndexRouteImport } from './routes/app/_app/dashboards.index'
 import { Route as AppAppCollectionsIndexRouteImport } from './routes/app/_app/collections.index'
 import { Route as AppAppChatsIndexRouteImport } from './routes/app/_app/chats.index'
 import { Route as AppSettingsRestricted_layoutAdmin_onlyRouteImport } from './routes/app/_settings/_restricted_layout/_admin_only'
+import { Route as AppAppHomeShortcutsRouteImport } from './routes/app/_app/home/shortcuts'
 import { Route as AppAppDatasetsDatasetIdRouteImport } from './routes/app/_app/datasets.$datasetId'
 import { Route as AppSettingsRestricted_layoutSettingsProfileRouteImport } from './routes/app/_settings/_restricted_layout/settings.profile'
 import { Route as AppSettingsPermissionsSettingsUsersRouteImport } from './routes/app/_settings/_permissions/settings.users'
@@ -335,6 +337,11 @@ const AppAppLogsIndexRoute = AppAppLogsIndexRouteImport.update({
   path: '/logs/',
   getParentRoute: () => AppAppRoute,
 } as any)
+const AppAppHomeIndexRoute = AppAppHomeIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppAppHomeRoute,
+} as any)
 const AppAppDatasetsIndexRoute = AppAppDatasetsIndexRouteImport.update({
   id: '/datasets/',
   path: '/datasets/',
@@ -360,6 +367,11 @@ const AppSettingsRestricted_layoutAdmin_onlyRoute =
     id: '/_admin_only',
     getParentRoute: () => AppSettingsRestricted_layoutRoute,
   } as any)
+const AppAppHomeShortcutsRoute = AppAppHomeShortcutsRouteImport.update({
+  id: '/shortcuts',
+  path: '/shortcuts',
+  getParentRoute: () => AppAppHomeRoute,
+} as any)
 const AppAppDatasetsDatasetIdRoute = AppAppDatasetsDatasetIdRouteImport.update({
   id: '/datasets/$datasetId',
   path: '/datasets/$datasetId',
@@ -1176,17 +1188,19 @@ export interface FileRoutesByFullPath {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/info/getting-started': typeof InfoGettingStartedRoute
   '/app/': typeof AppIndexRoute
-  '/app/home': typeof AppAppHomeRoute
+  '/app/home': typeof AppAppHomeRouteWithChildren
   '/app/new-user': typeof AppAppNewUserRouteWithChildren
   '/embed/chat/$chatId': typeof EmbedChatChatIdRoute
   '/embed/dashboard/$dashboardId': typeof EmbedDashboardDashboardIdRoute
   '/embed/metric/$metricId': typeof EmbedMetricMetricIdRoute
   '/embed/report/$reportId': typeof EmbedReportReportIdRoute
   '/app/datasets/$datasetId': typeof AppAppDatasetsDatasetIdRouteWithChildren
+  '/app/home/shortcuts': typeof AppAppHomeShortcutsRoute
   '/app/chats': typeof AppAppChatsIndexRoute
   '/app/collections': typeof AppAppCollectionsIndexRoute
   '/app/dashboards': typeof AppAppDashboardsIndexRoute
   '/app/datasets': typeof AppAppDatasetsIndexRoute
+  '/app/home/': typeof AppAppHomeIndexRoute
   '/app/logs': typeof AppAppLogsIndexRoute
   '/app/metrics': typeof AppAppMetricsIndexRoute
   '/app/new-user/': typeof AppAppNewUserIndexRoute
@@ -1308,16 +1322,17 @@ export interface FileRoutesByTo {
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/info/getting-started': typeof InfoGettingStartedRoute
-  '/app/home': typeof AppAppHomeRoute
   '/embed/chat/$chatId': typeof EmbedChatChatIdRoute
   '/embed/dashboard/$dashboardId': typeof EmbedDashboardDashboardIdRoute
   '/embed/metric/$metricId': typeof EmbedMetricMetricIdRoute
   '/embed/report/$reportId': typeof EmbedReportReportIdRoute
   '/app/datasets/$datasetId': typeof AppAppDatasetsDatasetIdRouteWithChildren
+  '/app/home/shortcuts': typeof AppAppHomeShortcutsRoute
   '/app/chats': typeof AppAppChatsIndexRoute
   '/app/collections': typeof AppAppCollectionsIndexRoute
   '/app/dashboards': typeof AppAppDashboardsIndexRoute
   '/app/datasets': typeof AppAppDatasetsIndexRoute
+  '/app/home': typeof AppAppHomeIndexRoute
   '/app/logs': typeof AppAppLogsIndexRoute
   '/app/metrics': typeof AppAppMetricsIndexRoute
   '/app/new-user': typeof AppAppNewUserIndexRoute
@@ -1422,7 +1437,7 @@ export interface FileRoutesById {
   '/info/getting-started': typeof InfoGettingStartedRoute
   '/app/': typeof AppIndexRoute
   '/app/_app/_asset': typeof AppAppAssetRouteWithChildren
-  '/app/_app/home': typeof AppAppHomeRoute
+  '/app/_app/home': typeof AppAppHomeRouteWithChildren
   '/app/_app/new-user': typeof AppAppNewUserRouteWithChildren
   '/app/_settings/_permissions': typeof AppSettingsPermissionsRouteWithChildren
   '/app/_settings/_restricted_layout': typeof AppSettingsRestricted_layoutRouteWithChildren
@@ -1431,11 +1446,13 @@ export interface FileRoutesById {
   '/embed/metric/$metricId': typeof EmbedMetricMetricIdRoute
   '/embed/report/$reportId': typeof EmbedReportReportIdRoute
   '/app/_app/datasets/$datasetId': typeof AppAppDatasetsDatasetIdRouteWithChildren
+  '/app/_app/home/shortcuts': typeof AppAppHomeShortcutsRoute
   '/app/_settings/_restricted_layout/_admin_only': typeof AppSettingsRestricted_layoutAdmin_onlyRouteWithChildren
   '/app/_app/chats/': typeof AppAppChatsIndexRoute
   '/app/_app/collections/': typeof AppAppCollectionsIndexRoute
   '/app/_app/dashboards/': typeof AppAppDashboardsIndexRoute
   '/app/_app/datasets/': typeof AppAppDatasetsIndexRoute
+  '/app/_app/home/': typeof AppAppHomeIndexRoute
   '/app/_app/logs/': typeof AppAppLogsIndexRoute
   '/app/_app/metrics/': typeof AppAppMetricsIndexRoute
   '/app/_app/new-user/': typeof AppAppNewUserIndexRoute
@@ -1582,10 +1599,12 @@ export interface FileRouteTypes {
     | '/embed/metric/$metricId'
     | '/embed/report/$reportId'
     | '/app/datasets/$datasetId'
+    | '/app/home/shortcuts'
     | '/app/chats'
     | '/app/collections'
     | '/app/dashboards'
     | '/app/datasets'
+    | '/app/home/'
     | '/app/logs'
     | '/app/metrics'
     | '/app/new-user/'
@@ -1707,16 +1726,17 @@ export interface FileRouteTypes {
     | '/auth/logout'
     | '/auth/reset-password'
     | '/info/getting-started'
-    | '/app/home'
     | '/embed/chat/$chatId'
     | '/embed/dashboard/$dashboardId'
     | '/embed/metric/$metricId'
     | '/embed/report/$reportId'
     | '/app/datasets/$datasetId'
+    | '/app/home/shortcuts'
     | '/app/chats'
     | '/app/collections'
     | '/app/dashboards'
     | '/app/datasets'
+    | '/app/home'
     | '/app/logs'
     | '/app/metrics'
     | '/app/new-user'
@@ -1829,11 +1849,13 @@ export interface FileRouteTypes {
     | '/embed/metric/$metricId'
     | '/embed/report/$reportId'
     | '/app/_app/datasets/$datasetId'
+    | '/app/_app/home/shortcuts'
     | '/app/_settings/_restricted_layout/_admin_only'
     | '/app/_app/chats/'
     | '/app/_app/collections/'
     | '/app/_app/dashboards/'
     | '/app/_app/datasets/'
+    | '/app/_app/home/'
     | '/app/_app/logs/'
     | '/app/_app/metrics/'
     | '/app/_app/new-user/'
@@ -2186,6 +2208,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAppLogsIndexRouteImport
       parentRoute: typeof AppAppRoute
     }
+    '/app/_app/home/': {
+      id: '/app/_app/home/'
+      path: '/'
+      fullPath: '/app/home/'
+      preLoaderRoute: typeof AppAppHomeIndexRouteImport
+      parentRoute: typeof AppAppHomeRoute
+    }
     '/app/_app/datasets/': {
       id: '/app/_app/datasets/'
       path: '/datasets'
@@ -2220,6 +2249,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app'
       preLoaderRoute: typeof AppSettingsRestricted_layoutAdmin_onlyRouteImport
       parentRoute: typeof AppSettingsRestricted_layoutRoute
+    }
+    '/app/_app/home/shortcuts': {
+      id: '/app/_app/home/shortcuts'
+      path: '/shortcuts'
+      fullPath: '/app/home/shortcuts'
+      preLoaderRoute: typeof AppAppHomeShortcutsRouteImport
+      parentRoute: typeof AppAppHomeRoute
     }
     '/app/_app/datasets/$datasetId': {
       id: '/app/_app/datasets/$datasetId'
@@ -3502,6 +3538,20 @@ const AppAppAssetRouteWithChildren = AppAppAssetRoute._addFileChildren(
   AppAppAssetRouteChildren,
 )
 
+interface AppAppHomeRouteChildren {
+  AppAppHomeShortcutsRoute: typeof AppAppHomeShortcutsRoute
+  AppAppHomeIndexRoute: typeof AppAppHomeIndexRoute
+}
+
+const AppAppHomeRouteChildren: AppAppHomeRouteChildren = {
+  AppAppHomeShortcutsRoute: AppAppHomeShortcutsRoute,
+  AppAppHomeIndexRoute: AppAppHomeIndexRoute,
+}
+
+const AppAppHomeRouteWithChildren = AppAppHomeRoute._addFileChildren(
+  AppAppHomeRouteChildren,
+)
+
 interface AppAppNewUserRouteChildren {
   AppAppNewUserIndexRoute: typeof AppAppNewUserIndexRoute
 }
@@ -3562,7 +3612,7 @@ const AppAppDatasetsDatasetIdRouteWithChildren =
 
 interface AppAppRouteChildren {
   AppAppAssetRoute: typeof AppAppAssetRouteWithChildren
-  AppAppHomeRoute: typeof AppAppHomeRoute
+  AppAppHomeRoute: typeof AppAppHomeRouteWithChildren
   AppAppNewUserRoute: typeof AppAppNewUserRouteWithChildren
   AppAppDatasetsDatasetIdRoute: typeof AppAppDatasetsDatasetIdRouteWithChildren
   AppAppChatsIndexRoute: typeof AppAppChatsIndexRoute
@@ -3576,7 +3626,7 @@ interface AppAppRouteChildren {
 
 const AppAppRouteChildren: AppAppRouteChildren = {
   AppAppAssetRoute: AppAppAssetRouteWithChildren,
-  AppAppHomeRoute: AppAppHomeRoute,
+  AppAppHomeRoute: AppAppHomeRouteWithChildren,
   AppAppNewUserRoute: AppAppNewUserRouteWithChildren,
   AppAppDatasetsDatasetIdRoute: AppAppDatasetsDatasetIdRouteWithChildren,
   AppAppChatsIndexRoute: AppAppChatsIndexRoute,

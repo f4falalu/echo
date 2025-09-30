@@ -11,7 +11,6 @@ import * as React from 'react';
 import { useEffect, useLayoutEffect, useState, useTransition } from 'react';
 import { useIsBlockerEnabled } from '@/context/Routes/blocker-store';
 import { useDebounce } from '@/hooks/useDebounce';
-import { useMount } from '@/hooks/useMount';
 import { useSize } from '@/hooks/useSize';
 import { cn } from '@/lib/classMerge';
 import type { ILinkProps } from '@/types/routes';
@@ -77,7 +76,7 @@ const triggerVariants = cva(
   {
     variants: {
       size: {
-        default: 'px-2 flex-row',
+        default: 'flex-row min-w-6',
         medium: 'px-3 flex-row',
         large: 'px-3 flex-col',
       },
@@ -302,6 +301,24 @@ function SegmentedTriggerComponent<
     <div {...commonProps}>{linkContent}</div>
   );
 
+  // Determine padding based on size, icon, and label presence
+  const getPaddingClass = () => {
+    if (size === 'default') {
+      // If there's an icon but no label, use p-0
+      if (icon && !label) {
+        return 'p-0';
+      }
+      // If there's a label, use p-2
+      if (label) {
+        return 'p-2';
+      }
+      // Default fallback for edge cases
+      return 'p-2';
+    }
+    // For other sizes, no additional padding (they have their own px-3)
+    return '';
+  };
+
   return (
     <Tooltip title={tooltip || ''} sideOffset={10} delayDuration={150}>
       <Tabs.Trigger
@@ -318,7 +335,8 @@ function SegmentedTriggerComponent<
             block,
             disabled,
             selected: selectedValue === value,
-          })
+          }),
+          getPaddingClass()
         )}
       >
         {linkDiv}

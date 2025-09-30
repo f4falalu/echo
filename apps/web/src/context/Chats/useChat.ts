@@ -1,3 +1,4 @@
+import type { ChatCreateRequest } from '@buster/server-shared/chats';
 import { useNavigate } from '@tanstack/react-router';
 import { create } from 'mutative';
 import type { FileType } from '@/api/asset_interfaces/chat';
@@ -13,6 +14,16 @@ type StartChatParams = {
   dashboardId?: string; //this is to start a NEW chat from a dashboard
   messageId?: string; //this is used to replace a message in the chat
   chatId?: string; //this is used to follow up a chat
+  mode?: 'auto' | 'research' | 'deep-research'; //ui modes
+};
+
+const chatModeToServerRecord: Record<
+  NonNullable<StartChatParams['mode']>,
+  NonNullable<ChatCreateRequest['message_analysis_mode']>
+> = {
+  auto: 'auto',
+  research: 'standard',
+  'deep-research': 'investigation',
 };
 
 export const useChat = () => {
@@ -29,6 +40,7 @@ export const useChat = () => {
     metricId,
     dashboardId,
     messageId,
+    mode = 'auto',
   }: StartChatParams) => {
     const res = await startNewChat({
       prompt,
@@ -36,6 +48,7 @@ export const useChat = () => {
       metric_id: metricId,
       dashboard_id: dashboardId,
       message_id: messageId,
+      message_analysis_mode: chatModeToServerRecord[mode] || 'auto',
     });
 
     const { message_ids, id } = res;
@@ -49,11 +62,14 @@ export const useChat = () => {
     }
   };
 
-  const onStartNewChat = useMemoizedFn(async ({ prompt }: { prompt: string }) => {
-    return startChat({
-      prompt,
-    });
-  });
+  const onStartNewChat = useMemoizedFn(
+    async ({ prompt, mode }: { prompt: string; mode: StartChatParams['mode'] }) => {
+      return startChat({
+        prompt,
+        mode,
+      });
+    }
+  );
 
   const onStartChatFromFile = useMemoizedFn(
     async ({

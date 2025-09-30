@@ -6,7 +6,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import type { RustApiError } from '@/api/errors';
+import type { ApiError } from '@/api/errors';
 import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
 import {
   setProtectedAssetPasswordError,
@@ -32,7 +32,7 @@ export const useGetDashboard = <TData = GetDashboardResponse>(
     id: idProp,
     versionNumber: versionNumberProp,
   }: { id: string | undefined; versionNumber: number | 'LATEST' | undefined },
-  params?: Omit<UseQueryOptions<GetDashboardResponse, RustApiError, TData>, 'queryKey' | 'queryFn'>
+  params?: Omit<UseQueryOptions<GetDashboardResponse, ApiError, TData>, 'queryKey' | 'queryFn'>
 ) => {
   const id = idProp || '';
   const password = useProtectedAssetPassword(id);
@@ -77,7 +77,7 @@ export const useGetDashboard = <TData = GetDashboardResponse>(
  * Returns a function that will prefetch a dashboard if its cache entry is stale.
  */
 export const usePrefetchGetDashboardClient = <TData = GetDashboardResponse>(
-  params?: Omit<UseQueryOptions<GetDashboardResponse, RustApiError, TData>, 'queryKey' | 'queryFn'>
+  params?: Omit<UseQueryOptions<GetDashboardResponse, ApiError, TData>, 'queryKey' | 'queryFn'>
 ) => {
   const queryClient = useQueryClient();
   const queryFn = useGetDashboardAndInitializeMetrics({ prefetchData: false });
@@ -107,7 +107,7 @@ export const usePrefetchGetDashboardClient = <TData = GetDashboardResponse>(
 export const useGetDashboardsList = (
   params: Omit<Parameters<typeof dashboardsGetList>[0], 'page_token' | 'page_size'>,
   options?: Omit<
-    UseQueryOptions<Awaited<ReturnType<typeof dashboardsGetList>>, RustApiError>,
+    UseQueryOptions<Awaited<ReturnType<typeof dashboardsGetList>>, ApiError>,
     'queryKey' | 'queryFn' | 'initialData'
   >
 ) => {

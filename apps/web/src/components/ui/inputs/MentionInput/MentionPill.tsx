@@ -6,17 +6,23 @@ import type { MentionTriggerItem } from './MentionInput.types';
 
 export type MentionPillAttributes<T = string> = Pick<
   MentionTriggerItem<T>,
-  'label' | 'value' | 'doNotAddPipeOnSelect'
+  'label' | 'value' | 'doNotAddPipeOnSelect' | 'pillLabel'
 > & { trigger: string };
 
 export const MentionPill = <T extends string>({
   node,
   editor,
 }: ReactNodeViewProps<MentionTriggerItem<T>>) => {
-  const { trigger, label, value } = node.attrs as MentionPillAttributes;
+  const { trigger, label, value, pillLabel } = node.attrs as MentionPillAttributes;
   const pillStyling = editor.storage.mention.pillStylingByTrigger.get(trigger);
-  const pillClassName = pillStyling?.className;
-  const pillStyle = pillStyling?.style;
+  const pillClassName =
+    typeof pillStyling?.className === 'function'
+      ? pillStyling.className(node.attrs as MentionPillAttributes<T>)
+      : pillStyling?.className;
+  const pillStyle =
+    typeof pillStyling?.style === 'function'
+      ? pillStyling.style(node.attrs as MentionPillAttributes<T>)
+      : pillStyling?.style;
 
   return (
     <NodeViewWrapper as={node.attrs.as ?? 'span'}>
@@ -30,7 +36,7 @@ export const MentionPill = <T extends string>({
           )}
           style={pillStyle}
         >
-          {label}
+          {pillLabel || label}
         </span>
       </PopoverWrapper>
     </NodeViewWrapper>

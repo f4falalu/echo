@@ -16,12 +16,14 @@ export const createMentionSuggestionExtension = ({
   trigger,
   items,
   popoverContent,
+  onChangeTransform,
   pillStyling,
 }: {
   trigger: string;
   items: MentionInputTriggerItem[] | ((props: { query: string }) => MentionInputTriggerItem[]); //if no function is provided we will use a literal string match
   popoverContent?: MentionPopoverContentCallback;
   pillStyling?: MentionStylePillProps;
+  onChangeTransform?: MentionSuggestionExtension['onChangeTransform'];
 }): MentionSuggestionExtension => ({
   char: trigger,
   items:
@@ -55,6 +57,8 @@ export const createMentionSuggestionExtension = ({
         element.style.left = `${rect.left}px`;
         element.style.top = `${rect.top}px`;
         element.style.transform = `translateY(1.15lh)`;
+        element.classList.add('z-50');
+        element.classList.add('shadow');
 
         document.body.appendChild(component.element);
       },
@@ -96,4 +100,5 @@ export const createMentionSuggestionExtension = ({
       ])
       .run();
   },
+  onChangeTransform,
 });

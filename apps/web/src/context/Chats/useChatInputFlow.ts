@@ -70,7 +70,7 @@ export const useChatInputFlow = ({
           fileType: selectedAssetType,
         });
       } else {
-        await onStartNewChat({ prompt: trimmedInputValue });
+        await onStartNewChat({ prompt: trimmedInputValue, mode: 'auto' });
       }
 
       setInputValue('');
