@@ -55,7 +55,10 @@ export const AddToCollectionModal: React.FC<{
               <span className="text-icon-color">
                 <Icon />
               </span>
-              <Text>{name}</Text>
+              <Text>
+                {/* biome-ignore lint/security/noDangerouslySetInnerHtml: this endpoint is sanitized */}
+                <span dangerouslySetInnerHTML={{ __html: name }}></span>
+              </Text>
             </div>
           );
         },
