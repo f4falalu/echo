@@ -84,6 +84,7 @@ export type MentionInputSuggestionsProps<T = string> = {
   className?: string;
   inputContainerClassName?: string;
   suggestionsContainerClassName?: string;
+  inputClassName?: string;
 } & Pick<React.ComponentProps<typeof Command>, 'filter' | 'shouldFilter'>;
 
 export type MentionInputSuggestionsRef = {

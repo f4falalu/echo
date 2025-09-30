@@ -38,6 +38,7 @@ export const MentionInputSuggestions = forwardRef<
       className,
       inputContainerClassName,
       suggestionsContainerClassName,
+      inputClassName,
       //suggestions
       suggestionItems,
       closeSuggestionOnSelect = true,
@@ -197,6 +198,7 @@ export const MentionInputSuggestions = forwardRef<
               onPressEnter={onPressEnter}
               commandListNavigatedRef={commandListNavigatedRef}
               disabled={disabled}
+              className={inputClassName}
             />
             {children && <div className="mt-3">{children}</div>}
           </MentionInputSuggestionsContainer>
