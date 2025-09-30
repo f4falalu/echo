@@ -6,10 +6,7 @@ import { performTextSearch } from './search';
 vi.mock('@buster/database/queries', () => ({
   getUserOrganizationId: vi.fn(),
   searchText: vi.fn(),
-}));
-
-vi.mock('./get-search-result-ancestors', () => ({
-  getAssetAncestors: vi.fn(),
+  getAssetAncestorsWithTransaction: vi.fn(),
 }));
 
 vi.mock('./text-processing-helpers', () => ({
@@ -17,8 +14,11 @@ vi.mock('./text-processing-helpers', () => ({
 }));
 
 // Import the mocked functions
-import { getUserOrganizationId, searchText } from '@buster/database/queries';
-import { getAssetAncestors } from './get-search-result-ancestors';
+import {
+  getAssetAncestorsWithTransaction,
+  getUserOrganizationId,
+  searchText,
+} from '@buster/database/queries';
 import { processSearchResultText } from './text-processing-helpers';
 
 describe('search.ts - Unit Tests', () => {
@@ -70,7 +70,7 @@ describe('search.ts - Unit Tests', () => {
       processedTitle: `<b>${title}</b>`,
       processedAdditionalText: `<b>${additionalText}</b>`,
     }));
-    (getAssetAncestors as Mock).mockResolvedValue(mockAncestors);
+    (getAssetAncestorsWithTransaction as Mock).mockResolvedValue(mockAncestors);
   });
 
   describe('performTextSearch', () => {
@@ -226,14 +226,14 @@ describe('search.ts - Unit Tests', () => {
 
       const result = await performTextSearch(mockUserId, searchRequestWithAncestors);
 
-      expect(getAssetAncestors).toHaveBeenCalledTimes(2);
-      expect(getAssetAncestors).toHaveBeenCalledWith(
+      expect(getAssetAncestorsWithTransaction).toHaveBeenCalledTimes(2);
+      expect(getAssetAncestorsWithTransaction).toHaveBeenCalledWith(
         'asset-1',
         'chat',
         mockUserId,
         mockOrganizationId
       );
-      expect(getAssetAncestors).toHaveBeenCalledWith(
+      expect(getAssetAncestorsWithTransaction).toHaveBeenCalledWith(
         'asset-2',
         'metric_file',
         mockUserId,
@@ -247,7 +247,7 @@ describe('search.ts - Unit Tests', () => {
     it('should not include ancestors when not requested', async () => {
       const result = await performTextSearch(mockUserId, basicSearchRequest);
 
-      expect(getAssetAncestors).not.toHaveBeenCalled();
+      expect(getAssetAncestorsWithTransaction).not.toHaveBeenCalled();
       expect(result.data[0]).not.toHaveProperty('ancestors');
       expect(result.data[1]).not.toHaveProperty('ancestors');
     });
@@ -269,7 +269,7 @@ describe('search.ts - Unit Tests', () => {
 
       expect(result).toEqual(emptySearchResponse);
       expect(processSearchResultText).not.toHaveBeenCalled();
-      expect(getAssetAncestors).not.toHaveBeenCalled();
+      expect(getAssetAncestorsWithTransaction).not.toHaveBeenCalled();
     });
 
     it('should handle null/undefined additional text', async () => {
@@ -353,8 +353,8 @@ describe('search.ts - Unit Tests', () => {
 
       const result = await performTextSearch(mockUserId, searchRequestWithAncestors);
 
-      // Should call getAssetAncestors for each result
-      expect(getAssetAncestors).toHaveBeenCalledTimes(12);
+      // Should call getAssetAncestorsWithTransaction for each result
+      expect(getAssetAncestorsWithTransaction).toHaveBeenCalledTimes(12);
 
       // Results should have ancestors added
       expect(result.data).toHaveLength(12);
@@ -369,7 +369,9 @@ describe('search.ts - Unit Tests', () => {
         includeAssetAncestors: true,
       };
 
-      (getAssetAncestors as Mock).mockRejectedValue(new Error('Ancestor lookup failed'));
+      (getAssetAncestorsWithTransaction as Mock).mockRejectedValue(
+        new Error('Ancestor lookup failed')
+      );
 
       await expect(performTextSearch(mockUserId, searchRequestWithAncestors)).rejects.toThrow(
         'Ancestor lookup failed'

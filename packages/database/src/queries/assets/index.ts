@@ -22,6 +22,8 @@ export {
   getAssetCollectionAncestors,
   getMetricDashboardAncestors,
   getMetricReportAncestors,
+  getAssetAncestors,
+  getAssetAncestorsWithTransaction,
 } from './asset-ancestors';
 
 export {
