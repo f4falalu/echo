@@ -15,6 +15,7 @@ import type {
 import { MentionInputSuggestions } from '@/components/ui/inputs/MentionInputSuggestions';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { ASSET_ICONS } from '../../icons/assetIcons';
+import { NewShortcutModal } from '../../modals/NewShortcutModal';
 import { BusterChatInputButtons, type BusterChatInputMode } from './BusterChatInputButtons';
 
 export type BusterChatInput = {
@@ -31,10 +32,9 @@ export const BusterChatInputBase: React.FC<BusterChatInput> = React.memo(
   ({ defaultValue, onSubmit, onStop, submitting, disabled, shortcuts, suggestedPrompts }) => {
     const mentionInputSuggestionsRef = useRef<MentionInputSuggestionsRef>(null);
     const uniqueSuggestions = useUniqueSuggestions(suggestedPrompts);
-    const shortcutsSuggestions = useShortcuts(shortcuts);
-
     const [openCreateShortcutModal, setOpenCreateShortcutModal] = useState(false);
     const [mode, setMode] = useState<BusterChatInputMode>('auto');
+    const shortcutsSuggestions = useShortcuts(shortcuts, setOpenCreateShortcutModal);
 
     const suggestionItems: MentionInputSuggestionsProps['suggestionItems'] = useMemo(() => {
       const items: MentionInputSuggestionsProps['suggestionItems'] = [...uniqueSuggestions];
@@ -91,24 +91,31 @@ export const BusterChatInputBase: React.FC<BusterChatInput> = React.memo(
     });
 
     return (
-      <MentionInputSuggestions
-        defaultValue={defaultValue}
-        onPressEnter={onPressEnter}
-        mentions={mentions}
-        suggestionItems={suggestionItems}
-        placeholder="Ask a question or type ‘/’ for shortcuts..."
-        ref={mentionInputSuggestionsRef}
-      >
-        <BusterChatInputButtons
-          onSubmit={onSubmitButton}
-          onStop={onStop}
-          submitting={submitting}
-          disabled={disabled}
-          mode={mode}
-          onModeChange={setMode}
-          onDictate={onDictate}
+      <React.Fragment>
+        <MentionInputSuggestions
+          defaultValue={defaultValue}
+          onPressEnter={onPressEnter}
+          mentions={mentions}
+          suggestionItems={suggestionItems}
+          placeholder="Ask a question or type ‘/’ for shortcuts..."
+          ref={mentionInputSuggestionsRef}
+        >
+          <BusterChatInputButtons
+            onSubmit={onSubmitButton}
+            onStop={onStop}
+            submitting={submitting}
+            disabled={disabled}
+            mode={mode}
+            onModeChange={setMode}
+            onDictate={onDictate}
+          />
+        </MentionInputSuggestions>
+
+        <NewShortcutModal
+          open={openCreateShortcutModal}
+          onClose={() => setOpenCreateShortcutModal(false)}
         />
-      </MentionInputSuggestions>
+      </React.Fragment>
     );
   }
 );
@@ -167,7 +174,8 @@ const useUniqueSuggestions = (
 };
 
 const useShortcuts = (
-  shortcuts: ListShortcutsResponse['shortcuts']
+  shortcuts: ListShortcutsResponse['shortcuts'],
+  setOpenCreateShortcutModal: (open: boolean) => void
 ): MentionInputSuggestionsProps['suggestionItems'] => {
   return useMemo(() => {
     const shortcutsItems = shortcuts.map<MentionInputSuggestionsDropdownItem>((shortcut) => {
@@ -187,7 +195,7 @@ const useShortcuts = (
       icon: <Plus />,
       inputValue: '/ Create shortcut',
       onClick: () => {
-        console.log('createShortcut');
+        setOpenCreateShortcutModal(true);
       },
     });
 
