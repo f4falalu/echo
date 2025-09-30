@@ -69,7 +69,7 @@ export const MentionInputSuggestions = forwardRef<
       [onChange, setHasClickedSelect]
     );
 
-    //this is used to change the value of the input from outside the component
+    //Exported: this is used to change the value of the input from outside the component
     const onChangeValue = useMemoizedFn((v: string | ((prevState: string) => string)) => {
       if (typeof v === 'function') {
         setValue((prevState) => {
@@ -165,7 +165,12 @@ export const MentionInputSuggestions = forwardRef<
         <Command
           ref={commandRef}
           label={ariaLabel}
-          className={cn('relative border rounded overflow-hidden bg-background shadow', className)}
+          className={cn(
+            'relative border rounded overflow-hidden bg-background shadow',
+            // CSS-only solution: Hide separators that come after hidden elements
+            '[&_[hidden]+[data-separator-after-hidden]]:hidden',
+            className
+          )}
           shouldFilter={shouldFilter}
           filter={filter || customFilter}
         >

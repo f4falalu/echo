@@ -46,6 +46,13 @@ export const useCreateShortcutsMentionsSuggestions = (
           },
         ],
         popoverContent: ShortcutPopoverContent,
+        onChangeTransform: (v) => {
+          const foundShortcut = shortcuts.find((shortcut) => shortcut.name === v.label);
+          if (foundShortcut) {
+            return foundShortcut.instructions;
+          }
+          return v.value;
+        },
       }),
     [shortcuts, setOpenCreateShortcutModal]
   );

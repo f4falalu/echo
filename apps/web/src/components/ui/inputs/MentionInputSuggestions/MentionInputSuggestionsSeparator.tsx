@@ -27,6 +27,7 @@ export const MentionInputSuggestionsSeparator = ({
         !hasResults && 'hidden',
         className
       )}
+      data-separator-after-hidden="true"
       {...props}
     >
       {children}

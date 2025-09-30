@@ -1,5 +1,6 @@
 import type { ListShortcutsResponse } from '@buster/server-shared/shortcuts';
 import type { GetSuggestedPromptsResponse } from '@buster/server-shared/user';
+import type { Editor } from '@tiptap/react';
 import sampleSize from 'lodash/sampleSize';
 import React, { useMemo, useRef, useState } from 'react';
 import { useCreateShortcutsMentionsSuggestions } from '@/components/features/input/Mentions/ShortcutsSuggestions/ShortcutsSuggestions';
@@ -34,7 +35,11 @@ export const BusterChatInputBase: React.FC<BusterChatInput> = React.memo(
     const uniqueSuggestions = useUniqueSuggestions(suggestedPrompts);
     const [openCreateShortcutModal, setOpenCreateShortcutModal] = useState(false);
     const [mode, setMode] = useState<BusterChatInputMode>('auto');
-    const shortcutsSuggestions = useShortcuts(shortcuts, setOpenCreateShortcutModal);
+    const shortcutsSuggestions = useShortcuts(
+      shortcuts,
+      setOpenCreateShortcutModal,
+      mentionInputSuggestionsRef.current?.onChangeValue
+    );
 
     const suggestionItems: MentionInputSuggestionsProps['suggestionItems'] = useMemo(() => {
       const items: MentionInputSuggestionsProps['suggestionItems'] = [...uniqueSuggestions];
@@ -85,6 +90,7 @@ export const BusterChatInputBase: React.FC<BusterChatInput> = React.memo(
 
     const onSubmitButton = useMemoizedFn(() => {
       const value = mentionInputSuggestionsRef.current?.getValue();
+
       if (value) {
         onSubmitPreflight(value.transformedValue);
       }
@@ -175,7 +181,8 @@ const useUniqueSuggestions = (
 
 const useShortcuts = (
   shortcuts: ListShortcutsResponse['shortcuts'],
-  setOpenCreateShortcutModal: (open: boolean) => void
+  setOpenCreateShortcutModal: (open: boolean) => void,
+  onChangeValue: MentionInputSuggestionsRef['onChangeValue'] | undefined
 ): MentionInputSuggestionsProps['suggestionItems'] => {
   return useMemo(() => {
     const shortcutsItems = shortcuts.map<MentionInputSuggestionsDropdownItem>((shortcut) => {
@@ -185,6 +192,9 @@ const useShortcuts = (
         label: shortcut.name,
         icon: '/',
         inputValue: `/ ${shortcut.name}`,
+        onClick: () => {
+          onChangeValue?.(shortcut.name);
+        },
       };
     });
 

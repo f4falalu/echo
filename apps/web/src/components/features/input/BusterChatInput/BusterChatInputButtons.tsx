@@ -80,7 +80,10 @@ export const BusterChatInputButtons = React.memo(
               />
             </AppTooltip>
           )}
-          <AppTooltip title={'Submit'}>
+          <AppTooltip
+            delayDuration={disableSubmit ? 500 : 0}
+            title={disableSubmit ? 'Please type something...' : 'Submit'}
+          >
             <Button
               rounding={'large'}
               variant={'default'}
