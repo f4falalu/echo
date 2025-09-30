@@ -1,4 +1,4 @@
-import { Command } from 'cmdk';
+import { Command, useCommandState } from 'cmdk';
 import type React from 'react';
 import { useMount } from '@/hooks/useMount';
 import { cn } from '@/lib/utils';
@@ -12,8 +12,6 @@ export type MentionInputSuggestionsItemProps = {
 } & MentionInputSuggestionsDropdownItem & {
     className?: string;
     style?: React.CSSProperties;
-    hasResults: boolean;
-    setHasResults: (hasResults: boolean) => void;
   };
 
 export const MentionInputSuggestionsItem = ({
@@ -28,8 +26,6 @@ export const MentionInputSuggestionsItem = ({
   type,
   addValueToInput,
   onSelect,
-  hasResults,
-  setHasResults,
   className,
   style,
 }: MentionInputSuggestionsItemProps) => {
@@ -42,6 +38,7 @@ export const MentionInputSuggestionsItem = ({
         className
       )}
       value={value}
+      data-testid={`type-${type}-value-${value}`}
       style={style}
       onSelect={() => {
         onSelect({
@@ -62,21 +59,6 @@ export const MentionInputSuggestionsItem = ({
         </span>
       )}
       {label}
-      {!hasResults && <SetHasResults hasResults={hasResults} setHasResults={setHasResults} />}
     </Command.Item>
   );
-};
-
-const SetHasResults = ({
-  hasResults,
-  setHasResults,
-}: {
-  hasResults: boolean;
-  setHasResults: (hasResults: boolean) => void;
-}) => {
-  useMount(() => {
-    if (!hasResults) setHasResults(true);
-  });
-
-  return null;
 };

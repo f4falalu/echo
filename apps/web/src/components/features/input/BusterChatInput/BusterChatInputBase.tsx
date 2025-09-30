@@ -132,7 +132,7 @@ const useUniqueSuggestions = (
 
     const fourUniqueSuggestions = sampleSize(allSuggestions, 4);
 
-    const items: MentionInputSuggestionsProps['suggestionItems'] = fourUniqueSuggestions.map(
+    const items: MentionInputSuggestionsDropdownItem[] = fourUniqueSuggestions.map(
       (suggestion) => ({
         type: 'item',
         value: suggestion.type + suggestion.value,
@@ -148,7 +148,7 @@ const useUniqueSuggestions = (
         addValueToInput: true,
         closeOnSelect: true,
       },
-    ];
+    ] satisfies MentionInputSuggestionsProps['suggestionItems'];
   }, [suggestedPrompts]);
 };
 

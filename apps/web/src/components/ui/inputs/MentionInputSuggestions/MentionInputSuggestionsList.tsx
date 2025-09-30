@@ -1,4 +1,4 @@
-import { Command } from 'cmdk';
+import { Command, useCommandState } from 'cmdk';
 import type React from 'react';
 import { cn } from '@/lib/utils';
 
@@ -15,10 +15,12 @@ export const MentionInputSuggestionsList = ({
   children,
   show = true,
 }: MentionInputSuggestionsListProps) => {
+  const hasResults = useCommandState((x) => x.filtered.count) > 0;
+
   if (!show) return null;
 
   return (
-    <Command.List className={cn('px-3', className)} style={style}>
+    <Command.List className={cn('px-3', hasResults && 'pb-1.5', className)} style={style}>
       {children}
     </Command.List>
   );

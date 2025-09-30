@@ -16,8 +16,6 @@ export const MentionInputSuggestionsItemSelector = ({
 }: {
   item: MentionInputSuggestionsProps['suggestionItems'][number];
   onSelect: (params: MentionInputSuggestionsOnSelectParams) => void;
-  hasResults: boolean;
-  setHasResults: (hasResults: boolean) => void;
 } & GroupOverrideProps) => {
   if (item.type === 'separator') {
     return <MentionInputSuggestionsSeparator />;
@@ -44,8 +42,6 @@ export const MentionInputSuggestionsItemsSelector = ({
 }: {
   suggestionItems: MentionInputSuggestionsProps['suggestionItems'];
   onSelect: (params: MentionInputSuggestionsOnSelectParams) => void;
-  hasResults: boolean;
-  setHasResults: (hasResults: boolean) => void;
 } & GroupOverrideProps) => {
   if (!suggestionItems) return null;
   return suggestionItems.map((item, index) => (

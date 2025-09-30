@@ -12,8 +12,6 @@ export type MentionInputSuggestionsGroupProps = MentionInputSuggestionsDropdownG
 } & {
   className?: string;
   style?: React.CSSProperties;
-  hasResults: boolean;
-  setHasResults: (hasResults: boolean) => void;
 };
 
 export const MentionInputSuggestionsGroup = ({

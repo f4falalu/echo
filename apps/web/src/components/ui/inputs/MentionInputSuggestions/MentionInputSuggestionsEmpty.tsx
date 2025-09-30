@@ -5,10 +5,8 @@ import { cn } from '@/lib/utils';
 
 export const MentionInputSuggestionsEmpty = ({
   emptyComponent,
-  setHasResults,
   className,
 }: {
-  setHasResults: (hasResults: boolean) => void;
   className?: string;
   emptyComponent: React.ReactNode;
 }) => {
@@ -21,15 +19,6 @@ export const MentionInputSuggestionsEmpty = ({
       )}
     >
       {emptyComponent}
-      <SetHasResults setHasResults={setHasResults} />
     </Command.Empty>
   );
-};
-
-const SetHasResults = ({ setHasResults }: { setHasResults: (hasResults: boolean) => void }) => {
-  useMount(() => {
-    setHasResults(false);
-  });
-
-  return null;
 };

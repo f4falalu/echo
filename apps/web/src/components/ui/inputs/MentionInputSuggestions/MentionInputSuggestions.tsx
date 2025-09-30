@@ -1,4 +1,4 @@
-import { Command } from 'cmdk';
+import { Command, useCommandState } from 'cmdk';
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { cn } from '@/lib/utils';
@@ -51,7 +51,6 @@ export const MentionInputSuggestions = forwardRef<
   ) => {
     const [hasClickedSelect, setHasClickedSelect] = useState(false);
     const [value, setValue] = useState(valueProp ?? defaultValue);
-    const [hasResults, setHasResults] = useState(!!suggestionItems.length);
 
     const commandListNavigatedRef = useRef(false);
     const commandRef = useRef<HTMLDivElement>(null);
@@ -106,7 +105,6 @@ export const MentionInputSuggestions = forwardRef<
         onClick?.();
         if (closeSuggestionOnSelect) setHasClickedSelect(true);
         onSuggestionItemClick?.(params);
-        setHasResults(false);
       }
     );
 
@@ -153,14 +151,6 @@ export const MentionInputSuggestions = forwardRef<
       [value]
     );
 
-    function customFilter(value: string, search: string, keywords?: string[]): number {
-      console.log(value, search, keywords);
-      // Example: exact matches rank higher, case insensitive includes rank lower
-      if (value.toLowerCase() === search.toLowerCase()) return 2;
-      if (value.toLowerCase().includes(search.toLowerCase())) return 1;
-      return 0;
-    }
-
     return (
       <Command
         ref={commandRef}
@@ -186,26 +176,37 @@ export const MentionInputSuggestions = forwardRef<
           />
           {children && <div className="mt-3">{children}</div>}
         </MentionInputSuggestionsContainer>
-        {hasResults && <div className="border-b mb-1.5" />}
+        <SuggestionsSeperator />
         <MentionInputSuggestionsList
           show={showSuggestionList}
-          className={cn(suggestionsContainerClassName, hasResults && 'pb-1.5')}
+          className={cn(suggestionsContainerClassName)}
         >
           <MentionInputSuggestionsItemsSelector
             suggestionItems={suggestionItems}
             onSelect={onSelectItem}
             addValueToInput={addSuggestionValueToInput}
             closeOnSelect={closeSuggestionOnSelect}
-            hasResults={hasResults}
-            setHasResults={setHasResults}
           />
 
-          <MentionInputSuggestionsEmpty
-            setHasResults={setHasResults}
-            emptyComponent={emptyComponent}
-          />
+          <MentionInputSuggestionsEmpty emptyComponent={emptyComponent} />
         </MentionInputSuggestionsList>
       </Command>
     );
   }
 );
+
+const SuggestionsSeperator = () => {
+  const hasResults = useCommandState((x) => x.filtered.count) > 0;
+  if (!hasResults) return null;
+  return <div className="border-b mb-1.5" />;
+};
+
+const customFilter = (value: string, search: string, keywords?: string[]): number => {
+  if (keywords?.length) {
+    return keywords.includes(value) ? 2 : 0;
+  }
+  // Example: exact matches rank higher, case insensitive includes rank lower
+  if (value.toLowerCase() === search.toLowerCase()) return 2;
+  if (value.toLowerCase().includes(search.toLowerCase())) return 1;
+  return 0;
+};
