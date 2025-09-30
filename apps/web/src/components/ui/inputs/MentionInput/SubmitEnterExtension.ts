@@ -22,11 +22,12 @@ export const SubmitOnEnter = ({
 
           // Otherwise, handle the Enter key press
           if (onPressEnter) {
-            const { transformedValue, transformedJson, editorText } = onUpdateTransformer({
-              editor,
-              mentionsByTrigger,
-            });
-            onPressEnter?.(transformedValue, transformedJson, editorText);
+            onPressEnter?.(
+              onUpdateTransformer({
+                editor,
+                mentionsByTrigger,
+              })
+            );
           }
           return !!onPressEnter;
         },

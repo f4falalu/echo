@@ -8,7 +8,10 @@ import {
 } from '@/components/features/input/Mentions/ShortcutsSuggestions/ShortcutsSuggestions';
 import CircleQuestion from '@/components/ui/icons/NucleoIconOutlined/circle-question';
 import FileSparkle from '@/components/ui/icons/NucleoIconOutlined/file-sparkle';
-import type { MentionSuggestionExtension } from '@/components/ui/inputs/MentionInput';
+import type {
+  MentionArrayItem,
+  MentionSuggestionExtension,
+} from '@/components/ui/inputs/MentionInput';
 import type {
   MentionInputSuggestionsDropdownItem,
   MentionInputSuggestionsProps,
@@ -22,7 +25,12 @@ import { BusterChatInputButtons, type BusterChatInputMode } from './BusterChatIn
 
 export type BusterChatInput = {
   defaultValue: string;
-  onSubmit: (value: string) => void;
+  onSubmit: (d: {
+    transformedValue: string;
+    arrayValue: MentionArrayItem[];
+    editorText: string;
+    mode: BusterChatInputMode;
+  }) => void;
   onStop: () => void;
   submitting: boolean;
   disabled: boolean;
@@ -68,29 +76,30 @@ export const BusterChatInputBase: React.FC<BusterChatInput> = React.memo(
       return [shortcutsMentionsSuggestions];
     }, [shortcutsMentionsSuggestions]);
 
-    const onSubmitPreflight = (value: string) => {
+    const onSubmitPreflight = (valueProp?: ReturnType<MentionInputSuggestionsRef['getValue']>) => {
       if (submitting) {
         console.warn('Input is submitting');
         return;
       }
-      if (disabled) {
-        console.warn('Input is disabledGlobal');
+
+      const value = valueProp || mentionInputSuggestionsRef.current?.getValue?.();
+      if (!value) {
+        console.warn('Value is not defined');
         return;
       }
-      onSubmit(value);
-    };
 
-    const onPressEnter: MentionInputSuggestionsProps['onPressEnter'] = useMemoizedFn(
-      (value, _editorObjects, _rawText) => {
-        onSubmitPreflight(value);
+      if (disabled || !value) {
+        console.warn('Input is disabled or value is not defined');
+        return;
       }
-    );
+      onSubmit({ ...value, mode });
+    };
 
     return (
       <React.Fragment>
         <MentionInputSuggestions
           defaultValue={defaultValue}
-          onPressEnter={onPressEnter}
+          onPressEnter={onSubmitPreflight}
           mentions={mentions}
           suggestionItems={suggestionItems}
           placeholder="Ask a question or type ‘/’ for shortcuts..."

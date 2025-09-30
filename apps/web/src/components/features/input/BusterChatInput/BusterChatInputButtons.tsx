@@ -95,7 +95,13 @@ export const BusterChatInputButtons = React.memo(
               rounding={'large'}
               variant={'default'}
               prefix={<ArrowUp />}
-              onClick={submitting ? onStop : () => onSubmit(getValue?.()?.transformedValue ?? '')}
+              onClick={
+                submitting
+                  ? onStop
+                  : () => {
+                      onSubmit(getValue?.());
+                    }
+              }
               loading={submitting}
               disabled={disabled || disableSubmit}
               className={cn(

@@ -88,11 +88,12 @@ export const MentionInput = forwardRef<MentionInputRef, MentionInputProps>(
         },
       },
       onUpdate: ({ editor }) => {
-        const { transformedValue, transformedJson, editorText } = onUpdateTransformer({
-          editor,
-          mentionsByTrigger,
-        });
-        onChange?.(transformedValue, transformedJson, editorText);
+        onChange?.(
+          onUpdateTransformer({
+            editor,
+            mentionsByTrigger,
+          })
+        );
       },
       onFocus: onFocus,
       onBlur: onBlur,

@@ -61,9 +61,10 @@ export const MentionInputSuggestions = forwardRef<
     const showSuggestionList = !hasClickedSelect && suggestionItems.length > 0;
 
     const onChangeInputValue: MentionInputProps['onChange'] = useCallback(
-      (transformedValue, arrayValue, rawValue) => {
+      (d) => {
+        const { transformedValue } = d;
         setValue(transformedValue);
-        onChange?.(transformedValue, arrayValue, rawValue);
+        onChange?.(d);
         commandListNavigatedRef.current = false;
         setHasClickedSelect(false);
       },

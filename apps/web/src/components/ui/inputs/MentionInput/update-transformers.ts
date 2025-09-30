@@ -1,5 +1,9 @@
 import type { Editor, NodeType, TextType } from '@tiptap/react';
-import type { MentionArrayItem, MentionSuggestionExtension } from './MentionInput.types';
+import type {
+  MentionArrayItem,
+  MentionOnChangeParams,
+  MentionSuggestionExtension,
+} from './MentionInput.types';
 import type { MentionPillAttributes } from './MentionPill';
 
 export const onUpdateTransformer = ({
@@ -11,7 +15,7 @@ export const onUpdateTransformer = ({
 }) => {
   const editorText = editor.getText();
   const editorJson = editor.getJSON();
-  const transformedJson: MentionArrayItem[] = editorJson.content.reduce<MentionArrayItem[]>(
+  const arrayValue: MentionArrayItem[] = editorJson.content.reduce<MentionArrayItem[]>(
     (acc, item) => {
       if (item.type === 'paragraph') {
         item.content?.forEach((item) => {
@@ -28,7 +32,7 @@ export const onUpdateTransformer = ({
     },
     []
   );
-  const transformedValue = transformedJson.reduce((acc, item) => {
+  const transformedValue = arrayValue.reduce((acc, item) => {
     if (item.type === 'text') {
       return acc + item.text;
     }
@@ -42,7 +46,7 @@ export const onUpdateTransformer = ({
 
   return {
     transformedValue,
-    transformedJson,
+    arrayValue,
     editorText,
-  };
+  } satisfies Parameters<MentionOnChangeParams>[0];
 };

@@ -6,7 +6,6 @@ import type {
   MentionInputRef,
   MentionTriggerItem,
 } from '../MentionInput/MentionInput.types';
-import type { onUpdateTransformer } from '../MentionInput/update-transformers';
 
 /**
  * @description Override the addValueToInput and closeOnSelect props for the item based on the group props

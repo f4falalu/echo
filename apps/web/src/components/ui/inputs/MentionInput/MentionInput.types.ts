@@ -1,7 +1,6 @@
 import type { MentionNodeAttrs, MentionOptions } from '@tiptap/extension-mention';
 import type { Editor, EditorEvents } from '@tiptap/react';
 import type { MentionPillAttributes } from './MentionPill';
-import type { onUpdateTransformer } from './update-transformers';
 
 export type MentionOnSelectParams<T = unknown> = {
   value: T;
@@ -82,11 +81,11 @@ export type MentionArrayItem =
       attrs: MentionPillAttributes;
     };
 
-export type MentionOnChangeParams = (
-  transformedValue: string,
-  arrayValue: MentionArrayItem[],
-  rawValue: string
-) => void;
+export type MentionOnChangeParams = (d: {
+  transformedValue: string;
+  arrayValue: MentionArrayItem[];
+  editorText: string;
+}) => void;
 
 export type MentionInputProps = {
   mentions: MentionSuggestionExtension[];
@@ -108,7 +107,7 @@ export type MentionInputProps = {
 export type MentionInputRef = {
   editor: Editor | null;
   addMentionToInput: (mention: MentionPillAttributes) => void;
-  getValue: () => ReturnType<typeof onUpdateTransformer>;
+  getValue: MentionOnChangeParams;
 };
 
 declare module '@tiptap/core' {
