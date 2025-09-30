@@ -100,7 +100,8 @@ const arthurCharacters: MentionInputTriggerItem[] = [
 
 const looneyTunesSuggestions = createMentionSuggestionExtension({
   trigger: '@',
-  items: looneyTunesCharacters,
+  items: ({ defaultQueryMentionsFilter, query }) =>
+    defaultQueryMentionsFilter(query, looneyTunesCharacters),
   popoverContent: (props) => {
     return <div className="p-2">Hello {props.value}</div>;
   },
@@ -158,7 +159,8 @@ const theSimpsonsCharacters: MentionInputTriggerItem[] = [
 
 const theSimpsonsSuggestions = createMentionSuggestionExtension({
   trigger: '#',
-  items: theSimpsonsCharacters,
+  items: ({ defaultQueryMentionsFilter, query }) =>
+    defaultQueryMentionsFilter(query, theSimpsonsCharacters),
   pillStyling: {
     className: () => {
       return 'bg-blue-100 border-blue-300 text-blue-500 hover:bg-blue-200';
@@ -171,7 +173,8 @@ const theSimpsonsSuggestions = createMentionSuggestionExtension({
 
 const arthurSuggestions = createMentionSuggestionExtension({
   trigger: '$',
-  items: arthurCharacters,
+  items: ({ defaultQueryMentionsFilter, query }) =>
+    defaultQueryMentionsFilter(query, arthurCharacters),
   pillStyling: {
     className: () => {
       return 'bg-green-100 border-green-300 text-green-500 hover:bg-green-200';
@@ -284,7 +287,8 @@ const manyCharacters: MentionInputTriggerItem[] = [
 
 const spongebobSuggestions = createMentionSuggestionExtension({
   trigger: '%',
-  items: manyCharacters,
+  items: ({ defaultQueryMentionsFilter, query }) =>
+    defaultQueryMentionsFilter(query, manyCharacters),
   pillStyling: {
     className: () => {
       return 'bg-yellow-100 border-yellow-300 text-yellow-500 hover:bg-yellow-200';

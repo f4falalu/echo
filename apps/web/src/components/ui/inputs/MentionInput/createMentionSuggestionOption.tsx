@@ -21,7 +21,7 @@ export const createMentionSuggestionExtension = ({
 }: {
   trigger: string;
   items:
-    | MentionInputTriggerItem[]
+    | React.RefObject<MentionInputTriggerItem[]>
     | ((props: {
         query: string;
         defaultQueryMentionsFilter: typeof defaultQueryMentionsFilter;
@@ -37,7 +37,7 @@ export const createMentionSuggestionExtension = ({
       ? (props) => {
           return items({ ...props, defaultQueryMentionsFilter });
         }
-      : ({ query }) => defaultQueryMentionsFilter(query, items),
+      : ({ query }) => defaultQueryMentionsFilter(query, items.current),
   render: () => {
     let component: ReactRenderer<MentionListImperativeHandle, MentionListProps<string>>;
 
