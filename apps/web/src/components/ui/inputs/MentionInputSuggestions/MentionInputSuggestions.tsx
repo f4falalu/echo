@@ -200,7 +200,7 @@ export const MentionInputSuggestions = forwardRef<
               disabled={disabled}
               className={inputClassName}
             />
-            {children && <div className="mt-3">{children}</div>}
+            {children && <div className="mt-4.5">{children}</div>}
           </MentionInputSuggestionsContainer>
           <SuggestionsSeperator />
           <MentionInputSuggestionsList

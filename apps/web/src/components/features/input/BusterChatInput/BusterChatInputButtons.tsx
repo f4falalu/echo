@@ -67,7 +67,12 @@ export const BusterChatInputButtons = React.memo(
 
     return (
       <div className="flex justify-between items-center gap-2">
-        <AppSegmented value={mode} options={modesOptions} onChange={(v) => onModeChange(v.value)} />
+        <AppSegmented
+          size="medium"
+          value={mode}
+          options={modesOptions}
+          onChange={(v) => onModeChange(v.value)}
+        />
 
         <div className="flex items-center gap-2">
           {browserSupportsSpeechRecognition && (
