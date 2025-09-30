@@ -132,6 +132,7 @@ export const BusterChatInputBase: React.FC<BusterChatInputProps> = React.memo(
           ref={mentionInputSuggestionsRef}
           inputContainerClassName="px-5 pt-4"
           inputClassName="text-md"
+          behavior="open-on-focus"
         >
           <BusterChatInputButtons
             onSubmit={onSubmitPreflight}

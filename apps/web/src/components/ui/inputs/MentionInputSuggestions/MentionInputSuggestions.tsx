@@ -49,17 +49,22 @@ export const MentionInputSuggestions = forwardRef<
       //mentions
       onMentionItemClick,
       mentions,
+      behavior = 'default',
     }: MentionInputSuggestionsProps,
     ref
   ) => {
     const [hasClickedSelect, setHasClickedSelect] = useState(false);
+    const [hasInteracted, setHasInteracted] = useState(behavior === 'default');
     const [value, setValue] = useState(valueProp ?? defaultValue);
 
     const commandListNavigatedRef = useRef(false);
     const commandRef = useRef<HTMLDivElement>(null);
     const mentionsInputRef = useRef<MentionInputRef>(null);
 
-    const showSuggestionList = !hasClickedSelect && suggestionItems.length > 0;
+    const showSuggestionList =
+      behavior === 'default'
+        ? !hasClickedSelect && suggestionItems.length > 0
+        : hasInteracted && suggestionItems.length > 0;
 
     const onChangeInputValue: MentionInputProps['onChange'] = useCallback(
       (d) => {
@@ -68,8 +73,9 @@ export const MentionInputSuggestions = forwardRef<
         onChange?.(d);
         commandListNavigatedRef.current = false;
         setHasClickedSelect(false);
+        setHasInteracted(true);
       },
-      [onChange, setHasClickedSelect]
+      [onChange, setHasClickedSelect, setHasInteracted]
     );
 
     //Exported: this is used to change the value of the input from outside the component
@@ -183,6 +189,9 @@ export const MentionInputSuggestions = forwardRef<
           )}
           shouldFilter={shouldFilter}
           filter={filter || customFilter}
+          onClick={() => {
+            setHasInteracted(true);
+          }}
         >
           <MentionInputSuggestionsContainer className={inputContainerClassName}>
             <MentionInputSuggestionsMentionsInput
