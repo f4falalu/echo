@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/buttons';
 import { ArrowUp, Magnifier, Sparkle2 } from '@/components/ui/icons';
 import Atom from '@/components/ui/icons/NucleoIconOutlined/atom';
 import Microphone from '@/components/ui/icons/NucleoIconOutlined/microphone';
+import type { MentionOnChangeFn } from '@/components/ui/inputs/MentionInput';
 import {
   useMentionInputHasValue,
   useMentionInputSuggestionsGetValue,
@@ -18,7 +19,7 @@ import { cn } from '@/lib/utils';
 export type BusterChatInputMode = 'auto' | 'research' | 'deep-research';
 
 type BusterChatInputButtons = {
-  onSubmit: (value: string) => void;
+  onSubmit: MentionOnChangeFn;
   onStop: () => void;
   submitting: boolean;
   disabled: boolean;
@@ -99,7 +100,12 @@ export const BusterChatInputButtons = React.memo(
                 submitting
                   ? onStop
                   : () => {
-                      onSubmit(getValue?.());
+                      const value = getValue?.();
+                      if (!value) {
+                        console.warn('Value is not defined');
+                        return;
+                      }
+                      onSubmit(value);
                     }
               }
               loading={submitting}

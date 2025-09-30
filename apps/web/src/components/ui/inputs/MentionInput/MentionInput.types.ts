@@ -81,7 +81,15 @@ export type MentionArrayItem =
       attrs: MentionPillAttributes;
     };
 
-export type MentionOnChangeParams = (d: {
+export type MentionOnChange = {
+  transformedValue: string;
+  arrayValue: MentionArrayItem[];
+  editorText: string;
+};
+
+export type GetMentionOnChange = () => MentionOnChange;
+
+export type MentionOnChangeFn = (d: {
   transformedValue: string;
   arrayValue: MentionArrayItem[];
   editorText: string;
@@ -89,8 +97,8 @@ export type MentionOnChangeParams = (d: {
 
 export type MentionInputProps = {
   mentions: MentionSuggestionExtension[];
-  onChange: MentionOnChangeParams;
-  onPressEnter?: MentionOnChangeParams;
+  onChange: MentionOnChangeFn;
+  onPressEnter?: MentionOnChangeFn;
   onFocus?: (v: EditorEvents['focus']) => void;
   onBlur?: (v: EditorEvents['blur']) => void;
   defaultValue?: string;
@@ -107,7 +115,7 @@ export type MentionInputProps = {
 export type MentionInputRef = {
   editor: Editor | null;
   addMentionToInput: (mention: MentionPillAttributes) => void;
-  getValue: MentionOnChangeParams;
+  getValue: GetMentionOnChange;
 };
 
 declare module '@tiptap/core' {

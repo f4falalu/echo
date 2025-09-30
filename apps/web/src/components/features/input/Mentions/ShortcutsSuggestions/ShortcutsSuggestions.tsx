@@ -131,6 +131,8 @@ export const useShortcutsSuggestions = (
       onClick: () => {
         setOpenCreateShortcutModal(true);
       },
+      closeOnSelect: false,
+      addValueToInput: false,
     });
 
     return [

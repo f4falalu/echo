@@ -106,7 +106,7 @@ export const MentionInputSuggestions = forwardRef<
           setValue(stringValue);
         }
         onClick?.();
-        if (closeSuggestionOnSelect) setHasClickedSelect(true);
+        if (closeSuggestionOnSelect && params.closeOnSelect !== false) setHasClickedSelect(true);
         onSuggestionItemClick?.(params);
       }
     );
