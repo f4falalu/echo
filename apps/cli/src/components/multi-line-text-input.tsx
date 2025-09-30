@@ -30,9 +30,9 @@ export function MultiLineTextInput({
   onVimModeChange,
 }: MultiLineTextInputProps) {
   const [cursorPosition, setCursorPosition] = useState(value.length);
-  const [showCursor, setShowCursor] = useState(true);
   const [expectingNewline, setExpectingNewline] = useState(false);
-  const cursorBlinkTimer = useRef<NodeJS.Timeout>();
+  // Always show cursor - no blinking to prevent re-renders
+  const showCursor = true;
 
   // Vim mode state
   const [vimEnabled] = useState(() => getSetting('vimMode'));
@@ -48,96 +48,87 @@ export function MultiLineTextInput({
     }
   }, [vimState.mode, vimEnabled, onVimModeChange]);
 
-  // Cursor blinking effect
-  useEffect(() => {
-    if (focus) {
-      // In vim normal mode, cursor should be solid
-      if (vimEnabled && vimState.mode === 'normal') {
-        setShowCursor(true);
-      } else {
-        cursorBlinkTimer.current = setInterval(() => {
-          setShowCursor((prev) => !prev);
-        }, 500);
-      }
-    } else {
-      setShowCursor(false);
-    }
-
-    return () => {
-      if (cursorBlinkTimer.current) {
-        clearInterval(cursorBlinkTimer.current);
-      }
-    };
-  }, [focus, vimEnabled, vimState.mode]);
-
   // Update cursor position when value changes externally (e.g., when cleared after submit)
   useEffect(() => {
     setCursorPosition(value.length);
   }, [value]);
 
-  // Detect slash commands
+  // Detect slash commands with debounce
   useEffect(() => {
     if (!onSlashChange) return;
 
-    // Check if we're at the beginning or after a newline
-    let slashStart = -1;
+    const timeoutId = setTimeout(() => {
+      // Check if we're at the beginning or after a newline
+      let slashStart = -1;
 
-    // Look for a slash at the start of the current line
-    const lines = value.substring(0, cursorPosition).split('\n');
-    const currentLine = lines[lines.length - 1];
-    const currentLineStart = cursorPosition - currentLine.length;
+      // Look for a slash at the start of the current line
+      const lines = value.substring(0, cursorPosition).split('\n');
+      const currentLine = lines[lines.length - 1];
+      const currentLineStart = cursorPosition - currentLine.length;
 
-    if (currentLine.startsWith('/')) {
-      slashStart = currentLineStart;
-      const slashEnd = cursorPosition;
-      const slashQuery = value.substring(slashStart + 1, slashEnd);
+      if (currentLine.startsWith('/')) {
+        slashStart = currentLineStart;
+        const slashEnd = cursorPosition;
+        const slashQuery = value.substring(slashStart + 1, slashEnd);
 
-      // Only trigger if we're still in the command (no spaces)
-      if (!slashQuery.includes(' ') && !slashQuery.includes('\n')) {
-        onSlashChange(slashQuery, slashStart);
-        return;
-      }
-    }
-
-    // No active slash command
-    onSlashChange(null, -1);
-  }, [value, cursorPosition, onSlashChange]);
-
-  // Detect @ mentions
-  useEffect(() => {
-    if (!onMentionChange) return;
-
-    // Find the last @ before cursor position
-    let mentionStart = -1;
-    for (let i = cursorPosition - 1; i >= 0; i--) {
-      if (value[i] === '@') {
-        mentionStart = i;
-        break;
-      }
-      // Stop if we hit whitespace or newline (mention ended)
-      if (value[i] === ' ' || value[i] === '\n' || value[i] === '\t') {
-        break;
-      }
-    }
-
-    if (mentionStart !== -1) {
-      // Check if there's a space or newline before @ (or it's at the start)
-      const charBefore = mentionStart > 0 ? value[mentionStart - 1] : ' ';
-      if (charBefore === ' ' || charBefore === '\n' || charBefore === '\t' || mentionStart === 0) {
-        // Extract the mention query (text after @)
-        const mentionEnd = cursorPosition;
-        const mentionQuery = value.substring(mentionStart + 1, mentionEnd);
-
-        // Only trigger if we're still in the mention (no spaces)
-        if (!mentionQuery.includes(' ') && !mentionQuery.includes('\n')) {
-          onMentionChange(mentionQuery, mentionStart);
+        // Only trigger if we're still in the command (no spaces)
+        if (!slashQuery.includes(' ') && !slashQuery.includes('\n')) {
+          onSlashChange(slashQuery, slashStart);
           return;
         }
       }
-    }
 
-    // No active mention
-    onMentionChange(null, -1);
+      // No active slash command
+      onSlashChange(null, -1);
+    }, 50);
+
+    return () => clearTimeout(timeoutId);
+  }, [value, cursorPosition, onSlashChange]);
+
+  // Detect @ mentions with debounce
+  useEffect(() => {
+    if (!onMentionChange) return;
+
+    const timeoutId = setTimeout(() => {
+      // Find the last @ before cursor position
+      let mentionStart = -1;
+      for (let i = cursorPosition - 1; i >= 0; i--) {
+        if (value[i] === '@') {
+          mentionStart = i;
+          break;
+        }
+        // Stop if we hit whitespace or newline (mention ended)
+        if (value[i] === ' ' || value[i] === '\n' || value[i] === '\t') {
+          break;
+        }
+      }
+
+      if (mentionStart !== -1) {
+        // Check if there's a space or newline before @ (or it's at the start)
+        const charBefore = mentionStart > 0 ? value[mentionStart - 1] : ' ';
+        if (
+          charBefore === ' ' ||
+          charBefore === '\n' ||
+          charBefore === '\t' ||
+          mentionStart === 0
+        ) {
+          // Extract the mention query (text after @)
+          const mentionEnd = cursorPosition;
+          const mentionQuery = value.substring(mentionStart + 1, mentionEnd);
+
+          // Only trigger if we're still in the mention (no spaces)
+          if (!mentionQuery.includes(' ') && !mentionQuery.includes('\n')) {
+            onMentionChange(mentionQuery, mentionStart);
+            return;
+          }
+        }
+      }
+
+      // No active mention
+      onMentionChange(null, -1);
+    }, 50);
+
+    return () => clearTimeout(timeoutId);
   }, [value, cursorPosition, onMentionChange]);
 
   useInput(
@@ -409,14 +400,8 @@ export function MultiLineTextInput({
       // Always reserve space for cursor to prevent shifting
       let cursorChar = '█';
       if (vimEnabled) {
-        // Different cursor styles for vim modes
-        if (vimState.mode === 'normal') {
-          cursorChar = '▮'; // Block cursor for normal mode
-        } else if (vimState.mode === 'insert') {
-          cursorChar = '│'; // Line cursor for insert mode
-        } else if (vimState.mode === 'visual') {
-          cursorChar = '▬'; // Underscore cursor for visual mode
-        }
+        // Use block cursor for all vim modes
+        cursorChar = '█';
       }
 
       return (
@@ -429,17 +414,12 @@ export function MultiLineTextInput({
 
     const beforeCursor = value.slice(0, cursorPosition);
     const afterCursor = value.slice(cursorPosition);
+    // Always use block cursor
     let cursorChar = showCursor && focus ? '█' : ' ';
 
-    // Show different cursor styles for vim modes
+    // Keep block cursor for all vim modes
     if (vimEnabled && focus && showCursor) {
-      if (vimState.mode === 'normal') {
-        cursorChar = '▮'; // Block cursor for normal mode
-      } else if (vimState.mode === 'insert') {
-        cursorChar = '│'; // Line cursor for insert mode
-      } else if (vimState.mode === 'visual') {
-        cursorChar = '▬'; // Underscore cursor for visual mode
-      }
+      cursorChar = '█';
     }
 
     // Show special cursor when expecting newline

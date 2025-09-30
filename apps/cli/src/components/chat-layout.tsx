@@ -1,5 +1,5 @@
 import { Box, Text } from 'ink';
-import { useEffect, useMemo, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import { type FileSearchResult, searchFiles } from '../utils/file-search';
 import { type SlashCommand, searchCommands } from '../utils/slash-commands';
 import { CommandAutocomplete } from './command-autocomplete';
@@ -8,15 +8,15 @@ import { MultiLineTextInput, replaceMention } from './multi-line-text-input';
 import { SettingsForm } from './settings-form';
 import { SimpleBigText } from './simple-big-text';
 
-export function ChatTitle() {
+export const ChatTitle = memo(function ChatTitle() {
   return (
     <Box justifyContent="center">
       <SimpleBigText text="Buster" color="#f5f3ff" />
     </Box>
   );
-}
+});
 
-export function ChatVersionTagline() {
+export const ChatVersionTagline = memo(function ChatVersionTagline() {
   return (
     <Box justifyContent="center" marginTop={1}>
       <Text>
@@ -25,9 +25,9 @@ export function ChatVersionTagline() {
       </Text>
     </Box>
   );
-}
+});
 
-export function ChatIntroText() {
+export const ChatIntroText = memo(function ChatIntroText() {
   const lines = useMemo(
     () => [
       'You are standing in an open terminal. An AI awaits your commands.',
@@ -45,7 +45,7 @@ export function ChatIntroText() {
       ))}
     </Box>
   );
-}
+});
 
 export function ChatStatusBar() {
   return (
