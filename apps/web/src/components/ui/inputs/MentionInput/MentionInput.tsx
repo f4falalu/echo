@@ -13,6 +13,7 @@ import type {
   MentionInputRef,
   MentionSuggestionExtension,
 } from './MentionInput.types';
+import type { MentionPillAttributes } from './MentionPill';
 import { SubmitOnEnter } from './SubmitEnterExtension';
 import { onUpdateTransformer } from './update-transformers';
 
@@ -97,11 +98,24 @@ export const MentionInput = forwardRef<MentionInputRef, MentionInputProps>(
       onBlur: onBlur,
     });
 
+    //exported for use in the mention input suggestions
+    const addMentionToInput = (mention: MentionPillAttributes) => {
+      editor
+        .chain()
+        .focus()
+        .insertContent([
+          { type: 'mention', attrs: mention },
+          { type: 'text', text: ' ' }, // add a trailing space so the caret leaves the atom
+        ])
+        .run();
+    };
+
     useImperativeHandle(
       ref,
       () => ({
         editor,
         getValue,
+        addMentionToInput,
       }),
       [editor]
     );

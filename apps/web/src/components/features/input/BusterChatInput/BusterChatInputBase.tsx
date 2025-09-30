@@ -1,10 +1,11 @@
 import type { ListShortcutsResponse } from '@buster/server-shared/shortcuts';
 import type { GetSuggestedPromptsResponse } from '@buster/server-shared/user';
-import type { Editor } from '@tiptap/react';
 import sampleSize from 'lodash/sampleSize';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useCreateShortcutsMentionsSuggestions } from '@/components/features/input/Mentions/ShortcutsSuggestions/ShortcutsSuggestions';
-import { Plus } from '@/components/ui/icons';
+import React, { useMemo, useRef, useState } from 'react';
+import {
+  useCreateShortcutsMentionsSuggestions,
+  useShortcutsSuggestions,
+} from '@/components/features/input/Mentions/ShortcutsSuggestions/ShortcutsSuggestions';
 import CircleQuestion from '@/components/ui/icons/NucleoIconOutlined/circle-question';
 import FileSparkle from '@/components/ui/icons/NucleoIconOutlined/file-sparkle';
 import type { MentionSuggestionExtension } from '@/components/ui/inputs/MentionInput';
@@ -36,7 +37,7 @@ export const BusterChatInputBase: React.FC<BusterChatInput> = React.memo(
     const [openCreateShortcutModal, setOpenCreateShortcutModal] = useState(false);
     const [mode, setMode] = useState<BusterChatInputMode>('auto');
 
-    const shortcutsSuggestions = useShortcuts(
+    const shortcutsSuggestions = useShortcutsSuggestions(
       shortcuts,
       setOpenCreateShortcutModal,
       mentionInputSuggestionsRef
@@ -165,47 +166,4 @@ const useUniqueSuggestions = (
       },
     ] satisfies MentionInputSuggestionsProps['suggestionItems'];
   }, [suggestedPrompts]);
-};
-
-const useShortcuts = (
-  shortcuts: ListShortcutsResponse['shortcuts'],
-  setOpenCreateShortcutModal: (open: boolean) => void,
-  mentionInputSuggestionsRef: React.RefObject<MentionInputSuggestionsRef | null>
-): MentionInputSuggestionsProps['suggestionItems'] => {
-  return useMemo(() => {
-    const shortcutsItems = shortcuts.map<MentionInputSuggestionsDropdownItem>((shortcut) => {
-      return {
-        type: 'item',
-        value: shortcut.name,
-        label: shortcut.name,
-        icon: '/',
-        inputValue: `/ ${shortcut.name}`,
-        onClick: () => {
-          const onChangeValue = mentionInputSuggestionsRef.current?.onChangeValue;
-          onChangeValue?.(shortcut.name);
-        },
-      };
-    });
-
-    shortcutsItems.push({
-      type: 'item',
-      value: 'createShortcut',
-      label: 'Create shortcut',
-      icon: <Plus />,
-      inputValue: '/ Create shortcut',
-      onClick: () => {
-        setOpenCreateShortcutModal(true);
-      },
-    });
-
-    return [
-      {
-        type: 'group',
-        label: 'Shortcuts',
-        suggestionItems: shortcutsItems,
-        addValueToInput: false,
-        closeOnSelect: true,
-      },
-    ];
-  }, [shortcuts, setOpenCreateShortcutModal, mentionInputSuggestionsRef]);
 };

@@ -4,8 +4,9 @@ import { Popover } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import type { MentionTriggerItem } from './MentionInput.types';
 
-export type MentionPillAttributes<T = string> = Required<
-  Pick<MentionTriggerItem<T>, 'label' | 'value' | 'doNotAddPipeOnSelect' | 'pillLabel'>
+export type MentionPillAttributes<T = string> = Pick<
+  MentionTriggerItem<T>,
+  'label' | 'value' | 'doNotAddPipeOnSelect' | 'pillLabel'
 > & { trigger: string };
 
 export const MentionPill = <T extends string>({

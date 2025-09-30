@@ -1,7 +1,11 @@
 import type { Command } from 'cmdk';
 import type React from 'react';
 import type { MentionSuggestionExtension } from '../MentionInput';
-import type { MentionInputProps, MentionTriggerItem } from '../MentionInput/MentionInput.types';
+import type {
+  MentionInputProps,
+  MentionInputRef,
+  MentionTriggerItem,
+} from '../MentionInput/MentionInput.types';
 import type { onUpdateTransformer } from '../MentionInput/update-transformers';
 
 /**
@@ -86,8 +90,7 @@ export type MentionInputSuggestionsProps<T = string> = {
 export type MentionInputSuggestionsRef = {
   value: string;
   onChangeValue: React.Dispatch<React.SetStateAction<string>>;
-  getValue: () => ReturnType<typeof onUpdateTransformer> | undefined;
-};
+} & Pick<MentionInputRef, 'addMentionToInput' | 'getValue'>;
 
 export type MentionInputSuggestionsContainerProps = {
   children: React.ReactNode;

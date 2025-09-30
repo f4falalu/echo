@@ -107,6 +107,7 @@ export type MentionInputProps = {
 
 export type MentionInputRef = {
   editor: Editor | null;
+  addMentionToInput: (mention: MentionPillAttributes) => void;
   getValue: () => ReturnType<typeof onUpdateTransformer>;
 };
 

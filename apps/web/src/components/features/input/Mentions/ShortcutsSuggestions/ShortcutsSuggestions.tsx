@@ -6,10 +6,17 @@ import PenWriting from '@/components/ui/icons/NucleoIconOutlined/pen-writing';
 import Plus from '@/components/ui/icons/NucleoIconOutlined/plus';
 import {
   createMentionSuggestionExtension,
-  type MentionInputTriggerItem,
   MentionSecondaryContentDropdown,
+  type MentionTriggerItem,
 } from '@/components/ui/inputs/MentionInput';
+import type {
+  MentionInputSuggestionsDropdownItem,
+  MentionInputSuggestionsProps,
+  MentionInputSuggestionsRef,
+} from '@/components/ui/inputs/MentionInputSuggestions';
 import { ShortcutPopoverContent } from './ShortcutPopoverContent';
+
+export const SHORTCUT_MENTION_TRIGGER = '/';
 
 export const useCreateShortcutsMentionsSuggestions = (
   shortcuts: ListShortcutsResponse['shortcuts'],
@@ -20,10 +27,10 @@ export const useCreateShortcutsMentionsSuggestions = (
   return useMemo(
     () =>
       createMentionSuggestionExtension({
-        trigger: '/',
+        trigger: SHORTCUT_MENTION_TRIGGER,
         items: [
-          ...shortcuts.map(createShortcut),
-          { type: 'separator' },
+          ...shortcuts.map(createShortcutForMention),
+          { type: 'separator' as const },
           {
             value: 'manageShortcuts',
             label: 'Manage shortcuts',
@@ -58,14 +65,11 @@ export const useCreateShortcutsMentionsSuggestions = (
   );
 };
 
-const createShortcut = (shortcut: Shortcut): MentionInputTriggerItem<string> => {
+const createShortcutForMention = (shortcut: Shortcut): MentionTriggerItem<string> => {
   return {
     value: shortcut.id,
     label: shortcut.name,
     icon: <PenWriting />,
-    onSelect: (props) => {
-      console.log('onSelect shortcut?', props);
-    },
     secondaryContent: (
       <MentionSecondaryContentDropdown
         items={[
@@ -89,4 +93,54 @@ const createShortcut = (shortcut: Shortcut): MentionInputTriggerItem<string> => 
       />
     ),
   };
+};
+export const useShortcutsSuggestions = (
+  shortcuts: ListShortcutsResponse['shortcuts'],
+  setOpenCreateShortcutModal: (open: boolean) => void,
+  mentionInputSuggestionsRef: React.RefObject<MentionInputSuggestionsRef | null>
+): MentionInputSuggestionsProps['suggestionItems'] => {
+  return useMemo(() => {
+    const shortcutsItems = shortcuts.map<MentionInputSuggestionsDropdownItem>((shortcut) => {
+      return {
+        type: 'item',
+        value: shortcut.name,
+        label: shortcut.name,
+        icon: SHORTCUT_MENTION_TRIGGER,
+        inputValue: `/ ${shortcut.name}`,
+        onClick: () => {
+          const addMentionToInput = mentionInputSuggestionsRef.current?.addMentionToInput;
+          if (!addMentionToInput) {
+            console.warn('addMentionToInput is not defined', mentionInputSuggestionsRef.current);
+            return;
+          }
+          const shortcutForMention = createShortcutForMention(shortcut);
+          addMentionToInput?.({
+            ...shortcutForMention,
+            trigger: SHORTCUT_MENTION_TRIGGER,
+          });
+        },
+      };
+    });
+
+    shortcutsItems.push({
+      type: 'item',
+      value: 'createShortcut',
+      label: 'Create shortcut',
+      icon: <Plus />,
+      inputValue: `${SHORTCUT_MENTION_TRIGGER} Create shortcut`,
+      onClick: () => {
+        setOpenCreateShortcutModal(true);
+      },
+    });
+
+    return [
+      {
+        type: 'group',
+        label: 'Shortcuts',
+        suggestionItems: shortcutsItems,
+        addValueToInput: false,
+        closeOnSelect: true,
+      },
+    ];
+  }, [shortcuts, setOpenCreateShortcutModal, mentionInputSuggestionsRef]);
 };

@@ -110,9 +110,11 @@ export const MentionInputSuggestions = forwardRef<
       }
     );
 
-    const getValue = useMemoizedFn(() => {
-      return mentionsInputRef.current?.getValue();
-    });
+    // biome-ignore lint/style/noNonNullAssertion: we know the ref is not null
+    const getValue = mentionsInputRef.current?.getValue!;
+    // biome-ignore lint/style/noNonNullAssertion: we know the ref is not null
+    const addMentionToInput = mentionsInputRef.current?.addMentionToInput!;
+    const mounted = useMounted();
 
     // Track arrow key navigation in the command list
     useEffect(() => {
@@ -157,8 +159,9 @@ export const MentionInputSuggestions = forwardRef<
         value,
         onChangeValue,
         getValue,
+        addMentionToInput,
       }),
-      [value, onChangeValue, getValue]
+      [value, mounted, onChangeValue, getValue, addMentionToInput]
     );
 
     return (
@@ -222,11 +225,7 @@ const MentionInputSuggestionsContext = createContext<{
   value: string;
   onChangeValue: MentionInputSuggestionsRef['onChangeValue'];
   getValue: MentionInputSuggestionsRef['getValue'];
-}>({
-  value: '',
-  onChangeValue: () => {},
-  getValue: () => undefined,
-});
+}>({} as MentionInputSuggestionsRef);
 
 const MentionInputSuggestionsProvider = ({
   children,
