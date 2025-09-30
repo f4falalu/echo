@@ -9,7 +9,7 @@ export const ShortcutPopoverContent: MentionPopoverContentCallback = ({ value })
   const shortcutName = data?.name;
   const instructions = data?.instructions;
 
-  if (!isFetched) return <CircleSpinnerLoader />;
+  if (!isFetched) return null;
 
   return (
     <div className="p-3 flex flex-col space-y-3 w-[215px]">

@@ -168,7 +168,7 @@ export const useShortcutsSuggestions = (
 const ShortcutSuggestionsPopoverContent = ({ shortcut }: { shortcut: Shortcut }) => {
   const { isFetched, isError } = useGetShortcut({ id: shortcut.id });
 
-  if (!isFetched) return <CircleSpinnerLoader />;
+  if (!isFetched) return null;
 
   if (isError) return <ErrorCard message="Error fetching shortcut" />;
 
