@@ -136,7 +136,7 @@ async function addAncestorsToSearchResults(
     const chunk = searchResults.slice(i, i + chunkSize);
     const chunkResults = await Promise.all(
       chunk.map(async (searchResult) => {
-        const ancestors = await getAssetAncestorsWithTransaction(
+        const ancestors = await getAssetAncestors(
           searchResult.assetId,
           searchResult.assetType as AssetType,
           userId,
