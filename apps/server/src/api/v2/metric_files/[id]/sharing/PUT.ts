@@ -2,41 +2,41 @@ import { checkPermission } from '@buster/access-controls';
 import {
   bulkCreateAssetPermissions,
   findUsersByEmails,
-  getReportFileById,
+  getMetricFileById,
   getUserOrganizationId,
-  updateReport,
+  updateMetric,
 } from '@buster/database/queries';
 import type { User } from '@buster/database/queries';
-import type { ShareUpdateResponse, UpdateReportResponse } from '@buster/server-shared/reports';
+import type { ShareMetricUpdateResponse } from '@buster/server-shared/metrics';
 import { type ShareUpdateRequest, ShareUpdateRequestSchema } from '@buster/server-shared/share';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-import { getReportHandler } from '../GET';
+import { getMetricHandler } from '../GET';
 
-export async function updateReportShareHandler(
-  reportId: string,
+export async function updateMetricShareHandler(
+  metricId: string,
   request: ShareUpdateRequest,
   user: User & { organizationId: string }
 ) {
-  // Check if report exists
-  const report = await getReportFileById({ reportId, userId: user.id });
-  if (!report) {
-    throw new HTTPException(404, { message: 'Report not found' });
+  // Check if metric exists
+  const metric = await getMetricFileById(metricId);
+  if (!metric) {
+    throw new HTTPException(404, { message: 'Metric not found' });
   }
 
   const permissionCheck = await checkPermission({
     userId: user.id,
-    assetId: reportId,
-    assetType: 'report_file',
+    assetId: metricId,
+    assetType: 'metric_file',
     requiredRole: 'full_access',
-    workspaceSharing: report.workspace_sharing,
-    organizationId: report.organization_id,
+    workspaceSharing: metric.workspaceSharing,
+    organizationId: metric.organizationId,
   });
 
   if (!permissionCheck.hasAccess) {
     throw new HTTPException(403, {
-      message: 'You do not have permission to update sharing for this report',
+      message: 'You do not have permission to update sharing for this metric',
     });
   }
 
@@ -81,8 +81,8 @@ export async function updateReportShareHandler(
       permissions.push({
         identityId: targetUser.id,
         identityType: 'user' as const,
-        assetId: reportId,
-        assetType: 'report_file' as const,
+        assetId: metricId,
+        assetType: 'metric_file' as const,
         role: mappedRole,
         createdBy: user.id,
       });
@@ -94,31 +94,28 @@ export async function updateReportShareHandler(
     }
   }
 
-  // Update report sharing settings
-  await updateReport(
-    {
-      reportId,
-      userId: user.id,
-      publicly_accessible,
-      public_expiry_date,
-      public_password,
-      workspace_sharing,
-    },
-    false
-  );
+  // Update metric sharing settings
+  await updateMetric({
+    metricId,
+    userId: user.id,
+    publicly_accessible,
+    public_expiry_date,
+    public_password,
+    workspace_sharing,
+  });
 
-  const updatedReport: UpdateReportResponse = await getReportHandler(reportId, user);
+  const updatedMetric: ShareMetricUpdateResponse = await getMetricHandler({ metricId }, user);
 
-  return updatedReport;
+  return updatedMetric;
 }
 
 const app = new Hono().put('/', zValidator('json', ShareUpdateRequestSchema), async (c) => {
-  const reportId = c.req.param('id');
+  const metricId = c.req.param('id');
   const request = c.req.valid('json');
   const user = c.get('busterUser');
 
-  if (!reportId) {
-    throw new HTTPException(404, { message: 'Report not found' });
+  if (!metricId) {
+    throw new HTTPException(404, { message: 'Metric not found' });
   }
 
   const userOrg = await getUserOrganizationId(user.id);
@@ -127,12 +124,16 @@ const app = new Hono().put('/', zValidator('json', ShareUpdateRequestSchema), as
     throw new HTTPException(403, { message: 'User is not associated with an organization' });
   }
 
-  const updatedReport: ShareUpdateResponse = await updateReportShareHandler(reportId, request, {
-    ...user,
-    organizationId: userOrg.organizationId,
-  });
+  const updatedMetric: ShareMetricUpdateResponse = await updateMetricShareHandler(
+    metricId,
+    request,
+    {
+      ...user,
+      organizationId: userOrg.organizationId,
+    }
+  );
 
-  return c.json(updatedReport);
+  return c.json(updatedMetric);
 });
 
 export default app;

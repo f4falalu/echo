@@ -2,7 +2,7 @@ import { checkPermission } from '@buster/access-controls';
 import {
   bulkCreateAssetPermissions,
   findUsersByEmails,
-  getReportFileById,
+  getDashboardById,
 } from '@buster/database/queries';
 import type { User } from '@buster/database/queries';
 import type { SharePostResponse } from '@buster/server-shared/share';
@@ -12,30 +12,29 @@ import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 
-export async function createReportSharingHandler(
-  reportId: string,
+export async function createDashboardSharingHandler(
+  dashboardId: string,
   shareRequests: SharePostRequest,
   user: User
 ): Promise<SharePostResponse> {
-  // Get the report to verify it exists
-  const report = await getReportFileById({ reportId, userId: user.id });
-  if (!report) {
-    throw new HTTPException(404, { message: 'Report not found' });
+  // Get the dashboard to verify it exists
+  const dashboard = await getDashboardById({ dashboardId });
+  if (!dashboard) {
+    throw new HTTPException(404, { message: 'Dashboard not found' });
   }
 
-  // Check if user has permission to edit the report
   const permissionCheck = await checkPermission({
     userId: user.id,
-    assetId: reportId,
-    assetType: 'report_file',
+    assetId: dashboardId,
+    assetType: 'dashboard_file',
     requiredRole: 'can_edit',
-    workspaceSharing: report.workspace_sharing,
-    organizationId: report.organization_id,
+    workspaceSharing: dashboard.workspaceSharing,
+    organizationId: dashboard.organizationId,
   });
 
   if (!permissionCheck.hasAccess) {
     throw new HTTPException(403, {
-      message: 'You do not have permission to edit this report',
+      message: 'You do not have permission to edit this dashboard',
     });
   }
 
@@ -79,8 +78,8 @@ export async function createReportSharingHandler(
     permissions.push({
       identityId: targetUser.id,
       identityType: 'user' as const,
-      assetId: reportId,
-      assetType: 'report_file' as const,
+      assetId: dashboardId,
+      assetType: 'dashboard_file' as const,
       role: mappedRole,
       createdBy: user.id,
     });
@@ -99,15 +98,15 @@ export async function createReportSharingHandler(
 }
 
 const app = new Hono().post('/', zValidator('json', SharePostRequestSchema), async (c) => {
-  const reportId = c.req.param('id');
+  const dashboardId = c.req.param('id');
   const shareRequests = c.req.valid('json');
   const user = c.get('busterUser');
 
-  if (!reportId) {
-    throw new HTTPException(400, { message: 'Report ID is required' });
+  if (!dashboardId) {
+    throw new HTTPException(400, { message: 'Dashboard ID is required' });
   }
 
-  const result = await createReportSharingHandler(reportId, shareRequests, user);
+  const result = await createDashboardSharingHandler(dashboardId, shareRequests, user);
 
   return c.json(result);
 });
