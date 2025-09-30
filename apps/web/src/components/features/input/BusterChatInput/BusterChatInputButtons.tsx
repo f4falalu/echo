@@ -4,7 +4,11 @@ import { Button } from '@/components/ui/buttons';
 import { ArrowUp, Magnifier, Sparkle2 } from '@/components/ui/icons';
 import Atom from '@/components/ui/icons/NucleoIconOutlined/atom';
 import Microphone from '@/components/ui/icons/NucleoIconOutlined/microphone';
-import { useMentionInputHasValue } from '@/components/ui/inputs/MentionInputSuggestions';
+import {
+  useMentionInputHasValue,
+  useMentionInputSuggestionsGetValue,
+  useMentionInputSuggestionsOnChangeValue,
+} from '@/components/ui/inputs/MentionInputSuggestions';
 import { Popover } from '@/components/ui/popover';
 import { AppSegmented, type AppSegmentedProps } from '@/components/ui/segmented';
 import { AppTooltip } from '@/components/ui/tooltip';
@@ -14,13 +18,13 @@ import { cn } from '@/lib/utils';
 export type BusterChatInputMode = 'auto' | 'research' | 'deep-research';
 
 type BusterChatInputButtons = {
-  onSubmit: () => void;
+  onSubmit: (value: string) => void;
   onStop: () => void;
   submitting: boolean;
   disabled: boolean;
   mode: BusterChatInputMode;
   onModeChange: (mode: BusterChatInputMode) => void;
-  onDictate: (transcript: string) => void;
+  onDictate?: (transcript: string) => void;
   onDictateListeningChange?: (listening: boolean) => void;
 };
 
@@ -37,6 +41,8 @@ export const BusterChatInputButtons = React.memo(
   }: BusterChatInputButtons) => {
     const { transcript, listening, browserSupportsSpeechRecognition } = useSpeechRecognition();
     const hasValue = useMentionInputHasValue();
+    const onChangeValue = useMentionInputSuggestionsOnChangeValue();
+    const getValue = useMentionInputSuggestionsGetValue();
 
     const disableSubmit = !hasValue;
 
@@ -50,9 +56,10 @@ export const BusterChatInputButtons = React.memo(
 
     useEffect(() => {
       if (listening && transcript) {
-        onDictate(transcript);
+        onDictate?.(transcript);
+        onChangeValue(transcript);
       }
-    }, [listening, transcript, onDictate]);
+    }, [listening, transcript, onDictate, onChangeValue]);
 
     useEffect(() => {
       onDictateListeningChange?.(listening);
@@ -88,7 +95,7 @@ export const BusterChatInputButtons = React.memo(
               rounding={'large'}
               variant={'default'}
               prefix={<ArrowUp />}
-              onClick={submitting ? onStop : onSubmit}
+              onClick={submitting ? onStop : () => onSubmit(getValue?.()?.transformedValue ?? '')}
               loading={submitting}
               disabled={disabled || disableSubmit}
               className={cn(
