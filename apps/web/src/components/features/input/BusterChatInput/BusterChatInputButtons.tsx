@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import { Button } from '@/components/ui/buttons';
 import { ArrowUp, Magnifier, Sparkle2 } from '@/components/ui/icons';
@@ -40,6 +40,7 @@ export const BusterChatInputButtons = React.memo(
     onDictate,
     onDictateListeningChange,
   }: BusterChatInputButtons) => {
+    const [hasGrantedPermissions, setHasGrantPermissions] = useState(false);
     const { transcript, listening, browserSupportsSpeechRecognition } = useSpeechRecognition();
     const hasValue = useMentionInputHasValue();
     const onChangeValue = useMentionInputSuggestionsOnChangeValue();
@@ -47,7 +48,32 @@ export const BusterChatInputButtons = React.memo(
 
     const disableSubmit = !hasValue;
 
-    const startListening = () => {
+    useEffect(() => {
+      if (navigator.permissions) {
+        navigator.permissions
+          .query({ name: 'microphone' as PermissionName })
+          .then((result) => {
+            if (result.state === 'granted') {
+              setHasGrantPermissions(true);
+            } else if (result.state === 'denied') {
+              setHasGrantPermissions(false);
+            } else {
+              setHasGrantPermissions(true);
+            }
+
+            // You can also listen for changes
+            result.onchange = () => {
+              const isGranted = result.state === 'granted';
+              setHasGrantPermissions(isGranted);
+            };
+          })
+          .catch((err) => {
+            console.error('Permission API error:', err);
+          });
+      }
+    }, []);
+
+    const startListening = async () => {
       SpeechRecognition.startListening({ continuous: true });
     };
 
@@ -66,13 +92,23 @@ export const BusterChatInputButtons = React.memo(
       onDictateListeningChange?.(listening);
     }, [listening, onDictateListeningChange]);
 
+    console.log(listening, hasGrantedPermissions, listening && hasGrantedPermissions);
+
     return (
       <div className="flex justify-between items-center gap-2">
         <AppSegmented value={mode} options={modesOptions} onChange={(v) => onModeChange(v.value)} />
 
         <div className="flex items-center gap-2">
           {browserSupportsSpeechRecognition && (
-            <AppTooltip title={listening ? 'Stop Dictation...' : 'Press to Dictate...'}>
+            <AppTooltip
+              title={
+                listening
+                  ? !hasGrantedPermissions
+                    ? 'Audio permissions not enabled'
+                    : 'Stop dictation...'
+                  : 'Press to dictate...'
+              }
+            >
               <Button
                 rounding={'large'}
                 variant={'ghost'}
@@ -83,8 +119,16 @@ export const BusterChatInputButtons = React.memo(
                 className={cn(
                   'origin-center transform-gpu transition-all duration-300 ease-out will-change-transform text-text-secondary',
                   !disabled && 'hover:scale-110 active:scale-95',
-                  listening && 'bg-item-select text-foreground animate-pulse'
+                  listening && 'bg-item-active shadow border text-foreground',
+                  listening && !hasGrantedPermissions && 'bg-red-100! border border-red-300!'
                 )}
+                style={
+                  listening && !hasGrantedPermissions
+                    ? ({
+                        '--icon-color': 'var(--color-red-400)',
+                      } as React.CSSProperties)
+                    : {}
+                }
               />
             </AppTooltip>
           )}
