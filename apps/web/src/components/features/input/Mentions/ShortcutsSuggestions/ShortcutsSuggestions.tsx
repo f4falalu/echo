@@ -1,6 +1,8 @@
 import type { ListShortcutsResponse, Shortcut } from '@buster/server-shared/shortcuts';
 import { useNavigate } from '@tanstack/react-router';
 import { useMemo } from 'react';
+import { useGetShortcut } from '@/api/buster_rest/shortcuts/queryRequests';
+import { ErrorCard } from '@/components/ui/error/ErrorCard';
 import { Trash } from '@/components/ui/icons';
 import PenWriting from '@/components/ui/icons/NucleoIconOutlined/pen-writing';
 import Plus from '@/components/ui/icons/NucleoIconOutlined/plus';
@@ -14,6 +16,7 @@ import type {
   MentionInputSuggestionsProps,
   MentionInputSuggestionsRef,
 } from '@/components/ui/inputs/MentionInputSuggestions';
+import { CircleSpinnerLoader } from '@/components/ui/loaders';
 import { ShortcutPopoverContent } from './ShortcutPopoverContent';
 
 export const SHORTCUT_MENTION_TRIGGER = '/';
@@ -105,6 +108,7 @@ export const useShortcutsSuggestions = (
         type: 'item',
         value: shortcut.name,
         label: shortcut.name,
+        popoverContent: <ShortcutSuggestionsPopoverContent shortcut={shortcut} />,
         icon: SHORTCUT_MENTION_TRIGGER,
         inputValue: `/ ${shortcut.name}`,
         onClick: () => {
@@ -126,6 +130,7 @@ export const useShortcutsSuggestions = (
       type: 'item',
       value: 'createShortcut',
       label: 'Create shortcut',
+      keywords: ['create', 'shortcut'],
       icon: <Plus />,
       inputValue: `${SHORTCUT_MENTION_TRIGGER} Create shortcut`,
       onClick: () => {
@@ -145,4 +150,14 @@ export const useShortcutsSuggestions = (
       },
     ];
   }, [shortcuts, setOpenCreateShortcutModal, mentionInputSuggestionsRef]);
+};
+
+const ShortcutSuggestionsPopoverContent = ({ shortcut }: { shortcut: Shortcut }) => {
+  const { isFetched, isError } = useGetShortcut({ id: shortcut.id });
+
+  if (!isFetched) return <CircleSpinnerLoader />;
+
+  if (isError) return <ErrorCard message="Error fetching shortcut" />;
+
+  return <ShortcutPopoverContent value={shortcut.id} />;
 };

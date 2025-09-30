@@ -1,10 +1,15 @@
+import { useGetShortcut } from '@/api/buster_rest/shortcuts/queryRequests';
 import type { MentionPopoverContentCallback } from '@/components/ui/inputs/MentionInput';
+import { CircleSpinnerLoader } from '@/components/ui/loaders';
 import { Paragraph } from '@/components/ui/typography/Paragraph';
 import { Text } from '@/components/ui/typography/Text';
 
 export const ShortcutPopoverContent: MentionPopoverContentCallback = ({ value }) => {
-  const shortcutName = `TODO: ${value}`;
-  const prompt = `TODO prompt that is actually pretty long: ${value}`;
+  const { data, isFetched } = useGetShortcut({ id: value });
+  const shortcutName = data?.name;
+  const prompt = data?.instructions;
+
+  if (!isFetched) return <CircleSpinnerLoader />;
 
   return (
     <div className="p-3 flex flex-col space-y-3 w-[215px]">

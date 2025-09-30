@@ -1,6 +1,8 @@
 import type { ListShortcutsResponse } from '@buster/server-shared/shortcuts';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { fn } from 'storybook/test';
+import { getQueryClient } from '@/integrations/tanstack-query/query-client';
 import { BusterChatInputBase } from './BusterChatInputBase';
 
 const DEFAULT_USER_SUGGESTED_PROMPTS = {
@@ -26,9 +28,11 @@ const meta: Meta<typeof BusterChatInputBase> = {
   component: BusterChatInputBase,
   decorators: [
     (Story) => (
-      <div style={{ width: '600px', minHeight: '400px', padding: '20px' }}>
-        <Story />
-      </div>
+      <QueryClientProvider client={getQueryClient()}>
+        <div style={{ width: '600px', minHeight: '400px', padding: '20px' }}>
+          <Story />
+        </div>
+      </QueryClientProvider>
     ),
   ],
   parameters: {

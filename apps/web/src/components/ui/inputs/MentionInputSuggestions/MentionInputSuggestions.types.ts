@@ -20,6 +20,7 @@ export type MentionInputSuggestionsDropdownItem<T = string> = {
   inputValue?: string; //this will be the value added to the input pill when addValueToInput is true
   label: string | React.ReactNode;
   icon?: React.ReactNode;
+  popoverContent?: React.ReactNode;
   onClick?: () => void;
   disabled?: boolean;
   loading?: boolean;
