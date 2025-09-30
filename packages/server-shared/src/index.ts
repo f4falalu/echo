@@ -35,3 +35,4 @@ export * from './user';
 export * from './shortcuts';
 export * from './healthcheck';
 export * from './sql';
+export * from './logs-writeback';
