@@ -11,17 +11,28 @@ import {
   VimStatus,
 } from '../components/chat-layout';
 import { SettingsForm } from '../components/settings-form';
+import { TypedMessage, type MessageType } from '../components/typed-message';
 import { getSetting } from '../utils/settings';
 import type { SlashCommand } from '../utils/slash-commands';
 import type { VimMode } from '../utils/vim-mode';
 
 type AppMode = 'Planning' | 'Auto-accept' | 'None';
 
+interface Message {
+  id: number;
+  type: 'user' | 'assistant';
+  content: string;
+  messageType?: MessageType;
+  metadata?: string;
+}
+
 export function Main() {
   const { exit } = useApp();
   const [input, setInput] = useState('');
   const [history, setHistory] = useState<ChatHistoryEntry[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const historyCounter = useRef(0);
+  const messageCounter = useRef(0);
   const [vimEnabled, setVimEnabled] = useState(() => getSetting('vimMode'));
   const [currentVimMode, setCurrentVimMode] = useState<VimMode>('insert');
   const [showSettings, setShowSettings] = useState(false);
@@ -48,6 +59,68 @@ export function Main() {
     }
   });
 
+  const getMockResponse = (userInput: string): Message[] => {
+    const responses: Message[] = [];
+    
+    // Always send all message types for demo
+    responses.push(
+      {
+        id: ++messageCounter.current,
+        type: 'assistant',
+        content: 'Creating a comprehensive plan for your request.',
+        messageType: 'PLAN',
+        metadata: 'Updated: 3 total (3 pending, 0 in progress, 0 completed)'
+      },
+      {
+        id: ++messageCounter.current,
+        type: 'assistant',
+        content: 'Executing command: npm install',
+        messageType: 'EXECUTE',
+        metadata: 'cd /project && npm install, impact: low'
+      },
+      {
+        id: ++messageCounter.current,
+        type: 'assistant',
+        content: 'Searching for documentation and best practices...',
+        messageType: 'WEB_SEARCH',
+        metadata: '"React hooks useState useEffect"'
+      },
+      {
+        id: ++messageCounter.current,
+        type: 'assistant',
+        content: 'Here is some general information about your request.',
+        messageType: 'INFO'
+      },
+      {
+        id: ++messageCounter.current,
+        type: 'assistant',
+        content: 'Successfully completed all operations!',
+        messageType: 'SUCCESS'
+      },
+      {
+        id: ++messageCounter.current,
+        type: 'assistant',
+        content: 'Warning: This operation may take longer than expected.',
+        messageType: 'WARNING'
+      },
+      {
+        id: ++messageCounter.current,
+        type: 'assistant',
+        content: 'Error: Failed to connect to the database.',
+        messageType: 'ERROR'
+      },
+      {
+        id: ++messageCounter.current,
+        type: 'assistant',
+        content: 'Debug: Variable state = { isLoading: true, data: null }',
+        messageType: 'DEBUG',
+        metadata: 'Line 42 in main.tsx'
+      }
+    );
+    
+    return responses;
+  };
+
   const handleSubmit = () => {
     const trimmed = input.trim();
     if (!trimmed) {
@@ -55,16 +128,16 @@ export function Main() {
       return;
     }
 
-    historyCounter.current += 1;
-    const entry: ChatHistoryEntry = {
-      id: historyCounter.current,
-      value: trimmed,
+    messageCounter.current += 1;
+    const userMessage: Message = {
+      id: messageCounter.current,
+      type: 'user',
+      content: trimmed,
     };
 
-    setHistory((prev) => {
-      const next = [...prev, entry];
-      return next.slice(-5);
-    });
+    const mockResponses = getMockResponse(trimmed);
+    
+    setMessages((prev) => [...prev, userMessage, ...mockResponses]);
     setInput('');
   };
 
@@ -109,7 +182,33 @@ export function Main() {
       <ChatTitle />
       <ChatVersionTagline />
       <ChatIntroText />
-      <ChatHistory entries={history} />
+      <Box flexDirection="column" marginTop={1}>
+        {messages.map((message) => {
+          if (message.type === 'user') {
+            return (
+              <Box key={message.id} marginBottom={1}>
+                <Text color="#a855f7" bold>❯ </Text>
+                <Text color="#e0e7ff">{message.content}</Text>
+              </Box>
+            );
+          } else if (message.messageType) {
+            return (
+              <TypedMessage
+                key={message.id}
+                type={message.messageType}
+                content={message.content}
+                metadata={message.metadata}
+              />
+            );
+          } else {
+            return (
+              <Box key={message.id} marginBottom={1}>
+                <Text color="#e0e7ff">{message.content}</Text>
+              </Box>
+            );
+          }
+        })}
+      </Box>
       <Box flexDirection="column">
         <Box height={1}>
           {appMode !== 'None' && (
