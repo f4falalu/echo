@@ -31,7 +31,7 @@ export function ChatIntroText() {
   const lines = useMemo(
     () => [
       'You are standing in an open terminal. An AI awaits your commands.',
-      'ENTER to send • \\n for a new line • @ to mention files • / for commands',
+      'ENTER send • \\n newline • @ files • / commands',
     ],
     []
   );
@@ -71,7 +71,7 @@ interface VimStatusProps {
 
 export function VimStatus({ vimMode, vimEnabled, hideWhenAutocomplete }: VimStatusProps) {
   if (!vimEnabled || !vimMode || hideWhenAutocomplete) {
-    return null;
+    return <Text> </Text>; // Return empty text to maintain layout
   }
 
   let modeText = '';
@@ -308,11 +308,7 @@ export function ChatInput({
 }
 
 export function ChatFooter() {
-  return (
-    <Box justifyContent="flex-start" marginTop={1}>
-      <Text dimColor>? for help</Text>
-    </Box>
-  );
+  return <Text dimColor>? for help</Text>;
 }
 
 export interface ChatHistoryEntry {

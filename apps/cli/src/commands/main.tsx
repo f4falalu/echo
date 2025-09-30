@@ -1,4 +1,4 @@
-import { Box, useApp, useInput } from 'ink';
+import { Box, Text, useApp, useInput } from 'ink';
 import { useRef, useState } from 'react';
 import {
   ChatFooter,
@@ -6,7 +6,6 @@ import {
   type ChatHistoryEntry,
   ChatInput,
   ChatIntroText,
-  ChatStatusBar,
   ChatTitle,
   ChatVersionTagline,
   VimStatus,
@@ -15,6 +14,8 @@ import { SettingsForm } from '../components/settings-form';
 import { getSetting } from '../utils/settings';
 import type { SlashCommand } from '../utils/slash-commands';
 import type { VimMode } from '../utils/vim-mode';
+
+type AppMode = 'Planning' | 'Auto-accept' | 'None';
 
 export function Main() {
   const { exit } = useApp();
@@ -25,10 +26,25 @@ export function Main() {
   const [currentVimMode, setCurrentVimMode] = useState<VimMode>('insert');
   const [showSettings, setShowSettings] = useState(false);
   const [isAutocompleteOpen, setIsAutocompleteOpen] = useState(false);
+  const [appMode, setAppMode] = useState<AppMode>('None');
 
   useInput((value, key) => {
     if (key.ctrl && value === 'c') {
       exit();
+    }
+    
+    // Cycle through modes with shift+tab
+    if (key.shift && key.tab) {
+      setAppMode((current) => {
+        switch (current) {
+          case 'None':
+            return 'Planning';
+          case 'Planning':
+            return 'Auto-accept';
+          case 'Auto-accept':
+            return 'None';
+        }
+      });
     }
   });
 
@@ -78,7 +94,7 @@ export function Main() {
 
   if (showSettings) {
     return (
-      <Box flexDirection="column" paddingX={4} paddingY={2}>
+      <Box flexDirection="column" paddingX={1} paddingY={2}>
         <SettingsForm onClose={() => {
           setShowSettings(false);
           // Refresh vim enabled setting after settings close
@@ -89,13 +105,19 @@ export function Main() {
   }
 
   return (
-    <Box flexDirection="column" paddingX={4} paddingY={2} gap={1}>
+    <Box flexDirection="column" paddingX={1} paddingY={2} gap={1}>
       <ChatTitle />
       <ChatVersionTagline />
       <ChatIntroText />
-      <ChatStatusBar />
       <ChatHistory entries={history} />
       <Box flexDirection="column">
+        <Box height={1}>
+          {appMode !== 'None' && (
+            <Text color="#c4b5fd" bold>
+              {appMode === 'Planning' ? 'Planning Mode' : 'Auto-accept Mode'}
+            </Text>
+          )}
+        </Box>
         <ChatInput
           value={input}
           onChange={setInput}
@@ -105,13 +127,15 @@ export function Main() {
           onCommandExecute={handleCommandExecute}
           onAutocompleteStateChange={setIsAutocompleteOpen}
         />
-        <VimStatus 
-          vimMode={currentVimMode} 
-          vimEnabled={vimEnabled} 
-          hideWhenAutocomplete={isAutocompleteOpen}
-        />
+        <Box justifyContent="space-between">
+          <VimStatus 
+            vimMode={currentVimMode} 
+            vimEnabled={vimEnabled} 
+            hideWhenAutocomplete={isAutocompleteOpen}
+          />
+          <ChatFooter />
+        </Box>
       </Box>
-      <ChatFooter />
     </Box>
   );
 }
