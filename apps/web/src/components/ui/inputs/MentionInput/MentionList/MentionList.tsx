@@ -127,7 +127,9 @@ function MentionListInner<T = string>(
             />
           ))
         ) : (
-          <div className="text-gray-light">{emptyState || 'No results'}</div>
+          <div className="text-gray-light min-h-8 flex items-center justify-center">
+            {emptyState || 'No results'}
+          </div>
         )}
       </div>
     </MentionListProvider>
