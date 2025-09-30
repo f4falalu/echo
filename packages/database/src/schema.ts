@@ -1875,3 +1875,52 @@ export const assetSearchV2 = pgTable(
     unique('asset_search_v2_asset_type_asset_id_unique').on(table.assetId, table.assetType),
   ]
 );
+
+// Logs writeback configuration for external data sources
+export const logsWriteBackConfigs = pgTable(
+  'logs_write_back_configs',
+  {
+    id: uuid().defaultRandom().primaryKey().notNull(),
+    organizationId: uuid('organization_id').notNull(),
+    dataSourceId: uuid('data_source_id').notNull(),
+    database: varchar('database', { length: 255 }).notNull(),
+    schema: varchar('schema', { length: 255 }).notNull(),
+    tableName: varchar('table_name', { length: 255 }).default('buster_query_logs').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.organizationId],
+      foreignColumns: [organizations.id],
+      name: 'logs_write_back_configs_organization_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.dataSourceId],
+      foreignColumns: [dataSources.id],
+      name: 'logs_write_back_configs_data_source_id_fkey',
+    }).onDelete('cascade'),
+    // Ensure only one active config per organization
+    uniqueIndex('logs_write_back_configs_org_unique')
+      .on(table.organizationId)
+      .where(sql`${table.deletedAt} IS NULL`),
+    // Indexes for efficient lookups
+    index('idx_logs_write_back_configs_org_id').using(
+      'btree',
+      table.organizationId.asc().nullsLast().op('uuid_ops')
+    ),
+    index('idx_logs_write_back_configs_data_source_id').using(
+      'btree',
+      table.dataSourceId.asc().nullsLast().op('uuid_ops')
+    ),
+    index('idx_logs_write_back_configs_deleted_at').using(
+      'btree',
+      table.deletedAt.asc().nullsLast()
+    ),
+  ]
+);
