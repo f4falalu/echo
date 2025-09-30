@@ -1,4 +1,5 @@
 import { relative, resolve } from 'node:path';
+import type { deploy } from '@buster/server-shared';
 import { getConfigBaseDir, loadBusterConfig, resolveConfiguration } from './config/config-loader';
 import {
   formatDeploymentSummary,
@@ -26,6 +27,8 @@ import {
 } from './models/parsing';
 import type { CLIDeploymentResult, DeployOptions, Model, ProjectContext } from './schemas';
 import { createDeploymentValidationError, isDeploymentValidationError } from './utils/errors';
+
+type LogsConfig = deploy.LogsConfig;
 
 /**
  * Main deploy handler that orchestrates the entire deployment pipeline
@@ -94,7 +97,7 @@ async function processProject(
   configBaseDir: string,
   deploy: DeployFunction,
   options: DeployOptions,
-  logsConfig?: any
+  logsConfig?: LogsConfig
 ): Promise<CLIDeploymentResult> {
   console.info(`\nProcessing ${project.name} project...`);
 

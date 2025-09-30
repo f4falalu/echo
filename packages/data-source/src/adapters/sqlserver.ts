@@ -254,11 +254,7 @@ export class SQLServerAdapter extends BaseAdapter {
   /**
    * Check if a table exists in SQL Server
    */
-  async tableExists(
-    database: string,
-    schema: string,
-    tableName: string
-  ): Promise<boolean> {
+  async tableExists(database: string, schema: string, tableName: string): Promise<boolean> {
     this.ensureConnected();
 
     if (!this.pool) {

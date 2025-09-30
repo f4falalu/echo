@@ -1,4 +1,4 @@
-import { createAdapter } from '@buster/data-source';
+import { type Credentials, createAdapter, toCredentials } from '@buster/data-source';
 import { getDb } from '@buster/database/connection';
 import { getDataSourceCredentials, getLogsWriteBackConfig } from '@buster/database/queries';
 import { chats, dataSources, messages, users } from '@buster/database/schema';
@@ -95,7 +95,11 @@ export const logsWriteBackTask: ReturnType<
       const durationSeconds = Math.floor((updatedAt.getTime() - createdAt.getTime()) / 1000);
 
       // Extract post-processing data
-      const postProcessing = messageData.postProcessingMessage as any;
+      // Type assertion for JSONB field which can be null or contain structured data
+      const postProcessing = messageData.postProcessingMessage as {
+        confidence_score?: string;
+        assumptions?: string[];
+      } | null;
       const confidenceScore = postProcessing?.confidence_score || 'unknown';
       const assumptions = postProcessing?.assumptions || [];
 
@@ -155,10 +159,29 @@ export const logsWriteBackTask: ReturnType<
       }
 
       // Create adapter and write the log
-      const adapter = await createAdapter(credentials as any);
+      // Safely validate and convert credentials
+      let validatedCredentials: Credentials;
+      try {
+        validatedCredentials = toCredentials(credentials);
+      } catch (error) {
+        logger.error('Invalid credentials format', {
+          messageId: payload.messageId,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+        return {
+          success: false,
+          messageId: payload.messageId,
+          error: {
+            code: 'INVALID_CREDENTIALS',
+            message: error instanceof Error ? error.message : 'Invalid credentials format',
+          },
+        };
+      }
+
+      const adapter = await createAdapter(validatedCredentials);
 
       try {
-        await adapter.initialize(credentials as any);
+        await adapter.initialize(validatedCredentials);
 
         // Check if adapter supports log insertion
         if (!adapter.insertLogRecord) {

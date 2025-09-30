@@ -243,11 +243,7 @@ export class BigQueryAdapter extends BaseAdapter {
   /**
    * Check if a table exists in BigQuery
    */
-  async tableExists(
-    _database: string,
-    schema: string,
-    tableName: string
-  ): Promise<boolean> {
+  async tableExists(_database: string, schema: string, tableName: string): Promise<boolean> {
     this.ensureConnected();
 
     if (!this.client) {

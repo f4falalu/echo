@@ -235,8 +235,6 @@ export class PostgreSQLAdapter extends BaseAdapter {
     return this.introspector;
   }
 
-
-
   /**
    * Insert a log record into the PostgreSQL table
    */

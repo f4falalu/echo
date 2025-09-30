@@ -1,4 +1,4 @@
-import { createAdapter } from '@buster/data-source';
+import { type Credentials, createAdapter, toCredentials } from '@buster/data-source';
 import { db } from '@buster/database/connection';
 import {
   deleteLogsWriteBackConfig,
@@ -209,11 +209,11 @@ async function handleLogsWritebackConfig(
     // This handles the case where logs section is removed from buster.yml
     if (!config || !config.enabled) {
       const deleted = await deleteLogsWriteBackConfig(organizationId);
-      
+
       if (deleted) {
         console.info('Logs writeback configuration removed (soft deleted)');
       }
-      
+
       return {
         configured: false,
         error: deleted ? undefined : 'No existing configuration to remove',
@@ -221,16 +221,12 @@ async function handleLogsWritebackConfig(
     }
 
     // Get the appropriate data source for logs writeback
-    let dataSource;
-    
+    let dataSource: Awaited<ReturnType<typeof getDataSourceByName>> | undefined;
+
     if (config.dataSource) {
       // Use the specified data source
-      dataSource = await getDataSourceByName(
-        tx,
-        config.dataSource,
-        organizationId
-      );
-      
+      dataSource = await getDataSourceByName(tx, config.dataSource, organizationId);
+
       if (!dataSource) {
         return {
           configured: false,
@@ -243,12 +239,7 @@ async function handleLogsWritebackConfig(
       const [firstDataSource] = await tx
         .select()
         .from(dataSources)
-        .where(
-          and(
-            eq(dataSources.organizationId, organizationId),
-            isNull(dataSources.deletedAt)
-          )
-        )
+        .where(and(eq(dataSources.organizationId, organizationId), isNull(dataSources.deletedAt)))
         .orderBy(dataSources.type) // This will prioritize alphabetically, so BigQuery, MySQL, PostgreSQL, Redshift, Snowflake, SQLServer
         .limit(1);
 
@@ -287,10 +278,24 @@ async function handleLogsWritebackConfig(
     }
 
     // Verify adapter supports logs writeback
-    const adapter = await createAdapter(credentials as any);
+    // Safely validate and convert credentials
+    let validatedCredentials: Credentials;
+    try {
+      validatedCredentials = toCredentials(credentials);
+    } catch (error) {
+      return {
+        configured: true,
+        database: config.database,
+        schema: config.schema,
+        tableName: config.tableName || 'buster_query_logs',
+        error: `Invalid credentials: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      };
+    }
+
+    const adapter = await createAdapter(validatedCredentials);
 
     try {
-      await adapter.initialize(credentials as any);
+      await adapter.initialize(validatedCredentials);
 
       // Just verify the adapter supports insertLogRecord
       if (!adapter.insertLogRecord) {

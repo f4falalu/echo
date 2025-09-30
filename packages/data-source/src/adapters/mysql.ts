@@ -180,11 +180,7 @@ export class MySQLAdapter extends BaseAdapter {
   /**
    * Check if a table exists in MySQL
    */
-  async tableExists(
-    database: string,
-    _schema: string,
-    tableName: string
-  ): Promise<boolean> {
+  async tableExists(database: string, _schema: string, tableName: string): Promise<boolean> {
     this.ensureConnected();
 
     if (!this.connection) {

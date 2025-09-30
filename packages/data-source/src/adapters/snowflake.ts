@@ -363,8 +363,6 @@ export class SnowflakeAdapter extends BaseAdapter {
     };
   }
 
-
-
   /**
    * Insert a log record into the Snowflake table
    */

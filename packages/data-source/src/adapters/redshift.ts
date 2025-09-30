@@ -229,11 +229,7 @@ export class RedshiftAdapter extends BaseAdapter {
   /**
    * Check if a table exists in Redshift
    */
-  async tableExists(
-    database: string,
-    schema: string,
-    tableName: string
-  ): Promise<boolean> {
+  async tableExists(database: string, schema: string, tableName: string): Promise<boolean> {
     this.ensureConnected();
 
     if (!this.client) {
