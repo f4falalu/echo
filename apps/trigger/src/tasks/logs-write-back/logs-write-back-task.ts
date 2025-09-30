@@ -1,5 +1,4 @@
 import { createAdapter } from '@buster/data-source';
-import type { SnowflakeAdapter } from '@buster/data-source';
 import { getDb } from '@buster/database/connection';
 import { getDataSourceCredentials, getLogsWriteBackConfig } from '@buster/database/queries';
 import { chats, dataSources, messages, users } from '@buster/database/schema';
@@ -113,8 +112,8 @@ export const logsWriteBackTask: ReturnType<
         .where(eq(dataSources.id, config.dataSourceId))
         .limit(1);
 
-      if (!dataSource || dataSource.type !== 'Snowflake') {
-        logger.error('Invalid data source', {
+      if (!dataSource) {
+        logger.error('Data source not found', {
           messageId: payload.messageId,
           dataSourceId: config.dataSourceId,
         });
@@ -122,11 +121,18 @@ export const logsWriteBackTask: ReturnType<
           success: false,
           messageId: payload.messageId,
           error: {
-            code: 'INVALID_DATA_SOURCE',
-            message: 'Data source not found or not Snowflake type',
+            code: 'DATA_SOURCE_NOT_FOUND',
+            message: `Data source with ID ${config.dataSourceId} not found`,
           },
         };
       }
+
+      // Log the data source type for debugging
+      logger.info('Using data source for logs writeback', {
+        messageId: payload.messageId,
+        dataSourceId: config.dataSourceId,
+        dataSourceType: dataSource.type,
+      });
 
       // Get credentials from vault
       const credentials = await getDataSourceCredentials({
@@ -148,11 +154,27 @@ export const logsWriteBackTask: ReturnType<
         };
       }
 
-      // Create Snowflake adapter and write the log
-      const adapter = (await createAdapter(credentials as any)) as SnowflakeAdapter;
+      // Create adapter and write the log
+      const adapter = await createAdapter(credentials as any);
 
       try {
         await adapter.initialize(credentials as any);
+
+        // Check if adapter supports log insertion
+        if (!adapter.insertLogRecord) {
+          logger.error('Adapter does not support log insertion', {
+            messageId: payload.messageId,
+            dataSourceType: dataSource.type,
+          });
+          return {
+            success: false,
+            messageId: payload.messageId,
+            error: {
+              code: 'UNSUPPORTED_OPERATION',
+              message: `Data source type ${dataSource.type} does not support log insertion`,
+            },
+          };
+        }
 
         // Insert the log record
         await adapter.insertLogRecord(config.database, config.schema, config.tableName, {
@@ -168,8 +190,9 @@ export const logsWriteBackTask: ReturnType<
           assumptions: assumptions,
         });
 
-        logger.log('Log record successfully written to Snowflake', {
+        logger.log('Log record successfully written to data warehouse', {
           messageId: payload.messageId,
+          dataSourceType: dataSource.type,
           database: config.database,
           schema: config.schema,
           table: config.tableName,
@@ -180,9 +203,24 @@ export const logsWriteBackTask: ReturnType<
           success: true,
           messageId: payload.messageId,
         };
+      } catch (adapterError) {
+        logger.error('Adapter operation failed', {
+          messageId: payload.messageId,
+          dataSourceType: dataSource.type,
+          error: adapterError instanceof Error ? adapterError.message : 'Unknown error',
+          stack: adapterError instanceof Error ? adapterError.stack : undefined,
+        });
+        throw adapterError;
       } finally {
         // Always close the adapter connection
-        await adapter.close();
+        try {
+          await adapter.close();
+        } catch (closeError) {
+          logger.warn('Failed to close adapter connection', {
+            messageId: payload.messageId,
+            error: closeError instanceof Error ? closeError.message : 'Unknown error',
+          });
+        }
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';

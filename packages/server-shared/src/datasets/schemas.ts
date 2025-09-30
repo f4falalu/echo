@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { LogsConfigSchema } from '../deploy/schemas';
 
 // ============================================================================
 // Model Schemas - Define the structure of semantic layer models
@@ -151,6 +150,17 @@ export const MultiModelSchema = z.object({
 // ============================================================================
 // Configuration Schemas - Define buster.yml structure
 // ============================================================================
+
+// Schema for logs configuration in buster.yml
+export const LogsConfigSchema = z.object({
+  data_source: z
+    .string()
+    .optional()
+    .describe('Data source to use for logs writeback (defaults to first available)'),
+  database: z.string().describe('Database name for logs'),
+  schema: z.string().describe('Schema name for logs'),
+  table_name: z.string().optional().describe('Table name for logs (defaults to buster_query_logs)'),
+});
 
 export const ProjectContextSchema = z.object({
   name: z.string(),

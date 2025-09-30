@@ -65,36 +65,35 @@ export async function upsertLogsWriteBackConfig(
       updatedAt: updated.updatedAt,
       deletedAt: updated.deletedAt,
     };
-  } else {
-    // Create new config
-    const createdRows = await db
-      .insert(logsWriteBackConfigs)
-      .values({
-        organizationId: params.organizationId,
-        dataSourceId: params.dataSourceId,
-        database: params.database,
-        schema: params.schema,
-        tableName: params.tableName || 'buster_query_logs',
-        createdAt: now,
-        updatedAt: now,
-      })
-      .returning();
-
-    const created = createdRows[0];
-    if (!created) {
-      throw new Error('Failed to create logs writeback configuration');
-    }
-
-    return {
-      id: created.id,
-      organizationId: created.organizationId,
-      dataSourceId: created.dataSourceId,
-      database: created.database,
-      schema: created.schema,
-      tableName: created.tableName,
-      createdAt: created.createdAt,
-      updatedAt: created.updatedAt,
-      deletedAt: created.deletedAt,
-    };
   }
+  // Create new config
+  const createdRows = await db
+    .insert(logsWriteBackConfigs)
+    .values({
+      organizationId: params.organizationId,
+      dataSourceId: params.dataSourceId,
+      database: params.database,
+      schema: params.schema,
+      tableName: params.tableName || 'buster_query_logs',
+      createdAt: now,
+      updatedAt: now,
+    })
+    .returning();
+
+  const created = createdRows[0];
+  if (!created) {
+    throw new Error('Failed to create logs writeback configuration');
+  }
+
+  return {
+    id: created.id,
+    organizationId: created.organizationId,
+    dataSourceId: created.dataSourceId,
+    database: created.database,
+    schema: created.schema,
+    tableName: created.tableName,
+    createdAt: created.createdAt,
+    updatedAt: created.updatedAt,
+    deletedAt: created.deletedAt,
+  };
 }

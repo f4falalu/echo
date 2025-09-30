@@ -363,70 +363,7 @@ export class SnowflakeAdapter extends BaseAdapter {
     };
   }
 
-  /**
-   * Check if a table exists in Snowflake
-   */
-  override async tableExists(database: string, schema: string, tableName: string): Promise<boolean> {
-    this.ensureConnected();
 
-    if (!this.connection) {
-      throw new Error('Snowflake connection not initialized');
-    }
-
-    try {
-      const sql = `
-        SELECT COUNT(*) as count
-        FROM "${database}".INFORMATION_SCHEMA.TABLES
-        WHERE TABLE_SCHEMA = '${schema.toUpperCase()}'
-        AND TABLE_NAME = '${tableName.toUpperCase()}'
-      `;
-
-      const result = await this.query(sql);
-      const firstRow = result.rows[0] as { count?: number } | undefined;
-      return !!firstRow && (firstRow.count ?? 0) > 0;
-    } catch (error) {
-      console.error('Error checking table existence:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Create the Buster logs table in Snowflake
-   */
-  override async createLogsTable(
-    database: string,
-    schema: string,
-    tableName: string = 'BUSTER_QUERY_LOGS'
-  ): Promise<void> {
-    this.ensureConnected();
-
-    if (!this.connection) {
-      throw new Error('Snowflake connection not initialized');
-    }
-
-    const createTableSQL = `
-      CREATE TABLE IF NOT EXISTS "${database}"."${schema}"."${tableName}" (
-        message_id VARCHAR(255),
-        user_email VARCHAR(500),
-        user_name VARCHAR(500),
-        chat_id VARCHAR(255),
-        chat_link VARCHAR(500),
-        request_message TEXT,
-        created_at TIMESTAMP_TZ,
-        duration_seconds NUMBER,
-        confidence_score VARCHAR(50),
-        assumptions VARIANT,
-        inserted_at TIMESTAMP_TZ DEFAULT CURRENT_TIMESTAMP()
-      )
-    `;
-
-    try {
-      await this.query(createTableSQL);
-      console.info(`Table ${database}.${schema}.${tableName} created successfully`);
-    } catch (error) {
-      throw classifyError(error);
-    }
-  }
 
   /**
    * Insert a log record into the Snowflake table
@@ -458,7 +395,7 @@ export class SnowflakeAdapter extends BaseAdapter {
     const assumptionsJson = JSON.stringify(record.assumptions);
 
     const insertSQL = `
-      INSERT INTO "${database}"."${schema}"."${tableName}" (
+      INSERT INTO ${database}.${schema}.${tableName} (
         message_id, 
         user_email, 
         user_name, 
@@ -523,7 +460,11 @@ export class SnowflakeAdapter extends BaseAdapter {
           sqlText: sql,
           binds: params as snowflake.Binds,
           streamResult: false, // Don't stream for write operations
-          complete: (err: SnowflakeError | undefined, stmt: SnowflakeStatement, rows?: any[]) => {
+          complete: (
+            err: SnowflakeError | undefined,
+            _stmt: SnowflakeStatement,
+            rows?: unknown[]
+          ) => {
             if (err) {
               reject(new Error(`Snowflake write operation failed: ${err.message}`));
               return;

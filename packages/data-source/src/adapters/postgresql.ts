@@ -235,79 +235,13 @@ export class PostgreSQLAdapter extends BaseAdapter {
     return this.introspector;
   }
 
-  /**
-   * Check if a table exists in PostgreSQL
-   */
-  override async tableExists(database: string, schema: string, tableName: string): Promise<boolean> {
-    this.ensureConnected();
 
-    if (!this.client) {
-      throw new Error('PostgreSQL client not initialized');
-    }
-
-    try {
-      const sql = `
-        SELECT COUNT(*) as count
-        FROM information_schema.tables
-        WHERE table_catalog = $1
-        AND table_schema = $2
-        AND table_name = $3
-      `;
-
-      const result = await this.client.query(sql, [database, schema.toLowerCase(), tableName.toLowerCase()]);
-      const firstRow = result.rows[0] as { count?: string } | undefined;
-      return !!firstRow && parseInt(firstRow.count ?? '0') > 0;
-    } catch (error) {
-      console.error('Error checking table existence:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Create the Buster logs table in PostgreSQL
-   */
-  override async createLogsTable(
-    database: string,
-    schema: string,
-    tableName: string = 'buster_query_logs'
-  ): Promise<void> {
-    this.ensureConnected();
-
-    if (!this.client) {
-      throw new Error('PostgreSQL client not initialized');
-    }
-
-    const createTableSQL = `
-      CREATE TABLE IF NOT EXISTS "${schema}"."${tableName}" (
-        message_id VARCHAR(255),
-        user_email VARCHAR(500),
-        user_name VARCHAR(500),
-        chat_id VARCHAR(255),
-        chat_link VARCHAR(500),
-        request_message TEXT,
-        created_at TIMESTAMPTZ,
-        duration_seconds INTEGER,
-        confidence_score VARCHAR(50),
-        assumptions JSONB,
-        inserted_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
-      )
-    `;
-
-    try {
-      await this.client.query(createTableSQL);
-      console.info(`Table ${schema}.${tableName} created successfully`);
-    } catch (error) {
-      throw new Error(
-        `Failed to create logs table: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
-    }
-  }
 
   /**
    * Insert a log record into the PostgreSQL table
    */
   override async insertLogRecord(
-    database: string,
+    _database: string,
     schema: string,
     tableName: string,
     record: {

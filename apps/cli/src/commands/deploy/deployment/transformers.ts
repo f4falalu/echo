@@ -23,11 +23,22 @@ export function prepareDeploymentRequest(
   const logsWriteback: LogsWritebackConfig | undefined = logsConfig
     ? {
         enabled: true,
+        dataSource: logsConfig.data_source,
         database: logsConfig.database,
         schema: logsConfig.schema,
-        tableName: logsConfig.table_name || 'BUSTER_QUERY_LOGS',
+        tableName: logsConfig.table_name || 'buster_query_logs',
       }
     : undefined;
+
+  if (logsConfig) {
+    console.info('  ✓ Logs writeback configuration found:', {
+      database: logsConfig.database,
+      schema: logsConfig.schema,
+      table_name: logsConfig.table_name || 'buster_query_logs',
+    });
+  } else {
+    console.info('  ℹ No logs writeback configuration found - will remove any existing config');
+  }
 
   return {
     models: models.map(modelToDeployModel),

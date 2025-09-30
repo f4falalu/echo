@@ -229,7 +229,11 @@ export class RedshiftAdapter extends BaseAdapter {
   /**
    * Check if a table exists in Redshift
    */
-  override async tableExists(database: string, schema: string, tableName: string): Promise<boolean> {
+  async tableExists(
+    database: string,
+    schema: string,
+    tableName: string
+  ): Promise<boolean> {
     this.ensureConnected();
 
     if (!this.client) {
@@ -245,9 +249,13 @@ export class RedshiftAdapter extends BaseAdapter {
         AND table_name = $3
       `;
 
-      const result = await this.client.query(sql, [database, schema.toLowerCase(), tableName.toLowerCase()]);
+      const result = await this.client.query(sql, [
+        database,
+        schema.toLowerCase(),
+        tableName.toLowerCase(),
+      ]);
       const firstRow = result.rows[0] as { count?: string } | undefined;
-      return !!firstRow && parseInt(firstRow.count ?? '0') > 0;
+      return !!firstRow && Number.parseInt(firstRow.count ?? '0') > 0;
     } catch (error) {
       console.error('Error checking table existence:', error);
       return false;
@@ -257,10 +265,10 @@ export class RedshiftAdapter extends BaseAdapter {
   /**
    * Create the Buster logs table in Redshift
    */
-  override async createLogsTable(
-    database: string,
+  async createLogsTable(
+    _database: string,
     schema: string,
-    tableName: string = 'buster_query_logs'
+    tableName = 'buster_query_logs'
   ): Promise<void> {
     this.ensureConnected();
 
@@ -298,7 +306,7 @@ export class RedshiftAdapter extends BaseAdapter {
    * Insert a log record into the Redshift table
    */
   override async insertLogRecord(
-    database: string,
+    _database: string,
     schema: string,
     tableName: string,
     record: {

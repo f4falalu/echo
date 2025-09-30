@@ -1,13 +1,13 @@
 import { z } from 'zod';
-// Import DeployModelSchema from datasets to avoid duplication
-import { DeployModelSchema } from '../datasets/schemas';
+// Import DeployModelSchema and LogsConfigSchema from datasets to avoid duplication
+import { DeployModelSchema, LogsConfigSchema } from '../datasets/schemas';
 
 // ============================================================================
 // Unified Deploy Request/Response Schemas
 // ============================================================================
 
-// Re-export the model schema from datasets
-export { DeployModelSchema };
+// Re-export the schemas from datasets
+export { DeployModelSchema, LogsConfigSchema };
 
 // Schema for deploying docs (markdown files)
 export const DeployDocSchema = z.object({
@@ -16,20 +16,17 @@ export const DeployDocSchema = z.object({
   type: z.enum(['analyst', 'normal']).default('normal'),
 });
 
-// Schema for logs configuration in buster.yml
-export const LogsConfigSchema = z.object({
-  database: z.string().describe('Database name for logs'),
-  schema: z.string().describe('Schema name for logs'),
-  table_name: z.string().optional().describe('Table name for logs (defaults to BUSTER_QUERY_LOGS)'),
-});
-
 // Schema for logs writeback configuration (API format)
-export const LogsWritebackConfigSchema = z.object({
-  enabled: z.boolean().describe('Whether logs writeback is enabled'),
-  database: z.string().describe('Snowflake database name'),
-  schema: z.string().describe('Snowflake schema name'),
-  tableName: z.string().default('BUSTER_QUERY_LOGS').describe('Table name for logs'),
-}).nullable().describe('Configuration for writing logs back to Snowflake');
+export const LogsWritebackConfigSchema = z
+  .object({
+    enabled: z.boolean().describe('Whether logs writeback is enabled'),
+    dataSource: z.string().optional().describe('Data source name to use for logs writeback'),
+    database: z.string().describe('Database name'),
+    schema: z.string().describe('Schema name'),
+    tableName: z.string().default('buster_query_logs').describe('Table name for logs'),
+  })
+  .nullable()
+  .describe('Configuration for writing logs back to data warehouse');
 
 // Unified deploy request that handles both models and docs
 export const UnifiedDeployRequestSchema = z.object({
@@ -91,7 +88,6 @@ export const DocDeployResultSchema = z.object({
 // Schema for logs writeback deployment result
 export const LogsWritebackResultSchema = z.object({
   configured: z.boolean().describe('Whether logs writeback was configured'),
-  tableCreated: z.boolean().optional().describe('Whether the table was created'),
   database: z.string().optional().describe('Database name'),
   schema: z.string().optional().describe('Schema name'),
   tableName: z.string().optional().describe('Table name'),

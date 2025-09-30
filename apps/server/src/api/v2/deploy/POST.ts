@@ -1,5 +1,4 @@
 import { createAdapter } from '@buster/data-source';
-import type { SnowflakeAdapter } from '@buster/data-source';
 import { db } from '@buster/database/connection';
 import {
   deleteLogsWriteBackConfig,
@@ -167,15 +166,12 @@ export async function deployHandler(
       // if (request.deleteAbsentDocs) { ... }
 
       // Handle logs writeback configuration
-      let logsWritebackResult: LogsWritebackResult | undefined;
-
-      if (request.logsWriteback !== undefined) {
-        logsWritebackResult = await handleLogsWritebackConfig(
-          request.logsWriteback,
-          userOrg.organizationId,
-          tx
-        );
-      }
+      // Always call this to handle both presence and absence of logs config
+      const logsWritebackResult = await handleLogsWritebackConfig(
+        request.logsWriteback,
+        userOrg.organizationId,
+        tx
+      );
 
       return {
         models: modelResult,
@@ -204,38 +200,65 @@ export async function deployHandler(
  * Handle logs writeback configuration
  */
 async function handleLogsWritebackConfig(
-  config: deploy.LogsWritebackConfig,
+  config: deploy.LogsWritebackConfig | undefined,
   organizationId: string,
-  tx: any
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0]
 ): Promise<LogsWritebackResult> {
   try {
-    // If config is null or disabled, delete existing configuration
+    // If config is undefined, null, or disabled, delete existing configuration
+    // This handles the case where logs section is removed from buster.yml
     if (!config || !config.enabled) {
       const deleted = await deleteLogsWriteBackConfig(organizationId);
+      
+      if (deleted) {
+        console.info('Logs writeback configuration removed (soft deleted)');
+      }
+      
       return {
         configured: false,
-        error: deleted ? undefined : 'No existing configuration to delete',
+        error: deleted ? undefined : 'No existing configuration to remove',
       };
     }
 
-    // Get the first Snowflake data source for the organization
-    // TODO: In future, we might want to allow specifying which data source
-    const [dataSource] = await tx
-      .select()
-      .from(dataSources)
-      .where(
-        and(
-          eq(dataSources.organizationId, organizationId),
-          eq(dataSources.type, 'Snowflake'),
-          isNull(dataSources.deletedAt)
+    // Get the appropriate data source for logs writeback
+    let dataSource;
+    
+    if (config.dataSource) {
+      // Use the specified data source
+      dataSource = await getDataSourceByName(
+        tx,
+        config.dataSource,
+        organizationId
+      );
+      
+      if (!dataSource) {
+        return {
+          configured: false,
+          error: `Data source '${config.dataSource}' not found`,
+        };
+      }
+    } else {
+      // Get the first available data source for the organization
+      // Prefer Snowflake, but accept any data source type
+      const [firstDataSource] = await tx
+        .select()
+        .from(dataSources)
+        .where(
+          and(
+            eq(dataSources.organizationId, organizationId),
+            isNull(dataSources.deletedAt)
+          )
         )
-      )
-      .limit(1);
+        .orderBy(dataSources.type) // This will prioritize alphabetically, so BigQuery, MySQL, PostgreSQL, Redshift, Snowflake, SQLServer
+        .limit(1);
+
+      dataSource = firstDataSource;
+    }
 
     if (!dataSource) {
       return {
         configured: false,
-        error: 'No Snowflake data source found for organization',
+        error: 'No data source found for organization',
       };
     }
 
@@ -245,7 +268,7 @@ async function handleLogsWritebackConfig(
       dataSourceId: dataSource.id,
       database: config.database,
       schema: config.schema,
-      tableName: config.tableName || 'BUSTER_QUERY_LOGS',
+      tableName: config.tableName || 'buster_query_logs',
     });
 
     // Get credentials and create adapter to check/create table
@@ -258,41 +281,30 @@ async function handleLogsWritebackConfig(
         configured: true,
         database: config.database,
         schema: config.schema,
-        tableName: config.tableName || 'BUSTER_QUERY_LOGS',
+        tableName: config.tableName || 'buster_query_logs',
         error: 'Could not retrieve data source credentials',
       };
     }
 
-    // Create adapter and check/create table
-    const adapter = (await createAdapter(credentials as any)) as SnowflakeAdapter;
+    // Verify adapter supports logs writeback
+    const adapter = await createAdapter(credentials as any);
 
     try {
       await adapter.initialize(credentials as any);
 
-      // Check if table exists
-      const tableExists = await adapter.tableExists(
-        config.database,
-        config.schema,
-        config.tableName || 'BUSTER_QUERY_LOGS'
-      );
-
-      let tableCreated = false;
-      if (!tableExists) {
-        // Create the table
-        await adapter.createLogsTable(
-          config.database,
-          config.schema,
-          config.tableName || 'BUSTER_QUERY_LOGS'
-        );
-        tableCreated = true;
+      // Just verify the adapter supports insertLogRecord
+      if (!adapter.insertLogRecord) {
+        return {
+          configured: false,
+          error: 'Data source type does not support logs writeback',
+        };
       }
 
       return {
         configured: true,
-        tableCreated,
         database: config.database,
         schema: config.schema,
-        tableName: config.tableName || 'BUSTER_QUERY_LOGS',
+        tableName: config.tableName || 'buster_query_logs',
       };
     } finally {
       // Clean up adapter connection

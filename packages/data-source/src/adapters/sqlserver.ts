@@ -254,7 +254,11 @@ export class SQLServerAdapter extends BaseAdapter {
   /**
    * Check if a table exists in SQL Server
    */
-  override async tableExists(database: string, schema: string, tableName: string): Promise<boolean> {
+  async tableExists(
+    database: string,
+    schema: string,
+    tableName: string
+  ): Promise<boolean> {
     this.ensureConnected();
 
     if (!this.pool) {
@@ -286,10 +290,10 @@ export class SQLServerAdapter extends BaseAdapter {
   /**
    * Create the Buster logs table in SQL Server
    */
-  override async createLogsTable(
-    database: string,
+  async createLogsTable(
+    _database: string,
     schema: string,
-    tableName: string = 'buster_query_logs'
+    tableName = 'buster_query_logs'
   ): Promise<void> {
     this.ensureConnected();
 
@@ -333,7 +337,7 @@ export class SQLServerAdapter extends BaseAdapter {
    * Insert a log record into the SQL Server table
    */
   override async insertLogRecord(
-    database: string,
+    _database: string,
     schema: string,
     tableName: string,
     record: {
@@ -424,7 +428,7 @@ export class SQLServerAdapter extends BaseAdapter {
       // Set query timeout if specified (default: 60 seconds)
       const timeoutMs = timeout || 60000;
       // SQL Server uses requestTimeout property on the request config
-      (request as any).timeout = timeoutMs;
+      (request as unknown as Record<string, unknown>).timeout = timeoutMs;
 
       // Add parameters if provided
       if (params && params.length > 0) {

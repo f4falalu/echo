@@ -243,7 +243,11 @@ export class BigQueryAdapter extends BaseAdapter {
   /**
    * Check if a table exists in BigQuery
    */
-  override async tableExists(database: string, schema: string, tableName: string): Promise<boolean> {
+  async tableExists(
+    _database: string,
+    schema: string,
+    tableName: string
+  ): Promise<boolean> {
     this.ensureConnected();
 
     if (!this.client) {
@@ -264,10 +268,10 @@ export class BigQueryAdapter extends BaseAdapter {
   /**
    * Create the Buster logs table in BigQuery
    */
-  override async createLogsTable(
-    database: string,
+  async createLogsTable(
+    _database: string,
     schema: string,
-    tableName: string = 'buster_query_logs'
+    tableName = 'buster_query_logs'
   ): Promise<void> {
     this.ensureConnected();
 
@@ -306,7 +310,7 @@ export class BigQueryAdapter extends BaseAdapter {
    * Insert a log record into the BigQuery table
    */
   override async insertLogRecord(
-    database: string,
+    _database: string,
     schema: string,
     tableName: string,
     record: {
@@ -396,7 +400,11 @@ export class BigQueryAdapter extends BaseAdapter {
     }
 
     try {
-      const options: any = {
+      const options: {
+        query: string;
+        timeoutMs: number;
+        params?: unknown[];
+      } = {
         query: sql,
         timeoutMs: timeout || 60000,
       };

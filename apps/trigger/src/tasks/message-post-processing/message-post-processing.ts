@@ -23,6 +23,7 @@ import type {
 import { logger, schemaTask, tasks } from '@trigger.dev/sdk/v3';
 import { currentSpan, initLogger, wrapTraced } from 'braintrust';
 import { z } from 'zod/v4';
+import type { logsWriteBackTask } from '../logs-write-back';
 import {
   buildWorkflowInput,
   fetchPreviousPostProcessingMessages,
@@ -33,7 +34,6 @@ import {
 } from './helpers';
 import { DataFetchError, MessageNotFoundError, TaskInputSchema } from './types';
 import type { TaskInput, TaskOutput } from './types';
-import type { logsWriteBackTask } from '../logs-write-back';
 
 /**
  * Extract only the specific fields we want to save to the database
@@ -480,7 +480,7 @@ export const messagePostProcessingTask: ReturnType<
       try {
         // Check if organization has logs write-back configured
         const logsWriteBackConfig = await getLogsWriteBackConfig(messageContext.organizationId);
-        
+
         if (logsWriteBackConfig) {
           logger.log('Triggering logs write-back task', {
             messageId: payload.messageId,

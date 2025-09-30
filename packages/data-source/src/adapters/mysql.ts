@@ -180,7 +180,11 @@ export class MySQLAdapter extends BaseAdapter {
   /**
    * Check if a table exists in MySQL
    */
-  override async tableExists(database: string, schema: string, tableName: string): Promise<boolean> {
+  async tableExists(
+    database: string,
+    _schema: string,
+    tableName: string
+  ): Promise<boolean> {
     this.ensureConnected();
 
     if (!this.connection) {
@@ -196,7 +200,7 @@ export class MySQLAdapter extends BaseAdapter {
       `;
 
       const [rows] = await this.connection.execute(sql, [database, tableName]);
-      const firstRow = (rows as any[])[0] as { count?: number } | undefined;
+      const firstRow = (rows as Array<{ count?: number }>)[0] as { count?: number } | undefined;
       return !!firstRow && (firstRow.count ?? 0) > 0;
     } catch (error) {
       console.error('Error checking table existence:', error);
@@ -207,10 +211,10 @@ export class MySQLAdapter extends BaseAdapter {
   /**
    * Create the Buster logs table in MySQL
    */
-  override async createLogsTable(
+  async createLogsTable(
     database: string,
-    schema: string,
-    tableName: string = 'buster_query_logs'
+    _schema: string,
+    tableName = 'buster_query_logs'
   ): Promise<void> {
     this.ensureConnected();
 
@@ -249,7 +253,7 @@ export class MySQLAdapter extends BaseAdapter {
    */
   override async insertLogRecord(
     database: string,
-    schema: string,
+    _schema: string,
     tableName: string,
     record: {
       messageId: string;
