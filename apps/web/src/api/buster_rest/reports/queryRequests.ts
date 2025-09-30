@@ -11,7 +11,7 @@ import { collectionQueryKeys } from '@/api/query_keys/collection';
 import { reportsQueryKeys } from '@/api/query_keys/reports';
 import { silenceAssetErrors } from '@/api/response-helpers/silenece-asset-errors';
 import { useProtectedAssetPassword } from '@/context/BusterAssets/useProtectedAssetStore';
-import type { RustApiError } from '../../errors';
+import type { ApiError } from '../../errors';
 import {
   useAddAssetToCollection,
   useRemoveAssetFromCollection,
@@ -103,7 +103,7 @@ export const usePrefetchGetReportClient = () => {
  */
 export const useGetReport = <T = GetReportResponse>(
   { id, versionNumber }: { id: string | undefined; versionNumber?: number },
-  options?: Omit<UseQueryOptions<GetReportResponse, RustApiError, T>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<GetReportResponse, ApiError, T>, 'queryKey' | 'queryFn'>
 ) => {
   const password = useProtectedAssetPassword(id || '');
   const queryFn = () => {
@@ -129,7 +129,7 @@ export const useUpdateReport = () => {
 
   return useMutation<
     UpdateReportResponse,
-    RustApiError,
+    ApiError,
     Parameters<typeof updateReport>[0],
     { previousReport?: GetReportResponse }
   >({

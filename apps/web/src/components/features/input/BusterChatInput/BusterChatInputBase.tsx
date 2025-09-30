@@ -18,6 +18,7 @@ import type {
   MentionInputSuggestionsRef,
 } from '@/components/ui/inputs/MentionInputSuggestions';
 import { MentionInputSuggestions } from '@/components/ui/inputs/MentionInputSuggestions';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useMount } from '@/hooks/useMount';
 import { ASSET_ICONS } from '../../icons/assetIcons';
 import { NewShortcutModal } from '../../modals/NewShortcutModal';
@@ -105,6 +106,10 @@ export const BusterChatInputBase: React.FC<BusterChatInputProps> = React.memo(
       onSubmit({ ...value, mode });
     };
 
+    const onCloseCreateShortcutModal = useMemoizedFn(() => {
+      setOpenCreateShortcutModal(false);
+    });
+
     useMount(() => {
       if (autoSubmit && defaultValue) {
         onSubmitPreflight({
@@ -137,10 +142,7 @@ export const BusterChatInputBase: React.FC<BusterChatInputProps> = React.memo(
           />
         </MentionInputSuggestions>
 
-        <NewShortcutModal
-          open={openCreateShortcutModal}
-          onClose={() => setOpenCreateShortcutModal(false)}
-        />
+        <NewShortcutModal open={openCreateShortcutModal} onClose={onCloseCreateShortcutModal} />
       </React.Fragment>
     );
   }

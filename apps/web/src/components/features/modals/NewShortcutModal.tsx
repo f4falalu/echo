@@ -1,5 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { useCreateShortcut, useGetShortcut } from '@/api/buster_rest/shortcuts/queryRequests';
+import { shortcutNameSchema } from '@buster/server-shared/shortcuts';
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  useCreateShortcut,
+  useGetShortcut,
+  useListShortcuts,
+  useUpdateShortcut,
+} from '@/api/buster_rest/shortcuts/queryRequests';
 import { Input } from '@/components/ui/inputs';
 import { InputTextArea } from '@/components/ui/inputs/InputTextArea';
 import { AppModal } from '@/components/ui/modal';
@@ -12,11 +18,24 @@ export const NewShortcutModal: React.FC<{
   shortcutId?: string;
 }> = React.memo(({ open, onClose, shortcutId }) => {
   const { mutateAsync: createShortcut, isPending: isCreatingShortcut } = useCreateShortcut();
+  const { mutateAsync: updateShortcut, isPending: isUpdatingShortcut } = useUpdateShortcut();
+  const { data: allShortcuts } = useListShortcuts();
   const { data: shortcut } = useGetShortcut({ id: shortcutId || '' });
   const [name, setName] = useState('');
   const [instructions, setInstructions] = useState('');
 
-  const disableSubmit = !inputHasText(name) || !inputHasText(instructions);
+  const nameCheckMessage = useMemo(() => {
+    if (!name || shortcut?.name === name) return;
+
+    const isDuplicate = allShortcuts?.shortcuts.some((shortcut) => shortcut.name === name);
+    if (isDuplicate)
+      return 'Shortcut name must be unique, there is already a shortcut with this name';
+
+    const nameCheck = shortcutNameSchema.safeParse(name);
+    return nameCheck.error?.issues[0]?.message;
+  }, [name]);
+
+  const disableSubmit = !inputHasText(name) || !inputHasText(instructions) || !!nameCheckMessage;
   const isEditMode = !!shortcutId;
 
   const resetModal = () => {
@@ -41,11 +60,21 @@ export const NewShortcutModal: React.FC<{
       }}
       footer={{
         primaryButton: {
-          loading: isCreatingShortcut,
-          text: 'Create shortcut',
+          loading: isCreatingShortcut || isUpdatingShortcut,
+          text: isEditMode ? 'Save changes' : 'Create shortcut',
+          tooltip: disableSubmit ? 'Please fill in all fields' : undefined,
           onClick: async () => {
             if (disableSubmit) return;
-            await createShortcut({ name, instructions, shareWithWorkspace: false });
+            if (isEditMode) {
+              await updateShortcut({
+                id: shortcutId,
+                name,
+                instructions,
+                shareWithWorkspace: false,
+              });
+            } else {
+              await createShortcut({ name, instructions, shareWithWorkspace: false });
+            }
             onClose();
             setTimeout(() => {
               resetModal();
@@ -56,18 +85,25 @@ export const NewShortcutModal: React.FC<{
       }}
     >
       <StyleContainer title="Shortcut name">
-        <Input
-          placeholder="name"
-          prefix="/"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+        <div className="flex flex-col space-y-1">
+          <Input
+            placeholder="name"
+            prefix="/"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          {nameCheckMessage && (
+            <Text size={'xs'} variant={'danger'}>
+              {nameCheckMessage}
+            </Text>
+          )}
+        </div>
       </StyleContainer>
       <StyleContainer title="Shortcut description">
         <InputTextArea
           placeholder="Instructions that Buster should follow when you use this shortcut..."
           minRows={4}
-          maxRows={8}
+          maxRows={16}
           value={instructions}
           onChange={(e) => setInstructions(e.target.value)}
         />

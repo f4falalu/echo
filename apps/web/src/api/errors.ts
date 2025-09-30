@@ -1,6 +1,7 @@
 import isString from 'lodash/isString';
+import type { ZodError } from 'zod';
 
-export const rustErrorHandler = (errors: unknown = {}): RustApiError => {
+export const apiErrorHandler = (errors: unknown = {}): ApiError => {
   // Type guards and safe property access
   const isErrorObject = (obj: unknown): obj is Record<string, unknown> =>
     typeof obj === 'object' && obj !== null;
@@ -10,11 +11,20 @@ export const rustErrorHandler = (errors: unknown = {}): RustApiError => {
   const status =
     isErrorObject(errors) && typeof errors.status === 'number' ? errors.status : undefined;
 
+  if ((data as { error?: ZodError }).error?.issues?.length) {
+    const _data = data as { error?: ZodError };
+    const firstIssues = _data.error?.issues[0]?.message;
+    if (firstIssues) {
+      return { message: String(firstIssues), status };
+    }
+  }
+
   if (data && isString(data)) {
     return { message: String(data), status };
   }
 
   if (isErrorObject(data) && data.message) {
+    console.log('data.message', data.message);
     return { message: String(data.message), status };
   }
 
@@ -45,7 +55,7 @@ export const rustErrorHandler = (errors: unknown = {}): RustApiError => {
   return {};
 };
 
-export interface RustApiError {
+export interface ApiError {
   message?: string;
   status?: number;
 }

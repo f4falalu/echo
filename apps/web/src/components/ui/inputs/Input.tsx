@@ -56,7 +56,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           </span>
           <input
             type={type}
-            className={cn(inputVariants({ size, variant }), 'pl-5')}
+            className={cn(inputVariants({ size, variant }), 'pl-6.5')}
             ref={ref}
             onKeyDown={handleKeyDown}
             {...props}

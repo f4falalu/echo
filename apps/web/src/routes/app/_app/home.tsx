@@ -6,7 +6,7 @@ import {
   prefetchGetSuggestedPrompts,
 } from '@/api/buster_rest/users/queryRequests';
 import { AppPageLayout } from '@/components/ui/layouts/AppPageLayout';
-import { HomePageController, HomePageHeader } from '@/controllers/HomePage';
+import { HomePageHeader } from '@/controllers/HomePage';
 
 export const Route = createFileRoute('/app/_app/home')({
   ssr: false,

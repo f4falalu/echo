@@ -7,7 +7,7 @@ import { Text } from '@/components/ui/typography/Text';
 export const ShortcutPopoverContent: MentionPopoverContentCallback = ({ value }) => {
   const { data, isFetched } = useGetShortcut({ id: value });
   const shortcutName = data?.name;
-  const prompt = data?.instructions;
+  const instructions = data?.instructions;
 
   if (!isFetched) return <CircleSpinnerLoader />;
 
@@ -17,13 +17,13 @@ export const ShortcutPopoverContent: MentionPopoverContentCallback = ({ value })
         <BlockText type="text">{shortcutName}</BlockText>
       </Section>
       <Section title="Prompt">
-        <BlockText type="paragraph">{prompt}</BlockText>
+        <BlockText type="paragraph">{instructions}</BlockText>
       </Section>
       <hr className="w-full border-t" />
       <Paragraph
         variant={'tertiary'}
         size={'sm'}
-      >{`Use shortcuts for your repeatable flows in Buster`}</Paragraph>
+      >{`Use shortcuts for your repeatable workflows in Buster`}</Paragraph>
     </div>
   );
 };
@@ -49,7 +49,7 @@ const BlockText = ({
   const TextComponent = type === 'text' ? Text : Paragraph;
   return (
     <div className="bg-item-select border py-1.5 px-2.5 rounded">
-      <TextComponent size={'sm'} variant={'secondary'}>
+      <TextComponent size={'sm'} variant={'secondary'} className="line-clamp-10">
         {children}
       </TextComponent>
     </div>

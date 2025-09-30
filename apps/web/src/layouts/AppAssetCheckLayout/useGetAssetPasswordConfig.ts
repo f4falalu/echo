@@ -2,7 +2,7 @@ import type { AssetType } from '@buster/server-shared/assets';
 import type { ResponseMessageFileType } from '@buster/server-shared/chats';
 import { type QueryKey, useQuery } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
-import type { RustApiError } from '@/api/errors';
+import type { ApiError } from '@/api/errors';
 import { chatQueryKeys } from '@/api/query_keys/chat';
 import { collectionQueryKeys } from '@/api/query_keys/collection';
 import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
@@ -18,7 +18,7 @@ interface AssetAccess {
 }
 
 const getAssetAccess = (
-  error: RustApiError | null,
+  error: ApiError | null,
   isFetched: boolean,
   selectedQuery: QueryKey,
   hasData: boolean

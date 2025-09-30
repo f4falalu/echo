@@ -22,7 +22,7 @@ import { useBusterNotifications } from '@/context/BusterNotifications';
 import { setOriginalMetric } from '@/context/Metrics/useOriginalMetricStore';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { upgradeMetricToIMetric } from '@/lib/metrics';
-import type { RustApiError } from '../../errors';
+import type { ApiError } from '../../errors';
 import {
   useGetLatestMetricVersionMemoized,
   useGetMetricVersionNumber,
@@ -71,7 +71,7 @@ export const useGetMetric = <TData = BusterMetric>(
     id: string | undefined;
     versionNumber: number | 'LATEST' | undefined; //if null it will not use a params from the query params
   },
-  params?: Omit<UseQueryOptions<BusterMetric, RustApiError, TData>, 'queryKey' | 'queryFn'>
+  params?: Omit<UseQueryOptions<BusterMetric, ApiError, TData>, 'queryKey' | 'queryFn'>
 ) => {
   const queryClient = useQueryClient();
   const password = useProtectedAssetPassword(id || '');
@@ -155,7 +155,7 @@ export const useGetMetricData = <TData = BusterMetricDataExtended>(
     versionNumber: number | 'LATEST' | undefined;
     cacheDataId?: string;
   },
-  params?: Omit<UseQueryOptions<BusterMetricData, RustApiError, TData>, 'queryKey' | 'queryFn'>
+  params?: Omit<UseQueryOptions<BusterMetricData, ApiError, TData>, 'queryKey' | 'queryFn'>
 ) => {
   const queryClient = useQueryClient();
   const password = useProtectedAssetPassword(id || '');

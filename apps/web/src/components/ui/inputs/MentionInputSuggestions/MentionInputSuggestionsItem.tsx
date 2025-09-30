@@ -76,7 +76,14 @@ const PopoverContentWrapper = ({
   if (!popoverContent) return children;
 
   return (
-    <Popover trigger="hover" side="top" sideOffset={10} align="start" content={popoverContent}>
+    <Popover
+      trigger="hover"
+      side="top"
+      sideOffset={10}
+      align="start"
+      className="p-0"
+      content={popoverContent}
+    >
       {children}
     </Popover>
   );

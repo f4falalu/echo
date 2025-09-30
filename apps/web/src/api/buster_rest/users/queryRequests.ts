@@ -10,7 +10,7 @@ import { organizationQueryKeys } from '@/api/query_keys/organization';
 import { userQueryKeys } from '@/api/query_keys/users';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { timeout } from '@/lib/timeout';
-import type { RustApiError } from '../../errors';
+import type { ApiError } from '../../errors';
 import { useCreateOrganization } from '../organizations/queryRequests';
 import {
   getMyUserInfo,
@@ -22,7 +22,7 @@ import {
 import { useGetUserBasicInfo } from './useGetUserInfo';
 
 export const useGetMyUserInfo = <TData = UserResponse>(
-  props?: Omit<UseQueryOptions<UserResponse | null, RustApiError, TData>, 'queryKey' | 'queryFn'>
+  props?: Omit<UseQueryOptions<UserResponse | null, ApiError, TData>, 'queryKey' | 'queryFn'>
 ) => {
   return useQuery({
     ...userQueryKeys.userGetUserMyself,
