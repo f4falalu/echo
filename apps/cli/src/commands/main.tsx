@@ -21,7 +21,7 @@ export function Main() {
   const [input, setInput] = useState('');
   const [history, setHistory] = useState<ChatHistoryEntry[]>([]);
   const historyCounter = useRef(0);
-  const [vimEnabled] = useState(() => getSetting('vimMode'));
+  const [vimEnabled, setVimEnabled] = useState(() => getSetting('vimMode'));
   const [currentVimMode, setCurrentVimMode] = useState<VimMode>('insert');
   const [showSettings, setShowSettings] = useState(false);
   const [isAutocompleteOpen, setIsAutocompleteOpen] = useState(false);
@@ -79,7 +79,11 @@ export function Main() {
   if (showSettings) {
     return (
       <Box flexDirection="column" paddingX={4} paddingY={2}>
-        <SettingsForm onClose={() => setShowSettings(false)} />
+        <SettingsForm onClose={() => {
+          setShowSettings(false);
+          // Refresh vim enabled setting after settings close
+          setVimEnabled(getSetting('vimMode'));
+        }} />
       </Box>
     );
   }
