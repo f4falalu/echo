@@ -1,6 +1,8 @@
 import { Box, Text } from 'ink';
-import { useMemo } from 'react';
-import { MultiLineTextInput } from './multi-line-text-input';
+import { useEffect, useMemo, useState } from 'react';
+import { type FileSearchResult, searchFiles } from '../utils/file-search';
+import { FileAutocompleteDisplay } from './file-autocomplete-display';
+import { MultiLineTextInput, replaceMention } from './multi-line-text-input';
 import { SimpleBigText } from './simple-big-text';
 
 export function ChatTitle() {
@@ -66,26 +68,112 @@ interface ChatInputProps {
 }
 
 export function ChatInput({ value, placeholder, onChange, onSubmit }: ChatInputProps) {
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+  const [mentionStart, setMentionStart] = useState<number>(-1);
+  const [searchResults, setSearchResults] = useState<FileSearchResult[]>([]);
+  const [showAutocomplete, setShowAutocomplete] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  // Handle mention changes from the input
+  const handleMentionChange = (query: string | null, position: number) => {
+    // Only reset selection if the query actually changed
+    if (query !== mentionQuery) {
+      setSelectedIndex(0);
+    }
+    setMentionQuery(query);
+    setMentionStart(position);
+    setShowAutocomplete(query !== null);
+  };
+
+  // Search for files when mention query changes
+  useEffect(() => {
+    if (mentionQuery !== null) {
+      searchFiles(mentionQuery, { maxResults: 20 })
+        .then((results) => {
+          setSearchResults(results);
+          // Adjust selection if it's out of bounds
+          setSelectedIndex((currentIndex) => {
+            if (currentIndex >= results.length && results.length > 0) {
+              return results.length - 1;
+            }
+            return currentIndex;
+          });
+        })
+        .catch((error) => {
+          console.error('File search failed:', error);
+          setSearchResults([]);
+        });
+    } else {
+      setSearchResults([]);
+    }
+  }, [mentionQuery]);
+
+  // Handle autocomplete navigation
+  const handleAutocompleteNavigate = (direction: 'up' | 'down' | 'select' | 'close') => {
+    const displayItems = searchResults.slice(0, 10);
+    
+    switch (direction) {
+      case 'up':
+        setSelectedIndex((prev) => Math.max(0, prev - 1));
+        break;
+      case 'down':
+        setSelectedIndex((prev) => Math.min(displayItems.length - 1, prev + 1));
+        break;
+      case 'select':
+        if (displayItems[selectedIndex]) {
+          const file = displayItems[selectedIndex];
+          if (mentionStart !== -1 && mentionQuery !== null) {
+            const mentionEnd = mentionStart + mentionQuery.length + 1; // +1 for the @ symbol
+            const replacement = `@${file.relativePath} `; // Always add space
+            const newValue = replaceMention(value, mentionStart, mentionEnd, replacement);
+            onChange(newValue);
+            setShowAutocomplete(false);
+            setMentionQuery(null);
+            setMentionStart(-1);
+          }
+        }
+        break;
+      case 'close':
+        setShowAutocomplete(false);
+        setMentionQuery(null);
+        setMentionStart(-1);
+        break;
+    }
+  };
+
   return (
-    <Box
-      borderStyle="single"
-      borderColor="#4c1d95"
-      paddingX={1}
-      width="100%"
-      marginTop={1}
-      flexDirection="row"
-    >
-      <Text color="#a855f7" bold>
-        ❯{' '}
-      </Text>
-      <Box flexGrow={1}>
-        <MultiLineTextInput
-          value={value}
-          onChange={onChange}
-          onSubmit={onSubmit}
-          placeholder={placeholder}
-        />
+    <Box flexDirection="column">
+      <Box
+        borderStyle="single"
+        borderColor="#4c1d95"
+        paddingX={1}
+        width="100%"
+        flexDirection="row"
+      >
+        <Text color="#a855f7" bold>
+          ❯{' '}
+        </Text>
+        <Box flexGrow={1}>
+          <MultiLineTextInput
+            value={value}
+            onChange={onChange}
+            onSubmit={onSubmit}
+            onMentionChange={handleMentionChange}
+            onAutocompleteNavigate={handleAutocompleteNavigate}
+            placeholder={placeholder}
+            isAutocompleteOpen={showAutocomplete}
+          />
+        </Box>
       </Box>
+      {showAutocomplete && (
+        <Box marginTop={0} paddingLeft={2}>
+          <FileAutocompleteDisplay
+            items={searchResults}
+            selectedIndex={selectedIndex}
+            maxDisplay={10}
+          />
+        </Box>
+      )}
     </Box>
   );
 }

@@ -5,16 +5,22 @@ interface MultiLineTextInputProps {
   value: string;
   onChange: (value: string) => void;
   onSubmit: () => void;
+  onMentionChange?: (mention: string | null, cursorPosition: number) => void;
+  onAutocompleteNavigate?: (direction: 'up' | 'down' | 'select' | 'close') => void;
   placeholder?: string;
   focus?: boolean;
+  isAutocompleteOpen?: boolean;
 }
 
 export function MultiLineTextInput({
   value,
   onChange,
   onSubmit,
+  onMentionChange,
+  onAutocompleteNavigate,
   placeholder = '',
   focus = true,
+  isAutocompleteOpen = false,
 }: MultiLineTextInputProps) {
   const [cursorPosition, setCursorPosition] = useState(value.length);
   const [showCursor, setShowCursor] = useState(true);
@@ -43,12 +49,69 @@ export function MultiLineTextInput({
     setCursorPosition(value.length);
   }, [value]);
 
+  // Detect @ mentions
+  useEffect(() => {
+    if (!onMentionChange) return;
+
+    // Find the last @ before cursor position
+    let mentionStart = -1;
+    for (let i = cursorPosition - 1; i >= 0; i--) {
+      if (value[i] === '@') {
+        mentionStart = i;
+        break;
+      }
+      // Stop if we hit whitespace or newline (mention ended)
+      if (value[i] === ' ' || value[i] === '\n' || value[i] === '\t') {
+        break;
+      }
+    }
+
+    if (mentionStart !== -1) {
+      // Check if there's a space or newline before @ (or it's at the start)
+      const charBefore = mentionStart > 0 ? value[mentionStart - 1] : ' ';
+      if (charBefore === ' ' || charBefore === '\n' || charBefore === '\t' || mentionStart === 0) {
+        // Extract the mention query (text after @)
+        const mentionEnd = cursorPosition;
+        const mentionQuery = value.substring(mentionStart + 1, mentionEnd);
+
+        // Only trigger if we're still in the mention (no spaces)
+        if (!mentionQuery.includes(' ') && !mentionQuery.includes('\n')) {
+          onMentionChange(mentionQuery, mentionStart);
+          return;
+        }
+      }
+    }
+
+    // No active mention
+    onMentionChange(null, -1);
+  }, [value, cursorPosition, onMentionChange]);
+
   useInput(
     (input, key) => {
       if (!focus) return;
 
       // Debug: Log what we're receiving
       // console.log('Input:', input, 'Key:', key);
+
+      // Handle autocomplete navigation when it's open
+      if (isAutocompleteOpen && onAutocompleteNavigate) {
+        if (key.upArrow) {
+          onAutocompleteNavigate('up');
+          return;
+        }
+        if (key.downArrow) {
+          onAutocompleteNavigate('down');
+          return;
+        }
+        if (key.escape) {
+          onAutocompleteNavigate('close');
+          return;
+        }
+        if (key.return || key.tab) {
+          onAutocompleteNavigate('select');
+          return;
+        }
+      }
 
       // Handle backslash + n sequence for newline
       if (expectingNewline) {
@@ -120,8 +183,9 @@ export function MultiLineTextInput({
         return;
       }
 
-      // Handle Enter - submit (only if not modified)
-      if (key.return && !key.meta && !key.shift && !key.ctrl) {
+      // Handle Enter - submit (only if not modified and autocomplete is not open)
+      // This is now handled above in autocomplete navigation section
+      if (key.return && !key.meta && !key.shift && !key.ctrl && !isAutocompleteOpen) {
         onSubmit();
         return;
       }
@@ -145,8 +209,8 @@ export function MultiLineTextInput({
         return;
       }
 
-      if (key.upArrow) {
-        // Move cursor to previous line
+      if (key.upArrow && !isAutocompleteOpen) {
+        // Move cursor to previous line (only when autocomplete is closed)
         const lines = value.split('\n');
         let currentLineStart = 0;
         let currentLineIndex = 0;
@@ -173,8 +237,8 @@ export function MultiLineTextInput({
         return;
       }
 
-      if (key.downArrow) {
-        // Move cursor to next line
+      if (key.downArrow && !isAutocompleteOpen) {
+        // Move cursor to next line (only when autocomplete is closed)
         const lines = value.split('\n');
         let currentLineStart = 0;
         let currentLineIndex = 0;
@@ -302,4 +366,14 @@ export function MultiLineTextInput({
   };
 
   return renderTextWithCursor();
+}
+
+// Helper function to replace a mention with a file path
+export function replaceMention(
+  text: string,
+  mentionStart: number,
+  mentionEnd: number,
+  replacement: string
+): string {
+  return text.slice(0, mentionStart) + replacement + text.slice(mentionEnd);
 }
