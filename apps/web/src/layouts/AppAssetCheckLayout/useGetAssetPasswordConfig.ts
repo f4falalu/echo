@@ -17,11 +17,11 @@ interface AssetAccess {
   isFetched: boolean;
 }
 
-const getAssetAccess = (
+export const getAssetAccess = (
   error: ApiError | null,
   isFetched: boolean,
   selectedQuery: QueryKey,
-  hasData: boolean
+  _hasData: boolean
 ): AssetAccess => {
   if (error) {
     console.error('Error in getAssetAccess', error, isFetched, selectedQuery);
@@ -60,13 +60,13 @@ const getAssetAccess = (
     };
   }
 
-  if (typeof error?.status === 'number' || !hasData) {
+  if (typeof error?.status === 'number') {
     return {
       hasAccess: false,
       passwordRequired: false,
       isPublic: false,
       isDeleted: false,
-      isFetched: true,
+      isFetched: isFetched,
     };
   }
 
@@ -91,11 +91,10 @@ export const useGetAssetPasswordConfig = (
     [type, assetId, chosenVersionNumber]
   );
 
-  const { error, isFetched, data, ...rest } = useQuery({
+  const { error, isFetched, data } = useQuery({
     queryKey: selectedQuery.queryKey,
     enabled: true,
-    select: useCallback((v: unknown) => !!v, []),
-    notifyOnChangeProps: ['error', 'isFetched', 'data'],
+    select: (v: unknown) => !!v,
     retry: false,
     initialData: false,
   });
@@ -103,7 +102,7 @@ export const useGetAssetPasswordConfig = (
   return getAssetAccess(error, isFetched, selectedQuery.queryKey, !!data);
 };
 
-const getSelectedQuery = (
+export const getSelectedQuery = (
   type: AssetType | ResponseMessageFileType,
   assetId: string,
   chosenVersionNumber: number | 'LATEST'
