@@ -1,7 +1,7 @@
 import type { ListShortcutsResponse, Shortcut } from '@buster/server-shared/shortcuts';
 import { useNavigate } from '@tanstack/react-router';
 import { useMemo } from 'react';
-import { useGetShortcut } from '@/api/buster_rest/shortcuts/queryRequests';
+import { useDeleteShortcut, useGetShortcut } from '@/api/buster_rest/shortcuts/queryRequests';
 import { ErrorCard } from '@/components/ui/error/ErrorCard';
 import { Trash } from '@/components/ui/icons';
 import PenWriting from '@/components/ui/icons/NucleoIconOutlined/pen-writing';
@@ -70,6 +70,8 @@ export const useCreateShortcutsMentionsSuggestions = (
 };
 
 export const useCreateShortcutForMention = () => {
+  const navigate = useNavigate();
+  const { mutateAsync: deleteShortcut } = useDeleteShortcut();
   const createShortcutForMention = (shortcut: Shortcut): MentionTriggerItem<string> => {
     return {
       value: shortcut.id,
@@ -83,7 +85,12 @@ export const useCreateShortcutForMention = () => {
               icon: <PenWriting />,
               value: 'edit',
               onClick: () => {
-                console.log('edit');
+                navigate({
+                  to: '/app/home/shortcuts',
+                  search: {
+                    shortcut_id: shortcut.id,
+                  },
+                });
               },
             },
             {
@@ -91,7 +98,7 @@ export const useCreateShortcutForMention = () => {
               icon: <Trash />,
               value: 'delete',
               onClick: () => {
-                console.log('delete');
+                deleteShortcut({ id: shortcut.id });
               },
             },
           ]}
