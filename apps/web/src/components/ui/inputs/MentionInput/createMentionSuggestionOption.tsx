@@ -1,4 +1,4 @@
-import { posToDOMRect, ReactRenderer } from '@tiptap/react';
+import { type Editor, posToDOMRect, ReactRenderer } from '@tiptap/react';
 import { defaultQueryMentionsFilter } from './defaultQueryMentionsFilter';
 import type {
   MentionInputTriggerItem,
@@ -25,6 +25,7 @@ export const createMentionSuggestionExtension = ({
     | ((props: {
         query: string;
         defaultQueryMentionsFilter: typeof defaultQueryMentionsFilter;
+        editor: Editor;
       }) => MentionInputTriggerItem[]); //if no function is provided we will use a literal string match
   popoverContent?: MentionPopoverContentCallback;
   pillStyling?: MentionStylePillProps;

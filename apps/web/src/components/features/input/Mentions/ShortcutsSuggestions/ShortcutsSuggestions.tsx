@@ -1,5 +1,6 @@
 import type { ListShortcutsResponse, Shortcut } from '@buster/server-shared/shortcuts';
 import { useNavigate } from '@tanstack/react-router';
+import type { Editor } from '@tiptap/react';
 import { useMemo, useRef } from 'react';
 import { useDeleteShortcut, useGetShortcut } from '@/api/buster_rest/shortcuts/queryRequests';
 import { ErrorCard } from '@/components/ui/error/ErrorCard';
@@ -35,10 +36,10 @@ export const useCreateShortcutsMentionsSuggestions = (
     () =>
       createMentionSuggestionExtension({
         trigger: SHORTCUT_MENTION_TRIGGER,
-        items: ({ defaultQueryMentionsFilter, query }) => {
+        items: ({ defaultQueryMentionsFilter, editor, query }) => {
           const shortcuts = currentItemsRef.current;
           const allItems = [
-            ...shortcuts.map(createShortcutForMention),
+            ...shortcuts.map((s) => createShortcutForMention(s, editor)),
             { type: 'separator' as const },
             {
               value: 'manageShortcuts',
@@ -79,7 +80,10 @@ export const useCreateShortcutsMentionsSuggestions = (
 export const useCreateShortcutForMention = () => {
   const navigate = useNavigate();
   const { mutateAsync: deleteShortcut } = useDeleteShortcut();
-  const createShortcutForMention = (shortcut: Shortcut): MentionTriggerItem<string> => {
+  const createShortcutForMention = (
+    shortcut: Shortcut,
+    editor?: Editor
+  ): MentionTriggerItem<string> => {
     return {
       value: shortcut.id,
       label: shortcut.name,
@@ -106,6 +110,11 @@ export const useCreateShortcutForMention = () => {
               value: 'delete',
               onClick: async () => {
                 await deleteShortcut({ id: shortcut.id });
+                //remove the trigger character from the editor
+                editor?.commands.deleteRange({
+                  from: editor.state.selection.from - 1,
+                  to: editor.state.selection.from,
+                });
               },
             },
           ]}
