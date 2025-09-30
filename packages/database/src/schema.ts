@@ -570,7 +570,7 @@ export const users = pgTable(
           ],
           "help": [
             "what types of analyses can you perform?",
-            "what questions can I as buster?",
+            "what questions can I ask buster?",
             "what data models are available for queries?",
             "can you explain your forecasting capabilities?"
           ]
