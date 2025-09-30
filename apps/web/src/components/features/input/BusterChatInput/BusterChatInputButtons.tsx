@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/buttons';
 import { ArrowUp, Magnifier, Sparkle2 } from '@/components/ui/icons';
 import Atom from '@/components/ui/icons/NucleoIconOutlined/atom';
 import Microphone from '@/components/ui/icons/NucleoIconOutlined/microphone';
+import { useMentionInputHasValue } from '@/components/ui/inputs/MentionInputSuggestions';
 import { Popover } from '@/components/ui/popover';
 import { AppSegmented, type AppSegmentedProps } from '@/components/ui/segmented';
 import { AppTooltip } from '@/components/ui/tooltip';
@@ -34,8 +35,10 @@ export const BusterChatInputButtons = React.memo(
     onDictate,
     onDictateListeningChange,
   }: BusterChatInputButtons) => {
-    const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } =
-      useSpeechRecognition();
+    const { transcript, listening, browserSupportsSpeechRecognition } = useSpeechRecognition();
+    const hasValue = useMentionInputHasValue();
+
+    const disableSubmit = !hasValue;
 
     const startListening = () => {
       SpeechRecognition.startListening({ continuous: true });
@@ -84,9 +87,9 @@ export const BusterChatInputButtons = React.memo(
               prefix={<ArrowUp />}
               onClick={submitting ? onStop : onSubmit}
               loading={submitting}
-              disabled={disabled}
+              disabled={disabled || disableSubmit}
               className={cn(
-                'origin-center transform-gpu transition-all duration-300 ease-out will-change-transform',
+                'origin-center transform-gpu transition-all duration-300 ease-out will-change-transform bg-transparent!',
                 !disabled && 'hover:scale-110 active:scale-95'
               )}
             />

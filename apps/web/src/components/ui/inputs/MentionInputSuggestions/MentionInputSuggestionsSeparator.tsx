@@ -1,3 +1,5 @@
+/** biome-ignore-all lint/a11y/useFocusableInteractive: no ally stuff. I don't give a piss about nothin but the tide. */
+/** biome-ignore-all lint/a11y/useSemanticElements: test **/
 import { useCommandState } from 'cmdk';
 import type React from 'react';
 import { cn } from '@/lib/utils';
@@ -10,6 +12,8 @@ export const MentionInputSuggestionsSeparator = ({
   const hasResults = useCommandState((x) => x.filtered.count) > 0;
   return (
     <div
+      // biome-ignore lint/a11y/useAriaPropsForRole: blitz bama blitz
+      role="separator"
       className={cn(
         'bg-border -mx-1 h-px my-1.5',
         // Hide if first child
@@ -18,6 +22,8 @@ export const MentionInputSuggestionsSeparator = ({
         'last:hidden',
         // Hide if next sibling is another separator
         'has-[+[role="separator"]]:hidden',
+        // Hide if next sibling has hidden attribute
+        'has-[+[hidden]]:hidden',
         !hasResults && 'hidden',
         className
       )}

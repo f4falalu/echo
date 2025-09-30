@@ -1,5 +1,6 @@
 import { Command, useCommandState } from 'cmdk';
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { createContext, useContextSelector } from 'use-context-selector';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { cn } from '@/lib/utils';
 import type { MentionInputProps, MentionInputRef } from '../MentionInput';
@@ -160,48 +161,76 @@ export const MentionInputSuggestions = forwardRef<
     );
 
     return (
-      <Command
-        ref={commandRef}
-        label={ariaLabel}
-        className={cn('relative border rounded overflow-hidden bg-background shadow', className)}
-        shouldFilter={shouldFilter}
-        filter={filter || customFilter}
-      >
-        <MentionInputSuggestionsContainer className={inputContainerClassName}>
-          <MentionInputSuggestionsMentionsInput
-            ref={mentionsInputRef}
-            defaultValue={defaultValue}
-            readOnly={readOnly}
-            autoFocus={autoFocus}
-            placeholder={placeholder}
-            mentions={mentions}
-            value={value}
-            onChange={onChangeInputValue}
-            onMentionItemClick={onMentionItemClick}
-            onPressEnter={onPressEnter}
-            commandListNavigatedRef={commandListNavigatedRef}
-            disabled={disabled}
-          />
-          {children && <div className="mt-3">{children}</div>}
-        </MentionInputSuggestionsContainer>
-        <SuggestionsSeperator />
-        <MentionInputSuggestionsList
-          show={showSuggestionList}
-          className={cn(suggestionsContainerClassName)}
+      <MentionInputSuggestionsProvider value={value}>
+        <Command
+          ref={commandRef}
+          label={ariaLabel}
+          className={cn('relative border rounded overflow-hidden bg-background shadow', className)}
+          shouldFilter={shouldFilter}
+          filter={filter || customFilter}
         >
-          <MentionInputSuggestionsItemsSelector
-            suggestionItems={suggestionItems}
-            onSelect={onSelectItem}
-            addValueToInput={addSuggestionValueToInput}
-            closeOnSelect={closeSuggestionOnSelect}
-          />
+          <MentionInputSuggestionsContainer className={inputContainerClassName}>
+            <MentionInputSuggestionsMentionsInput
+              ref={mentionsInputRef}
+              defaultValue={defaultValue}
+              readOnly={readOnly}
+              autoFocus={autoFocus}
+              placeholder={placeholder}
+              mentions={mentions}
+              value={value}
+              onChange={onChangeInputValue}
+              onMentionItemClick={onMentionItemClick}
+              onPressEnter={onPressEnter}
+              commandListNavigatedRef={commandListNavigatedRef}
+              disabled={disabled}
+            />
+            {children && <div className="mt-3">{children}</div>}
+          </MentionInputSuggestionsContainer>
+          <SuggestionsSeperator />
+          <MentionInputSuggestionsList
+            show={showSuggestionList}
+            className={cn(suggestionsContainerClassName)}
+          >
+            <MentionInputSuggestionsItemsSelector
+              suggestionItems={suggestionItems}
+              onSelect={onSelectItem}
+              addValueToInput={addSuggestionValueToInput}
+              closeOnSelect={closeSuggestionOnSelect}
+            />
 
-          <MentionInputSuggestionsEmpty emptyComponent={emptyComponent} />
-        </MentionInputSuggestionsList>
-      </Command>
+            <MentionInputSuggestionsEmpty emptyComponent={emptyComponent} />
+          </MentionInputSuggestionsList>
+        </Command>
+      </MentionInputSuggestionsProvider>
     );
   }
 );
+
+const MentionInputSuggestionsContext = createContext<{
+  value: string;
+}>({
+  value: '',
+});
+
+const MentionInputSuggestionsProvider = ({
+  children,
+  value,
+}: {
+  children: React.ReactNode;
+  value: string;
+}) => {
+  return (
+    <MentionInputSuggestionsContext.Provider value={{ value }}>
+      {children}
+    </MentionInputSuggestionsContext.Provider>
+  );
+};
+
+const stableSelector = (x: { value: string }) => x.value.length > 0;
+export const useMentionInputHasValue = () => {
+  const hasValue = useContextSelector(MentionInputSuggestionsContext, stableSelector);
+  return hasValue;
+};
 
 const SuggestionsSeperator = () => {
   const hasResults = useCommandState((x) => x.filtered.count) > 0;
