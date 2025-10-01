@@ -53,5 +53,5 @@ export const MentionExtension = (suggestions: MentionSuggestionExtension[]) =>
       SuggestionOptions<MentionInputTriggerItem, MentionNodeAttrs>,
       'editor'
     >[],
-    deleteTriggerWithBackspace: false,
+    deleteTriggerWithBackspace: true,
   });

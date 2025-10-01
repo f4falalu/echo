@@ -46,8 +46,10 @@ export const createMentionSuggestionExtension = ({
 
     return {
       onBeforeStart: ({ editor }) => {
-        if (popoverContent) editor.commands.setPopoverByTrigger(trigger, popoverContent);
-        if (pillStyling) editor.commands.setPillStylingByTrigger(trigger, pillStyling);
+        if (popoverContent && editor.commands.setPopoverByTrigger)
+          editor.commands.setPopoverByTrigger(trigger, popoverContent);
+        if (pillStyling && editor.commands.setPillStylingByTrigger)
+          editor.commands.setPillStylingByTrigger(trigger, pillStyling);
       },
       onStart: (props) => {
         const { editor } = props;
