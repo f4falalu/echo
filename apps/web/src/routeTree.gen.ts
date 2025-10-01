@@ -30,6 +30,7 @@ import { Route as EmbedDashboardDashboardIdRouteImport } from './routes/embed/da
 import { Route as EmbedChatChatIdRouteImport } from './routes/embed/chat.$chatId'
 import { Route as AppSettingsRestricted_layoutRouteImport } from './routes/app/_settings/_restricted_layout'
 import { Route as AppSettingsPermissionsRouteImport } from './routes/app/_settings/_permissions'
+import { Route as AppAppTestPaginationRouteImport } from './routes/app/_app/test-pagination'
 import { Route as AppAppNewUserRouteImport } from './routes/app/_app/new-user'
 import { Route as AppAppHomeRouteImport } from './routes/app/_app/home'
 import { Route as AppAppAssetRouteImport } from './routes/app/_app/_asset'
@@ -291,6 +292,11 @@ const AppSettingsRestricted_layoutRoute =
 const AppSettingsPermissionsRoute = AppSettingsPermissionsRouteImport.update({
   id: '/_permissions',
   getParentRoute: () => AppSettingsRoute,
+} as any)
+const AppAppTestPaginationRoute = AppAppTestPaginationRouteImport.update({
+  id: '/test-pagination',
+  path: '/test-pagination',
+  getParentRoute: () => AppAppRoute,
 } as any)
 const AppAppNewUserRoute = AppAppNewUserRouteImport.update({
   id: '/new-user',
@@ -1188,6 +1194,7 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AppIndexRoute
   '/app/home': typeof AppAppHomeRouteWithChildren
   '/app/new-user': typeof AppAppNewUserRouteWithChildren
+  '/app/test-pagination': typeof AppAppTestPaginationRoute
   '/embed/chat/$chatId': typeof EmbedChatChatIdRouteWithChildren
   '/embed/dashboard/$dashboardId': typeof EmbedDashboardDashboardIdRoute
   '/embed/metric/$metricId': typeof EmbedMetricMetricIdRoute
@@ -1320,6 +1327,7 @@ export interface FileRoutesByTo {
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/info/getting-started': typeof InfoGettingStartedRoute
+  '/app/test-pagination': typeof AppAppTestPaginationRoute
   '/embed/dashboard/$dashboardId': typeof EmbedDashboardDashboardIdRoute
   '/embed/metric/$metricId': typeof EmbedMetricMetricIdRoute
   '/embed/report/$reportId': typeof EmbedReportReportIdRoute
@@ -1436,6 +1444,7 @@ export interface FileRoutesById {
   '/app/_app/_asset': typeof AppAppAssetRouteWithChildren
   '/app/_app/home': typeof AppAppHomeRouteWithChildren
   '/app/_app/new-user': typeof AppAppNewUserRouteWithChildren
+  '/app/_app/test-pagination': typeof AppAppTestPaginationRoute
   '/app/_settings/_permissions': typeof AppSettingsPermissionsRouteWithChildren
   '/app/_settings/_restricted_layout': typeof AppSettingsRestricted_layoutRouteWithChildren
   '/embed/chat/$chatId': typeof EmbedChatChatIdRouteWithChildren
@@ -1591,6 +1600,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/app/home'
     | '/app/new-user'
+    | '/app/test-pagination'
     | '/embed/chat/$chatId'
     | '/embed/dashboard/$dashboardId'
     | '/embed/metric/$metricId'
@@ -1723,6 +1733,7 @@ export interface FileRouteTypes {
     | '/auth/logout'
     | '/auth/reset-password'
     | '/info/getting-started'
+    | '/app/test-pagination'
     | '/embed/dashboard/$dashboardId'
     | '/embed/metric/$metricId'
     | '/embed/report/$reportId'
@@ -1838,6 +1849,7 @@ export interface FileRouteTypes {
     | '/app/_app/_asset'
     | '/app/_app/home'
     | '/app/_app/new-user'
+    | '/app/_app/test-pagination'
     | '/app/_settings/_permissions'
     | '/app/_settings/_restricted_layout'
     | '/embed/chat/$chatId'
@@ -2140,6 +2152,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app'
       preLoaderRoute: typeof AppSettingsPermissionsRouteImport
       parentRoute: typeof AppSettingsRoute
+    }
+    '/app/_app/test-pagination': {
+      id: '/app/_app/test-pagination'
+      path: '/test-pagination'
+      fullPath: '/app/test-pagination'
+      preLoaderRoute: typeof AppAppTestPaginationRouteImport
+      parentRoute: typeof AppAppRoute
     }
     '/app/_app/new-user': {
       id: '/app/_app/new-user'
@@ -3610,6 +3629,7 @@ interface AppAppRouteChildren {
   AppAppAssetRoute: typeof AppAppAssetRouteWithChildren
   AppAppHomeRoute: typeof AppAppHomeRouteWithChildren
   AppAppNewUserRoute: typeof AppAppNewUserRouteWithChildren
+  AppAppTestPaginationRoute: typeof AppAppTestPaginationRoute
   AppAppDatasetsDatasetIdRoute: typeof AppAppDatasetsDatasetIdRouteWithChildren
   AppAppChatsIndexRoute: typeof AppAppChatsIndexRoute
   AppAppCollectionsIndexRoute: typeof AppAppCollectionsIndexRoute
@@ -3624,6 +3644,7 @@ const AppAppRouteChildren: AppAppRouteChildren = {
   AppAppAssetRoute: AppAppAssetRouteWithChildren,
   AppAppHomeRoute: AppAppHomeRouteWithChildren,
   AppAppNewUserRoute: AppAppNewUserRouteWithChildren,
+  AppAppTestPaginationRoute: AppAppTestPaginationRoute,
   AppAppDatasetsDatasetIdRoute: AppAppDatasetsDatasetIdRouteWithChildren,
   AppAppChatsIndexRoute: AppAppChatsIndexRoute,
   AppAppCollectionsIndexRoute: AppAppCollectionsIndexRoute,

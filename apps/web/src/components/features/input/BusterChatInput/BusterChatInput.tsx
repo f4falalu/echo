@@ -23,8 +23,8 @@ export const BusterChatInput: React.FC<{
     }
   });
 
-  const onSubmit: BusterChatInputProps['onSubmit'] = useMemoizedFn((d) => {
-    onStartNewChat({ prompt: d.transformedValue, mode: d.mode });
+  const onSubmit: BusterChatInputProps['onSubmit'] = useMemoizedFn(({ transformedValue, mode }) => {
+    return onStartNewChat({ prompt: transformedValue, mode });
   });
 
   return (
