@@ -57,7 +57,6 @@ export const createMentionSuggestionExtension = ({
           MentionList as React.ComponentType<MentionListProps<string>>,
           { props: { ...props, trigger, className: popoverClassName }, editor: props.editor }
         );
-        console.log(popoverClassName);
 
         if (!props.clientRect) {
           console.warn('No client rect for mention suggestion');

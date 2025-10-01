@@ -58,20 +58,18 @@ const PopoverWrapper = <T extends string>({
     const PopoverContent = editor.commands.getPopoverByTrigger(trigger);
     if (!PopoverContent) return children;
 
-    return children;
-
-    // return (
-    //   <Popover
-    //     trigger="click"
-    //     align="start"
-    //     side="bottom"
-    //     sideOffset={8}
-    //     content={<PopoverContent value={value} />}
-    //     className="p-0"
-    //   >
-    //     {children}
-    //   </Popover>
-    // );
+    return (
+      <Popover
+        trigger="hover"
+        align="start"
+        side="bottom"
+        sideOffset={8}
+        content={<PopoverContent value={value} />}
+        className="p-0"
+      >
+        {children}
+      </Popover>
+    );
   } catch (error) {
     console.error(error);
     return children;

@@ -43,7 +43,6 @@ export const useCreateShortcutsMentionsSuggestions = (
             {
               type: 'group',
               items: shortcuts.map((s) => createShortcutForMention(s, editor)),
-
               className: 'max-h-[300px] overflow-y-auto',
             },
             { type: 'separator' as const },
