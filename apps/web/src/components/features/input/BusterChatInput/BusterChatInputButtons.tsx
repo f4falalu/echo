@@ -1,3 +1,4 @@
+import type { MessageAnalysisMode } from '@buster/server-shared/chats';
 import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/buttons';
 import { ArrowUp, Magnifier, Sparkle2 } from '@/components/ui/icons';
@@ -16,15 +17,13 @@ import { Text } from '@/components/ui/typography';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { cn } from '@/lib/utils';
 
-export type BusterChatInputMode = 'auto' | 'research' | 'deep-research';
-
 type BusterChatInputButtons = {
   onSubmit: MentionOnChangeFn;
   onStop: () => void;
   submitting: boolean;
   disabled: boolean;
-  mode: BusterChatInputMode;
-  onModeChange: (mode: BusterChatInputMode) => void;
+  mode: MessageAnalysisMode;
+  onModeChange: (mode: MessageAnalysisMode) => void;
   onDictate?: (transcript: string) => void;
   onDictateListeningChange?: (listening: boolean) => void;
 };
@@ -110,7 +109,7 @@ export const BusterChatInputButtons = React.memo(
           )}
           <AppTooltip
             delayDuration={disableSubmit ? 500 : 0}
-            title={disableSubmit ? 'Please type something...' : 'Submit'}
+            title={disableSubmit ? 'Please type something...' : submitting ? null : 'Submit'}
           >
             <Button
               rounding={'large'}
@@ -167,6 +166,7 @@ const ModePopoverContent = ({
       side="bottom"
       sideOffset={10}
       className="p-0"
+      onOpenAutoFocus={(e) => e.preventDefault()}
       content={
         <div className={cn('flex flex-col space-y-3 max-w-[210px] py-3')}>
           <div className={cn('flex flex-col space-y-1', classes)}>
@@ -191,7 +191,7 @@ const ModePopoverContent = ({
   );
 };
 
-const modesOptions: AppSegmentedProps<BusterChatInputMode>['options'] = [
+const modesOptions: AppSegmentedProps<MessageAnalysisMode>['options'] = [
   {
     icon: (
       <ModePopoverContent
@@ -218,7 +218,7 @@ const modesOptions: AppSegmentedProps<BusterChatInputMode>['options'] = [
         <Magnifier />
       </ModePopoverContent>
     ),
-    value: 'research' as const,
+    value: 'standard' as const,
   },
   {
     icon: (
@@ -232,6 +232,6 @@ const modesOptions: AppSegmentedProps<BusterChatInputMode>['options'] = [
         <Atom />
       </ModePopoverContent>
     ),
-    value: 'deep-research' as const,
+    value: 'investigation' as const,
   },
 ];

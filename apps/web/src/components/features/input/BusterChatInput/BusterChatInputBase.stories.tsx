@@ -53,7 +53,7 @@ type Story = StoryObj<typeof BusterChatInputBase>;
 const mockShortcuts: ListShortcutsResponse['shortcuts'] = [
   {
     id: '123e4567-e89b-12d3-a456-426614174000',
-    name: 'Weekly Sales Report',
+    name: 'weekly-sales-report',
     instructions: 'Generate a comprehensive weekly sales report with key metrics and trends',
     createdBy: '123e4567-e89b-12d3-a456-426614174001',
     updatedBy: null,
@@ -65,7 +65,7 @@ const mockShortcuts: ListShortcutsResponse['shortcuts'] = [
   },
   {
     id: '123e4567-e89b-12d3-a456-426614174003',
-    name: 'Customer Analysis',
+    name: 'customer-analysis',
     instructions: 'Analyze customer behavior patterns and provide insights',
     createdBy: '123e4567-e89b-12d3-a456-426614174001',
     updatedBy: null,
@@ -77,8 +77,32 @@ const mockShortcuts: ListShortcutsResponse['shortcuts'] = [
   },
   {
     id: '123e4567-e89b-12d3-a456-426614174004',
-    name: 'Revenue Forecast',
+    name: 'revenue-forecast',
     instructions: 'Create a revenue forecast for the next quarter based on current trends',
+    createdBy: '123e4567-e89b-12d3-a456-426614174001',
+    updatedBy: null,
+    organizationId: '123e4567-e89b-12d3-a456-426614174002',
+    shareWithWorkspace: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    deletedAt: null,
+  },
+  {
+    id: '123e4567-e89b-12d3-a456-426614174005',
+    name: 'customer-support-wow',
+    instructions: 'Provide customer support for the next quarter based on current trends',
+    createdBy: '123e4567-e89b-12d3-a456-426614174001',
+    updatedBy: null,
+    organizationId: '123e4567-e89b-12d3-a456-426614174002',
+    shareWithWorkspace: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    deletedAt: null,
+  },
+  {
+    id: '123e4567-e89b-12d3-a456-426614174006',
+    name: 'who-is-the-best-player-in-the-nba',
+    instructions: 'Provide customer support for the next quarter based on current trends',
     createdBy: '123e4567-e89b-12d3-a456-426614174001',
     updatedBy: null,
     organizationId: '123e4567-e89b-12d3-a456-426614174002',
@@ -180,55 +204,6 @@ export const NoShortcuts: Story = {
     docs: {
       description: {
         story: 'Chat input with only suggested prompts, no shortcuts available.',
-      },
-    },
-  },
-};
-
-export const CustomPrompts: Story = {
-  args: {
-    defaultValue: '',
-    onSubmit: fn(),
-    onStop: fn(),
-    submitting: false,
-    disabled: false,
-    shortcuts: mockShortcuts,
-    suggestedPrompts: {
-      report: [
-        'Create a detailed financial summary for stakeholders',
-        'Generate monthly performance metrics report',
-        'Analyze year-over-year growth trends',
-        'Compile customer satisfaction survey results',
-        'Prepare executive dashboard summary',
-      ],
-      dashboard: [
-        'Build an interactive sales performance dashboard',
-        'Create a real-time inventory monitoring dashboard',
-        'Design customer analytics dashboard',
-        'Set up operational KPI dashboard',
-        'Develop marketing campaign performance dashboard',
-      ],
-      visualization: [
-        'Show revenue trends by product category',
-        'Create geographic sales distribution map',
-        'Visualize customer journey funnel',
-        'Display seasonal demand patterns',
-        'Chart employee productivity metrics',
-      ],
-      help: [
-        'What data visualization options are available?',
-        'How do I create custom metrics?',
-        'What are the best practices for dashboard design?',
-        'Can you explain predictive analytics features?',
-        'How do I share reports with my team?',
-      ],
-    },
-  },
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Chat input with custom suggested prompts - demonstrates how the component handles larger sets of suggestions (ensures 4 unique samples are selected).',
       },
     },
   },

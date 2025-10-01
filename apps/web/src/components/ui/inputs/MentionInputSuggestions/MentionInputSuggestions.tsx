@@ -54,7 +54,7 @@ export const MentionInputSuggestions = forwardRef<
     ref
   ) => {
     const [hasClickedSelect, setHasClickedSelect] = useState(false);
-    const [hasInteracted, setHasInteracted] = useState(behavior === 'default');
+    const [isInteracting, setIsInteracting] = useState(behavior === 'default');
     const [value, setValue] = useState(valueProp ?? defaultValue);
 
     const commandListNavigatedRef = useRef(false);
@@ -64,7 +64,13 @@ export const MentionInputSuggestions = forwardRef<
     const showSuggestionList =
       behavior === 'default'
         ? !hasClickedSelect && suggestionItems.length > 0
-        : hasInteracted && suggestionItems.length > 0;
+        : isInteracting && suggestionItems.length > 0;
+
+    // biome-ignore lint/style/noNonNullAssertion: we know the ref is not null
+    const getValue = mentionsInputRef.current?.getValue!;
+    // biome-ignore lint/style/noNonNullAssertion: we know the ref is not null
+    const addMentionToInput = mentionsInputRef.current?.addMentionToInput!;
+    const mounted = useMounted();
 
     const onChangeInputValue: MentionInputProps['onChange'] = useCallback(
       (d) => {
@@ -73,9 +79,9 @@ export const MentionInputSuggestions = forwardRef<
         onChange?.(d);
         commandListNavigatedRef.current = false;
         setHasClickedSelect(false);
-        setHasInteracted(true);
+        setIsInteracting(true);
       },
-      [onChange, setHasClickedSelect, setHasInteracted]
+      [onChange, setHasClickedSelect, setIsInteracting]
     );
 
     //Exported: this is used to change the value of the input from outside the component
@@ -113,16 +119,15 @@ export const MentionInputSuggestions = forwardRef<
           setValue(stringValue);
         }
         onClick?.();
-        if (closeSuggestionOnSelect && params.closeOnSelect !== false) setHasClickedSelect(true);
         onSuggestionItemClick?.(params);
+
+        if (closeSuggestionOnSelect && params.closeOnSelect !== false) setHasClickedSelect(true);
       }
     );
 
-    // biome-ignore lint/style/noNonNullAssertion: we know the ref is not null
-    const getValue = mentionsInputRef.current?.getValue!;
-    // biome-ignore lint/style/noNonNullAssertion: we know the ref is not null
-    const addMentionToInput = mentionsInputRef.current?.addMentionToInput!;
-    const mounted = useMounted();
+    const onBlur = useMemoizedFn(() => {
+      setIsInteracting(false);
+    });
 
     // Track arrow key navigation in the command list
     useEffect(() => {
@@ -190,7 +195,7 @@ export const MentionInputSuggestions = forwardRef<
           shouldFilter={shouldFilter}
           filter={filter || customFilter}
           onClick={() => {
-            setHasInteracted(true);
+            setIsInteracting(true);
           }}
         >
           <MentionInputSuggestionsContainer className={inputContainerClassName}>
@@ -208,13 +213,14 @@ export const MentionInputSuggestions = forwardRef<
               commandListNavigatedRef={commandListNavigatedRef}
               disabled={disabled}
               className={inputClassName}
+              onBlur={onBlur}
             />
             {children && <div className="mt-4.5">{children}</div>}
           </MentionInputSuggestionsContainer>
           <SuggestionsSeperator />
           <MentionInputSuggestionsList
             show={showSuggestionList}
-            className={cn('pt-1.5 overflow-y-auto max-h-[35vh]', suggestionsContainerClassName)}
+            className={cn('px-3 overflow-y-auto max-h-[35vh]', suggestionsContainerClassName)}
           >
             <MentionInputSuggestionsItemsSelector
               suggestionItems={suggestionItems}

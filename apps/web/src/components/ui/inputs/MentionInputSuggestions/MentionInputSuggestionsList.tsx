@@ -20,7 +20,7 @@ export const MentionInputSuggestionsList = ({
   if (!show) return null;
 
   return (
-    <Command.List className={cn('px-3', hasResults && 'pb-1.5', className)} style={style}>
+    <Command.List className={cn(hasResults && 'py-1.5', className)} style={style}>
       {children}
     </Command.List>
   );

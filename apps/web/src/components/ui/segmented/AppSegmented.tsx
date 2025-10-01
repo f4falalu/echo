@@ -72,7 +72,7 @@ const segmentedVariants = cva('relative inline-flex items-center rounded', {
 });
 
 const triggerVariants = cva(
-  'relative z-10 flex items-center h-6 justify-center gap-x-1.5 gap-y-1 rounded transition-colors ',
+  'relative z-10 flex items-center justify-center gap-x-1.5 gap-y-1 rounded transition-colors ',
   {
     variants: {
       size: {

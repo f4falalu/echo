@@ -1,3 +1,4 @@
+import type { MessageAnalysisMode } from '@buster/server-shared/chats';
 import type { ListShortcutsResponse } from '@buster/server-shared/shortcuts';
 import type { GetSuggestedPromptsResponse } from '@buster/server-shared/user';
 import React, { useMemo, useRef, useState } from 'react';
@@ -10,14 +11,16 @@ import type {
   MentionSuggestionExtension,
 } from '@/components/ui/inputs/MentionInput';
 import type {
+  MentionInputSuggestionsOnSelectParams,
   MentionInputSuggestionsProps,
   MentionInputSuggestionsRef,
 } from '@/components/ui/inputs/MentionInputSuggestions';
 import { MentionInputSuggestions } from '@/components/ui/inputs/MentionInputSuggestions';
+import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useMount } from '@/hooks/useMount';
 import { NewShortcutModal } from '../../modals/NewShortcutModal';
-import { BusterChatInputButtons, type BusterChatInputMode } from './BusterChatInputButtons';
+import { BusterChatInputButtons } from './BusterChatInputButtons';
 import { useUniqueSuggestions } from './useUniqueSuggestions';
 
 export type BusterChatInputProps = {
@@ -26,7 +29,7 @@ export type BusterChatInputProps = {
     transformedValue: string;
     arrayValue: MentionArrayItem[];
     editorText: string;
-    mode: BusterChatInputMode;
+    mode: MessageAnalysisMode;
   }) => void;
   onStop: () => void;
   submitting: boolean;
@@ -50,7 +53,8 @@ export const BusterChatInputBase: React.FC<BusterChatInputProps> = React.memo(
     const mentionInputSuggestionsRef = useRef<MentionInputSuggestionsRef>(null);
     const uniqueSuggestions = useUniqueSuggestions(suggestedPrompts);
     const [openCreateShortcutModal, setOpenCreateShortcutModal] = useState(false);
-    const [mode, setMode] = useState<BusterChatInputMode>('auto');
+    const [mode, setMode] = useState<MessageAnalysisMode>('auto');
+    const { openInfoMessage } = useBusterNotifications();
 
     const shortcutsSuggestions = useShortcutsSuggestions(
       shortcuts,
@@ -83,24 +87,34 @@ export const BusterChatInputBase: React.FC<BusterChatInputProps> = React.memo(
       return [shortcutsMentionsSuggestions];
     }, [shortcutsMentionsSuggestions]);
 
-    const onSubmitPreflight = (valueProp?: ReturnType<MentionInputSuggestionsRef['getValue']>) => {
-      if (submitting) {
-        console.warn('Input is submitting');
-        return;
-      }
+    const onSubmitPreflight = useMemoizedFn(
+      (valueProp?: ReturnType<MentionInputSuggestionsRef['getValue']>) => {
+        if (submitting) {
+          console.warn('Input is submitting');
+          return;
+        }
 
-      const value = valueProp || mentionInputSuggestionsRef.current?.getValue?.();
-      if (!value) {
-        console.warn('Value is not defined');
-        return;
-      }
+        const value = valueProp || mentionInputSuggestionsRef.current?.getValue?.();
+        if (!value) {
+          console.warn('Value is not defined');
+          return;
+        }
 
-      if (disabled || !value) {
-        console.warn('Input is disabled or value is not defined');
-        return;
+        if (disabled || !value || !value.transformedValue) {
+          console.warn('Input is disabled or value is not defined');
+          openInfoMessage('Please enter a question or type ‘/’ for shortcuts...');
+          return;
+        }
+
+        onSubmit({ ...value, mode });
       }
-      onSubmit({ ...value, mode });
-    };
+    );
+
+    const onSuggestionItemClick = useMemoizedFn((d: MentionInputSuggestionsOnSelectParams) => {
+      if (d.addValueToInput) {
+        onSubmitPreflight();
+      }
+    });
 
     const onCloseCreateShortcutModal = useMemoizedFn(() => {
       setOpenCreateShortcutModal(false);
@@ -121,8 +135,10 @@ export const BusterChatInputBase: React.FC<BusterChatInputProps> = React.memo(
         <MentionInputSuggestions
           defaultValue={defaultValue}
           onPressEnter={onSubmitPreflight}
+          onSuggestionItemClick={onSuggestionItemClick}
           mentions={mentions}
           suggestionItems={suggestionItems}
+          disabled={disabled}
           placeholder="Ask a question or type ‘/’ for shortcuts..."
           ref={mentionInputSuggestionsRef}
           inputContainerClassName="px-5 pt-4"
