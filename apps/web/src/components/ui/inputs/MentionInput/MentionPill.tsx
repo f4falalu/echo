@@ -25,19 +25,19 @@ export const MentionPill = <T extends string>({
       : pillStyling?.style;
 
   return (
-    <NodeViewWrapper as={node.attrs.as ?? 'span'}>
+    <NodeViewWrapper
+      as={node.attrs.as ?? 'span'}
+      className={cn(
+        'text-sm px-1.5 py-0.5',
+        'bg-item-select hover:bg-item-hover-active hover:shadow transition-all border rounded w-fit',
+        'cursor-pointer select-none',
+        pillClassName
+      )}
+      style={pillStyle}
+      contentEditable={false}
+    >
       <PopoverWrapper trigger={trigger} editor={editor} value={value}>
-        <span
-          className={cn(
-            'text-sm px-1.5 py-0.5',
-            'bg-item-select hover:bg-item-hover-active hover:shadow transition-all border rounded w-fit',
-            'cursor-pointer select-none',
-            pillClassName
-          )}
-          style={pillStyle}
-        >
-          {pillLabel || label}
-        </span>
+        {pillLabel || label}
       </PopoverWrapper>
     </NodeViewWrapper>
   );
@@ -60,7 +60,7 @@ const PopoverWrapper = <T extends string>({
 
     return (
       <Popover
-        trigger="click"
+        trigger="hover"
         align="start"
         side="bottom"
         sideOffset={8}

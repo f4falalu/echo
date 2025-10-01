@@ -22,12 +22,14 @@ export const MentionInputSuggestionsMentionsInput = forwardRef<
   MentionInputSuggestionsMentionsInputProps
 >(({ mentions, ...props }, ref) => {
   const { value } = props;
+
   return (
     <React.Fragment>
       <MentionInput ref={ref} mentions={mentions} {...props} />
       <Command.Input
         value={value}
         autoFocus={false}
+        disabled={props.disabled}
         className="sr-only hidden h-0 border-0 p-0 pointer-events-none w-full"
         // className="absolute -top-1 left-0 w-full h-full border border-red-500"
         aria-hidden="true"

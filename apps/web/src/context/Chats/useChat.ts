@@ -1,4 +1,4 @@
-import type { ChatCreateRequest } from '@buster/server-shared/chats';
+import type { MessageAnalysisMode } from '@buster/server-shared/chats';
 import { useNavigate } from '@tanstack/react-router';
 import { create } from 'mutative';
 import type { FileType } from '@/api/asset_interfaces/chat';
@@ -14,16 +14,7 @@ type StartChatParams = {
   dashboardId?: string; //this is to start a NEW chat from a dashboard
   messageId?: string; //this is used to replace a message in the chat
   chatId?: string; //this is used to follow up a chat
-  mode?: 'auto' | 'research' | 'deep-research'; //ui modes
-};
-
-const chatModeToServerRecord: Record<
-  NonNullable<StartChatParams['mode']>,
-  NonNullable<ChatCreateRequest['message_analysis_mode']>
-> = {
-  auto: 'auto',
-  research: 'standard',
-  'deep-research': 'investigation',
+  mode: MessageAnalysisMode; //ui modes
 };
 
 export const useChat = () => {
@@ -40,7 +31,7 @@ export const useChat = () => {
     metricId,
     dashboardId,
     messageId,
-    mode = 'auto',
+    mode,
   }: StartChatParams) => {
     const res = await startNewChat({
       prompt,
@@ -48,7 +39,7 @@ export const useChat = () => {
       metric_id: metricId,
       dashboard_id: dashboardId,
       message_id: messageId,
-      message_analysis_mode: chatModeToServerRecord[mode] || 'auto',
+      message_analysis_mode: mode,
     });
 
     const { message_ids, id } = res;
@@ -63,11 +54,8 @@ export const useChat = () => {
   };
 
   const onStartNewChat = useMemoizedFn(
-    async ({ prompt, mode }: { prompt: string; mode: StartChatParams['mode'] }) => {
-      return startChat({
-        prompt,
-        mode,
-      });
+    async (d: { prompt: string; mode: StartChatParams['mode'] }) => {
+      return startChat(d);
     }
   );
 
@@ -76,24 +64,32 @@ export const useChat = () => {
       prompt,
       fileId,
       fileType,
+      mode = 'auto',
     }: {
       prompt: string;
       fileId: string;
       fileType: FileType;
+      mode?: StartChatParams['mode'];
     }) => {
       return startChat({
         prompt,
         metricId: fileType === 'metric_file' ? fileId : undefined,
         dashboardId: fileType === 'dashboard_file' ? fileId : undefined,
+        mode,
       });
     }
   );
 
   const onFollowUpChat = useMemoizedFn(
-    async ({ prompt, chatId }: Pick<NonNullable<StartChatParams>, 'prompt' | 'chatId'>) => {
+    async ({
+      prompt,
+      chatId,
+      mode = 'auto',
+    }: Pick<NonNullable<StartChatParams>, 'prompt' | 'chatId' | 'mode'>) => {
       return startChat({
         prompt,
         chatId,
+        mode,
       });
     }
   );
@@ -107,10 +103,12 @@ export const useChat = () => {
       prompt,
       messageId,
       chatId,
+      mode = 'auto',
     }: {
       prompt: string;
       messageId: string;
       chatId: string;
+      mode?: StartChatParams['mode'];
     }) => {
       const currentChat = getChatMemoized(chatId);
       const currentMessage = getChatMessageMemoized(messageId);
@@ -141,6 +139,7 @@ export const useChat = () => {
       return startChat({
         prompt,
         messageId,
+        mode,
       });
     }
   );
