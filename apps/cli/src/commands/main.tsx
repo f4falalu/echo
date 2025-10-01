@@ -228,7 +228,7 @@ export function Main() {
     return responses;
   };
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback(async () => {
     const trimmed = input.trim();
     if (!trimmed) {
       setInput('');
@@ -242,10 +242,28 @@ export function Main() {
       content: trimmed,
     };
 
-    const mockResponses = getMockResponse(trimmed);
-
-    setMessages((prev) => [...prev, userMessage, ...mockResponses]);
+    setMessages((prev) => [...prev, userMessage]);
     setInput('');
+
+    // Import and run the docs agent
+    const { runDocsAgent } = await import('../services/docs-agent-handler');
+
+    await runDocsAgent({
+      userMessage: trimmed,
+      onMessage: (agentMessage) => {
+        messageCounter.current += 1;
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: messageCounter.current,
+            type: agentMessage.type,
+            content: agentMessage.content,
+            messageType: agentMessage.messageType,
+            metadata: agentMessage.metadata,
+          },
+        ]);
+      },
+    });
   }, [input]);
 
   const handleCommandExecute = useCallback(

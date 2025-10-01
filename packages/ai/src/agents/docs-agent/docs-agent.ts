@@ -1,23 +1,13 @@
 import type { Sandbox } from '@buster/sandbox';
+import type { LanguageModelV2 } from '@ai-sdk/provider';
 import { type ModelMessage, hasToolCall, stepCountIs, streamText } from 'ai';
 import { wrapTraced } from 'braintrust';
 import z from 'zod';
 import { DEFAULT_ANTHROPIC_OPTIONS } from '../../llm/providers/gateway';
 import { Sonnet4 } from '../../llm/sonnet-4';
 import {
-  createBashTool,
-  createCheckOffTodoListTool,
-  createCreateFilesTool,
-  createDeleteFilesTool,
-  createEditFilesTool,
-  createGrepSearchTool,
+  bashExecute,
   createIdleTool,
-  createListFilesTool,
-  createReadFilesTool,
-  createSequentialThinkingTool,
-  createUpdateClarificationsFileTool,
-  createWebSearchTool,
-  executeSqlDocsAgent,
 } from '../../tools';
 import { type AgentContext, repairToolCall } from '../../utils/tool-call-repair';
 import { getDocsAgentSystemPrompt } from './get-docs-agent-system-prompt';
@@ -41,6 +31,7 @@ const DocsAgentOptionsSchema = z.object({
       { message: 'Invalid Sandbox instance' }
     )
     .optional(),
+  model: z.custom<LanguageModelV2>().optional().describe('Custom language model to use (defaults to Sonnet4)'),
 });
 
 const DocsStreamOptionsSchema = z.object({
@@ -62,73 +53,10 @@ export function createDocsAgent(docsAgentOptions: DocsAgentOptions) {
 
   const idleTool = createIdleTool();
 
-  // Create tool context with messageId and sandbox if available
-  // Create file tools with context (only if sandbox is available)
-  const listFiles = docsAgentOptions.sandbox
-    ? createListFilesTool({
-        messageId: docsAgentOptions.messageId || 'default',
-        sandbox: docsAgentOptions.sandbox,
-      })
-    : undefined;
-  const readFiles = docsAgentOptions.sandbox
-    ? createReadFilesTool({
-        messageId: docsAgentOptions.messageId || 'default',
-        sandbox: docsAgentOptions.sandbox,
-      })
-    : undefined;
-  const createFiles = docsAgentOptions.sandbox
-    ? createCreateFilesTool({
-        messageId: docsAgentOptions.messageId || 'default',
-        sandbox: docsAgentOptions.sandbox,
-      })
-    : undefined;
-  const editFiles = docsAgentOptions.sandbox
-    ? createEditFilesTool({
-        messageId: docsAgentOptions.messageId || 'default',
-        sandbox: docsAgentOptions.sandbox,
-      })
-    : undefined;
-  const deleteFiles = docsAgentOptions.sandbox
-    ? createDeleteFilesTool({
-        messageId: docsAgentOptions.messageId || 'default',
-        sandbox: docsAgentOptions.sandbox,
-      })
-    : undefined;
-  const bashExecute = docsAgentOptions.sandbox
-    ? createBashTool({
-        messageId: docsAgentOptions.messageId || 'default',
-        sandbox: docsAgentOptions.sandbox,
-      })
-    : undefined;
-  const grepSearch = docsAgentOptions.sandbox
-    ? createGrepSearchTool({
-        messageId: docsAgentOptions.messageId || 'default',
-        sandbox: docsAgentOptions.sandbox,
-      })
-    : undefined;
-
-  const webSearch = createWebSearchTool();
-
   // Create planning tools with simple context
-  const checkOffTodoList = createCheckOffTodoListTool({
-    todoList: '',
-    updateTodoList: () => {},
-  });
-
-  const updateClarificationsFile = createUpdateClarificationsFileTool({
-    clarifications: [],
-    updateClarifications: () => {},
-  });
-
   async function stream({ messages }: DocsStreamOptions) {
     // Collect available tools dynamically based on what's enabled
     const availableTools: string[] = ['sequentialThinking'];
-    if (grepSearch) availableTools.push('grepSearch');
-    if (readFiles) availableTools.push('readFiles');
-    if (editFiles) availableTools.push('editFiles');
-    if (createFiles) availableTools.push('createFiles');
-    if (deleteFiles) availableTools.push('deleteFiles');
-    if (listFiles) availableTools.push('listFiles');
     availableTools.push('executeSql');
     if (bashExecute) availableTools.push('bashExecute');
     availableTools.push('updateClarificationsFile', 'checkOffTodoList', 'idleTool', 'webSearch');
@@ -141,24 +69,10 @@ export function createDocsAgent(docsAgentOptions: DocsAgentOptions) {
     return wrapTraced(
       () =>
         streamText({
-          model: Sonnet4,
+          model: docsAgentOptions.model || Sonnet4,
           providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
           tools: {
-            sequentialThinking: createSequentialThinkingTool({
-              messageId: docsAgentOptions.messageId,
-            }),
-            ...(grepSearch && { grepSearch }),
-            ...(readFiles && { readFiles }),
-            ...(editFiles && { editFiles }),
-            ...(createFiles && { createFiles }),
-            ...(deleteFiles && { deleteFiles }),
-            ...(listFiles && { listFiles }),
-            executeSql: executeSqlDocsAgent,
-            ...(bashExecute && { bashExecute }),
-            updateClarificationsFile,
-            checkOffTodoList,
             idleTool,
-            webSearch,
           },
           messages: [systemMessage, ...messages],
           stopWhen: STOP_CONDITIONS,
