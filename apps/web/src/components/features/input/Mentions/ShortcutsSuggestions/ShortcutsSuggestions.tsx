@@ -73,7 +73,7 @@ export const useCreateShortcutsMentionsSuggestions = (
         popoverContent: ShortcutPopoverContent,
         popoverClassName: '',
         onChangeTransform: (v) => {
-          const foundShortcut = shortcuts.find((shortcut) => shortcut.name === v.label);
+          const foundShortcut = shortcuts.find((shortcut) => shortcut.id === v.value);
           if (foundShortcut) {
             return foundShortcut.instructions;
           }
@@ -91,9 +91,9 @@ export const useCreateShortcutForMention = () => {
     shortcut: Shortcut,
     _editor?: Editor
   ): MentionTriggerItem<string> => {
-    console.log('shortcut', shortcut);
     return {
       value: shortcut.id,
+      labelMatches: [shortcut.name, shortcut.instructions],
       label: (
         <div className="flex flex-col space-y-1.5 py-1.5">
           <Text>{`${SHORTCUT_MENTION_TRIGGER}${shortcut.name}`}</Text>

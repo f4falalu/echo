@@ -427,7 +427,7 @@ export const DynamicItems: Story = {
           placeholder="Type ! to see dynamic mentions..."
           mentions={[dynamicSuggestions]}
           onChange={(value) => {
-            console.log('Input changed:', value);
+            console.info('Input changed:', value);
           }}
         />
 

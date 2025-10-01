@@ -100,6 +100,7 @@ export const BusterChatInputBase: React.FC<BusterChatInputProps> = React.memo(
         console.warn('Input is disabled or value is not defined');
         return;
       }
+
       onSubmit({ ...value, mode });
     };
 
