@@ -166,6 +166,7 @@ const ModePopoverContent = ({
       side="bottom"
       sideOffset={10}
       className="p-0"
+      onOpenAutoFocus={(e) => e.preventDefault()}
       content={
         <div className={cn('flex flex-col space-y-3 max-w-[210px] py-3')}>
           <div className={cn('flex flex-col space-y-1', classes)}>

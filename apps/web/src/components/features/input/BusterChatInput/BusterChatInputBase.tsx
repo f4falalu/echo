@@ -104,6 +104,10 @@ export const BusterChatInputBase: React.FC<BusterChatInputProps> = React.memo(
       onSubmit({ ...value, mode });
     };
 
+    const onSuggestionItemClick = useMemoizedFn(() => {
+      onSubmitPreflight();
+    });
+
     const onCloseCreateShortcutModal = useMemoizedFn(() => {
       setOpenCreateShortcutModal(false);
     });
@@ -123,6 +127,7 @@ export const BusterChatInputBase: React.FC<BusterChatInputProps> = React.memo(
         <MentionInputSuggestions
           defaultValue={defaultValue}
           onPressEnter={onSubmitPreflight}
+          onSuggestionItemClick={onSuggestionItemClick}
           mentions={mentions}
           suggestionItems={suggestionItems}
           disabled={disabled}

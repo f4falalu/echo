@@ -66,6 +66,12 @@ export const MentionInputSuggestions = forwardRef<
         ? !hasClickedSelect && suggestionItems.length > 0
         : isInteracting && suggestionItems.length > 0;
 
+    // biome-ignore lint/style/noNonNullAssertion: we know the ref is not null
+    const getValue = mentionsInputRef.current?.getValue!;
+    // biome-ignore lint/style/noNonNullAssertion: we know the ref is not null
+    const addMentionToInput = mentionsInputRef.current?.addMentionToInput!;
+    const mounted = useMounted();
+
     const onChangeInputValue: MentionInputProps['onChange'] = useCallback(
       (d) => {
         const { transformedValue } = d;
@@ -113,16 +119,11 @@ export const MentionInputSuggestions = forwardRef<
           setValue(stringValue);
         }
         onClick?.();
-        if (closeSuggestionOnSelect && params.closeOnSelect !== false) setHasClickedSelect(true);
         onSuggestionItemClick?.(params);
+
+        if (closeSuggestionOnSelect && params.closeOnSelect !== false) setHasClickedSelect(true);
       }
     );
-
-    // biome-ignore lint/style/noNonNullAssertion: we know the ref is not null
-    const getValue = mentionsInputRef.current?.getValue!;
-    // biome-ignore lint/style/noNonNullAssertion: we know the ref is not null
-    const addMentionToInput = mentionsInputRef.current?.addMentionToInput!;
-    const mounted = useMounted();
 
     const onBlur = useMemoizedFn(() => {
       setIsInteracting(false);
@@ -193,6 +194,9 @@ export const MentionInputSuggestions = forwardRef<
           )}
           shouldFilter={shouldFilter}
           filter={filter || customFilter}
+          onClick={() => {
+            setIsInteracting(true);
+          }}
         >
           <MentionInputSuggestionsContainer className={inputContainerClassName}>
             <MentionInputSuggestionsMentionsInput
