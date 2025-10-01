@@ -14,7 +14,7 @@ export { executeSqlDocsAgent } from './database-tools/super-execute-sql/super-ex
 // File tools - factory functions
 export { createListFilesTool } from './file-tools/list-files-tool/list-files-tool';
 export { createReadFilesTool } from './file-tools/read-files-tool/read-files-tool';
-export { createCreateFilesTool } from './file-tools/create-files-tool/create-files-tool';
+export { createWriteFileTool } from './file-tools/write-file-tool/write-file-tool';
 export { createEditFilesTool } from './file-tools/edit-files-tool/edit-files-tool';
 export { createDeleteFilesTool } from './file-tools/delete-files-tool/delete-files-tool';
 export { createBashTool } from './file-tools/bash-tool';

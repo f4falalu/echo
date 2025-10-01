@@ -6,6 +6,7 @@ import z from 'zod';
 import { DEFAULT_ANTHROPIC_OPTIONS } from '../../llm/providers/gateway';
 import { Sonnet4 } from '../../llm/sonnet-4';
 import { bashExecute, createIdleTool } from '../../tools';
+import { createWriteFileTool } from '../../tools/file-tools';
 import { type AgentContext, repairToolCall } from '../../utils/tool-call-repair';
 import { getDocsAgentSystemPrompt } from './get-docs-agent-system-prompt';
 
@@ -52,6 +53,10 @@ export function createDocsAgent(docsAgentOptions: DocsAgentOptions) {
   } as ModelMessage;
 
   const idleTool = createIdleTool();
+  const writeFileTool = createWriteFileTool({
+    messageId: docsAgentOptions.messageId,
+    projectDirectory: docsAgentOptions.folder_structure,
+  });
 
   // Create planning tools with simple context
   async function stream({ messages }: DocsStreamOptions) {
@@ -73,6 +78,7 @@ export function createDocsAgent(docsAgentOptions: DocsAgentOptions) {
           providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
           tools: {
             idleTool,
+            writeFileTool,
           },
           messages: [systemMessage, ...messages],
           stopWhen: STOP_CONDITIONS,
