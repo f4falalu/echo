@@ -13,7 +13,8 @@ export function MentionListItem<T = string>({
   disabled,
   onSelectItem,
   secondaryContent,
-}: Omit<MentionTriggerItemExtended<T>, 'setSelectedItem'>) {
+  setSelectedItem,
+}: MentionTriggerItemExtended<T>) {
   const containerRef = useRef<HTMLDivElement>(null);
   const listRef = useMentionListRef();
 
@@ -39,9 +40,9 @@ export function MentionListItem<T = string>({
         'group/mention-list-item',
         'flex items-center justify-between gap-x-1.5 overflow-hidden',
         `cursor-pointer px-2.5 min-h-8 text-base rounded transition-all duration-100`,
-        'hover:bg-item-hover',
-        isSelected && 'bg-item-hover'
+        'data-[selected=true]:bg-item-hover'
       )}
+      onMouseEnter={() => setSelectedItem(value)}
     >
       <div className="flex items-center space-x-2 overflow-hidden">
         {icon && <span className="text-icon-color">{icon}</span>}
