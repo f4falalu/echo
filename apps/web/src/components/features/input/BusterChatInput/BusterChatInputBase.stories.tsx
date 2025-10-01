@@ -53,7 +53,7 @@ type Story = StoryObj<typeof BusterChatInputBase>;
 const mockShortcuts: ListShortcutsResponse['shortcuts'] = [
   {
     id: '123e4567-e89b-12d3-a456-426614174000',
-    name: 'Weekly Sales Report',
+    name: 'weekly-sales-report',
     instructions: 'Generate a comprehensive weekly sales report with key metrics and trends',
     createdBy: '123e4567-e89b-12d3-a456-426614174001',
     updatedBy: null,
@@ -65,7 +65,7 @@ const mockShortcuts: ListShortcutsResponse['shortcuts'] = [
   },
   {
     id: '123e4567-e89b-12d3-a456-426614174003',
-    name: 'Customer Analysis',
+    name: 'customer-analysis',
     instructions: 'Analyze customer behavior patterns and provide insights',
     createdBy: '123e4567-e89b-12d3-a456-426614174001',
     updatedBy: null,
@@ -77,7 +77,7 @@ const mockShortcuts: ListShortcutsResponse['shortcuts'] = [
   },
   {
     id: '123e4567-e89b-12d3-a456-426614174004',
-    name: 'Revenue Forecast',
+    name: 'revenue-forecast',
     instructions: 'Create a revenue forecast for the next quarter based on current trends',
     createdBy: '123e4567-e89b-12d3-a456-426614174001',
     updatedBy: null,
