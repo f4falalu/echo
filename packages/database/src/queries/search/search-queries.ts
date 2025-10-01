@@ -56,9 +56,10 @@ export async function searchText(input: SearchTextInput): Promise<SearchTextResp
     const paginationCheckCount = page_size + 1;
 
     const filterConditions = [];
+    let fullSearchString = searchString;
 
     if (searchString) {
-      const fullSearchString = `${searchString}*`;
+      fullSearchString = `${searchString}*`;
       filterConditions.push(
         sql`ARRAY[${assetSearchV2.title}, ${assetSearchV2.additionalText}] &@~ ${fullSearchString}`
       );
@@ -89,15 +90,28 @@ export async function searchText(input: SearchTextInput): Promise<SearchTextResp
     // Create the permissioned assets subquery for this user
     const permissionedAssetsSubquery = createPermissionedAssetsSubquery(userId, organizationId);
 
-    // Execute search query with pagination
-    const searchQueryStart = performance.now();
+    const highlightedTitleSql = fullSearchString
+      ? sql<string>`pgroonga_highlight_html(${assetSearchV2.title}, pgroonga_query_extract_keywords(${fullSearchString}))`
+      : assetSearchV2.title;
+
+    const snippetLength = 160;
+    const additionalSnippetSql = fullSearchString
+      ? sql<string>`coalesce(
+           (pgroonga_snippet_html(${assetSearchV2.additionalText},
+                                  pgroonga_query_extract_keywords(${fullSearchString}),
+                                  ${snippetLength}))[1],
+           left(${assetSearchV2.additionalText}, ${snippetLength})
+         )`
+      : sql<string>`left(${assetSearchV2.additionalText}, ${snippetLength})`;
+
     const results = await db
       .select({
         assetId: assetSearchV2.assetId,
         assetType: assetSearchV2.assetType,
-        title: assetSearchV2.title,
-        additionalText: assetSearchV2.additionalText,
+        title: highlightedTitleSql,
+        additionalText: additionalSnippetSql,
         updatedAt: assetSearchV2.updatedAt,
+        screenshotBucketKey: assetSearchV2.screenshotBucketKey,
       })
       .from(assetSearchV2)
       .innerJoin(
@@ -117,11 +131,6 @@ export async function searchText(input: SearchTextInput): Promise<SearchTextResp
     if (hasMore) {
       results.pop();
     }
-
-    const searchQueryDuration = performance.now() - searchQueryStart;
-    console.info(
-      `[SEARCH_TIMING] Main search query completed in ${searchQueryDuration.toFixed(2)}ms - found ${results.length} results`
-    );
 
     const paginatedResponse = {
       data: results,

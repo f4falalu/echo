@@ -15,6 +15,14 @@ const app = new Hono().get('/', zValidator('param', AssetIdParamsSchema), async 
     throw new HTTPException(404, { message: 'Dashboard not found' });
   }
 
+  if (!dashboard.screenshotBucketKey) {
+    const result: GetScreenshotResponse = {
+      success: false,
+      error: 'Screenshot not found',
+    };
+    return c.json(result);
+  }
+
   const permission = await checkPermission({
     userId: user.id,
     assetId: dashboardId,
@@ -30,28 +38,27 @@ const app = new Hono().get('/', zValidator('param', AssetIdParamsSchema), async 
     });
   }
 
-  let signedUrl = '';
-  let success = true;
-
   try {
-    signedUrl = await getAssetScreenshotSignedUrl({
-      assetType: 'dashboard_file',
-      assetId: dashboardId,
+    const signedUrl = await getAssetScreenshotSignedUrl({
+      key: dashboard.screenshotBucketKey,
       organizationId: dashboard.organizationId,
     });
+    const result: GetScreenshotResponse = {
+      success: true,
+      url: signedUrl,
+    };
+    return c.json(result);
   } catch (error) {
     console.error('Failed to generate dashboard screenshot URL', {
       dashboardId,
       error,
     });
-    success = false;
+    const result: GetScreenshotResponse = {
+      success: false,
+      error: 'Failed to generate screenshot URL',
+    };
+    return c.json(result);
   }
-
-  const response: GetScreenshotResponse = {
-    success,
-    url: signedUrl,
-  };
-  return c.json(response);
 });
 
 export default app;

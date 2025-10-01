@@ -1,4 +1,5 @@
 import { getProviderForOrganization } from '@buster/data-source';
+import { updateAssetScreenshotBucketKey } from '@buster/database/queries';
 import type { AssetType } from '@buster/server-shared/assets';
 import { AssetTypeSchema } from '@buster/server-shared/assets';
 import {
@@ -81,6 +82,12 @@ export async function uploadScreenshotHandler(
   if (!result.success) {
     throw new Error(result.error ?? 'Failed to upload screenshot');
   }
+
+  await updateAssetScreenshotBucketKey({
+    assetId,
+    assetType,
+    screenshotBucketKey: result.key,
+  });
 
   return PutScreenshotResponseSchema.parse({
     success: true,

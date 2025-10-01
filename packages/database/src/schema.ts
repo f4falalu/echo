@@ -232,6 +232,7 @@ export const collections = pgTable(
       withTimezone: true,
       mode: 'string',
     }),
+    screenshotBucketKey: text('screenshot_bucket_key'),
   },
   (table) => [
     foreignKey({
@@ -741,6 +742,7 @@ export const dashboardFiles = pgTable(
       withTimezone: true,
       mode: 'string',
     }),
+    screenshotBucketKey: text('screenshot_bucket_key'),
   },
   (table) => [
     index('dashboard_files_created_by_idx').using(
@@ -814,6 +816,7 @@ export const reportFiles = pgTable(
       withTimezone: true,
       mode: 'string',
     }),
+    screenshotBucketKey: text('screenshot_bucket_key'),
   },
   (table) => [
     index('report_files_created_by_idx').using(
@@ -885,6 +888,7 @@ export const chats = pgTable(
       withTimezone: true,
       mode: 'string',
     }),
+    screenshotBucketKey: text('screenshot_bucket_key'),
   },
   (table) => [
     index('chats_created_at_idx').using(
@@ -1035,6 +1039,7 @@ export const metricFiles = pgTable(
       withTimezone: true,
       mode: 'string',
     }),
+    screenshotBucketKey: text('screenshot_bucket_key'),
   },
   (table) => [
     index('metric_files_created_by_idx').using(
@@ -1900,6 +1905,7 @@ export const assetSearchV2 = pgTable(
       .defaultNow()
       .notNull(),
     deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
+    screenshotBucketKey: text('screenshot_bucket_key'),
   },
   (table) => [
     foreignKey({

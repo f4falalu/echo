@@ -41,3 +41,15 @@ export {
   type GetUsersWithAssetPermissionsInput,
   type GetUsersWithAssetPermissionsResult,
 } from './get-users-with-asset-permissions';
+
+export {
+  updateAssetScreenshotBucketKey,
+  UpdateAssetScreenshotBucketKeyInputSchema,
+  type UpdateAssetScreenshotBucketKeyInput,
+} from './update-asset-screenshot-bucket-key';
+
+export {
+  getAssetScreenshotBucketKey,
+  GetAssetScreenshotBucketKeyInputSchema,
+  type GetAssetScreenshotBucketKeyInput,
+} from './get-asset-screenshot-bucket-key';
