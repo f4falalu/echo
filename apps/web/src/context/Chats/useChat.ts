@@ -1,4 +1,5 @@
 import type { MessageAnalysisMode } from '@buster/server-shared/chats';
+import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { create } from 'mutative';
 import type { FileType } from '@/api/asset_interfaces/chat';
@@ -20,41 +21,43 @@ type StartChatParams = {
 
 export const useChat = () => {
   const navigate = useNavigate();
-  const { mutateAsync: startNewChat, isPending: isSubmittingChat } = useStartNewChat();
+  const { mutateAsync: startNewChatServerFn } = useStartNewChat();
   const { mutateAsync: stopChatMutation } = useStopChat();
   const getChatMemoized = useGetChatMemoized();
   const getChatMessageMemoized = useGetChatMessageMemoized();
   const { onUpdateChat, onUpdateChatMessage } = useChatUpdate();
 
-  const startChat = async ({
-    prompt,
-    chatId,
-    metricId,
-    dashboardId,
-    messageId,
-    mode,
-  }: StartChatParams) => {
-    const res = await startNewChat({
+  const { mutateAsync: startChat, isPending: isSubmittingChat } = useMutation({
+    mutationFn: async ({
       prompt,
-      chat_id: chatId,
-      metric_id: metricId,
-      dashboard_id: dashboardId,
-      message_id: messageId,
-      message_analysis_mode: mode,
-    });
-
-    const { message_ids, id } = res;
-
-    const hasMultipleMessages = message_ids.length > 1;
-    if (!hasMultipleMessages) {
-      await navigate({
-        to: '/app/chats/$chatId',
-        params: { chatId: id },
+      chatId,
+      metricId,
+      dashboardId,
+      messageId,
+      mode,
+    }: StartChatParams) => {
+      const res = await startNewChatServerFn({
+        prompt,
+        chat_id: chatId,
+        metric_id: metricId,
+        dashboard_id: dashboardId,
+        message_id: messageId,
+        message_analysis_mode: mode,
       });
-    }
 
-    await timeout(500);
-  };
+      const { message_ids, id } = res;
+
+      const hasMultipleMessages = message_ids.length > 1;
+      if (!hasMultipleMessages) {
+        await navigate({
+          to: '/app/chats/$chatId',
+          params: { chatId: id },
+        });
+      }
+
+      await timeout(150);
+    },
+  });
 
   const onStartNewChat = useMemoizedFn(
     async (d: { prompt: string; mode: StartChatParams['mode'] }) => {
