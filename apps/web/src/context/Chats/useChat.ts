@@ -1,4 +1,4 @@
-import type { ChatCreateRequest, MessageAnalysisMode } from '@buster/server-shared/chats';
+import type { MessageAnalysisMode } from '@buster/server-shared/chats';
 import { useNavigate } from '@tanstack/react-router';
 import { create } from 'mutative';
 import type { FileType } from '@/api/asset_interfaces/chat';

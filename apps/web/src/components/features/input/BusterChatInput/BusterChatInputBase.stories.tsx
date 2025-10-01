@@ -87,6 +87,30 @@ const mockShortcuts: ListShortcutsResponse['shortcuts'] = [
     updatedAt: new Date().toISOString(),
     deletedAt: null,
   },
+  {
+    id: '123e4567-e89b-12d3-a456-426614174005',
+    name: 'customer-support-wow',
+    instructions: 'Provide customer support for the next quarter based on current trends',
+    createdBy: '123e4567-e89b-12d3-a456-426614174001',
+    updatedBy: null,
+    organizationId: '123e4567-e89b-12d3-a456-426614174002',
+    shareWithWorkspace: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    deletedAt: null,
+  },
+  {
+    id: '123e4567-e89b-12d3-a456-426614174006',
+    name: 'who-is-the-best-player-in-the-nba',
+    instructions: 'Provide customer support for the next quarter based on current trends',
+    createdBy: '123e4567-e89b-12d3-a456-426614174001',
+    updatedBy: null,
+    organizationId: '123e4567-e89b-12d3-a456-426614174002',
+    shareWithWorkspace: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    deletedAt: null,
+  },
 ];
 
 export const Default: Story = {
