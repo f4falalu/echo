@@ -31,7 +31,10 @@ export const SubmitOnEnter = ({
           }
           return !!onPressEnter;
         },
-        'Shift-Enter': () => this.editor.commands.newlineInCode(), // or insert a break
+        'Shift-Enter': ({ editor }) => {
+          editor.commands.splitBlock();
+          return true;
+        }, // or insert a break
       };
     },
   });
