@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { openErrorNotification } from '@/context/BusterNotifications';
+import { useBrowserDetection } from './useBrowserDetection';
 
 // Type definitions for Web Speech API
 interface SpeechRecognitionErrorEvent extends Event {
@@ -54,10 +55,14 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
   const [error, setError] = useState<string | null>(null);
   const [hasPermission, setHasPermission] = useState(false);
   const finalTranscriptRef = useRef('');
+  const { isEdge, isFirefox } = useBrowserDetection();
 
-  // Check browser support
+  // Check browser support - disable for Edge due to language support issues
   const browserSupportsSpeechRecognition =
-    typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition);
+    !isEdge &&
+    !isFirefox &&
+    typeof window !== 'undefined' &&
+    (window.SpeechRecognition || window.webkitSpeechRecognition);
 
   // Check microphone permission
   useEffect(() => {
@@ -91,7 +96,8 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
 
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.lang = 'en-US';
+    // Don't set lang - let it use browser default
+    // Edge can be particular about language codes
 
     recognition.onstart = () => {
       setListening(true);
@@ -131,7 +137,10 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
       openErrorNotification({ message });
       setError(message);
 
-      onStopListening();
+      // Stop recognition and listening state
+      recognition.stop();
+      recognition.abort();
+      setListening(false);
     };
 
     recognition.onend = () => {

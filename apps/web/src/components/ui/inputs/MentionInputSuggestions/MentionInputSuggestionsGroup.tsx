@@ -27,7 +27,7 @@ export const MentionInputSuggestionsGroup = ({
   return (
     <Command.Group
       className={cn(
-        'text-text-tertiary overflow-hidden p-1 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-2.5 [&_[cmdk-group-heading]]:text-sm [&_[cmdk-group-heading]]:font-base [&_[cmdk-group-heading]]:h-8',
+        'text-text-tertiary overflow-hidden [&_[cmdk-group-heading]]:px-0 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-sm [&_[cmdk-group-heading]]:font-base [&_[cmdk-group-heading]]:h-8',
         className
       )}
       style={style}
