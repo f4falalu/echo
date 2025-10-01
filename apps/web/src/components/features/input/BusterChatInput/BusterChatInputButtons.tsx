@@ -114,7 +114,7 @@ export const BusterChatInputButtons = React.memo(
           >
             <Button
               rounding={'large'}
-              variant={'default'}
+              variant={'black'}
               size={'tall'}
               prefix={<ArrowUp />}
               onClick={
@@ -132,7 +132,7 @@ export const BusterChatInputButtons = React.memo(
               loading={submitting}
               disabled={disabled || disableSubmit}
               className={cn(
-                'origin-center transform-gpu transition-all duration-300 ease-out will-change-transform bg-transparent!',
+                'origin-center transform-gpu transition-all duration-300 ease-out will-change-transform',
                 !disabled && 'hover:scale-110 active:scale-95'
               )}
             />
@@ -199,7 +199,7 @@ const modesOptions: AppSegmentedProps<BusterChatInputMode>['options'] = [
         description="Decides how long to think"
         icon={<Sparkle2 />}
         iconText="Auto Mode"
-        content={`Dynamically pick between “Research” and “Deep Research”`}
+        content={`Dynamically picks between Research and Deep Research modes`}
       >
         <Sparkle2 />
       </ModePopoverContent>
