@@ -1,36 +1,19 @@
-import { useInfiniteQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import { useEffect, useRef } from 'react';
-import { search, useSearchInfinite } from '@/api/buster_rest/search';
+import { useSearchInfinite } from '@/api/buster_rest/search';
 
 export const Route = createFileRoute('/app/_app/test-pagination')({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useSearchInfinite();
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-  // Combine all pages into a single array of results
-  const allResults = data?.pages.flatMap((page) => page.data) ?? [];
-
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = container;
-      // Trigger when user is within 100px of the bottom
-      if (scrollHeight - scrollTop - clientHeight < 100) {
-        if (hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      }
-    };
-
-    container.addEventListener('scroll', handleScroll);
-    return () => container.removeEventListener('scroll', handleScroll);
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  const {
+    scrollContainerRef,
+    allResults,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    fetchNextPage,
+  } = useSearchInfinite();
 
   return (
     <div

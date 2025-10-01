@@ -1,13 +1,9 @@
-import type { SearchTextResponse } from '@buster/server-shared/search';
-import {
-  keepPreviousData,
-  type UseQueryOptions,
-  useInfiniteQuery,
-  useQuery,
-} from '@tanstack/react-query';
+import type { SearchTextData, SearchTextResponse } from '@buster/server-shared/search';
+import { keepPreviousData, type UseQueryOptions, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import type { ApiError } from '@/api/errors';
 import { getSearchResultInfinite, searchQueryKeys } from '@/api/query_keys/search';
+import { useInfiniteScroll } from '@/api/query-helpers';
 import { search } from './requests';
 
 export const useSearch = <T = SearchTextResponse>(
@@ -31,17 +27,10 @@ export const useSearchInfinite = (
 ) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  const queryResult = useInfiniteQuery({
+  const queryResult = useInfiniteScroll<SearchTextData>({
     queryKey: ['search', 'results', 'infinite', params] as const,
-    staleTime: 1000 * 30, // 30 seconds,
+    staleTime: 1000 * 30, // 30 seconds
     queryFn: ({ pageParam = 1 }) => search({ query: searchQuery, page: pageParam, ...params }),
-    getNextPageParam: (lastPage) => {
-      if (!lastPage.pagination.has_more) {
-        return undefined;
-      }
-      return lastPage.pagination.page + 1;
-    },
-    initialPageParam: 1,
   });
 
   return { ...queryResult, setSearchQuery, searchQuery };
