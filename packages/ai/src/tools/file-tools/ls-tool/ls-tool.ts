@@ -1,0 +1,55 @@
+import { tool } from 'ai';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { z } from 'zod';
+import { createLsToolExecute } from './ls-tool-execute';
+
+// Read description from file
+const DESCRIPTION = readFileSync(path.join(__dirname, 'ls.txt'), 'utf-8');
+
+export const LsToolInputSchema = z.object({
+  path: z
+    .string()
+    .optional()
+    .describe(
+      'The absolute path to the directory to list (must be absolute, not relative). Defaults to project root.'
+    ),
+  ignore: z
+    .array(z.string())
+    .optional()
+    .describe('List of glob patterns to ignore'),
+});
+
+export const LsToolOutputSchema = z.object({
+  success: z.boolean().describe('Whether the listing was successful'),
+  path: z.string().describe('The path that was listed'),
+  output: z.string().describe('Tree-formatted directory listing'),
+  count: z.number().describe('Number of files listed'),
+  truncated: z.boolean().describe('Whether the listing was truncated at limit'),
+  errorMessage: z.string().optional().describe('Error message if failed'),
+});
+
+export const LsToolContextSchema = z.object({
+  messageId: z.string().describe('The message ID for database updates'),
+  projectDirectory: z.string().describe('The root directory of the project'),
+});
+
+export type LsToolInput = z.infer<typeof LsToolInputSchema>;
+export type LsToolOutput = z.infer<typeof LsToolOutputSchema>;
+export type LsToolContext = z.infer<typeof LsToolContextSchema>;
+
+/**
+ * Factory function to create the ls tool
+ */
+export function createLsTool<
+  TAgentContext extends LsToolContext = LsToolContext,
+>(context: TAgentContext) {
+  const execute = createLsToolExecute(context);
+
+  return tool({
+    description: DESCRIPTION,
+    inputSchema: LsToolInputSchema,
+    outputSchema: LsToolOutputSchema,
+    execute,
+  });
+}

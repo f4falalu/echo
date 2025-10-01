@@ -12,13 +12,13 @@ export { createModifyReportsTool } from './visualization-tools/reports/modify-re
 export { createExecuteSqlTool } from './database-tools/execute-sql/execute-sql';
 export { executeSqlDocsAgent } from './database-tools/super-execute-sql/super-execute-sql';
 // File tools - factory functions
-export { createListFilesTool } from './file-tools/list-files-tool/list-files-tool';
-export { createReadFileTool as createReadFilesTool } from './file-tools/read-file-tool/read-file-tool';
+export { createLsTool } from './file-tools/ls-tool/ls-tool';
+export { createReadFileTool } from './file-tools/read-file-tool/read-file-tool';
 export { createWriteFileTool } from './file-tools/write-file-tool/write-file-tool';
 export { createEditFileTool } from './file-tools/edit-file-tool/edit-file-tool';
 export { createMultiEditFileTool } from './file-tools/multi-edit-file-tool/multi-edit-file-tool';
 export { createBashTool } from './file-tools/bash-tool/bash-tool';
-export { createGrepTool as createGrepSearchTool } from './file-tools/grep-tool/grep-tool';
+export { createGrepTool } from './file-tools/grep-tool/grep-tool';
 // Web tools - factory functions
 export { createWebSearchTool } from './web-tools/web-search-tool';
 
