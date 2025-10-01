@@ -193,6 +193,9 @@ export const MentionInputSuggestions = forwardRef<
           )}
           shouldFilter={shouldFilter}
           filter={filter || customFilter}
+          onClick={() => {
+            setIsInteracting(true);
+          }}
         >
           <MentionInputSuggestionsContainer className={inputContainerClassName}>
             <MentionInputSuggestionsMentionsInput
