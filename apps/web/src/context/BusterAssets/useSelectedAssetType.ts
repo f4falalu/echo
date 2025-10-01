@@ -1,10 +1,21 @@
-import { getRouteApi, type RouteContext, useParams, useSearch } from '@tanstack/react-router';
+import type { AssetType } from '@buster/server-shared/assets';
+import {
+  type StaticDataRouteOption,
+  useMatches,
+  useParams,
+  useSearch,
+} from '@tanstack/react-router';
+import findLast from 'lodash/findLast';
 
-const assetRouteApi = getRouteApi('/app/_app/_asset');
+export const useSelectedAssetType = (): NonNullable<StaticDataRouteOption['assetType']> => {
+  const matches = useMatches();
 
-const stableCtxSelector = (ctx: RouteContext) => ctx.assetType;
-export const useSelectedAssetType = () => {
-  const data = assetRouteApi.useRouteContext({ select: stableCtxSelector });
+  const lastMatch = findLast(matches, (match) => match.staticData?.assetType);
+  if (typeof lastMatch === 'number') {
+    return 'chat';
+  }
+  // @ts-expect-error - lastMatch is not undefined
+  const data = lastMatch?.staticData?.assetType as StaticDataRouteOption['assetType'];
   const { messageId } = useParams({
     strict: false,
   });

@@ -5,6 +5,7 @@ import { Text } from '@/components/ui/typography';
 import { getSupabaseSession } from '@/integrations/supabase/getSupabaseUserClient';
 import { signInWithAnonymousUser } from '@/integrations/supabase/signIn';
 import { AppAssetCheckLayout } from '@/layouts/AppAssetCheckLayout';
+import { cn } from '@/lib/classMerge';
 
 export const Route = createFileRoute('/embed')({
   beforeLoad: async ({ context, matches }) => {
@@ -36,18 +37,15 @@ function RouteComponent() {
     );
   }
 
-  if (assetType === 'chat') {
-    return (
-      <div className="flex h-full w-full items-center justify-center">
-        <Text className="text-lg">
-          Sharing a chat is not supported yet... But it is on our roadmap!
-        </Text>
-      </div>
-    );
-  }
+  const isChat = assetType === 'chat';
 
   return (
-    <main className="h-full w-full bg-page-background overflow-y-auto">
+    <main
+      className={cn(
+        'h-full w-full bg-page-background overflow-y-auto',
+        isChat && 'overflow-y-hidden bg-background-secondary'
+      )}
+    >
       <AppAssetCheckLayout assetType={assetType}>
         <Outlet />
       </AppAssetCheckLayout>
