@@ -10,6 +10,8 @@ export type MentionInputSuggestionsMentionsInputProps = Pick<
 > & {
   onChange: MentionInputProps['onChange'];
   onPressEnter: MentionInputProps['onPressEnter'];
+  onBlur?: MentionInputProps['onBlur'];
+  onFocus?: MentionInputProps['onFocus'];
   className?: string;
   style?: React.CSSProperties;
   autoFocus?: boolean;
