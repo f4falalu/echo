@@ -1,3 +1,4 @@
+import type { MessageAnalysisMode } from '@buster/server-shared/chats';
 import type React from 'react';
 import { useMemo, useRef } from 'react';
 import { useBusterNotifications } from '@/context/BusterNotifications';
@@ -11,18 +12,20 @@ import { useGetCurrentMessageId } from './useGetActiveChat';
 import { useGetChatId } from './useGetChatId';
 import { useIsChatMode, useIsFileMode } from './useMode';
 
-export const useChatInputFlow = ({
+export const useFollowUpChatInputFlow = ({
   disableSubmit,
   inputValue,
   setInputValue,
   textAreaRef,
   loading,
+  mode,
 }: {
   disableSubmit: boolean;
   inputValue: string;
   setInputValue: (value: string) => void;
   textAreaRef: React.RefObject<HTMLTextAreaElement | null>;
   loading: boolean;
+  mode: MessageAnalysisMode;
 }) => {
   const isChatMode = useIsChatMode();
   const isFileMode = useIsFileMode();
@@ -58,7 +61,7 @@ export const useChatInputFlow = ({
       submittingCooldown.current = true;
 
       if (isChatMode || selectedAssetType === 'chat') {
-        await onFollowUpChat({ prompt: trimmedInputValue, chatId });
+        await onFollowUpChat({ prompt: trimmedInputValue, chatId, mode });
       } else if (selectedAssetType === 'collection') {
         // maybe we will support this one day. Good day that'll be. Until then, we will just dream.
         console.warn('collection mode is not supported yet');
@@ -70,7 +73,7 @@ export const useChatInputFlow = ({
           fileType: selectedAssetType,
         });
       } else {
-        await onStartNewChat({ prompt: trimmedInputValue, mode: 'auto' });
+        await onStartNewChat({ prompt: trimmedInputValue, mode });
       }
 
       setInputValue('');

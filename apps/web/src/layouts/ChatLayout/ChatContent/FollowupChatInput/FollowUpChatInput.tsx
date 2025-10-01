@@ -1,16 +1,17 @@
+import type { MessageAnalysisMode } from '@buster/server-shared/chats';
 import React, { type ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { InputTextAreaButton } from '@/components/ui/inputs/InputTextAreaButton';
 import { Text } from '@/components/ui/typography';
 import { useChatPermission, useIsStreamingMessage } from '@/context/Chats';
+import { useFollowUpChatInputFlow } from '@/context/Chats/useFollowUpChatInputFlow';
 import { useGetChatId } from '@/context/Chats/useGetChatId';
 import { useIsChatMode } from '@/context/Chats/useMode';
 import { cn } from '@/lib/classMerge';
 import { canEdit } from '@/lib/share';
 import { inputHasText } from '@/lib/text';
-import { useChatInputFlow } from '../../../../context/Chats/useChatInputFlow';
 import { AIWarning } from './AIWarning';
 
-export const ChatInput: React.FC = React.memo(() => {
+export const FollowUpChatInput: React.FC = React.memo(() => {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const isStreamingMessage = useIsStreamingMessage();
   const hasChat = useIsChatMode();
@@ -19,17 +20,19 @@ export const ChatInput: React.FC = React.memo(() => {
   const canEditChat = canEdit(permission);
 
   const [inputValue, setInputValue] = useState('');
+  const [mode, setMode] = useState<MessageAnalysisMode>('auto');
 
   const disableSubmit = useMemo(() => {
     return (!inputHasText(inputValue) && !isStreamingMessage) || !canEditChat;
   }, [inputValue, isStreamingMessage, canEditChat]);
 
-  const { onSubmitPreflight, onStopChat } = useChatInputFlow({
+  const { onSubmitPreflight, onStopChat } = useFollowUpChatInputFlow({
     disableSubmit,
     inputValue,
     setInputValue,
     loading: isStreamingMessage,
     textAreaRef,
+    mode,
   });
 
   const onChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -81,4 +84,4 @@ export const ChatInput: React.FC = React.memo(() => {
   );
 });
 
-ChatInput.displayName = 'ChatInput';
+FollowUpChatInput.displayName = 'FollowUpChatInput';
