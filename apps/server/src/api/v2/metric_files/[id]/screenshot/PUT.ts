@@ -39,10 +39,6 @@ const app = new Hono().put(
       });
     }
 
-    if (!assetId) {
-      throw new HTTPException(404, { message: 'Metric not found' });
-    }
-
     const result: PutScreenshotResponse = await uploadScreenshotHandler({
       assetType: 'metric_file',
       assetId,

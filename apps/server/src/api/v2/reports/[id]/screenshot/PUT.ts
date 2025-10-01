@@ -20,9 +20,6 @@ const app = new Hono().put(
     const user = c.get('busterUser');
 
     const report = await getReportFileById({ reportId: assetId, userId: user.id });
-    if (!report) {
-      throw new HTTPException(404, { message: 'Report not found' });
-    }
 
     if (!report) {
       throw new HTTPException(404, { message: 'Report not found' });
