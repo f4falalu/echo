@@ -298,6 +298,7 @@ const spongebobSuggestions = createMentionSuggestionExtension({
   popoverContent: (props) => {
     return <div className="p-5 bg-red-100">This is a custom popover content for {props.value}</div>;
   },
+  popoverClassName: 'bg-green-100 max-h-auto',
 });
 
 export const Default: Story = {

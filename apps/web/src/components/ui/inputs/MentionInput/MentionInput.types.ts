@@ -42,7 +42,7 @@ export type MentionTriggerItem<T = string> =
 
 export type MentionInputTriggerGroup<T = string> = {
   items: MentionTriggerItem<T>[];
-  label: string | React.ReactNode;
+  label?: string | React.ReactNode | null;
   icon?: React.ReactNode;
   type: 'group';
   disabled?: boolean;

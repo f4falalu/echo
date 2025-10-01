@@ -18,6 +18,7 @@ export const createMentionSuggestionExtension = ({
   popoverContent,
   onChangeTransform,
   pillStyling,
+  popoverClassName,
 }: {
   trigger: string;
   items:
@@ -29,6 +30,7 @@ export const createMentionSuggestionExtension = ({
       }) => MentionInputTriggerItem[]); //if no function is provided we will use a literal string match
   popoverContent?: MentionPopoverContentCallback;
   pillStyling?: MentionStylePillProps;
+  popoverClassName?: string;
   onChangeTransform?: MentionSuggestionExtension['onChangeTransform'];
 }): MentionSuggestionExtension => ({
   char: trigger,
@@ -51,8 +53,9 @@ export const createMentionSuggestionExtension = ({
         const { editor } = props;
         component = new ReactRenderer(
           MentionList as React.ComponentType<MentionListProps<string>>,
-          { props: { ...props, trigger }, editor: props.editor }
+          { props: { ...props, trigger, className: popoverClassName }, editor: props.editor }
         );
+        console.log(popoverClassName);
 
         if (!props.clientRect) {
           console.warn('No client rect for mention suggestion');

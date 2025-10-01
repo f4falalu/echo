@@ -8,6 +8,7 @@ import PenWriting from '@/components/ui/icons/NucleoIconOutlined/pen-writing';
 import Plus from '@/components/ui/icons/NucleoIconOutlined/plus';
 import {
   createMentionSuggestionExtension,
+  type MentionInputTriggerItem,
   MentionSecondaryContentDropdown,
   type MentionTriggerItem,
 } from '@/components/ui/inputs/MentionInput';
@@ -38,8 +39,13 @@ export const useCreateShortcutsMentionsSuggestions = (
         trigger: SHORTCUT_MENTION_TRIGGER,
         items: ({ defaultQueryMentionsFilter, editor, query }) => {
           const shortcuts = currentItemsRef.current;
-          const allItems = [
-            ...shortcuts.map((s) => createShortcutForMention(s, editor)),
+          const allItems: MentionInputTriggerItem[] = [
+            {
+              type: 'group',
+              items: shortcuts.map((s) => createShortcutForMention(s, editor)),
+
+              className: 'max-h-[300px] overflow-y-auto',
+            },
             { type: 'separator' as const },
             {
               value: 'manageShortcuts',
@@ -65,6 +71,7 @@ export const useCreateShortcutsMentionsSuggestions = (
           return defaultQueryMentionsFilter(query, allItems);
         },
         popoverContent: ShortcutPopoverContent,
+        popoverClassName: '',
         onChangeTransform: (v) => {
           const foundShortcut = shortcuts.find((shortcut) => shortcut.name === v.label);
           if (foundShortcut) {
