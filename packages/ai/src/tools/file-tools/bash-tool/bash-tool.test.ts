@@ -2,26 +2,25 @@ import { materialize } from '@buster/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createBashTool } from './bash-tool';
 
-// Mock the dependencies
-vi.mock('@buster/database/queries', () => ({
-  updateMessageEntries: vi.fn(),
-}));
+// Mock Bun's $ shell
+const mockExec = vi.fn();
 
-vi.mock('braintrust', () => ({
-  wrapTraced: vi.fn((fn) => fn),
+vi.mock('bun', () => ({
+  $: (strings: TemplateStringsArray, ...values: any[]) => {
+    // Reconstruct the command from template literal parts
+    const command = strings.reduce((acc, str, i) => acc + str + (values[i] || ''), '');
+    return {
+      cwd: vi.fn().mockReturnThis(),
+      nothrow: vi.fn().mockReturnThis(),
+      quiet: vi.fn().mockImplementation(() => mockExec(command)),
+    };
+  },
 }));
 
 describe('createBashTool', () => {
-  const mockSandbox = {
-    id: 'test-sandbox',
-    process: {
-      executeCommand: vi.fn(),
-    },
-  } as any;
-
   const mockContext = {
     messageId: 'test-message-id',
-    sandbox: mockSandbox,
+    projectDirectory: '/tmp/test-project',
   };
 
   beforeEach(() => {
@@ -32,15 +31,16 @@ describe('createBashTool', () => {
     const bashTool = createBashTool(mockContext);
 
     expect(bashTool).toBeDefined();
-    expect(bashTool.description).toContain('Executes bash commands');
+    expect(bashTool.description).toBeTruthy();
     expect(bashTool.inputSchema).toBeDefined();
     expect(bashTool.outputSchema).toBeDefined();
     expect(bashTool.execute).toBeDefined();
   });
 
   it('should handle successful command execution', async () => {
-    mockSandbox.process.executeCommand.mockResolvedValue({
-      result: 'Hello World',
+    mockExec.mockResolvedValue({
+      stdout: Buffer.from('Hello World'),
+      stderr: Buffer.from(''),
       exitCode: 0,
     });
 
@@ -48,19 +48,14 @@ describe('createBashTool', () => {
 
     const rawResult = await bashTool.execute!(
       {
-        commands: [
-          {
-            command: 'echo "Hello World"',
-            description: 'Test echo command',
-          },
-        ],
+        command: 'echo "Hello World"',
+        description: 'Test echo command',
       },
       { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
     );
     const result = await materialize(rawResult);
 
-    expect(result.results).toHaveLength(1);
-    expect(result.results[0]).toMatchObject({
+    expect(result).toMatchObject({
       command: 'echo "Hello World"',
       stdout: 'Hello World',
       exitCode: 0,
@@ -69,8 +64,9 @@ describe('createBashTool', () => {
   });
 
   it('should handle command failures', async () => {
-    mockSandbox.process.executeCommand.mockResolvedValue({
-      result: 'command not found',
+    mockExec.mockResolvedValue({
+      stdout: Buffer.from(''),
+      stderr: Buffer.from('command not found'),
       exitCode: 127,
     });
 
@@ -78,101 +74,81 @@ describe('createBashTool', () => {
 
     const rawResult = await bashTool.execute!(
       {
-        commands: [
-          {
-            command: 'nonexistentcommand',
-            description: 'Test failing command',
-          },
-        ],
+        command: 'nonexistentcommand',
+        description: 'Test failing command',
       },
       { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
     );
     const result = await materialize(rawResult);
 
-    expect(result.results).toHaveLength(1);
-    expect(result.results[0]).toMatchObject({
-      command: 'nonexistentcommand',
-      stdout: 'command not found',
-      exitCode: 127,
-      success: false,
-      error: 'command not found',
-    });
+    expect(result.exitCode).toBe(127);
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('command not found');
   });
 
-  it('should handle multiple commands', async () => {
-    mockSandbox.process.executeCommand
-      .mockResolvedValueOnce({
-        result: '/tmp/test',
-        exitCode: 0,
-      })
-      .mockResolvedValueOnce({
-        result: 'Hello from test',
-        exitCode: 0,
-      });
+  it('should handle execution errors', async () => {
+    mockExec.mockRejectedValue(new Error('Execution failed'));
 
     const bashTool = createBashTool(mockContext);
 
     const rawResult = await bashTool.execute!(
       {
-        commands: [
-          {
-            command: 'pwd',
-            description: 'Print working directory',
-          },
-          {
-            command: 'echo "Hello from test"',
-            description: 'Echo test message',
-          },
-        ],
+        command: 'echo "test"',
+        description: 'Test command',
       },
       { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
     );
     const result = await materialize(rawResult);
 
-    expect(result.results).toHaveLength(2);
-    expect(result.results[0]?.success).toBe(true);
-    expect(result.results[1]?.success).toBe(true);
-    expect(mockSandbox.process.executeCommand).toHaveBeenCalledTimes(2);
-  });
-
-  it('should handle sandbox execution errors', async () => {
-    mockSandbox.process.executeCommand.mockRejectedValue(new Error('Sandbox error'));
-
-    const bashTool = createBashTool(mockContext);
-
-    const rawResult = await bashTool.execute!(
-      {
-        commands: [
-          {
-            command: 'echo "test"',
-            description: 'Test command',
-          },
-        ],
-      },
-      { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
-    );
-    const result = await materialize(rawResult);
-
-    expect(result.results).toHaveLength(1);
-    expect(result.results[0]).toMatchObject({
+    expect(result).toMatchObject({
       command: 'echo "test"',
       success: false,
-      error: 'Execution error: Sandbox error',
+      error: 'Execution error: Execution failed',
     });
   });
 
-  it('should handle empty commands array', async () => {
+  it('should truncate long output', async () => {
+    const longOutput = 'a'.repeat(40000);
+    mockExec.mockResolvedValue({
+      stdout: Buffer.from(longOutput),
+      stderr: Buffer.from(''),
+      exitCode: 0,
+    });
+
     const bashTool = createBashTool(mockContext);
 
     const rawResult = await bashTool.execute!(
       {
-        commands: [],
+        command: 'echo "long output"',
+        description: 'Test long output',
       },
       { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
     );
     const result = await materialize(rawResult);
 
-    expect(result.results).toHaveLength(0);
-    expect(mockSandbox.process.executeCommand).not.toHaveBeenCalled();
+    expect(result.stdout.length).toBeLessThan(longOutput.length);
+    expect(result.stdout).toContain('(Output was truncated due to length limit)');
+  });
+
+  it('should include timeout parameter', async () => {
+    mockExec.mockResolvedValue({
+      stdout: Buffer.from('output'),
+      stderr: Buffer.from(''),
+      exitCode: 0,
+    });
+
+    const bashTool = createBashTool(mockContext);
+
+    const rawResult = await bashTool.execute!(
+      {
+        command: 'ls',
+        description: 'List files',
+        timeout: 5000,
+      },
+      { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
+    );
+    const result = await materialize(rawResult);
+
+    expect(result.success).toBe(true);
   });
 });

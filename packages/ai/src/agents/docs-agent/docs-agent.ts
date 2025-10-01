@@ -5,8 +5,11 @@ import { wrapTraced } from 'braintrust';
 import z from 'zod';
 import { DEFAULT_ANTHROPIC_OPTIONS } from '../../llm/providers/gateway';
 import { Sonnet4 } from '../../llm/sonnet-4';
-import { bashExecute, createIdleTool } from '../../tools';
+import { createIdleTool } from '../../tools';
 import { createWriteFileTool } from '../../tools/file-tools';
+import { createBashTool } from '../../tools/file-tools/bash-tool/bash-tool';
+import { createGrepTool } from '../../tools/file-tools/grep-tool/grep-tool';
+import { createReadFileTool } from '../../tools/file-tools/read-file-tool/read-file-tool';
 import { type AgentContext, repairToolCall } from '../../utils/tool-call-repair';
 import { getDocsAgentSystemPrompt } from './get-docs-agent-system-prompt';
 
@@ -57,13 +60,24 @@ export function createDocsAgent(docsAgentOptions: DocsAgentOptions) {
     messageId: docsAgentOptions.messageId,
     projectDirectory: docsAgentOptions.folder_structure,
   });
+  const grepTool = createGrepTool({
+    messageId: docsAgentOptions.messageId,
+    projectDirectory: docsAgentOptions.folder_structure,
+  });
+  const readFileTool = createReadFileTool({
+    messageId: docsAgentOptions.messageId,
+    projectDirectory: docsAgentOptions.folder_structure,
+  });
+  const bashTool = createBashTool({
+    messageId: docsAgentOptions.messageId,
+    projectDirectory: docsAgentOptions.folder_structure,
+  });
 
   // Create planning tools with simple context
   async function stream({ messages }: DocsStreamOptions) {
     // Collect available tools dynamically based on what's enabled
     const availableTools: string[] = ['sequentialThinking'];
     availableTools.push('executeSql');
-    if (bashExecute) availableTools.push('bashExecute');
     availableTools.push('updateClarificationsFile', 'checkOffTodoList', 'idleTool', 'webSearch');
 
     const agentContext: AgentContext = {
@@ -78,7 +92,10 @@ export function createDocsAgent(docsAgentOptions: DocsAgentOptions) {
           providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
           tools: {
             idleTool,
+            grepTool,
             writeFileTool,
+            readFileTool,
+            bashTool,
           },
           messages: [systemMessage, ...messages],
           stopWhen: STOP_CONDITIONS,

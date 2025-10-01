@@ -13,12 +13,11 @@ export { createExecuteSqlTool } from './database-tools/execute-sql/execute-sql';
 export { executeSqlDocsAgent } from './database-tools/super-execute-sql/super-execute-sql';
 // File tools - factory functions
 export { createListFilesTool } from './file-tools/list-files-tool/list-files-tool';
-export { createReadFilesTool } from './file-tools/read-files-tool/read-files-tool';
+export { createReadFileTool as createReadFilesTool } from './file-tools/read-file-tool/read-file-tool';
 export { createWriteFileTool } from './file-tools/write-file-tool/write-file-tool';
 export { createEditFilesTool } from './file-tools/edit-files-tool/edit-files-tool';
-export { createDeleteFilesTool } from './file-tools/delete-files-tool/delete-files-tool';
-export { createBashTool } from './file-tools/bash-tool';
-export { createGrepSearchTool } from './file-tools/grep-search-tool/grep-search-tool';
+export { createBashTool } from './file-tools/bash-tool/bash-tool';
+export { createGrepTool as createGrepSearchTool } from './file-tools/grep-tool/grep-tool';
 // Web tools - factory functions
 export { createWebSearchTool } from './web-tools/web-search-tool';
 
@@ -27,6 +26,5 @@ export { createCheckOffTodoListTool } from './planning-thinking-tools/check-off-
 export { createUpdateClarificationsFileTool } from './planning-thinking-tools/update-clarifications-file-tool/update-clarifications-file-tool';
 
 // Legacy exports for backward compatibility (to be deprecated)
-export { bashExecute } from './file-tools/bash-tool';
 export { checkOffTodoList } from './planning-thinking-tools/check-off-todo-list-tool/check-off-todo-list-tool';
 export { updateClarificationsFile } from './planning-thinking-tools/update-clarifications-file-tool/update-clarifications-file-tool';
