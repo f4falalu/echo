@@ -6,6 +6,7 @@ import { useGetChatMemoized, useGetChatMessageMemoized } from '@/api/buster_rest
 import { useStartNewChat, useStopChat } from '@/api/buster_rest/chats/queryRequestsV2';
 import { useChatUpdate } from '@/api/buster_rest/chats/useChatUpdate';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { timeout } from '@/lib/timeout';
 
 type StartChatParams = {
   prompt: string | undefined;
@@ -46,11 +47,13 @@ export const useChat = () => {
 
     const hasMultipleMessages = message_ids.length > 1;
     if (!hasMultipleMessages) {
-      navigate({
+      await navigate({
         to: '/app/chats/$chatId',
         params: { chatId: id },
       });
     }
+
+    await timeout(500);
   };
 
   const onStartNewChat = useMemoizedFn(

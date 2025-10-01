@@ -30,6 +30,19 @@ export const MentionInputSuggestionsItem = ({
   style,
   popoverContent,
 }: MentionInputSuggestionsItemProps) => {
+  const onSelectItem = () => {
+    onSelect({
+      value,
+      inputValue,
+      label,
+      onClick,
+      addValueToInput,
+      closeOnSelect,
+      disabled,
+      loading,
+    });
+  };
+
   return (
     <PopoverContentWrapper popoverContent={popoverContent}>
       <Command.Item
@@ -42,17 +55,11 @@ export const MentionInputSuggestionsItem = ({
         value={value}
         data-testid={`type-${type}-value-${value}`}
         style={style}
+        onMouseDown={() => {
+          onSelectItem();
+        }}
         onSelect={() => {
-          onSelect({
-            value,
-            inputValue,
-            label,
-            onClick,
-            addValueToInput,
-            closeOnSelect,
-            disabled,
-            loading,
-          });
+          onSelectItem();
         }}
       >
         {icon && (
