@@ -23,7 +23,6 @@ export function MentionListItem<T = string>({
       containerRef.current.scrollIntoView({
         behavior: 'instant',
         block: 'nearest',
-        inline: 'nearest',
       });
     }
   }, [isSelected, listRef]);
@@ -38,7 +37,7 @@ export function MentionListItem<T = string>({
       data-selected={isSelected}
       className={cn(
         'group/mention-list-item',
-        'flex items-center justify-between gap-x-1.5 overflow-hidden',
+        'flex items-center justify-between gap-x-1.5 overflow-hidden flex-shrink-0',
         `cursor-pointer px-2.5 min-h-8 text-base rounded transition-all duration-100`,
         'data-[selected=true]:bg-item-hover'
       )}
