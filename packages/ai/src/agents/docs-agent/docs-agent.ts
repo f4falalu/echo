@@ -6,7 +6,7 @@ import z from 'zod';
 import { DEFAULT_ANTHROPIC_OPTIONS } from '../../llm/providers/gateway';
 import { Sonnet4 } from '../../llm/sonnet-4';
 import { createIdleTool } from '../../tools';
-import { createWriteFileTool } from '../../tools/file-tools';
+import { createEditFileTool, createMultiEditFileTool, createWriteFileTool } from '../../tools/file-tools';
 import { createBashTool } from '../../tools/file-tools/bash-tool/bash-tool';
 import { createGrepTool } from '../../tools/file-tools/grep-tool/grep-tool';
 import { createReadFileTool } from '../../tools/file-tools/read-file-tool/read-file-tool';
@@ -72,6 +72,14 @@ export function createDocsAgent(docsAgentOptions: DocsAgentOptions) {
     messageId: docsAgentOptions.messageId,
     projectDirectory: docsAgentOptions.folder_structure,
   });
+  const editFileTool = createEditFileTool({
+    messageId: docsAgentOptions.messageId,
+    projectDirectory: docsAgentOptions.folder_structure,
+  });
+  const multiEditFileTool = createMultiEditFileTool({
+    messageId: docsAgentOptions.messageId,
+    projectDirectory: docsAgentOptions.folder_structure,
+  });
 
   // Create planning tools with simple context
   async function stream({ messages }: DocsStreamOptions) {
@@ -96,6 +104,8 @@ export function createDocsAgent(docsAgentOptions: DocsAgentOptions) {
             writeFileTool,
             readFileTool,
             bashTool,
+            editFileTool,
+            multiEditFileTool,
           },
           messages: [systemMessage, ...messages],
           stopWhen: STOP_CONDITIONS,
