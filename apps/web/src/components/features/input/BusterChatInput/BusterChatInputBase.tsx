@@ -125,6 +125,7 @@ export const BusterChatInputBase: React.FC<BusterChatInputProps> = React.memo(
           onPressEnter={onSubmitPreflight}
           mentions={mentions}
           suggestionItems={suggestionItems}
+          disabled={disabled}
           placeholder="Ask a question or type ‘/’ for shortcuts..."
           ref={mentionInputSuggestionsRef}
           inputContainerClassName="px-5 pt-4"
