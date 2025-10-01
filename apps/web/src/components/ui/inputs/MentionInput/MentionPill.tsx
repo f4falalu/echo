@@ -60,7 +60,7 @@ const PopoverWrapper = <T extends string>({
 
     return (
       <Popover
-        trigger="click"
+        trigger="hover"
         align="start"
         side="bottom"
         sideOffset={8}
