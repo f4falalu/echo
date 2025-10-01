@@ -23,8 +23,11 @@ export {
   getMetricDashboardAncestors,
   getMetricReportAncestors,
   getAssetAncestors,
+  getAssetAncestorsForAssets,
   getAssetAncestorsWithTransaction,
 } from './asset-ancestors';
+
+export type { GetAssetAncestorsForAssetsInput } from './asset-ancestors';
 
 export {
   getAssetLatestVersion,

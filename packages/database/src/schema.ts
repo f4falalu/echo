@@ -1483,6 +1483,9 @@ export const assetPermissions = pgTable(
     index('idx_perm_active_asset_identity')
       .on(table.assetId, table.assetType, table.identityId, table.identityType)
       .where(isNull(table.deletedAt)),
+    index('idx_perm_active_identity_asset')
+      .on(table.identityType, table.identityId, table.assetType, table.assetId)
+      .where(isNull(table.deletedAt)),
   ]
 );
 
@@ -1913,6 +1916,7 @@ export const assetSearchV2 = pgTable(
     index('idx_as2_active_by_asset')
       .on(table.assetId, table.assetType)
       .where(isNull(table.deletedAt)),
+    index('idx_as2_active_by_org').on(table.organizationId).where(isNull(table.deletedAt)),
   ]
 );
 

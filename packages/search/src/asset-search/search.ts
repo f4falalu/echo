@@ -1,7 +1,6 @@
 import {
   type SearchFilters,
-  getAssetAncestors,
-  getAssetAncestorsWithTransaction,
+  getAssetAncestorsForAssets,
   getUserOrganizationId,
   searchText,
 } from '@buster/database/queries';
@@ -124,7 +123,7 @@ async function addAncestorsToSearchResults(
   userId: string,
   organizationId: string
 ): Promise<SearchTextData[]> {
-  const chunkSize = 25;
+  const chunkSize = 50;
   const resultsWithAncestors: SearchTextData[] = [];
   const totalChunks = Math.ceil(searchResults.length / chunkSize);
 
@@ -134,21 +133,24 @@ async function addAncestorsToSearchResults(
 
   for (let i = 0; i < searchResults.length; i += chunkSize) {
     const chunk = searchResults.slice(i, i + chunkSize);
-    const chunkResults = await Promise.all(
-      chunk.map(async (searchResult) => {
-        const ancestors = await getAssetAncestors(
-          searchResult.assetId,
-          searchResult.assetType as AssetType,
-          userId,
-          organizationId
-        );
+    const ancestorsByAssetId = await getAssetAncestorsForAssets({
+      assets: chunk.map((searchResult) => ({
+        assetId: searchResult.assetId,
+        assetType: searchResult.assetType as AssetType,
+      })),
+      userId,
+      organizationId,
+    });
 
-        return {
-          ...searchResult,
-          ancestors,
-        };
-      })
-    );
+    const chunkResults = chunk.map((searchResult) => ({
+      ...searchResult,
+      ancestors: ancestorsByAssetId[searchResult.assetId] ?? {
+        chats: [],
+        collections: [],
+        dashboards: [],
+        reports: [],
+      },
+    }));
     resultsWithAncestors.push(...chunkResults);
   }
 
