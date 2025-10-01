@@ -1,7 +1,7 @@
+import { randomUUID } from 'node:crypto';
 import { createDocsAgent } from '@buster/ai/agents/docs-agent/docs-agent';
 import { createProxyModel } from '@buster/ai/llm/providers/proxy-model';
 import type { ModelMessage } from 'ai';
-import { randomUUID } from 'node:crypto';
 import { getProxyConfig } from '../utils/ai-proxy';
 
 export interface DocsAgentMessage {
@@ -32,6 +32,7 @@ export async function runDocsAgent(params: RunDocsAgentParams): Promise<void> {
   // Create proxy model that routes through server
   const proxyModel = createProxyModel({
     baseURL: proxyConfig.baseURL,
+    apiKey: proxyConfig.apiKey,
     modelId: 'anthropic/claude-4-sonnet-20250514',
   });
 
@@ -71,7 +72,7 @@ export async function runDocsAgent(params: RunDocsAgentParams): Promise<void> {
         // Map tool calls to message types
         let messageType: DocsAgentMessage['messageType'];
         let content = '';
-        let metadata = '';
+        const metadata = '';
 
         switch (part.toolName) {
           case 'sequentialThinking':

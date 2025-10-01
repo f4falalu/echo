@@ -8,6 +8,7 @@ import { z } from 'zod';
 const ProxyModelConfigSchema = z.object({
   baseURL: z.string().describe('Base URL of the proxy server'),
   modelId: z.string().describe('Model ID to proxy requests to'),
+  apiKey: z.string().min(1).describe('API key for authentication'),
 });
 
 type ProxyModelConfig = z.infer<typeof ProxyModelConfigSchema>;
@@ -34,7 +35,10 @@ export function createProxyModel(config: ProxyModelConfig): LanguageModelV2 {
     async doGenerate(options: LanguageModelV2CallOptions) {
       const response = await fetch(`${validated.baseURL}/api/v2/llm/proxy`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${validated.apiKey}`,
+        },
         body: JSON.stringify({
           model: validated.modelId,
           options,
@@ -139,7 +143,10 @@ export function createProxyModel(config: ProxyModelConfig): LanguageModelV2 {
     async doStream(options: LanguageModelV2CallOptions) {
       const response = await fetch(`${validated.baseURL}/api/v2/llm/proxy`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${validated.apiKey}`,
+        },
         body: JSON.stringify({
           model: validated.modelId,
           options,

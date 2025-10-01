@@ -1,14 +1,11 @@
-import type { Sandbox } from '@buster/sandbox';
 import type { LanguageModelV2 } from '@ai-sdk/provider';
+import type { Sandbox } from '@buster/sandbox';
 import { type ModelMessage, hasToolCall, stepCountIs, streamText } from 'ai';
 import { wrapTraced } from 'braintrust';
 import z from 'zod';
 import { DEFAULT_ANTHROPIC_OPTIONS } from '../../llm/providers/gateway';
 import { Sonnet4 } from '../../llm/sonnet-4';
-import {
-  bashExecute,
-  createIdleTool,
-} from '../../tools';
+import { bashExecute, createIdleTool } from '../../tools';
 import { type AgentContext, repairToolCall } from '../../utils/tool-call-repair';
 import { getDocsAgentSystemPrompt } from './get-docs-agent-system-prompt';
 
@@ -31,7 +28,10 @@ const DocsAgentOptionsSchema = z.object({
       { message: 'Invalid Sandbox instance' }
     )
     .optional(),
-  model: z.custom<LanguageModelV2>().optional().describe('Custom language model to use (defaults to Sonnet4)'),
+  model: z
+    .custom<LanguageModelV2>()
+    .optional()
+    .describe('Custom language model to use (defaults to Sonnet4)'),
 });
 
 const DocsStreamOptionsSchema = z.object({
