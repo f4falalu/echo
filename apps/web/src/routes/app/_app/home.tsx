@@ -35,7 +35,7 @@ export const Route = createFileRoute('/app/_app/home')({
 
 function RouteComponent() {
   return (
-    <AppPageLayout headerSizeVariant="list" header={<HomePageHeader />}>
+    <AppPageLayout headerSizeVariant="list" header={<HomePageHeader />} scrollable>
       <Outlet />
     </AppPageLayout>
   );

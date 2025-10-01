@@ -11,6 +11,7 @@ import type {
   MentionSuggestionExtension,
 } from '@/components/ui/inputs/MentionInput';
 import type {
+  MentionInputSuggestionsOnSelectParams,
   MentionInputSuggestionsProps,
   MentionInputSuggestionsRef,
 } from '@/components/ui/inputs/MentionInputSuggestions';
@@ -107,8 +108,10 @@ export const BusterChatInputBase: React.FC<BusterChatInputProps> = React.memo(
       onSubmit({ ...value, mode });
     };
 
-    const onSuggestionItemClick = useMemoizedFn(() => {
-      onSubmitPreflight();
+    const onSuggestionItemClick = useMemoizedFn((d: MentionInputSuggestionsOnSelectParams) => {
+      if (d.addValueToInput) {
+        onSubmitPreflight();
+      }
     });
 
     const onCloseCreateShortcutModal = useMemoizedFn(() => {
