@@ -15,6 +15,7 @@ import type {
   MentionInputSuggestionsRef,
 } from '@/components/ui/inputs/MentionInputSuggestions';
 import { MentionInputSuggestions } from '@/components/ui/inputs/MentionInputSuggestions';
+import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useMount } from '@/hooks/useMount';
 import { NewShortcutModal } from '../../modals/NewShortcutModal';
@@ -52,6 +53,7 @@ export const BusterChatInputBase: React.FC<BusterChatInputProps> = React.memo(
     const uniqueSuggestions = useUniqueSuggestions(suggestedPrompts);
     const [openCreateShortcutModal, setOpenCreateShortcutModal] = useState(false);
     const [mode, setMode] = useState<MessageAnalysisMode>('auto');
+    const { openInfoMessage } = useBusterNotifications();
 
     const shortcutsSuggestions = useShortcutsSuggestions(
       shortcuts,
@@ -96,8 +98,9 @@ export const BusterChatInputBase: React.FC<BusterChatInputProps> = React.memo(
         return;
       }
 
-      if (disabled || !value) {
+      if (disabled || !value || !value.transformedValue) {
         console.warn('Input is disabled or value is not defined');
+        openInfoMessage('Please enter a question or type ‘/’ for shortcuts...');
         return;
       }
 
