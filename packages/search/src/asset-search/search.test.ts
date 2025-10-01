@@ -42,6 +42,7 @@ describe('search.ts - Unit Tests', () => {
       title: 'Test Result 1',
       additionalText: 'This is additional text for result 1',
       updatedAt: '2024-01-01T00:00:00.000Z',
+      screenshotBucketKey: 'screenshots/asset-1.png',
     },
     {
       assetId: 'asset-2',
@@ -49,6 +50,7 @@ describe('search.ts - Unit Tests', () => {
       title: 'Test Result 2',
       additionalText: 'This is additional text for result 2',
       updatedAt: '2024-01-01T00:00:00.000Z',
+      screenshotBucketKey: 'screenshots/asset-2.png',
     },
   ];
 
@@ -254,18 +256,14 @@ describe('search.ts - Unit Tests', () => {
       expect(getAssetScreenshotSignedUrl).toHaveBeenNthCalledWith(
         1,
         {
-          assetId: 'asset-1',
-          assetType: 'chat',
-          organizationId: mockOrganizationId,
+          key: 'screenshots/asset-1.png',
         },
         mockProvider
       );
       expect(getAssetScreenshotSignedUrl).toHaveBeenNthCalledWith(
         2,
         {
-          assetId: 'asset-2',
-          assetType: 'metric_file',
-          organizationId: mockOrganizationId,
+          key: 'screenshots/asset-2.png',
         },
         mockProvider
       );
@@ -324,6 +322,7 @@ describe('search.ts - Unit Tests', () => {
           title: 'Test Result 1',
           additionalText: null,
           updatedAt: '2024-01-01T00:00:00.000Z',
+          screenshotBucketKey: 'screenshots/asset-1.png',
         },
       ];
 
@@ -371,6 +370,7 @@ describe('search.ts - Unit Tests', () => {
         title: `Test Result ${i + 1}`,
         additionalText: `Additional text ${i + 1}`,
         updatedAt: '2024-01-01T00:00:00.000Z',
+        screenshotBucketKey: `screenshots/asset-${i + 1}.png`,
       }));
 
       (searchText as Mock).mockResolvedValue({
