@@ -90,8 +90,8 @@ export const BusterChatInputButtons = React.memo(
                 variant={'ghost'}
                 prefix={<Microphone />}
                 onClick={listening ? onStopListening : onStartListening}
-                loading={false}
                 disabled={disabled}
+                size={'tall'}
                 className={cn(
                   'origin-center transform-gpu transition-all duration-300 ease-out will-change-transform text-text-secondary',
                   !disabled && 'hover:scale-110 active:scale-95',
@@ -115,6 +115,7 @@ export const BusterChatInputButtons = React.memo(
             <Button
               rounding={'large'}
               variant={'default'}
+              size={'tall'}
               prefix={<ArrowUp />}
               onClick={
                 submitting

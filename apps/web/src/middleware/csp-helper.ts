@@ -115,6 +115,6 @@ export const createSecurityHeaders = (isEmbed = false) => {
     'X-Content-Type-Options': 'nosniff',
     'Referrer-Policy': 'strict-origin-when-cross-origin',
     'X-XSS-Protection': '1; mode=block',
-    'Permissions-Policy': 'microphone=()',
+    'Permissions-Policy': 'microphone=(self)',
   };
 };

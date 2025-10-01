@@ -182,7 +182,7 @@ export const MentionInputSuggestions = forwardRef<
           ref={commandRef}
           label={ariaLabel}
           className={cn(
-            'relative border rounded overflow-hidden bg-background shadow',
+            'relative border rounded-xl overflow-hidden bg-background shadow',
             // CSS-only solution: Hide separators that come after hidden elements
             '[&_[hidden]+[data-separator-after-hidden]]:hidden',
             className
