@@ -46,6 +46,7 @@ export type MentionInputTriggerGroup<T = string> = {
   icon?: React.ReactNode;
   type: 'group';
   disabled?: boolean;
+  className?: string;
 };
 
 export type MentionInputTriggerSeparator = {

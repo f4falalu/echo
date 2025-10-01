@@ -207,6 +207,7 @@ const manyCharacters: MentionInputTriggerItem[] = [
       },
     ],
     label: 'SpongeBob SquarePants Characters',
+    className: 'bg-red-100',
   },
   {
     type: 'separator',
