@@ -8,9 +8,12 @@ import {
 import findLast from 'lodash/findLast';
 
 export const useSelectedAssetType = (): NonNullable<StaticDataRouteOption['assetType']> => {
-  const matches = useMatches();
+  const lastMatch = useMatches({
+    select: (matches) => {
+      return findLast(matches, (match) => match.staticData?.assetType);
+    },
+  });
 
-  const lastMatch = findLast(matches, (match) => match.staticData?.assetType);
   if (typeof lastMatch === 'number') {
     return 'chat';
   }

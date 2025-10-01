@@ -1,9 +1,11 @@
-import { useMatch, useMatches } from '@tanstack/react-router';
+import { useMatch, useMatches, useMatchRoute } from '@tanstack/react-router';
+import { Route as EmbedRoute } from '@/routes/embed';
 
 export const useIsEmbed = () => {
-  const match = useMatch({
-    from: '/embed',
+  const matchRoute = useMatchRoute();
+  const matches = matchRoute({
+    to: EmbedRoute.id,
+    fuzzy: true,
   });
-  console.log(match);
-  return !!match?.id;
+  return !!matches;
 };
