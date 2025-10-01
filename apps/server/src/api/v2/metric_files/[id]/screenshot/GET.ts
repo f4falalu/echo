@@ -15,6 +15,14 @@ const app = new Hono().get('/', zValidator('param', AssetIdParamsSchema), async 
     throw new HTTPException(404, { message: 'Metric not found' });
   }
 
+  if (!metric.screenshotBucketKey) {
+    const result: GetScreenshotResponse = {
+      success: false,
+      error: 'Screenshot not found',
+    };
+    return c.json(result);
+  }
+
   const permission = await checkPermission({
     userId: user.id,
     assetId: metricId,
@@ -30,28 +38,27 @@ const app = new Hono().get('/', zValidator('param', AssetIdParamsSchema), async 
     });
   }
 
-  let signedUrl = '';
-  let success = true;
-
   try {
-    signedUrl = await getAssetScreenshotSignedUrl({
-      assetType: 'metric_file',
-      assetId: metricId,
+    const signedUrl = await getAssetScreenshotSignedUrl({
+      key: metric.screenshotBucketKey,
       organizationId: metric.organizationId,
     });
+    const result: GetScreenshotResponse = {
+      success: true,
+      url: signedUrl,
+    };
+    return c.json(result);
   } catch (error) {
     console.error('Failed to generate metric screenshot URL', {
       metricId,
       error,
     });
-    success = false;
+    const result: GetScreenshotResponse = {
+      success: false,
+      error: 'Failed to generate screenshot URL',
+    };
+    return c.json(result);
   }
-
-  const response: GetScreenshotResponse = {
-    success,
-    url: signedUrl,
-  };
-  return c.json(response);
 });
 
 export default app;

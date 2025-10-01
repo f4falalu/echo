@@ -19,7 +19,8 @@ export type PutScreenshotResponse = z.infer<typeof PutScreenshotResponseSchema>;
 
 export const GetScreenshotResponseSchema = z.object({
   success: z.boolean(),
-  url: z.string(),
+  url: z.string().optional(),
+  error: z.string().optional(),
 });
 
 export type GetScreenshotResponse = z.infer<typeof GetScreenshotResponseSchema>;
