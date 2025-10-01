@@ -64,7 +64,7 @@ export const createChatAssetRoute = (asset: {
   if (asset.asset_type === 'chat' || !asset.asset_type || !asset.id) {
     if (asset.isEmbed) {
       return defineLink({
-        to: '/embed/chats/$chatId',
+        to: '/embed/chat/$chatId',
         params: { chatId: asset.chatId },
       });
     }
@@ -78,7 +78,7 @@ export const createChatAssetRoute = (asset: {
   if (asset.asset_type === 'metric_file') {
     if (asset.isEmbed) {
       return defineLink({
-        to: '/embed/chats/$chatId/metrics/$metricId',
+        to: '/embed/chat/$chatId/metrics/$metricId',
         params: { metricId: asset.id || '', chatId: asset.chatId },
         search: { metric_version_number: asset.versionNumber },
       });
@@ -93,7 +93,7 @@ export const createChatAssetRoute = (asset: {
   if (asset.asset_type === 'dashboard_file') {
     if (asset.isEmbed) {
       return defineLink({
-        to: '/embed/chats/$chatId/dashboards/$dashboardId',
+        to: '/embed/chat/$chatId/dashboards/$dashboardId',
         params: { dashboardId: asset.id || '', chatId: asset.chatId },
         search: { dashboard_version_number: asset.versionNumber },
       });
@@ -108,7 +108,7 @@ export const createChatAssetRoute = (asset: {
   if (asset.asset_type === 'report_file') {
     if (asset.isEmbed) {
       return defineLink({
-        to: '/embed/chats/$chatId/reports/$reportId',
+        to: '/embed/chat/$chatId/reports/$reportId',
         params: { reportId: asset.id || '', chatId: asset.chatId },
         search: { report_version_number: asset.versionNumber },
       });
@@ -123,7 +123,7 @@ export const createChatAssetRoute = (asset: {
   if (asset.asset_type === 'reasoning') {
     if (asset.isEmbed) {
       return defineLink({
-        to: '/embed/chats/$chatId/reasoning/$messageId',
+        to: '/embed/chat/$chatId/reasoning/$messageId',
         params: { messageId: asset.id || '', chatId: asset.chatId },
       });
     }

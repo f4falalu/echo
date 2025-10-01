@@ -1,4 +1,4 @@
-import { useMatch, useMatches, useMatchRoute } from '@tanstack/react-router';
+import { useMatchRoute } from '@tanstack/react-router';
 import { Route as EmbedRoute } from '@/routes/embed';
 
 export const useIsEmbed = () => {
