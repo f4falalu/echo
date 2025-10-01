@@ -39,34 +39,39 @@ export const useCreateShortcutsMentionsSuggestions = (
         trigger: SHORTCUT_MENTION_TRIGGER,
         items: ({ defaultQueryMentionsFilter, editor, query }) => {
           const shortcuts = currentItemsRef.current;
-          const allItems: MentionInputTriggerItem[] = [
-            {
+          const allItems: MentionInputTriggerItem[] = [];
+          if (shortcuts.length > 0) {
+            allItems.push({
               type: 'group',
               items: shortcuts.map((s) => createShortcutForMention(s, editor)),
               className: 'max-h-[300px] overflow-y-auto',
-            },
-            { type: 'separator' as const },
-            {
-              value: 'manageShortcuts',
-              label: 'Manage shortcuts',
-              icon: <PenWriting />,
-              doNotAddPipeOnSelect: true,
-              onSelect: () => {
-                navigate({
-                  to: '/app/home/shortcuts',
-                });
+            });
+            allItems.push({ type: 'separator' as const });
+          }
+          allItems.push(
+            ...[
+              {
+                value: 'manageShortcuts',
+                label: 'Manage shortcuts',
+                icon: <PenWriting />,
+                doNotAddPipeOnSelect: true,
+                onSelect: () => {
+                  navigate({
+                    to: '/app/home/shortcuts',
+                  });
+                },
               },
-            },
-            {
-              value: 'createShortcut',
-              label: 'Create shortcut',
-              icon: <Plus />,
-              doNotAddPipeOnSelect: true,
-              onSelect: () => {
-                setOpenCreateShortcutModal(true);
+              {
+                value: 'createShortcut',
+                label: 'Create shortcut',
+                icon: <Plus />,
+                doNotAddPipeOnSelect: true,
+                onSelect: () => {
+                  setOpenCreateShortcutModal(true);
+                },
               },
-            },
-          ];
+            ]
+          );
           return defaultQueryMentionsFilter(query, allItems);
         },
         popoverContent: ShortcutPopoverContent,
