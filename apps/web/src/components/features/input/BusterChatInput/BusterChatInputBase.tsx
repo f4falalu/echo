@@ -195,7 +195,7 @@ const useUniqueSuggestions = (
     return [
       {
         type: 'group',
-        label: 'Shortcuts',
+        label: 'Suggestions',
         suggestionItems: items,
         addValueToInput: true,
         closeOnSelect: true,
