@@ -95,6 +95,7 @@ export const MentionInputSuggestions = forwardRef<
     const onSelectItem = useMemoizedFn(
       ({ onClick, ...params }: MentionInputSuggestionsOnSelectParams) => {
         const { addValueToInput, loading, label, disabled, inputValue } = params;
+        console.log('onSelectItem', params);
         if (disabled) {
           console.warn('Item is disabled', params);
           return;
