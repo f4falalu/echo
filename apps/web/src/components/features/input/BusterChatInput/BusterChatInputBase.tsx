@@ -87,26 +87,28 @@ export const BusterChatInputBase: React.FC<BusterChatInputProps> = React.memo(
       return [shortcutsMentionsSuggestions];
     }, [shortcutsMentionsSuggestions]);
 
-    const onSubmitPreflight = (valueProp?: ReturnType<MentionInputSuggestionsRef['getValue']>) => {
-      if (submitting) {
-        console.warn('Input is submitting');
-        return;
-      }
+    const onSubmitPreflight = useMemoizedFn(
+      (valueProp?: ReturnType<MentionInputSuggestionsRef['getValue']>) => {
+        if (submitting) {
+          console.warn('Input is submitting');
+          return;
+        }
 
-      const value = valueProp || mentionInputSuggestionsRef.current?.getValue?.();
-      if (!value) {
-        console.warn('Value is not defined');
-        return;
-      }
+        const value = valueProp || mentionInputSuggestionsRef.current?.getValue?.();
+        if (!value) {
+          console.warn('Value is not defined');
+          return;
+        }
 
-      if (disabled || !value || !value.transformedValue) {
-        console.warn('Input is disabled or value is not defined');
-        openInfoMessage('Please enter a question or type ‘/’ for shortcuts...');
-        return;
-      }
+        if (disabled || !value || !value.transformedValue) {
+          console.warn('Input is disabled or value is not defined');
+          openInfoMessage('Please enter a question or type ‘/’ for shortcuts...');
+          return;
+        }
 
-      onSubmit({ ...value, mode });
-    };
+        onSubmit({ ...value, mode });
+      }
+    );
 
     const onSuggestionItemClick = useMemoizedFn((d: MentionInputSuggestionsOnSelectParams) => {
       if (d.addValueToInput) {
