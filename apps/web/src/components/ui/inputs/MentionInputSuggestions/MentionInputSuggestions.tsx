@@ -122,7 +122,9 @@ export const MentionInputSuggestions = forwardRef<
         onSuggestionItemClick?.(params);
 
         if (closeSuggestionOnSelect && params.closeOnSelect !== false) setHasClickedSelect(true);
-        setIsInteracting(false);
+        requestAnimationFrame(() => {
+          setIsInteracting(false);
+        });
       }
     );
 
