@@ -21,10 +21,10 @@ export const getAssetAccess = (
   error: ApiError | null,
   isFetched: boolean,
   selectedQuery: QueryKey,
-  _hasData: boolean
+  hasData: boolean
 ): AssetAccess => {
   if (error) {
-    console.error('Error in getAssetAccess', error, isFetched, selectedQuery);
+    console.error('Error in getAssetAccess', error, isFetched, selectedQuery, hasData);
   }
 
   // 418 is password required
@@ -66,7 +66,7 @@ export const getAssetAccess = (
       passwordRequired: false,
       isPublic: false,
       isDeleted: false,
-      isFetched: isFetched,
+      isFetched,
     };
   }
 
@@ -95,8 +95,6 @@ export const useGetAssetPasswordConfig = (
     queryKey: selectedQuery.queryKey,
     enabled: true,
     select: (v: unknown) => !!v,
-    retry: false,
-    initialData: false,
   });
 
   return getAssetAccess(error, isFetched, selectedQuery.queryKey, !!data);
