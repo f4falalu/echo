@@ -1,35 +1,42 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { prefetchGetMetric } from '@/api/buster_rest/metrics';
-import { useGetUserBasicInfo } from '@/api/buster_rest/users/useGetUserInfo';
+import { ensureMetricData, prefetchGetMetric } from '@/api/buster_rest/metrics';
+import { useGetMetricParams } from '@/context/Metrics/useGetMetricParams';
+import { MetricViewChartController } from '@/controllers/MetricController/MetricViewChartController';
 import { GetMetricScreenshotQuerySchema } from '../metrics.$metricId.index';
 
 export const Route = createFileRoute('/screenshots/_content/metrics/$metricId/content')({
-  component: RouteComponent,
   validateSearch: GetMetricScreenshotQuerySchema,
   ssr: true,
-  beforeLoad: async ({ context, params, search, matches }) => {
-    const lastMatch = matches[matches.length - 1];
-    const res = await prefetchGetMetric(context.queryClient, {
-      id: params.metricId,
-      version_number: search.version_number,
-    });
-    if (!res) {
+  beforeLoad: async ({ context, params, search }) => {
+    const [metric, metricData] = await Promise.all([
+      prefetchGetMetric(context.queryClient, {
+        id: params.metricId,
+        version_number: search.version_number,
+      }),
+      ensureMetricData(context.queryClient, {
+        id: params.metricId,
+        version_number: search.version_number,
+      }),
+    ]);
+    if (!metric || !metricData) {
       throw new Error('Metric not found');
     }
     return {
-      metric: res,
+      metric,
     };
   },
+
+  component: () => {
+    const { metricId, metricVersionNumber } = useGetMetricParams();
+    return (
+      <MetricViewChartController
+        metricId={metricId}
+        versionNumber={metricVersionNumber}
+        className="h-full w-full p-0 border-0!"
+        cardClassName="max-h-full! border-0!"
+        readOnly
+        animate={false}
+      />
+    );
+  },
 });
-
-function RouteComponent() {
-  const { version_number, type, width, height } = Route.useSearch();
-  const x = useGetUserBasicInfo();
-
-  return (
-    <div className="p-10 flex flex-col h-full border-red-500 border-10 items-center justify-center bg-blue-100 text-2xl text-blue-500">
-      <div> Hello "/screenshot/hello-world"!</div>
-      <div className="truncate max-w-[300px]">{x?.name}</div>
-    </div>
-  );
-}
