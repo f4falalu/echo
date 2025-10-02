@@ -1,6 +1,4 @@
-import type { AnalysisMode } from '../../types/analysis-mode.types';
-import analystAgentInvestigationPrompt from './analyst-agent-investigation-prompt.txt';
-import analystAgentStandardPrompt from './analyst-agent-standard-prompt.txt';
+import analystAgentPrompt from './analyst-agent-prompt.txt';
 
 /**
  * Template parameters for the analyst agent prompt
@@ -11,23 +9,10 @@ export interface AnalystTemplateParams {
 }
 
 /**
- * Type-safe mapping of analysis modes to prompt content
- */
-const PROMPTS: Record<AnalysisMode, string> = {
-  standard: analystAgentStandardPrompt,
-  investigation: analystAgentInvestigationPrompt,
-} as const;
-
-/**
  * Loads the analyst agent prompt template and replaces variables
  */
-function loadAndProcessPrompt(
-  params: AnalystTemplateParams,
-  analysisMode: AnalysisMode = 'standard'
-): string {
-  const content = PROMPTS[analysisMode];
-
-  return content
+function loadAndProcessPrompt(params: AnalystTemplateParams): string {
+  return analystAgentPrompt
     .replace(/\{\{sql_dialect_guidance\}\}/g, params.dataSourceSyntax)
     .replace(/\{\{date\}\}/g, params.date);
 }
@@ -35,21 +20,15 @@ function loadAndProcessPrompt(
 /**
  * Export the template function for use in step files
  */
-export const getAnalystAgentSystemPrompt = (
-  dataSourceSyntax: string,
-  analysisMode: AnalysisMode = 'standard'
-): string => {
+export const getAnalystAgentSystemPrompt = (dataSourceSyntax: string): string => {
   if (!dataSourceSyntax.trim()) {
     throw new Error('SQL dialect guidance is required');
   }
 
   const currentDate = new Date().toISOString();
 
-  return loadAndProcessPrompt(
-    {
-      dataSourceSyntax,
-      date: currentDate,
-    },
-    analysisMode
-  );
+  return loadAndProcessPrompt({
+    dataSourceSyntax,
+    date: currentDate,
+  });
 };
