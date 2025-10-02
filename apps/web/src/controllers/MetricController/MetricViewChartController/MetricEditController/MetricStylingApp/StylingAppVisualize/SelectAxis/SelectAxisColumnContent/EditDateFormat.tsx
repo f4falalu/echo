@@ -90,7 +90,7 @@ export const EditDateFormat: React.FC<{
             showWarning={true}
             className="max-w-[300px]"
             icon={<CircleInfo />}
-            warningText="When UTC Offset is enabled, dates are displayed with timezone information. Use this when data is stored in different timezones or when timezone context matters. Buster tries the correct timezone and UTC Offset for each date. Note: When data is truncated (e.g., DATE_TRUNC to day/month/quarter), timezone differences are lost during truncation — the data is bucketed first, then timezone offsets are applied to the labels."
+            warningText="When enabled, dates show which timezone they're in. This is helpful when your data comes from different locations or when the time of day matters. Note: When data is grouped (e.g., by day, month, quarter or via a DATE_TRUNC command), timezone differences are lost during grouping — dates are grouped first, then timezone labels are added."
           />
           <Switch checked={isUTC} onCheckedChange={onUpdateUTC} />
         </div>
