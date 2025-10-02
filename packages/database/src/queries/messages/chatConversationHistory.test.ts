@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import type { ModelMessage } from 'ai';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getChatConversationHistory } from './chatConversationHistory';
@@ -79,7 +80,7 @@ describe('getChatConversationHistory - Orphaned Tool Call Cleanup', () => {
     ]);
 
     const result = await getChatConversationHistory({
-      messageId: 'test-message-id',
+      messageId: randomUUID(),
     });
 
     // Should have removed the orphaned tool call but kept the valid one
@@ -144,7 +145,7 @@ describe('getChatConversationHistory - Orphaned Tool Call Cleanup', () => {
     ]);
 
     const result = await getChatConversationHistory({
-      messageId: 'test-message-id',
+      messageId: randomUUID(),
     });
 
     // Should keep both messages (tool call and result)
@@ -206,7 +207,7 @@ describe('getChatConversationHistory - Orphaned Tool Call Cleanup', () => {
     ]);
 
     const result = await getChatConversationHistory({
-      messageId: 'test-message-id',
+      messageId: randomUUID(),
     });
 
     // Should keep the assistant message because it has at least one valid tool call
@@ -265,7 +266,7 @@ describe('getChatConversationHistory - Orphaned Tool Call Cleanup', () => {
     ]);
 
     const result = await getChatConversationHistory({
-      messageId: 'test-message-id',
+      messageId: randomUUID(),
     });
 
     // Should have removed the assistant message with only orphaned tool call
@@ -293,7 +294,7 @@ describe('getChatConversationHistory - Orphaned Tool Call Cleanup', () => {
     ]);
 
     const result = await getChatConversationHistory({
-      messageId: 'test-message-id',
+      messageId: randomUUID(),
     });
 
     expect(result).toEqual([]);
@@ -328,7 +329,7 @@ describe('getChatConversationHistory - Orphaned Tool Call Cleanup', () => {
     ]);
 
     const result = await getChatConversationHistory({
-      messageId: 'test-message-id',
+      messageId: randomUUID(),
     });
 
     expect(result).toHaveLength(2);
