@@ -51,7 +51,7 @@ export const AddToCollectionModal: React.FC<{
         render: (name, record) => {
           const Icon = assetTypeToIcon(record.assetType) || ASSET_ICONS.metrics;
           return (
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 search-bold">
               <span className="text-icon-color">
                 <Icon />
               </span>
