@@ -123,27 +123,27 @@ export async function runAnalystWorkflow(
   //     earlyTermination: thinkAndPrepAgentStepResults.earlyTermination,
   //   });
 
-    analystAgentStepResults = await runAnalystAgentStep({
-      options: {
-        messageId: input.messageId,
-        chatId: input.chatId,
-        organizationId: input.organizationId,
-        dataSourceId: input.dataSourceId,
-        dataSourceSyntax: input.dataSourceSyntax,
-        userId: input.userId,
-        datasets: input.datasets,
-        workflowStartTime,
-        analysisMode,
-        analystInstructions,
-        organizationDocs,
-        userPersonalizationMessageContent,
-      },
-      streamOptions: {
-        messages,
-      },
-    });
+  analystAgentStepResults = await runAnalystAgentStep({
+    options: {
+      messageId: input.messageId,
+      chatId: input.chatId,
+      organizationId: input.organizationId,
+      dataSourceId: input.dataSourceId,
+      dataSourceSyntax: input.dataSourceSyntax,
+      userId: input.userId,
+      datasets: input.datasets,
+      workflowStartTime,
+      analysisMode,
+      analystInstructions,
+      organizationDocs,
+      userPersonalizationMessageContent,
+    },
+    streamOptions: {
+      messages,
+    },
+  });
 
-    messages.push(...analystAgentStepResults.messages);
+  messages.push(...analystAgentStepResults.messages);
   // } else {
   //   console.info('[runAnalystWorkflow] DEBUG: SKIPPING analyst agent due to early termination', {
   //     workflowId,
