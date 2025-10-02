@@ -1,20 +1,15 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useMount } from '@/hooks/useMount';
+import { z } from 'zod';
+import { GetMetricScreenshotQuerySchema } from './metrics.$metricId.index';
 
-export const Route = createFileRoute('/screenshots/hello-world')({
+export const Route = createFileRoute('/screenshots/metrics/$metricId/content')({
   component: RouteComponent,
+  validateSearch: GetMetricScreenshotQuerySchema,
+  ssr: true,
 });
 
 function RouteComponent() {
-  useMount(() => {
-    // getMetricScreenshot({
-    //   data: {
-    //     metricId: '123',
-    //   },
-    // }).then((res) => {
-    //   console.log(res);
-    // });
-  });
+  const { version_number, type, width, height } = Route.useSearch();
 
   return (
     <div className="p-10 flex flex-col h-full border-red-500 border-10 items-center justify-center bg-blue-100 text-2xl text-blue-500">

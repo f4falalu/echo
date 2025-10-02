@@ -1,23 +1,24 @@
 import { createServerFileRoute } from '@tanstack/react-start/server';
 import { chromium } from 'playwright';
 import { z } from 'zod';
-import { Route as HelloWorldRoute } from './hello-world';
+import { Route as MetricContentRoute } from './metrics.$metricId.content';
 
-const GetMetricScreenshotParamsSchema = z.object({
+export const GetMetricScreenshotParamsSchema = z.object({
   metricId: z.string(),
 });
 
-const GetMetricScreenshotQuerySchema = z.object({
+export const GetMetricScreenshotQuerySchema = z.object({
   version_number: z.coerce.number().min(1).optional(),
   width: z.coerce.number().min(100).max(3840).default(800),
   height: z.coerce.number().min(100).max(2160).default(450),
+  type: z.enum(['png', 'jpeg']).default('png'),
 });
 
-export const ServerRoute = createServerFileRoute('/screenshots/metrics/$metricId').methods({
+export const ServerRoute = createServerFileRoute('/screenshots/metrics/$metricId/').methods({
   GET: async ({ request, params }) => {
     console.time('capture screenshot');
     const { metricId } = GetMetricScreenshotParamsSchema.parse(params);
-    const { version_number, width, height } = GetMetricScreenshotQuerySchema.parse(
+    const { version_number, type, width, height } = GetMetricScreenshotQuerySchema.parse(
       Object.fromEntries(new URL(request.url).searchParams)
     );
     const origin = new URL(request.url).origin;
@@ -30,11 +31,11 @@ export const ServerRoute = createServerFileRoute('/screenshots/metrics/$metricId
       });
       console.timeLog('capture screenshot', 'page created');
 
-      const fullPath = `${origin}${HelloWorldRoute.fullPath}`;
+      const fullPath = `${origin}${MetricContentRoute.fullPath}`;
       await page.goto(fullPath, { waitUntil: 'networkidle' });
       console.timeLog('capture screenshot', 'page navigated');
       const screenshotBuffer = await page.screenshot({
-        type: 'png',
+        type,
       });
       console.timeLog('capture screenshot', 'screenshot taken');
       console.timeEnd('capture screenshot');

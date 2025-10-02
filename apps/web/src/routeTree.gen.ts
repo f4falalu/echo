@@ -18,7 +18,6 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
-import { Route as ScreenshotsHelloWorldRouteImport } from './routes/screenshots/hello-world'
 import { Route as InfoGettingStartedRouteImport } from './routes/info/getting-started'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
 import { Route as AuthLogoutRouteImport } from './routes/auth.logout'
@@ -46,6 +45,7 @@ import { Route as AppAppDatasetsIndexRouteImport } from './routes/app/_app/datas
 import { Route as AppAppDashboardsIndexRouteImport } from './routes/app/_app/dashboards.index'
 import { Route as AppAppCollectionsIndexRouteImport } from './routes/app/_app/collections.index'
 import { Route as AppAppChatsIndexRouteImport } from './routes/app/_app/chats.index'
+import { Route as ScreenshotsMetricsMetricIdContentRouteImport } from './routes/screenshots/metrics.$metricId.content'
 import { Route as AppSettingsRestricted_layoutAdmin_onlyRouteImport } from './routes/app/_settings/_restricted_layout/_admin_only'
 import { Route as AppAppHomeShortcutsRouteImport } from './routes/app/_app/home/shortcuts'
 import { Route as AppAppDatasetsDatasetIdRouteImport } from './routes/app/_app/datasets.$datasetId'
@@ -155,7 +155,7 @@ import { Route as AppAppAssetChatsChatIdDashboardsDashboardIdMetricsMetricIdCont
 import { Route as AppAppAssetChatsChatIdDashboardsDashboardIdMetricsMetricIdContentChartRouteImport } from './routes/app/_app/_asset/chats.$chatId/dashboards.$dashboardId/metrics.$metricId/_content/chart'
 import { ServerRoute as AuthConfirmServerRouteImport } from './routes/auth.confirm'
 import { ServerRoute as AuthCallbackServerRouteImport } from './routes/auth.callback'
-import { ServerRoute as ScreenshotsMetricsMetricIdServerRouteImport } from './routes/screenshots/metrics.$metricId'
+import { ServerRoute as ScreenshotsMetricsMetricIdIndexServerRouteImport } from './routes/screenshots/metrics.$metricId.index'
 
 const EmbedChatChatIdReportsReportIdRouteImport = createFileRoute(
   '/embed/chat/$chatId/reports/$reportId',
@@ -236,11 +236,6 @@ const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppRoute,
-} as any)
-const ScreenshotsHelloWorldRoute = ScreenshotsHelloWorldRouteImport.update({
-  id: '/screenshots/hello-world',
-  path: '/screenshots/hello-world',
-  getParentRoute: () => rootRouteImport,
 } as any)
 const InfoGettingStartedRoute = InfoGettingStartedRouteImport.update({
   id: '/info/getting-started',
@@ -375,6 +370,12 @@ const AppAppChatsIndexRoute = AppAppChatsIndexRouteImport.update({
   path: '/chats/',
   getParentRoute: () => AppAppRoute,
 } as any)
+const ScreenshotsMetricsMetricIdContentRoute =
+  ScreenshotsMetricsMetricIdContentRouteImport.update({
+    id: '/screenshots/metrics/$metricId/content',
+    path: '/screenshots/metrics/$metricId/content',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AppSettingsRestricted_layoutAdmin_onlyRoute =
   AppSettingsRestricted_layoutAdmin_onlyRouteImport.update({
     id: '/_admin_only',
@@ -1187,10 +1188,10 @@ const AuthCallbackServerRoute = AuthCallbackServerRouteImport.update({
   path: '/auth/callback',
   getParentRoute: () => rootServerRouteImport,
 } as any)
-const ScreenshotsMetricsMetricIdServerRoute =
-  ScreenshotsMetricsMetricIdServerRouteImport.update({
-    id: '/screenshots/metrics/$metricId',
-    path: '/screenshots/metrics/$metricId',
+const ScreenshotsMetricsMetricIdIndexServerRoute =
+  ScreenshotsMetricsMetricIdIndexServerRouteImport.update({
+    id: '/screenshots/metrics/$metricId/',
+    path: '/screenshots/metrics/$metricId/',
     getParentRoute: () => rootServerRouteImport,
   } as any)
 
@@ -1204,7 +1205,6 @@ export interface FileRoutesByFullPath {
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/info/getting-started': typeof InfoGettingStartedRoute
-  '/screenshots/hello-world': typeof ScreenshotsHelloWorldRoute
   '/app/': typeof AppIndexRoute
   '/app/home': typeof AppAppHomeRouteWithChildren
   '/app/new-user': typeof AppAppNewUserRouteWithChildren
@@ -1215,6 +1215,7 @@ export interface FileRoutesByFullPath {
   '/embed/report/$reportId': typeof EmbedReportReportIdRoute
   '/app/datasets/$datasetId': typeof AppAppDatasetsDatasetIdRouteWithChildren
   '/app/home/shortcuts': typeof AppAppHomeShortcutsRoute
+  '/screenshots/metrics/$metricId/content': typeof ScreenshotsMetricsMetricIdContentRoute
   '/app/chats': typeof AppAppChatsIndexRoute
   '/app/collections': typeof AppAppCollectionsIndexRoute
   '/app/dashboards': typeof AppAppDashboardsIndexRoute
@@ -1341,13 +1342,13 @@ export interface FileRoutesByTo {
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/info/getting-started': typeof InfoGettingStartedRoute
-  '/screenshots/hello-world': typeof ScreenshotsHelloWorldRoute
   '/app/test-pagination': typeof AppAppTestPaginationRoute
   '/embed/dashboard/$dashboardId': typeof EmbedDashboardDashboardIdRoute
   '/embed/metric/$metricId': typeof EmbedMetricMetricIdRoute
   '/embed/report/$reportId': typeof EmbedReportReportIdRoute
   '/app/datasets/$datasetId': typeof AppAppDatasetsDatasetIdRouteWithChildren
   '/app/home/shortcuts': typeof AppAppHomeShortcutsRoute
+  '/screenshots/metrics/$metricId/content': typeof ScreenshotsMetricsMetricIdContentRoute
   '/app/chats': typeof AppAppChatsIndexRoute
   '/app/collections': typeof AppAppCollectionsIndexRoute
   '/app/dashboards': typeof AppAppDashboardsIndexRoute
@@ -1455,7 +1456,6 @@ export interface FileRoutesById {
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/info/getting-started': typeof InfoGettingStartedRoute
-  '/screenshots/hello-world': typeof ScreenshotsHelloWorldRoute
   '/app/': typeof AppIndexRoute
   '/app/_app/_asset': typeof AppAppAssetRouteWithChildren
   '/app/_app/home': typeof AppAppHomeRouteWithChildren
@@ -1470,6 +1470,7 @@ export interface FileRoutesById {
   '/app/_app/datasets/$datasetId': typeof AppAppDatasetsDatasetIdRouteWithChildren
   '/app/_app/home/shortcuts': typeof AppAppHomeShortcutsRoute
   '/app/_settings/_restricted_layout/_admin_only': typeof AppSettingsRestricted_layoutAdmin_onlyRouteWithChildren
+  '/screenshots/metrics/$metricId/content': typeof ScreenshotsMetricsMetricIdContentRoute
   '/app/_app/chats/': typeof AppAppChatsIndexRoute
   '/app/_app/collections/': typeof AppAppCollectionsIndexRoute
   '/app/_app/dashboards/': typeof AppAppDashboardsIndexRoute
@@ -1613,7 +1614,6 @@ export interface FileRouteTypes {
     | '/auth/logout'
     | '/auth/reset-password'
     | '/info/getting-started'
-    | '/screenshots/hello-world'
     | '/app/'
     | '/app/home'
     | '/app/new-user'
@@ -1624,6 +1624,7 @@ export interface FileRouteTypes {
     | '/embed/report/$reportId'
     | '/app/datasets/$datasetId'
     | '/app/home/shortcuts'
+    | '/screenshots/metrics/$metricId/content'
     | '/app/chats'
     | '/app/collections'
     | '/app/dashboards'
@@ -1750,13 +1751,13 @@ export interface FileRouteTypes {
     | '/auth/logout'
     | '/auth/reset-password'
     | '/info/getting-started'
-    | '/screenshots/hello-world'
     | '/app/test-pagination'
     | '/embed/dashboard/$dashboardId'
     | '/embed/metric/$metricId'
     | '/embed/report/$reportId'
     | '/app/datasets/$datasetId'
     | '/app/home/shortcuts'
+    | '/screenshots/metrics/$metricId/content'
     | '/app/chats'
     | '/app/collections'
     | '/app/dashboards'
@@ -1863,7 +1864,6 @@ export interface FileRouteTypes {
     | '/auth/logout'
     | '/auth/reset-password'
     | '/info/getting-started'
-    | '/screenshots/hello-world'
     | '/app/'
     | '/app/_app/_asset'
     | '/app/_app/home'
@@ -1878,6 +1878,7 @@ export interface FileRouteTypes {
     | '/app/_app/datasets/$datasetId'
     | '/app/_app/home/shortcuts'
     | '/app/_settings/_restricted_layout/_admin_only'
+    | '/screenshots/metrics/$metricId/content'
     | '/app/_app/chats/'
     | '/app/_app/collections/'
     | '/app/_app/dashboards/'
@@ -2017,23 +2018,23 @@ export interface RootRouteChildren {
   EmbedRoute: typeof EmbedRouteWithChildren
   HealthcheckRoute: typeof HealthcheckRoute
   InfoGettingStartedRoute: typeof InfoGettingStartedRoute
-  ScreenshotsHelloWorldRoute: typeof ScreenshotsHelloWorldRoute
+  ScreenshotsMetricsMetricIdContentRoute: typeof ScreenshotsMetricsMetricIdContentRoute
 }
 export interface FileServerRoutesByFullPath {
   '/auth/callback': typeof AuthCallbackServerRoute
   '/auth/confirm': typeof AuthConfirmServerRoute
-  '/screenshots/metrics/$metricId': typeof ScreenshotsMetricsMetricIdServerRoute
+  '/screenshots/metrics/$metricId': typeof ScreenshotsMetricsMetricIdIndexServerRoute
 }
 export interface FileServerRoutesByTo {
   '/auth/callback': typeof AuthCallbackServerRoute
   '/auth/confirm': typeof AuthConfirmServerRoute
-  '/screenshots/metrics/$metricId': typeof ScreenshotsMetricsMetricIdServerRoute
+  '/screenshots/metrics/$metricId': typeof ScreenshotsMetricsMetricIdIndexServerRoute
 }
 export interface FileServerRoutesById {
   __root__: typeof rootServerRouteImport
   '/auth/callback': typeof AuthCallbackServerRoute
   '/auth/confirm': typeof AuthConfirmServerRoute
-  '/screenshots/metrics/$metricId': typeof ScreenshotsMetricsMetricIdServerRoute
+  '/screenshots/metrics/$metricId/': typeof ScreenshotsMetricsMetricIdIndexServerRoute
 }
 export interface FileServerRouteTypes {
   fileServerRoutesByFullPath: FileServerRoutesByFullPath
@@ -2047,13 +2048,13 @@ export interface FileServerRouteTypes {
     | '__root__'
     | '/auth/callback'
     | '/auth/confirm'
-    | '/screenshots/metrics/$metricId'
+    | '/screenshots/metrics/$metricId/'
   fileServerRoutesById: FileServerRoutesById
 }
 export interface RootServerRouteChildren {
   AuthCallbackServerRoute: typeof AuthCallbackServerRoute
   AuthConfirmServerRoute: typeof AuthConfirmServerRoute
-  ScreenshotsMetricsMetricIdServerRoute: typeof ScreenshotsMetricsMetricIdServerRoute
+  ScreenshotsMetricsMetricIdIndexServerRoute: typeof ScreenshotsMetricsMetricIdIndexServerRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2099,13 +2100,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/'
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
-    }
-    '/screenshots/hello-world': {
-      id: '/screenshots/hello-world'
-      path: '/screenshots/hello-world'
-      fullPath: '/screenshots/hello-world'
-      preLoaderRoute: typeof ScreenshotsHelloWorldRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/info/getting-started': {
       id: '/info/getting-started'
@@ -2295,6 +2289,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/chats'
       preLoaderRoute: typeof AppAppChatsIndexRouteImport
       parentRoute: typeof AppAppRoute
+    }
+    '/screenshots/metrics/$metricId/content': {
+      id: '/screenshots/metrics/$metricId/content'
+      path: '/screenshots/metrics/$metricId/content'
+      fullPath: '/screenshots/metrics/$metricId/content'
+      preLoaderRoute: typeof ScreenshotsMetricsMetricIdContentRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/app/_settings/_restricted_layout/_admin_only': {
       id: '/app/_settings/_restricted_layout/_admin_only'
@@ -3168,11 +3169,11 @@ declare module '@tanstack/react-start/server' {
       preLoaderRoute: typeof AuthCallbackServerRouteImport
       parentRoute: typeof rootServerRouteImport
     }
-    '/screenshots/metrics/$metricId': {
-      id: '/screenshots/metrics/$metricId'
+    '/screenshots/metrics/$metricId/': {
+      id: '/screenshots/metrics/$metricId/'
       path: '/screenshots/metrics/$metricId'
       fullPath: '/screenshots/metrics/$metricId'
-      preLoaderRoute: typeof ScreenshotsMetricsMetricIdServerRouteImport
+      preLoaderRoute: typeof ScreenshotsMetricsMetricIdIndexServerRouteImport
       parentRoute: typeof rootServerRouteImport
     }
   }
@@ -4185,7 +4186,8 @@ const rootRouteChildren: RootRouteChildren = {
   EmbedRoute: EmbedRouteWithChildren,
   HealthcheckRoute: HealthcheckRoute,
   InfoGettingStartedRoute: InfoGettingStartedRoute,
-  ScreenshotsHelloWorldRoute: ScreenshotsHelloWorldRoute,
+  ScreenshotsMetricsMetricIdContentRoute:
+    ScreenshotsMetricsMetricIdContentRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
@@ -4193,7 +4195,8 @@ export const routeTree = rootRouteImport
 const rootServerRouteChildren: RootServerRouteChildren = {
   AuthCallbackServerRoute: AuthCallbackServerRoute,
   AuthConfirmServerRoute: AuthConfirmServerRoute,
-  ScreenshotsMetricsMetricIdServerRoute: ScreenshotsMetricsMetricIdServerRoute,
+  ScreenshotsMetricsMetricIdIndexServerRoute:
+    ScreenshotsMetricsMetricIdIndexServerRoute,
 }
 export const serverRouteTree = rootServerRouteImport
   ._addFileChildren(rootServerRouteChildren)
