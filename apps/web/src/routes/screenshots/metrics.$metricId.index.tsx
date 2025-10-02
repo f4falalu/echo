@@ -18,6 +18,7 @@ export const GetMetricScreenshotQuerySchema = z.object({
 
 export const ServerRoute = createServerFileRoute('/screenshots/metrics/$metricId/').methods({
   GET: async ({ request, params }) => {
+    console.time('GET /screenshots/metrics/$metricId');
     const bearerToken = request.headers.get('Authorization') || '';
     const accessToken = bearerToken.replace('Bearer ', '');
     const supabase = getSupabaseServerClient();
@@ -25,8 +26,10 @@ export const ServerRoute = createServerFileRoute('/screenshots/metrics/$metricId
     const {
       data: { user },
     } = await supabase.auth.getUser(accessToken);
+    console.timeLog('GET /screenshots/metrics/$metricId', 'supabase.auth.getUser');
 
     if (!user || user.is_anonymous) {
+      console.timeEnd('GET /screenshots/metrics/$metricId');
       return new Response('Unauthorized', { status: 401 });
     }
 
@@ -47,12 +50,17 @@ export const ServerRoute = createServerFileRoute('/screenshots/metrics/$metricId
         }),
         request,
         callback: async ({ page }) => {
+          console.timeLog('GET /screenshots/metrics/$metricId', 'start page.screenshot');
           const screenshotBuffer = await page.screenshot({
             type,
           });
+          console.timeLog('GET /screenshots/metrics/$metricId', 'finished page.screenshot');
+
           return screenshotBuffer;
         },
       });
+
+      console.timeEnd('GET /screenshots/metrics/$metricId');
 
       return createScreenshotResponse({ screenshotBuffer });
     } catch (error) {
