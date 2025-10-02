@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import docsAgentPrompt from './docs-agent-prompt.txt';
-import { getDocsAgentSystemPrompt } from './get-docs-agent-system-prompt';
+import { getDocsAgentSystemPrompt } from './get-analytics-engineer-agent-system-prompt';
 
 describe('Docs Agent Instructions', () => {
   it('should validate template file contains expected variables', () => {

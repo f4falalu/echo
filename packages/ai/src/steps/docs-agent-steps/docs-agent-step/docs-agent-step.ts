@@ -1,8 +1,8 @@
 import type { Sandbox } from '@buster/sandbox';
 import type { ModelMessage } from 'ai';
 import { z } from 'zod';
-import { createDocsAgent } from '../../../agents/docs-agent/docs-agent';
-import { DocsAgentContextSchema } from '../../../agents/docs-agent/docs-agent-context';
+import { createAnalyticsEngineerAgent } from '../../../agents/analytics-engineer-agent/analytics-engineer-agent';
+import { AnalyticsEngineerAgentContextSchema } from '../../../agents/analytics-engineer-agent/analytics-engineer-agent-context';
 
 // Zod schemas first - following Zod-first approach
 export const DocsAgentStepInputSchema = z.object({
@@ -11,7 +11,7 @@ export const DocsAgentStepInputSchema = z.object({
   message: z.string().describe('The user message'),
   messageId: z.string().describe('The user message'),
   organizationId: z.string().describe('The organization ID'),
-  context: DocsAgentContextSchema.describe('The docs agent context'),
+  context: AnalyticsEngineerAgentContextSchema.describe('The docs agent context'),
   repositoryTree: z.string().describe('The tree structure of the repository'),
 });
 
@@ -68,7 +68,7 @@ export async function runDocsAgentStep(params: DocsAgentStepInput): Promise<void
     }
 
     // Create the docs agent with folder structure and context
-    const docsAgent = createDocsAgent({
+    const docsAgent = createAnalyticsEngineerAgent({
       folder_structure: validatedParams.repositoryTree,
       userId: validatedParams.organizationId, // Using organizationId as userId for now
       chatId: Date.now().toString(), // Using current timestamp as chatId

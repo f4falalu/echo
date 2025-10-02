@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { ModelMessage } from 'ai';
 import { z } from 'zod';
-import { DocsAgentContextSchema } from '../../agents/docs-agent/docs-agent-context';
+import { AnalyticsEngineerAgentContextSchema } from '../../agents/analytics-engineer-agent/analytics-engineer-agent-context';
 import {
   runCreateDocsTodosStep,
   runDocsAgentStep,
@@ -13,7 +13,7 @@ import {
 export const docsAgentWorkflowInputSchema = z.object({
   message: z.string().describe('The user message'),
   organizationId: z.string().describe('The organization ID'),
-  context: DocsAgentContextSchema.describe('The docs agent context'),
+  context: AnalyticsEngineerAgentContextSchema.describe('The docs agent context'),
 });
 
 // Output schema for the workflow

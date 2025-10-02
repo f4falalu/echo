@@ -11,13 +11,13 @@ import { createBashTool } from '../../tools/file-tools/bash-tool/bash-tool';
 import { createGrepTool } from '../../tools/file-tools/grep-tool/grep-tool';
 import { createReadFileTool } from '../../tools/file-tools/read-file-tool/read-file-tool';
 import { type AgentContext, repairToolCall } from '../../utils/tool-call-repair';
-import { getDocsAgentSystemPrompt } from './get-docs-agent-system-prompt';
+import { getDocsAgentSystemPrompt as getAnalyticsEngineerAgentSystemPrompt } from './get-analytics-engineer-agent-system-prompt';
 
-export const DOCS_AGENT_NAME = 'docsAgent';
+export const ANALYST_ENGINEER_AGENT_NAME = 'analyticsEngineerAgent';
 
-const STOP_CONDITIONS = [stepCountIs(50), hasToolCall('idleTool')];
+const STOP_CONDITIONS = [stepCountIs(100), hasToolCall('idleTool')];
 
-const DocsAgentOptionsSchema = z.object({
+const AnalyticsEngineerAgentOptionsSchema = z.object({
   folder_structure: z.string().describe('The file structure of the dbt repository'),
   userId: z.string(),
   chatId: z.string(),
@@ -38,69 +38,69 @@ const DocsAgentOptionsSchema = z.object({
     .describe('Custom language model to use (defaults to Sonnet4)'),
 });
 
-const DocsStreamOptionsSchema = z.object({
+const AnalyticsEngineerAgentStreamOptionsSchema = z.object({
   messages: z.array(z.custom<ModelMessage>()).describe('The messages to send to the docs agent'),
 });
 
-export type DocsAgentOptions = z.infer<typeof DocsAgentOptionsSchema>;
-export type DocsStreamOptions = z.infer<typeof DocsStreamOptionsSchema>;
+export type AnalyticsEngineerAgentOptions = z.infer<typeof AnalyticsEngineerAgentOptionsSchema>;
+export type AnalyticsEngineerAgentStreamOptions = z.infer<typeof AnalyticsEngineerAgentStreamOptionsSchema>;
 
 // Extended type for passing to tools (includes sandbox)
-export type DocsAgentContextWithSandbox = DocsAgentOptions & { sandbox: Sandbox };
+export type DocsAgentContextWithSandbox = AnalyticsEngineerAgentOptions & { sandbox: Sandbox };
 
-export function createDocsAgent(docsAgentOptions: DocsAgentOptions) {
+export function createAnalyticsEngineerAgent(analyticsEngineerAgentOptions: AnalyticsEngineerAgentOptions) {
   const systemMessage = {
     role: 'system',
-    content: getDocsAgentSystemPrompt(docsAgentOptions.folder_structure),
+    content: getAnalyticsEngineerAgentSystemPrompt(analyticsEngineerAgentOptions.folder_structure),
     providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
   } as ModelMessage;
 
   const idleTool = createIdleTool();
   const writeFileTool = createWriteFileTool({
-    messageId: docsAgentOptions.messageId,
-    projectDirectory: docsAgentOptions.folder_structure,
+    messageId: analyticsEngineerAgentOptions.messageId,
+    projectDirectory: analyticsEngineerAgentOptions.folder_structure,
   });
   const grepTool = createGrepTool({
-    messageId: docsAgentOptions.messageId,
-    projectDirectory: docsAgentOptions.folder_structure,
+    messageId: analyticsEngineerAgentOptions.messageId,
+    projectDirectory: analyticsEngineerAgentOptions.folder_structure,
   });
   const readFileTool = createReadFileTool({
-    messageId: docsAgentOptions.messageId,
-    projectDirectory: docsAgentOptions.folder_structure,
+    messageId: analyticsEngineerAgentOptions.messageId,
+    projectDirectory: analyticsEngineerAgentOptions.folder_structure,
   });
   const bashTool = createBashTool({
-    messageId: docsAgentOptions.messageId,
-    projectDirectory: docsAgentOptions.folder_structure,
+    messageId: analyticsEngineerAgentOptions.messageId,
+    projectDirectory: analyticsEngineerAgentOptions.folder_structure,
   });
   const editFileTool = createEditFileTool({
-    messageId: docsAgentOptions.messageId,
-    projectDirectory: docsAgentOptions.folder_structure,
+    messageId: analyticsEngineerAgentOptions.messageId,
+    projectDirectory: analyticsEngineerAgentOptions.folder_structure,
   });
   const multiEditFileTool = createMultiEditFileTool({
-    messageId: docsAgentOptions.messageId,
-    projectDirectory: docsAgentOptions.folder_structure,
+    messageId: analyticsEngineerAgentOptions.messageId,
+    projectDirectory: analyticsEngineerAgentOptions.folder_structure,
   });
   const lsTool = createLsTool({
-    messageId: docsAgentOptions.messageId,
-    projectDirectory: docsAgentOptions.folder_structure,
+    messageId: analyticsEngineerAgentOptions.messageId,
+    projectDirectory: analyticsEngineerAgentOptions.folder_structure,
   });
 
   // Create planning tools with simple context
-  async function stream({ messages }: DocsStreamOptions) {
+  async function stream({ messages }: AnalyticsEngineerAgentStreamOptions) {
     // Collect available tools dynamically based on what's enabled
     const availableTools: string[] = ['sequentialThinking'];
     availableTools.push('executeSql');
     availableTools.push('updateClarificationsFile', 'checkOffTodoList', 'idleTool', 'webSearch');
 
     const agentContext: AgentContext = {
-      agentName: DOCS_AGENT_NAME,
+      agentName: ANALYST_ENGINEER_AGENT_NAME,
       availableTools,
     };
 
     return wrapTraced(
       () =>
         streamText({
-          model: docsAgentOptions.model || Sonnet4,
+          model: analyticsEngineerAgentOptions.model || Sonnet4,
           providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
           tools: {
             idleTool,
@@ -117,7 +117,7 @@ export function createDocsAgent(docsAgentOptions: DocsAgentOptions) {
           toolChoice: 'required',
           maxOutputTokens: 10000,
           temperature: 0,
-          experimental_context: docsAgentOptions,
+          experimental_context: analyticsEngineerAgentOptions,
           experimental_repairToolCall: async (repairContext) => {
             return repairToolCall({
               toolCall: repairContext.toolCall,
