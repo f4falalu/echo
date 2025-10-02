@@ -71,6 +71,15 @@ describe('Done Tool Streaming Tests', () => {
     workflowStartTime: Date.now(),
   };
 
+  // Helper to create mock ToolCallOptions
+  const createMockToolCallOptions = (
+    overrides: Partial<ToolCallOptions> = {}
+  ): ToolCallOptions => ({
+    messages: [],
+    toolCallId: 'test-call-id',
+    ...overrides,
+  });
+
   describe('createDoneToolStart', () => {
     test('should initialize state with entry_id on start', async () => {
       const state: DoneToolState = {
@@ -252,8 +261,8 @@ describe('Done Tool Streaming Tests', () => {
       });
       await deltaHandler({
         inputTextDelta: deltaInput,
-        toolCallId: 'call-1',
-      } as ToolCallOptions);
+        ...createMockToolCallOptions({ toolCallId: 'call-1' }),
+      });
 
       const queries = await import('@buster/database/queries');
 
@@ -375,8 +384,8 @@ describe('Done Tool Streaming Tests', () => {
       });
       await deltaHandler({
         inputTextDelta: deltaInput,
-        toolCallId: 'call-2',
-      } as ToolCallOptions);
+        ...createMockToolCallOptions({ toolCallId: 'call-2' }),
+      });
 
       const queries = await import('@buster/database/queries');
 
@@ -492,8 +501,8 @@ describe('Done Tool Streaming Tests', () => {
       });
       await deltaHandler({
         inputTextDelta: deltaInput,
-        toolCallId: 'call-3',
-      } as ToolCallOptions);
+        ...createMockToolCallOptions({ toolCallId: 'call-3' }),
+      });
 
       const queries = await import('@buster/database/queries');
       const updateArgs = ((queries.updateChat as unknown as { mock: { calls: unknown[][] } }).mock
@@ -688,6 +697,7 @@ describe('Done Tool Streaming Tests', () => {
       const finishHandler = createDoneToolFinish(mockContext, state);
 
       const input: DoneToolInput = {
+        assetsToReturn: [],
         finalResponse: 'This is the final response message',
       };
 
@@ -710,6 +720,7 @@ describe('Done Tool Streaming Tests', () => {
       const finishHandler = createDoneToolFinish(mockContext, state);
 
       const input: DoneToolInput = {
+        assetsToReturn: [],
         finalResponse: 'Response without prior start',
       };
 
@@ -746,6 +757,7 @@ The following items were processed:
 `;
 
       const input: DoneToolInput = {
+        assetsToReturn: [],
         finalResponse: markdownResponse,
       };
 
@@ -810,6 +822,7 @@ The following items were processed:
       expect(state.finalResponse).toBeTypeOf('string');
 
       const input: DoneToolInput = {
+        assetsToReturn: [],
         finalResponse: 'Final test',
       };
       await finishHandler({ input, toolCallId: 'test-123', messages: [] });
@@ -859,6 +872,7 @@ The following items were processed:
       );
 
       const input: DoneToolInput = {
+        assetsToReturn: [],
         finalResponse: 'This is a streaming response that comes in multiple chunks',
       };
       await finishHandler({ input, toolCallId, messages: [] });

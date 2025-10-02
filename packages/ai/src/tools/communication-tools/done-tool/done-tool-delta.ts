@@ -180,11 +180,15 @@ export function createDoneToolDelta(context: DoneToolContext, doneToolState: Don
         }
       }
 
-      // Store ALL assets (including reports) for chat update later
-      if (newAssets.length > 0) {
+      // Store assets for chat update later (excluding reasoning which is not an asset type)
+      const assetsForChatUpdate = newAssets.filter(
+        (a): a is typeof a & { assetType: Exclude<typeof a.assetType, 'reasoning'> } =>
+          a.assetType !== 'reasoning'
+      );
+      if (assetsForChatUpdate.length > 0) {
         doneToolState.addedAssets = [
           ...(doneToolState.addedAssets || []),
-          ...newAssets.map((a) => ({
+          ...assetsForChatUpdate.map((a) => ({
             assetId: a.assetId,
             assetType: a.assetType,
             versionNumber: a.versionNumber,
