@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { getCookie } from '@tanstack/react-start/server';
 import { z } from 'zod';
 import { useGetUserBasicInfo } from '@/api/buster_rest/users/useGetUserInfo';
 import { Route as ScreenshotsRoute } from '../_content';
@@ -8,6 +9,15 @@ export const Route = createFileRoute('/screenshots/_content/metrics/$metricId/co
   component: RouteComponent,
   validateSearch: GetMetricScreenshotQuerySchema,
   ssr: true,
+  beforeLoad: async ({ context }) => {
+    const supabaseCookie = await getCookie('sb-127-auth-token');
+    console.log('--------------------------------');
+    console.log(supabaseCookie);
+    console.log('--------------------------------');
+    return {
+      supabaseCookie,
+    };
+  },
 });
 
 function RouteComponent() {

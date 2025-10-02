@@ -2,6 +2,7 @@ import { createServerFileRoute } from '@tanstack/react-start/server';
 import { chromium } from 'playwright';
 import { z } from 'zod';
 import { getMetric } from '@/api/buster_rest/metrics';
+import { env } from '@/env';
 import { getSupabaseServerClient } from '@/integrations/supabase/server';
 import { Route as MetricContentRoute } from './_content/metrics.$metricId.content';
 
@@ -23,6 +24,7 @@ export const ServerRoute = createServerFileRoute('/screenshots/metrics/$metricId
     const bearerToken = request.headers.get('Authorization') || '';
     const accessToken = bearerToken.replace('Bearer ', '');
     const supabase = getSupabaseServerClient();
+
     const {
       data: { user },
     } = await supabase.auth.getUser(accessToken);
@@ -31,23 +33,55 @@ export const ServerRoute = createServerFileRoute('/screenshots/metrics/$metricId
       return new Response('Unauthorized', { status: 401 });
     }
 
-    console.time('capture screenshot');
     const { metricId } = GetMetricScreenshotParamsSchema.parse(params);
     const { version_number, type, width, height } = GetMetricScreenshotQuerySchema.parse(
       Object.fromEntries(new URL(request.url).searchParams)
     );
     const origin = new URL(request.url).origin;
 
-    console.timeLog('capture screenshot', 'params parsed');
+    // For Playwright, we need to reconstruct the session from the JWT
+    // Decode the JWT to get expiry time
+    const jwtPayload = JSON.parse(Buffer.from(accessToken.split('.')[1], 'base64').toString());
+
+    const session = {
+      access_token: accessToken,
+      token_type: 'bearer',
+      expires_in: 3600,
+      expires_at: jwtPayload.exp,
+      refresh_token: '',
+      user: user,
+    };
+
+    console.time('capture screenshot');
+
     const browser = await chromium.launch();
     console.timeLog('capture screenshot', 'browser launched');
     try {
-      // Create a session object for Supabase
-
       // Create browser context with authentication cookies
       const context = await browser.newContext({
         viewport: { width, height },
       });
+
+      // Extract project ref from Supabase URL (e.g., "abcdefg" from "abcdefg.supabase.co")
+      const projectRef = '127';
+
+      // Format cookie value as Supabase expects: base64-<encoded_session>
+      const cookieValue = `base64-${Buffer.from(JSON.stringify(session)).toString('base64')}`;
+
+      console.log('Project ref:', projectRef);
+      console.log('Cookie name:', `sb-${projectRef}-auth-token`);
+
+      await context.addCookies([
+        {
+          name: `sb-${projectRef}-auth-token`,
+          value: cookieValue,
+          domain: new URL(env.VITE_PUBLIC_URL).hostname,
+          path: '/',
+          httpOnly: true,
+          secure: true,
+          sameSite: 'Lax',
+        },
+      ]);
 
       const page = await context.newPage();
       console.timeLog('capture screenshot', 'page created with auth cookie');
