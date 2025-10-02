@@ -17,7 +17,8 @@ import {
   useRemoveAssetFromCollection,
 } from '../collections/queryRequests';
 import { useGetUserFavorites } from '../users/favorites';
-import { getReportById, getReportsList, updateReport } from './requests';
+import { getReportAndInitializeMetrics } from './reportQueryHelpers';
+import { getReportsList, updateReport } from './requests';
 
 /**
  * Hook to get a list of reports
@@ -80,9 +81,13 @@ export const prefetchGetReport = async (
     await queryClient.prefetchQuery({
       ...reportsQueryKeys.reportsGetReport(reportId, version_number || 'LATEST'),
       queryFn: () =>
-        getReportById({
+        getReportAndInitializeMetrics({
           id: reportId,
           version_number: typeof version_number === 'number' ? version_number : undefined,
+          password: undefined,
+          queryClient,
+          shouldInitializeMetrics: true,
+          prefetchMetricsData: false,
         }),
       retry: silenceAssetErrors,
     });
@@ -106,17 +111,20 @@ export const useGetReport = <T = GetReportResponse>(
   options?: Omit<UseQueryOptions<GetReportResponse, ApiError, T>, 'queryKey' | 'queryFn'>
 ) => {
   const password = useProtectedAssetPassword(id || '');
-  const queryFn = () => {
-    return getReportById({
-      id: id ?? '',
-      version_number: typeof versionNumber === 'number' ? versionNumber : undefined,
-      password,
-    });
-  };
+  const queryClient = useQueryClient();
 
   return useQuery({
     ...reportsQueryKeys.reportsGetReport(id ?? '', versionNumber || 'LATEST'),
-    queryFn,
+    queryFn: () => {
+      return getReportAndInitializeMetrics({
+        id: id ?? '',
+        version_number: typeof versionNumber === 'number' ? versionNumber : undefined,
+        password,
+        queryClient,
+        shouldInitializeMetrics: true,
+        prefetchMetricsData: true,
+      });
+    },
     enabled: !!id,
     select: options?.select,
     ...options,
