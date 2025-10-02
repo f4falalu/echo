@@ -16,34 +16,41 @@ export const onUpdateTransformer = ({
 }): MentionOnChange => {
   const editorText = editor.getText();
   const editorJson = editor.getJSON();
-  const arrayValue: MentionArrayItem[] = editorJson.content.reduce<MentionArrayItem[]>(
-    (acc, item) => {
-      if (item.type === 'paragraph') {
-        item.content?.forEach((item) => {
+
+  let transformedValue = '';
+  const arrayValue: MentionArrayItem[] = [];
+
+  editorJson.content.forEach((paragraph, paragraphIndex) => {
+    if (paragraph.type === 'paragraph') {
+      // Handle paragraph content (text and mentions)
+      if (paragraph.content && paragraph.content.length > 0) {
+        paragraph.content.forEach((item) => {
           if (item.type === 'text') {
             const _item = item as TextType;
-            acc.push({ type: 'text', text: _item.text });
+            arrayValue.push({ type: 'text', text: _item.text });
+            transformedValue += _item.text;
           } else if (item.type === 'mention') {
             const _item = item as NodeType<'mention', MentionPillAttributes>;
-            acc.push({ type: 'mention', attrs: _item.attrs });
+            arrayValue.push({ type: 'mention', attrs: _item.attrs });
+
+            const onChangeTransform = mentionsByTrigger[_item.attrs.trigger]?.onChangeTransform;
+            if (onChangeTransform) {
+              transformedValue += onChangeTransform(_item.attrs);
+            } else {
+              transformedValue += _item.attrs.label;
+            }
           }
         });
       }
-      return acc;
-    },
-    []
-  );
-  const transformedValue = arrayValue.reduce((acc, item) => {
-    if (item.type === 'text') {
-      return acc + item.text;
+
+      // Add double newline after each paragraph to match TipTap's getText() behavior
+      // TipTap adds \n\n between paragraphs (visible as single blank line)
+      if (paragraphIndex < editorJson.content.length - 1) {
+        arrayValue.push({ type: 'text', text: '\n' });
+        transformedValue += '\n';
+      }
     }
-    if (item.type === 'mention') {
-      const onChangeTransform = mentionsByTrigger[item.attrs.trigger]?.onChangeTransform;
-      if (onChangeTransform) return acc + onChangeTransform(item.attrs);
-      return acc + item.attrs.label;
-    }
-    return acc;
-  }, '');
+  });
 
   return {
     transformedValue,
