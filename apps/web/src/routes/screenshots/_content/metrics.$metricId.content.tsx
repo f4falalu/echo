@@ -1,8 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
-import { GetMetricScreenshotQuerySchema } from './metrics.$metricId.index';
+import { GetMetricScreenshotQuerySchema } from '../metrics.$metricId.index';
 
-export const Route = createFileRoute('/screenshots/metrics/$metricId/content')({
+export const Route = createFileRoute('/screenshots/_content/metrics/$metricId/content')({
   component: RouteComponent,
   validateSearch: GetMetricScreenshotQuerySchema,
   ssr: true,

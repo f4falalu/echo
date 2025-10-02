@@ -1,7 +1,7 @@
 import { createServerFileRoute } from '@tanstack/react-start/server';
 import { chromium } from 'playwright';
 import { z } from 'zod';
-import { Route as MetricContentRoute } from './metrics.$metricId.content';
+import { Route as MetricContentRoute } from './_content/metrics.$metricId.content';
 
 export const GetMetricScreenshotParamsSchema = z.object({
   metricId: z.string(),
