@@ -24,7 +24,6 @@ export const apiErrorHandler = (errors: unknown = {}): ApiError => {
   }
 
   if (isErrorObject(data) && data.message) {
-    console.log('data.message', data.message);
     return { message: String(data.message), status };
   }
 
