@@ -33,6 +33,15 @@ export const SearchTextRequestSchema = z
       }, z.boolean())
       .default(false)
       .optional(),
+    includeScreenshots: z
+      .preprocess((val) => {
+        if (typeof val === 'string') {
+          return val.toLowerCase() === 'true';
+        }
+        return Boolean(val);
+      }, z.boolean())
+      .default(false)
+      .optional(),
     endDate: z.string().datetime().optional(),
     startDate: z.string().datetime().optional(),
   })
@@ -40,6 +49,7 @@ export const SearchTextRequestSchema = z
 
 export const SearchTextDataSchema = TextSearchResultSchema.extend({
   ancestors: AssetAncestorsSchema.optional(),
+  screenshotUrl: z.string().optional(),
 });
 
 export type { AssetAncestors } from '@buster/database/schema-types';
