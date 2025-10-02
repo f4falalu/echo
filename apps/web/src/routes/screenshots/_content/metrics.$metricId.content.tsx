@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { prefetchGetMetric } from '@/api/buster_rest/metrics';
 import { useGetUserBasicInfo } from '@/api/buster_rest/users/useGetUserInfo';
-import { Route as ScreenshotsRoute } from '../_content';
 import { GetMetricScreenshotQuerySchema } from '../metrics.$metricId.index';
 
 export const Route = createFileRoute('/screenshots/_content/metrics/$metricId/content')({
@@ -14,7 +13,7 @@ export const Route = createFileRoute('/screenshots/_content/metrics/$metricId/co
       id: params.metricId,
       version_number: search.version_number,
     });
-    if (!res || true) {
+    if (!res) {
       throw new Error('Metric not found');
     }
     return {

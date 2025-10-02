@@ -1,10 +1,9 @@
 import { createServerFileRoute } from '@tanstack/react-start/server';
 import { z } from 'zod';
-import { browserLogin } from '@/api/server-functions/screenshots/browser-login';
+import { browserLogin } from '@/api/server-functions/browser-login';
+import { createScreenshotResponse } from '@/api/server-functions/screenshot-helpers';
 import { getSupabaseServerClient } from '@/integrations/supabase/server';
 import { createHrefFromLink } from '@/lib/routes';
-
-const isDev = import.meta.env.DEV;
 
 export const GetMetricScreenshotParamsSchema = z.object({
   metricId: z.string(),
@@ -36,43 +35,26 @@ export const ServerRoute = createServerFileRoute('/screenshots/metrics/$metricId
       Object.fromEntries(new URL(request.url).searchParams)
     );
 
-    const { browser, page } = await browserLogin({
-      accessToken,
-      width,
-      height,
-      fullPath: createHrefFromLink({
-        to: '/screenshots/metrics/$metricId/content',
-        params: { metricId },
-        search: { version_number, type, width, height },
-      }),
-      request,
-    });
-
     try {
-      const screenshotBuffer = await page.screenshot({
-        type,
-      });
-
-      if (!isDev) {
-        return new Response(
-          JSON.stringify({
-            success: true,
-          }),
-          {
-            status: 200,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-      }
-
-      return new Response(new Uint8Array(screenshotBuffer), {
-        headers: {
-          'Content-Type': 'image/png',
-          'Content-Length': screenshotBuffer.length.toString(),
+      const { result: screenshotBuffer } = await browserLogin({
+        accessToken,
+        width,
+        height,
+        fullPath: createHrefFromLink({
+          to: '/screenshots/metrics/$metricId/content',
+          params: { metricId },
+          search: { version_number, type, width, height },
+        }),
+        request,
+        callback: async ({ page }) => {
+          const screenshotBuffer = await page.screenshot({
+            type,
+          });
+          return screenshotBuffer;
         },
       });
+
+      return createScreenshotResponse({ screenshotBuffer });
     } catch (error) {
       console.error('Error capturing metric screenshot', error);
       return new Response(
@@ -81,8 +63,6 @@ export const ServerRoute = createServerFileRoute('/screenshots/metrics/$metricId
         }),
         { status: 500, headers: { 'Content-Type': 'application/json' } }
       );
-    } finally {
-      await browser.close();
     }
   },
 });

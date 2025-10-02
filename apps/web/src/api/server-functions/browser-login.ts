@@ -1,19 +1,21 @@
-import { chromium } from 'playwright';
+import { type Browser, chromium, type Page } from 'playwright';
 import { env } from '@/env';
 import { getSupabaseServerClient } from '@/integrations/supabase/server';
 
-export const browserLogin = async ({
+export const browserLogin = async <T = Buffer<ArrayBufferLike>>({
   accessToken,
   width,
   height,
   fullPath,
   request,
+  callback,
 }: {
   accessToken: string;
   width: number;
   height: number;
   fullPath: string;
   request: Request;
+  callback: ({ page, browser }: { page: Page; browser: Browser }) => Promise<T>;
 }) => {
   const supabase = getSupabaseServerClient();
   const jwtPayload = JSON.parse(Buffer.from(accessToken.split('.')[1], 'base64').toString());
@@ -63,17 +65,25 @@ export const browserLogin = async ({
     const page = await context.newPage();
     const fullPathWithOrigin = `${origin}${fullPath}`;
 
+    let pageError: Error | null = null;
+
     page.on('console', (msg) => {
-      const hasError = msg.type() === 'error';
-      if (hasError) {
-        browser.close();
-        throw new Error(`Error in browser: ${msg.text()}`);
+      const text = msg.text();
+      // React logs errors to console even when caught by error boundaries
+      if (msg.type() === 'error' && (text.includes('Error:') || text.includes('occurred in'))) {
+        pageError = new Error(`Page error: ${text}`);
       }
     });
 
     await page.goto(fullPathWithOrigin, { waitUntil: 'networkidle' });
 
-    return { context, browser, page };
+    const result = await callback({ page, browser });
+
+    if (pageError) {
+      throw pageError;
+    }
+
+    return { result };
   } catch (error) {
     console.error('Error logging in to browser', error);
     await browser.close();
