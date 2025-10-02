@@ -10,6 +10,7 @@ import dictionariesRoutes from './dictionaries';
 import docsRoutes from './docs';
 import electricShapeRoutes from './electric-shape';
 import githubRoutes from './github';
+import libraryRoutes from './library';
 import { llm } from './llm';
 import metricFilesRoutes from './metric_files';
 import organizationRoutes from './organization';
@@ -35,6 +36,7 @@ const app = new Hono()
   .route('/healthcheck', healthcheckRoutes)
   .route('/chats', chatsRoutes)
   .route('/llm', llm)
+  .route('/library', libraryRoutes)
   .route('/metric_files', metricFilesRoutes)
   .route('/github', githubRoutes)
   .route('/slack', slackRoutes)
