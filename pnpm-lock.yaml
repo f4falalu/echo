@@ -13,8 +13,11 @@ catalogs:
       specifier: ^3.888.0
       version: 3.888.0
     '@electric-sql/client':
-      specifier: ^1.0.10
-      version: 1.0.10
+      specifier: ^1.0.12
+      version: 1.0.12
+    '@electric-sql/react':
+      specifier: ^1.0.12
+      version: 1.0.12
     '@supabase/supabase-js':
       specifier: ^2.57.4
       version: 2.57.4
@@ -278,7 +281,7 @@ importers:
         version: link:../../packages/vitest-config
       '@electric-sql/client':
         specifier: 'catalog:'
-        version: 1.0.10
+        version: 1.0.12
       '@hono/zod-validator':
         specifier: ^0.7.3
         version: 0.7.3(hono@4.9.7)(zod@3.25.76)
@@ -438,9 +441,9 @@ importers:
         version: 3.2.2(react@19.1.1)
       '@electric-sql/client':
         specifier: 'catalog:'
-        version: 1.0.10
+        version: 1.0.12
       '@electric-sql/react':
-        specifier: ^1.0.12
+        specifier: 'catalog:'
         version: 1.0.12(react@19.1.1)
       '@emoji-mart/data':
         specifier: ^1.2.1
@@ -2355,9 +2358,6 @@ packages:
 
   '@electric-sql/client@1.0.0-beta.1':
     resolution: {integrity: sha512-Ei9jN3pDoGzc+a/bGqnB5ajb52IvSv7/n2btuyzUlcOHIR2kM9fqtYTJXPwZYKLkGZlHWlpHgWyRtrinkP2nHg==}
-
-  '@electric-sql/client@1.0.10':
-    resolution: {integrity: sha512-KcP6R2OGiruxbhAa0wMGiRIfpXDQQ8vznBmn34kG/UJ11sqA4NQBhoPhSsKkCPs5EKc2DoS6bcnqLkIHFdxmvg==}
 
   '@electric-sql/client@1.0.12':
     resolution: {integrity: sha512-/q+C/IdsfIHzZGzyw/P/RXTO+yqPFst1hu6hSfGUn3FRKXbYhVZQOsUCcCXYrrspY148eqVxnmdEuzI+0pvgZQ==}
@@ -14733,12 +14733,6 @@ snapshots:
       multipasta: 0.2.7
 
   '@electric-sql/client@1.0.0-beta.1':
-    optionalDependencies:
-      '@rollup/rollup-darwin-arm64': 4.50.0
-
-  '@electric-sql/client@1.0.10':
-    dependencies:
-      '@microsoft/fetch-event-source': 2.0.1
     optionalDependencies:
       '@rollup/rollup-darwin-arm64': 4.50.0
 

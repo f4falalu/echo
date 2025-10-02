@@ -39,7 +39,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@electric-sql/client": "catalog:",
-    "@electric-sql/react": "^1.0.12",
+    "@electric-sql/react": "catalog:",
     "@emoji-mart/data": "^1.2.1",
     "@faker-js/faker": "^10.0.0",
     "@monaco-editor/react": "^4.7.0",
