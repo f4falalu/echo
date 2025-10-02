@@ -1,14 +1,7 @@
 import { tool } from 'ai';
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
 import { z } from 'zod';
 import { createMultiEditFileToolExecute } from './multi-edit-file-tool-execute';
-
-// Read description from file
-const DESCRIPTION = readFileSync(
-  path.join(__dirname, 'multiedit.txt'),
-  'utf-8'
-);
+import DESCRIPTION from './multiedit.txt';
 
 const EditOperationSchema = z.object({
   oldString: z.string().describe('The text to replace'),

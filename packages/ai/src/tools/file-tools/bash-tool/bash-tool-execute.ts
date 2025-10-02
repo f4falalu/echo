@@ -1,4 +1,3 @@
-import { $ } from 'bun';
 import type { BashToolContext, BashToolInput, BashToolOutput } from './bash-tool';
 
 const MAX_OUTPUT_LENGTH = 30_000;
@@ -6,22 +5,7 @@ const DEFAULT_TIMEOUT = 2 * 60 * 1000; // 2 minutes
 const MAX_TIMEOUT = 10 * 60 * 1000; // 10 minutes
 
 /**
- * Creates a timeout promise that rejects after the specified time
- */
-function createTimeoutPromise(timeout: number, command: string): Promise<never> {
-  return new Promise((_, reject) => {
-    setTimeout(() => {
-      reject(
-        new Error(
-          `Command timed out after ${timeout}ms: ${command.length > 50 ? `${command.substring(0, 50)}...` : command}`
-        )
-      );
-    }, timeout);
-  });
-}
-
-/**
- * Executes a bash command using Bun's $ shell with timeout support
+ * Executes a bash command using Bun.spawn with timeout support
  * @param command - The bash command to execute
  * @param timeout - Timeout in milliseconds
  * @param projectDirectory - The project directory to execute the command in
@@ -33,57 +17,82 @@ async function executeCommand(
   projectDirectory: string
 ): Promise<BashToolOutput> {
   try {
-    // Execute command with timeout using Promise.race
-    const proc = await Promise.race([
-      $`${command}`.cwd(projectDirectory).nothrow().quiet(),
-      createTimeoutPromise(timeout, command),
-    ]);
+    // Create abort controller for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-    let stdout = proc.stdout?.toString() || '';
-    let stderr = proc.stderr?.toString() || '';
+    // Execute command using Bun.spawn
+    const proc = Bun.spawn(['bash', '-c', command], {
+      cwd: projectDirectory,
+      stdout: 'pipe',
+      stderr: 'pipe',
+      stdin: 'ignore',
+    });
 
-    // Truncate output if it exceeds max length
-    if (stdout.length > MAX_OUTPUT_LENGTH) {
-      stdout = stdout.slice(0, MAX_OUTPUT_LENGTH);
-      stdout += '\n\n(Output was truncated due to length limit)';
-    }
+    let stdout = '';
+    let stderr = '';
 
-    if (stderr.length > MAX_OUTPUT_LENGTH) {
-      stderr = stderr.slice(0, MAX_OUTPUT_LENGTH);
-      stderr += '\n\n(Error output was truncated due to length limit)';
-    }
+    try {
+      // Read stdout and stderr
+      const [stdoutText, stderrText] = await Promise.all([
+        new Response(proc.stdout).text(),
+        new Response(proc.stderr).text(),
+      ]);
 
-    const exitCode = proc.exitCode ?? 0;
-    const success = exitCode === 0;
+      stdout = stdoutText;
+      stderr = stderrText;
 
-    const result: BashToolOutput = {
-      command,
-      stdout,
-      stderr,
-      exitCode,
-      success,
-    };
+      // Wait for process to exit
+      const exitCode = await proc.exited;
+      clearTimeout(timeoutId);
 
-    // Only add error property if there is an error
-    if (!success) {
-      result.error = stderr || `Command failed with exit code ${exitCode}`;
-    }
+      // Truncate output if it exceeds max length
+      if (stdout.length > MAX_OUTPUT_LENGTH) {
+        stdout = stdout.slice(0, MAX_OUTPUT_LENGTH);
+        stdout += '\n\n(Output was truncated due to length limit)';
+      }
 
-    return result;
-  } catch (error) {
-    // Check if it was a timeout
-    if (error instanceof Error && error.message.includes('timed out')) {
-      return {
+      if (stderr.length > MAX_OUTPUT_LENGTH) {
+        stderr = stderr.slice(0, MAX_OUTPUT_LENGTH);
+        stderr += '\n\n(Error output was truncated due to length limit)';
+      }
+
+      const success = exitCode === 0;
+
+      const result: BashToolOutput = {
         command,
-        stdout: '',
-        stderr: `Command timed out after ${timeout}ms`,
-        exitCode: 124, // Standard timeout exit code
-        success: false,
-        error: `Command timed out after ${timeout}ms`,
+        stdout,
+        stderr,
+        exitCode,
+        success,
       };
-    }
 
-    // Handle other execution errors
+      // Only add error property if there is an error
+      if (!success) {
+        result.error = stderr || `Command failed with exit code ${exitCode}`;
+      }
+
+      return result;
+    } catch (readError) {
+      clearTimeout(timeoutId);
+      proc.kill();
+
+      // Check if it was aborted (timeout)
+      if (controller.signal.aborted) {
+        return {
+          command,
+          stdout: '',
+          stderr: `Command timed out after ${timeout}ms`,
+          exitCode: 124, // Standard timeout exit code
+          success: false,
+          error: `Command timed out after ${timeout}ms`,
+        };
+      }
+
+      throw readError;
+    }
+  } catch (error) {
+    // Handle execution errors
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
     return {

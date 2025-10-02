@@ -1,19 +1,7 @@
-// The approaches in this edit tool are sourced from
-// https://github.com/cline/cline/blob/main/evals/diff-edits/diff-apply/diff-06-23-25.ts
-// https://github.com/google-gemini/gemini-cli/blob/main/packages/core/src/utils/editCorrector.ts
-// https://github.com/cline/cline/blob/main/evals/diff-edits/diff-apply/diff-06-26-25.ts
-
 import { tool } from 'ai';
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
 import { z } from 'zod';
 import { createEditFileToolExecute } from './edit-file-tool-execute';
-
-// Read description from file
-const DESCRIPTION = readFileSync(
-  path.join(__dirname, 'edit.txt'),
-  'utf-8'
-);
+import DESCRIPTION from './edit.txt';
 
 export const EditFileToolInputSchema = z.object({
   filePath: z.string().describe('The absolute path to the file to modify'),

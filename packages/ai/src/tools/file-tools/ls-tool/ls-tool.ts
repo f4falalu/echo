@@ -1,11 +1,7 @@
 import { tool } from 'ai';
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
 import { z } from 'zod';
 import { createLsToolExecute } from './ls-tool-execute';
-
-// Read description from file
-const DESCRIPTION = readFileSync(path.join(__dirname, 'ls.txt'), 'utf-8');
+import DESCRIPTION from './ls.txt';
 
 export const LsToolInputSchema = z.object({
   path: z
