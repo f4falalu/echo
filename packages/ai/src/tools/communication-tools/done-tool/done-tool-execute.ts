@@ -63,8 +63,10 @@ async function processDone(
 
     return {
       output,
-      sequenceNumber: updateResult.sequenceNumber,
-      skipped: updateResult.skipped,
+      ...(updateResult.sequenceNumber !== undefined && {
+        sequenceNumber: updateResult.sequenceNumber,
+      }),
+      ...(updateResult.skipped !== undefined && { skipped: updateResult.skipped }),
     };
   } catch (error) {
     console.error('[done-tool] Error updating message entries:', error);
