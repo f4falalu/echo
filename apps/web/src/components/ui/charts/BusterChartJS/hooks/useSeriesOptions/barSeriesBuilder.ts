@@ -360,6 +360,12 @@ export const barSeriesBuilder_labels = ({
     return dateTicks;
   }
 
+  const containsADateStyle = datasetOptions.ticksKey.some((tick) => {
+    const selectedColumnLabelFormat = columnLabelFormats[tick.key];
+    return selectedColumnLabelFormat?.style === 'date';
+  });
+  const selectedJoinCharacter = containsADateStyle ? JOIN_CHARACTER_DATE : JOIN_CHARACTER;
+
   const labels = datasetOptions.ticks.flatMap((item) => {
     return item
       .map<string>((item, index) => {
@@ -367,7 +373,7 @@ export const barSeriesBuilder_labels = ({
         const columnLabelFormat = columnLabelFormats[key];
         return formatLabel(item, columnLabelFormat);
       })
-      .join(JOIN_CHARACTER);
+      .join(selectedJoinCharacter);
   });
 
   return labels;
