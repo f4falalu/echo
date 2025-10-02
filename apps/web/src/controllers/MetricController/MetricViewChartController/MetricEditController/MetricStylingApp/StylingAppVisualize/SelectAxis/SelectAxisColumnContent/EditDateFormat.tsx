@@ -1,9 +1,12 @@
 import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import first from 'lodash/last';
 import React, { useMemo } from 'react';
+import { CircleInfo } from '@/components/ui/icons';
 import { Select, type SelectItem } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { formatDate, getNow } from '@/lib/date';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
+import { WarningIcon } from '../../../Common/WarningIcon';
 import {
   getDefaultDateOptions,
   getDefaultDayOfWeekOptions,
@@ -15,9 +18,10 @@ import {
 export const EditDateFormat: React.FC<{
   dateFormat: ColumnLabelFormat['dateFormat'];
   convertNumberTo: ColumnLabelFormat['convertNumberTo'];
+  isUTC: ColumnLabelFormat['isUTC'];
   columnType: ColumnLabelFormat['columnType'];
   onUpdateColumnConfig: (columnLabelFormat: Partial<ColumnLabelFormat>) => void;
-}> = React.memo(({ dateFormat, columnType, convertNumberTo, onUpdateColumnConfig }) => {
+}> = React.memo(({ dateFormat, columnType, convertNumberTo, onUpdateColumnConfig, isUTC }) => {
   const now = useMemo(() => getNow().toDate(), []);
 
   const useAlternateFormats = useMemo(() => {
@@ -63,16 +67,35 @@ export const EditDateFormat: React.FC<{
     }
   };
 
+  const onUpdateUTC = (value: boolean) => {
+    onUpdateColumnConfig({
+      isUTC: value,
+    });
+  };
+
   return (
-    <LabelAndInput label="Date format">
-      <Select
-        key={convertNumberTo}
-        className="w-full!"
-        items={selectOptions}
-        value={selectedOption?.value}
-        onChange={onChange}
-      />
-    </LabelAndInput>
+    <>
+      <LabelAndInput label="Date format">
+        <Select
+          key={convertNumberTo}
+          className="w-full!"
+          items={selectOptions}
+          value={selectedOption?.value}
+          onChange={onChange}
+        />
+      </LabelAndInput>
+      <LabelAndInput label="UTC Offset">
+        <div className="flex w-full justify-end gap-x-2">
+          <WarningIcon
+            showWarning={true}
+            className="max-w-[300px]"
+            icon={<CircleInfo />}
+            warningText="When UTC Offset is enabled, dates are displayed with timezone information. Use this when data is stored in different timezones or when timezone context matters. Buster tries the correct timezone and UTC Offset for each date. Note: When data is truncated (e.g., DATE_TRUNC to day/month/quarter), timezone differences are lost during truncation — the data is bucketed first, then timezone offsets are applied to the labels."
+          />
+          <Switch checked={isUTC} onCheckedChange={onUpdateUTC} />
+        </div>
+      </LabelAndInput>
+    </>
   );
 });
 EditDateFormat.displayName = 'EditDateFormat';
