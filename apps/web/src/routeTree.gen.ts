@@ -18,6 +18,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
+import { Route as ScreenshotsHelloWorldRouteImport } from './routes/screenshots/hello-world'
 import { Route as InfoGettingStartedRouteImport } from './routes/info/getting-started'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
 import { Route as AuthLogoutRouteImport } from './routes/auth.logout'
@@ -154,6 +155,7 @@ import { Route as AppAppAssetChatsChatIdDashboardsDashboardIdMetricsMetricIdCont
 import { Route as AppAppAssetChatsChatIdDashboardsDashboardIdMetricsMetricIdContentChartRouteImport } from './routes/app/_app/_asset/chats.$chatId/dashboards.$dashboardId/metrics.$metricId/_content/chart'
 import { ServerRoute as AuthConfirmServerRouteImport } from './routes/auth.confirm'
 import { ServerRoute as AuthCallbackServerRouteImport } from './routes/auth.callback'
+import { ServerRoute as ScreenshotsMetricsMetricIdServerRouteImport } from './routes/screenshots/metrics.$metricId'
 
 const EmbedChatChatIdReportsReportIdRouteImport = createFileRoute(
   '/embed/chat/$chatId/reports/$reportId',
@@ -234,6 +236,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppRoute,
+} as any)
+const ScreenshotsHelloWorldRoute = ScreenshotsHelloWorldRouteImport.update({
+  id: '/screenshots/hello-world',
+  path: '/screenshots/hello-world',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const InfoGettingStartedRoute = InfoGettingStartedRouteImport.update({
   id: '/info/getting-started',
@@ -1180,6 +1187,12 @@ const AuthCallbackServerRoute = AuthCallbackServerRouteImport.update({
   path: '/auth/callback',
   getParentRoute: () => rootServerRouteImport,
 } as any)
+const ScreenshotsMetricsMetricIdServerRoute =
+  ScreenshotsMetricsMetricIdServerRouteImport.update({
+    id: '/screenshots/metrics/$metricId',
+    path: '/screenshots/metrics/$metricId',
+    getParentRoute: () => rootServerRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -1191,6 +1204,7 @@ export interface FileRoutesByFullPath {
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/info/getting-started': typeof InfoGettingStartedRoute
+  '/screenshots/hello-world': typeof ScreenshotsHelloWorldRoute
   '/app/': typeof AppIndexRoute
   '/app/home': typeof AppAppHomeRouteWithChildren
   '/app/new-user': typeof AppAppNewUserRouteWithChildren
@@ -1327,6 +1341,7 @@ export interface FileRoutesByTo {
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/info/getting-started': typeof InfoGettingStartedRoute
+  '/screenshots/hello-world': typeof ScreenshotsHelloWorldRoute
   '/app/test-pagination': typeof AppAppTestPaginationRoute
   '/embed/dashboard/$dashboardId': typeof EmbedDashboardDashboardIdRoute
   '/embed/metric/$metricId': typeof EmbedMetricMetricIdRoute
@@ -1440,6 +1455,7 @@ export interface FileRoutesById {
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/info/getting-started': typeof InfoGettingStartedRoute
+  '/screenshots/hello-world': typeof ScreenshotsHelloWorldRoute
   '/app/': typeof AppIndexRoute
   '/app/_app/_asset': typeof AppAppAssetRouteWithChildren
   '/app/_app/home': typeof AppAppHomeRouteWithChildren
@@ -1597,6 +1613,7 @@ export interface FileRouteTypes {
     | '/auth/logout'
     | '/auth/reset-password'
     | '/info/getting-started'
+    | '/screenshots/hello-world'
     | '/app/'
     | '/app/home'
     | '/app/new-user'
@@ -1733,6 +1750,7 @@ export interface FileRouteTypes {
     | '/auth/logout'
     | '/auth/reset-password'
     | '/info/getting-started'
+    | '/screenshots/hello-world'
     | '/app/test-pagination'
     | '/embed/dashboard/$dashboardId'
     | '/embed/metric/$metricId'
@@ -1845,6 +1863,7 @@ export interface FileRouteTypes {
     | '/auth/logout'
     | '/auth/reset-password'
     | '/info/getting-started'
+    | '/screenshots/hello-world'
     | '/app/'
     | '/app/_app/_asset'
     | '/app/_app/home'
@@ -1998,31 +2017,43 @@ export interface RootRouteChildren {
   EmbedRoute: typeof EmbedRouteWithChildren
   HealthcheckRoute: typeof HealthcheckRoute
   InfoGettingStartedRoute: typeof InfoGettingStartedRoute
+  ScreenshotsHelloWorldRoute: typeof ScreenshotsHelloWorldRoute
 }
 export interface FileServerRoutesByFullPath {
   '/auth/callback': typeof AuthCallbackServerRoute
   '/auth/confirm': typeof AuthConfirmServerRoute
+  '/screenshots/metrics/$metricId': typeof ScreenshotsMetricsMetricIdServerRoute
 }
 export interface FileServerRoutesByTo {
   '/auth/callback': typeof AuthCallbackServerRoute
   '/auth/confirm': typeof AuthConfirmServerRoute
+  '/screenshots/metrics/$metricId': typeof ScreenshotsMetricsMetricIdServerRoute
 }
 export interface FileServerRoutesById {
   __root__: typeof rootServerRouteImport
   '/auth/callback': typeof AuthCallbackServerRoute
   '/auth/confirm': typeof AuthConfirmServerRoute
+  '/screenshots/metrics/$metricId': typeof ScreenshotsMetricsMetricIdServerRoute
 }
 export interface FileServerRouteTypes {
   fileServerRoutesByFullPath: FileServerRoutesByFullPath
-  fullPaths: '/auth/callback' | '/auth/confirm'
+  fullPaths:
+    | '/auth/callback'
+    | '/auth/confirm'
+    | '/screenshots/metrics/$metricId'
   fileServerRoutesByTo: FileServerRoutesByTo
-  to: '/auth/callback' | '/auth/confirm'
-  id: '__root__' | '/auth/callback' | '/auth/confirm'
+  to: '/auth/callback' | '/auth/confirm' | '/screenshots/metrics/$metricId'
+  id:
+    | '__root__'
+    | '/auth/callback'
+    | '/auth/confirm'
+    | '/screenshots/metrics/$metricId'
   fileServerRoutesById: FileServerRoutesById
 }
 export interface RootServerRouteChildren {
   AuthCallbackServerRoute: typeof AuthCallbackServerRoute
   AuthConfirmServerRoute: typeof AuthConfirmServerRoute
+  ScreenshotsMetricsMetricIdServerRoute: typeof ScreenshotsMetricsMetricIdServerRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2068,6 +2099,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/'
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/screenshots/hello-world': {
+      id: '/screenshots/hello-world'
+      path: '/screenshots/hello-world'
+      fullPath: '/screenshots/hello-world'
+      preLoaderRoute: typeof ScreenshotsHelloWorldRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/info/getting-started': {
       id: '/info/getting-started'
@@ -3130,6 +3168,13 @@ declare module '@tanstack/react-start/server' {
       preLoaderRoute: typeof AuthCallbackServerRouteImport
       parentRoute: typeof rootServerRouteImport
     }
+    '/screenshots/metrics/$metricId': {
+      id: '/screenshots/metrics/$metricId'
+      path: '/screenshots/metrics/$metricId'
+      fullPath: '/screenshots/metrics/$metricId'
+      preLoaderRoute: typeof ScreenshotsMetricsMetricIdServerRouteImport
+      parentRoute: typeof rootServerRouteImport
+    }
   }
 }
 
@@ -4140,6 +4185,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmbedRoute: EmbedRouteWithChildren,
   HealthcheckRoute: HealthcheckRoute,
   InfoGettingStartedRoute: InfoGettingStartedRoute,
+  ScreenshotsHelloWorldRoute: ScreenshotsHelloWorldRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
@@ -4147,6 +4193,7 @@ export const routeTree = rootRouteImport
 const rootServerRouteChildren: RootServerRouteChildren = {
   AuthCallbackServerRoute: AuthCallbackServerRoute,
   AuthConfirmServerRoute: AuthConfirmServerRoute,
+  ScreenshotsMetricsMetricIdServerRoute: ScreenshotsMetricsMetricIdServerRoute,
 }
 export const serverRouteTree = rootServerRouteImport
   ._addFileChildren(rootServerRouteChildren)
