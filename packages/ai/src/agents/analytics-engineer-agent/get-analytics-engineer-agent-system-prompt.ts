@@ -1,4 +1,4 @@
-import docsAgentPrompt from './docs-agent-prompt.txt';
+import analyticsEngineerAgentPrompt from './analytics-engineer-agent-prompt.txt';
 
 /**
  * Template parameters for the docs agent prompt
@@ -12,7 +12,7 @@ export interface DocsAgentTemplateParams {
  * Loads the docs agent prompt template and replaces variables
  */
 function loadAndProcessPrompt(params: DocsAgentTemplateParams): string {
-  return docsAgentPrompt
+  return analyticsEngineerAgentPrompt
     .replace(/\{\{folder_structure\}\}/g, params.folderStructure)
     .replace(/\{\{date\}\}/g, params.date);
 }

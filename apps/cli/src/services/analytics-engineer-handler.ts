@@ -1,8 +1,8 @@
 import { randomUUID } from 'node:crypto';
-import { createDocsAgent } from '@buster/ai/agents/docs-agent/docs-agent';
 import { createProxyModel } from '@buster/ai/llm/providers/proxy-model';
-import type { ModelMessage } from 'ai';
+import type { ModelMessage } from '@buster/ai';
 import { getProxyConfig } from '../utils/ai-proxy';
+import { createAnalyticsEngineerAgent } from '@buster/ai/agents/analytics-engineer-agent/analytics-engineer-agent';
 
 export interface DocsAgentMessage {
   id: number;
@@ -38,7 +38,7 @@ export async function runDocsAgent(params: RunDocsAgentParams): Promise<void> {
 
   // Create the docs agent with proxy model
   // Tools are handled locally, only model calls go through proxy
-  const docsAgent = createDocsAgent({
+  const analyticsEngineerAgent = createAnalyticsEngineerAgent({
     folder_structure: 'CLI mode - limited file access',
     userId: 'cli-user',
     chatId: randomUUID(),
@@ -57,7 +57,7 @@ export async function runDocsAgent(params: RunDocsAgentParams): Promise<void> {
 
   try {
     // Execute the docs agent
-    const result = await docsAgent.stream({ messages });
+    const result = await analyticsEngineerAgent.stream({ messages });
 
     // Stream the response
     for await (const part of result.fullStream) {

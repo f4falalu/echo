@@ -246,7 +246,7 @@ export function Main() {
     setInput('');
 
     // Import and run the docs agent
-    const { runDocsAgent } = await import('../services/docs-agent-handler');
+    const { runDocsAgent } = await import('../services/analytics-engineer-handler');
 
     await runDocsAgent({
       userMessage: trimmed,
