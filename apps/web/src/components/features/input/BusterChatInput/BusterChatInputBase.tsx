@@ -1,29 +1,27 @@
+import type { MessageAnalysisMode } from '@buster/server-shared/chats';
 import type { ListShortcutsResponse } from '@buster/server-shared/shortcuts';
 import type { GetSuggestedPromptsResponse } from '@buster/server-shared/user';
-import omit from 'lodash/omit';
-import sampleSize from 'lodash/sampleSize';
 import React, { useMemo, useRef, useState } from 'react';
 import {
   useCreateShortcutsMentionsSuggestions,
   useShortcutsSuggestions,
 } from '@/components/features/input/Mentions/ShortcutsSuggestions/ShortcutsSuggestions';
-import CircleQuestion from '@/components/ui/icons/NucleoIconOutlined/circle-question';
-import FileSparkle from '@/components/ui/icons/NucleoIconOutlined/file-sparkle';
 import type {
   MentionArrayItem,
   MentionSuggestionExtension,
 } from '@/components/ui/inputs/MentionInput';
 import type {
-  MentionInputSuggestionsDropdownItem,
+  MentionInputSuggestionsOnSelectParams,
   MentionInputSuggestionsProps,
   MentionInputSuggestionsRef,
 } from '@/components/ui/inputs/MentionInputSuggestions';
 import { MentionInputSuggestions } from '@/components/ui/inputs/MentionInputSuggestions';
+import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useMount } from '@/hooks/useMount';
-import { ASSET_ICONS } from '../../icons/assetIcons';
 import { NewShortcutModal } from '../../modals/NewShortcutModal';
-import { BusterChatInputButtons, type BusterChatInputMode } from './BusterChatInputButtons';
+import { BusterChatInputButtons } from './BusterChatInputButtons';
+import { useUniqueSuggestions } from './useUniqueSuggestions';
 
 export type BusterChatInputProps = {
   defaultValue: string;
@@ -31,7 +29,7 @@ export type BusterChatInputProps = {
     transformedValue: string;
     arrayValue: MentionArrayItem[];
     editorText: string;
-    mode: BusterChatInputMode;
+    mode: MessageAnalysisMode;
   }) => void;
   onStop: () => void;
   submitting: boolean;
@@ -55,7 +53,8 @@ export const BusterChatInputBase: React.FC<BusterChatInputProps> = React.memo(
     const mentionInputSuggestionsRef = useRef<MentionInputSuggestionsRef>(null);
     const uniqueSuggestions = useUniqueSuggestions(suggestedPrompts);
     const [openCreateShortcutModal, setOpenCreateShortcutModal] = useState(false);
-    const [mode, setMode] = useState<BusterChatInputMode>('auto');
+    const [mode, setMode] = useState<MessageAnalysisMode>('auto');
+    const { openInfoMessage } = useBusterNotifications();
 
     const shortcutsSuggestions = useShortcutsSuggestions(
       shortcuts,
@@ -88,24 +87,34 @@ export const BusterChatInputBase: React.FC<BusterChatInputProps> = React.memo(
       return [shortcutsMentionsSuggestions];
     }, [shortcutsMentionsSuggestions]);
 
-    const onSubmitPreflight = (valueProp?: ReturnType<MentionInputSuggestionsRef['getValue']>) => {
-      if (submitting) {
-        console.warn('Input is submitting');
-        return;
-      }
+    const onSubmitPreflight = useMemoizedFn(
+      (valueProp?: ReturnType<MentionInputSuggestionsRef['getValue']>) => {
+        if (submitting) {
+          console.warn('Input is submitting');
+          return;
+        }
 
-      const value = valueProp || mentionInputSuggestionsRef.current?.getValue?.();
-      if (!value) {
-        console.warn('Value is not defined');
-        return;
-      }
+        const value = valueProp || mentionInputSuggestionsRef.current?.getValue?.();
+        if (!value) {
+          console.warn('Value is not defined');
+          return;
+        }
 
-      if (disabled || !value) {
-        console.warn('Input is disabled or value is not defined');
-        return;
+        if (disabled || !value || !value.transformedValue) {
+          console.warn('Input is disabled or value is not defined');
+          openInfoMessage('Please enter a question or type ‘/’ for shortcuts...');
+          return;
+        }
+
+        onSubmit({ ...value, mode });
       }
-      onSubmit({ ...value, mode });
-    };
+    );
+
+    const onSuggestionItemClick = useMemoizedFn((d: MentionInputSuggestionsOnSelectParams) => {
+      if (d.addValueToInput) {
+        onSubmitPreflight();
+      }
+    });
 
     const onCloseCreateShortcutModal = useMemoizedFn(() => {
       setOpenCreateShortcutModal(false);
@@ -126,12 +135,15 @@ export const BusterChatInputBase: React.FC<BusterChatInputProps> = React.memo(
         <MentionInputSuggestions
           defaultValue={defaultValue}
           onPressEnter={onSubmitPreflight}
+          onSuggestionItemClick={onSuggestionItemClick}
           mentions={mentions}
           suggestionItems={suggestionItems}
+          disabled={disabled}
           placeholder="Ask a question or type ‘/’ for shortcuts..."
           ref={mentionInputSuggestionsRef}
           inputContainerClassName="px-5 pt-4"
-          inputClassName="text-lg"
+          inputClassName="text-md"
+          behavior="open-on-focus"
         >
           <BusterChatInputButtons
             onSubmit={onSubmitPreflight}
@@ -150,55 +162,3 @@ export const BusterChatInputBase: React.FC<BusterChatInputProps> = React.memo(
 );
 
 BusterChatInputBase.displayName = 'BusterChatInputBase';
-
-const iconRecord: Record<keyof GetSuggestedPromptsResponse['suggestedPrompts'], React.ReactNode> = {
-  report: <FileSparkle />,
-  dashboard: <ASSET_ICONS.dashboards />,
-  visualization: <ASSET_ICONS.metrics />,
-  help: <CircleQuestion />,
-};
-
-const useUniqueSuggestions = (
-  suggestedPrompts: GetSuggestedPromptsResponse['suggestedPrompts']
-): MentionInputSuggestionsProps['suggestionItems'] => {
-  return useMemo(() => {
-    const filteredSuggestedPrompts = omit(suggestedPrompts, ['help']);
-    const allSuggestions: { type: keyof typeof suggestedPrompts; value: string }[] = Object.entries(
-      filteredSuggestedPrompts
-    ).flatMap(([key, value]) => {
-      return value.map((prompt) => {
-        return {
-          type: key as keyof typeof suggestedPrompts,
-          value: prompt,
-        };
-      });
-    });
-
-    // Ensure we have at least 4 suggestions
-    if (allSuggestions.length < 4) {
-      throw new Error('Not enough suggestions available - need at least 4');
-    }
-
-    const fourUniqueSuggestions = sampleSize(allSuggestions, 4);
-
-    const items: MentionInputSuggestionsDropdownItem[] = fourUniqueSuggestions.map((suggestion) => {
-      const icon = iconRecord[suggestion.type] || <ASSET_ICONS.metircsAdd />;
-      return {
-        type: 'item',
-        value: suggestion.type + suggestion.value,
-        label: suggestion.value,
-        icon,
-      };
-    });
-
-    return [
-      {
-        type: 'group',
-        label: 'Shortcuts',
-        suggestionItems: items,
-        addValueToInput: true,
-        closeOnSelect: true,
-      },
-    ] satisfies MentionInputSuggestionsProps['suggestionItems'];
-  }, [suggestedPrompts]);
-};

@@ -100,6 +100,7 @@ describe('metric-helpers', () => {
     workspaceSharingEnabledAt: null,
     workspaceSharingEnabledBy: null,
     deletedAt: null,
+    screenshotBucketKey: null,
     ...overrides,
   });
 

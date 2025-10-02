@@ -15,7 +15,7 @@ export const MentionInputSuggestionsSeparator = ({
       // biome-ignore lint/a11y/useAriaPropsForRole: blitz bama blitz
       role="separator"
       className={cn(
-        'bg-border -mx-1 h-px my-1.5',
+        'bg-border my-1.5 h-[0.5px]',
         // Hide if first child
         'first:hidden',
         // Hide if last child

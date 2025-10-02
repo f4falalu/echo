@@ -49,17 +49,28 @@ export const MentionInputSuggestions = forwardRef<
       //mentions
       onMentionItemClick,
       mentions,
+      behavior = 'default',
     }: MentionInputSuggestionsProps,
     ref
   ) => {
     const [hasClickedSelect, setHasClickedSelect] = useState(false);
+    const [isInteracting, setIsInteracting] = useState(behavior === 'default');
     const [value, setValue] = useState(valueProp ?? defaultValue);
 
     const commandListNavigatedRef = useRef(false);
     const commandRef = useRef<HTMLDivElement>(null);
     const mentionsInputRef = useRef<MentionInputRef>(null);
 
-    const showSuggestionList = !hasClickedSelect && suggestionItems.length > 0;
+    const showSuggestionList =
+      behavior === 'default'
+        ? !hasClickedSelect && suggestionItems.length > 0
+        : isInteracting && suggestionItems.length > 0;
+
+    // biome-ignore lint/style/noNonNullAssertion: we know the ref is not null
+    const getValue = mentionsInputRef.current?.getValue!;
+    // biome-ignore lint/style/noNonNullAssertion: we know the ref is not null
+    const addMentionToInput = mentionsInputRef.current?.addMentionToInput!;
+    const mounted = useMounted();
 
     const onChangeInputValue: MentionInputProps['onChange'] = useCallback(
       (d) => {
@@ -68,8 +79,9 @@ export const MentionInputSuggestions = forwardRef<
         onChange?.(d);
         commandListNavigatedRef.current = false;
         setHasClickedSelect(false);
+        setIsInteracting(true);
       },
-      [onChange, setHasClickedSelect]
+      [onChange, setHasClickedSelect, setIsInteracting]
     );
 
     //Exported: this is used to change the value of the input from outside the component
@@ -107,16 +119,18 @@ export const MentionInputSuggestions = forwardRef<
           setValue(stringValue);
         }
         onClick?.();
-        if (closeSuggestionOnSelect && params.closeOnSelect !== false) setHasClickedSelect(true);
         onSuggestionItemClick?.(params);
+
+        if (closeSuggestionOnSelect && params.closeOnSelect !== false) setHasClickedSelect(true);
+        requestAnimationFrame(() => {
+          setIsInteracting(false);
+        });
       }
     );
 
-    // biome-ignore lint/style/noNonNullAssertion: we know the ref is not null
-    const getValue = mentionsInputRef.current?.getValue!;
-    // biome-ignore lint/style/noNonNullAssertion: we know the ref is not null
-    const addMentionToInput = mentionsInputRef.current?.addMentionToInput!;
-    const mounted = useMounted();
+    const onBlur = useMemoizedFn(() => {
+      setIsInteracting(false);
+    });
 
     // Track arrow key navigation in the command list
     useEffect(() => {
@@ -176,13 +190,16 @@ export const MentionInputSuggestions = forwardRef<
           ref={commandRef}
           label={ariaLabel}
           className={cn(
-            'relative border rounded overflow-hidden bg-background shadow',
+            'relative border rounded-xl overflow-hidden bg-background shadow',
             // CSS-only solution: Hide separators that come after hidden elements
             '[&_[hidden]+[data-separator-after-hidden]]:hidden',
             className
           )}
           shouldFilter={shouldFilter}
           filter={filter || customFilter}
+          onClick={() => {
+            setIsInteracting(true);
+          }}
         >
           <MentionInputSuggestionsContainer className={inputContainerClassName}>
             <MentionInputSuggestionsMentionsInput
@@ -199,13 +216,14 @@ export const MentionInputSuggestions = forwardRef<
               commandListNavigatedRef={commandListNavigatedRef}
               disabled={disabled}
               className={inputClassName}
+              onBlur={onBlur}
             />
-            {children && <div className="mt-3">{children}</div>}
+            {children && <div className="mt-4.5">{children}</div>}
           </MentionInputSuggestionsContainer>
           <SuggestionsSeperator />
           <MentionInputSuggestionsList
             show={showSuggestionList}
-            className={cn('pt-1.5 overflow-y-auto max-h-[35vh]', suggestionsContainerClassName)}
+            className={cn('px-3 overflow-y-auto max-h-[35vh]', suggestionsContainerClassName)}
           >
             <MentionInputSuggestionsItemsSelector
               suggestionItems={suggestionItems}

@@ -18,6 +18,7 @@ export const createMentionSuggestionExtension = ({
   popoverContent,
   onChangeTransform,
   pillStyling,
+  popoverClassName,
 }: {
   trigger: string;
   items:
@@ -29,6 +30,7 @@ export const createMentionSuggestionExtension = ({
       }) => MentionInputTriggerItem[]); //if no function is provided we will use a literal string match
   popoverContent?: MentionPopoverContentCallback;
   pillStyling?: MentionStylePillProps;
+  popoverClassName?: string;
   onChangeTransform?: MentionSuggestionExtension['onChangeTransform'];
 }): MentionSuggestionExtension => ({
   char: trigger,
@@ -44,14 +46,16 @@ export const createMentionSuggestionExtension = ({
 
     return {
       onBeforeStart: ({ editor }) => {
-        if (popoverContent) editor.commands.setPopoverByTrigger(trigger, popoverContent);
-        if (pillStyling) editor.commands.setPillStylingByTrigger(trigger, pillStyling);
+        if (popoverContent && editor.commands.setPopoverByTrigger)
+          editor.commands.setPopoverByTrigger(trigger, popoverContent);
+        if (pillStyling && editor.commands.setPillStylingByTrigger)
+          editor.commands.setPillStylingByTrigger(trigger, pillStyling);
       },
       onStart: (props) => {
         const { editor } = props;
         component = new ReactRenderer(
           MentionList as React.ComponentType<MentionListProps<string>>,
-          { props: { ...props, trigger }, editor: props.editor }
+          { props: { ...props, trigger, className: popoverClassName }, editor: props.editor }
         );
 
         if (!props.clientRect) {

@@ -1,3 +1,4 @@
+import type { Shortcut } from '@buster/server-shared';
 import { faker } from '@faker-js/faker';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useMemo, useRef, useState } from 'react';
@@ -207,6 +208,7 @@ const manyCharacters: MentionInputTriggerItem[] = [
       },
     ],
     label: 'SpongeBob SquarePants Characters',
+    className: 'bg-red-100',
   },
   {
     type: 'separator',
@@ -297,6 +299,58 @@ const spongebobSuggestions = createMentionSuggestionExtension({
   popoverContent: (props) => {
     return <div className="p-5 bg-red-100">This is a custom popover content for {props.value}</div>;
   },
+  popoverClassName: 'bg-green-100 max-h-auto',
+});
+
+const shortcutsSuggestions = createMentionSuggestionExtension({
+  trigger: '/',
+  items: ({ defaultQueryMentionsFilter, editor, query }) => {
+    const shortcuts: Shortcut[] = Array.from({ length: 10 }, () => ({
+      id: faker.string.uuid(),
+      name: faker.lorem.word(),
+      instructions: faker.lorem.sentence(),
+    })) as Shortcut[];
+    const allItems: MentionInputTriggerItem[] = [
+      {
+        type: 'group',
+        items: shortcuts.map((s) => {
+          return {
+            value: s.id,
+            label: <div className="p-2 bg-blue-100">{s.name}</div>,
+            pillLabel: s.name,
+          };
+        }),
+        className: 'max-h-[300px] overflow-y-auto',
+      },
+      { type: 'separator' as const },
+      {
+        value: 'manageShortcuts',
+        label: 'Manage shortcuts',
+        icon: 'x',
+        doNotAddPipeOnSelect: true,
+        onSelect: () => {
+          console.info('manage shortcuts');
+        },
+      },
+      {
+        value: 'createShortcut',
+        label: 'Create shortcut',
+        icon: 'y',
+        doNotAddPipeOnSelect: true,
+        onSelect: () => {
+          console.info('create shortcut');
+        },
+      },
+    ];
+    return defaultQueryMentionsFilter(query, allItems);
+  },
+  popoverContent: (props) => {
+    return <div className="p-2 min-w-[200px] h-[200px]">Manage shortcuts {props.value}</div>;
+  },
+  popoverClassName: 'bg-red-100',
+  onChangeTransform: (v) => {
+    return `We can totally transform this into anything we want. The original value was [/${String(v.label)}](${String(v.value)})`;
+  },
 });
 
 export const Default: Story = {
@@ -308,6 +362,7 @@ export const Default: Story = {
       theSimpsonsSuggestions,
       arthurSuggestions,
       spongebobSuggestions,
+      shortcutsSuggestions,
     ],
     onChange: fn(),
   },
@@ -425,7 +480,7 @@ export const DynamicItems: Story = {
           placeholder="Type ! to see dynamic mentions..."
           mentions={[dynamicSuggestions]}
           onChange={(value) => {
-            console.log('Input changed:', value);
+            console.info('Input changed:', value);
           }}
         />
 

@@ -2,21 +2,22 @@ import type { ListShortcutsResponse, Shortcut } from '@buster/server-shared/shor
 import { useNavigate } from '@tanstack/react-router';
 import type { Editor } from '@tiptap/react';
 import { useMemo, useRef } from 'react';
-import { useDeleteShortcut, useGetShortcut } from '@/api/buster_rest/shortcuts/queryRequests';
-import { ErrorCard } from '@/components/ui/error/ErrorCard';
+import { useDeleteShortcut } from '@/api/buster_rest/shortcuts/queryRequests';
 import { Trash } from '@/components/ui/icons';
 import PenWriting from '@/components/ui/icons/NucleoIconOutlined/pen-writing';
 import Plus from '@/components/ui/icons/NucleoIconOutlined/plus';
 import {
   createMentionSuggestionExtension,
+  type MentionInputTriggerItem,
   MentionSecondaryContentDropdown,
   type MentionTriggerItem,
 } from '@/components/ui/inputs/MentionInput';
 import type {
-  MentionInputSuggestionsDropdownItem,
   MentionInputSuggestionsProps,
   MentionInputSuggestionsRef,
 } from '@/components/ui/inputs/MentionInputSuggestions';
+import { Paragraph } from '@/components/ui/typography/Paragraph';
+import { Text } from '@/components/ui/typography/Text';
 import { ShortcutPopoverContent } from './ShortcutPopoverContent';
 
 export const SHORTCUT_MENTION_TRIGGER = '/';
@@ -38,35 +39,45 @@ export const useCreateShortcutsMentionsSuggestions = (
         trigger: SHORTCUT_MENTION_TRIGGER,
         items: ({ defaultQueryMentionsFilter, editor, query }) => {
           const shortcuts = currentItemsRef.current;
-          const allItems = [
-            ...shortcuts.map((s) => createShortcutForMention(s, editor)),
-            { type: 'separator' as const },
-            {
-              value: 'manageShortcuts',
-              label: 'Manage shortcuts',
-              icon: <PenWriting />,
-              doNotAddPipeOnSelect: true,
-              onSelect: () => {
-                navigate({
-                  to: '/app/home/shortcuts',
-                });
+          const allItems: MentionInputTriggerItem[] = [];
+          if (shortcuts.length > 0) {
+            allItems.push({
+              type: 'group',
+              items: shortcuts.map((s) => createShortcutForMention(s, editor)),
+              className: 'max-h-[300px] overflow-y-auto',
+            });
+            allItems.push({ type: 'separator' as const });
+          }
+          allItems.push(
+            ...[
+              {
+                value: 'manageShortcuts',
+                label: 'Manage shortcuts',
+                icon: <PenWriting />,
+                doNotAddPipeOnSelect: true,
+                onSelect: () => {
+                  navigate({
+                    to: '/app/home/shortcuts',
+                  });
+                },
               },
-            },
-            {
-              value: 'createShortcut',
-              label: 'Create shortcut',
-              icon: <Plus />,
-              doNotAddPipeOnSelect: true,
-              onSelect: () => {
-                setOpenCreateShortcutModal(true);
+              {
+                value: 'createShortcut',
+                label: 'Create shortcut',
+                icon: <Plus />,
+                doNotAddPipeOnSelect: true,
+                onSelect: () => {
+                  setOpenCreateShortcutModal(true);
+                },
               },
-            },
-          ];
+            ]
+          );
           return defaultQueryMentionsFilter(query, allItems);
         },
         popoverContent: ShortcutPopoverContent,
+        popoverClassName: '',
         onChangeTransform: (v) => {
-          const foundShortcut = shortcuts.find((shortcut) => shortcut.name === v.label);
+          const foundShortcut = shortcuts.find((shortcut) => shortcut.id === v.value);
           if (foundShortcut) {
             return foundShortcut.instructions;
           }
@@ -78,115 +89,134 @@ export const useCreateShortcutsMentionsSuggestions = (
 };
 
 export const useCreateShortcutForMention = () => {
-  const navigate = useNavigate();
-  const { mutateAsync: deleteShortcut } = useDeleteShortcut();
+  // const navigate = useNavigate();
+  // const { mutateAsync: deleteShortcut } = useDeleteShortcut();
   const createShortcutForMention = (
     shortcut: Shortcut,
-    editor?: Editor
+    _editor?: Editor
   ): MentionTriggerItem<string> => {
     return {
       value: shortcut.id,
-      label: shortcut.name,
-      icon: <PenWriting />,
-      secondaryContent: (
-        <MentionSecondaryContentDropdown
-          items={[
-            {
-              label: 'Edit',
-              icon: <PenWriting />,
-              value: 'edit',
-              onClick: () => {
-                navigate({
-                  to: '/app/home/shortcuts',
-                  search: {
-                    shortcut_id: shortcut.id,
-                  },
-                });
-              },
-            },
-            {
-              label: 'Delete',
-              icon: <Trash />,
-              value: 'delete',
-              onClick: async () => {
-                await deleteShortcut({ id: shortcut.id });
-                //remove the trigger character from the editor
-                editor?.commands.deleteRange({
-                  from: editor.state.selection.from - 1,
-                  to: editor.state.selection.from,
-                });
-              },
-            },
-          ]}
-        />
+      labelMatches: [shortcut.name, shortcut.instructions],
+      label: (
+        <div className="flex flex-col space-y-1.5 py-1.5">
+          <Text>{`${SHORTCUT_MENTION_TRIGGER}${shortcut.name}`}</Text>
+          <Paragraph
+            size={'xs'}
+            variant={'secondary'}
+            className="line-clamp-2"
+            style={{ lineHeight: 'normal' }}
+          >
+            {shortcut.instructions}
+          </Paragraph>
+        </div>
       ),
+      pillLabel: shortcut.name,
+      // secondaryContent: (
+      //   <MentionSecondaryContentDropdown
+      //     items={[
+      //       {
+      //         label: 'Edit',
+      //         icon: <PenWriting />,
+      //         value: 'edit',
+      //         onClick: () => {
+      //           navigate({
+      //             to: '/app/home/shortcuts',
+      //             search: {
+      //               shortcut_id: shortcut.id,
+      //             },
+      //           });
+      //         },
+      //       },
+      //       {
+      //         label: 'Delete',
+      //         icon: <Trash />,
+      //         value: 'delete',
+      //         onClick: async () => {
+      //           await deleteShortcut({ id: shortcut.id });
+      //           //remove the trigger character from the editor
+      //           editor?.commands.deleteRange({
+      //             from: editor.state.selection.from - 1,
+      //             to: editor.state.selection.from,
+      //           });
+      //         },
+      //       },
+      //     ]}
+      //   />
+      // ),
     };
   };
 
   return createShortcutForMention;
 };
 export const useShortcutsSuggestions = (
-  shortcuts: ListShortcutsResponse['shortcuts'],
+  _shortcuts: ListShortcutsResponse['shortcuts'],
   setOpenCreateShortcutModal: (open: boolean) => void,
   mentionInputSuggestionsRef: React.RefObject<MentionInputSuggestionsRef | null>
 ): MentionInputSuggestionsProps['suggestionItems'] => {
-  const createShortcutForMention = useCreateShortcutForMention();
+  const navigate = useNavigate();
   return useMemo(() => {
-    const shortcutsItems = shortcuts.map<MentionInputSuggestionsDropdownItem>((shortcut) => {
-      return {
+    const shortcutsItems: MentionInputSuggestionsProps['suggestionItems'] = [
+      {
         type: 'item',
-        value: shortcut.name,
-        label: shortcut.name,
-        popoverContent: <ShortcutSuggestionsPopoverContent shortcut={shortcut} />,
-        icon: SHORTCUT_MENTION_TRIGGER,
-        inputValue: `${SHORTCUT_MENTION_TRIGGER} ${shortcut.name}`,
+        value: 'manageShortcuts',
+        label: 'Manage shortcuts',
+        keywords: ['/', 'manage', 'shortcuts'],
+        icon: <PenWriting />,
         onClick: () => {
-          const addMentionToInput = mentionInputSuggestionsRef.current?.addMentionToInput;
-          if (!addMentionToInput) {
-            console.warn('addMentionToInput is not defined', mentionInputSuggestionsRef.current);
-            return;
-          }
-          const shortcutForMention = createShortcutForMention(shortcut);
-          addMentionToInput?.({
-            ...shortcutForMention,
-            trigger: SHORTCUT_MENTION_TRIGGER,
+          navigate({
+            to: '/app/home/shortcuts',
           });
         },
-      };
-    });
-
-    shortcutsItems.push({
-      type: 'item',
-      value: 'createShortcut',
-      label: 'Create shortcut',
-      keywords: ['create', 'shortcut'],
-      icon: <Plus />,
-      inputValue: `${SHORTCUT_MENTION_TRIGGER} Create shortcut`,
-      onClick: () => {
-        setOpenCreateShortcutModal(true);
-      },
-      closeOnSelect: false,
-      addValueToInput: false,
-    });
-
-    return [
-      {
-        type: 'group',
-        label: 'Shortcuts',
-        suggestionItems: shortcutsItems,
+        closeOnSelect: false,
         addValueToInput: false,
-        closeOnSelect: true,
+      },
+      {
+        type: 'item',
+        value: 'createShortcut',
+        label: 'Create shortcut',
+        keywords: ['/', 'create', 'shortcut'],
+        icon: <Plus />,
+        onClick: () => {
+          setOpenCreateShortcutModal(true);
+        },
+        closeOnSelect: false,
+        addValueToInput: false,
       },
     ];
-  }, [shortcuts, setOpenCreateShortcutModal, mentionInputSuggestionsRef]);
-};
+    // const shortcutsItems = shortcuts.map<MentionInputSuggestionsDropdownItem>((shortcut) => {
+    //   return {
+    //     type: 'item',
+    //     value: shortcut.name,
+    //     label: shortcut.name,
+    //     popoverContent: <ShortcutSuggestionsPopoverContent shortcut={shortcut} />,
+    //     icon: SHORTCUT_MENTION_TRIGGER,
+    //     inputValue: `${SHORTCUT_MENTION_TRIGGER} ${shortcut.name}`,
+    //     onClick: () => {
+    //       const addMentionToInput = mentionInputSuggestionsRef.current?.addMentionToInput;
+    //       if (!addMentionToInput) {
+    //         console.warn('addMentionToInput is not defined', mentionInputSuggestionsRef.current);
+    //         return;
+    //       }
+    //       const shortcutForMention = createShortcutForMention(shortcut);
+    //       addMentionToInput?.({
+    //         ...shortcutForMention,
+    //         trigger: SHORTCUT_MENTION_TRIGGER,
+    //       });
+    //     },
+    //   };
+    // });
 
-const ShortcutSuggestionsPopoverContent = ({ shortcut }: { shortcut: Shortcut }) => {
-  const { isFetched, isError } = useGetShortcut({ id: shortcut.id });
+    return shortcutsItems;
 
-  if (!isFetched) return null;
-
-  if (isError) return <ErrorCard message="Error fetching shortcut" />;
-
-  return <ShortcutPopoverContent value={shortcut.id} />;
+    // return [
+    //   {
+    //     type: 'group',
+    //     label: 'Shortcuts',
+    //     suggestionItems: shortcutsItems,
+    //     addValueToInput: false,
+    //     closeOnSelect: true,
+    //   },
+    // ];
+  }, [setOpenCreateShortcutModal, mentionInputSuggestionsRef]);
 };

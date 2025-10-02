@@ -41,7 +41,7 @@ export interface AppSegmentedProps<
   value?: T;
   onChange?: (value: SegmentedItem<T, TRouter, TOptions, TFrom>) => void;
   className?: string;
-  size?: 'default' | 'large';
+  size?: 'default' | 'large' | 'medium';
   block?: boolean;
   type?: 'button' | 'track';
   disabled?: boolean;
@@ -72,12 +72,12 @@ const segmentedVariants = cva('relative inline-flex items-center rounded', {
 });
 
 const triggerVariants = cva(
-  'relative z-10 flex items-center h-6 justify-center gap-x-1.5 gap-y-1 rounded transition-colors ',
+  'relative z-10 flex items-center justify-center gap-x-1.5 gap-y-1 rounded transition-colors ',
   {
     variants: {
       size: {
         default: 'flex-row min-w-6',
-        medium: 'px-3 flex-row',
+        medium: 'min-w-7 flex-row',
         large: 'px-3 flex-col',
       },
       block: {
@@ -284,7 +284,11 @@ function SegmentedTriggerComponent<
 
   const linkContent = (
     <>
-      {icon && <span className={cn('flex items-center text-sm')}>{icon}</span>}
+      {icon && (
+        <span className={cn('flex items-center text-sm', size === 'medium' && 'text-lg')}>
+          {icon}
+        </span>
+      )}
       {label && <span className={cn('text-sm')}>{label}</span>}
     </>
   );

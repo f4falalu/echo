@@ -23,8 +23,11 @@ export {
   getMetricDashboardAncestors,
   getMetricReportAncestors,
   getAssetAncestors,
+  getAssetAncestorsForAssets,
   getAssetAncestorsWithTransaction,
 } from './asset-ancestors';
+
+export type { GetAssetAncestorsForAssetsInput } from './asset-ancestors';
 
 export {
   getAssetLatestVersion,
@@ -38,3 +41,15 @@ export {
   type GetUsersWithAssetPermissionsInput,
   type GetUsersWithAssetPermissionsResult,
 } from './get-users-with-asset-permissions';
+
+export {
+  updateAssetScreenshotBucketKey,
+  UpdateAssetScreenshotBucketKeyInputSchema,
+  type UpdateAssetScreenshotBucketKeyInput,
+} from './update-asset-screenshot-bucket-key';
+
+export {
+  getAssetScreenshotBucketKey,
+  GetAssetScreenshotBucketKeyInputSchema,
+  type GetAssetScreenshotBucketKeyInput,
+} from './get-asset-screenshot-bucket-key';

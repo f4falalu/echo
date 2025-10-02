@@ -232,6 +232,7 @@ export const collections = pgTable(
       withTimezone: true,
       mode: 'string',
     }),
+    screenshotBucketKey: text('screenshot_bucket_key'),
   },
   (table) => [
     foreignKey({
@@ -741,6 +742,7 @@ export const dashboardFiles = pgTable(
       withTimezone: true,
       mode: 'string',
     }),
+    screenshotBucketKey: text('screenshot_bucket_key'),
   },
   (table) => [
     index('dashboard_files_created_by_idx').using(
@@ -814,6 +816,7 @@ export const reportFiles = pgTable(
       withTimezone: true,
       mode: 'string',
     }),
+    screenshotBucketKey: text('screenshot_bucket_key'),
   },
   (table) => [
     index('report_files_created_by_idx').using(
@@ -885,6 +888,7 @@ export const chats = pgTable(
       withTimezone: true,
       mode: 'string',
     }),
+    screenshotBucketKey: text('screenshot_bucket_key'),
   },
   (table) => [
     index('chats_created_at_idx').using(
@@ -1035,6 +1039,7 @@ export const metricFiles = pgTable(
       withTimezone: true,
       mode: 'string',
     }),
+    screenshotBucketKey: text('screenshot_bucket_key'),
   },
   (table) => [
     index('metric_files_created_by_idx').using(
@@ -1483,6 +1488,9 @@ export const assetPermissions = pgTable(
     index('idx_perm_active_asset_identity')
       .on(table.assetId, table.assetType, table.identityId, table.identityType)
       .where(isNull(table.deletedAt)),
+    index('idx_perm_active_identity_asset')
+      .on(table.identityType, table.identityId, table.assetType, table.assetId)
+      .where(isNull(table.deletedAt)),
   ]
 );
 
@@ -1897,6 +1905,7 @@ export const assetSearchV2 = pgTable(
       .defaultNow()
       .notNull(),
     deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
+    screenshotBucketKey: text('screenshot_bucket_key'),
   },
   (table) => [
     foreignKey({
@@ -1913,6 +1922,7 @@ export const assetSearchV2 = pgTable(
     index('idx_as2_active_by_asset')
       .on(table.assetId, table.assetType)
       .where(isNull(table.deletedAt)),
+    index('idx_as2_active_by_org').on(table.organizationId).where(isNull(table.deletedAt)),
   ]
 );
 

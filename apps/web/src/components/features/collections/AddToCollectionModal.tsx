@@ -34,7 +34,7 @@ export const AddToCollectionModal: React.FC<{
   const { data: searchResults } = useSearch({
     query: debouncedSearchTerm,
     assetTypes: ['metric_file', 'dashboard_file', 'report_file'],
-    page_size: 50,
+    page_size: 35,
     page: 1,
   });
 
@@ -51,7 +51,7 @@ export const AddToCollectionModal: React.FC<{
         render: (name, record) => {
           const Icon = assetTypeToIcon(record.assetType) || ASSET_ICONS.metrics;
           return (
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 search-bold">
               <span className="text-icon-color">
                 <Icon />
               </span>

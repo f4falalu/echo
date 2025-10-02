@@ -56,10 +56,9 @@ const PopoverRoot: React.FC<PopoverProps> = ({
 
   const content =
     trigger === 'hover' ? (
-      <div className="relative" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-        <div className="absolute -inset-1" />
-        <div className="relative z-10">{children}</div>
-      </div>
+      <span className="relative" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        <span className="relative z-10">{children}</span>
+      </span>
     ) : (
       children
     );

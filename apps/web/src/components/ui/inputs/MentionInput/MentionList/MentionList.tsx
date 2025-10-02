@@ -30,7 +30,15 @@ export type MentionListProps<T = string> = SuggestionProps<
 > & { trigger: string; emptyState?: React.ReactNode; className?: string };
 
 function MentionListInner<T = string>(
-  { trigger, emptyState, items, command, className }: MentionListProps<T>,
+  {
+    trigger,
+    emptyState,
+    items,
+    command,
+    className,
+    query: _query,
+    editor: _editor,
+  }: MentionListProps<T>,
   ref: React.ForwardedRef<MentionListImperativeHandle>
 ) {
   const listRef = useRef<HTMLDivElement>(null);

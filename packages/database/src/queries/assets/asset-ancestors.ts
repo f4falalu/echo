@@ -1,4 +1,4 @@
-import { and, eq, isNull, sql } from 'drizzle-orm';
+import { and, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { db } from '../../connection';
 import {
   chats,
@@ -11,10 +11,29 @@ import {
   metricFilesToReportFiles,
   reportFiles,
 } from '../../schema';
-import type { Ancestor, AssetAncestors } from '../../schema-types';
+import type { Ancestor, AssetAncestors, AssetType } from '../../schema-types';
 
 // Type for database transaction
 type DatabaseTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+type BatchedAsset = {
+  assetId: string;
+  assetType: AssetType;
+};
+
+type BatchedAncestorRow = {
+  assetId: string;
+  ancestorId: string;
+  ancestorTitle: string;
+  ancestorType: 'chat' | 'collection' | 'dashboard_file' | 'report_file';
+};
+
+const ancestorTypeToKey: Record<BatchedAncestorRow['ancestorType'], keyof AssetAncestors> = {
+  chat: 'chats',
+  collection: 'collections',
+  dashboard_file: 'dashboards',
+  report_file: 'reports',
+};
 
 /**
  * Get chat ancestors as a subquery
@@ -163,6 +182,160 @@ export async function getAssetAncestors(
   }
 
   return ancestors;
+}
+
+export type GetAssetAncestorsForAssetsInput = {
+  assets: BatchedAsset[];
+  userId: string;
+  organizationId: string;
+};
+
+export async function getAssetAncestorsForAssets(
+  input: GetAssetAncestorsForAssetsInput
+): Promise<Record<string, AssetAncestors>> {
+  const { assets } = input;
+  if (assets.length === 0) {
+    return {};
+  }
+
+  const assetIds: string[] = [];
+  const metricAssetIds: string[] = [];
+
+  for (const asset of assets) {
+    assetIds.push(asset.assetId);
+    if (asset.assetType === 'metric_file') {
+      metricAssetIds.push(asset.assetId);
+    }
+  }
+
+  const chatRowsPromise: Promise<BatchedAncestorRow[]> = assetIds.length
+    ? db
+        .select({
+          assetId: messagesToFiles.fileId,
+          ancestorId: chats.id,
+          ancestorTitle: chats.title,
+          ancestorType: sql<'chat'>`'chat'`.as('ancestorType'),
+        })
+        .from(messagesToFiles)
+        .innerJoin(messages, eq(messages.id, messagesToFiles.messageId))
+        .innerJoin(chats, eq(chats.id, messages.chatId))
+        .where(
+          and(
+            inArray(messagesToFiles.fileId, assetIds),
+            isNull(messagesToFiles.deletedAt),
+            isNull(messages.deletedAt),
+            isNull(chats.deletedAt)
+          )
+        )
+    : // .then((rows) =>
+      //   rows.map((row) => ({
+      //     assetId: row.assetId,
+      //     ancestorId: row.ancestorId,
+      //     ancestorTitle: row.ancestorTitle,
+      //     ancestorType: 'chat',
+      //   }))
+      // )
+      Promise.resolve([]);
+
+  const collectionRowsPromise: Promise<BatchedAncestorRow[]> = assetIds.length
+    ? db
+        .select({
+          assetId: collectionsToAssets.assetId,
+          ancestorId: collections.id,
+          ancestorTitle: collections.name,
+          ancestorType: sql<'collection'>`'collection'`.as('ancestorType'),
+        })
+        .from(collectionsToAssets)
+        .innerJoin(collections, eq(collections.id, collectionsToAssets.collectionId))
+        .where(
+          and(
+            inArray(collectionsToAssets.assetId, assetIds),
+            isNull(collectionsToAssets.deletedAt),
+            isNull(collections.deletedAt)
+          )
+        )
+    : Promise.resolve([]);
+
+  const dashboardRowsPromise: Promise<BatchedAncestorRow[]> = metricAssetIds.length
+    ? db
+        .select({
+          assetId: metricFilesToDashboardFiles.metricFileId,
+          ancestorId: dashboardFiles.id,
+          ancestorTitle: dashboardFiles.name,
+          ancestorType: sql<'dashboard_file'>`'dashboard_file'`.as('ancestorType'),
+        })
+        .from(metricFilesToDashboardFiles)
+        .innerJoin(
+          dashboardFiles,
+          eq(dashboardFiles.id, metricFilesToDashboardFiles.dashboardFileId)
+        )
+        .where(
+          and(
+            inArray(metricFilesToDashboardFiles.metricFileId, metricAssetIds),
+            isNull(metricFilesToDashboardFiles.deletedAt),
+            isNull(dashboardFiles.deletedAt)
+          )
+        )
+    : Promise.resolve([]);
+
+  const reportRowsPromise: Promise<BatchedAncestorRow[]> = metricAssetIds.length
+    ? db
+        .select({
+          assetId: metricFilesToReportFiles.metricFileId,
+          ancestorId: reportFiles.id,
+          ancestorTitle: reportFiles.name,
+          ancestorType: sql<'report_file'>`'report_file'`.as('ancestorType'),
+        })
+        .from(metricFilesToReportFiles)
+        .innerJoin(reportFiles, eq(reportFiles.id, metricFilesToReportFiles.reportFileId))
+        .where(
+          and(
+            inArray(metricFilesToReportFiles.metricFileId, metricAssetIds),
+            isNull(metricFilesToReportFiles.deletedAt),
+            isNull(reportFiles.deletedAt)
+          )
+        )
+    : Promise.resolve([]);
+
+  const [chatRows, collectionRows, dashboardRows, reportRows] = await Promise.all([
+    chatRowsPromise,
+    collectionRowsPromise,
+    dashboardRowsPromise,
+    reportRowsPromise,
+  ]);
+
+  const ancestorsByAssetId: Record<string, AssetAncestors> = {};
+  for (const asset of assets) {
+    ancestorsByAssetId[asset.assetId] = {
+      chats: [],
+      collections: [],
+      dashboards: [],
+      reports: [],
+    };
+  }
+
+  const appendRows = (rows: BatchedAncestorRow[]) => {
+    for (const row of rows) {
+      const ancestorBucket = ancestorsByAssetId[row.assetId];
+      if (!ancestorBucket) {
+        continue;
+      }
+
+      const key = ancestorTypeToKey[row.ancestorType];
+      const ancestor: Ancestor = {
+        id: row.ancestorId,
+        title: row.ancestorTitle,
+      };
+      ancestorBucket[key].push(ancestor);
+    }
+  };
+
+  appendRows(chatRows);
+  appendRows(collectionRows);
+  appendRows(dashboardRows);
+  appendRows(reportRows);
+
+  return ancestorsByAssetId;
 }
 
 export async function getAssetChatAncestors(

@@ -146,8 +146,13 @@ const ShortcutItem: React.FC<{
 }> = React.memo(({ shortcut, onOpenEditShortcutModal }) => {
   const { mutateAsync: deleteShortcut } = useDeleteShortcut();
   return (
-    <div className="px-4 py-3.5 flex justify-between items-center gap-x-4 hover:bg-item-hover/60 border-b last:border-b-0">
-      <div className="flex flex-col space-y-0">
+    <div
+      className="px-4 py-3.5 flex justify-between items-center gap-x-4 hover:bg-item-hover/25 border-b last:border-b-0 cursor-pointer"
+      onClick={() => {
+        onOpenEditShortcutModal(shortcut.id);
+      }}
+    >
+      <div className="flex flex-col space-y-1">
         <Text>{shortcut.name}</Text>
         <Paragraph size={'xs'} variant={'secondary'} className="line-clamp-2">
           {shortcut.instructions}
