@@ -218,7 +218,7 @@ export const MentionInputSuggestions = forwardRef<
               className={inputClassName}
               onBlur={onBlur}
             />
-            {children && <div className="mt-4.5">{children}</div>}
+            {children && <div className="mt-6">{children}</div>}
           </MentionInputSuggestionsContainer>
           <SuggestionsSeperator />
           <MentionInputSuggestionsList
