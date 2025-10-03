@@ -159,7 +159,7 @@ function renderDir(
  */
 export function createLsToolExecute(context: LsToolContext) {
   return async function execute(input: LsToolInput): Promise<LsToolOutput> {
-    const { messageId, projectDirectory } = context;
+    const { messageId, projectDirectory, onToolEvent } = context;
     const searchPath = path.resolve(
       projectDirectory,
       input.path || projectDirectory
@@ -167,11 +167,18 @@ export function createLsToolExecute(context: LsToolContext) {
 
     console.info(`Listing directory ${searchPath} for message ${messageId}`);
 
+    // Emit start event
+    onToolEvent?.({
+      tool: 'lsTool',
+      event: 'start',
+      args: input,
+    });
+
     try {
       // Validate the path exists and is a directory
       const stats = await stat(searchPath);
       if (!stats.isDirectory()) {
-        return {
+        const result = {
           success: false,
           path: searchPath,
           output: '',
@@ -179,6 +186,16 @@ export function createLsToolExecute(context: LsToolContext) {
           truncated: false,
           errorMessage: `Path is not a directory: ${searchPath}`,
         };
+
+        // Emit complete event
+        onToolEvent?.({
+          tool: 'lsTool',
+          event: 'complete',
+          result,
+          args: input,
+        });
+
+        return result;
       }
 
       // Build ignore patterns
@@ -225,19 +242,29 @@ export function createLsToolExecute(context: LsToolContext) {
         `Listed ${files.length} file(s) in ${searchPath}${files.length >= LIMIT ? ' (truncated)' : ''}`
       );
 
-      return {
+      const result = {
         success: true,
         path: searchPath,
         output,
         count: files.length,
         truncated: files.length >= LIMIT,
       };
+
+      // Emit complete event
+      onToolEvent?.({
+        tool: 'lsTool',
+        event: 'complete',
+        result,
+        args: input,
+      });
+
+      return result;
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
       console.error(`Error listing directory ${searchPath}:`, errorMessage);
 
-      return {
+      const result = {
         success: false,
         path: searchPath,
         output: '',
@@ -245,6 +272,16 @@ export function createLsToolExecute(context: LsToolContext) {
         truncated: false,
         errorMessage,
       };
+
+      // Emit complete event even on error
+      onToolEvent?.({
+        tool: 'lsTool',
+        event: 'complete',
+        result,
+        args: input,
+      });
+
+      return result;
     }
   };
 }

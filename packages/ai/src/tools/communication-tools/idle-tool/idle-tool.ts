@@ -19,6 +19,7 @@ const IdleOutputSchema = z.object({
 // Optional context for consistency with other tools
 const IdleContextSchema = z.object({
   messageId: z.string().optional().describe('The message ID for tracking tool execution.'),
+  onToolEvent: z.any().optional(),
 });
 
 export type IdleInput = z.infer<typeof IdleInputSchema>;
@@ -29,18 +30,28 @@ async function processIdle(): Promise<IdleOutput> {
   return { success: true };
 }
 
-function createIdleExecute() {
+function createIdleExecute<TAgentContext extends IdleContext = IdleContext>(context?: TAgentContext) {
   return wrapTraced(
-    async (): Promise<IdleOutput> => {
-      return await processIdle();
+    async (args: IdleInput) => {
+      const result: IdleOutput = await processIdle();
+
+      // Emit typed tool event when idle tool completes
+      context?.onToolEvent?.({
+        tool: 'idleTool',
+        event: 'complete',
+        result,
+        args,
+      });
+
+      return result;
     },
     { name: 'idle-tool' }
   );
 }
 
 // Factory: simple tool without streaming lifecycle
-export function createIdleTool() {
-  const execute = createIdleExecute();
+export function createIdleTool<TAgentContext extends IdleContext = IdleContext>(context?: TAgentContext) {
+  const execute = createIdleExecute(context);
 
   return tool({
     description:

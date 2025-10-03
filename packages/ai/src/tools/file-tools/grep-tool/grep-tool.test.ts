@@ -91,7 +91,7 @@ async function executeRipgrep(
  */
 export function createGrepSearchToolExecute(context: GrepToolContext) {
   return async function execute(input: GrepToolInput): Promise<GrepToolOutput> {
-    const { messageId, projectDirectory } = context;
+    const { messageId, projectDirectory, onToolEvent } = context;
     const { pattern, path, glob } = input;
 
     if (!pattern) {
@@ -101,6 +101,13 @@ export function createGrepSearchToolExecute(context: GrepToolContext) {
     const searchPath = path || projectDirectory;
 
     console.info(`Searching for pattern "${pattern}" in ${searchPath} for message ${messageId}`);
+
+    // Emit start event
+    onToolEvent?.({
+      tool: 'grepTool',
+      event: 'start',
+      args: input,
+    });
 
     try {
       // Execute ripgrep
@@ -117,23 +124,43 @@ export function createGrepSearchToolExecute(context: GrepToolContext) {
         `Search complete: ${finalMatches.length} matches found${truncated ? ' (truncated)' : ''}`
       );
 
-      return {
+      const result = {
         pattern,
         matches: finalMatches,
         totalMatches: finalMatches.length,
         truncated,
       };
+
+      // Emit complete event
+      onToolEvent?.({
+        tool: 'grepTool',
+        event: 'complete',
+        result,
+        args: input,
+      });
+
+      return result;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       console.error(`Grep search failed:`, errorMessage);
 
       // Return empty results on error
-      return {
+      const result = {
         pattern,
         matches: [],
         totalMatches: 0,
         truncated: false,
       };
+
+      // Emit complete event even on error
+      onToolEvent?.({
+        tool: 'grepTool',
+        event: 'complete',
+        result,
+        args: input,
+      });
+
+      return result;
     }
   };
 }

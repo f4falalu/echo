@@ -1,35 +1,48 @@
 import { Box, Text } from 'ink';
 import React from 'react';
+import type { AgentMessage } from '../services/analytics-engineer-handler';
+import { ExecuteMessage } from './execute-message';
 
-export type MessageType = 'PLAN' | 'EXECUTE' | 'WRITE' | 'EDIT';
-
-interface TypedMessageProps {
-  type: MessageType;
-  content: string;
-  metadata?: string;
+interface AgentMessageComponentProps {
+  message: AgentMessage;
 }
 
-const typeStyles: Record<MessageType, { bg: string; fg: string; label: string }> = {
-  PLAN: { bg: '#fb923c', fg: '#000000', label: 'PLAN' },
-  EXECUTE: { bg: '#fb923c', fg: '#000000', label: 'EXECUTE' },
-  WRITE: { bg: '#3b82f6', fg: '#ffffff', label: 'WRITE' },
-  EDIT: { bg: '#22c55e', fg: '#ffffff', label: 'EDIT' },
-};
+export function AgentMessageComponent({ message }: AgentMessageComponentProps) {
+  switch (message.kind) {
+    case 'user':
+      return (
+        <Box marginBottom={1}>
+          <Text color="#a855f7" bold>
+            ❯{' '}
+          </Text>
+          <Text color="#e0e7ff">{message.content}</Text>
+        </Box>
+      );
 
-export function TypedMessage({ type, content, metadata }: TypedMessageProps) {
-  const style = typeStyles[type];
+    case 'text-delta':
+      return (
+        <Box marginBottom={1}>
+          <Text color="#e0e7ff">{message.content}</Text>
+        </Box>
+      );
 
-  return (
-    <Box flexDirection="column" marginBottom={1}>
-      <Box gap={1}>
-        <Text backgroundColor={style.bg} color={style.fg} bold>
-          {` ${style.label} `}
-        </Text>
-        {metadata && <Text dimColor>{metadata}</Text>}
-      </Box>
-      <Box marginLeft={2} marginTop={0}>
-        <Text>{content}</Text>
-      </Box>
-    </Box>
-  );
+    case 'idle':
+      // For idle tool, just show the final response as plain text
+      return (
+        <Box marginBottom={1}>
+          <Text color="#e0e7ff">
+            {message.args?.final_response || 'Task completed'}
+          </Text>
+        </Box>
+      );
+
+    case 'bash':
+    case 'grep':
+    case 'ls':
+      // For execute commands, use the ExecuteMessage component
+      return <ExecuteMessage message={message} />;
+
+    default:
+      return null;
+  }
 }

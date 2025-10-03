@@ -28,6 +28,7 @@ export const LsToolOutputSchema = z.object({
 export const LsToolContextSchema = z.object({
   messageId: z.string().describe('The message ID for database updates'),
   projectDirectory: z.string().describe('The root directory of the project'),
+  onToolEvent: z.any().optional(),
 });
 
 export type LsToolInput = z.infer<typeof LsToolInputSchema>;

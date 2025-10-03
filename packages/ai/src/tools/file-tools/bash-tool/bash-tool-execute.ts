@@ -22,7 +22,8 @@ async function executeCommand(
     const timeoutId = setTimeout(() => controller.abort(), timeout);
 
     // Execute command using Bun.spawn
-    const proc = Bun.spawn(['bash', '-c', command], {
+    // Use full path to bash for reliability
+    const proc = Bun.spawn(['/bin/bash', '-c', command], {
       cwd: projectDirectory,
       stdout: 'pipe',
       stderr: 'pipe',
@@ -113,10 +114,17 @@ async function executeCommand(
  */
 export function createBashToolExecute(context: BashToolContext) {
   return async function execute(input: BashToolInput): Promise<BashToolOutput> {
-    const { messageId, projectDirectory } = context;
+    const { messageId, projectDirectory, onToolEvent } = context;
     const { command, timeout } = input;
 
     console.info(`Executing bash command for message ${messageId}: ${command}`);
+
+    // Emit start event
+    onToolEvent?.({
+      tool: 'bashTool',
+      event: 'start',
+      args: input,
+    });
 
     const commandTimeout = Math.min(timeout ?? DEFAULT_TIMEOUT, MAX_TIMEOUT);
     const result = await executeCommand(command, commandTimeout, projectDirectory);
@@ -127,6 +135,14 @@ export function createBashToolExecute(context: BashToolContext) {
     } else {
       console.error(`Command failed: ${command}`, result.error);
     }
+
+    // Emit complete event
+    onToolEvent?.({
+      tool: 'bashTool',
+      event: 'complete',
+      result,
+      args: input,
+    });
 
     return result;
   };

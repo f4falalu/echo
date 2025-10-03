@@ -12,6 +12,7 @@ import { createGrepTool } from '../../tools/file-tools/grep-tool/grep-tool';
 import { createReadFileTool } from '../../tools/file-tools/read-file-tool/read-file-tool';
 import { type AgentContext, repairToolCall } from '../../utils/tool-call-repair';
 import { getDocsAgentSystemPrompt as getAnalyticsEngineerAgentSystemPrompt } from './get-analytics-engineer-agent-system-prompt';
+import type { ToolEventCallback } from './tool-events';
 
 export const ANALYST_ENGINEER_AGENT_NAME = 'analyticsEngineerAgent';
 
@@ -42,7 +43,9 @@ const AnalyticsEngineerAgentStreamOptionsSchema = z.object({
   messages: z.array(z.custom<ModelMessage>()).describe('The messages to send to the docs agent'),
 });
 
-export type AnalyticsEngineerAgentOptions = z.infer<typeof AnalyticsEngineerAgentOptionsSchema>;
+export type AnalyticsEngineerAgentOptions = z.infer<typeof AnalyticsEngineerAgentOptionsSchema> & {
+  onToolEvent?: ToolEventCallback;
+};
 export type AnalyticsEngineerAgentStreamOptions = z.infer<typeof AnalyticsEngineerAgentStreamOptionsSchema>;
 
 // Extended type for passing to tools (includes sandbox)
@@ -55,7 +58,9 @@ export function createAnalyticsEngineerAgent(analyticsEngineerAgentOptions: Anal
     providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
   } as ModelMessage;
 
-  const idleTool = createIdleTool();
+  const idleTool = createIdleTool({
+    onToolEvent: analyticsEngineerAgentOptions.onToolEvent,
+  });
   const writeFileTool = createWriteFileTool({
     messageId: analyticsEngineerAgentOptions.messageId,
     projectDirectory: analyticsEngineerAgentOptions.folder_structure,
@@ -63,6 +68,7 @@ export function createAnalyticsEngineerAgent(analyticsEngineerAgentOptions: Anal
   const grepTool = createGrepTool({
     messageId: analyticsEngineerAgentOptions.messageId,
     projectDirectory: analyticsEngineerAgentOptions.folder_structure,
+    onToolEvent: analyticsEngineerAgentOptions.onToolEvent,
   });
   const readFileTool = createReadFileTool({
     messageId: analyticsEngineerAgentOptions.messageId,
@@ -71,6 +77,7 @@ export function createAnalyticsEngineerAgent(analyticsEngineerAgentOptions: Anal
   const bashTool = createBashTool({
     messageId: analyticsEngineerAgentOptions.messageId,
     projectDirectory: analyticsEngineerAgentOptions.folder_structure,
+    onToolEvent: analyticsEngineerAgentOptions.onToolEvent,
   });
   const editFileTool = createEditFileTool({
     messageId: analyticsEngineerAgentOptions.messageId,
@@ -83,6 +90,7 @@ export function createAnalyticsEngineerAgent(analyticsEngineerAgentOptions: Anal
   const lsTool = createLsTool({
     messageId: analyticsEngineerAgentOptions.messageId,
     projectDirectory: analyticsEngineerAgentOptions.folder_structure,
+    onToolEvent: analyticsEngineerAgentOptions.onToolEvent,
   });
 
   // Create planning tools with simple context

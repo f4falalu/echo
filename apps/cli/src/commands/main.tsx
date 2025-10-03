@@ -10,34 +10,20 @@ import {
   ChatVersionTagline,
   VimStatus,
 } from '../components/chat-layout';
-import { Diff } from '../components/diff';
 import { SettingsForm } from '../components/settings-form';
-import { type MessageType, TypedMessage } from '../components/typed-message';
+import { AgentMessageComponent } from '../components/typed-message';
+import type { DocsAgentMessage } from '../services/analytics-engineer-handler';
 import { getSetting } from '../utils/settings';
 import type { SlashCommand } from '../utils/slash-commands';
 import type { VimMode } from '../utils/vim-mode';
 
 type AppMode = 'Planning' | 'Auto-accept' | 'None';
 
-interface Message {
-  id: number;
-  type: 'user' | 'assistant';
-  content: string;
-  messageType?: MessageType;
-  metadata?: string;
-  diffLines?: Array<{
-    lineNumber: number;
-    content: string;
-    type: 'add' | 'remove' | 'context';
-  }>;
-  fileName?: string;
-}
-
 export function Main() {
   const { exit } = useApp();
   const [input, setInput] = useState('');
   const [history, setHistory] = useState<ChatHistoryEntry[]>([]);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<DocsAgentMessage[]>([]);
   const historyCounter = useRef(0);
   const messageCounter = useRef(0);
   const [vimEnabled, setVimEnabled] = useState(() => getSetting('vimMode'));
@@ -66,7 +52,43 @@ export function Main() {
     }
   });
 
-  const getMockResponse = (userInput: string): Message[] => {
+  const handleSubmit = useCallback(async () => {
+    const trimmed = input.trim();
+    if (!trimmed) {
+      setInput('');
+      return;
+    }
+
+    const userMessage: DocsAgentMessage = {
+      id: ++messageCounter.current,
+      message: {
+        kind: 'user',
+        content: trimmed,
+      },
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setInput('');
+
+    // Import and run the docs agent
+    const { runDocsAgent } = await import('../services/analytics-engineer-handler');
+
+    // Run agent - callbacks will handle message display
+    await runDocsAgent({
+      userMessage: trimmed,
+      onMessage: (agentMessage) => {
+        // Assign unique ID to each message
+        const messageWithId = {
+          id: ++messageCounter.current,
+          message: agentMessage.message,
+        };
+        setMessages((prev) => [...prev, messageWithId]);
+      },
+    });
+  }, [input]);
+
+  // REMOVED: Old getMockResponse function
+  const _oldGetMockResponse = (userInput: string) => {
     const responses: Message[] = [];
 
     if (userInput.toLowerCase().includes('plan')) {
@@ -225,46 +247,8 @@ export function Main() {
       });
     }
 
-    return responses;
+    return []; // Old mock code removed
   };
-
-  const handleSubmit = useCallback(async () => {
-    const trimmed = input.trim();
-    if (!trimmed) {
-      setInput('');
-      return;
-    }
-
-    messageCounter.current += 1;
-    const userMessage: Message = {
-      id: messageCounter.current,
-      type: 'user',
-      content: trimmed,
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-    setInput('');
-
-    // Import and run the docs agent
-    const { runDocsAgent } = await import('../services/analytics-engineer-handler');
-
-    await runDocsAgent({
-      userMessage: trimmed,
-      onMessage: (agentMessage) => {
-        messageCounter.current += 1;
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: messageCounter.current,
-            type: agentMessage.type,
-            content: agentMessage.content,
-            messageType: agentMessage.messageType,
-            metadata: agentMessage.metadata,
-          },
-        ]);
-      },
-    });
-  }, [input]);
 
   const handleCommandExecute = useCallback(
     (command: SlashCommand) => {
@@ -309,35 +293,9 @@ export function Main() {
 
   // Memoize message list to prevent re-renders from cursor blinking
   const messageList = useMemo(() => {
-    return messages.map((message) => {
-      if (message.type === 'user') {
-        return (
-          <Box key={message.id} marginBottom={1}>
-            <Text color="#a855f7" bold>
-              ❯{' '}
-            </Text>
-            <Text color="#e0e7ff">{message.content}</Text>
-          </Box>
-        );
-      } else if (message.messageType) {
-        return (
-          <Box key={message.id} flexDirection="column">
-            <TypedMessage
-              type={message.messageType}
-              content={message.content}
-              metadata={message.metadata}
-            />
-            {message.diffLines && <Diff lines={message.diffLines} fileName={message.fileName} />}
-          </Box>
-        );
-      } else {
-        return (
-          <Box key={message.id} marginBottom={1}>
-            <Text color="#e0e7ff">{message.content}</Text>
-          </Box>
-        );
-      }
-    });
+    return messages.map((msg) => (
+      <AgentMessageComponent key={msg.id} message={msg.message} />
+    ));
   }, [messages]);
 
   return (
