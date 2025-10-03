@@ -19,7 +19,7 @@ class FileSearcher {
   private cwd: string;
   private fileCache: string[] | null = null;
   private gitignorePatterns: string[] | null = null;
-  private lastCacheTime: number = 0;
+  private lastCacheTime = 0;
   private readonly CACHE_TTL = 5000; // 5 seconds cache
 
   constructor(cwd: string = process.cwd()) {
@@ -106,7 +106,7 @@ class FileSearcher {
     return patterns;
   }
 
-  private async getAllFiles(includeHidden: boolean = false): Promise<string[]> {
+  private async getAllFiles(includeHidden = false): Promise<string[]> {
     const now = Date.now();
 
     // Return cached files if still valid

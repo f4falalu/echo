@@ -36,21 +36,21 @@ if (!process.env.CI && !process.env.BUSTER_NO_UPDATE_CHECK) {
           console.info(chalk.yellow('╭────────────────────────────────────────────╮'));
           console.info(
             chalk.yellow('│') +
-            '  ' +
-            chalk.bold('Update available!') +
-            ' ' +
-            chalk.dim(
-              `${formatVersion(currentVersion)} → ${formatVersion(result.latestVersion)}`
-            ) +
-            '  ' +
-            chalk.yellow('│')
+              '  ' +
+              chalk.bold('Update available!') +
+              ' ' +
+              chalk.dim(
+                `${formatVersion(currentVersion)} → ${formatVersion(result.latestVersion)}`
+              ) +
+              '  ' +
+              chalk.yellow('│')
           );
           console.info(
             chalk.yellow('│') +
-            '  Run ' +
-            chalk.cyan('buster update') +
-            ' to update             ' +
-            chalk.yellow('│')
+              '  Run ' +
+              chalk.cyan('buster update') +
+              ' to update             ' +
+              chalk.yellow('│')
           );
           console.info(chalk.yellow('╰────────────────────────────────────────────╯'));
           console.info('');
@@ -129,7 +129,10 @@ program
           process.exit(1);
         }
       } catch (error) {
-        console.error('❌ Authentication failed:', error instanceof Error ? error.message : 'Unknown error');
+        console.error(
+          '❌ Authentication failed:',
+          error instanceof Error ? error.message : 'Unknown error'
+        );
         process.exit(1);
       }
     }

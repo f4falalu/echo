@@ -20,8 +20,8 @@ export const HelloCommand: React.FC<HelloCommandProps> = ({ name, uppercase }) =
   }, []);
 
   return (
-    <Box flexDirection="column">
-      <Text color="green">{chalk.bold('🚀 Buster CLI')}</Text>
+    <Box flexDirection='column'>
+      <Text color='green'>{chalk.bold('🚀 Buster CLI')}</Text>
       <Text>{displayText}</Text>
     </Box>
   );

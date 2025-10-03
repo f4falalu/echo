@@ -28,15 +28,15 @@ export const InteractiveCommand: React.FC = () => {
   });
 
   return (
-    <Box flexDirection="column">
+    <Box flexDirection='column'>
       <Box marginBottom={1}>
-        <Text color="cyan" bold>
+        <Text color='cyan' bold>
           🚀 Buster CLI - Interactive Mode
         </Text>
       </Box>
 
       <Text dimColor>Use arrow keys to navigate, Enter to select, Q to quit</Text>
-      <Box marginTop={1} flexDirection="column">
+      <Box marginTop={1} flexDirection='column'>
         {options.map((option, index) => (
           <Box key={option}>
             <Text {...(selectedOption === index ? { color: 'green' } : {})}>

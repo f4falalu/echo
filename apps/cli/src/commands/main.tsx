@@ -247,7 +247,7 @@ export function Main() {
 
   if (showSettings) {
     return (
-      <Box flexDirection="column" paddingX={1} paddingY={2}>
+      <Box flexDirection='column' paddingX={1} paddingY={2}>
         <SettingsForm
           onClose={() => {
             setShowSettings(false);
@@ -261,7 +261,7 @@ export function Main() {
 
   if (showHistory) {
     return (
-      <Box flexDirection="column" paddingX={1} paddingY={2}>
+      <Box flexDirection='column' paddingX={1} paddingY={2}>
         <HistoryBrowser
           workingDirectory={workingDirectory.current}
           onSelect={handleResumeConversation}
@@ -273,24 +273,24 @@ export function Main() {
 
   return (
     <ExpansionContext.Provider value={{ isExpanded }}>
-      <Box flexDirection="column" paddingX={1} paddingY={2} gap={1}>
+      <Box flexDirection='column' paddingX={1} paddingY={2} gap={1}>
         <ChatTitle />
         <ChatVersionTagline />
         <ChatIntroText />
-        <Box flexDirection="column" marginTop={1}>
+        <Box flexDirection='column' marginTop={1}>
           {messageList}
         </Box>
         {isThinking && (
           <Box marginLeft={2} marginTop={1}>
-            <Text color="gray" italic>
+            <Text color='gray' italic>
               Thinking...
             </Text>
           </Box>
         )}
-        <Box flexDirection="column">
+        <Box flexDirection='column'>
           <Box height={1}>
             {appMode !== 'None' && (
-              <Text color="#c4b5fd" bold>
+              <Text color='#c4b5fd' bold>
                 {appMode === 'Planning' ? 'Planning Mode' : 'Auto-accept Mode'}
               </Text>
             )}
@@ -305,7 +305,7 @@ export function Main() {
             onAutocompleteStateChange={setIsAutocompleteOpen}
             isThinking={isThinking}
           />
-          <Box justifyContent="space-between">
+          <Box justifyContent='space-between'>
             <VimStatus
               vimMode={currentVimMode}
               vimEnabled={vimEnabled}
