@@ -4,6 +4,7 @@ import type { AgentMessage } from '../services/analytics-engineer-handler';
 import { ExecuteMessage } from './execute-message';
 import { WriteMessage } from './write-message';
 import { EditMessage } from './edit-message';
+import { ReadMessage } from './read-message';
 
 interface AgentMessageComponentProps {
   message: AgentMessage;
@@ -51,6 +52,10 @@ export function AgentMessageComponent({ message }: AgentMessageComponentProps) {
     case 'edit':
       // For edit operations, use the EditMessage component
       return <EditMessage message={message} />;
+
+    case 'read':
+      // For read operations, use the ReadMessage component
+      return <ReadMessage message={message} />;
 
     default:
       return null;

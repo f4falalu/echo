@@ -34,10 +34,17 @@ function validateFilePath(filePath: string, projectDirectory: string): void {
  */
 export function createReadFileToolExecute(context: ReadFileToolContext) {
   return async function execute(input: ReadFileToolInput): Promise<ReadFileToolOutput> {
-    const { messageId, projectDirectory } = context;
+    const { messageId, projectDirectory, onToolEvent } = context;
     const { filePath } = input;
 
     console.info(`Reading file ${filePath} for message ${messageId}`);
+
+    // Emit start event
+    onToolEvent?.({
+      tool: 'readFileTool',
+      event: 'start',
+      args: input,
+    });
 
     try {
       // Convert to absolute path if relative
@@ -69,21 +76,41 @@ export function createReadFileToolExecute(context: ReadFileToolContext) {
 
       console.info(`Successfully read file: ${filePath}`);
 
-      return {
-        status: 'success',
+      const output = {
+        status: 'success' as const,
         file_path: filePath,
         content: finalContent,
         truncated,
       };
+
+      // Emit complete event
+      onToolEvent?.({
+        tool: 'readFileTool',
+        event: 'complete',
+        result: output,
+        args: input,
+      });
+
+      return output;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       console.error(`Error reading file ${filePath}:`, errorMessage);
 
-      return {
-        status: 'error',
+      const output = {
+        status: 'error' as const,
         file_path: filePath,
         error_message: errorMessage,
       };
+
+      // Emit complete event even on error
+      onToolEvent?.({
+        tool: 'readFileTool',
+        event: 'complete',
+        result: output,
+        args: input,
+      });
+
+      return output;
     }
   };
 }

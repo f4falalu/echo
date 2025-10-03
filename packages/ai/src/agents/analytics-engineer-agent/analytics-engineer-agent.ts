@@ -74,6 +74,7 @@ export function createAnalyticsEngineerAgent(analyticsEngineerAgentOptions: Anal
   const readFileTool = createReadFileTool({
     messageId: analyticsEngineerAgentOptions.messageId,
     projectDirectory: analyticsEngineerAgentOptions.folder_structure,
+    onToolEvent: analyticsEngineerAgentOptions.onToolEvent,
   });
   const bashTool = createBashTool({
     messageId: analyticsEngineerAgentOptions.messageId,
