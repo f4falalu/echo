@@ -2,24 +2,15 @@ import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { z } from 'zod';
-import type { AgentMessage } from '../types/agent-messages';
 
-// Schema for a stored message (AgentMessage with metadata)
-const StoredMessageSchema = z.object({
-  id: z.number().describe('Unique message ID'),
-  timestamp: z.string().datetime().describe('ISO timestamp when message was created'),
-  message: z.any().describe('The agent message content'),
-});
-
-type StoredMessage = z.infer<typeof StoredMessageSchema>;
-
-// Schema for a conversation file
+// Schema for a conversation file - single source of truth
 const ConversationSchema = z.object({
   chatId: z.string().uuid().describe('Unique chat/conversation ID'),
   workingDirectory: z.string().describe('Absolute path of the working directory'),
   createdAt: z.string().datetime().describe('ISO timestamp when conversation was created'),
   updatedAt: z.string().datetime().describe('ISO timestamp when conversation was last updated'),
-  messages: z.array(StoredMessageSchema).describe('Array of messages in the conversation'),
+  // AI SDK messages array - single source of truth for conversation state
+  modelMessages: z.array(z.any()).describe('Array of CoreMessage objects (user, assistant, tool)'),
 });
 
 export type Conversation = z.infer<typeof ConversationSchema>;
@@ -79,7 +70,7 @@ export async function createConversation(
     workingDirectory,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    messages: [],
+    modelMessages: [],
   };
 
   const filePath = getConversationFilePath(chatId, workingDirectory);
@@ -108,13 +99,12 @@ export async function loadConversation(
 }
 
 /**
- * Saves a message to an existing conversation
+ * Saves the full model messages array (single source of truth)
  */
-export async function saveMessage(
+export async function saveModelMessages(
   chatId: string,
   workingDirectory: string,
-  messageId: number,
-  message: AgentMessage
+  modelMessages: any[]
 ): Promise<void> {
   let conversation = await loadConversation(chatId, workingDirectory);
 
@@ -123,14 +113,8 @@ export async function saveMessage(
     conversation = await createConversation(chatId, workingDirectory);
   }
 
-  // Add the new message
-  const storedMessage: StoredMessage = {
-    id: messageId,
-    timestamp: new Date().toISOString(),
-    message,
-  };
-
-  conversation.messages.push(storedMessage);
+  // Replace the model messages with the new array
+  conversation.modelMessages = modelMessages as any[];
   conversation.updatedAt = new Date().toISOString();
 
   // Save back to disk
@@ -161,7 +145,7 @@ export async function listConversations(
             chatId: conversation.chatId,
             createdAt: conversation.createdAt,
             updatedAt: conversation.updatedAt,
-            messageCount: conversation.messages.length,
+            messageCount: conversation.modelMessages.length,
           };
         })
     );

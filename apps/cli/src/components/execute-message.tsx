@@ -17,7 +17,7 @@ interface ExecuteMessageProps {
  * Supports expansion with Ctrl+O to show full output
  */
 export function ExecuteMessage({ message }: ExecuteMessageProps) {
-  const [isExpanded] = useExpansion();
+  const isExpanded = useExpansion();
   const { args, result } = message;
 
   // Get command description and output based on tool type

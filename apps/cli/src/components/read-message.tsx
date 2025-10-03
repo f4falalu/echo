@@ -19,7 +19,7 @@ interface ReadMessageProps {
  * Supports expansion with Ctrl+O to show full content
  */
 export function ReadMessage({ message }: ReadMessageProps) {
-  const [isExpanded] = useExpansion();
+  const isExpanded = useExpansion();
   const { args, result } = message;
 
   if (!result) {

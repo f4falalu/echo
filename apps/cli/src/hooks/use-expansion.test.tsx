@@ -1,63 +1,47 @@
 import { Text } from 'ink';
 import { render } from 'ink-testing-library';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { useExpansion } from './use-expansion';
-
-// Mock useInput from ink
-vi.mock('ink', async () => {
-  const actual = await vi.importActual('ink');
-  return {
-    ...actual,
-    useInput: vi.fn(),
-  };
-});
+import { describe, expect, it } from 'vitest';
+import { ExpansionContext, useExpansion } from './use-expansion';
 
 describe('useExpansion', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   function TestComponent() {
-    const [isExpanded, toggle] = useExpansion();
-    // Store toggle for external access
-    (globalThis as any).__testToggle = toggle;
+    const isExpanded = useExpansion();
 
     return <Text>{isExpanded ? 'expanded' : 'collapsed'}</Text>;
   }
 
-  it('should initialize with isExpanded as false', () => {
+  it('should use default context value when no provider is present', () => {
     const { lastFrame } = render(<TestComponent />);
 
     expect(lastFrame()).toContain('collapsed');
   });
 
-  it('should toggle state when toggle function is called', () => {
-    const { lastFrame, rerender } = render(<TestComponent />);
-
-    // Initial state
-    expect(lastFrame()).toContain('collapsed');
-
-    // Call toggle
-    const toggle = (globalThis as any).__testToggle;
-    toggle();
-
-    // Need to rerender to see the change
-    rerender(<TestComponent />);
+  it('should use context value from provider when present', () => {
+    const { lastFrame } = render(
+      <ExpansionContext.Provider value={{ isExpanded: true }}>
+        <TestComponent />
+      </ExpansionContext.Provider>
+    );
 
     expect(lastFrame()).toContain('expanded');
   });
 
-  it('should register useInput handler on mount', async () => {
-    const { useInput } = await import('ink');
-    render(<TestComponent />);
+  it('should react to context changes', () => {
+    const { lastFrame, rerender } = render(
+      <ExpansionContext.Provider value={{ isExpanded: false }}>
+        <TestComponent />
+      </ExpansionContext.Provider>
+    );
 
-    expect(useInput).toHaveBeenCalled();
-  });
+    expect(lastFrame()).toContain('collapsed');
 
-  it('should call useInput with a handler function', async () => {
-    const { useInput } = await import('ink');
-    render(<TestComponent />);
+    // Rerender with new context value
+    rerender(
+      <ExpansionContext.Provider value={{ isExpanded: true }}>
+        <TestComponent />
+      </ExpansionContext.Provider>
+    );
 
-    expect(useInput).toHaveBeenCalledWith(expect.any(Function));
+    expect(lastFrame()).toContain('expanded');
   });
 });

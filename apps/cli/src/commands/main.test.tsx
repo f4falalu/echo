@@ -4,7 +4,10 @@ import { describe, expect, it, vi } from 'vitest';
 // Mock Bun's Glob API for Node.js test environment
 vi.mock('bun', () => ({
   Glob: class MockGlob {
-    constructor(public pattern: string, public options: any) {}
+    constructor(
+      public pattern: string,
+      public options: any
+    ) {}
     async *scan() {
       // Return empty for tests
       return [];

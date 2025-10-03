@@ -19,7 +19,7 @@ interface WriteMessageProps {
  * Supports expansion with Ctrl+O to show full content
  */
 export function WriteMessage({ message }: WriteMessageProps) {
-  const [isExpanded] = useExpansion();
+  const isExpanded = useExpansion();
   const { args, result } = message;
 
   // For each file, show its content

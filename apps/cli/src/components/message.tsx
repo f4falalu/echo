@@ -4,7 +4,7 @@ import type { AgentMessage } from '../types/agent-messages';
 import { EditMessage } from './edit-message';
 import { ExecuteMessage } from './execute-message';
 import { ReadMessage } from './read-message';
-import { SubagentMessage } from './subagent-message';
+import { TaskMessage } from './task-message';
 import { WriteMessage } from './write-message';
 
 interface AgentMessageComponentProps {
@@ -62,9 +62,9 @@ export function AgentMessageComponent({ message }: AgentMessageComponentProps) {
       // For read operations, use the ReadMessage component
       return <ReadMessage message={message} />;
 
-    case 'subagent':
-      // For subagent operations, use the SubagentMessage component
-      return <SubagentMessage message={message} />;
+    case 'task':
+      // For task operations, use the TaskMessage component
+      return <TaskMessage message={message} />;
 
     default:
       return null;

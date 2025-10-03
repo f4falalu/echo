@@ -148,8 +148,12 @@ function handleNormalMode(
     let positionInLine = cursorPosition;
 
     for (let i = 0; i < lines.length; i++) {
-      const lineLength = lines[i].length + (i < lines.length - 1 ? 1 : 0);
-      if (cursorPosition <= currentLineStart + lines[i].length) {
+      const line = lines[i];
+      if (line === undefined) {
+        continue;
+      }
+      const lineLength = line.length + (i < lines.length - 1 ? 1 : 0);
+      if (cursorPosition <= currentLineStart + line.length) {
         currentLineIndex = i;
         positionInLine = cursorPosition - currentLineStart;
         break;
@@ -161,8 +165,11 @@ function handleNormalMode(
       const nextLineStart = lines
         .slice(0, currentLineIndex + 1)
         .reduce((acc, line) => acc + line.length + 1, 0);
-      const nextLineLength = lines[currentLineIndex + 1].length;
-      const newPosition = nextLineStart + Math.min(positionInLine, nextLineLength);
+      const nextLine = lines[currentLineIndex + 1];
+      if (nextLine === undefined) {
+        return { type: 'none', preventDefault: true };
+      }
+      const newPosition = nextLineStart + Math.min(positionInLine, nextLine.length);
       return {
         type: 'cursor-move',
         cursorPosition: newPosition,
@@ -179,8 +186,12 @@ function handleNormalMode(
     let positionInLine = cursorPosition;
 
     for (let i = 0; i < lines.length; i++) {
-      const lineLength = lines[i].length + (i < lines.length - 1 ? 1 : 0);
-      if (cursorPosition <= currentLineStart + lines[i].length) {
+      const line = lines[i];
+      if (line === undefined) {
+        continue;
+      }
+      const lineLength = line.length + (i < lines.length - 1 ? 1 : 0);
+      if (cursorPosition <= currentLineStart + line.length) {
         currentLineIndex = i;
         positionInLine = cursorPosition - currentLineStart;
         break;
@@ -192,8 +203,11 @@ function handleNormalMode(
       const previousLineStart = lines
         .slice(0, currentLineIndex - 1)
         .reduce((acc, line) => acc + line.length + 1, 0);
-      const previousLineLength = lines[currentLineIndex - 1].length;
-      const newPosition = previousLineStart + Math.min(positionInLine, previousLineLength);
+      const previousLine = lines[currentLineIndex - 1];
+      if (previousLine === undefined) {
+        return { type: 'none', preventDefault: true };
+      }
+      const newPosition = previousLineStart + Math.min(positionInLine, previousLine.length);
       return {
         type: 'cursor-move',
         cursorPosition: newPosition,
@@ -287,8 +301,12 @@ function handleNormalMode(
     let currentLineIndex = 0;
 
     for (let i = 0; i < lines.length; i++) {
-      const lineLength = lines[i].length + (i < lines.length - 1 ? 1 : 0);
-      if (cursorPosition <= currentLineStart + lines[i].length) {
+      const line = lines[i];
+      if (line === undefined) {
+        continue;
+      }
+      const lineLength = line.length + (i < lines.length - 1 ? 1 : 0);
+      if (cursorPosition <= currentLineStart + line.length) {
         currentLineIndex = i;
         break;
       }
@@ -304,7 +322,7 @@ function handleNormalMode(
       type: 'delete',
       text: newValue,
       cursorPosition: newCursor,
-      yankedText: deletedLine,
+      yankedText: deletedLine || '',
       preventDefault: true,
     };
   }
@@ -317,17 +335,25 @@ function handleNormalMode(
     let currentLineStart = 0;
 
     for (let i = 0; i < lines.length; i++) {
-      const lineLength = lines[i].length + (i < lines.length - 1 ? 1 : 0);
-      if (cursorPosition <= currentLineStart + lines[i].length) {
+      const line = lines[i];
+      if (line === undefined) {
+        continue;
+      }
+      const lineLength = line.length + (i < lines.length - 1 ? 1 : 0);
+      if (cursorPosition <= currentLineStart + line.length) {
         currentLineIndex = i;
         break;
       }
       currentLineStart += lineLength;
     }
 
+    const yankedText = lines[currentLineIndex];
+    if (yankedText === undefined) {
+      return { type: 'none', preventDefault: true };
+    }
     return {
       type: 'yank',
-      yankedText: lines[currentLineIndex],
+      yankedText,
       preventDefault: true,
     };
   }

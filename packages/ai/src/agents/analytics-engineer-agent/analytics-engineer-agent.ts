@@ -15,7 +15,7 @@ import {
 import { createBashTool } from '../../tools/file-tools/bash-tool/bash-tool';
 import { createGrepTool } from '../../tools/file-tools/grep-tool/grep-tool';
 import { createReadFileTool } from '../../tools/file-tools/read-file-tool/read-file-tool';
-import { createSubagentTool } from '../../tools/subagent-tools/subagent-tool/subagent-tool';
+import { createTaskTool } from '../../tools/task-tools/task-tool/task-tool';
 import { type AgentContext, repairToolCall } from '../../utils/tool-call-repair';
 import { getDocsAgentSystemPrompt as getAnalyticsEngineerAgentSystemPrompt } from './get-analytics-engineer-agent-system-prompt';
 import type { ToolEventCallback } from './tool-events';
@@ -47,6 +47,11 @@ const AnalyticsEngineerAgentOptionsSchema = z.object({
     .boolean()
     .optional()
     .describe('Flag indicating this is a subagent (prevents infinite recursion)'),
+  abortSignal: z
+    .custom<AbortSignal>()
+    .optional()
+    .describe('Optional abort signal to cancel agent execution'),
+  skipTracing: z.boolean().optional().describe('Skip Braintrust tracing (useful for CLI mode)'),
 });
 
 const AnalyticsEngineerAgentStreamOptionsSchema = z.object({
@@ -111,16 +116,17 @@ export function createAnalyticsEngineerAgent(
     onToolEvent: analyticsEngineerAgentOptions.onToolEvent,
   });
 
-  // Conditionally create subagent tool (only for main agent, not for subagents)
-  const subagentTool = !analyticsEngineerAgentOptions.isSubagent
-    ? createSubagentTool({
+  // Conditionally create task tool (only for main agent, not for subagents)
+  const taskTool = !analyticsEngineerAgentOptions.isSubagent
+    ? createTaskTool({
         messageId: analyticsEngineerAgentOptions.messageId,
         projectDirectory: analyticsEngineerAgentOptions.folder_structure,
         // Wrap onToolEvent to ensure type compatibility - no optional chaining
         ...(analyticsEngineerAgentOptions.onToolEvent && {
+          // biome-ignore lint/suspicious/noExplicitAny: Bridging between ToolEventType and parent's ToolEvent type
           onToolEvent: (event) => analyticsEngineerAgentOptions.onToolEvent?.(event as any),
         }),
-        // Pass the agent factory function to enable subagent creation
+        // Pass the agent factory function to enable task agent creation
         // This needs to match the AgentFactory type signature
         createAgent: (options) => {
           return createAnalyticsEngineerAgent({
@@ -144,7 +150,7 @@ export function createAnalyticsEngineerAgent(
       availableTools,
     };
 
-    // Build tools object conditionally including subagent tool
+    // Build tools object conditionally including task tool
     // biome-ignore lint/suspicious/noExplicitAny: tools object contains various tool types
     const tools: Record<string, any> = {
       idleTool,
@@ -157,39 +163,47 @@ export function createAnalyticsEngineerAgent(
       lsTool,
     };
 
-    // Add subagent tool only if not a subagent (prevent recursion)
-    if (subagentTool) {
-      tools.subagentTool = subagentTool;
+    // Add task tool only if not a subagent (prevent recursion)
+    if (taskTool) {
+      tools.taskTool = taskTool;
     }
 
-    return wrapTraced(
-      () =>
-        streamText({
-          model: analyticsEngineerAgentOptions.model || Sonnet4,
-          providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
-          tools,
-          messages: [systemMessage, ...messages],
-          stopWhen: STOP_CONDITIONS,
-          toolChoice: 'required',
-          maxOutputTokens: 10000,
-          temperature: 0,
-          experimental_context: analyticsEngineerAgentOptions,
-          experimental_repairToolCall: async (repairContext) => {
-            return repairToolCall({
-              toolCall: repairContext.toolCall,
-              tools: repairContext.tools,
-              error: repairContext.error,
-              messages: repairContext.messages,
-              ...(repairContext.system && { system: repairContext.system }),
-              ...(repairContext.inputSchema && { inputSchema: repairContext.inputSchema }),
-              agentContext,
-            });
-          },
+    const streamFn = () =>
+      streamText({
+        model: analyticsEngineerAgentOptions.model || Sonnet4,
+        providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
+        tools,
+        messages: [systemMessage, ...messages],
+        stopWhen: STOP_CONDITIONS,
+        toolChoice: 'required',
+        maxOutputTokens: 10000,
+        temperature: 0,
+        experimental_context: analyticsEngineerAgentOptions,
+        ...(analyticsEngineerAgentOptions.abortSignal && {
+          abortSignal: analyticsEngineerAgentOptions.abortSignal,
         }),
-      {
-        name: 'Docs Agent',
-      }
-    )();
+        experimental_repairToolCall: async (repairContext) => {
+          return repairToolCall({
+            toolCall: repairContext.toolCall,
+            tools: repairContext.tools,
+            error: repairContext.error,
+            messages: repairContext.messages,
+            ...(repairContext.system && { system: repairContext.system }),
+            ...(repairContext.inputSchema && { inputSchema: repairContext.inputSchema }),
+            agentContext,
+          });
+        },
+      });
+
+    // Skip tracing for CLI mode
+    if (analyticsEngineerAgentOptions.skipTracing) {
+      return streamFn();
+    }
+
+    // Use Braintrust tracing for production
+    return wrapTraced(streamFn, {
+      name: 'Docs Agent',
+    })();
   }
 
   return {

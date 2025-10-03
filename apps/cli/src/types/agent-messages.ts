@@ -74,18 +74,14 @@ export type AgentMessage =
       };
     }
   | {
-      kind: 'subagent';
+      kind: 'task';
       event: 'start' | 'complete';
       args: { instructions: string };
       result?: {
         status: 'success' | 'error';
         summary?: string;
-        messages?: Array<{
-          tool: string;
-          event: 'start' | 'complete';
-          args: any;
-          result?: any;
-        }>;
+        // Nested messages are the same AgentMessage types (excluding user and text-delta which don't make sense in task context)
+        messages?: Exclude<AgentMessage, { kind: 'user' } | { kind: 'text-delta' }>[];
         error_message?: string;
       };
     };

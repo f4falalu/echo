@@ -2,8 +2,8 @@ export { createDoneTool } from './communication-tools/done-tool/done-tool';
 export { createIdleTool } from './communication-tools/idle-tool/idle-tool';
 export { createSubmitThoughtsTool } from './communication-tools/submit-thoughts-tool/submit-thoughts-tool';
 export { createSequentialThinkingTool } from './planning-thinking-tools/sequential-thinking-tool/sequential-thinking-tool';
-// Subagent tools - factory functions
-export { createSubagentTool } from './subagent-tools/subagent-tool/subagent-tool';
+// Task tools - factory functions
+export { createTaskTool } from './task-tools/task-tool/task-tool';
 // Visualization tools - factory functions
 export { createCreateMetricsTool } from './visualization-tools/metrics/create-metrics-tool/create-metrics-tool';
 export { createModifyMetricsTool } from './visualization-tools/metrics/modify-metrics-tool/modify-metrics-tool';

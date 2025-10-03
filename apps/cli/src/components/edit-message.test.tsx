@@ -167,9 +167,7 @@ describe('EditMessage', () => {
       event: 'complete',
       args: {
         file_path: '/Users/test/project/test.ts',
-        edits: [
-          { old_string: 'const y = 2;', new_string: 'const y = 3;' },
-        ],
+        edits: [{ old_string: 'const y = 2;', new_string: 'const y = 3;' }],
       },
       result: {
         success: true,

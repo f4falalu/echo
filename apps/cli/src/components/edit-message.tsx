@@ -64,7 +64,7 @@ function parseDiff(diff: string): { lines: ParsedDiffLine[]; additions: number; 
  * Supports expansion with Ctrl+O to show full diff
  */
 export function EditMessage({ message }: EditMessageProps) {
-  const [isExpanded] = useExpansion();
+  const isExpanded = useExpansion();
   const { args, result } = message;
 
   if (!result) {

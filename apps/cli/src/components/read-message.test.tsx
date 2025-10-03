@@ -5,7 +5,8 @@ import { ReadMessage } from './read-message';
 
 // Mock hooks and utilities
 vi.mock('../hooks/use-expansion', () => ({
-  useExpansion: vi.fn(() => [false, vi.fn()]),
+  useExpansion: vi.fn(() => false),
+  ExpansionContext: { Provider: ({ children }: any) => children },
 }));
 
 vi.mock('../utils/file-path', () => ({

@@ -106,6 +106,7 @@ interface ChatInputProps {
   onVimModeChange?: (mode: 'normal' | 'insert' | 'visual') => void;
   onCommandExecute?: (command: SlashCommand) => void;
   onAutocompleteStateChange?: (isOpen: boolean) => void;
+  isThinking?: boolean;
 }
 
 export function ChatInput({
@@ -116,6 +117,7 @@ export function ChatInput({
   onVimModeChange,
   onCommandExecute,
   onAutocompleteStateChange,
+  isThinking = false,
 }: ChatInputProps) {
   const [mentionQuery, setMentionQuery] = useState<string | null>(null);
   const [mentionStart, setMentionStart] = useState<number>(-1);
@@ -281,6 +283,7 @@ export function ChatInput({
             placeholder={placeholder}
             isAutocompleteOpen={showAutocomplete || showCommandAutocomplete}
             onVimModeChange={onVimModeChange}
+            isThinking={isThinking}
           />
         </Box>
       </Box>

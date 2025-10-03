@@ -12,12 +12,14 @@ import {
 import { HistoryBrowser } from '../components/history-browser';
 import { AgentMessageComponent } from '../components/message';
 import { SettingsForm } from '../components/settings-form';
-import type { DocsAgentMessage } from '../services/analytics-engineer-handler';
+import { ExpansionContext } from '../hooks/use-expansion';
+import type { CliAgentMessage } from '../services/analytics-engineer-handler';
 import type { Conversation } from '../utils/conversation-history';
-import { loadConversation, saveMessage } from '../utils/conversation-history';
+import { loadConversation, saveModelMessages } from '../utils/conversation-history';
 import { getCurrentChatId, initNewSession, setSessionChatId } from '../utils/session';
 import { getSetting } from '../utils/settings';
 import type { SlashCommand } from '../utils/slash-commands';
+import { transformModelMessagesToUI } from '../utils/transform-messages';
 import type { VimMode } from '../utils/vim-mode';
 
 type AppMode = 'Planning' | 'Auto-accept' | 'None';
@@ -26,7 +28,7 @@ export function Main() {
   const { exit } = useApp();
   const [input, setInput] = useState('');
   const [history, setHistory] = useState<ChatHistoryEntry[]>([]);
-  const [messages, setMessages] = useState<DocsAgentMessage[]>([]);
+  const [messages, setMessages] = useState<CliAgentMessage[]>([]);
   const historyCounter = useRef(0);
   const messageCounter = useRef(0);
   const [vimEnabled, setVimEnabled] = useState(() => getSetting('vimMode'));
@@ -36,7 +38,10 @@ export function Main() {
   const [isAutocompleteOpen, setIsAutocompleteOpen] = useState(false);
   const [appMode, setAppMode] = useState<AppMode>('None');
   const [sessionInitialized, setSessionInitialized] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isThinking, setIsThinking] = useState(false);
   const workingDirectory = useRef(process.cwd());
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Initialize a fresh session on mount
   useEffect(() => {
@@ -54,9 +59,59 @@ export function Main() {
     initSession();
   }, []);
 
+  // Poll conversation file for updates
+  useEffect(() => {
+    if (!sessionInitialized) return;
+
+    const chatId = getCurrentChatId();
+    const cwd = workingDirectory.current;
+
+    const pollInterval = setInterval(async () => {
+      try {
+        const conversation = await loadConversation(chatId, cwd);
+        if (!conversation) return;
+
+        // Transform model messages to UI format
+        const transformedMessages = transformModelMessagesToUI(conversation.modelMessages as any);
+
+        // Update message counter to highest ID
+        if (transformedMessages.length > 0) {
+          messageCounter.current = Math.max(
+            ...transformedMessages.map((m) => m.id),
+            messageCounter.current
+          );
+        }
+
+        // Only update if messages changed
+        setMessages((prevMessages) => {
+          if (JSON.stringify(prevMessages) === JSON.stringify(transformedMessages)) {
+            return prevMessages;
+          }
+          return transformedMessages;
+        });
+      } catch (error) {
+        // Silently handle polling errors (file might not exist yet)
+      }
+    }, 100); // Poll every 100ms
+
+    return () => clearInterval(pollInterval);
+  }, [sessionInitialized]);
+
   useInput((value, key) => {
     if (key.ctrl && value === 'c') {
       exit();
+    }
+
+    // Abort agent execution with Escape (only when thinking, don't interfere with vim mode)
+    if (key.escape && isThinking && abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+      setIsThinking(false);
+    }
+
+    // Toggle expansion with Ctrl+O
+    if (key.ctrl && value === 'o') {
+      setIsExpanded((prev) => !prev);
     }
 
     // Cycle through modes with shift+tab
@@ -84,48 +139,60 @@ export function Main() {
     const chatId = getCurrentChatId();
     const cwd = workingDirectory.current;
 
-    const userMessage: DocsAgentMessage = {
-      id: ++messageCounter.current,
-      message: {
-        kind: 'user',
-        content: trimmed,
-      },
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
     setInput('');
+    setIsThinking(true);
 
-    // Save user message to history
-    await saveMessage(chatId, cwd, userMessage.id, userMessage.message);
+    try {
+      // Load existing model messages and append the new user message
+      const conversation = await loadConversation(chatId, cwd);
+      const existingModelMessages = conversation?.modelMessages || [];
+      const updatedModelMessages = [
+        ...existingModelMessages,
+        {
+          role: 'user',
+          content: trimmed,
+        },
+      ] as any;
 
-    // Import and run the docs agent
-    const { runDocsAgent } = await import('../services/analytics-engineer-handler');
+      // Save updated model messages before running agent
+      await saveModelMessages(chatId, cwd, updatedModelMessages);
 
-    // Run agent - callbacks will handle message display
-    await runDocsAgent({
-      chatId,
-      userMessage: trimmed,
-      onMessage: async (agentMessage) => {
-        // Assign unique ID to each message
-        const messageWithId = {
-          id: ++messageCounter.current,
-          message: agentMessage.message,
-        };
-        setMessages((prev) => [...prev, messageWithId]);
+      // Import and run the analytics engineer agent
+      const { runAnalyticsEngineerAgent } = await import('../services/analytics-engineer-handler');
 
-        // Save agent message to history
-        await saveMessage(chatId, cwd, messageWithId.id, messageWithId.message);
-      },
-    });
+      // Create AbortController for this agent execution
+      const abortController = new AbortController();
+      abortControllerRef.current = abortController;
+
+      // Run agent - it will write messages to disk via tool callbacks
+      await runAnalyticsEngineerAgent({
+        chatId,
+        workingDirectory: cwd,
+        abortSignal: abortController.signal,
+        onThinkingStateChange: (thinking) => {
+          setIsThinking(thinking);
+        },
+      });
+    } catch (error) {
+      // Handle abort gracefully
+      if (error instanceof Error && error.name === 'AbortError') {
+        // Agent was aborted, just clear thinking state
+        setIsThinking(false);
+      } else {
+        // Re-throw other errors
+        throw error;
+      }
+    } finally {
+      // Clean up abort controller
+      abortControllerRef.current = null;
+      setIsThinking(false);
+    }
   }, [input, sessionInitialized]);
 
   const handleResumeConversation = useCallback(async (conversation: Conversation) => {
     try {
-      // Load the conversation messages
-      const loadedMessages: DocsAgentMessage[] = conversation.messages.map((stored) => ({
-        id: stored.id,
-        message: stored.message,
-      }));
+      // Transform model messages to UI format for display
+      const loadedMessages = transformModelMessagesToUI(conversation.modelMessages as any);
 
       // Update message counter to highest ID
       messageCounter.current = Math.max(...loadedMessages.map((m) => m.id), 0);
@@ -205,39 +272,49 @@ export function Main() {
   }
 
   return (
-    <Box flexDirection="column" paddingX={1} paddingY={2} gap={1}>
-      <ChatTitle />
-      <ChatVersionTagline />
-      <ChatIntroText />
-      <Box flexDirection="column" marginTop={1}>
-        {messageList}
-      </Box>
-      <Box flexDirection="column">
-        <Box height={1}>
-          {appMode !== 'None' && (
-            <Text color="#c4b5fd" bold>
-              {appMode === 'Planning' ? 'Planning Mode' : 'Auto-accept Mode'}
+    <ExpansionContext.Provider value={{ isExpanded }}>
+      <Box flexDirection="column" paddingX={1} paddingY={2} gap={1}>
+        <ChatTitle />
+        <ChatVersionTagline />
+        <ChatIntroText />
+        <Box flexDirection="column" marginTop={1}>
+          {messageList}
+        </Box>
+        {isThinking && (
+          <Box marginLeft={2} marginTop={1}>
+            <Text color="gray" italic>
+              Thinking...
             </Text>
-          )}
-        </Box>
-        <ChatInput
-          value={input}
-          onChange={setInput}
-          onSubmit={handleSubmit}
-          placeholder='Try "Review the changes in my current branch"'
-          onVimModeChange={setCurrentVimMode}
-          onCommandExecute={handleCommandExecute}
-          onAutocompleteStateChange={setIsAutocompleteOpen}
-        />
-        <Box justifyContent="space-between">
-          <VimStatus
-            vimMode={currentVimMode}
-            vimEnabled={vimEnabled}
-            hideWhenAutocomplete={isAutocompleteOpen}
+          </Box>
+        )}
+        <Box flexDirection="column">
+          <Box height={1}>
+            {appMode !== 'None' && (
+              <Text color="#c4b5fd" bold>
+                {appMode === 'Planning' ? 'Planning Mode' : 'Auto-accept Mode'}
+              </Text>
+            )}
+          </Box>
+          <ChatInput
+            value={input}
+            onChange={setInput}
+            onSubmit={handleSubmit}
+            placeholder='Try "Review the changes in my current branch"'
+            onVimModeChange={setCurrentVimMode}
+            onCommandExecute={handleCommandExecute}
+            onAutocompleteStateChange={setIsAutocompleteOpen}
+            isThinking={isThinking}
           />
-          <ChatFooter />
+          <Box justifyContent="space-between">
+            <VimStatus
+              vimMode={currentVimMode}
+              vimEnabled={vimEnabled}
+              hideWhenAutocomplete={isAutocompleteOpen}
+            />
+            <ChatFooter />
+          </Box>
         </Box>
       </Box>
-    </Box>
+    </ExpansionContext.Provider>
   );
 }

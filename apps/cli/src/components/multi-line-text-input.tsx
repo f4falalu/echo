@@ -15,6 +15,7 @@ interface MultiLineTextInputProps {
   focus?: boolean;
   isAutocompleteOpen?: boolean;
   onVimModeChange?: (mode: VimMode) => void;
+  isThinking?: boolean;
 }
 
 export function MultiLineTextInput({
@@ -28,6 +29,7 @@ export function MultiLineTextInput({
   focus = true,
   isAutocompleteOpen = false,
   onVimModeChange,
+  isThinking = false,
 }: MultiLineTextInputProps) {
   const [cursorPosition, setCursorPosition] = useState(value.length);
   const [expectingNewline, setExpectingNewline] = useState(false);
@@ -138,8 +140,8 @@ export function MultiLineTextInput({
       // Debug: Log what we're receiving
       // console.log('Input:', input, 'Key:', key);
 
-      // Handle vim mode if enabled
-      if (vimEnabled) {
+      // Handle vim mode if enabled (but skip escape when thinking - abort takes priority)
+      if (vimEnabled && !(key.escape && isThinking)) {
         const action = handleVimKeybinding(
           input,
           key,

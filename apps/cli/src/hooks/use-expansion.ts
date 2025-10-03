@@ -1,21 +1,23 @@
-import { useInput } from 'ink';
-import { useState } from 'react';
+import { createContext, useContext } from 'react';
 
 /**
- * Hook for managing content expansion/collapse with Ctrl+O
+ * Context for managing global content expansion state
  * Provides consistent expansion behavior across all message components
+ * The expansion state is managed at the root level to avoid multiple useInput listeners
  */
-export function useExpansion(): [boolean, () => void] {
-  const [isExpanded, setIsExpanded] = useState(false);
+interface ExpansionContextValue {
+  isExpanded: boolean;
+}
 
-  // Handle Ctrl+O to toggle expansion
-  useInput((input, key) => {
-    if (key.ctrl && input === 'o') {
-      setIsExpanded((prev) => !prev);
-    }
-  });
+export const ExpansionContext = createContext<ExpansionContextValue>({
+  isExpanded: false,
+});
 
-  const toggle = () => setIsExpanded((prev) => !prev);
-
-  return [isExpanded, toggle];
+/**
+ * Hook for accessing expansion state from context
+ * Use this in message components to check if content should be expanded
+ */
+export function useExpansion(): boolean {
+  const { isExpanded } = useContext(ExpansionContext);
+  return isExpanded;
 }
