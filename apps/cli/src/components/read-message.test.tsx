@@ -22,7 +22,7 @@ describe('ReadMessage', () => {
     const message: Extract<AgentMessage, { kind: 'read' }> = {
       kind: 'read',
       event: 'complete',
-      args: { file_path: '/Users/test/project/test.ts' },
+      args: { filePath: '/Users/test/project/test.ts' },
       result: {
         status: 'success',
         file_path: '/Users/test/project/test.ts',
@@ -44,7 +44,7 @@ describe('ReadMessage', () => {
     const message: Extract<AgentMessage, { kind: 'read' }> = {
       kind: 'read',
       event: 'complete',
-      args: { file_path: '/Users/test/project/large.ts' },
+      args: { filePath: '/Users/test/project/large.ts' },
       result: {
         status: 'success',
         file_path: '/Users/test/project/large.ts',
@@ -62,7 +62,7 @@ describe('ReadMessage', () => {
     const message: Extract<AgentMessage, { kind: 'read' }> = {
       kind: 'read',
       event: 'complete',
-      args: { file_path: '/Users/test/project/missing.ts' },
+      args: { filePath: '/Users/test/project/missing.ts' },
       result: {
         status: 'error',
         file_path: '/Users/test/project/missing.ts',
@@ -81,7 +81,7 @@ describe('ReadMessage', () => {
     const message: Extract<AgentMessage, { kind: 'read' }> = {
       kind: 'read',
       event: 'complete',
-      args: { file_path: '/Users/test/project/test.ts' },
+      args: { filePath: '/Users/test/project/test.ts' },
       result: {
         status: 'success',
         file_path: '/Users/test/project/test.ts',
@@ -102,7 +102,7 @@ describe('ReadMessage', () => {
     const message: Extract<AgentMessage, { kind: 'read' }> = {
       kind: 'read',
       event: 'complete',
-      args: { file_path: '/Users/test/project/empty.ts' },
+      args: { filePath: '/Users/test/project/empty.ts' },
       result: {
         status: 'success',
         file_path: '/Users/test/project/empty.ts',
@@ -121,7 +121,7 @@ describe('ReadMessage', () => {
     const message: Extract<AgentMessage, { kind: 'read' }> = {
       kind: 'read',
       event: 'start',
-      args: { file_path: '/Users/test/project/test.ts' },
+      args: { filePath: '/Users/test/project/test.ts' },
     };
 
     const { lastFrame } = render(<ReadMessage message={message} />);

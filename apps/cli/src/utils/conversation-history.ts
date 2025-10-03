@@ -174,6 +174,9 @@ export async function getLatestConversation(
   }
 
   const latest = conversations[0];
+  if (!latest) {
+    return null;
+  }
   return loadConversation(latest.chatId, workingDirectory);
 }
 

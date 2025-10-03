@@ -27,21 +27,23 @@ export function ExecuteMessage({ message }: ExecuteMessageProps) {
   let success = true;
 
   if (message.kind === 'bash') {
-    description = args.description || args.command;
-    if (result) {
+    description = 'description' in args ? args.description || args.command : args.command;
+    if (result && 'exitCode' in result) {
       output = result.stdout || result.stderr || '';
       exitCode = result.exitCode;
       success = result.success;
     }
   } else if (message.kind === 'grep') {
-    description = `Search for "${args.pattern}"${args.glob ? ` in ${args.glob}` : ''}`;
-    if (result) {
-      output = result.matches.map((m) => `${m.path}:${m.lineNum}: ${m.lineText}`).join('\n');
+    if ('pattern' in args) {
+      description = `Search for "${args.pattern}"${args.glob ? ` in ${args.glob}` : ''}`;
+    }
+    if (result && 'matches' in result) {
+      output = result.matches.map((m: any) => `${m.path}:${m.lineNum}: ${m.lineText}`).join('\n');
       success = result.totalMatches > 0;
     }
   } else if (message.kind === 'ls') {
-    description = `List directory ${args.path || '.'}`;
-    if (result) {
+    description = `List directory ${'path' in args ? args.path || '.' : '.'}`;
+    if (result && 'output' in result) {
       output = result.output;
       success = result.success;
     }
@@ -79,7 +81,7 @@ export function ExecuteMessage({ message }: ExecuteMessageProps) {
         </IndentedContent>
       )}
 
-      {message.kind === 'grep' && result && (
+      {message.kind === 'grep' && result && 'totalMatches' in result && (
         <IndentedContent>
           <Text
             color={
@@ -92,7 +94,7 @@ export function ExecuteMessage({ message }: ExecuteMessageProps) {
         </IndentedContent>
       )}
 
-      {message.kind === 'ls' && result && (
+      {message.kind === 'ls' && result && 'count' in result && (
         <IndentedContent>
           <Text color={result.success ? UI_CONSTANTS.COLORS.SUCCESS : UI_CONSTANTS.COLORS.ERROR}>
             ↳ Listed {result.count} file{result.count !== 1 ? 's' : ''}

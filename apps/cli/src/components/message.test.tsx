@@ -80,7 +80,7 @@ describe('AgentMessageComponent (Router)', () => {
     const message: AgentMessage = {
       kind: 'grep',
       event: 'complete',
-      args: { pattern: 'TODO' },
+      args: { pattern: 'TODO', command: 'grep TODO' },
       result: {
         matches: [{ path: 'test.ts', lineNum: 1, lineText: '// TODO: fix' }],
         totalMatches: 1,
@@ -98,7 +98,7 @@ describe('AgentMessageComponent (Router)', () => {
     const message: AgentMessage = {
       kind: 'ls',
       event: 'complete',
-      args: { path: '/home' },
+      args: { path: '/home', command: 'ls /home' },
       result: { output: 'file1.txt', count: 1, success: true, truncated: false },
     };
 
@@ -115,7 +115,7 @@ describe('AgentMessageComponent (Router)', () => {
         files: [{ path: '/Users/test/project/test.ts', content: 'const x = 1;' }],
       },
       result: {
-        results: [{ status: 'success', path: '/Users/test/project/test.ts' }],
+        results: [{ status: 'success', filePath: '/Users/test/project/test.ts' }],
       },
     };
 
@@ -129,7 +129,7 @@ describe('AgentMessageComponent (Router)', () => {
     const message: AgentMessage = {
       kind: 'read',
       event: 'complete',
-      args: { file_path: '/Users/test/project/test.ts' },
+      args: { filePath: '/Users/test/project/test.ts' },
       result: {
         status: 'success',
         file_path: '/Users/test/project/test.ts',
@@ -149,9 +149,9 @@ describe('AgentMessageComponent (Router)', () => {
       kind: 'edit',
       event: 'complete',
       args: {
-        file_path: '/Users/test/project/test.ts',
-        old_string: 'old',
-        new_string: 'new',
+        filePath: '/Users/test/project/test.ts',
+        oldString: 'old',
+        newString: 'new',
       },
       result: {
         success: true,

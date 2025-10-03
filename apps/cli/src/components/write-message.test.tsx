@@ -31,7 +31,7 @@ describe('WriteMessage', () => {
         ],
       },
       result: {
-        results: [{ status: 'success', path: '/Users/test/project/test.ts' }],
+        results: [{ status: 'success', filePath: '/Users/test/project/test.ts' }],
       },
     };
 
@@ -55,8 +55,8 @@ describe('WriteMessage', () => {
       },
       result: {
         results: [
-          { status: 'success', path: '/Users/test/project/file1.ts' },
-          { status: 'success', path: '/Users/test/project/file2.ts' },
+          { status: 'success', filePath: '/Users/test/project/file1.ts' },
+          { status: 'success', filePath: '/Users/test/project/file2.ts' },
         ],
       },
     };
@@ -80,7 +80,7 @@ describe('WriteMessage', () => {
         results: [
           {
             status: 'error',
-            path: '/Users/test/project/test.ts',
+            filePath: '/Users/test/project/test.ts',
             errorMessage: 'Permission denied',
           },
         ],
@@ -101,7 +101,7 @@ describe('WriteMessage', () => {
         files: [{ path: '/Users/test/project/test.ts', content }],
       },
       result: {
-        results: [{ status: 'success', path: '/Users/test/project/test.ts' }],
+        results: [{ status: 'success', filePath: '/Users/test/project/test.ts' }],
       },
     };
 

@@ -57,8 +57,8 @@ export function HistoryBrowser({ workingDirectory, onSelect, onCancel }: History
 
             // Find first user message for title
             let title = 'Untitled conversation';
-            if (fullConvo?.messages) {
-              const firstUserMsg = fullConvo.messages.find((msg) => msg.message.kind === 'user');
+            if (fullConvo?.modelMessages) {
+              const firstUserMsg = fullConvo.modelMessages.find((msg: any) => msg.message.kind === 'user');
               if (firstUserMsg && firstUserMsg.message.kind === 'user') {
                 // Truncate to first line and max 60 chars
                 const content = firstUserMsg.message.content.split('\n')[0];
@@ -100,11 +100,13 @@ export function HistoryBrowser({ workingDirectory, onSelect, onCancel }: History
       setSelectedIndex((prev) => (prev < conversations.length - 1 ? prev + 1 : 0));
     } else if (key.return && conversations.length > 0) {
       const selected = conversations[selectedIndex];
-      loadConversation(selected.chatId, workingDirectory).then((convo) => {
-        if (convo) {
-          onSelect(convo);
-        }
-      });
+      if (selected) {
+        loadConversation(selected.chatId, workingDirectory).then((convo) => {
+          if (convo) {
+            onSelect(convo);
+          }
+        });
+      }
     }
   });
 

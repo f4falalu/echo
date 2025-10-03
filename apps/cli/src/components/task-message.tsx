@@ -68,9 +68,11 @@ export function TaskMessage({ message }: TaskMessageProps) {
                 <AgentMessageComponent message={msg} />
               </Box>
             ))}
-            <Text color={UI_CONSTANTS.COLORS.TEXT_DIM} dimColor marginTop={1}>
-              ── End Task Messages ──
-            </Text>
+            <Box marginTop={1}>
+              <Text color={UI_CONSTANTS.COLORS.TEXT_DIM} dimColor>
+                ── End Task Messages ──
+              </Text>
+            </Box>
           </Box>
         </IndentedContent>
       )}

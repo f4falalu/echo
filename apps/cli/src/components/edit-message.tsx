@@ -130,7 +130,7 @@ export function EditMessage({ message }: EditMessageProps) {
               <Text
                 key={idx}
                 color={UI_CONSTANTS.COLORS.TEXT_PRIMARY}
-                backgroundColor={backgroundColor}
+                {...(backgroundColor && { backgroundColor })}
               >
                 {lineNum} {prefix} {line.content}
               </Text>

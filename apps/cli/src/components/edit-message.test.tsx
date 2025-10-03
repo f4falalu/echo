@@ -30,9 +30,9 @@ describe('EditMessage', () => {
       kind: 'edit',
       event: 'complete',
       args: {
-        file_path: '/Users/test/project/test.ts',
-        old_string: 'const y = 2;',
-        new_string: 'const y = 3;',
+        filePath: '/Users/test/project/test.ts',
+        oldString: 'const y = 2;',
+        newString: 'const y = 3;',
       },
       result: {
         success: true,
@@ -62,9 +62,9 @@ describe('EditMessage', () => {
       kind: 'edit',
       event: 'complete',
       args: {
-        file_path: '/Users/test/project/test.ts',
-        old_string: 'const x = 1;\nconst z = 3;',
-        new_string: 'const x = 1;\nconst y = 2;\nconst z = 3;',
+        filePath: '/Users/test/project/test.ts',
+        oldString: 'const x = 1;\nconst z = 3;',
+        newString: 'const x = 1;\nconst y = 2;\nconst z = 3;',
       },
       result: {
         success: true,
@@ -92,9 +92,9 @@ describe('EditMessage', () => {
       kind: 'edit',
       event: 'complete',
       args: {
-        file_path: '/Users/test/project/test.ts',
-        old_string: 'const y = 2;',
-        new_string: 'const y = 3;',
+        filePath: '/Users/test/project/test.ts',
+        oldString: 'const y = 2;',
+        newString: 'const y = 3;',
       },
       result: {
         success: true,
@@ -115,9 +115,9 @@ describe('EditMessage', () => {
       kind: 'edit',
       event: 'complete',
       args: {
-        file_path: '/Users/test/project/test.ts',
-        old_string: 'old',
-        new_string: 'new',
+        filePath: '/Users/test/project/test.ts',
+        oldString: 'old',
+        newString: 'new',
       },
       result: {
         success: true,
@@ -137,9 +137,9 @@ describe('EditMessage', () => {
       kind: 'edit',
       event: 'complete',
       args: {
-        file_path: '/Users/test/project/test.ts',
-        old_string: 'old',
-        new_string: 'new',
+        filePath: '/Users/test/project/test.ts',
+        oldString: 'old',
+        newString: 'new',
       },
       result: {
         success: false,
@@ -166,8 +166,8 @@ describe('EditMessage', () => {
       kind: 'edit',
       event: 'complete',
       args: {
-        file_path: '/Users/test/project/test.ts',
-        edits: [{ old_string: 'const y = 2;', new_string: 'const y = 3;' }],
+        filePath: '/Users/test/project/test.ts',
+        edits: [{ oldString: 'const y = 2;', newString: 'const y = 3;' }],
       },
       result: {
         success: true,
@@ -187,9 +187,9 @@ describe('EditMessage', () => {
       kind: 'edit',
       event: 'start',
       args: {
-        file_path: '/Users/test/project/test.ts',
-        old_string: 'old',
-        new_string: 'new',
+        filePath: '/Users/test/project/test.ts',
+        oldString: 'old',
+        newString: 'new',
       },
     };
 

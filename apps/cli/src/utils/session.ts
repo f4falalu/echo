@@ -30,7 +30,7 @@ export async function initOrResumeSession(workingDirectory: string): Promise<{
     return {
       chatId: currentChatId,
       isResumed: true,
-      messageCount: latestConversation.messages.length,
+      messageCount: latestConversation.modelMessages.length,
     };
   }
 

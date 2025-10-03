@@ -282,7 +282,7 @@ export function ChatInput({
             onAutocompleteNavigate={handleAutocompleteNavigate}
             placeholder={placeholder}
             isAutocompleteOpen={showAutocomplete || showCommandAutocomplete}
-            onVimModeChange={onVimModeChange}
+            onVimModeChange={onVimModeChange || (() => {})}
             isThinking={isThinking}
           />
         </Box>

@@ -89,7 +89,7 @@ export async function runAnalyticsEngineerAgent(params: RunAnalyticsEngineerAgen
           state: 'call',
           toolCallId: part.toolCallId,
           toolName: part.toolName,
-          args: part.args,
+          args: part.input,
         });
       }
     } else if (part.type === 'tool-result') {
@@ -100,7 +100,7 @@ export async function runAnalyticsEngineerAgent(params: RunAnalyticsEngineerAgen
         );
         if (invocation) {
           invocation.state = 'result';
-          invocation.result = part.result;
+          invocation.result = part.output;
         }
       }
     } else if (part.type === 'finish-step') {

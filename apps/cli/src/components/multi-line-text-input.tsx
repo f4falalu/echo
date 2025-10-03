@@ -66,6 +66,8 @@ export function MultiLineTextInput({
       // Look for a slash at the start of the current line
       const lines = value.substring(0, cursorPosition).split('\n');
       const currentLine = lines[lines.length - 1];
+      if (!currentLine) return;
+
       const currentLineStart = cursorPosition - currentLine.length;
 
       if (currentLine.startsWith('/')) {
@@ -166,7 +168,7 @@ export function MultiLineTextInput({
         if (action.preventDefault) {
           // Apply the action
           if (action.type === 'mode-change' && action.mode) {
-            setVimState((prev) => ({ ...prev, mode: action.mode }));
+            setVimState((prev) => ({ ...prev, mode: action.mode! }));
             if (action.mode === 'visual') {
               setVimState((prev) => ({ ...prev, visualStart: cursorPosition }));
             }
@@ -178,10 +180,10 @@ export function MultiLineTextInput({
             onChange(action.text);
           }
           if (action.yankedText !== undefined) {
-            setVimState((prev) => ({ ...prev, yankedText: action.yankedText }));
+            setVimState((prev) => ({ ...prev, yankedText: action.yankedText! }));
           }
           if (action.mode !== undefined) {
-            setVimState((prev) => ({ ...prev, mode: action.mode }));
+            setVimState((prev) => ({ ...prev, mode: action.mode! }));
           }
           return;
         }
@@ -322,8 +324,8 @@ export function MultiLineTextInput({
         let positionInLine = cursorPosition;
 
         for (let i = 0; i < lines.length; i++) {
-          const lineLength = lines[i].length + (i < lines.length - 1 ? 1 : 0); // +1 for newline except last line
-          if (cursorPosition <= currentLineStart + lines[i].length) {
+          const lineLength = lines[i]!.length + (i < lines.length - 1 ? 1 : 0); // +1 for newline except last line
+          if (cursorPosition <= currentLineStart + lines[i]!.length) {
             currentLineIndex = i;
             positionInLine = cursorPosition - currentLineStart;
             break;
@@ -335,7 +337,7 @@ export function MultiLineTextInput({
           const previousLineStart = lines
             .slice(0, currentLineIndex - 1)
             .reduce((acc, line) => acc + line.length + 1, 0);
-          const previousLineLength = lines[currentLineIndex - 1].length;
+          const previousLineLength = lines[currentLineIndex - 1]!.length;
           const newPosition = previousLineStart + Math.min(positionInLine, previousLineLength);
           setCursorPosition(newPosition);
         }
@@ -350,8 +352,8 @@ export function MultiLineTextInput({
         let positionInLine = cursorPosition;
 
         for (let i = 0; i < lines.length; i++) {
-          const lineLength = lines[i].length + (i < lines.length - 1 ? 1 : 0); // +1 for newline except last line
-          if (cursorPosition <= currentLineStart + lines[i].length) {
+          const lineLength = lines[i]!.length + (i < lines.length - 1 ? 1 : 0); // +1 for newline except last line
+          if (cursorPosition <= currentLineStart + lines[i]!.length) {
             currentLineIndex = i;
             positionInLine = cursorPosition - currentLineStart;
             break;
@@ -363,7 +365,7 @@ export function MultiLineTextInput({
           const nextLineStart = lines
             .slice(0, currentLineIndex + 1)
             .reduce((acc, line) => acc + line.length + 1, 0);
-          const nextLineLength = lines[currentLineIndex + 1].length;
+          const nextLineLength = lines[currentLineIndex + 1]!.length;
           const newPosition = nextLineStart + Math.min(positionInLine, nextLineLength);
           setCursorPosition(newPosition);
         }

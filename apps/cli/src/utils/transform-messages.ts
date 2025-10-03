@@ -411,14 +411,20 @@ function transformToolInvocation(invocation: ToolInvocation): AgentMessage | nul
         (message): message is Exclude<AgentMessage, { kind: 'user' } | { kind: 'text-delta' }> =>
           message.kind !== 'user' && message.kind !== 'text-delta'
       );
+
+      // Destructure to separate messages from other properties
+      const { messages: _, ...resultWithoutMessages } = result;
+
       return {
         kind: 'task',
         event: 'complete',
         args,
-        result: {
-          ...result,
-          ...(nestedMessages ? { messages: nestedMessages } : {}),
-        },
+        result: nestedMessages
+          ? {
+              ...resultWithoutMessages,
+              messages: nestedMessages,
+            }
+          : resultWithoutMessages,
       };
 
     case TOOL_NAMES.IDLE:

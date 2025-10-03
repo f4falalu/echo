@@ -64,7 +64,7 @@ describe('ExecuteMessage', () => {
       const message: Extract<AgentMessage, { kind: 'grep' }> = {
         kind: 'grep',
         event: 'complete',
-        args: { pattern: 'TODO', glob: '*.ts' },
+        args: { pattern: 'TODO', glob: '*.ts', command: 'grep TODO *.ts' },
         result: {
           matches: [
             { path: 'file1.ts', lineNum: 10, lineText: '// TODO: fix this' },
@@ -87,7 +87,7 @@ describe('ExecuteMessage', () => {
       const message: Extract<AgentMessage, { kind: 'grep' }> = {
         kind: 'grep',
         event: 'complete',
-        args: { pattern: 'FIXME' },
+        args: { pattern: 'FIXME', command: 'grep FIXME' },
         result: { matches: [], totalMatches: 0, truncated: false },
       };
 
@@ -102,7 +102,7 @@ describe('ExecuteMessage', () => {
       const message: Extract<AgentMessage, { kind: 'ls' }> = {
         kind: 'ls',
         event: 'complete',
-        args: { path: '/home/user' },
+        args: { path: '/home/user', command: 'ls /home/user' },
         result: {
           output: 'file1.txt\nfile2.txt\ndir1/',
           count: 3,
@@ -123,7 +123,7 @@ describe('ExecuteMessage', () => {
       const message: Extract<AgentMessage, { kind: 'ls' }> = {
         kind: 'ls',
         event: 'complete',
-        args: { path: '/invalid' },
+        args: { path: '/invalid', command: 'ls /invalid' },
         result: {
           output: '',
           count: 0,

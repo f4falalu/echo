@@ -53,6 +53,8 @@ export function SettingsForm({ onClose }: SettingsFormProps) {
       // Edit value
       if (key.return || input === ' ') {
         const option = SETTING_OPTIONS[selectedIndex];
+        if (!option) return;
+
         if (option.type === 'boolean') {
           const currentValue = settings[option.key] as boolean;
           const newSettings = { ...settings, [option.key]: !currentValue };
@@ -79,22 +81,30 @@ export function SettingsForm({ onClose }: SettingsFormProps) {
     } else {
       // Editing select value
       const option = SETTING_OPTIONS[selectedIndex];
+      if (!option) return;
+
       if (option.type === 'select' && option.options) {
-        const currentValue = settings[option.key] as string;
+        const currentValue = String(settings[option.key]);
         const currentIndex = option.options.indexOf(currentValue);
 
         if (key.leftArrow) {
           const newIndex = Math.max(0, currentIndex - 1);
-          const newSettings = { ...settings, [option.key]: option.options[newIndex] };
-          setSettings(newSettings);
-          setHasChanges(true);
+          const newValue = option.options[newIndex];
+          if (newValue !== undefined) {
+            const newSettings = { ...settings, [option.key]: newValue } as unknown as Settings;
+            setSettings(newSettings);
+            setHasChanges(true);
+          }
           return;
         }
         if (key.rightArrow) {
           const newIndex = Math.min(option.options.length - 1, currentIndex + 1);
-          const newSettings = { ...settings, [option.key]: option.options[newIndex] };
-          setSettings(newSettings);
-          setHasChanges(true);
+          const newValue = option.options[newIndex];
+          if (newValue !== undefined) {
+            const newSettings = { ...settings, [option.key]: newValue } as unknown as Settings;
+            setSettings(newSettings);
+            setHasChanges(true);
+          }
           return;
         }
         if (key.return) {
@@ -114,6 +124,7 @@ export function SettingsForm({ onClose }: SettingsFormProps) {
       }, 1000);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [settings, hasChanges]);
 
   return (

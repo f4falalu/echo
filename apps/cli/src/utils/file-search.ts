@@ -16,7 +16,7 @@ interface FileSearchResult {
 }
 
 class FileSearcher {
-  private cwd: string;
+  public cwd: string;
   private fileCache: string[] | null = null;
   private gitignorePatterns: string[] | null = null;
   private lastCacheTime = 0;
@@ -117,15 +117,11 @@ class FileSearcher {
     const ignorePatterns = this.loadGitignorePatterns();
 
     // Use Bun's Glob to find all files
-    const glob = new Glob('**/*', {
-      cwd: this.cwd,
-      onlyFiles: true,
-      dot: includeHidden, // Include hidden files if requested
-    });
+    const glob = new Glob('**/*');
 
     const allFiles: string[] = [];
 
-    for await (const file of glob.scan()) {
+    for await (const file of glob.scan({ cwd: this.cwd, onlyFiles: true, dot: includeHidden })) {
       // Check if file should be ignored
       const shouldIgnore = micromatch.isMatch(file, ignorePatterns, {
         dot: true,
