@@ -74,6 +74,7 @@ export const useGetMetric = <TData = BusterMetric>(
   params?: Omit<UseQueryOptions<BusterMetric, ApiError, TData>, 'queryKey' | 'queryFn'>
 ) => {
   const queryClient = useQueryClient();
+  const query = metricsQueryKeys.metricsGetMetric(id || '', 'LATEST');
   const password = useProtectedAssetPassword(id || '');
 
   const { selectedVersionNumber, latestVersionNumber } = useGetMetricVersionNumber(
@@ -82,7 +83,7 @@ export const useGetMetric = <TData = BusterMetric>(
   );
 
   const { isFetched: isFetchedInitial, isError: isErrorInitial } = useQuery({
-    ...metricsQueryKeys.metricsGetMetric(id || '', 'LATEST'),
+    ...query,
     queryFn: () => {
       return getMetricQueryFn({ id, version: 'LATEST', queryClient, password });
     },
@@ -125,19 +126,21 @@ export const prefetchGetMetric = async (
   params: Parameters<typeof getMetric>[0]
 ): Promise<BusterMetric | undefined> => {
   const { id, version_number } = params;
-  const queryKey = metricsQueryKeys.metricsGetMetric(id, version_number || 'LATEST')?.queryKey;
+  const query = metricsQueryKeys.metricsGetMetric(id, version_number || 'LATEST');
+  const queryKey = query?.queryKey;
   const existingData = queryClient.getQueryData(queryKey);
 
   if (!existingData && id) {
     await queryClient.prefetchQuery({
-      ...metricsQueryKeys.metricsGetMetric(id, version_number || 'LATEST'),
-      queryFn: () =>
-        getMetricQueryFn({
+      ...query,
+      queryFn: () => {
+        return getMetricQueryFn({
           id,
           version: params.version_number,
           queryClient,
           password: undefined,
-        }),
+        });
+      },
       retry: silenceAssetErrors,
     });
   }
@@ -222,6 +225,18 @@ export const prefetchGetMetricDataClient = async (
       queryFn: () => getMetricData({ id, version_number }),
     });
   }
+};
+
+export const ensureMetricData = async (
+  queryClient: QueryClient,
+  params: Parameters<typeof getMetricData>[0]
+) => {
+  const { id, version_number, report_file_id } = params;
+  const options = metricsQueryKeys.metricsGetData(id, version_number || 'LATEST', report_file_id);
+  return await queryClient.ensureQueryData({
+    ...options,
+    queryFn: () => getMetricData({ id, version_number, report_file_id }),
+  });
 };
 
 //used in list version histories
