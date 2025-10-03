@@ -70,16 +70,17 @@ function getOrCreateQueueState(messageId: string): MessageUpdateQueueState {
   return initialState;
 }
 
-function cleanupQueueIfIdle(messageId: string, state: MessageUpdateQueueState): void {
-  if (
-    state.closed &&
-    state.finalSequence !== undefined &&
-    state.lastCompletedSequence >= state.finalSequence &&
-    state.pending.size === 0
-  ) {
-    updateQueues.delete(messageId);
-  }
-}
+// function cleanupQueueIfIdle(messageId: string, state: MessageUpdateQueueState): void {
+//   if (
+//     state.closed &&
+//     state.finalSequence !== undefined &&
+//     state.lastCompletedSequence >= state.finalSequence &&
+//     state.pending.size === 0
+//   ) {
+//     console.info('[cleanupQueueIfIdle] CLEANING UP QUEUE');
+//     updateQueues.delete(messageId);
+//   }
+// }
 
 export function isMessageUpdateQueueClosed(messageId: string): boolean {
   const queue = updateQueues.get(messageId);
@@ -107,7 +108,7 @@ export async function waitForPendingUpdates(
 
   if (targetSequence === undefined) {
     await queue.tailPromise;
-    cleanupQueueIfIdle(messageId, queue);
+    // cleanupQueueIfIdle(messageId, queue);
     return;
   }
 
@@ -115,7 +116,7 @@ export async function waitForPendingUpdates(
   const effectiveTarget = Math.min(targetSequence, maxKnownSequence);
 
   if (effectiveTarget <= queue.lastCompletedSequence) {
-    cleanupQueueIfIdle(messageId, queue);
+    // cleanupQueueIfIdle(messageId, queue);
     return;
   }
 
@@ -134,7 +135,7 @@ export async function waitForPendingUpdates(
     await queue.tailPromise;
   }
 
-  cleanupQueueIfIdle(messageId, queue);
+  // cleanupQueueIfIdle(messageId, queue);
 }
 
 /**
@@ -272,7 +273,7 @@ export async function updateMessageEntries(
     if (isFinal) {
       queue.finalSequence = sequenceNumber;
     }
-    cleanupQueueIfIdle(messageId, queue);
+    // cleanupQueueIfIdle(messageId, queue);
     return success;
   };
 
