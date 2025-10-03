@@ -43,6 +43,21 @@ export function Main() {
   const workingDirectory = useRef(process.cwd());
   const abortControllerRef = useRef<AbortController | null>(null);
 
+  // Callback to update messages from agent stream
+  const handleMessageUpdate = useCallback((modelMessages: any[]) => {
+    const transformedMessages = transformModelMessagesToUI(modelMessages);
+
+    // Update message counter to highest ID
+    if (transformedMessages.length > 0) {
+      messageCounter.current = Math.max(
+        ...transformedMessages.map((m) => m.id),
+        messageCounter.current
+      );
+    }
+
+    setMessages(transformedMessages);
+  }, []);
+
   // Initialize a fresh session on mount
   useEffect(() => {
     const initSession = async () => {
@@ -59,43 +74,6 @@ export function Main() {
     initSession();
   }, []);
 
-  // Poll conversation file for updates
-  useEffect(() => {
-    if (!sessionInitialized) return;
-
-    const chatId = getCurrentChatId();
-    const cwd = workingDirectory.current;
-
-    const pollInterval = setInterval(async () => {
-      try {
-        const conversation = await loadConversation(chatId, cwd);
-        if (!conversation) return;
-
-        // Transform model messages to UI format
-        const transformedMessages = transformModelMessagesToUI(conversation.modelMessages as any);
-
-        // Update message counter to highest ID
-        if (transformedMessages.length > 0) {
-          messageCounter.current = Math.max(
-            ...transformedMessages.map((m) => m.id),
-            messageCounter.current
-          );
-        }
-
-        // Only update if messages changed
-        setMessages((prevMessages) => {
-          if (JSON.stringify(prevMessages) === JSON.stringify(transformedMessages)) {
-            return prevMessages;
-          }
-          return transformedMessages;
-        });
-      } catch (error) {
-        // Silently handle polling errors (file might not exist yet)
-      }
-    }, 100); // Poll every 100ms
-
-    return () => clearInterval(pollInterval);
-  }, [sessionInitialized]);
 
   useInput((value, key) => {
     if (key.ctrl && value === 'c') {
@@ -139,22 +117,24 @@ export function Main() {
     const chatId = getCurrentChatId();
     const cwd = workingDirectory.current;
 
-    setInput('');
-    setIsThinking(true);
-
     try {
       // Load existing model messages and append the new user message
       const conversation = await loadConversation(chatId, cwd);
       const existingModelMessages = conversation?.modelMessages || [];
-      const updatedModelMessages = [
-        ...existingModelMessages,
-        {
-          role: 'user',
-          content: trimmed,
-        },
-      ] as any;
+      const userMessage = {
+        role: 'user',
+        content: trimmed,
+      };
+      const updatedModelMessages = [...existingModelMessages, userMessage] as any;
 
-      // Save updated model messages before running agent
+      // Update UI state immediately
+      handleMessageUpdate(updatedModelMessages);
+
+      // Clear input and set thinking
+      setInput('');
+      setIsThinking(true);
+
+      // Save to disk
       await saveModelMessages(chatId, cwd, updatedModelMessages);
 
       // Import and run the analytics engineer agent
@@ -164,7 +144,7 @@ export function Main() {
       const abortController = new AbortController();
       abortControllerRef.current = abortController;
 
-      // Run agent - it will write messages to disk via tool callbacks
+      // Run agent with callback for message updates
       await runAnalyticsEngineerAgent({
         chatId,
         workingDirectory: cwd,
@@ -172,6 +152,7 @@ export function Main() {
         onThinkingStateChange: (thinking) => {
           setIsThinking(thinking);
         },
+        onMessageUpdate: handleMessageUpdate,
       });
     } catch (error) {
       // Handle abort gracefully
@@ -187,27 +168,25 @@ export function Main() {
       abortControllerRef.current = null;
       setIsThinking(false);
     }
-  }, [input, sessionInitialized]);
+  }, [input, sessionInitialized, handleMessageUpdate]);
 
-  const handleResumeConversation = useCallback(async (conversation: Conversation) => {
-    try {
-      // Transform model messages to UI format for display
-      const loadedMessages = transformModelMessagesToUI(conversation.modelMessages as any);
+  const handleResumeConversation = useCallback(
+    async (conversation: Conversation) => {
+      try {
+        // Update session to use this conversation's chat ID
+        setSessionChatId(conversation.chatId);
 
-      // Update message counter to highest ID
-      messageCounter.current = Math.max(...loadedMessages.map((m) => m.id), 0);
+        // Use handleMessageUpdate to update state (handles transformation and counter)
+        handleMessageUpdate(conversation.modelMessages);
 
-      // Update session to use this conversation's chat ID
-      setSessionChatId(conversation.chatId);
-
-      // Clear existing messages and load the selected conversation
-      setMessages(loadedMessages);
-      setShowHistory(false);
-    } catch (error) {
-      console.error('Failed to resume conversation:', error);
-      setShowHistory(false);
-    }
-  }, []);
+        setShowHistory(false);
+      } catch (error) {
+        console.error('Failed to resume conversation:', error);
+        setShowHistory(false);
+      }
+    },
+    [handleMessageUpdate]
+  );
 
   const handleCommandExecute = useCallback(
     (command: SlashCommand) => {

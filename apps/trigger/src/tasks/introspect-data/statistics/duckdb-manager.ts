@@ -1,3 +1,4 @@
+import type { ColumnSchema, TableSample } from '@buster/data-source';
 import {
   type DuckDBConnection,
   DuckDBInstance,
@@ -5,7 +6,6 @@ import {
 } from '@duckdb/node-api';
 import { logger } from '@trigger.dev/sdk';
 import { z } from 'zod';
-import type { ColumnSchema, TableSample } from './types';
 
 /**
  * Type-safe SQL template tag for parameterized queries
@@ -85,12 +85,12 @@ export interface ColumnDefinition {
  * It handles database lifecycle, data loading, and query execution with full type safety.
  */
 export class DuckDBManager {
+  private instance: DuckDBInstance | null = null;
   private connection: DuckDBConnection | null = null;
   private preparedStatements = new Map<string, DuckDBPreparedStatement>();
   private readonly tableName = 'sample_data';
   private columnDefinitions: ColumnDefinition[] = [];
   private readonly instanceId: string;
-  private dbPath: string | null = null;
 
   constructor(instanceId?: string) {
     // Use provided ID or generate a unique one based on timestamp and random value
@@ -122,7 +122,7 @@ export class DuckDBManager {
 
       // Use disk-based storage for large datasets with unique paths per instance
       // This leverages the 10GB disk space available in Trigger.dev
-      this.dbPath = options?.useDisk ? `/tmp/duckdb_stats_${this.instanceId}.db` : ':memory:';
+      const dbPath = options?.useDisk ? `/tmp/duckdb_stats_${this.instanceId}.db` : ':memory:';
 
       // Enable disk spilling for better memory management with unique temp directory
       if (options?.useDisk) {
@@ -132,10 +132,8 @@ export class DuckDBManager {
         config.enable_external_access = 'true';
       }
 
-      // Create instance and immediately get connection
-      // Instance will be garbage collected after connection is established
-      const instance = await DuckDBInstance.create(this.dbPath, config);
-      this.connection = await instance.connect();
+      this.instance = await DuckDBInstance.create(dbPath, config);
+      this.connection = await this.instance.connect();
 
       // Enable better performance settings
       await this.executeRaw('SET enable_progress_bar = false');
@@ -243,10 +241,8 @@ export class DuckDBManager {
             this.connection = null;
           }
 
-          if (this.dbPath) {
-            // Recreate connection with the same database path
-            const instance = await DuckDBInstance.create(this.dbPath, {});
-            this.connection = await instance.connect();
+          if (this.instance) {
+            this.connection = await this.instance.connect();
             logger.log('Connection reset successfully, retrying data load');
 
             // Retry the load with smaller batches
@@ -834,31 +830,32 @@ export class DuckDBManager {
         this.connection = null;
       }
 
-      // Connection is cleaned up, instance is already garbage collected
+      // Clean up instance
+      if (this.instance) {
+        this.instance = null;
+      }
 
       // Clean up disk-based files if they exist
-      if (this.dbPath && this.dbPath !== ':memory:') {
-        try {
-          const fs = await import('node:fs/promises');
-          const filesToClean = [
-            this.dbPath,
-            `${this.dbPath}.wal`,
-            `/tmp/duckdb_temp_${this.instanceId}`,
-          ];
+      try {
+        const fs = await import('node:fs/promises');
+        const filesToClean = [
+          `/tmp/duckdb_stats_${this.instanceId}.db`,
+          `/tmp/duckdb_stats_${this.instanceId}.db.wal`,
+          `/tmp/duckdb_temp_${this.instanceId}`,
+        ];
 
-          for (const file of filesToClean) {
-            try {
-              await fs.rm(file, { recursive: true, force: true });
-              logger.log(`Cleaned up disk file: ${file}`);
-            } catch {
-              // File might not exist, that's okay
-            }
+        for (const file of filesToClean) {
+          try {
+            await fs.rm(file, { recursive: true, force: true });
+            logger.log(`Cleaned up disk file: ${file}`);
+          } catch {
+            // File might not exist, that's okay
           }
-        } catch (cleanupError) {
-          logger.warn('Failed to clean up disk files', {
-            error: cleanupError instanceof Error ? cleanupError.message : String(cleanupError),
-          });
         }
+      } catch (cleanupError) {
+        logger.warn('Failed to clean up disk files', {
+          error: cleanupError instanceof Error ? cleanupError.message : String(cleanupError),
+        });
       }
 
       if (errors.length > 0) {

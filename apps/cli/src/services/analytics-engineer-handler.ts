@@ -18,16 +18,17 @@ export interface RunAnalyticsEngineerAgentParams {
   chatId: string;
   workingDirectory: string;
   onThinkingStateChange?: (thinking: boolean) => void;
+  onMessageUpdate?: (messages: ModelMessage[]) => void;
   abortSignal?: AbortSignal;
 }
 
 /**
  * Runs the analytics engineer agent in the CLI without sandbox
  * The agent runs locally but uses the proxy model to route LLM calls through the server
- * Messages are written to disk after each step - the CLI polls the file for updates
+ * Messages are emitted via callback for immediate UI updates and saved to disk for persistence
  */
 export async function runAnalyticsEngineerAgent(params: RunAnalyticsEngineerAgentParams) {
-  const { chatId, workingDirectory, onThinkingStateChange, abortSignal } = params;
+  const { chatId, workingDirectory, onThinkingStateChange, onMessageUpdate, abortSignal } = params;
 
   // Load conversation history to maintain context across sessions
   const conversation = await loadConversation(chatId, workingDirectory);
@@ -70,47 +71,21 @@ export async function runAnalyticsEngineerAgent(params: RunAnalyticsEngineerAgen
   // Notify thinking state
   onThinkingStateChange?.(true);
 
-  // Track messages as we build them from stream parts
-  let conversationMessages = [...messages]; // Start with conversation history
-  let currentAssistantMessage: any = null;
+  // Track accumulated messages as we stream
+  let currentMessages = [...messages];
 
-  // Consume the stream and build messages
+  // Consume the stream
   for await (const part of stream.fullStream) {
-    if (part.type === 'start-step') {
-      // Start building a new assistant message for this step
-      currentAssistantMessage = {
-        role: 'assistant',
-        toolInvocations: [],
-      };
-    } else if (part.type === 'tool-call') {
-      // Add tool call to current assistant message
-      if (currentAssistantMessage) {
-        currentAssistantMessage.toolInvocations.push({
-          state: 'call',
-          toolCallId: part.toolCallId,
-          toolName: part.toolName,
-          args: part.input,
-        });
-      }
-    } else if (part.type === 'tool-result') {
-      // Update tool invocation with result
-      if (currentAssistantMessage) {
-        const invocation = currentAssistantMessage.toolInvocations.find(
-          (inv: any) => inv.toolCallId === part.toolCallId
-        );
-        if (invocation) {
-          invocation.state = 'result';
-          invocation.result = part.output;
-        }
-      }
-    } else if (part.type === 'finish-step') {
-      // Step complete - add assistant message to conversation and save
-      if (currentAssistantMessage && currentAssistantMessage.toolInvocations.length > 0) {
-        conversationMessages = [...conversationMessages, currentAssistantMessage];
-        await saveModelMessages(chatId, workingDirectory, conversationMessages);
-      }
-      currentAssistantMessage = null;
-    } else if (part.type === 'finish') {
+    if (part.type === 'finish') {
+      // Stream finished - get all messages including responses
+      const finalMessages = [...currentMessages, ...stream.responseMessages];
+
+      // Update state with final messages
+      onMessageUpdate?.(finalMessages);
+
+      // Save to disk
+      await saveModelMessages(chatId, workingDirectory, finalMessages);
+
       onThinkingStateChange?.(false);
     }
   }
