@@ -34,10 +34,7 @@ const LIMIT = 100;
 /**
  * Check if a path matches any of the ignore patterns
  */
-function shouldIgnore(
-  relativePath: string,
-  ignorePatterns: string[]
-): boolean {
+function shouldIgnore(relativePath: string, ignorePatterns: string[]): boolean {
   const normalizedPath = relativePath.replace(/\\/g, '/');
 
   for (const pattern of ignorePatterns) {
@@ -53,10 +50,7 @@ function shouldIgnore(
     } else if (cleanPattern.endsWith('/')) {
       // Directory pattern
       const dirName = cleanPattern.slice(0, -1);
-      if (
-        normalizedPath === dirName ||
-        normalizedPath.startsWith(dirName + '/')
-      ) {
+      if (normalizedPath === dirName || normalizedPath.startsWith(`${dirName}/`)) {
         return true;
       }
     } else {
@@ -102,13 +96,7 @@ async function listFilesRecursive(
 
       if (entry.isDirectory()) {
         // Recurse into directory
-        await listFilesRecursive(
-          fullPath,
-          basePath,
-          ignorePatterns,
-          files,
-          limit
-        );
+        await listFilesRecursive(fullPath, basePath, ignorePatterns, files, limit);
       } else if (entry.isFile()) {
         files.push(relativePath);
       }
@@ -160,10 +148,7 @@ function renderDir(
 export function createLsToolExecute(context: LsToolContext) {
   return async function execute(input: LsToolInput): Promise<LsToolOutput> {
     const { messageId, projectDirectory, onToolEvent } = context;
-    const searchPath = path.resolve(
-      projectDirectory,
-      input.path || projectDirectory
-    );
+    const searchPath = path.resolve(projectDirectory, input.path || projectDirectory);
 
     console.info(`Listing directory ${searchPath} for message ${messageId}`);
 
@@ -199,20 +184,11 @@ export function createLsToolExecute(context: LsToolContext) {
       }
 
       // Build ignore patterns
-      const ignorePatterns = [
-        ...IGNORE_PATTERNS,
-        ...(input.ignore || []),
-      ];
+      const ignorePatterns = [...IGNORE_PATTERNS, ...(input.ignore || [])];
 
       // List files
       const files: string[] = [];
-      await listFilesRecursive(
-        searchPath,
-        searchPath,
-        ignorePatterns,
-        files,
-        LIMIT
-      );
+      await listFilesRecursive(searchPath, searchPath, ignorePatterns, files, LIMIT);
 
       // Build directory structure
       const dirs = new Set<string>();
@@ -236,7 +212,7 @@ export function createLsToolExecute(context: LsToolContext) {
       }
 
       // Render directory tree
-      const output = `${searchPath}/\n` + renderDir('.', 0, dirs, filesByDir);
+      const output = `${searchPath}/\n${renderDir('.', 0, dirs, filesByDir)}`;
 
       console.info(
         `Listed ${files.length} file(s) in ${searchPath}${files.length >= LIMIT ? ' (truncated)' : ''}`
@@ -260,8 +236,7 @@ export function createLsToolExecute(context: LsToolContext) {
 
       return result;
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       console.error(`Error listing directory ${searchPath}:`, errorMessage);
 
       const result = {

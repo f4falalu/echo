@@ -5,7 +5,7 @@ export const SlashCommandSchema = z.object({
   name: z.string().describe('Command name without the slash'),
   description: z.string().describe('Brief description of what the command does'),
   icon: z.string().optional().describe('Optional emoji or icon for the command'),
-  action: z.enum(['settings', 'help', 'clear', 'exit']).describe('Action to perform'),
+  action: z.enum(['settings', 'help', 'clear', 'exit', 'history']).describe('Action to perform'),
 });
 
 export type SlashCommand = z.infer<typeof SlashCommandSchema>;
@@ -35,6 +35,12 @@ export const SLASH_COMMANDS: SlashCommand[] = [
     description: 'Exit the application',
     icon: '👋',
     action: 'exit',
+  },
+  {
+    name: 'history',
+    description: 'Browse and resume previous conversations',
+    icon: '📚',
+    action: 'history',
   },
 ];
 

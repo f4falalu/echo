@@ -1,9 +1,5 @@
 import path from 'node:path';
-import type {
-  ReadFileToolContext,
-  ReadFileToolInput,
-  ReadFileToolOutput,
-} from './read-file-tool';
+import type { ReadFileToolContext, ReadFileToolInput, ReadFileToolOutput } from './read-file-tool';
 
 const MAX_LINES = 1000;
 

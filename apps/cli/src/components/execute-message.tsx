@@ -1,12 +1,11 @@
 import { Box, Text } from 'ink';
-import React from 'react';
-import type { AgentMessage } from '../types/agent-messages';
 import { UI_CONSTANTS } from '../constants/ui';
 import { useExpansion } from '../hooks/use-expansion';
+import type { AgentMessage } from '../types/agent-messages';
 import { getLastLines } from '../utils/content-preview';
-import { IndentedContent } from './shared/indented-content';
-import { ExpansionHint } from './shared/expansion-hint';
 import { ContentLines } from './shared/content-lines';
+import { ExpansionHint } from './shared/expansion-hint';
+import { IndentedContent } from './shared/indented-content';
 
 interface ExecuteMessageProps {
   message: Extract<AgentMessage, { kind: 'bash' | 'grep' | 'ls' }>;
@@ -37,9 +36,7 @@ export function ExecuteMessage({ message }: ExecuteMessageProps) {
   } else if (message.kind === 'grep') {
     description = `Search for "${args.pattern}"${args.glob ? ` in ${args.glob}` : ''}`;
     if (result) {
-      output = result.matches
-        .map((m) => `${m.path}:${m.lineNum}: ${m.lineText}`)
-        .join('\n');
+      output = result.matches.map((m) => `${m.path}:${m.lineNum}: ${m.lineText}`).join('\n');
       success = result.totalMatches > 0;
     }
   } else if (message.kind === 'ls') {
@@ -84,7 +81,11 @@ export function ExecuteMessage({ message }: ExecuteMessageProps) {
 
       {message.kind === 'grep' && result && (
         <IndentedContent>
-          <Text color={result.totalMatches > 0 ? UI_CONSTANTS.COLORS.SUCCESS : UI_CONSTANTS.COLORS.WARNING}>
+          <Text
+            color={
+              result.totalMatches > 0 ? UI_CONSTANTS.COLORS.SUCCESS : UI_CONSTANTS.COLORS.WARNING
+            }
+          >
             ↳ Found {result.totalMatches} match{result.totalMatches !== 1 ? 'es' : ''}
             {result.truncated ? ' (truncated)' : ''}
           </Text>

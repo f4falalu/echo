@@ -1,19 +1,12 @@
-import { createTwoFilesPatch } from 'diff';
 import path from 'node:path';
-import type {
-  EditFileToolContext,
-  EditFileToolInput,
-  EditFileToolOutput,
-} from './edit-file-tool';
+import { createTwoFilesPatch } from 'diff';
+import type { EditFileToolContext, EditFileToolInput, EditFileToolOutput } from './edit-file-tool';
 
 // Similarity thresholds for block anchor fallback matching
 const SINGLE_CANDIDATE_SIMILARITY_THRESHOLD = 0.0;
 const MULTIPLE_CANDIDATES_SIMILARITY_THRESHOLD = 0.3;
 
-export type Replacer = (
-  content: string,
-  find: string
-) => Generator<string, void, unknown>;
+export type Replacer = (content: string, find: string) => Generator<string, void, unknown>;
 
 /**
  * Levenshtein distance algorithm implementation
@@ -24,9 +17,7 @@ function levenshtein(a: string, b: string): number {
     return Math.max(a.length, b.length);
   }
   const matrix = Array.from({ length: a.length + 1 }, (_, i) =>
-    Array.from({ length: b.length + 1 }, (_, j) =>
-      i === 0 ? j : j === 0 ? i : 0
-    )
+    Array.from({ length: b.length + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0))
   );
 
   for (let i = 1; i <= a.length; i++) {
@@ -82,7 +73,7 @@ export const LineTrimmedReplacer: Replacer = function* (content, find) {
 
       let matchEndIndex = matchStartIndex;
       for (let k = 0; k < searchLines.length; k++) {
-        matchEndIndex += (originalLines[i + k]?.length ?? 0);
+        matchEndIndex += originalLines[i + k]?.length ?? 0;
         if (k < searchLines.length - 1) {
           matchEndIndex += 1; // Add newline character except for the last line
         }
@@ -168,7 +159,7 @@ export const BlockAnchorReplacer: Replacer = function* (content, find) {
       }
       let matchEndIndex = matchStartIndex;
       for (let k = startLine; k <= endLine; k++) {
-        matchEndIndex += (originalLines[k]?.length ?? 0);
+        matchEndIndex += originalLines[k]?.length ?? 0;
         if (k < endLine) {
           matchEndIndex += 1; // Add newline character except for the last line
         }
@@ -213,10 +204,7 @@ export const BlockAnchorReplacer: Replacer = function* (content, find) {
   }
 
   // Threshold judgment
-  if (
-    maxSimilarity >= MULTIPLE_CANDIDATES_SIMILARITY_THRESHOLD &&
-    bestMatch
-  ) {
+  if (maxSimilarity >= MULTIPLE_CANDIDATES_SIMILARITY_THRESHOLD && bestMatch) {
     const { startLine, endLine } = bestMatch;
     let matchStartIndex = 0;
     for (let k = 0; k < startLine; k++) {
@@ -224,7 +212,7 @@ export const BlockAnchorReplacer: Replacer = function* (content, find) {
     }
     let matchEndIndex = matchStartIndex;
     for (let k = startLine; k <= endLine; k++) {
-      matchEndIndex += (originalLines[k]?.length ?? 0);
+      matchEndIndex += originalLines[k]?.length ?? 0;
       if (k < endLine) {
         matchEndIndex += 1;
       }
@@ -233,12 +221,8 @@ export const BlockAnchorReplacer: Replacer = function* (content, find) {
   }
 };
 
-export const WhitespaceNormalizedReplacer: Replacer = function* (
-  content,
-  find
-) {
-  const normalizeWhitespace = (text: string) =>
-    text.replace(/\s+/g, ' ').trim();
+export const WhitespaceNormalizedReplacer: Replacer = function* (content, find) {
+  const normalizeWhitespace = (text: string) => text.replace(/\s+/g, ' ').trim();
   const normalizedFind = normalizeWhitespace(find);
 
   // Handle single line matches
@@ -264,7 +248,7 @@ export const WhitespaceNormalizedReplacer: Replacer = function* (
             if (match?.[0]) {
               yield match[0];
             }
-          } catch (e) {
+          } catch (_e) {
             // Invalid regex pattern, skip
           }
         }
@@ -450,10 +434,7 @@ export const ContextAwareReplacer: Replacer = function* (content, find) {
             }
           }
 
-          if (
-            totalNonEmptyLines === 0 ||
-            matchingLines / totalNonEmptyLines >= 0.5
-          ) {
+          if (totalNonEmptyLines === 0 || matchingLines / totalNonEmptyLines >= 0.5) {
             yield block;
             break; // Only match the first occurrence
           }
@@ -468,16 +449,14 @@ function trimDiff(diff: string): string {
   const lines = diff.split('\n');
   const contentLines = lines.filter(
     (line) =>
-      (line.startsWith('+') ||
-        line.startsWith('-') ||
-        line.startsWith(' ')) &&
+      (line.startsWith('+') || line.startsWith('-') || line.startsWith(' ')) &&
       !line.startsWith('---') &&
       !line.startsWith('+++')
   );
 
   if (contentLines.length === 0) return diff;
 
-  let min = Infinity;
+  let min = Number.POSITIVE_INFINITY;
   for (const line of contentLines) {
     const content = line.slice(1);
     if (content.trim().length > 0) {
@@ -485,12 +464,10 @@ function trimDiff(diff: string): string {
       if (match?.[1]) min = Math.min(min, match[1].length);
     }
   }
-  if (min === Infinity || min === 0) return diff;
+  if (min === Number.POSITIVE_INFINITY || min === 0) return diff;
   const trimmedLines = lines.map((line) => {
     if (
-      (line.startsWith('+') ||
-        line.startsWith('-') ||
-        line.startsWith(' ')) &&
+      (line.startsWith('+') || line.startsWith('-') || line.startsWith(' ')) &&
       !line.startsWith('---') &&
       !line.startsWith('+++')
     ) {
@@ -536,11 +513,7 @@ export function replace(
       }
       const lastIndex = content.lastIndexOf(search);
       if (index !== lastIndex) continue;
-      return (
-        content.substring(0, index) +
-        newString +
-        content.substring(index + search.length)
-      );
+      return content.substring(0, index) + newString + content.substring(index + search.length);
     }
   }
 
@@ -557,9 +530,7 @@ export function replace(
  */
 function validateFilePath(filePath: string, projectDirectory: string): void {
   // Convert to absolute path if relative
-  const absolutePath = path.isAbsolute(filePath)
-    ? filePath
-    : path.join(projectDirectory, filePath);
+  const absolutePath = path.isAbsolute(filePath) ? filePath : path.join(projectDirectory, filePath);
 
   // Normalize to resolve any '..' or '.' components
   const normalizedPath = path.normalize(absolutePath);
@@ -567,9 +538,7 @@ function validateFilePath(filePath: string, projectDirectory: string): void {
 
   // Ensure the resolved path is within the project directory
   if (!normalizedPath.startsWith(normalizedProject)) {
-    throw new Error(
-      `File ${filePath} is not in the current working directory ${projectDirectory}`
-    );
+    throw new Error(`File ${filePath} is not in the current working directory ${projectDirectory}`);
   }
 }
 
@@ -577,9 +546,7 @@ function validateFilePath(filePath: string, projectDirectory: string): void {
  * Creates the execute function for the edit file tool
  */
 export function createEditFileToolExecute(context: EditFileToolContext) {
-  return async function execute(
-    input: EditFileToolInput
-  ): Promise<EditFileToolOutput> {
+  return async function execute(input: EditFileToolInput): Promise<EditFileToolOutput> {
     const { messageId, projectDirectory, onToolEvent } = context;
     const { filePath, oldString, newString, replaceAll } = input;
 
@@ -627,9 +594,7 @@ export function createEditFileToolExecute(context: EditFileToolContext) {
       const contentNew = replace(contentOld, oldString, newString, replaceAll);
 
       // Generate diff
-      const diff = trimDiff(
-        createTwoFilesPatch(filePath, filePath, contentOld, contentNew)
-      );
+      const diff = trimDiff(createTwoFilesPatch(filePath, filePath, contentOld, contentNew));
 
       // Write the updated content
       await Bun.write(absolutePath, contentNew);

@@ -27,13 +27,21 @@ export type AgentMessage =
       kind: 'ls';
       event: 'start' | 'complete';
       args: { path?: string; command: string };
-      result?: { output: string; success: boolean; count: number; truncated: boolean; errorMessage?: string };
+      result?: {
+        output: string;
+        success: boolean;
+        count: number;
+        truncated: boolean;
+        errorMessage?: string;
+      };
     }
   | {
       kind: 'write';
       event: 'start' | 'complete';
       args: { files: Array<{ path: string; content: string }> };
-      result?: { results: Array<{ status: 'success' | 'error'; filePath: string; errorMessage?: string }> };
+      result?: {
+        results: Array<{ status: 'success' | 'error'; filePath: string; errorMessage?: string }>;
+      };
     }
   | {
       kind: 'edit';
@@ -62,6 +70,22 @@ export type AgentMessage =
         file_path: string;
         content?: string;
         truncated?: boolean;
+        error_message?: string;
+      };
+    }
+  | {
+      kind: 'subagent';
+      event: 'start' | 'complete';
+      args: { instructions: string };
+      result?: {
+        status: 'success' | 'error';
+        summary?: string;
+        messages?: Array<{
+          tool: string;
+          event: 'start' | 'complete';
+          args: any;
+          result?: any;
+        }>;
         error_message?: string;
       };
     };

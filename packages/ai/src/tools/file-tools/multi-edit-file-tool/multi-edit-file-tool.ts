@@ -5,9 +5,7 @@ import DESCRIPTION from './multiedit.txt';
 
 const EditOperationSchema = z.object({
   oldString: z.string().describe('The text to replace'),
-  newString: z
-    .string()
-    .describe('The text to replace it with (must be different from oldString)'),
+  newString: z.string().describe('The text to replace it with (must be different from oldString)'),
   replaceAll: z
     .boolean()
     .optional()
@@ -32,17 +30,11 @@ export const MultiEditFileToolOutputSchema = z.object({
         editNumber: z.number().describe('The sequential number of this edit'),
         success: z.boolean().describe('Whether this edit was successful'),
         message: z.string().optional().describe('Success message if applicable'),
-        errorMessage: z
-          .string()
-          .optional()
-          .describe('Error message if this edit failed'),
+        errorMessage: z.string().optional().describe('Error message if this edit failed'),
       })
     )
     .describe('Results of each individual edit operation'),
-  finalDiff: z
-    .string()
-    .optional()
-    .describe('Final diff showing all changes combined'),
+  finalDiff: z.string().optional().describe('Final diff showing all changes combined'),
   message: z.string().optional().describe('Overall success message'),
   errorMessage: z.string().optional().describe('Overall error message if failed'),
 });
@@ -54,12 +46,8 @@ export const MultiEditFileToolContextSchema = z.object({
 });
 
 export type MultiEditFileToolInput = z.infer<typeof MultiEditFileToolInputSchema>;
-export type MultiEditFileToolOutput = z.infer<
-  typeof MultiEditFileToolOutputSchema
->;
-export type MultiEditFileToolContext = z.infer<
-  typeof MultiEditFileToolContextSchema
->;
+export type MultiEditFileToolOutput = z.infer<typeof MultiEditFileToolOutputSchema>;
+export type MultiEditFileToolContext = z.infer<typeof MultiEditFileToolContextSchema>;
 
 /**
  * Factory function to create the multi-edit-file tool

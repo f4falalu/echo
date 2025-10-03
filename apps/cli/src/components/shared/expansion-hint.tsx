@@ -1,5 +1,4 @@
 import { Box, Text } from 'ink';
-import React from 'react';
 import { UI_CONSTANTS } from '../../constants/ui';
 
 interface ExpansionHintProps {

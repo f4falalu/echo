@@ -30,7 +30,9 @@ async function processIdle(): Promise<IdleOutput> {
   return { success: true };
 }
 
-function createIdleExecute<TAgentContext extends IdleContext = IdleContext>(context?: TAgentContext) {
+function createIdleExecute<TAgentContext extends IdleContext = IdleContext>(
+  context?: TAgentContext
+) {
   return wrapTraced(
     async (args: IdleInput) => {
       const result: IdleOutput = await processIdle();
@@ -50,7 +52,9 @@ function createIdleExecute<TAgentContext extends IdleContext = IdleContext>(cont
 }
 
 // Factory: simple tool without streaming lifecycle
-export function createIdleTool<TAgentContext extends IdleContext = IdleContext>(context?: TAgentContext) {
+export function createIdleTool<TAgentContext extends IdleContext = IdleContext>(
+  context?: TAgentContext
+) {
   const execute = createIdleExecute(context);
 
   return tool({

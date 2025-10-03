@@ -41,9 +41,9 @@ export type GrepToolInput = z.infer<typeof GrepToolInputSchema>;
 export type GrepToolOutput = z.infer<typeof GrepToolOutputSchema>;
 export type GrepToolContext = z.infer<typeof GrepSearchContextSchema>;
 
-export function createGrepTool<
-  TAgentContext extends GrepToolContext = GrepToolContext,
->(context: TAgentContext) {
+export function createGrepTool<TAgentContext extends GrepToolContext = GrepToolContext>(
+  context: TAgentContext
+) {
   const execute = createGrepToolExecute(context);
 
   return tool({

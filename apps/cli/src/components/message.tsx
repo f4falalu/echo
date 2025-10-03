@@ -1,11 +1,11 @@
 import { Box, Text } from 'ink';
-import React from 'react';
-import type { AgentMessage } from '../types/agent-messages';
 import { UI_CONSTANTS } from '../constants/ui';
-import { ExecuteMessage } from './execute-message';
-import { WriteMessage } from './write-message';
+import type { AgentMessage } from '../types/agent-messages';
 import { EditMessage } from './edit-message';
+import { ExecuteMessage } from './execute-message';
 import { ReadMessage } from './read-message';
+import { SubagentMessage } from './subagent-message';
+import { WriteMessage } from './write-message';
 
 interface AgentMessageComponentProps {
   message: AgentMessage;
@@ -61,6 +61,10 @@ export function AgentMessageComponent({ message }: AgentMessageComponentProps) {
     case 'read':
       // For read operations, use the ReadMessage component
       return <ReadMessage message={message} />;
+
+    case 'subagent':
+      // For subagent operations, use the SubagentMessage component
+      return <SubagentMessage message={message} />;
 
     default:
       return null;

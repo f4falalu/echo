@@ -5,7 +5,6 @@ import { type SlashCommand, searchCommands } from '../utils/slash-commands';
 import { CommandAutocomplete } from './command-autocomplete';
 import { FileAutocompleteDisplay } from './file-autocomplete-display';
 import { MultiLineTextInput, replaceMention } from './multi-line-text-input';
-import { SettingsForm } from './settings-form';
 import { SimpleBigText } from './simple-big-text';
 
 export const ChatTitle = memo(function ChatTitle() {

@@ -6,10 +6,16 @@ import z from 'zod';
 import { DEFAULT_ANTHROPIC_OPTIONS } from '../../llm/providers/gateway';
 import { Sonnet4 } from '../../llm/sonnet-4';
 import { createIdleTool } from '../../tools';
-import { createEditFileTool, createLsTool, createMultiEditFileTool, createWriteFileTool } from '../../tools/file-tools';
+import {
+  createEditFileTool,
+  createLsTool,
+  createMultiEditFileTool,
+  createWriteFileTool,
+} from '../../tools/file-tools';
 import { createBashTool } from '../../tools/file-tools/bash-tool/bash-tool';
 import { createGrepTool } from '../../tools/file-tools/grep-tool/grep-tool';
 import { createReadFileTool } from '../../tools/file-tools/read-file-tool/read-file-tool';
+import { createSubagentTool } from '../../tools/subagent-tools/subagent-tool/subagent-tool';
 import { type AgentContext, repairToolCall } from '../../utils/tool-call-repair';
 import { getDocsAgentSystemPrompt as getAnalyticsEngineerAgentSystemPrompt } from './get-analytics-engineer-agent-system-prompt';
 import type { ToolEventCallback } from './tool-events';
@@ -37,6 +43,10 @@ const AnalyticsEngineerAgentOptionsSchema = z.object({
     .custom<LanguageModelV2>()
     .optional()
     .describe('Custom language model to use (defaults to Sonnet4)'),
+  isSubagent: z
+    .boolean()
+    .optional()
+    .describe('Flag indicating this is a subagent (prevents infinite recursion)'),
 });
 
 const AnalyticsEngineerAgentStreamOptionsSchema = z.object({
@@ -46,12 +56,16 @@ const AnalyticsEngineerAgentStreamOptionsSchema = z.object({
 export type AnalyticsEngineerAgentOptions = z.infer<typeof AnalyticsEngineerAgentOptionsSchema> & {
   onToolEvent?: ToolEventCallback;
 };
-export type AnalyticsEngineerAgentStreamOptions = z.infer<typeof AnalyticsEngineerAgentStreamOptionsSchema>;
+export type AnalyticsEngineerAgentStreamOptions = z.infer<
+  typeof AnalyticsEngineerAgentStreamOptionsSchema
+>;
 
 // Extended type for passing to tools (includes sandbox)
 export type DocsAgentContextWithSandbox = AnalyticsEngineerAgentOptions & { sandbox: Sandbox };
 
-export function createAnalyticsEngineerAgent(analyticsEngineerAgentOptions: AnalyticsEngineerAgentOptions) {
+export function createAnalyticsEngineerAgent(
+  analyticsEngineerAgentOptions: AnalyticsEngineerAgentOptions
+) {
   const systemMessage = {
     role: 'system',
     content: getAnalyticsEngineerAgentSystemPrompt(analyticsEngineerAgentOptions.folder_structure),
@@ -97,6 +111,27 @@ export function createAnalyticsEngineerAgent(analyticsEngineerAgentOptions: Anal
     onToolEvent: analyticsEngineerAgentOptions.onToolEvent,
   });
 
+  // Conditionally create subagent tool (only for main agent, not for subagents)
+  const subagentTool = !analyticsEngineerAgentOptions.isSubagent
+    ? createSubagentTool({
+        messageId: analyticsEngineerAgentOptions.messageId,
+        projectDirectory: analyticsEngineerAgentOptions.folder_structure,
+        // Wrap onToolEvent to ensure type compatibility - no optional chaining
+        ...(analyticsEngineerAgentOptions.onToolEvent && {
+          onToolEvent: (event) => analyticsEngineerAgentOptions.onToolEvent?.(event as any),
+        }),
+        // Pass the agent factory function to enable subagent creation
+        // This needs to match the AgentFactory type signature
+        createAgent: (options) => {
+          return createAnalyticsEngineerAgent({
+            ...options,
+            // Inherit model from parent agent if provided
+            model: analyticsEngineerAgentOptions.model,
+          });
+        },
+      })
+    : null;
+
   // Create planning tools with simple context
   async function stream({ messages }: AnalyticsEngineerAgentStreamOptions) {
     // Collect available tools dynamically based on what's enabled
@@ -109,21 +144,30 @@ export function createAnalyticsEngineerAgent(analyticsEngineerAgentOptions: Anal
       availableTools,
     };
 
+    // Build tools object conditionally including subagent tool
+    // biome-ignore lint/suspicious/noExplicitAny: tools object contains various tool types
+    const tools: Record<string, any> = {
+      idleTool,
+      grepTool,
+      writeFileTool,
+      readFileTool,
+      bashTool,
+      editFileTool,
+      multiEditFileTool,
+      lsTool,
+    };
+
+    // Add subagent tool only if not a subagent (prevent recursion)
+    if (subagentTool) {
+      tools.subagentTool = subagentTool;
+    }
+
     return wrapTraced(
       () =>
         streamText({
           model: analyticsEngineerAgentOptions.model || Sonnet4,
           providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
-          tools: {
-            idleTool,
-            grepTool,
-            writeFileTool,
-            readFileTool,
-            bashTool,
-            editFileTool,
-            multiEditFileTool,
-            lsTool,
-          },
+          tools,
           messages: [systemMessage, ...messages],
           stopWhen: STOP_CONDITIONS,
           toolChoice: 'required',

@@ -1,5 +1,17 @@
 import { render } from 'ink-testing-library';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+// Mock Bun's Glob API for Node.js test environment
+vi.mock('bun', () => ({
+  Glob: class MockGlob {
+    constructor(public pattern: string, public options: any) {}
+    async *scan() {
+      // Return empty for tests
+      return [];
+    }
+  },
+}));
+
 import { Main } from './main';
 
 describe('Main chat screen', () => {
@@ -10,7 +22,7 @@ describe('Main chat screen', () => {
     expect(output).toContain('BUSTER v0.3.1');
     expect(output).toContain('Your AI Data Worker.');
     expect(output).toContain('You are standing in an open terminal. An AI awaits your commands.');
-    expect(output).toContain('Auto (Off) — all actions require approval · shift+tab cycles');
+    expect(output).toContain('ENTER send');
     expect(output).toContain('? for help');
   });
 });

@@ -1,14 +1,13 @@
 import { Box } from 'ink';
-import React from 'react';
-import type { AgentMessage } from '../types/agent-messages';
 import { UI_CONSTANTS } from '../constants/ui';
 import { useExpansion } from '../hooks/use-expansion';
+import type { AgentMessage } from '../types/agent-messages';
 import { getPreviewLines } from '../utils/content-preview';
-import { ToolBadge } from './shared/tool-badge';
-import { IndentedContent } from './shared/indented-content';
-import { ExpansionHint } from './shared/expansion-hint';
-import { StatusLine } from './shared/status-line';
 import { ContentLines } from './shared/content-lines';
+import { ExpansionHint } from './shared/expansion-hint';
+import { IndentedContent } from './shared/indented-content';
+import { StatusLine } from './shared/status-line';
+import { ToolBadge } from './shared/tool-badge';
 
 interface ReadMessageProps {
   message: Extract<AgentMessage, { kind: 'read' }>;
@@ -41,7 +40,11 @@ export function ReadMessage({ message }: ReadMessageProps) {
   const contentLines = result.content?.split('\n') || [];
 
   // Show first 5 lines when not expanded, all lines when expanded
-  const displayLines = getPreviewLines(result.content || '', UI_CONSTANTS.LINE_LIMITS.DEFAULT_PREVIEW, isExpanded);
+  const displayLines = getPreviewLines(
+    result.content || '',
+    UI_CONSTANTS.LINE_LIMITS.DEFAULT_PREVIEW,
+    isExpanded
+  );
 
   return (
     <Box flexDirection="column" marginBottom={1}>

@@ -1,8 +1,7 @@
 import { Box, Text, useApp, useInput } from 'ink';
-import { memo, useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ChatFooter,
-  ChatHistory,
   type ChatHistoryEntry,
   ChatInput,
   ChatIntroText,
@@ -10,9 +9,13 @@ import {
   ChatVersionTagline,
   VimStatus,
 } from '../components/chat-layout';
-import { SettingsForm } from '../components/settings-form';
+import { HistoryBrowser } from '../components/history-browser';
 import { AgentMessageComponent } from '../components/message';
+import { SettingsForm } from '../components/settings-form';
 import type { DocsAgentMessage } from '../services/analytics-engineer-handler';
+import type { Conversation } from '../utils/conversation-history';
+import { loadConversation, saveMessage } from '../utils/conversation-history';
+import { getCurrentChatId, initNewSession, setSessionChatId } from '../utils/session';
 import { getSetting } from '../utils/settings';
 import type { SlashCommand } from '../utils/slash-commands';
 import type { VimMode } from '../utils/vim-mode';
@@ -29,8 +32,27 @@ export function Main() {
   const [vimEnabled, setVimEnabled] = useState(() => getSetting('vimMode'));
   const [currentVimMode, setCurrentVimMode] = useState<VimMode>('insert');
   const [showSettings, setShowSettings] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [isAutocompleteOpen, setIsAutocompleteOpen] = useState(false);
   const [appMode, setAppMode] = useState<AppMode>('None');
+  const [sessionInitialized, setSessionInitialized] = useState(false);
+  const workingDirectory = useRef(process.cwd());
+
+  // Initialize a fresh session on mount
+  useEffect(() => {
+    const initSession = async () => {
+      try {
+        // Always start with a fresh session
+        initNewSession();
+        setSessionInitialized(true);
+      } catch (error) {
+        console.error('Failed to initialize session:', error);
+        setSessionInitialized(true); // Continue anyway
+      }
+    };
+
+    initSession();
+  }, []);
 
   useInput((value, key) => {
     if (key.ctrl && value === 'c') {
@@ -54,10 +76,13 @@ export function Main() {
 
   const handleSubmit = useCallback(async () => {
     const trimmed = input.trim();
-    if (!trimmed) {
+    if (!trimmed || !sessionInitialized) {
       setInput('');
       return;
     }
+
+    const chatId = getCurrentChatId();
+    const cwd = workingDirectory.current;
 
     const userMessage: DocsAgentMessage = {
       id: ++messageCounter.current,
@@ -70,185 +95,52 @@ export function Main() {
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
 
+    // Save user message to history
+    await saveMessage(chatId, cwd, userMessage.id, userMessage.message);
+
     // Import and run the docs agent
     const { runDocsAgent } = await import('../services/analytics-engineer-handler');
 
     // Run agent - callbacks will handle message display
     await runDocsAgent({
+      chatId,
       userMessage: trimmed,
-      onMessage: (agentMessage) => {
+      onMessage: async (agentMessage) => {
         // Assign unique ID to each message
         const messageWithId = {
           id: ++messageCounter.current,
           message: agentMessage.message,
         };
         setMessages((prev) => [...prev, messageWithId]);
+
+        // Save agent message to history
+        await saveMessage(chatId, cwd, messageWithId.id, messageWithId.message);
       },
     });
-  }, [input]);
+  }, [input, sessionInitialized]);
 
-  // REMOVED: Old getMockResponse function
-  const _oldGetMockResponse = (userInput: string) => {
-    const responses: Message[] = [];
+  const handleResumeConversation = useCallback(async (conversation: Conversation) => {
+    try {
+      // Load the conversation messages
+      const loadedMessages: DocsAgentMessage[] = conversation.messages.map((stored) => ({
+        id: stored.id,
+        message: stored.message,
+      }));
 
-    if (userInput.toLowerCase().includes('plan')) {
-      responses.push({
-        id: ++messageCounter.current,
-        type: 'assistant',
-        content: `I'll create a detailed plan for your request. Let me analyze the requirements and break down the implementation steps.`,
-        messageType: 'PLAN',
-        metadata: 'Creating a comprehensive plan for your request.',
-      });
-    } else if (userInput.toLowerCase().includes('search')) {
-      responses.push({
-        id: ++messageCounter.current,
-        type: 'assistant',
-        content: 'Searching for relevant information across the web...',
-        messageType: 'EXECUTE',
-        metadata: 'Executing command: npm install',
-      });
-    } else if (userInput.toLowerCase().includes('run')) {
-      responses.push({
-        id: ++messageCounter.current,
-        type: 'assistant',
-        content: `cd /Users/safzan/Development/insideim/jobai-backend && node --env-file=.env --input-type=module --import=axios`,
-        messageType: 'EXECUTE',
-        metadata: 'React hooks useState useEffect',
-      });
-    } else if (userInput.toLowerCase().includes('error')) {
-      responses.push({
-        id: ++messageCounter.current,
-        type: 'assistant',
-        content: 'Writing new configuration file...',
-        messageType: 'WRITE',
-        metadata:
-          '/Users/safzan/Development/insideim/cheating-daddy/node_modules/@google/genai, impact: medium',
-      });
-    } else {
-      // Default response with EDIT and diff visualization
-      responses.push({
-        id: ++messageCounter.current,
-        type: 'assistant',
-        content: 'Editing the file with the requested changes',
-        messageType: 'EDIT',
-        fileName: '/src/components/typed-message.tsx',
-        diffLines: [
-          {
-            lineNumber: 62,
-            content: 'const getMockResponse = (userInput: string): Message[] => {',
-            type: 'context',
-          },
-          { lineNumber: 63, content: '  const responses: Message[] = [];', type: 'context' },
-          { lineNumber: 64, content: '', type: 'context' },
-          {
-            lineNumber: 65,
-            content: "  if (userInput.toLowerCase().includes('plan')) {",
-            type: 'remove',
-          },
-          { lineNumber: 66, content: '    responses.push({', type: 'remove' },
-          { lineNumber: 65, content: '  // Always send all message types for demo', type: 'add' },
-          { lineNumber: 66, content: '  responses.push(', type: 'add' },
-          { lineNumber: 67, content: '    {', type: 'add' },
-          { lineNumber: 68, content: '      id: ++messageCounter.current,', type: 'context' },
-          { lineNumber: 69, content: "      type: 'assistant',", type: 'context' },
-          {
-            lineNumber: 70,
-            content:
-              "      content: 'I\\'ll create a detailed plan for your request. Let me analyze the requirements and break down the implementation steps.',",
-            type: 'remove',
-          },
-          {
-            lineNumber: 70,
-            content: "      content: 'Creating a comprehensive plan for your request.',",
-            type: 'add',
-          },
-          { lineNumber: 71, content: "      messageType: 'PLAN',", type: 'context' },
-          {
-            lineNumber: 72,
-            content: "      metadata: 'Updated: 3 total (3 pending, 0 in progress, 0 completed)'",
-            type: 'context',
-          },
-          { lineNumber: 73, content: '    })', type: 'remove' },
-          { lineNumber: 73, content: '    },', type: 'add' },
-          {
-            lineNumber: 74,
-            content: "  } else if (userInput.toLowerCase().includes('search')) {",
-            type: 'remove',
-          },
-          { lineNumber: 75, content: '    responses.push({', type: 'remove' },
-          { lineNumber: 74, content: '    {', type: 'add' },
-          { lineNumber: 75, content: '      id: ++messageCounter.current,', type: 'add' },
-          { lineNumber: 76, content: "      type: 'assistant',", type: 'add' },
-          {
-            lineNumber: 77,
-            content: "      content: 'Searching for relevant information across the web...',",
-            type: 'remove',
-          },
-          {
-            lineNumber: 77,
-            content: "      content: 'Executing command: npm install',",
-            type: 'add',
-          },
-          { lineNumber: 78, content: "      messageType: 'EXECUTE',", type: 'add' },
-          {
-            lineNumber: 79,
-            content: "      metadata: 'cd /project && npm install, impact: low'",
-            type: 'add',
-          },
-          { lineNumber: 80, content: '    },', type: 'add' },
-          { lineNumber: 81, content: '    {', type: 'add' },
-          { lineNumber: 82, content: '      id: ++messageCounter.current,', type: 'add' },
-          { lineNumber: 83, content: "      type: 'assistant',", type: 'add' },
-          {
-            lineNumber: 84,
-            content: "      content: 'Searching for documentation and best practices...',",
-            type: 'add',
-          },
-          { lineNumber: 85, content: "      messageType: 'WEB_SEARCH',", type: 'remove' },
-          {
-            lineNumber: 86,
-            content: '      metadata: \'"site:github.com generativelanguage auth_tokens.proto"\'',
-            type: 'remove',
-          },
-          { lineNumber: 87, content: '    });', type: 'remove' },
-          {
-            lineNumber: 88,
-            content: "  } else if (userInput.toLowerCase().includes('run')) {",
-            type: 'remove',
-          },
-          { lineNumber: 88, content: '  } else {', type: 'add' },
-          { lineNumber: 89, content: '', type: 'context' },
-          { lineNumber: 90, content: '', type: 'context' },
-          {
-            lineNumber: 91,
-            content: "      metadata: 'React hooks useState useEffect'",
-            type: 'remove',
-          },
-          {
-            lineNumber: 91,
-            content:
-              "      content: 'cd /Users/safzan/Development/insideim/jobai-backend && node --env-file=.env --input-type=module --import=axios',",
-            type: 'add',
-          },
-          { lineNumber: 92, content: "      messageType: 'EXECUTE',", type: 'remove' },
-          {
-            lineNumber: 93,
-            content:
-              "      metadata: 'ls /Users/safzan/Development/insideim/cheating-daddy/node_modules/@google/genai, impact: medium'",
-            type: 'remove',
-          },
-          { lineNumber: 94, content: '    }));', type: 'remove' },
-          {
-            lineNumber: 95,
-            content: "  } else if (userInput.toLowerCase().includes('error')) {",
-            type: 'remove',
-          },
-        ],
-      });
+      // Update message counter to highest ID
+      messageCounter.current = Math.max(...loadedMessages.map((m) => m.id), 0);
+
+      // Update session to use this conversation's chat ID
+      setSessionChatId(conversation.chatId);
+
+      // Clear existing messages and load the selected conversation
+      setMessages(loadedMessages);
+      setShowHistory(false);
+    } catch (error) {
+      console.error('Failed to resume conversation:', error);
+      setShowHistory(false);
     }
-
-    return []; // Old mock code removed
-  };
+  }, []);
 
   const handleCommandExecute = useCallback(
     (command: SlashCommand) => {
@@ -262,12 +154,15 @@ export function Main() {
         case 'exit':
           exit();
           break;
+        case 'history':
+          setShowHistory(true);
+          break;
         case 'help': {
           historyCounter.current += 1;
           const helpEntry: ChatHistoryEntry = {
             id: historyCounter.current,
             value:
-              'Available commands:\n/settings - Configure app settings\n/clear - Clear chat history\n/exit - Exit the app\n/help - Show this help',
+              'Available commands:\n/settings - Configure app settings\n/clear - Clear chat history\n/history - Browse and resume previous conversations\n/exit - Exit the app\n/help - Show this help',
           };
           setHistory((prev) => [...prev, helpEntry].slice(-5));
           break;
@@ -276,6 +171,12 @@ export function Main() {
     },
     [exit]
   );
+
+  // Memoize message list to prevent re-renders from cursor blinking
+  // MUST be before conditional returns to satisfy React's rules of hooks
+  const messageList = useMemo(() => {
+    return messages.map((msg) => <AgentMessageComponent key={msg.id} message={msg.message} />);
+  }, [messages]);
 
   if (showSettings) {
     return (
@@ -291,12 +192,17 @@ export function Main() {
     );
   }
 
-  // Memoize message list to prevent re-renders from cursor blinking
-  const messageList = useMemo(() => {
-    return messages.map((msg) => (
-      <AgentMessageComponent key={msg.id} message={msg.message} />
-    ));
-  }, [messages]);
+  if (showHistory) {
+    return (
+      <Box flexDirection="column" paddingX={1} paddingY={2}>
+        <HistoryBrowser
+          workingDirectory={workingDirectory.current}
+          onSelect={handleResumeConversation}
+          onCancel={() => setShowHistory(false)}
+        />
+      </Box>
+    );
+  }
 
   return (
     <Box flexDirection="column" paddingX={1} paddingY={2} gap={1}>

@@ -1,5 +1,4 @@
 import { Text } from 'ink';
-import React from 'react';
 import { UI_CONSTANTS } from '../../constants/ui';
 
 interface ContentLinesProps {
@@ -11,7 +10,10 @@ interface ContentLinesProps {
  * Shared component for rendering lines of content
  * Provides consistent text styling
  */
-export function ContentLines({ lines, color = UI_CONSTANTS.COLORS.TEXT_PRIMARY }: ContentLinesProps) {
+export function ContentLines({
+  lines,
+  color = UI_CONSTANTS.COLORS.TEXT_PRIMARY,
+}: ContentLinesProps) {
   return (
     <>
       {lines.map((line, idx) => (

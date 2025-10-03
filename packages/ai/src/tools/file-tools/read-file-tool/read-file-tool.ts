@@ -36,9 +36,9 @@ export type ReadFileToolInput = z.infer<typeof ReadFileToolInputSchema>;
 export type ReadFileToolOutput = z.infer<typeof ReadFileToolOutputSchema>;
 export type ReadFileToolContext = z.infer<typeof ReadFileToolContextSchema>;
 
-export function createReadFileTool<
-  TAgentContext extends ReadFileToolContext = ReadFileToolContext,
->(context: TAgentContext) {
+export function createReadFileTool<TAgentContext extends ReadFileToolContext = ReadFileToolContext>(
+  context: TAgentContext
+) {
   const execute = createReadFileToolExecute(context);
 
   return tool({

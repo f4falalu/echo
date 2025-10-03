@@ -6,9 +6,7 @@ import DESCRIPTION from './edit.txt';
 export const EditFileToolInputSchema = z.object({
   filePath: z.string().describe('The absolute path to the file to modify'),
   oldString: z.string().describe('The text to replace'),
-  newString: z
-    .string()
-    .describe('The text to replace it with (must be different from oldString)'),
+  newString: z.string().describe('The text to replace it with (must be different from oldString)'),
   replaceAll: z
     .boolean()
     .optional()
@@ -37,9 +35,9 @@ export type EditFileToolContext = z.infer<typeof EditFileToolContextSchema>;
 /**
  * Factory function to create the edit-file tool
  */
-export function createEditFileTool<
-  TAgentContext extends EditFileToolContext = EditFileToolContext,
->(context: TAgentContext) {
+export function createEditFileTool<TAgentContext extends EditFileToolContext = EditFileToolContext>(
+  context: TAgentContext
+) {
   const execute = createEditFileToolExecute(context);
 
   return tool({

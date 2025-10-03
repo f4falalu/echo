@@ -1,5 +1,5 @@
-import { createTwoFilesPatch } from 'diff';
 import path from 'node:path';
+import { createTwoFilesPatch } from 'diff';
 import { replace } from '../edit-file-tool/edit-file-tool-execute';
 import type {
   MultiEditFileToolContext,
@@ -12,9 +12,7 @@ import type {
  */
 function validateFilePath(filePath: string, projectDirectory: string): void {
   // Convert to absolute path if relative
-  const absolutePath = path.isAbsolute(filePath)
-    ? filePath
-    : path.join(projectDirectory, filePath);
+  const absolutePath = path.isAbsolute(filePath) ? filePath : path.join(projectDirectory, filePath);
 
   // Normalize to resolve any '..' or '.' components
   const normalizedPath = path.normalize(absolutePath);
@@ -22,9 +20,7 @@ function validateFilePath(filePath: string, projectDirectory: string): void {
 
   // Ensure the resolved path is within the project directory
   if (!normalizedPath.startsWith(normalizedProject)) {
-    throw new Error(
-      `File ${filePath} is not in the current working directory ${projectDirectory}`
-    );
+    throw new Error(`File ${filePath} is not in the current working directory ${projectDirectory}`);
   }
 }
 
@@ -32,16 +28,14 @@ function trimDiff(diff: string): string {
   const lines = diff.split('\n');
   const contentLines = lines.filter(
     (line) =>
-      (line.startsWith('+') ||
-        line.startsWith('-') ||
-        line.startsWith(' ')) &&
+      (line.startsWith('+') || line.startsWith('-') || line.startsWith(' ')) &&
       !line.startsWith('---') &&
       !line.startsWith('+++')
   );
 
   if (contentLines.length === 0) return diff;
 
-  let min = Infinity;
+  let min = Number.POSITIVE_INFINITY;
   for (const line of contentLines) {
     const content = line.slice(1);
     if (content.trim().length > 0) {
@@ -49,12 +43,10 @@ function trimDiff(diff: string): string {
       if (match?.[1]) min = Math.min(min, match[1].length);
     }
   }
-  if (min === Infinity || min === 0) return diff;
+  if (min === Number.POSITIVE_INFINITY || min === 0) return diff;
   const trimmedLines = lines.map((line) => {
     if (
-      (line.startsWith('+') ||
-        line.startsWith('-') ||
-        line.startsWith(' ')) &&
+      (line.startsWith('+') || line.startsWith('-') || line.startsWith(' ')) &&
       !line.startsWith('---') &&
       !line.startsWith('+++')
     ) {
@@ -71,18 +63,12 @@ function trimDiff(diff: string): string {
 /**
  * Creates the execute function for the multi-edit file tool
  */
-export function createMultiEditFileToolExecute(
-  context: MultiEditFileToolContext
-) {
-  return async function execute(
-    input: MultiEditFileToolInput
-  ): Promise<MultiEditFileToolOutput> {
+export function createMultiEditFileToolExecute(context: MultiEditFileToolContext) {
+  return async function execute(input: MultiEditFileToolInput): Promise<MultiEditFileToolOutput> {
     const { messageId, projectDirectory, onToolEvent } = context;
     const { filePath, edits } = input;
 
-    console.info(
-      `Applying ${edits.length} edit(s) to ${filePath} for message ${messageId}`
-    );
+    console.info(`Applying ${edits.length} edit(s) to ${filePath} for message ${messageId}`);
 
     // Emit start event
     onToolEvent?.({
@@ -165,8 +151,7 @@ export function createMultiEditFileToolExecute(
             message: `Successfully replaced "${edit.oldString.substring(0, 50)}${edit.oldString.length > 50 ? '...' : ''}" with "${edit.newString.substring(0, 50)}${edit.newString.length > 50 ? '...' : ''}"`,
           });
         } catch (error) {
-          const errorMessage =
-            error instanceof Error ? error.message : 'Unknown error';
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
           console.error(`Edit ${i + 1} failed:`, errorMessage);
 
           editResults.push({
@@ -196,12 +181,7 @@ export function createMultiEditFileToolExecute(
 
       // Generate final diff
       const finalDiff = trimDiff(
-        createTwoFilesPatch(
-          filePath,
-          filePath,
-          contentOriginal,
-          currentContent
-        )
+        createTwoFilesPatch(filePath, filePath, contentOriginal, currentContent)
       );
 
       console.info(`Successfully applied all ${edits.length} edit(s) to ${absolutePath}`);
@@ -224,8 +204,7 @@ export function createMultiEditFileToolExecute(
 
       return output;
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       console.error(`Error during multi-edit operation on ${filePath}:`, errorMessage);
 
       const output = {

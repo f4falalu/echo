@@ -1,8 +1,4 @@
-import type {
-  GrepToolContext,
-  GrepToolInput,
-  GrepToolOutput,
-} from './grep-tool'
+import type { GrepToolContext, GrepToolInput, GrepToolOutput } from './grep-tool';
 
 const MAX_MATCHES = 100;
 

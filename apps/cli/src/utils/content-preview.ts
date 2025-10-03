@@ -1,11 +1,7 @@
 /**
  * Get preview lines from content based on expansion state
  */
-export function getPreviewLines(
-  content: string,
-  maxLines: number,
-  isExpanded: boolean
-): string[] {
+export function getPreviewLines(content: string, maxLines: number, isExpanded: boolean): string[] {
   const lines = content.split('\n');
   return isExpanded ? lines : lines.slice(0, maxLines);
 }

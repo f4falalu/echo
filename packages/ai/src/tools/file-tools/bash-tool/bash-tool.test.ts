@@ -1,21 +1,27 @@
 import { materialize } from '@buster/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+// Helper to create mock process with readable streams
+function createMockProcess(stdout: string, stderr: string, exitCode: number) {
+  const stdoutBlob = new Blob([stdout]);
+  const stderrBlob = new Blob([stderr]);
+
+  return {
+    stdout: stdoutBlob.stream(),
+    stderr: stderrBlob.stream(),
+    exited: Promise.resolve(exitCode),
+    kill: vi.fn(),
+  };
+}
+
+// Mock Bun global object
+const mockSpawn = vi.fn();
+
+globalThis.Bun = {
+  spawn: mockSpawn,
+} as any;
+
 import { createBashTool } from './bash-tool';
-
-// Mock Bun's $ shell
-const mockExec = vi.fn();
-
-vi.mock('bun', () => ({
-  $: (strings: TemplateStringsArray, ...values: any[]) => {
-    // Reconstruct the command from template literal parts
-    const command = strings.reduce((acc, str, i) => acc + str + (values[i] || ''), '');
-    return {
-      cwd: vi.fn().mockReturnThis(),
-      nothrow: vi.fn().mockReturnThis(),
-      quiet: vi.fn().mockImplementation(() => mockExec(command)),
-    };
-  },
-}));
 
 describe('createBashTool', () => {
   const mockContext = {
@@ -38,11 +44,7 @@ describe('createBashTool', () => {
   });
 
   it('should handle successful command execution', async () => {
-    mockExec.mockResolvedValue({
-      stdout: Buffer.from('Hello World'),
-      stderr: Buffer.from(''),
-      exitCode: 0,
-    });
+    mockSpawn.mockReturnValue(createMockProcess('Hello World', '', 0));
 
     const bashTool = createBashTool(mockContext);
 
@@ -64,11 +66,7 @@ describe('createBashTool', () => {
   });
 
   it('should handle command failures', async () => {
-    mockExec.mockResolvedValue({
-      stdout: Buffer.from(''),
-      stderr: Buffer.from('command not found'),
-      exitCode: 127,
-    });
+    mockSpawn.mockReturnValue(createMockProcess('', 'command not found', 127));
 
     const bashTool = createBashTool(mockContext);
 
@@ -87,7 +85,9 @@ describe('createBashTool', () => {
   });
 
   it('should handle execution errors', async () => {
-    mockExec.mockRejectedValue(new Error('Execution failed'));
+    mockSpawn.mockImplementation(() => {
+      throw new Error('Execution failed');
+    });
 
     const bashTool = createBashTool(mockContext);
 
@@ -109,11 +109,7 @@ describe('createBashTool', () => {
 
   it('should truncate long output', async () => {
     const longOutput = 'a'.repeat(40000);
-    mockExec.mockResolvedValue({
-      stdout: Buffer.from(longOutput),
-      stderr: Buffer.from(''),
-      exitCode: 0,
-    });
+    mockSpawn.mockReturnValue(createMockProcess(longOutput, '', 0));
 
     const bashTool = createBashTool(mockContext);
 
@@ -131,11 +127,7 @@ describe('createBashTool', () => {
   });
 
   it('should include timeout parameter', async () => {
-    mockExec.mockResolvedValue({
-      stdout: Buffer.from('output'),
-      stderr: Buffer.from(''),
-      exitCode: 0,
-    });
+    mockSpawn.mockReturnValue(createMockProcess('output', '', 0));
 
     const bashTool = createBashTool(mockContext);
 

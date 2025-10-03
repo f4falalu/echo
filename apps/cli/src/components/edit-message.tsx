@@ -1,12 +1,11 @@
 import { Box, Text } from 'ink';
-import React from 'react';
-import type { AgentMessage } from '../types/agent-messages';
 import { UI_CONSTANTS } from '../constants/ui';
 import { useExpansion } from '../hooks/use-expansion';
-import { ToolBadge } from './shared/tool-badge';
-import { IndentedContent } from './shared/indented-content';
+import type { AgentMessage } from '../types/agent-messages';
 import { ExpansionHint } from './shared/expansion-hint';
+import { IndentedContent } from './shared/indented-content';
 import { StatusLine } from './shared/status-line';
+import { ToolBadge } from './shared/tool-badge';
 
 interface EditMessageProps {
   message: Extract<AgentMessage, { kind: 'edit' }>;
@@ -80,7 +79,11 @@ export function EditMessage({ message }: EditMessageProps) {
       <Box flexDirection="column" marginBottom={1}>
         <ToolBadge tool="UPDATE" filePath={result.filePath} />
         <StatusLine
-          message={result.success ? result.message || 'File updated' : result.errorMessage || 'Update failed'}
+          message={
+            result.success
+              ? result.message || 'File updated'
+              : result.errorMessage || 'Update failed'
+          }
           status={result.success ? 'success' : 'error'}
         />
       </Box>
@@ -112,7 +115,7 @@ export function EditMessage({ message }: EditMessageProps) {
             const lineNum = line.lineNumber ? `${line.lineNumber}`.padStart(4, ' ') : '    ';
 
             // Choose background color and prefix based on line type
-            let backgroundColor: string | undefined = undefined;
+            let backgroundColor: string | undefined;
             let prefix = ' ';
 
             if (line.type === 'add') {
@@ -124,7 +127,11 @@ export function EditMessage({ message }: EditMessageProps) {
             }
 
             return (
-              <Text key={idx} color={UI_CONSTANTS.COLORS.TEXT_PRIMARY} backgroundColor={backgroundColor}>
+              <Text
+                key={idx}
+                color={UI_CONSTANTS.COLORS.TEXT_PRIMARY}
+                backgroundColor={backgroundColor}
+              >
                 {lineNum} {prefix} {line.content}
               </Text>
             );

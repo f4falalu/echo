@@ -1,15 +1,16 @@
 import { randomUUID } from 'node:crypto';
-import { createProxyModel } from '@buster/ai/llm/providers/proxy-model';
 import type { ModelMessage, ToolEvent } from '@buster/ai';
-import { getProxyConfig } from '../utils/ai-proxy';
 import { createAnalyticsEngineerAgent } from '@buster/ai/agents/analytics-engineer-agent/analytics-engineer-agent';
+import { createProxyModel } from '@buster/ai/llm/providers/proxy-model';
 import type { AgentMessage } from '../types/agent-messages';
+import { getProxyConfig } from '../utils/ai-proxy';
 
 export interface DocsAgentMessage {
   message: AgentMessage;
 }
 
 export interface RunDocsAgentParams {
+  chatId: string;
   userMessage: string;
   onMessage: (message: DocsAgentMessage) => void;
 }
@@ -19,7 +20,7 @@ export interface RunDocsAgentParams {
  * The agent runs locally but uses the proxy model to route LLM calls through the server
  */
 export async function runDocsAgent(params: RunDocsAgentParams) {
-  const { userMessage, onMessage } = params;
+  const { chatId, userMessage, onMessage } = params;
 
   // Get proxy configuration
   const proxyConfig = await getProxyConfig();
@@ -36,7 +37,7 @@ export async function runDocsAgent(params: RunDocsAgentParams) {
   const analyticsEngineerAgent = createAnalyticsEngineerAgent({
     folder_structure: process.cwd(), // Use current working directory for CLI mode
     userId: 'cli-user',
-    chatId: randomUUID(),
+    chatId: chatId,
     dataSourceId: '',
     organizationId: 'cli',
     messageId: randomUUID(),
@@ -122,6 +123,18 @@ export async function runDocsAgent(params: RunDocsAgentParams) {
             event: 'complete',
             args: event.args,
             result: event.result, // Type-safe: ReadFileToolOutput
+          },
+        });
+      }
+
+      // Handle subagent tool events - only show complete to avoid duplicates
+      if (event.tool === 'subagentTool' && event.event === 'complete') {
+        onMessage({
+          message: {
+            kind: 'subagent',
+            event: 'complete',
+            args: event.args,
+            result: event.result, // Type-safe: SubagentToolOutput
           },
         });
       }

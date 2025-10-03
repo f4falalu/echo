@@ -10,10 +10,7 @@ export const LsToolInputSchema = z.object({
     .describe(
       'The absolute path to the directory to list (must be absolute, not relative). Defaults to project root.'
     ),
-  ignore: z
-    .array(z.string())
-    .optional()
-    .describe('List of glob patterns to ignore'),
+  ignore: z.array(z.string()).optional().describe('List of glob patterns to ignore'),
 });
 
 export const LsToolOutputSchema = z.object({
@@ -38,9 +35,9 @@ export type LsToolContext = z.infer<typeof LsToolContextSchema>;
 /**
  * Factory function to create the ls tool
  */
-export function createLsTool<
-  TAgentContext extends LsToolContext = LsToolContext,
->(context: TAgentContext) {
+export function createLsTool<TAgentContext extends LsToolContext = LsToolContext>(
+  context: TAgentContext
+) {
   const execute = createLsToolExecute(context);
 
   return tool({
