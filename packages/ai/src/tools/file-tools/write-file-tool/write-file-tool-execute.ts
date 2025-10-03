@@ -90,10 +90,17 @@ async function createSingleFile(
  */
 export function createWriteFileToolExecute(context: WriteFileToolContext) {
   return async function execute(input: WriteFileToolInput): Promise<WriteFileToolOutput> {
-    const { messageId, projectDirectory } = context;
+    const { messageId, projectDirectory, onToolEvent } = context;
     const { files } = input;
 
     console.info(`Creating ${files.length} file(s) for message ${messageId}`);
+
+    // Emit start event
+    onToolEvent?.({
+      tool: 'writeFileTool',
+      event: 'start',
+      args: input,
+    });
 
     // Process all files in parallel
     const fileResults = await Promise.all(
@@ -127,6 +134,16 @@ export function createWriteFileToolExecute(context: WriteFileToolContext) {
       console.error('Failed files:', errors);
     }
 
-    return { results };
+    const output = { results };
+
+    // Emit complete event
+    onToolEvent?.({
+      tool: 'writeFileTool',
+      event: 'complete',
+      result: output,
+      args: input,
+    });
+
+    return output;
   };
 }

@@ -64,6 +64,7 @@ export function createAnalyticsEngineerAgent(analyticsEngineerAgentOptions: Anal
   const writeFileTool = createWriteFileTool({
     messageId: analyticsEngineerAgentOptions.messageId,
     projectDirectory: analyticsEngineerAgentOptions.folder_structure,
+    onToolEvent: analyticsEngineerAgentOptions.onToolEvent,
   });
   const grepTool = createGrepTool({
     messageId: analyticsEngineerAgentOptions.messageId,

@@ -36,6 +36,12 @@ export type AgentMessage =
       event: 'start' | 'complete';
       args: LsToolInput;
       result?: LsToolOutput;
+    }
+  | {
+      kind: 'write';
+      event: 'start' | 'complete';
+      args: { files: { path: string; content: string }[] };
+      result?: { results: Array<{ status: 'success' | 'error'; filePath: string; errorMessage?: string }> };
     };
 
 export interface DocsAgentMessage {
@@ -119,6 +125,18 @@ export async function runDocsAgent(params: RunDocsAgentParams) {
             event: 'complete',
             args: event.args,
             result: event.result, // Type-safe: LsToolOutput
+          },
+        });
+      }
+
+      // Handle write tool events - only show complete to avoid duplicates
+      if (event.tool === 'writeFileTool' && event.event === 'complete') {
+        onMessage({
+          message: {
+            kind: 'write',
+            event: 'complete',
+            args: event.args,
+            result: event.result, // Type-safe: WriteFileToolOutput
           },
         });
       }
