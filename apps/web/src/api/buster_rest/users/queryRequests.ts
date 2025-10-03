@@ -40,6 +40,14 @@ export const prefetchGetMyUserInfo = async (queryClient: QueryClient) => {
   return queryClient.getQueryData(userQueryKeys.userGetUserMyself.queryKey);
 };
 
+export const ensureGetMyUserInfo = async (queryClient: QueryClient) => {
+  await queryClient.ensureQueryData({
+    ...userQueryKeys.userGetUserMyself,
+    queryFn: () => getMyUserInfo(),
+  });
+  return queryClient.getQueryData(userQueryKeys.userGetUserMyself.queryKey);
+};
+
 export const useGetUser = (params: Parameters<typeof getUser>[0]) => {
   const queryFn = () => getUser(params);
   return useQuery({
