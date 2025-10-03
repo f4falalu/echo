@@ -90,6 +90,8 @@ export function createDoneToolExecute(context: DoneToolContext, state: DoneToolS
       }
 
       state.isFinalizing = true;
+      // Part of temporary solution: wait for 300ms after state is set to isFinalizing to block new requests and allow current pending requests to complete
+      await new Promise((resolve) => setTimeout(resolve, 300));
       // CRITICAL: Wait for ALL pending updates from delta/finish to complete FIRST
       // This ensures execute's update is always the last one in the queue
       if (typeof state.latestSequenceNumber === 'number') {
