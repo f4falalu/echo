@@ -580,10 +580,17 @@ export function createEditFileToolExecute(context: EditFileToolContext) {
   return async function execute(
     input: EditFileToolInput
   ): Promise<EditFileToolOutput> {
-    const { messageId, projectDirectory } = context;
+    const { messageId, projectDirectory, onToolEvent } = context;
     const { filePath, oldString, newString, replaceAll } = input;
 
     console.info(`Editing file ${filePath} for message ${messageId}`);
+
+    // Emit start event
+    onToolEvent?.({
+      tool: 'editFileTool',
+      event: 'start',
+      args: input,
+    });
 
     try {
       // Convert to absolute path if relative
@@ -629,21 +636,41 @@ export function createEditFileToolExecute(context: EditFileToolContext) {
 
       console.info(`Successfully edited file: ${absolutePath}`);
 
-      return {
+      const output = {
         success: true,
         filePath: absolutePath,
         message: `Successfully replaced "${oldString}" with "${newString}" in ${filePath}`,
         diff,
       };
+
+      // Emit complete event
+      onToolEvent?.({
+        tool: 'editFileTool',
+        event: 'complete',
+        result: output,
+        args: input,
+      });
+
+      return output;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       console.error(`Error editing file ${filePath}:`, errorMessage);
 
-      return {
+      const output = {
         success: false,
         filePath,
         errorMessage,
       };
+
+      // Emit complete event even on error
+      onToolEvent?.({
+        tool: 'editFileTool',
+        event: 'complete',
+        result: output,
+        args: input,
+      });
+
+      return output;
     }
   };
 }

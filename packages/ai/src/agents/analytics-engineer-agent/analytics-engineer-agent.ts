@@ -83,10 +83,12 @@ export function createAnalyticsEngineerAgent(analyticsEngineerAgentOptions: Anal
   const editFileTool = createEditFileTool({
     messageId: analyticsEngineerAgentOptions.messageId,
     projectDirectory: analyticsEngineerAgentOptions.folder_structure,
+    onToolEvent: analyticsEngineerAgentOptions.onToolEvent,
   });
   const multiEditFileTool = createMultiEditFileTool({
     messageId: analyticsEngineerAgentOptions.messageId,
     projectDirectory: analyticsEngineerAgentOptions.folder_structure,
+    onToolEvent: analyticsEngineerAgentOptions.onToolEvent,
   });
   const lsTool = createLsTool({
     messageId: analyticsEngineerAgentOptions.messageId,

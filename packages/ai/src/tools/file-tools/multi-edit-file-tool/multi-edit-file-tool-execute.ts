@@ -77,12 +77,19 @@ export function createMultiEditFileToolExecute(
   return async function execute(
     input: MultiEditFileToolInput
   ): Promise<MultiEditFileToolOutput> {
-    const { messageId, projectDirectory } = context;
+    const { messageId, projectDirectory, onToolEvent } = context;
     const { filePath, edits } = input;
 
     console.info(
       `Applying ${edits.length} edit(s) to ${filePath} for message ${messageId}`
     );
+
+    // Emit start event
+    onToolEvent?.({
+      tool: 'editFileTool',
+      event: 'start',
+      args: input,
+    });
 
     try {
       // Convert to absolute path if relative
@@ -199,24 +206,44 @@ export function createMultiEditFileToolExecute(
 
       console.info(`Successfully applied all ${edits.length} edit(s) to ${absolutePath}`);
 
-      return {
+      const output = {
         success: true,
         filePath: absolutePath,
         editResults,
         finalDiff,
         message: `Successfully applied ${edits.length} edit(s) to ${filePath}`,
       };
+
+      // Emit complete event
+      onToolEvent?.({
+        tool: 'editFileTool',
+        event: 'complete',
+        result: output,
+        args: input,
+      });
+
+      return output;
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
       console.error(`Error during multi-edit operation on ${filePath}:`, errorMessage);
 
-      return {
+      const output = {
         success: false,
         filePath,
         editResults: [],
         errorMessage,
       };
+
+      // Emit complete event even on error
+      onToolEvent?.({
+        tool: 'editFileTool',
+        event: 'complete',
+        result: output,
+        args: input,
+      });
+
+      return output;
     }
   };
 }

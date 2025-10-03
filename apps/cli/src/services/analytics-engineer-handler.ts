@@ -42,6 +42,12 @@ export type AgentMessage =
       event: 'start' | 'complete';
       args: { files: { path: string; content: string }[] };
       result?: { results: Array<{ status: 'success' | 'error'; filePath: string; errorMessage?: string }> };
+    }
+  | {
+      kind: 'edit';
+      event: 'start' | 'complete';
+      args: { filePath: string; oldString?: string; newString?: string; edits?: Array<{ oldString: string; newString: string }> };
+      result?: { success: boolean; filePath: string; diff?: string; finalDiff?: string; message?: string; errorMessage?: string };
     };
 
 export interface DocsAgentMessage {
@@ -137,6 +143,18 @@ export async function runDocsAgent(params: RunDocsAgentParams) {
             event: 'complete',
             args: event.args,
             result: event.result, // Type-safe: WriteFileToolOutput
+          },
+        });
+      }
+
+      // Handle edit tool events (both editFileTool and multiEditFileTool) - only show complete to avoid duplicates
+      if (event.tool === 'editFileTool' && event.event === 'complete') {
+        onMessage({
+          message: {
+            kind: 'edit',
+            event: 'complete',
+            args: event.args,
+            result: event.result, // Type-safe: EditFileToolOutput or MultiEditFileToolOutput
           },
         });
       }

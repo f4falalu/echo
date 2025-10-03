@@ -27,6 +27,7 @@ export const EditFileToolOutputSchema = z.object({
 export const EditFileToolContextSchema = z.object({
   messageId: z.string().describe('The message ID for database updates'),
   projectDirectory: z.string().describe('The root directory of the project'),
+  onToolEvent: z.any().optional().describe('Callback for tool events'),
 });
 
 export type EditFileToolInput = z.infer<typeof EditFileToolInputSchema>;
