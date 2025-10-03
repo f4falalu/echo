@@ -1,6 +1,12 @@
-import { Box, Text, useInput } from 'ink';
-import React, { useState } from 'react';
-import type { AgentMessage } from '../services/analytics-engineer-handler';
+import { Box, Text } from 'ink';
+import React from 'react';
+import type { AgentMessage } from '../types/agent-messages';
+import { UI_CONSTANTS } from '../constants/ui';
+import { useExpansion } from '../hooks/use-expansion';
+import { getLastLines } from '../utils/content-preview';
+import { IndentedContent } from './shared/indented-content';
+import { ExpansionHint } from './shared/expansion-hint';
+import { ContentLines } from './shared/content-lines';
 
 interface ExecuteMessageProps {
   message: Extract<AgentMessage, { kind: 'bash' | 'grep' | 'ls' }>;
@@ -12,15 +18,7 @@ interface ExecuteMessageProps {
  * Supports expansion with Ctrl+O to show full output
  */
 export function ExecuteMessage({ message }: ExecuteMessageProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  // Handle Ctrl+O to toggle expansion
-  useInput((input, key) => {
-    if (key.ctrl && input === 'o') {
-      setIsExpanded((prev) => !prev);
-    }
-  });
-
+  const [isExpanded] = useExpansion();
   const { args, result } = message;
 
   // Get command description and output based on tool type
@@ -56,65 +54,59 @@ export function ExecuteMessage({ message }: ExecuteMessageProps) {
   const outputLines = output.split('\n').filter(Boolean);
 
   // Show last 5 lines when not expanded, all lines when expanded
-  const displayLines = isExpanded ? outputLines : outputLines.slice(-5);
+  const displayLines = getLastLines(output, UI_CONSTANTS.LINE_LIMITS.DEFAULT_PREVIEW, isExpanded);
 
   return (
-    <Box flexDirection="column">
+    <Box flexDirection="column" marginBottom={1}>
       {/* EXECUTE badge with actual command in parentheses */}
       <Box flexDirection="row">
-        <Text bold color="white" backgroundColor="orange">
+        <Text bold color="white" backgroundColor={UI_CONSTANTS.TOOL_COLORS.EXECUTE}>
           EXECUTE
         </Text>
-        <Text color="#94a3b8"> ({args.command})</Text>
+        <Text color={UI_CONSTANTS.COLORS.TEXT_SECONDARY}> ({args.command})</Text>
       </Box>
 
       {/* Output lines - always show with indentation */}
       {outputLines.length > 0 && (
-        <Box flexDirection="column" paddingLeft={2}>
-          {displayLines.map((line, idx) => (
-            <Text key={idx} color="#e0e7ff">
-              {line}
-            </Text>
-          ))}
-        </Box>
+        <IndentedContent>
+          <ContentLines lines={displayLines} />
+        </IndentedContent>
       )}
 
       {/* Exit code/status line with indentation */}
       {message.kind === 'bash' && exitCode !== undefined && (
-        <Box paddingLeft={2}>
-          <Text color={success ? '#64748b' : 'red'} dimColor>
+        <IndentedContent>
+          <Text color={success ? UI_CONSTANTS.COLORS.TEXT_DIM : UI_CONSTANTS.COLORS.ERROR} dimColor>
             ↳ Exit code: {exitCode}. Output: {outputLines.length} lines.
           </Text>
-        </Box>
+        </IndentedContent>
       )}
 
       {message.kind === 'grep' && result && (
-        <Box paddingLeft={2}>
-          <Text color={result.totalMatches > 0 ? 'green' : 'yellow'}>
+        <IndentedContent>
+          <Text color={result.totalMatches > 0 ? UI_CONSTANTS.COLORS.SUCCESS : UI_CONSTANTS.COLORS.WARNING}>
             ↳ Found {result.totalMatches} match{result.totalMatches !== 1 ? 'es' : ''}
             {result.truncated ? ' (truncated)' : ''}
           </Text>
-        </Box>
+        </IndentedContent>
       )}
 
       {message.kind === 'ls' && result && (
-        <Box paddingLeft={2}>
-          <Text color={result.success ? 'green' : 'red'}>
+        <IndentedContent>
+          <Text color={result.success ? UI_CONSTANTS.COLORS.SUCCESS : UI_CONSTANTS.COLORS.ERROR}>
             ↳ Listed {result.count} file{result.count !== 1 ? 's' : ''}
             {result.truncated ? ' (truncated)' : ''}
             {result.errorMessage ? `: ${result.errorMessage}` : ''}
           </Text>
-        </Box>
+        </IndentedContent>
       )}
 
       {/* Expansion hint if output is long */}
-      {outputLines.length > 5 && (
-        <Box paddingLeft={2}>
-          <Text color="#64748b" dimColor>
-            {isExpanded ? '(Press Ctrl+O to collapse)' : `... (${outputLines.length - 5} more lines, press Ctrl+O to expand)`}
-          </Text>
-        </Box>
-      )}
+      <ExpansionHint
+        isExpanded={isExpanded}
+        totalLines={outputLines.length}
+        visibleLines={UI_CONSTANTS.LINE_LIMITS.DEFAULT_PREVIEW}
+      />
     </Box>
   );
 }

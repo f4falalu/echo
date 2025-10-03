@@ -1,7 +1,12 @@
-import { Box, Text, useInput } from 'ink';
-import React, { useState } from 'react';
-import path from 'node:path';
-import type { AgentMessage } from '../services/analytics-engineer-handler';
+import { Box, Text } from 'ink';
+import React from 'react';
+import type { AgentMessage } from '../types/agent-messages';
+import { UI_CONSTANTS } from '../constants/ui';
+import { useExpansion } from '../hooks/use-expansion';
+import { ToolBadge } from './shared/tool-badge';
+import { IndentedContent } from './shared/indented-content';
+import { ExpansionHint } from './shared/expansion-hint';
+import { StatusLine } from './shared/status-line';
 
 interface EditMessageProps {
   message: Extract<AgentMessage, { kind: 'edit' }>;
@@ -60,41 +65,24 @@ function parseDiff(diff: string): { lines: ParsedDiffLine[]; additions: number; 
  * Supports expansion with Ctrl+O to show full diff
  */
 export function EditMessage({ message }: EditMessageProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  // Handle Ctrl+O to toggle expansion
-  useInput((input, key) => {
-    if (key.ctrl && input === 'o') {
-      setIsExpanded((prev) => !prev);
-    }
-  });
-
+  const [isExpanded] = useExpansion();
   const { args, result } = message;
 
   if (!result) {
     return null;
   }
 
-  // Get relative path from cwd
-  const relativePath = path.relative(process.cwd(), result.filePath);
-
   // Get diff (either from single edit or multi-edit)
   const diffString = result.diff || result.finalDiff;
 
   if (!diffString) {
     return (
-      <Box flexDirection="column">
-        <Box flexDirection="row">
-          <Text bold color="white" backgroundColor="cyan">
-            UPDATE
-          </Text>
-          <Text color="#94a3b8"> ({relativePath})</Text>
-        </Box>
-        <Box paddingLeft={2}>
-          <Text color={result.success ? '#64748b' : 'red'} dimColor>
-            ↳ {result.success ? result.message || 'File updated' : result.errorMessage || 'Update failed'}
-          </Text>
-        </Box>
+      <Box flexDirection="column" marginBottom={1}>
+        <ToolBadge tool="UPDATE" filePath={result.filePath} />
+        <StatusLine
+          message={result.success ? result.message || 'File updated' : result.errorMessage || 'Update failed'}
+          status={result.success ? 'success' : 'error'}
+        />
       </Box>
     );
   }
@@ -103,30 +91,22 @@ export function EditMessage({ message }: EditMessageProps) {
   const { lines, additions, removals } = parseDiff(diffString);
 
   // Show first 10 lines when not expanded, all lines when expanded
-  const displayLines = isExpanded ? lines : lines.slice(0, 10);
+  const displayLines = isExpanded ? lines : lines.slice(0, UI_CONSTANTS.LINE_LIMITS.DIFF_PREVIEW);
 
   return (
-    <Box flexDirection="column">
-      {/* UPDATE badge with file summary */}
-      <Box flexDirection="row">
-        <Text bold color="white" backgroundColor="cyan">
-          UPDATE
-        </Text>
-        <Text color="#94a3b8">
-          {' '}({relativePath})
-        </Text>
-      </Box>
+    <Box flexDirection="column" marginBottom={1}>
+      {/* UPDATE badge with file path */}
+      <ToolBadge tool="UPDATE" filePath={result.filePath} />
 
       {/* Summary line */}
-      <Box paddingLeft={2}>
-        <Text color="#64748b" dimColor>
-          ↳ Updated {relativePath} with {additions} addition{additions !== 1 ? 's' : ''} and {removals} removal{removals !== 1 ? 's' : ''}
-        </Text>
-      </Box>
+      <StatusLine
+        message={`Updated with ${additions} addition${additions !== 1 ? 's' : ''} and ${removals} removal${removals !== 1 ? 's' : ''}`}
+        status="success"
+      />
 
       {/* Diff lines - always show with indentation */}
       {displayLines.length > 0 && (
-        <Box flexDirection="column" paddingLeft={2}>
+        <IndentedContent>
           {displayLines.map((line, idx) => {
             // Format line number if present
             const lineNum = line.lineNumber ? `${line.lineNumber}`.padStart(4, ' ') : '    ';
@@ -136,30 +116,28 @@ export function EditMessage({ message }: EditMessageProps) {
             let prefix = ' ';
 
             if (line.type === 'add') {
-              backgroundColor = '#10b981'; // green background for additions
+              backgroundColor = UI_CONSTANTS.COLORS.SUCCESS;
               prefix = '+';
             } else if (line.type === 'remove') {
-              backgroundColor = '#ef4444'; // red background for removals
+              backgroundColor = UI_CONSTANTS.COLORS.ERROR;
               prefix = '-';
             }
 
             return (
-              <Text key={idx} color="#e0e7ff" backgroundColor={backgroundColor}>
+              <Text key={idx} color={UI_CONSTANTS.COLORS.TEXT_PRIMARY} backgroundColor={backgroundColor}>
                 {lineNum} {prefix} {line.content}
               </Text>
             );
           })}
-        </Box>
+        </IndentedContent>
       )}
 
       {/* Expansion hint if diff is long */}
-      {lines.length > 10 && (
-        <Box paddingLeft={2}>
-          <Text color="#64748b" dimColor>
-            {isExpanded ? '(Press Ctrl+O to collapse)' : `... +${lines.length - 10} lines (Press Ctrl+O to expand)`}
-          </Text>
-        </Box>
-      )}
+      <ExpansionHint
+        isExpanded={isExpanded}
+        totalLines={lines.length}
+        visibleLines={UI_CONSTANTS.LINE_LIMITS.DIFF_PREVIEW}
+      />
     </Box>
   );
 }

@@ -11,7 +11,7 @@ import {
   VimStatus,
 } from '../components/chat-layout';
 import { SettingsForm } from '../components/settings-form';
-import { AgentMessageComponent } from '../components/typed-message';
+import { AgentMessageComponent } from '../components/message';
 import type { DocsAgentMessage } from '../services/analytics-engineer-handler';
 import { getSetting } from '../utils/settings';
 import type { SlashCommand } from '../utils/slash-commands';

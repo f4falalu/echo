@@ -1,7 +1,14 @@
-import { Box, Text, useInput } from 'ink';
-import React, { useState } from 'react';
-import path from 'node:path';
-import type { AgentMessage } from '../services/analytics-engineer-handler';
+import { Box } from 'ink';
+import React from 'react';
+import type { AgentMessage } from '../types/agent-messages';
+import { UI_CONSTANTS } from '../constants/ui';
+import { useExpansion } from '../hooks/use-expansion';
+import { getPreviewLines } from '../utils/content-preview';
+import { ToolBadge } from './shared/tool-badge';
+import { IndentedContent } from './shared/indented-content';
+import { ExpansionHint } from './shared/expansion-hint';
+import { StatusLine } from './shared/status-line';
+import { ContentLines } from './shared/content-lines';
 
 interface ReadMessageProps {
   message: Extract<AgentMessage, { kind: 'read' }>;
@@ -13,39 +20,19 @@ interface ReadMessageProps {
  * Supports expansion with Ctrl+O to show full content
  */
 export function ReadMessage({ message }: ReadMessageProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  // Handle Ctrl+O to toggle expansion
-  useInput((input, key) => {
-    if (key.ctrl && input === 'o') {
-      setIsExpanded((prev) => !prev);
-    }
-  });
-
+  const [isExpanded] = useExpansion();
   const { args, result } = message;
 
   if (!result) {
     return null;
   }
 
-  // Get relative path from cwd
-  const relativePath = path.relative(process.cwd(), result.file_path);
-
   // Handle error case
   if (result.status === 'error') {
     return (
-      <Box flexDirection="column">
-        <Box flexDirection="row">
-          <Text bold color="white" backgroundColor="blue">
-            READ
-          </Text>
-          <Text color="#94a3b8"> ({relativePath})</Text>
-        </Box>
-        <Box paddingLeft={2}>
-          <Text color="red" dimColor>
-            ↳ Error: {result.error_message}
-          </Text>
-        </Box>
+      <Box flexDirection="column" marginBottom={1}>
+        <ToolBadge tool="READ" filePath={result.file_path} />
+        <StatusLine message={`Error: ${result.error_message}`} status="error" />
       </Box>
     );
   }
@@ -54,44 +41,32 @@ export function ReadMessage({ message }: ReadMessageProps) {
   const contentLines = result.content?.split('\n') || [];
 
   // Show first 5 lines when not expanded, all lines when expanded
-  const displayLines = isExpanded ? contentLines : contentLines.slice(0, 5);
+  const displayLines = getPreviewLines(result.content || '', UI_CONSTANTS.LINE_LIMITS.DEFAULT_PREVIEW, isExpanded);
 
   return (
-    <Box flexDirection="column">
+    <Box flexDirection="column" marginBottom={1}>
       {/* READ badge with relative file path */}
-      <Box flexDirection="row">
-        <Text bold color="white" backgroundColor="blue">
-          READ
-        </Text>
-        <Text color="#94a3b8"> ({relativePath})</Text>
-      </Box>
+      <ToolBadge tool="READ" filePath={result.file_path} />
 
       {/* File content lines - always show with indentation */}
       {contentLines.length > 0 && (
-        <Box flexDirection="column" paddingLeft={2}>
-          {displayLines.map((line, idx) => (
-            <Text key={idx} color="#e0e7ff">
-              {line}
-            </Text>
-          ))}
-        </Box>
+        <IndentedContent>
+          <ContentLines lines={displayLines} />
+        </IndentedContent>
       )}
 
       {/* Expansion hint if content is long */}
-      {contentLines.length > 5 && (
-        <Box paddingLeft={2}>
-          <Text color="#64748b" dimColor>
-            {isExpanded ? '(Press Ctrl+O to collapse)' : `... +${contentLines.length - 5} lines (Press Ctrl+O to expand)`}
-          </Text>
-        </Box>
-      )}
+      <ExpansionHint
+        isExpanded={isExpanded}
+        totalLines={contentLines.length}
+        visibleLines={UI_CONSTANTS.LINE_LIMITS.DEFAULT_PREVIEW}
+      />
 
       {/* Status line with indentation */}
-      <Box paddingLeft={2}>
-        <Text color="#64748b" dimColor>
-          ↳ Read {contentLines.length} lines{result.truncated ? ' (truncated at 1000 lines)' : ''}
-        </Text>
-      </Box>
+      <StatusLine
+        message={`Read ${contentLines.length} lines${result.truncated ? ' (truncated at 1000 lines)' : ''}`}
+        status="success"
+      />
     </Box>
   );
 }

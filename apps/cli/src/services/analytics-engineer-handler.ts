@@ -1,60 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import { createProxyModel } from '@buster/ai/llm/providers/proxy-model';
-import type {
-  BashToolInput,
-  BashToolOutput,
-  GrepToolInput,
-  GrepToolOutput,
-  IdleInput,
-  LsToolInput,
-  LsToolOutput,
-  ModelMessage,
-  ToolEvent,
-} from '@buster/ai';
+import type { ModelMessage, ToolEvent } from '@buster/ai';
 import { getProxyConfig } from '../utils/ai-proxy';
 import { createAnalyticsEngineerAgent } from '@buster/ai/agents/analytics-engineer-agent/analytics-engineer-agent';
-
-// Discriminated union for all possible message types - uses tool types directly
-export type AgentMessage =
-  | { kind: 'user'; content: string }
-  | { kind: 'text-delta'; content: string }
-  | { kind: 'idle'; args: IdleInput }
-  | {
-      kind: 'bash';
-      event: 'start' | 'complete';
-      args: BashToolInput;
-      result?: BashToolOutput;
-    }
-  | {
-      kind: 'grep';
-      event: 'start' | 'complete';
-      args: GrepToolInput;
-      result?: GrepToolOutput;
-    }
-  | {
-      kind: 'ls';
-      event: 'start' | 'complete';
-      args: LsToolInput;
-      result?: LsToolOutput;
-    }
-  | {
-      kind: 'write';
-      event: 'start' | 'complete';
-      args: { files: { path: string; content: string }[] };
-      result?: { results: Array<{ status: 'success' | 'error'; filePath: string; errorMessage?: string }> };
-    }
-  | {
-      kind: 'edit';
-      event: 'start' | 'complete';
-      args: { filePath: string; oldString?: string; newString?: string; edits?: Array<{ oldString: string; newString: string }> };
-      result?: { success: boolean; filePath: string; diff?: string; finalDiff?: string; message?: string; errorMessage?: string };
-    }
-  | {
-      kind: 'read';
-      event: 'start' | 'complete';
-      args: { filePath: string };
-      result?: { status: 'success' | 'error'; file_path: string; content?: string; truncated?: boolean; error_message?: string };
-    };
+import type { AgentMessage } from '../types/agent-messages';
 
 export interface DocsAgentMessage {
   message: AgentMessage;

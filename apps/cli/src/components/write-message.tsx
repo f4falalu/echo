@@ -1,7 +1,14 @@
-import { Box, Text, useInput } from 'ink';
-import React, { useState } from 'react';
-import path from 'node:path';
-import type { AgentMessage } from '../services/analytics-engineer-handler';
+import { Box } from 'ink';
+import React from 'react';
+import type { AgentMessage } from '../types/agent-messages';
+import { UI_CONSTANTS } from '../constants/ui';
+import { useExpansion } from '../hooks/use-expansion';
+import { getPreviewLines } from '../utils/content-preview';
+import { ToolBadge } from './shared/tool-badge';
+import { IndentedContent } from './shared/indented-content';
+import { ExpansionHint } from './shared/expansion-hint';
+import { StatusLine } from './shared/status-line';
+import { ContentLines } from './shared/content-lines';
 
 interface WriteMessageProps {
   message: Extract<AgentMessage, { kind: 'write' }>;
@@ -13,29 +20,18 @@ interface WriteMessageProps {
  * Supports expansion with Ctrl+O to show full content
  */
 export function WriteMessage({ message }: WriteMessageProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  // Handle Ctrl+O to toggle expansion
-  useInput((input, key) => {
-    if (key.ctrl && input === 'o') {
-      setIsExpanded((prev) => !prev);
-    }
-  });
-
+  const [isExpanded] = useExpansion();
   const { args, result } = message;
 
   // For each file, show its content
   return (
-    <Box flexDirection="column">
+    <Box flexDirection="column" marginBottom={1}>
       {args.files.map((file, fileIdx) => {
-        // Get relative path from cwd
-        const relativePath = path.relative(process.cwd(), file.path);
-
         // Split content into lines
         const contentLines = file.content.split('\n');
 
         // Show first 5 lines when not expanded, all lines when expanded
-        const displayLines = isExpanded ? contentLines : contentLines.slice(0, 5);
+        const displayLines = getPreviewLines(file.content, UI_CONSTANTS.LINE_LIMITS.DEFAULT_PREVIEW, isExpanded);
 
         // Find the result for this file
         const fileResult = result?.results[fileIdx];
@@ -44,40 +40,28 @@ export function WriteMessage({ message }: WriteMessageProps) {
         return (
           <Box key={fileIdx} flexDirection="column" marginBottom={fileIdx < args.files.length - 1 ? 1 : 0}>
             {/* WRITE badge with relative file path */}
-            <Box flexDirection="row">
-              <Text bold color="white" backgroundColor="magenta">
-                WRITE
-              </Text>
-              <Text color="#94a3b8"> ({relativePath})</Text>
-            </Box>
+            <ToolBadge tool="WRITE" filePath={file.path} />
 
             {/* File content lines - always show with indentation */}
             {contentLines.length > 0 && (
-              <Box flexDirection="column" paddingLeft={2}>
-                {displayLines.map((line, idx) => (
-                  <Text key={idx} color="#e0e7ff">
-                    {line}
-                  </Text>
-                ))}
-              </Box>
+              <IndentedContent>
+                <ContentLines lines={displayLines} />
+              </IndentedContent>
             )}
 
             {/* Expansion hint if content is long */}
-            {contentLines.length > 5 && (
-              <Box paddingLeft={2}>
-                <Text color="#64748b" dimColor>
-                  {isExpanded ? '(Press Ctrl+O to collapse)' : `... +${contentLines.length - 5} lines (Press Ctrl+O to expand)`}
-                </Text>
-              </Box>
-            )}
+            <ExpansionHint
+              isExpanded={isExpanded}
+              totalLines={contentLines.length}
+              visibleLines={UI_CONSTANTS.LINE_LIMITS.DEFAULT_PREVIEW}
+            />
 
             {/* Status line with indentation */}
             {fileResult && (
-              <Box paddingLeft={2}>
-                <Text color={success ? '#64748b' : 'red'} dimColor>
-                  ↳ {success ? `Wrote ${contentLines.length} lines` : `Failed: ${fileResult.errorMessage}`}
-                </Text>
-              </Box>
+              <StatusLine
+                message={success ? `Wrote ${contentLines.length} lines` : `Failed: ${fileResult.errorMessage}`}
+                status={success ? 'success' : 'error'}
+              />
             )}
           </Box>
         );
