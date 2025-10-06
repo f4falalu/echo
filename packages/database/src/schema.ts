@@ -508,7 +508,9 @@ export const datasets = pgTable(
     model: text(),
     ymlFile: text('yml_file'),
     databaseIdentifier: text('database_identifier'),
-    metadata: jsonb().$type<DatasetMetadata>().default(sql`'{
+    metadata: jsonb()
+      .$type<DatasetMetadata>()
+      .default(sql`'{
       "rowCount": 0,
       "sampleSize": 0,
       "samplingMethod": "none",
