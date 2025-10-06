@@ -57,6 +57,7 @@ export async function runAnalyticsEngineerAgent(params: RunAnalyticsEngineerAgen
     dataSourceId: '',
     organizationId: 'cli',
     messageId: randomUUID(),
+    todosList: [],
     model: proxyModel,
     abortSignal,
   });
