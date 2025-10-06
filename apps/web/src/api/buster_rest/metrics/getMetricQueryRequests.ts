@@ -227,6 +227,18 @@ export const prefetchGetMetricDataClient = async (
   }
 };
 
+export const ensureMetricData = async (
+  queryClient: QueryClient,
+  params: Parameters<typeof getMetricData>[0]
+) => {
+  const { id, version_number, report_file_id } = params;
+  const options = metricsQueryKeys.metricsGetData(id, version_number || 'LATEST', report_file_id);
+  return await queryClient.ensureQueryData({
+    ...options,
+    queryFn: () => getMetricData({ id, version_number, report_file_id }),
+  });
+};
+
 //used in list version histories
 export const usePrefetchGetMetricDataClient = () => {
   const queryClient = useQueryClient();
