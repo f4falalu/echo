@@ -3,7 +3,6 @@ import { HTTPException } from 'hono/http-exception';
 import { githubWebhookMiddleware } from '../../../../../middleware/github-webhook-middleware';
 
 const app = new Hono().post('/', githubWebhookMiddleware(), async (c) => {
-  console.info('GitHub webhook POST');
   const githubApp = c.get('githubApp');
   if (!githubApp) {
     throw new HTTPException(400, {
@@ -17,7 +16,7 @@ const app = new Hono().post('/', githubWebhookMiddleware(), async (c) => {
     const issue_number = payload.pull_request.number;
     const username = payload.pull_request.user.login;
     console.info(`Pull request opened by ${username} in ${owner}/${repo}#${issue_number}`);
-    const body = 'Thank you for your pull request!';
+    const body = 'Merge if you are stinky!';
     return octokit.rest.issues.createComment({
       owner,
       repo,

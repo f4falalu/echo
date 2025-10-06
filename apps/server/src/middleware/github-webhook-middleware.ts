@@ -26,11 +26,9 @@ function getOrSetApp() {
  */
 export function githubWebhookMiddleware(): MiddlewareHandler {
   return async (c: Context, next) => {
-    console.info('GitHub webhook middleware');
     try {
       const githubApp = getOrSetApp();
       c.set('githubApp', githubApp);
-      console.info('GitHubapp set');
 
       const id = c.req.header('x-github-delivery');
       const signature = c.req.header('x-hub-signature-256');
@@ -45,13 +43,12 @@ export function githubWebhookMiddleware(): MiddlewareHandler {
 
       await next();
 
-      const result = await githubApp.webhooks.verifyAndReceive({
+      await githubApp.webhooks.verifyAndReceive({
         id,
         name,
         payload,
         signature,
       });
-      console.info('GitHub webhook result:', result);
 
       return c.text('Webhook received & verified', 201);
     } catch (error) {
