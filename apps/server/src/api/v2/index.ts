@@ -24,6 +24,7 @@ import slackRoutes from './slack';
 import sqlRoutes from './sql';
 import supportRoutes from './support';
 import titleRoutes from './title';
+import { tools } from './tools';
 import userRoutes from './users';
 
 const app = new Hono()
@@ -44,6 +45,7 @@ const app = new Hono()
   .route('/support', supportRoutes)
   .route('/security', securityRoutes)
   .route('/shortcuts', shortcutsRoutes)
+  .route('/tools', tools)
   .route('/organizations', organizationRoutes)
   .route('/dictionaries', dictionariesRoutes)
   .route('/title', titleRoutes)

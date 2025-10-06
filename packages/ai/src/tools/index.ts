@@ -46,6 +46,11 @@ export {
   createExecuteSqlTool,
   EXECUTE_SQL_TOOL_NAME,
 } from './database-tools/execute-sql/execute-sql';
+export { createRunSqlTool, RUN_SQL_TOOL_NAME } from './database-tools/run-sql/run-sql';
+export {
+  createRetrieveMetadataTool,
+  RETRIEVE_METADATA_TOOL_NAME,
+} from './database-tools/retrieve-metadata/retrieve-metadata';
 export { executeSqlDocsAgent } from './database-tools/super-execute-sql/super-execute-sql';
 
 // File tools

@@ -20,7 +20,10 @@ const TodoWriteToolInputSchema = z.object({
 const TodoWriteToolContextSchema = z.object({
   chatId: z.string().describe('The chat/conversation ID to associate todos with'),
   workingDirectory: z.string().describe('The working directory for the chat'),
-  todosList: z.array(TodoItemSchema).default([]).describe('In-memory array of todo items to manipulate'),
+  todosList: z
+    .array(TodoItemSchema)
+    .default([])
+    .describe('In-memory array of todo items to manipulate'),
 });
 
 export type TodoWriteToolInput = z.infer<typeof TodoWriteToolInputSchema>;

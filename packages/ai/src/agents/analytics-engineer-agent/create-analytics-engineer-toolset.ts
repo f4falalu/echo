@@ -6,6 +6,8 @@ import {
   LS_TOOL_NAME,
   MULTI_EDIT_FILE_TOOL_NAME,
   READ_FILE_TOOL_NAME,
+  RETRIEVE_METADATA_TOOL_NAME,
+  RUN_SQL_TOOL_NAME,
   TODO_WRITE_TOOL_NAME,
   WRITE_FILE_TOOL_NAME,
   createBashTool,
@@ -15,6 +17,8 @@ import {
   createLsTool,
   createMultiEditFileTool,
   createReadFileTool,
+  createRetrieveMetadataTool,
+  createRunSqlTool,
   createTaskTool,
   createTodoWriteTool,
   createWriteFileTool,
@@ -60,6 +64,15 @@ export async function createAnalyticsEngineerToolset(
     workingDirectory: analyticsEngineerAgentOptions.folder_structure,
     todosList: analyticsEngineerAgentOptions.todosList,
   });
+  const runSqlTool = createRunSqlTool({
+    messageId: analyticsEngineerAgentOptions.messageId,
+    apiKey: process.env.BUSTER_API_KEY || '',
+    apiUrl: process.env.BUSTER_API_URL || 'http://localhost:3000',
+  });
+  const retrieveMetadataTool = createRetrieveMetadataTool({
+    apiKey: process.env.BUSTER_API_KEY || '',
+    apiUrl: process.env.BUSTER_API_URL || 'http://localhost:3000',
+  });
   // Conditionally create task tool (only for main agent, not for subagents)
   const taskTool = !analyticsEngineerAgentOptions.isSubagent
     ? createTaskTool({
@@ -87,6 +100,8 @@ export async function createAnalyticsEngineerToolset(
     [MULTI_EDIT_FILE_TOOL_NAME]: multiEditFileTool,
     [LS_TOOL_NAME]: lsTool,
     [TODO_WRITE_TOOL_NAME]: todosTool,
+    [RUN_SQL_TOOL_NAME]: runSqlTool,
+    [RETRIEVE_METADATA_TOOL_NAME]: retrieveMetadataTool,
     ...(taskTool ? { taskTool } : {}),
   };
 }

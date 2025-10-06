@@ -7,3 +7,4 @@ export { getDatasetsWithYml, getDatasetsWithYmlByOrganization } from './get-data
 export { getDatasetById, type Dataset } from './get-dataset-by-id';
 export { getDataSourceWithDetails } from './get-data-source-with-details';
 export { updateDatasetMetadata } from './update-dataset-metadata';
+export { getDatasetMetadata } from './get-dataset-metadata';
