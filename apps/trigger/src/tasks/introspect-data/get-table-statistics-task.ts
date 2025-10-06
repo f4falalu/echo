@@ -354,7 +354,8 @@ export const getTableStatisticsTask: ReturnType<
         dataSourceId: payload.dataSourceId,
         databaseIdentifier: payload.table.database,
         schema: payload.table.schema,
-        databaseName: payload.table.name,
+        databaseName: payload.table.database,
+        name: payload.table.name,
         metadata,
       });
 

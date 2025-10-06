@@ -9,6 +9,7 @@ const InputSchema = z.object({
   databaseIdentifier: z.string().min(1, 'Database identifier is required'),
   schema: z.string().min(1, 'Schema is required'),
   databaseName: z.string().min(1, 'Database name is required'),
+  name: z.string().min(1, 'Dataset/table name is required'),
   metadata: DatasetMetadataSchema,
 });
 
@@ -34,6 +35,7 @@ export async function updateDatasetMetadata(input: UpdateDatasetMetadataInput) {
         eq(datasets.databaseIdentifier, validated.databaseIdentifier),
         eq(datasets.schema, validated.schema),
         eq(datasets.databaseName, validated.databaseName),
+        eq(datasets.name, validated.name),
         isNull(datasets.deletedAt)
       )
     )
@@ -41,7 +43,7 @@ export async function updateDatasetMetadata(input: UpdateDatasetMetadataInput) {
 
   if (!result[0]) {
     throw new Error(
-      `Dataset not found: ${validated.databaseIdentifier}.${validated.schema}.${validated.databaseName}`
+      `Dataset not found: ${validated.databaseIdentifier}.${validated.schema}.${validated.name}`
     );
   }
 
