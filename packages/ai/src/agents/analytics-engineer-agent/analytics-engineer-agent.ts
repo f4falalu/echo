@@ -23,12 +23,22 @@ import { READ_FILE_TOOL_NAME, createReadFileTool } from '../../tools/file-tools/
 import { WRITE_FILE_TOOL_NAME } from '../../tools/file-tools/write-file-tool/write-file-tool';
 import { createTaskTool } from '../../tools/task-tools/task-tool/task-tool';
 import { type AgentContext, repairToolCall } from '../../utils/tool-call-repair';
+import { createAnalyticsEngineerToolset } from './create-analytics-engineer-toolset';
 import { getDocsAgentSystemPrompt as getAnalyticsEngineerAgentSystemPrompt } from './get-analytics-engineer-agent-system-prompt';
-import type { ToolEventCallback } from './tool-events';
 
 export const ANALYST_ENGINEER_AGENT_NAME = 'analyticsEngineerAgent';
 
 const STOP_CONDITIONS = [stepCountIs(100), hasToolCall(IDLE_TOOL_NAME)];
+
+export const TodoItemSchema = z.object({
+  id: z.string().describe('Unique identifier for the todo item. Use existing ID to update, or generate new ID for new items'),
+  content: z.string().describe('The content/description of the todo'),
+  status: z.enum(['pending', 'in_progress', 'completed']).describe('Current status of the todo'),
+  createdAt: z.string().datetime().optional().describe('ISO timestamp when todo was created (optional, will be set automatically for new items)'),
+  completedAt: z.string().datetime().optional().describe('ISO timestamp when todo was completed (optional)'),
+});
+
+export type TodoItem = z.infer<typeof TodoItemSchema>;
 
 const AnalyticsEngineerAgentOptionsSchema = z.object({
   folder_structure: z.string().describe('The file structure of the dbt repository'),
@@ -37,14 +47,11 @@ const AnalyticsEngineerAgentOptionsSchema = z.object({
   dataSourceId: z.string(),
   organizationId: z.string(),
   messageId: z.string(),
-  sandbox: z
-    .custom<Sandbox>(
-      (val) => {
-        return val && typeof val === 'object' && 'id' in val && 'fs' in val;
-      },
-      { message: 'Invalid Sandbox instance' }
-    )
-    .optional(),
+  todosList:
+    z
+      .array(TodoItemSchema)
+      .optional()
+      .describe('Array of todo items to write/update. Include all todos with their current state.'),
   model: z
     .custom<LanguageModelV2>()
     .optional()
@@ -57,22 +64,20 @@ const AnalyticsEngineerAgentOptionsSchema = z.object({
     .custom<AbortSignal>()
     .optional()
     .describe('Optional abort signal to cancel agent execution'),
-  skipTracing: z.boolean().optional().describe('Skip Braintrust tracing (useful for CLI mode)'),
 });
 
 const AnalyticsEngineerAgentStreamOptionsSchema = z.object({
   messages: z.array(z.custom<ModelMessage>()).describe('The messages to send to the docs agent'),
 });
 
-export type AnalyticsEngineerAgentOptions = z.infer<typeof AnalyticsEngineerAgentOptionsSchema> & {
-  onToolEvent?: ToolEventCallback;
-};
 export type AnalyticsEngineerAgentStreamOptions = z.infer<
   typeof AnalyticsEngineerAgentStreamOptionsSchema
 >;
 
-// Extended type for passing to tools (includes sandbox)
-export type DocsAgentContextWithSandbox = AnalyticsEngineerAgentOptions & { sandbox: Sandbox };
+export type AnalyticsEngineerAgentOptions = z.infer<
+  typeof AnalyticsEngineerAgentOptionsSchema
+>;
+
 
 export function createAnalyticsEngineerAgent(
   analyticsEngineerAgentOptions: AnalyticsEngineerAgentOptions
@@ -83,120 +88,23 @@ export function createAnalyticsEngineerAgent(
     providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
   } as ModelMessage;
 
-  const idleTool = createIdleTool({
-  });
-  const writeFileTool = createWriteFileTool({
-    messageId: analyticsEngineerAgentOptions.messageId,
-    projectDirectory: analyticsEngineerAgentOptions.folder_structure,
-  });
-  const grepTool = createGrepTool({
-    messageId: analyticsEngineerAgentOptions.messageId,
-    projectDirectory: analyticsEngineerAgentOptions.folder_structure,
-  });
-  const readFileTool = createReadFileTool({
-    messageId: analyticsEngineerAgentOptions.messageId,
-    projectDirectory: analyticsEngineerAgentOptions.folder_structure,
-  });
-  const bashTool = createBashTool({
-    messageId: analyticsEngineerAgentOptions.messageId,
-    projectDirectory: analyticsEngineerAgentOptions.folder_structure,
-  });
-  const editFileTool = createEditFileTool({
-    messageId: analyticsEngineerAgentOptions.messageId,
-    projectDirectory: analyticsEngineerAgentOptions.folder_structure,
-  });
-  const multiEditFileTool = createMultiEditFileTool({
-    messageId: analyticsEngineerAgentOptions.messageId,
-    projectDirectory: analyticsEngineerAgentOptions.folder_structure,
-  });
-  const lsTool = createLsTool({
-    messageId: analyticsEngineerAgentOptions.messageId,
-    projectDirectory: analyticsEngineerAgentOptions.folder_structure,
-  });
-
-  // Conditionally create task tool (only for main agent, not for subagents)
-  const taskTool = !analyticsEngineerAgentOptions.isSubagent
-    ? createTaskTool({
-      messageId: analyticsEngineerAgentOptions.messageId,
-      projectDirectory: analyticsEngineerAgentOptions.folder_structure,
-      // Wrap onToolEvent to ensure type compatibility - no optional chaining
-      ...(analyticsEngineerAgentOptions.onToolEvent && {
-        // biome-ignore lint/suspicious/noExplicitAny: Bridging between ToolEventType and parent's ToolEvent type
-        onToolEvent: (event) => analyticsEngineerAgentOptions.onToolEvent?.(event as any),
-      }),
-      // Pass the agent factory function to enable task agent creation
-      // This needs to match the AgentFactory type signature
-      createAgent: (options) => {
-        return createAnalyticsEngineerAgent({
-          ...options,
-          // Inherit model from parent agent if provided
-          model: analyticsEngineerAgentOptions.model,
-        });
-      },
-    })
-    : null;
-
-  // Create planning tools with simple context
   async function stream({ messages }: AnalyticsEngineerAgentStreamOptions) {
-    const agentContext: AgentContext = {
-      agentName: ANALYST_ENGINEER_AGENT_NAME,
-      availableTools: [IDLE_TOOL_NAME, GREP_TOOL_NAME, WRITE_FILE_TOOL_NAME, READ_FILE_TOOL_NAME, BASH_TOOL_NAME, EDIT_FILE_TOOL_NAME, MULTI_EDIT_FILE_TOOL_NAME, LS_TOOL_NAME],
-    };
 
-    // Build tools object conditionally including task tool
-    // biome-ignore lint/suspicious/noExplicitAny: tools object contains various tool types
-    const tools: Record<string, any> = {
-      [IDLE_TOOL_NAME]: idleTool,
-      [GREP_TOOL_NAME]: grepTool,
-      [WRITE_FILE_TOOL_NAME]: writeFileTool,
-      [READ_FILE_TOOL_NAME]: readFileTool,
-      [BASH_TOOL_NAME]: bashTool,
-      [EDIT_FILE_TOOL_NAME]: editFileTool,
-      [MULTI_EDIT_FILE_TOOL_NAME]: multiEditFileTool,
-      [LS_TOOL_NAME]: lsTool,
-    };
-
-    // Add task tool only if not a subagent (prevent recursion)
-    if (taskTool) {
-      tools.taskTool = taskTool;
-    }
+    const toolSet = await createAnalyticsEngineerToolset(analyticsEngineerAgentOptions);
 
     const streamFn = () =>
       streamText({
         model: analyticsEngineerAgentOptions.model || Sonnet4,
         providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
-        tools,
+        tools: toolSet,
         messages: [systemMessage, ...messages],
         stopWhen: STOP_CONDITIONS,
         toolChoice: 'required',
         maxOutputTokens: 10000,
         temperature: 0,
-        experimental_context: analyticsEngineerAgentOptions,
-        ...(analyticsEngineerAgentOptions.abortSignal && {
-          abortSignal: analyticsEngineerAgentOptions.abortSignal,
-        }),
-        experimental_repairToolCall: async (repairContext) => {
-          return repairToolCall({
-            toolCall: repairContext.toolCall,
-            tools: repairContext.tools,
-            error: repairContext.error,
-            messages: repairContext.messages,
-            ...(repairContext.system && { system: repairContext.system }),
-            ...(repairContext.inputSchema && { inputSchema: repairContext.inputSchema }),
-            agentContext,
-          });
-        },
       });
 
-    // Skip tracing for CLI mode
-    if (analyticsEngineerAgentOptions.skipTracing) {
-      return streamFn();
-    }
-
-    // Use Braintrust tracing for production
-    return wrapTraced(streamFn, {
-      name: 'Docs Agent',
-    })();
+    return streamFn();
   }
 
   return {

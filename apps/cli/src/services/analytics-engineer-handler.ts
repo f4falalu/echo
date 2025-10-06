@@ -59,7 +59,6 @@ export async function runAnalyticsEngineerAgent(params: RunAnalyticsEngineerAgen
     messageId: randomUUID(),
     model: proxyModel,
     abortSignal,
-    skipTracing: true, // Skip Braintrust tracing in CLI mode
   });
 
   // Use conversation history - includes user messages, assistant messages, tool calls, and tool results

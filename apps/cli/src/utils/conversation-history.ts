@@ -15,6 +15,26 @@ const ConversationSchema = z.object({
 
 export type Conversation = z.infer<typeof ConversationSchema>;
 
+// Schema for a todo item
+const TodoItemSchema = z.object({
+  id: z.string().describe('Unique identifier for the todo item'),
+  content: z.string().describe('The content/description of the todo'),
+  status: z.enum(['pending', 'in_progress', 'completed']).describe('Current status of the todo'),
+  createdAt: z.string().datetime().describe('ISO timestamp when todo was created'),
+  completedAt: z.string().datetime().optional().describe('ISO timestamp when todo was completed'),
+});
+
+// Schema for todos associated with a chat
+const TodoListSchema = z.object({
+  chatId: z.string().uuid().describe('Unique chat/conversation ID'),
+  workingDirectory: z.string().describe('Absolute path of the working directory'),
+  updatedAt: z.string().datetime().describe('ISO timestamp when todos were last updated'),
+  todos: z.array(TodoItemSchema).describe('Array of todo items'),
+});
+
+export type TodoItem = z.infer<typeof TodoItemSchema>;
+export type TodoList = z.infer<typeof TodoListSchema>;
+
 // Base directory for all history
 const HISTORY_DIR = join(homedir(), '.buster', 'history');
 
@@ -187,4 +207,53 @@ export async function deleteConversation(chatId: string, workingDirectory: strin
   const filePath = getConversationFilePath(chatId, workingDirectory);
   const { unlink } = await import('node:fs/promises');
   await unlink(filePath);
+}
+
+/**
+ * Gets the file path for todos associated with a chat
+ */
+function getTodoFilePath(chatId: string, workingDirectory: string): string {
+  return join(getHistoryDir(workingDirectory), `${chatId}.todos.json`);
+}
+
+/**
+ * Loads todos for a specific chat
+ * Returns null if no todos exist for this chat
+ */
+export async function loadTodos(
+  chatId: string,
+  workingDirectory: string
+): Promise<TodoList | null> {
+  try {
+    const filePath = getTodoFilePath(chatId, workingDirectory);
+    const data = await readFile(filePath, 'utf-8');
+    const parsed = JSON.parse(data);
+    return TodoListSchema.parse(parsed);
+  } catch (error) {
+    // File doesn't exist or is invalid
+    return null;
+  }
+}
+
+/**
+ * Saves todos for a specific chat
+ */
+export async function saveTodos(
+  chatId: string,
+  workingDirectory: string,
+  todos: TodoItem[]
+): Promise<TodoList> {
+  await ensureHistoryDir(workingDirectory);
+
+  const todoList: TodoList = {
+    chatId,
+    workingDirectory,
+    updatedAt: new Date().toISOString(),
+    todos,
+  };
+
+  const filePath = getTodoFilePath(chatId, workingDirectory);
+  await writeFile(filePath, JSON.stringify(todoList, null, 2), { mode: 0o600 });
+
+  return todoList;
 }
