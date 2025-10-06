@@ -1,14 +1,18 @@
-import type { TodoWriteToolContext, TodoWriteToolInput, TodoWriteToolOutput } from './todo-write-tool';
-import type { TodoItem } from '../../../agents/analytics-engineer-agent/analytics-engineer-agent';
+import type { TodoItem } from '../../../agents/analytics-engineer-agent/types';
+import type {
+  TodoWriteToolContext,
+  TodoWriteToolInput,
+  TodoWriteToolOutput,
+} from './todo-write-tool';
 
 /**
  * Processes todos by setting timestamps and handling status changes
  */
-function processTodos(inputTodos: TodoItem[], existingTodos: TodoItem[]): TodoItem[] {
-  const existingById = new Map(existingTodos.map(todo => [todo.id, todo]));
+function processTodos(inputTodos: TodoItem[], existingTodos: TodoItem[] = []): TodoItem[] {
+  const existingById = new Map(existingTodos.map((todo) => [todo.id, todo]));
   const now = new Date().toISOString();
 
-  return inputTodos.map(todo => {
+  return inputTodos.map((todo) => {
     const existing = existingById.get(todo.id);
     const processed = { ...todo };
 
@@ -39,38 +43,19 @@ function processTodos(inputTodos: TodoItem[], existingTodos: TodoItem[]): TodoIt
  */
 export function createTodoWriteToolExecute(context: TodoWriteToolContext) {
   return async function execute(input: TodoWriteToolInput): Promise<TodoWriteToolOutput> {
-    const { chatId, workingDirectory } = context;
+    const { chatId, todosList = [] } = context;
     const { todos: inputTodos } = input;
 
     console.info(`Writing ${inputTodos.length} todo(s) for chat ${chatId}`);
 
     try {
-
-      // Load existing todos from disk
-      let existingTodos: TodoItem[] = [];
-      try {
-        const loaded = await loadTodos(chatId, workingDirectory);
-        existingTodos = loaded?.todos || [];
-      } catch (error) {
-        console.warn('Failed to load existing todos:', error);
-      }
-
       // Process the todos (set timestamps, handle status changes)
-      const processedTodos = processTodos(inputTodos, existingTodos);
+      const processedTodos = processTodos(inputTodos, todosList);
 
-      // Save to disk
-      try {
-        await saveTodos(chatId, workingDirectory, processedTodos);
-      } catch (error) {
-        console.error('Failed to save todos to disk:', error);
-        return {
-          success: false,
-          todos: processedTodos,
-          message: `Failed to save todos: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        };
-      }
+      // Update the in-memory todosList by clearing and repopulating
+      todosList.splice(0, todosList.length, ...processedTodos);
 
-      console.info(`Successfully saved ${processedTodos.length} todo(s)`);
+      console.info(`Successfully updated ${processedTodos.length} todo(s) in memory`);
 
       return {
         success: true,
@@ -83,7 +68,7 @@ export function createTodoWriteToolExecute(context: TodoWriteToolContext) {
 
       return {
         success: false,
-        todos: [],
+        todos: todosList,
         message: `Error: ${errorMessage}`,
       };
     }

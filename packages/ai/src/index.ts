@@ -34,6 +34,3 @@ export type {
   LsToolInput,
   LsToolOutput,
 } from './tools/file-tools/ls-tool/ls-tool';
-
-// Export typed tool events for type-safe tool callbacks
-export type { ToolEvent, ToolEventCallback } from './agents/analytics-engineer-agent/tool-events';

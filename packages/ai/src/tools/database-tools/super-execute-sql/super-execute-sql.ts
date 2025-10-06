@@ -1,6 +1,6 @@
 import { tool } from 'ai';
 import { z } from 'zod';
-import type { AnalyticsEngineerAgentOptions } from '../../../agents/analytics-engineer-agent/analytics-engineer-agent';
+import type { AnalyticsEngineerAgentOptions } from '../../../agents/analytics-engineer-agent/types';
 import { createSuperExecuteSqlExecute } from './super-execute-sql-execute';
 
 export const SuperExecuteSqlInputSchema = z.object({

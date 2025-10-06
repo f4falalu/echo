@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { TodoItem } from '../../../agents/analytics-engineer-agent/analytics-engineer-agent';
+import type { TodoItem } from '../../../agents/analytics-engineer-agent/types';
 import type { TodoWriteToolInput } from './todo-write-tool';
 import { createTodoWriteToolExecute } from './todo-write-tool-execute';
 
@@ -8,13 +8,9 @@ describe('createTodoWriteToolExecute', () => {
   const workingDirectory = '/test/directory';
 
   it('should create new todos with timestamps', async () => {
-    // Mock the conversation-history module
-    vi.doMock('../../../../../apps/cli/src/utils/conversation-history', () => ({
-      loadTodos: vi.fn().mockResolvedValue(null),
-      saveTodos: vi.fn().mockResolvedValue({ chatId, workingDirectory, todos: [], updatedAt: new Date().toISOString() }),
-    }));
+    const todosList: TodoItem[] = [];
 
-    const execute = createTodoWriteToolExecute({ chatId, workingDirectory });
+    const execute = createTodoWriteToolExecute({ chatId, workingDirectory, todosList });
     const input: TodoWriteToolInput = {
       todos: [
         {
@@ -36,11 +32,12 @@ describe('createTodoWriteToolExecute', () => {
     expect(result.todos).toHaveLength(2);
     expect(result.todos[0]?.createdAt).toBeDefined();
     expect(result.todos[1]?.createdAt).toBeDefined();
+    expect(todosList).toHaveLength(2);
   });
 
   it('should preserve createdAt for existing todos', async () => {
     const existingCreatedAt = '2024-01-01T00:00:00.000Z';
-    const existingTodos: TodoItem[] = [
+    const todosList: TodoItem[] = [
       {
         id: '1',
         content: 'Existing todo',
@@ -49,12 +46,7 @@ describe('createTodoWriteToolExecute', () => {
       },
     ];
 
-    vi.doMock('../../../../../apps/cli/src/utils/conversation-history', () => ({
-      loadTodos: vi.fn().mockResolvedValue({ chatId, workingDirectory, todos: existingTodos, updatedAt: new Date().toISOString() }),
-      saveTodos: vi.fn().mockResolvedValue({ chatId, workingDirectory, todos: existingTodos, updatedAt: new Date().toISOString() }),
-    }));
-
-    const execute = createTodoWriteToolExecute({ chatId, workingDirectory });
+    const execute = createTodoWriteToolExecute({ chatId, workingDirectory, todosList });
     const input: TodoWriteToolInput = {
       todos: [
         {
@@ -72,7 +64,7 @@ describe('createTodoWriteToolExecute', () => {
   });
 
   it('should set completedAt when status changes to completed', async () => {
-    const existingTodos: TodoItem[] = [
+    const todosList: TodoItem[] = [
       {
         id: '1',
         content: 'Todo to complete',
@@ -81,12 +73,7 @@ describe('createTodoWriteToolExecute', () => {
       },
     ];
 
-    vi.doMock('../../../../../apps/cli/src/utils/conversation-history', () => ({
-      loadTodos: vi.fn().mockResolvedValue({ chatId, workingDirectory, todos: existingTodos, updatedAt: new Date().toISOString() }),
-      saveTodos: vi.fn().mockResolvedValue({ chatId, workingDirectory, todos: existingTodos, updatedAt: new Date().toISOString() }),
-    }));
-
-    const execute = createTodoWriteToolExecute({ chatId, workingDirectory });
+    const execute = createTodoWriteToolExecute({ chatId, workingDirectory, todosList });
     const input: TodoWriteToolInput = {
       todos: [
         {
@@ -104,7 +91,7 @@ describe('createTodoWriteToolExecute', () => {
   });
 
   it('should clear completedAt when status changes from completed', async () => {
-    const existingTodos: TodoItem[] = [
+    const todosList: TodoItem[] = [
       {
         id: '1',
         content: 'Completed todo',
@@ -114,12 +101,7 @@ describe('createTodoWriteToolExecute', () => {
       },
     ];
 
-    vi.doMock('../../../../../apps/cli/src/utils/conversation-history', () => ({
-      loadTodos: vi.fn().mockResolvedValue({ chatId, workingDirectory, todos: existingTodos, updatedAt: new Date().toISOString() }),
-      saveTodos: vi.fn().mockResolvedValue({ chatId, workingDirectory, todos: existingTodos, updatedAt: new Date().toISOString() }),
-    }));
-
-    const execute = createTodoWriteToolExecute({ chatId, workingDirectory });
+    const execute = createTodoWriteToolExecute({ chatId, workingDirectory, todosList });
     const input: TodoWriteToolInput = {
       todos: [
         {
