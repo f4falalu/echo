@@ -73,18 +73,66 @@ export async function runAnalyticsEngineerAgent(params: RunAnalyticsEngineerAgen
 
   // Track accumulated messages as we stream
   let currentMessages = [...messages];
+  let accumulatedText = '';
 
   // Consume the stream
   for await (const part of stream.fullStream) {
+    if (part.type === 'tool-call') {
+      const toolCallMessage: ModelMessage = {
+        role: 'assistant',
+        content: [
+          {
+            type: 'tool-call',
+            toolCallId: part.toolCallId,
+            toolName: part.toolName,
+            input: part.input,
+          },
+        ],
+      };
+      currentMessages.push(toolCallMessage);
+      onMessageUpdate?.(currentMessages);
+      await saveModelMessages(chatId, workingDirectory, currentMessages);
+    }
+
+    if (part.type === 'tool-result') {
+      const toolResultMessage: ModelMessage = {
+        role: 'tool',
+        content: [
+          {
+            type: 'tool-result',
+            toolCallId: part.toolCallId,
+            toolName: part.toolName,
+            output: {
+              type: 'json',
+              value: typeof part.output === 'string' ? part.output : JSON.stringify(part.output),
+            },
+          },
+        ],
+      };
+      currentMessages.push(toolResultMessage);
+      onMessageUpdate?.(currentMessages);
+      await saveModelMessages(chatId, workingDirectory, currentMessages);
+    }
+
+    if (part.type === 'text-delta') {
+      accumulatedText += part.text;
+    }
+
     if (part.type === 'finish') {
-      // Stream finished - get all messages including responses
-      const finalMessages = [...currentMessages, ...stream.responseMessages];
+      // Add final assistant message if there's any text
+      if (accumulatedText.trim()) {
+        const assistantMessage: ModelMessage = {
+          role: 'assistant',
+          content: accumulatedText,
+        };
+        currentMessages.push(assistantMessage);
+      }
 
       // Update state with final messages
-      onMessageUpdate?.(finalMessages);
+      onMessageUpdate?.(currentMessages);
 
       // Save to disk
-      await saveModelMessages(chatId, workingDirectory, finalMessages);
+      await saveModelMessages(chatId, workingDirectory, currentMessages);
 
       onThinkingStateChange?.(false);
     }

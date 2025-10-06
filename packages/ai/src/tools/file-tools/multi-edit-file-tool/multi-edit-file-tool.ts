@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { createMultiEditFileToolExecute } from './multi-edit-file-tool-execute';
 import DESCRIPTION from './multiedit.txt';
 
+export const MULTI_EDIT_FILE_TOOL_NAME = 'multiEdit';
+
 const EditOperationSchema = z.object({
   oldString: z.string().describe('The text to replace'),
   newString: z.string().describe('The text to replace it with (must be different from oldString)'),

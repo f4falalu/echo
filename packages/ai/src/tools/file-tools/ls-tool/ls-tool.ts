@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { createLsToolExecute } from './ls-tool-execute';
 import DESCRIPTION from './ls.txt';
 
+export const LS_TOOL_NAME = 'ls';
+
 export const LsToolInputSchema = z.object({
   path: z
     .string()

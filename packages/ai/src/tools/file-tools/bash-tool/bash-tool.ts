@@ -3,6 +3,8 @@ import { z } from 'zod';
 import BASH_TOOL_DESCRIPTION from './bash-tool-description.txt';
 import { createBashToolExecute } from './bash-tool-execute';
 
+export const BASH_TOOL_NAME = 'bash';
+
 export const BashToolInputSchema = z.object({
   command: z.string().describe('The bash command to execute'),
   description: z

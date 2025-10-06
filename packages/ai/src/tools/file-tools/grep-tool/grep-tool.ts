@@ -3,6 +3,8 @@ import { z } from 'zod';
 import GREP_TOOL_DESCRIPTION from './grep-tool-description.txt';
 import { createGrepSearchToolExecute as createGrepToolExecute } from './grep-tool.test';
 
+export const GREP_TOOL_NAME = 'grep';
+
 const GrepMatchSchema = z.object({
   path: z.string().describe('File path where the match was found'),
   lineNum: z.number().describe('Line number of the match'),

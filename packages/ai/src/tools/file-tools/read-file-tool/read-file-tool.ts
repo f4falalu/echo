@@ -2,6 +2,8 @@ import { tool } from 'ai';
 import { z } from 'zod';
 import { createReadFileToolExecute } from './read-file-tool-execute';
 
+export const READ_FILE_TOOL_NAME = 'read';
+
 export const ReadFileToolInputSchema = z.object({
   filePath: z
     .string()

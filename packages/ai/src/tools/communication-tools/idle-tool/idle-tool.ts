@@ -2,6 +2,8 @@ import { tool } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 
+export const IDLE_TOOL_NAME = 'idle';
+
 // Input/Output schemas
 const IdleInputSchema = z.object({
   final_response: z
@@ -39,7 +41,7 @@ function createIdleExecute<TAgentContext extends IdleContext = IdleContext>(
 
       // Emit typed tool event when idle tool completes
       context?.onToolEvent?.({
-        tool: 'idleTool',
+        tool: IDLE_TOOL_NAME,
         event: 'complete',
         result,
         args,

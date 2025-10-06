@@ -19,10 +19,42 @@ const currentVersion = getCurrentVersion();
 program
   .name('buster')
   .description('Buster CLI - AI-powered data analytics platform')
-  .version(currentVersion);
+  .version(currentVersion)
+  .option('--cwd <path>', 'Set working directory for the CLI')
+  .option('--prompt <prompt>', 'Run agent in headless mode with the given prompt')
+  .option('--chatId <id>', 'Continue an existing conversation (used with --prompt)')
+  .hook('preAction', (thisCommand) => {
+    // Process --cwd option before any command runs
+    const opts = thisCommand.optsWithGlobals();
+    if (opts.cwd) {
+      process.chdir(opts.cwd);
+    }
+  });
 
-program.action(() => {
-  render(<Main />);
+program.action(async (options: { cwd?: string; prompt?: string; chatId?: string }) => {
+  // Change working directory if specified
+  if (options.cwd) {
+    process.chdir(options.cwd);
+  }
+
+  // Check if running in headless mode
+  if (options.prompt) {
+    try {
+      const { runHeadless } = await import('./services/headless-handler');
+      const chatId = await runHeadless({
+        prompt: options.prompt,
+        ...(options.chatId && { chatId: options.chatId }),
+      });
+      console.log(chatId);
+      process.exit(0);
+    } catch (error) {
+      console.error('Error:', error instanceof Error ? error.message : 'Unknown error');
+      process.exit(1);
+    }
+  } else {
+    // Run interactive TUI mode
+    render(<Main />);
+  }
 });
 
 // Check for updates in the background (non-blocking)

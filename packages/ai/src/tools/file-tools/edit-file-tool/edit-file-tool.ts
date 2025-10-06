@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { createEditFileToolExecute } from './edit-file-tool-execute';
 import DESCRIPTION from './edit.txt';
 
+export const EDIT_FILE_TOOL_NAME = 'edit';
+
 export const EditFileToolInputSchema = z.object({
   filePath: z.string().describe('The absolute path to the file to modify'),
   oldString: z.string().describe('The text to replace'),

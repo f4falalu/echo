@@ -2,6 +2,8 @@ import { tool } from 'ai';
 import { z } from 'zod';
 import { createWriteFileToolExecute } from './write-file-tool-execute';
 
+export const WRITE_FILE_TOOL_NAME = 'write';
+
 const FileCreateParamsSchema = z.object({
   path: z.string().describe('The relative or absolute path to create the file at'),
   content: z.string().describe('The content to write to the file'),
