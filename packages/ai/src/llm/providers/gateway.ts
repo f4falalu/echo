@@ -7,12 +7,20 @@ export type GatewayProviderOrder = string[];
 
 export type AnthropicOptions = {
   cacheControl?: { type: 'ephemeral' };
+  thinking?: {
+    type: 'enabled';
+    budgetTokens: number;
+  };
 };
 
 export type BedrockOptions = {
   cachePoint?: { type: 'default' };
   additionalModelRequestFields?: {
     anthropic_beta?: string[];
+    reasoning_config?: {
+      type: 'enabled';
+      budget_tokens: number;
+    };
   };
 };
 
@@ -48,32 +56,50 @@ export const DEFAULT_ANTHROPIC_OPTIONS: AnthropicProviderOptions = {
   anthropic: {
     cacheControl: { type: 'ephemeral' },
     thinking: {
-        type: 'enabled',
-        budgetTokens: 10000 // Set desired tokens for reasoning
-      }
-    },
+      type: 'enabled',
+      budgetTokens: 10000 // Set desired tokens for reasoning
+    }
+  },
   bedrock: {
     cachePoint: { type: 'default' },
     additionalModelRequestFields: {
       anthropic_beta: ['fine-grained-tool-streaming-2025-05-14'],
       reasoning_config: {
-      type: 'enabled',
-      budget_tokens: 10000 // Adjust as needed
-    }
+        type: 'enabled',
+        budget_tokens: 10000 // Adjust as needed
+      }
     },
   },
 };
 
-export const DEFAULT_ANALYTICS_ENGINEER_OPTIONS: OpenAIProviderOptions = {
+export const DEFAULT_ANALYTICS_ENGINEER_OPTIONS = {
   gateway: {
-    order: ['openai'],
+    only: ['bedrock'],
   },
   openai: {
     parallelToolCalls: true,
-    reasoningEffort: 'medium',
+    parallel_tool_calls: true,
+    reasoningEffort: 'high',
     verbosity: 'low',
     include: ['reasoning.encrypted_content'],
     store: false,
+  },
+  anthropic: {
+    cacheControl: { type: 'ephemeral' },
+    thinking: {
+      type: 'enabled',
+      budgetTokens: 10000 // Set desired tokens for reasoning
+    }
+  },
+  bedrock: {
+    cachePoint: { type: 'default' },
+    additionalModelRequestFields: {
+      anthropic_beta: ['fine-grained-tool-streaming-2025-05-14'],
+      reasoning_config: {
+        type: 'enabled',
+        budget_tokens: 10000 // Adjust as needed
+      }
+    },
   },
 };
 

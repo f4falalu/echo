@@ -36,8 +36,7 @@ export function createAnalyticsEngineerAgent(
         tools: toolSet,
         messages: [systemMessage, ...messages],
         stopWhen: STOP_CONDITIONS,
-        toolChoice: 'required',
-        maxOutputTokens: 10000,
+        maxOutputTokens: 64000,
         // temperature: 0,
       });
 
