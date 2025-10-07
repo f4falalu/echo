@@ -17,7 +17,7 @@ export type BedrockOptions = {
 };
 
 export type OpenAIOptions = {
-  // parallelToolCalls?: boolean;
+  parallelToolCalls?: boolean;
   reasoningEffort?: 'low' | 'medium' | 'high' | 'minimal';
   verbosity?: 'low' | 'medium' | 'high';
 };
@@ -51,6 +51,17 @@ export const DEFAULT_ANTHROPIC_OPTIONS: AnthropicProviderOptions = {
     additionalModelRequestFields: {
       anthropic_beta: ['fine-grained-tool-streaming-2025-05-14'],
     },
+  },
+};
+
+export const DEFAULT_ANALYTICS_ENGINEER_OPTIONS: OpenAIProviderOptions = {
+  gateway: {
+    order: ['openai'],
+  },
+  openai: {
+    parallelToolCalls: true,
+    reasoningEffort: 'medium',
+    verbosity: 'low',
   },
 };
 

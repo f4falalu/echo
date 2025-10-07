@@ -13,6 +13,15 @@ export const LsToolInputSchema = z.object({
       'The absolute path to the directory to list (must be absolute, not relative). Defaults to project root.'
     ),
   ignore: z.array(z.string()).optional().describe('List of glob patterns to ignore'),
+  depth: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .default(3)
+    .describe(
+      'Maximum depth to traverse. Controls how many levels deep to show in the tree. Defaults to 3.'
+    ),
 });
 
 export const LsToolOutputSchema = z.object({

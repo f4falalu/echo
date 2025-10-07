@@ -191,6 +191,7 @@ function isGrepResult(result: unknown): result is GrepResult {
 interface LsArgs {
   path?: string;
   command: string;
+  depth?: number;
 }
 
 interface LsResult {

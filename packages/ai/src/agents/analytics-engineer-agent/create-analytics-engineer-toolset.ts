@@ -66,29 +66,31 @@ export async function createAnalyticsEngineerToolset(
   });
   const runSqlTool = createRunSqlTool({
     messageId: analyticsEngineerAgentOptions.messageId,
-    apiKey: process.env.BUSTER_API_KEY || '',
-    apiUrl: process.env.BUSTER_API_URL || 'http://localhost:3000',
+    apiKey: analyticsEngineerAgentOptions.apiKey || process.env.BUSTER_API_KEY || '',
+    apiUrl:
+      analyticsEngineerAgentOptions.apiUrl || process.env.BUSTER_API_URL || 'http://localhost:3000',
   });
   const retrieveMetadataTool = createRetrieveMetadataTool({
-    apiKey: process.env.BUSTER_API_KEY || '',
-    apiUrl: process.env.BUSTER_API_URL || 'http://localhost:3000',
+    apiKey: analyticsEngineerAgentOptions.apiKey || process.env.BUSTER_API_KEY || '',
+    apiUrl:
+      analyticsEngineerAgentOptions.apiUrl || process.env.BUSTER_API_URL || 'http://localhost:3000',
   });
   // Conditionally create task tool (only for main agent, not for subagents)
-  const taskTool = !analyticsEngineerAgentOptions.isSubagent
-    ? createTaskTool({
-        messageId: analyticsEngineerAgentOptions.messageId,
-        projectDirectory: analyticsEngineerAgentOptions.folder_structure,
-        // Pass the agent factory function to enable task agent creation
-        // This needs to match the AgentFactory type signature
-        createAgent: ((options: AnalyticsEngineerAgentOptions) => {
-          return createAnalyticsEngineerAgent({
-            ...options,
-            // Inherit model from parent agent if provided
-            model: analyticsEngineerAgentOptions.model,
-          });
-        }) as unknown as AgentFactory,
-      })
-    : null;
+  // const taskTool = !analyticsEngineerAgentOptions.isSubagent
+  //   ? createTaskTool({
+  //       messageId: analyticsEngineerAgentOptions.messageId,
+  //       projectDirectory: analyticsEngineerAgentOptions.folder_structure,
+  //       // Pass the agent factory function to enable task agent creation
+  //       // This needs to match the AgentFactory type signature
+  //       createAgent: ((options: AnalyticsEngineerAgentOptions) => {
+  //         return createAnalyticsEngineerAgent({
+  //           ...options,
+  //           // Inherit model from parent agent if provided
+  //           model: analyticsEngineerAgentOptions.model,
+  //         });
+  //       }) as unknown as AgentFactory,
+  //     })
+  //   : null;
 
   return {
     [IDLE_TOOL_NAME]: idleTool,
@@ -102,6 +104,6 @@ export async function createAnalyticsEngineerToolset(
     [TODO_WRITE_TOOL_NAME]: todosTool,
     [RUN_SQL_TOOL_NAME]: runSqlTool,
     [RETRIEVE_METADATA_TOOL_NAME]: retrieveMetadataTool,
-    ...(taskTool ? { taskTool } : {}),
+    // ...(taskTool ? { taskTool } : {}),
   };
 }

@@ -1,5 +1,8 @@
 import { type ModelMessage, hasToolCall, stepCountIs, streamText } from 'ai';
-import { DEFAULT_ANTHROPIC_OPTIONS } from '../../llm/providers/gateway';
+import {
+  DEFAULT_ANALYTICS_ENGINEER_OPTIONS,
+  DEFAULT_ANTHROPIC_OPTIONS,
+} from '../../llm/providers/gateway';
 import { Sonnet4 } from '../../llm/sonnet-4';
 import { IDLE_TOOL_NAME } from '../../tools/communication-tools/idle-tool/idle-tool';
 import { createAnalyticsEngineerToolset } from './create-analytics-engineer-toolset';
@@ -20,7 +23,7 @@ export function createAnalyticsEngineerAgent(
   const systemMessage = {
     role: 'system',
     content: getAnalyticsEngineerAgentSystemPrompt(analyticsEngineerAgentOptions.folder_structure),
-    providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
+    providerOptions: DEFAULT_ANALYTICS_ENGINEER_OPTIONS,
   } as ModelMessage;
 
   async function stream({ messages }: AnalyticsEngineerAgentStreamOptions) {
@@ -29,7 +32,7 @@ export function createAnalyticsEngineerAgent(
     const streamFn = () =>
       streamText({
         model: analyticsEngineerAgentOptions.model || Sonnet4,
-        providerOptions: DEFAULT_ANTHROPIC_OPTIONS,
+        providerOptions: DEFAULT_ANALYTICS_ENGINEER_OPTIONS,
         tools: toolSet,
         messages: [systemMessage, ...messages],
         stopWhen: STOP_CONDITIONS,

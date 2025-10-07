@@ -45,7 +45,7 @@ export async function runAnalyticsEngineerAgent(params: RunAnalyticsEngineerAgen
   const proxyModel = createProxyModel({
     baseURL: proxyConfig.baseURL,
     apiKey: proxyConfig.apiKey,
-    modelId: 'anthropic/claude-4-sonnet-20250514',
+    modelId: 'openai/gpt-5-codex',
   });
 
   // Create the docs agent with proxy model
@@ -60,6 +60,8 @@ export async function runAnalyticsEngineerAgent(params: RunAnalyticsEngineerAgen
     todosList: [],
     model: proxyModel,
     abortSignal,
+    apiKey: proxyConfig.apiKey,
+    apiUrl: proxyConfig.baseURL,
   });
 
   // Use conversation history - includes user messages, assistant messages, tool calls, and tool results

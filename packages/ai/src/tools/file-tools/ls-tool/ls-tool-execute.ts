@@ -72,7 +72,10 @@ async function listFilesRecursive(
   basePath: string,
   ignorePatterns: string[],
   files: string[],
-  limit: number
+  limit: number,
+  currentDepth: number,
+  maxDepth: number,
+  unexpandedDirs: Set<string>
 ): Promise<void> {
   if (files.length >= limit) {
     return;
@@ -95,8 +98,22 @@ async function listFilesRecursive(
       }
 
       if (entry.isDirectory()) {
-        // Recurse into directory
-        await listFilesRecursive(fullPath, basePath, ignorePatterns, files, limit);
+        // Check if we've hit the depth limit
+        if (currentDepth >= maxDepth) {
+          unexpandedDirs.add(relativePath);
+        } else {
+          // Recurse into directory
+          await listFilesRecursive(
+            fullPath,
+            basePath,
+            ignorePatterns,
+            files,
+            limit,
+            currentDepth + 1,
+            maxDepth,
+            unexpandedDirs
+          );
+        }
       } else if (entry.isFile()) {
         files.push(relativePath);
       }
@@ -114,7 +131,8 @@ function renderDir(
   dirPath: string,
   depth: number,
   dirs: Set<string>,
-  filesByDir: Map<string, string[]>
+  filesByDir: Map<string, string[]>,
+  unexpandedDirs: Set<string>
 ): string {
   const indent = '  '.repeat(depth);
   let output = '';
@@ -130,13 +148,22 @@ function renderDir(
 
   // Render subdirectories first
   for (const child of children) {
-    output += renderDir(child, depth + 1, dirs, filesByDir);
+    output += renderDir(child, depth + 1, dirs, filesByDir, unexpandedDirs);
   }
 
   // Render files
   const files = filesByDir.get(dirPath) || [];
   for (const file of files.sort()) {
     output += `${childIndent}${file}\n`;
+  }
+
+  // Render unexpanded directories at this level
+  const unexpandedAtThisLevel = Array.from(unexpandedDirs)
+    .filter((d) => path.dirname(d) === dirPath)
+    .sort();
+
+  for (const unexpanded of unexpandedAtThisLevel) {
+    output += `${childIndent}${path.basename(unexpanded)}/... (depth limit)\n`;
   }
 
   return output;
@@ -186,9 +213,22 @@ export function createLsToolExecute(context: LsToolContext) {
       // Build ignore patterns
       const ignorePatterns = [...IGNORE_PATTERNS, ...(input.ignore || [])];
 
+      // Get depth limit (default to 3 if not specified)
+      const maxDepth = input.depth ?? 3;
+
       // List files
       const files: string[] = [];
-      await listFilesRecursive(searchPath, searchPath, ignorePatterns, files, LIMIT);
+      const unexpandedDirs = new Set<string>();
+      await listFilesRecursive(
+        searchPath,
+        searchPath,
+        ignorePatterns,
+        files,
+        LIMIT,
+        0,
+        maxDepth,
+        unexpandedDirs
+      );
 
       // Build directory structure
       const dirs = new Set<string>();
@@ -212,7 +252,7 @@ export function createLsToolExecute(context: LsToolContext) {
       }
 
       // Render directory tree
-      const output = `${searchPath}/\n${renderDir('.', 0, dirs, filesByDir)}`;
+      const output = `${searchPath}/\n${renderDir('.', 0, dirs, filesByDir, unexpandedDirs)}`;
 
       console.info(
         `Listed ${files.length} file(s) in ${searchPath}${files.length >= LIMIT ? ' (truncated)' : ''}`

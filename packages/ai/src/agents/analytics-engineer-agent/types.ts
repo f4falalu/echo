@@ -49,6 +49,8 @@ export const AnalyticsEngineerAgentOptionsSchema = z.object({
     .custom<AbortSignal>()
     .optional()
     .describe('Optional abort signal to cancel agent execution'),
+  apiKey: z.string().optional().describe('API key for authenticating with the server'),
+  apiUrl: z.string().optional().describe('Base URL for API server endpoints'),
 });
 
 export const AnalyticsEngineerAgentStreamOptionsSchema = z.object({
