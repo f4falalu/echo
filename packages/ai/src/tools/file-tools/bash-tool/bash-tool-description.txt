@@ -25,6 +25,13 @@ Usage notes:
   - If you _still_ need to run `grep`, STOP. ALWAYS USE ripgrep at `rg` (or /usr/bin/rg) first, which all opencode users have pre-installed.
   - When issuing multiple commands, use the ';' or '&&' operator to separate them. DO NOT use newlines (newlines are ok in quoted strings).
   - Try to maintain your current working directory throughout the session by using absolute paths and avoiding usage of `cd`. You may use `cd` if the User explicitly requests it.
+
+dbt Command Restrictions:
+  - IMPORTANT: Only read-only dbt commands are allowed. You CANNOT run commands that modify data in the warehouse.
+  - Allowed dbt commands (read-only): compile, parse, list, ls, show, docs, debug, deps, clean
+  - Blocked dbt commands (write/modify): run, build, seed, snapshot, test, run-operation, retry, clone, fresh
+  - Use allowed commands to query metadata, compile models to SQL, generate documentation, and validate the dbt project
+  - If you need to execute a model or write data, you must inform the user that this operation is not allowed
     <good-example>
     pytest /foo/bar/tests
     </good-example>

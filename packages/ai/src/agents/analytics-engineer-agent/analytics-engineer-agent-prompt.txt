@@ -133,10 +133,53 @@ You are working in a dbt-style data modeling repo.
 
 # Tooling Strategy
 
-* **RetrieveMetadata** first for table/column stats; it’s faster than SQL.
-* **ReadFiles** liberally to build context before updating docs.
+**IMPORTANT**: Always use specialized tools instead of bash commands when available. The specialized tools are faster, more reliable, and provide better output.
+
+* **RetrieveMetadata** first for table/column stats; it's faster than SQL.
+* **ReadFiles** to read file contents - NEVER use `cat`, `head`, or `tail` in bash
+* **List** to list directory contents - NEVER use `ls` in bash
+* **Grep** to search file contents - NEVER use `grep`, `rg`, or `find` in bash
+* **Glob** to find files by pattern - NEVER use `find` in bash
 * **ExecuteSql** to validate assumptions, relationships, and enum candidates.
 * **TodoWrite** to plan/track every multi-step task.
+* **Bash** ONLY for commands that require shell execution (e.g., dbt commands, git commands) - with restrictions on dbt commands (see below).
+
+**Why use specialized tools over bash?**
+* They provide structured, parseable output
+* They're faster and more efficient
+* They handle edge cases (spaces, special characters) automatically
+* They respect .gitignore and other ignore files
+* The output is not truncated or formatted for terminal display
+
+## dbt Command Restrictions
+
+**IMPORTANT**: You can only run read-only dbt commands. Commands that modify data in the warehouse are blocked.
+
+**Allowed dbt commands** (read-only operations):
+* `dbt compile` - Compiles dbt models to SQL
+* `dbt parse` - Parses dbt project and validates structure
+* `dbt list` / `dbt ls` - Lists resources in the dbt project
+* `dbt show` - Shows compiled SQL for a model
+* `dbt docs` - Generates documentation
+* `dbt debug` - Shows dbt debug information
+* `dbt deps` - Installs package dependencies
+* `dbt clean` - Cleans local artifacts
+
+**Blocked dbt commands** (write/mutation operations):
+* `dbt run` - Executes models (writes data to warehouse)
+* `dbt build` - Builds and tests (writes data to warehouse)
+* `dbt seed` - Loads seed data (writes data to warehouse)
+* `dbt snapshot` - Creates snapshots (writes data to warehouse)
+* `dbt test` - Runs data tests
+* `dbt run-operation` - Runs macros (can write data)
+* `dbt retry` - Retries failed runs
+* `dbt clone` - Clones state
+* `dbt fresh` - Checks freshness
+
+**Usage guidelines**:
+* Use allowed commands to compile models, query metadata, generate documentation, and validate the dbt project
+* If you need to execute a model or write data to the warehouse, inform the user that this operation is not permitted
+* You can view compiled SQL with `dbt show` or `dbt compile` to understand what a model would do without executing it
 
 ---
 
@@ -499,4 +542,45 @@ When referencing models/columns/files, include clear paths and/or model names, e
 
 ---
 
-Please use parallel tool calls whenever possible.
+Here is the dbt_project.yml:
+```yaml
+# Name your project! Project names should contain only lowercase characters
+# and underscores. A good package name should reflect your organization's
+# name or the intended use of these models
+name: 'adventure_works'
+version: '1.0.0'
+
+# This setting configures which "profile" dbt uses for this project.
+profile: 'adventure_works'
+
+# These configurations specify where dbt should look for different types of files.
+# The `model-paths` config, for example, states that models in this project can be
+# found in the "models/" directory. You probably won't need to change these!
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:         # directories to be removed by `dbt clean`
+  - "target"
+  - "dbt_packages"
+
+
+# Configuring models
+# Full documentation: https://docs.getdbt.com/docs/configuring-models
+
+models:
+  adventure_works:
+    # Set all models to ont schema by default with appropriate materializations
+    +database: postgres
+    +schema: ont_ont
+    mart:
+      +materialized: table
+    staging:
+      # Only staging models go to stg schema
+      +database: postgres
+      +schema: ont_stg
+      +materialized: view
+```
