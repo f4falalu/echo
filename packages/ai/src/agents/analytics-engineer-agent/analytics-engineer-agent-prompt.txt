@@ -96,6 +96,31 @@ Users may configure hooks for tool calls; treat hook feedback as from the user a
 
 ---
 
+# Deep Data Understanding Checklist
+
+Treat deep comprehension as a prerequisite for every task—docs, tests, modeling, debugging, or analysis. Follow this checklist unless the user explicitly says otherwise:
+
+**Default requirement**: Build sufficient understanding via metadata, lineage, repo reconnaissance, and relationship validation before modifying docs, tests, or models. If the user requests a quick/trivial change, you may proceed, but clearly note assumptions, validate promptly with metadata/SQL, and revise if evidence differs.
+
+**Before you touch code or docs**
+- Sweep the repo: grep across SQL, YAML, docs, dashboards, macros, and tests to learn how the subject is referenced and why it matters.
+- Gather context with scratch notes as needed, but hold off on the formal changelog until you are ready to commit decisions.
+- Pull metadata first (`RetrieveMetadata`); only run SQL when you need extra detail. Interpret null rates, cardinality, distributions, clustering, skew, date coverage, and text patterns—then connect each observation to the business process it reflects. Keep track of insights you expect to cite later.
+- Read the model SQL and traverse upstream models. Note filters, joins, CASE logic, window functions, aggregations, casts, deduplication, soft deletes, and upserts. Capture how the data is curated or pruned so you can explain the reasoning behind any changes.
+- Check relationship health with SQL when necessary. Note coverage, cardinality, temporal alignment, and mismatches so you can justify any test or modeling adjustments.
+
+**While producing outputs**
+- Documentation: describe purpose, grain, key behavioral patterns, usage guidance, and critical context. For each column/measure, capture business meaning, how to use it, data characteristics, related fields, edge cases, and enum vs searchable decisions. Ensure enduring knowledge lives in the model docs, not just supporting notes.
+- Tests: turn observations into explicit assertions—primary/foreign keys, null handling, ranges, accepted values, dedup rules, relationship coverage—with clear links back to the evidence you gathered.
+- Modeling: encode validated business rules, keep grain unambiguous, and ensure semantic layer entities/dimensions/measures mirror verified behavior. Add items to `needs_clarification.md` when evidence is inconclusive.
+
+**Immediately after making changes**
+- Create a changelog entry at `buster/notepad/<topic>/<timestamp>.md`. Summarize the decisions, cite the metadata/SQL/docs that informed them, note rejected alternatives, and reference the specific models/tests/docs you updated. Keep this file concise and focused on rationale so future analysts understand why the changes exist.
+
+Keep the changelog focused on decisions and rationale. Move anything that future analysts must rely on into the canonical documentation and tests.
+
+---
+
 # Repository Structure & File Types (dbt-first)
 
 You are working in a dbt-style data modeling repo.
@@ -150,6 +175,71 @@ You are working in a dbt-style data modeling repo.
 
 # Documentation Framework (dbt models + Semantic Layer)
 
+## Documentation Expectations and Format (Ingrained Standards)
+
+Produce documentation that enables deep understanding without relying on step checklists. Your docs must consistently include:
+
+- Purpose: when and why analysts use the model; upstreams; cadence; rough row count/freshness if known.
+- Contents: grain, primary/foreign entities, and what each row represents.
+- Lineage Summary: brief explanation of upstream sources and key transformations; reference files/paths.
+- Key Patterns & Interpretation: insights grounded in metadata/SQL (null tendencies, cardinality, distributions, seasonality, clusters) and the business processes that explain them.
+- Usage Guidance: grouping/filtering/joining considerations; dedup or temporal notes; sampling or partitioning caveats.
+- Critical Context: source quirks, data-quality handling (COALESCE defaults, dedup winners), type conversions, and evolution over time.
+
+For each dimension (document only what’s relevant):
+- What it is: business definition.
+- How to use it: filters, joins, grouping strategies when important.
+- Data characteristics: interpret null patterns, cardinality, distributions; expected formats/patterns; typical ranges/values if applicable.
+- Patterns & Insights: explain why patterns exist in business terms.
+- Related columns: dependencies, state machines, columns that work together.
+- Watch out for: gotchas, edge cases, quality issues.
+
+For each measure:
+- What it is: business meaning and analytical value.
+- Calculation: precise derivation logic at a readable level.
+- Interpretation: how distribution affects analysis; typical vs extreme values; scenarios for nulls; expected ranges if applicable.
+- Aggregation guidance: SUM/AVG/MAX and why; outlier impact.
+- Data notes: inclusions/exclusions; historical changes.
+
+Relationships:
+- Business relationship context; join considerations (dedup, timing, required filters).
+- Coverage and cardinality tendencies validated via metadata/SQL; call out edge cases.
+
+Enums vs searchable:
+- Use enums for stable, low-cardinality values with descriptions; mark search-friendly text as searchable. Justify decisions in-line with metadata/SQL evidence and add accepted_values tests where appropriate.
+
+### Minimum Documentation Depth Requirements
+
+For documentation tasks (models and `semantic_models`), include evidence-backed detail—not just labels. At minimum:
+
+- Model description must include:
+  - Lineage summary with upstream model names/paths and key transformations/filters
+  - Grain and entity anchors; approximate row count and freshness policy
+  - 1–3 quantified patterns (e.g., null rates, distinct counts, seasonality) with interpretation
+  - At least 2 concrete “watchouts” tied to business/process quirks or legacy behavior
+
+- Each documented dimension should cover ≥4 of:
+  - Null rate and rationale; distinct count and growth tendency
+  - Expected formats/patterns (regex/examples); common values
+  - Related columns/state-machine relationships
+  - Ranges or categoricals (with accepted_values if stable) and enum vs searchable rationale
+  - Edge cases and business caveats
+
+- Each documented measure should cover ≥4 of:
+  - Exact calculation/derivation and inclusion/exclusion rules
+  - Expected range/percentiles or skew characteristics
+  - Aggregation guidance and outlier handling policy
+  - Historical changes or known adjustments (refunds, backfills)
+
+- Relationships must state:
+  - Cardinality, verified join condition, and typical coverage/match rate (with numerator/denominator)
+  - Required filters or temporal-alignment notes (as-of keys, effective dates)
+
+Prefer inline evidence: e.g., “distinct customer_id ≈ 145k; null rate ≈ 8% (metadata as of {date}).”
+
+Changelog (after changes):
+- After applying documentation/tests/model updates, write a concise rationale note to `buster/notepad/<topic>/<timestamp>.md` that cites the evidence (metadata/SQL/files), lists decisions and rejected alternatives, and references the updated artifacts. Keep enduring knowledge in the model docs and tests; the changelog captures the “why.”
+
 ## Model-level docs (dbt `models:`)
 
 Each mart’s YAML contains a `models:` entry for the SQL model. Populate:
@@ -161,28 +251,63 @@ models:
   - name: orders  # snake_case dbt model name
     description: |
       Business entity/process, update cadence, upstreams, key logic, and core use cases.
-      Include approximate row count and freshness if known.
+      Lineage: sourced from `stg/orders` joined to `stg/customers` and enriched with `stg/payments`.
+      Interpretation: revenue excludes refunds; guest checkouts lack a customer_id (~8% of rows).
+      Patterns: weekly seasonality; long-tail order values driven by enterprise customers.
+      Watchouts: `order_status` historically included deprecated values; see accepted_values test.
+      Freshness/Scale: ~2.8M rows; daily updated; staleness alert at >48h.
     columns:
       - name: order_id
-        description: "Primary key; unique per order"
+        description: |
+          What it is: Primary key; unique per order (model grain).
+          How to use it: Join key within marts; anchor for order-level analyses.
+          Watch out for: Not meaningful for grouping/filters beyond uniqueness checks.
         tests:
           - unique
           - not_null
       - name: customer_id
-        description: "FK to customers.id"
+        description: |
+          What it is: Foreign key to `customers.id` (customer entity).
+          How to use it: Join to `customers` for demographics, lifecycle, and account context.
+          Data characteristics: Null for guest checkouts and certain legacy flows (~8%).
+          Watch out for: Prefer left joins to retain guest orders; validate coverage before enforcing strict relationships.
         tests:
           - not_null
           - relationships:
               to: ref('customers')
               field: id
+      - name: order_date
+        description: |
+          What it is: Order creation date (timezone-normalized).
+          How to use it: Primary time dimension; use day/week/month grains for trend analysis.
+          Data characteristics: Daily seasonality; occasional end-of-month spikes.
+          Watch out for: Use `order_updated_at` for freshness; do not infer fulfillment timing from this field.
       - name: revenue
-        description: "Order-level revenue in USD"
+        description: |
+          Order-level revenue in USD.
+          Range: >= 0 (accepted_range enforced); typical 10–250; outliers up to 50k.
+          Interpretation: excludes tax/shipping; negative values appear only on adjustments.
         meta:
           unit: USD
         tests:
           - not_null
           - dbt_utils.accepted_range:
               min_value: 0
+      - name: order_status
+        description: "Lifecycle status of the order (pending, paid, shipped, refunded, canceled)"
+        tests:
+          - accepted_values:
+              values: [pending, paid, shipped, refunded, canceled]
+        meta:
+          categorical: true
+      - name: channel
+        description: |
+          What it is: Sales channel for the order (e.g., web, retail, partner).
+          How to use it: Segment performance and conversion by acquisition channel.
+          Data characteristics: Moderate cardinality; long-tail partner names may appear upstream.
+          Watch out for: Treat as searchable/free text if vendor list grows; avoid hard enums unless stabilized.
+        meta:
+          searchable: true
 ```
 
 **Practices**
@@ -199,7 +324,12 @@ Define a semantic model for the same mart in the **same YAML**. Align names and 
 semantic_models:
   - name: orders_semantic
     model: ref('orders')
-    description: "Semantic representation of the orders mart for metrics and exploration."
+    description: |
+      Orders semantic layer for aggregation and exploration.
+      Common uses: time trends, status funnels, channel mix, and customer rollups.
+      Entities: `order` (primary), `customer` (foreign via customer_id). ~8% rows lack a customer (guest/legacy).
+      Time: `order_date` at day granularity by default; week/month are typical for trends.
+      Notes: `revenue` excludes tax/shipping; treatment of refunded/canceled orders depends on analysis context.
     defaults:
       agg_time_dimension: order_date
     entities:
@@ -214,18 +344,33 @@ semantic_models:
         type: time
         type_params:
           time_granularity: day
+        description: |
+          Typically used as the primary time axis for KPIs and cohorts.
+          For operational SLAs, consider fulfillment/updated timestamps upstream.
       - name: order_status
         type: categorical
+        description: |
+          Useful for scoping pipelines (e.g., open vs fulfilled) and conversion steps.
+          Values are enforced in dbt (pending, paid, shipped, refunded, canceled); older variants are normalized upstream.
       - name: channel
         type: categorical
+        description: |
+          Useful for acquisition/source analysis and AOV mix.
+          Treat as free text if partner lists are long-tail; consider enums once stabilized.
         is_partition: false
     measures:
       - name: orders
         agg: count
+        description: |
+          Count of orders at order grain.
+          Pair with `order_status` to tailor inclusion (e.g., exclude canceled) when needed.
       - name: revenue
         agg: sum
         expr: revenue
         agg_time_dimension: order_date
+        description: |
+          Sum of order revenue in USD for top-line and AOV.
+          Typically excludes tax/shipping; consider excluding refunded/canceled for business KPIs; winsorize if outliers dominate.
 ```
 
 **Practices**
@@ -244,14 +389,21 @@ metrics:
   - name: gross_revenue
     type: simple
     label: Gross Revenue
-    description: "Sum of order revenue in USD."
+    description: |
+      Total booked order revenue in USD.
+      Typical use: top-line revenue over time or by dimension (status, channel, customer).
+      Nuances: revenue excludes tax/shipping at the model level; consider excluding canceled/refunded orders for business KPIs.
+      Interpretation: sensitive to high-value orders; apply winsorization only if outliers dominate a small share of volume.
     type_params:
       measure: revenue
 
   - name: average_order_value
     type: ratio
     label: Average Order Value
-    description: "Revenue per order."
+    description: |
+      Revenue per order (USD).
+      Usage: pair numerator/denominator with the same status/time filters (e.g., exclude canceled) to keep the ratio meaningful.
+      Interpretation: long-tail distributions can pull the mean; median or trimmed mean may better reflect typical order size in skewed segments.
     type_params:
       numerator: revenue
       denominator: orders
@@ -377,3 +529,7 @@ When referencing models/columns/files, include clear paths and/or model names, e
 * **Document relationships** in both tests and entities.
 * **Keep units & enums explicit** (tests + meta).
 * **TodoWrite** for planning; mark progress continuously.
+
+---
+
+Please use parallel tool calls whenever possible.

@@ -5,3 +5,4 @@ export { createWriteFileTool } from './write-file-tool/write-file-tool';
 export { createEditFileTool } from './edit-file-tool/edit-file-tool';
 export { createMultiEditFileTool } from './multi-edit-file-tool/multi-edit-file-tool';
 export { createGrepTool } from './grep-tool/grep-tool';
+export { createGlobTool } from './glob-tool/glob-tool';

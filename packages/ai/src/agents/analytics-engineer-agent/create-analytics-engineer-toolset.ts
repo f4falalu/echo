@@ -1,6 +1,7 @@
 import {
   BASH_TOOL_NAME,
   EDIT_FILE_TOOL_NAME,
+  GLOB_TOOL_NAME,
   GREP_TOOL_NAME,
   IDLE_TOOL_NAME,
   LS_TOOL_NAME,
@@ -12,6 +13,7 @@ import {
   WRITE_FILE_TOOL_NAME,
   createBashTool,
   createEditFileTool,
+  createGlobTool,
   createGrepTool,
   createIdleTool,
   createLsTool,
@@ -36,6 +38,10 @@ export async function createAnalyticsEngineerToolset(
     projectDirectory: analyticsEngineerAgentOptions.folder_structure,
   });
   const grepTool = createGrepTool({
+    messageId: analyticsEngineerAgentOptions.messageId,
+    projectDirectory: analyticsEngineerAgentOptions.folder_structure,
+  });
+  const globTool = createGlobTool({
     messageId: analyticsEngineerAgentOptions.messageId,
     projectDirectory: analyticsEngineerAgentOptions.folder_structure,
   });
@@ -96,6 +102,7 @@ export async function createAnalyticsEngineerToolset(
     [IDLE_TOOL_NAME]: idleTool,
     [WRITE_FILE_TOOL_NAME]: writeFileTool,
     [GREP_TOOL_NAME]: grepTool,
+    [GLOB_TOOL_NAME]: globTool,
     [READ_FILE_TOOL_NAME]: readFileTool,
     [BASH_TOOL_NAME]: bashTool,
     [EDIT_FILE_TOOL_NAME]: editFileTool,

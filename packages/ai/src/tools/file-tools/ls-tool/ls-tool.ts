@@ -18,10 +18,21 @@ export const LsToolInputSchema = z.object({
     .int()
     .positive()
     .optional()
-    .default(3)
     .describe(
       'Maximum depth to traverse. Controls how many levels deep to show in the tree. Defaults to 3.'
     ),
+  offset: z
+    .number()
+    .int()
+    .nonnegative()
+    .optional()
+    .describe('File index to start from (0-indexed). Defaults to 0 (first file).'),
+  limit: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .describe('Maximum number of files to return. Defaults to 100.'),
 });
 
 export const LsToolOutputSchema = z.object({

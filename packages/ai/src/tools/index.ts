@@ -73,6 +73,7 @@ export {
 } from './file-tools/multi-edit-file-tool/multi-edit-file-tool';
 export { createBashTool, BASH_TOOL_NAME } from './file-tools/bash-tool/bash-tool';
 export { createGrepTool, GREP_TOOL_NAME } from './file-tools/grep-tool/grep-tool';
+export { createGlobTool, GLOB_TOOL_NAME } from './file-tools/glob-tool/glob-tool';
 
 // Web tools
 export { createWebSearchTool } from './web-tools/web-search-tool';

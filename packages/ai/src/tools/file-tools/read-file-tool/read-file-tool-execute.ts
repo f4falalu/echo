@@ -1,7 +1,9 @@
 import path from 'node:path';
 import type { ReadFileToolContext, ReadFileToolInput, ReadFileToolOutput } from './read-file-tool';
 
-const MAX_LINES = 1000;
+const DEFAULT_LIMIT = 1000;
+const MAX_CHARS_PER_LINE = 2000;
+const MAX_TOTAL_CHARS = 100000;
 
 /**
  * Validates that a file path is safe and within the project directory
@@ -31,9 +33,11 @@ function validateFilePath(filePath: string, projectDirectory: string): void {
 export function createReadFileToolExecute(context: ReadFileToolContext) {
   return async function execute(input: ReadFileToolInput): Promise<ReadFileToolOutput> {
     const { messageId, projectDirectory, onToolEvent } = context;
-    const { filePath } = input;
+    const { filePath, offset = 0, limit = DEFAULT_LIMIT } = input;
 
-    console.info(`Reading file ${filePath} for message ${messageId}`);
+    console.info(
+      `Reading file ${filePath} (offset: ${offset}, limit: ${limit}) for message ${messageId}`
+    );
 
     // Emit start event
     onToolEvent?.({
@@ -65,18 +69,41 @@ export function createReadFileToolExecute(context: ReadFileToolContext) {
       // Read the file content
       const content = await file.text();
       const lines = content.split('\n');
-      const truncated = lines.length > MAX_LINES;
 
-      // Truncate if needed
-      const finalContent = truncated ? lines.slice(0, MAX_LINES).join('\n') : content;
+      // Apply offset and limit
+      const totalLines = lines.length;
+      const endIndex = Math.min(offset + limit, totalLines);
+      const selectedLines = lines.slice(offset, endIndex);
+      const lineTruncated = endIndex < totalLines;
 
-      console.info(`Successfully read file: ${filePath}`);
+      // Truncate individual lines that exceed character limit
+      let charTruncated = false;
+      const processedLines = selectedLines.map((line) => {
+        if (line.length > MAX_CHARS_PER_LINE) {
+          charTruncated = true;
+          return `${line.slice(0, MAX_CHARS_PER_LINE)}... (line truncated)`;
+        }
+        return line;
+      });
+
+      // Join lines and check total character limit
+      let finalContent = processedLines.join('\n');
+      if (finalContent.length > MAX_TOTAL_CHARS) {
+        charTruncated = true;
+        finalContent = `${finalContent.slice(0, MAX_TOTAL_CHARS)}\n... (content truncated due to size limit)`;
+      }
+
+      const truncated = lineTruncated || charTruncated;
+
+      console.info(`Successfully read file: ${filePath}${truncated ? ' (truncated)' : ''}`);
 
       const output = {
         status: 'success' as const,
         file_path: filePath,
         content: finalContent,
         truncated,
+        lineTruncated,
+        charTruncated,
       };
 
       // Emit complete event

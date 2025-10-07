@@ -46,6 +46,8 @@ describe('createReadFilesToolExecute', () => {
         file_path: 'test.ts',
         content: 'export const test = "hello";',
         truncated: false,
+        lineTruncated: false,
+        charTruncated: false,
       });
 
       expect(mockBunFile).toHaveBeenCalledWith('/project/test.ts');
@@ -75,6 +77,8 @@ describe('createReadFilesToolExecute', () => {
         file_path: '/project/absolute/path.ts',
         content: 'absolute content',
         truncated: false,
+        lineTruncated: false,
+        charTruncated: false,
       });
     });
 
@@ -104,6 +108,8 @@ describe('createReadFilesToolExecute', () => {
         file_path: 'large-file.ts',
         content: expectedContent,
         truncated: true,
+        lineTruncated: true,
+        charTruncated: false,
       });
     });
 
@@ -132,6 +138,8 @@ describe('createReadFilesToolExecute', () => {
         file_path: 'exact-file.ts',
         content,
         truncated: false,
+        lineTruncated: false,
+        charTruncated: false,
       });
     });
   });
@@ -242,6 +250,8 @@ describe('createReadFilesToolExecute', () => {
         file_path: 'src/components/Button.tsx',
         content: 'export const Button = () => {};',
         truncated: false,
+        lineTruncated: false,
+        charTruncated: false,
       });
     });
 
@@ -289,6 +299,8 @@ describe('createReadFilesToolExecute', () => {
         file_path: 'empty.ts',
         content: '',
         truncated: false,
+        lineTruncated: false,
+        charTruncated: false,
       });
     });
 
@@ -314,6 +326,8 @@ describe('createReadFilesToolExecute', () => {
         file_path: 'newlines.ts',
         content: '\n\n\n',
         truncated: false,
+        lineTruncated: false,
+        charTruncated: false,
       });
     });
   });

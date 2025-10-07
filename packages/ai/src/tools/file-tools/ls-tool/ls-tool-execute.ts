@@ -29,7 +29,7 @@ export const IGNORE_PATTERNS = [
   'env/',
 ];
 
-const LIMIT = 100;
+const DEFAULT_LIMIT = 100;
 
 /**
  * Check if a path matches any of the ignore patterns
@@ -176,8 +176,12 @@ export function createLsToolExecute(context: LsToolContext) {
   return async function execute(input: LsToolInput): Promise<LsToolOutput> {
     const { messageId, projectDirectory, onToolEvent } = context;
     const searchPath = path.resolve(projectDirectory, input.path || projectDirectory);
+    const offset = input.offset ?? 0;
+    const limit = input.limit ?? DEFAULT_LIMIT;
 
-    console.info(`Listing directory ${searchPath} for message ${messageId}`);
+    console.info(
+      `Listing directory ${searchPath} (offset: ${offset}, limit: ${limit}) for message ${messageId}`
+    );
 
     // Emit start event
     onToolEvent?.({
@@ -217,18 +221,24 @@ export function createLsToolExecute(context: LsToolContext) {
       const maxDepth = input.depth ?? 3;
 
       // List files
-      const files: string[] = [];
+      const allFiles: string[] = [];
       const unexpandedDirs = new Set<string>();
+      // Collect offset + limit files to ensure we get enough after applying offset
       await listFilesRecursive(
         searchPath,
         searchPath,
         ignorePatterns,
-        files,
-        LIMIT,
+        allFiles,
+        offset + limit,
         0,
         maxDepth,
         unexpandedDirs
       );
+
+      // Apply offset and limit
+      const totalFiles = allFiles.length;
+      const endIndex = Math.min(offset + limit, totalFiles);
+      const files = allFiles.slice(offset, endIndex);
 
       // Build directory structure
       const dirs = new Set<string>();
@@ -254,8 +264,10 @@ export function createLsToolExecute(context: LsToolContext) {
       // Render directory tree
       const output = `${searchPath}/\n${renderDir('.', 0, dirs, filesByDir, unexpandedDirs)}`;
 
+      const truncated = endIndex < totalFiles;
+
       console.info(
-        `Listed ${files.length} file(s) in ${searchPath}${files.length >= LIMIT ? ' (truncated)' : ''}`
+        `Listed ${files.length} file(s) in ${searchPath}${truncated ? ' (truncated)' : ''}`
       );
 
       const result = {
@@ -263,7 +275,7 @@ export function createLsToolExecute(context: LsToolContext) {
         path: searchPath,
         output,
         count: files.length,
-        truncated: files.length >= LIMIT,
+        truncated,
       };
 
       // Emit complete event

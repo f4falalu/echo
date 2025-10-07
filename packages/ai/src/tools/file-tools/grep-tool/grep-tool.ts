@@ -9,6 +9,9 @@ const GrepMatchSchema = z.object({
   path: z.string().describe('File path where the match was found'),
   lineNum: z.number().describe('Line number of the match'),
   lineText: z.string().describe('Text content of the matching line'),
+  lineTruncated: z
+    .boolean()
+    .describe('Whether the line text was truncated due to exceeding character limit'),
   modTime: z.number().describe('File modification time in milliseconds'),
 });
 
@@ -22,6 +25,18 @@ export const GrepToolInputSchema = z.object({
     .string()
     .optional()
     .describe('File pattern to filter search (e.g., "*.js", "*.{ts,tsx}")'),
+  offset: z
+    .number()
+    .int()
+    .nonnegative()
+    .optional()
+    .describe('Match index to start from (0-indexed). Defaults to 0 (first match).'),
+  limit: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .describe('Maximum number of matches to return. Defaults to 100.'),
 });
 
 const GrepToolOutputSchema = z.object({

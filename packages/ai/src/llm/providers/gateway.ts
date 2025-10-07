@@ -20,6 +20,8 @@ export type OpenAIOptions = {
   parallelToolCalls?: boolean;
   reasoningEffort?: 'low' | 'medium' | 'high' | 'minimal';
   verbosity?: 'low' | 'medium' | 'high';
+  include?: string[];
+  store?: boolean;
 };
 
 // Main provider options types
@@ -62,6 +64,8 @@ export const DEFAULT_ANALYTICS_ENGINEER_OPTIONS: OpenAIProviderOptions = {
     parallelToolCalls: true,
     reasoningEffort: 'medium',
     verbosity: 'low',
+    include: ['reasoning.encrypted_content'],
+    store: false,
   },
 };
 

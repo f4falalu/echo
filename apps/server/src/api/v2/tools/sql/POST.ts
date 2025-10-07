@@ -1,7 +1,11 @@
 import { createPermissionErrorMessage, validateSqlPermissions } from '@buster/access-controls';
 import { executeMetricQuery } from '@buster/data-source';
 import type { Credentials } from '@buster/data-source';
-import { getDataSourceById, getDataSourceCredentials } from '@buster/database/queries';
+import {
+  getDataSourceById,
+  getDataSourceCredentials,
+  getUserOrganizationId,
+} from '@buster/database/queries';
 import type { RunSqlRequest, RunSqlResponse } from '@buster/server-shared';
 import type { ApiKeyContext } from '@buster/server-shared';
 import { HTTPException } from 'hono/http-exception';
@@ -12,9 +16,10 @@ import { HTTPException } from 'hono/http-exception';
  * This handler:
  * 1. Validates API key has access to the organization
  * 2. Verifies data source belongs to API key's organization
- * 3. Validates SQL permissions against user's permissioned datasets
- * 4. Executes the query with retry logic and timeout handling
- * 5. Returns the data with metadata and pagination info
+ * 3. For workspace_admin or data_admin roles, skips permission validation (allows all queries)
+ * 4. For other roles, validates SQL permissions against user's permissioned datasets
+ * 5. Executes the query with retry logic and timeout handling
+ * 6. Returns the data with metadata and pagination info
  *
  * @param request - The SQL query request containing data_source_id and sql
  * @param apiKeyContext - The authenticated API key context
@@ -42,20 +47,29 @@ export async function runSqlHandler(
     });
   }
 
-  // Validate SQL against user's permissioned datasets
-  const permissionResult = await validateSqlPermissions(request.sql, ownerId, dataSource.type);
+  // Get user's role in the organization
+  const userOrg = await getUserOrganizationId(ownerId);
+  const userRole = userOrg?.role;
 
-  if (!permissionResult.isAuthorized) {
-    const errorMessage =
-      permissionResult.error ||
-      createPermissionErrorMessage(
-        permissionResult.unauthorizedTables,
-        permissionResult.unauthorizedColumns
-      );
+  // Check if user is workspace_admin or data_admin - these roles have unrestricted access
+  const isAdminRole = userRole === 'workspace_admin' || userRole === 'data_admin';
 
-    throw new HTTPException(403, {
-      message: errorMessage,
-    });
+  // Only validate permissions for non-admin roles
+  if (!isAdminRole) {
+    const permissionResult = await validateSqlPermissions(request.sql, ownerId, dataSource.type);
+
+    if (!permissionResult.isAuthorized) {
+      const errorMessage =
+        permissionResult.error ||
+        createPermissionErrorMessage(
+          permissionResult.unauthorizedTables,
+          permissionResult.unauthorizedColumns
+        );
+
+      throw new HTTPException(403, {
+        message: errorMessage,
+      });
+    }
   }
 
   // Get data source credentials from vault

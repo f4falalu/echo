@@ -38,7 +38,7 @@ export function createAnalyticsEngineerAgent(
         stopWhen: STOP_CONDITIONS,
         toolChoice: 'required',
         maxOutputTokens: 10000,
-        temperature: 0,
+        // temperature: 0,
       });
 
     return streamFn();

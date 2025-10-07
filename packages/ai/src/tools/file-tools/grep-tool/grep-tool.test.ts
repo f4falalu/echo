@@ -1,11 +1,13 @@
 import type { GrepToolContext, GrepToolInput, GrepToolOutput } from './grep-tool';
 
-const MAX_MATCHES = 100;
+const DEFAULT_LIMIT = 100;
+const MAX_CHARS_PER_LINE = 2000;
 
 interface Match {
   path: string;
   lineNum: number;
   lineText: string;
+  lineTruncated: boolean;
   modTime: number;
 }
 
@@ -62,7 +64,14 @@ async function executeRipgrep(
     if (!filePath || !lineNumStr || lineTextParts.length === 0) continue;
 
     const lineNum = Number.parseInt(lineNumStr, 10);
-    const lineText = lineTextParts.join(':');
+    let lineText = lineTextParts.join(':');
+
+    // Truncate line if it exceeds character limit
+    let lineTruncated = false;
+    if (lineText.length > MAX_CHARS_PER_LINE) {
+      lineTruncated = true;
+      lineText = `${lineText.slice(0, MAX_CHARS_PER_LINE)}... (line truncated)`;
+    }
 
     // Get file modification time
     const file = Bun.file(filePath);
@@ -73,6 +82,7 @@ async function executeRipgrep(
       path: filePath,
       lineNum,
       lineText,
+      lineTruncated,
       modTime: stats.mtime.getTime(),
     });
   }
@@ -88,7 +98,7 @@ async function executeRipgrep(
 export function createGrepSearchToolExecute(context: GrepToolContext) {
   return async function execute(input: GrepToolInput): Promise<GrepToolOutput> {
     const { messageId, projectDirectory, onToolEvent } = context;
-    const { pattern, path, glob } = input;
+    const { pattern, path, glob, offset = 0, limit = DEFAULT_LIMIT } = input;
 
     if (!pattern) {
       throw new Error('pattern is required');
@@ -96,7 +106,9 @@ export function createGrepSearchToolExecute(context: GrepToolContext) {
 
     const searchPath = path || projectDirectory;
 
-    console.info(`Searching for pattern "${pattern}" in ${searchPath} for message ${messageId}`);
+    console.info(
+      `Searching for pattern "${pattern}" in ${searchPath} (offset: ${offset}, limit: ${limit}) for message ${messageId}`
+    );
 
     // Emit start event
     onToolEvent?.({
@@ -112,9 +124,11 @@ export function createGrepSearchToolExecute(context: GrepToolContext) {
       // Sort by modification time (newest first)
       matches.sort((a, b) => b.modTime - a.modTime);
 
-      // Limit results and mark as truncated if needed
-      const truncated = matches.length > MAX_MATCHES;
-      const finalMatches = truncated ? matches.slice(0, MAX_MATCHES) : matches;
+      // Apply offset and limit
+      const totalMatches = matches.length;
+      const endIndex = Math.min(offset + limit, totalMatches);
+      const finalMatches = matches.slice(offset, endIndex);
+      const truncated = endIndex < totalMatches;
 
       console.info(
         `Search complete: ${finalMatches.length} matches found${truncated ? ' (truncated)' : ''}`

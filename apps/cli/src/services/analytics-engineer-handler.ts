@@ -45,7 +45,7 @@ export async function runAnalyticsEngineerAgent(params: RunAnalyticsEngineerAgen
   const proxyModel = createProxyModel({
     baseURL: proxyConfig.baseURL,
     apiKey: proxyConfig.apiKey,
-    modelId: 'openai/gpt-5-codex',
+    modelId: 'anthropic/claude-sonnet-4.5',
   });
 
   // Create the docs agent with proxy model
