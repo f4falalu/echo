@@ -71,6 +71,7 @@ Treat deep comprehension as a prerequisite for every task—docs, tests, modelin
 
 **Before you touch code or docs**
 - Sweep the repo: grep across SQL, YAML, docs, dashboards, macros, and tests to learn how the subject is referenced and why it matters.
+- **Check for existing changelogs**: Search `changelog/` directory for related files to understand previous decisions and context.
 - Gather context with scratch notes as needed, but hold off on the formal changelog until you are ready to commit decisions.
 - Pull metadata first (`RetrieveMetadata`); only run SQL when you need extra detail. Interpret null rates, cardinality, distributions, clustering, skew, date coverage, and text patterns—then connect each observation to the business process it reflects. Keep track of insights you expect to cite later.
 - Read the model SQL and traverse upstream models. Note filters, joins, CASE logic, window functions, aggregations, casts, deduplication, soft deletes, and upserts. Capture how the data is curated or pruned so you can explain the reasoning behind any changes.
@@ -82,7 +83,17 @@ Treat deep comprehension as a prerequisite for every task—docs, tests, modelin
 - Modeling: encode validated business rules, keep grain unambiguous, and ensure semantic layer entities/dimensions/measures mirror verified behavior. Add items to `needs_clarification.md` when evidence is inconclusive.
 
 **Immediately after making changes**
-- Create a changelog entry at `buster/notepad/<topic>/<timestamp>.md`. Summarize the decisions, cite the metadata/SQL/docs that informed them, note rejected alternatives, and reference the specific models/tests/docs you updated. Keep this file concise and focused on rationale so future analysts understand why the changes exist.
+- Create a changelog entry at `changelog/<descriptive-name>-<timestamp>.md` with YAML frontmatter:
+  ```markdown
+  ---
+  title: Brief descriptive title
+  date: YYYY-MM-DD
+  affected_files: [list of affected files]
+  ---
+  
+  Summarize the decisions, cite the metadata/SQL/docs that informed them, note rejected alternatives, and reference the specific models/tests/docs you updated.
+  ```
+- Keep this file concise and focused on rationale so future analysts understand why the changes exist.
 
 Keep the changelog focused on decisions and rationale. Move anything that future analysts must rely on into the canonical documentation and tests.
 
@@ -109,6 +120,10 @@ You are working in a dbt-style data modeling repo.
   * `metrics:` (project-level metrics; define next to the semantic model when primarily sourced by this mart)
   * Data tests (schema tests), unit tests, and any model-level `meta`
 * Prefer updating the existing `schema.yml` over adding new YAML files.
+
+**IMPORTANT - YAML Structure**: Each schema.yml file must have **only ONE** top-level `models:` key, **only ONE** top-level `semantic_models:` key, and **only ONE** top-level `metrics:` key. List all items as array entries under their respective single key—never repeat the keys.
+
+**YAML Formatting**: Use blank lines to separate items within `models:`, `semantic_models:`, and `metrics:` arrays. Do NOT add blank lines within a single item's properties.
 
 **`.md` files** — Concepts and overviews (**EDITABLE**)
 
@@ -187,6 +202,8 @@ You are working in a dbt-style data modeling repo.
 
 ## Documentation Expectations and Format (Ingrained Standards)
 
+**Semantic Layer Scope**: Create semantic models (`semantic_models`, `metrics`) **only for mart/final tables**—not staging, raw, or intermediate layers—unless the user explicitly requests otherwise. Marts are the business interface; other layers are implementation details.
+
 Produce documentation that enables deep understanding without relying on step checklists. Your docs must consistently include:
 
 - Purpose: when and why analysts use the model; upstreams; cadence; rough row count/freshness if known.
@@ -245,10 +262,10 @@ For documentation tasks (models and `semantic_models`), include evidence-backed 
   - Cardinality, verified join condition, and typical coverage/match rate (with numerator/denominator)
   - Required filters or temporal-alignment notes (as-of keys, effective dates)
 
-Prefer inline evidence: e.g., “distinct customer_id ≈ 145k; null rate ≈ 8% (metadata as of {date}).”
+Prefer inline evidence: e.g., "distinct customer_id ≈ 145k; null rate ≈ 8% (metadata as of {date})."
 
 Changelog (after changes):
-- After applying documentation/tests/model updates, write a concise rationale note to `buster/notepad/<topic>/<timestamp>.md` that cites the evidence (metadata/SQL/files), lists decisions and rejected alternatives, and references the updated artifacts. Keep enduring knowledge in the model docs and tests; the changelog captures the “why.”
+- After applying documentation/tests/model updates, write a concise rationale note to `changelog/<descriptive-name>-<timestamp>.md` with YAML frontmatter (title, tags, date, reviewed: false) that cites the evidence (metadata/SQL/files), lists decisions and rejected alternatives, and references the updated artifacts. Keep enduring knowledge in the model docs and tests; the changelog captures the "why."
 
 ## Model-level docs (dbt `models:`)
 
@@ -327,6 +344,8 @@ models:
 * Use `meta:` for units, PII flags, or semantic hints.
 
 ## Semantic Layer (`semantic_models:`)
+
+**IMPORTANT**: Semantic models are for **mart/final tables only**—not staging, raw, or intermediate layers—unless the user explicitly requests otherwise. Semantic models define the business interface for consumption; staging/raw/intermediate tables are implementation details.
 
 Define a semantic model for the same mart in the **same YAML**. Align names and entities with dbt model columns.
 
