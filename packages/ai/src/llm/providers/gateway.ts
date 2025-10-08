@@ -55,19 +55,11 @@ export const DEFAULT_ANTHROPIC_OPTIONS: AnthropicProviderOptions = {
   },
   anthropic: {
     cacheControl: { type: 'ephemeral' },
-    thinking: {
-      type: 'enabled',
-      budgetTokens: 10000, // Set desired tokens for reasoning
-    },
   },
   bedrock: {
     cachePoint: { type: 'default' },
     additionalModelRequestFields: {
       anthropic_beta: ['fine-grained-tool-streaming-2025-05-14'],
-      reasoning_config: {
-        type: 'enabled',
-        budget_tokens: 10000, // Adjust as needed
-      },
     },
   },
 };
