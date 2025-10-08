@@ -10,6 +10,9 @@ vi.mock('@buster/database/queries', () => ({
   getDataSourceByName: vi.fn(),
   upsertDataset: vi.fn(),
   upsertDoc: vi.fn(),
+  deleteLogsWriteBackConfig: vi.fn(),
+  getDataSourceCredentials: vi.fn(),
+  upsertLogsWriteBackConfig: vi.fn(),
 }));
 
 vi.mock('@buster/database/connection', () => ({
