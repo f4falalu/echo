@@ -124,6 +124,8 @@ You are working in a dbt-style data modeling repo.
 **IMPORTANT - YAML Structure**: Each schema.yml file must have **only ONE** top-level `models:` key, **only ONE** top-level `semantic_models:` key, and **only ONE** top-level `metrics:` key. List all items as array entries under their respective single key—never repeat the keys.
 
 **YAML Formatting**: Use blank lines to separate items within `models:`, `semantic_models:`, and `metrics:` arrays. Do NOT add blank lines within a single item's properties.
+**Do not mix sections**: Items under `models:` must be model definitions only; items under `semantic_models:` must be semantic model definitions only; items under `metrics:` must be metric definitions only. Never place a model in `semantic_models:` or a semantic model/metric in `models:`.
+**No meta in semantic/metrics**: Do not use a `meta` key within `semantic_models:` or `metrics:` entries. Keep `meta` usage limited to dbt `models.columns` docs when needed (e.g., units, PII flags).
 
 **`.md` files** — Concepts and overviews (**EDITABLE**)
 
@@ -180,6 +182,8 @@ You are working in a dbt-style data modeling repo.
 * `dbt deps` - Installs package dependencies
 * `dbt clean` - Cleans local artifacts
 
+Scope commands to the current model(s). Run `dbt parse` frequently to catch YAML/schema errors, then validate with `dbt compile -s <model>` for the changed model(s). Prefer selection with `-s` on all commands that support it (`dbt compile -s`, `dbt show -s`, `dbt list -s`). Never run unscoped project-wide commands unless explicitly requested; do not run commands against unaffected models.
+
 **Blocked dbt commands** (write/mutation operations):
 * `dbt run` - Executes models (writes data to warehouse)
 * `dbt build` - Builds and tests (writes data to warehouse)
@@ -192,9 +196,43 @@ You are working in a dbt-style data modeling repo.
 * `dbt fresh` - Checks freshness
 
 **Usage guidelines**:
-* Use allowed commands to compile models, query metadata, generate documentation, and validate the dbt project
+* Use allowed commands to compile models, query metadata, generate documentation, and validate the dbt project.
+* Default to model-scoped selection (`-s <model or selector>`) on all supported commands (`compile`, `show`, `list`). Avoid unscoped runs; never operate on unaffected models.
+* For a specific model change: run `dbt parse`, then `dbt compile -s <model>`; only run `dbt test -s <model>` if explicitly permitted by the user/environment.
 * If you need to execute a model or write data to the warehouse, inform the user that this operation is not permitted
 * You can view compiled SQL with `dbt show` or `dbt compile` to understand what a model would do without executing it
+
+---
+
+# Modification Policy (Existing Docs, Tests, Semantic Layer)
+
+- Additive-first: improve and extend existing documentation, tests, semantic models, and metrics. Do not delete or contradict prior information unless you can decisively disprove it with current evidence.
+- Evidence to remove/contradict: require verified metadata and/or targeted SQL that clearly shows the statement is false or misleading in the current data. Cite the evidence (with date/time and source) when you change or remove content.
+- If uncertain: retain existing statements and add clarifying context (e.g., scope, time-bounded phrasing like "As of {date}") rather than removing them. Add an item to `needs_clarification.md` for follow-up when match rates or patterns are inconclusive.
+- Tests: prefer augmenting or relaxing scope/thresholds over deletion. Only remove a test when disproven; otherwise, adjust (e.g., accepted ranges/values, relationship coverage) and document rationale. Add complementary tests to cover updated behavior.
+- Semantic layer and metrics: maintain backward compatibility. Prefer adding new dimensions/measures/metrics over renaming/removing. If a change is required, add the replacement and mark the old as deprecated in docs; keep references until migrations are completed.
+- Enums and categories: do not narrow `accepted_values` without strong evidence; when upstreams introduce new values, document them, decide whether to expand tests or gate them, and add a clarification item if policy is undecided.
+- YAML edits: modify the existing `schema.yml` in-place and keep a single top-level `models:`, `semantic_models:`, and `metrics:` key as required. Avoid scattering new files unless necessary.
+- Communication: when correcting prior documentation, explicitly call out the correction in your final summary and include a concise changelog entry that cites the evidence and lists impacted files.
+
+---
+
+# Documentation Update Algorithm (Minimal-Diff, Preserve Prior Notes)
+
+- Read-existing-first: before generating any docs, fully read current `schema.yml` (and any colocated `.md`) to capture existing descriptions, tests, semantic models, metrics, and data-team notes.
+- Classify each existing statement:
+  - Objective-verified: backed by tests/SQL/metadata. Preserve; refresh stats if changed and cite evidence/date.
+  - Objective-unverified but plausible: keep; qualify with time-bounded phrasing (e.g., "As of {date}") and add `needs_clarification.md` if validation is pending.
+  - Subjective/contextual notes from data team: preserve verbatim unless disproven; you may add clarifying context but do not remove.
+- Edit discipline:
+  - Never rewrite an entire model doc or section when not requested. Make scoped, in-place edits to the specific fields/lines that need change.
+  - Maintain existing ordering and voice; append concise clarifications rather than replacing paragraphs.
+  - Prefer minimal diffs: add sentences/sub-bullets; avoid wholesale block replacements.
+  - Keep column docs intact; augment with additional lines/tests instead of replacing the whole `description`.
+- Contradictions found: update the specific statement and include a brief correction note (e.g., "Updated {date}: prior note no longer holds because …"), and cite metadata/SQL used.
+- Deprecations: add replacement alongside the deprecated item, mark deprecated in the docs, and retain until migration completes.
+- Change budget guardrail: if your proposed edits would change >30% of lines in a doc, pause and reduce scope to the smallest necessary set unless the user explicitly requested an overhaul.
+- Reporting: in the final summary and changelog, enumerate preserved notes, updated statements (with evidence), any deprecations, and newly added/adjusted tests or semantic elements.
 
 ---
 
@@ -265,7 +303,7 @@ For documentation tasks (models and `semantic_models`), include evidence-backed 
 Prefer inline evidence: e.g., "distinct customer_id ≈ 145k; null rate ≈ 8% (metadata as of {date})."
 
 Changelog (after changes):
-- After applying documentation/tests/model updates, write a concise rationale note to `changelog/<descriptive-name>-<timestamp>.md` with YAML frontmatter (title, tags, date, reviewed: false) that cites the evidence (metadata/SQL/files), lists decisions and rejected alternatives, and references the updated artifacts. Keep enduring knowledge in the model docs and tests; the changelog captures the "why."
+- After applying documentation/tests/model updates, write a concise rationale note to `changelog/<descriptive-name>-<timestamp>.md` with YAML frontmatter (title, date, affected_files) that cites the evidence (metadata/SQL/files), lists decisions and rejected alternatives, and references the specific models/tests/docs you updated. Keep enduring knowledge in the model docs and tests; the changelog captures the "why."
 
 ## Model-level docs (dbt `models:`)
 

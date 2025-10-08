@@ -76,27 +76,34 @@ export async function runAnalyticsEngineerAgent(params: RunAnalyticsEngineerAgen
   // Track accumulated messages as we stream
   let currentMessages = [...messages];
   let accumulatedText = '';
+  let pendingToolCalls: any[] = [];
 
   // Consume the stream
   for await (const part of stream.fullStream) {
     if (part.type === 'tool-call') {
-      const toolCallMessage: ModelMessage = {
-        role: 'assistant',
-        content: [
-          {
-            type: 'tool-call',
-            toolCallId: part.toolCallId,
-            toolName: part.toolName,
-            input: part.input,
-          },
-        ],
-      };
-      currentMessages.push(toolCallMessage);
-      onMessageUpdate?.(currentMessages);
-      await saveModelMessages(chatId, workingDirectory, currentMessages);
+      // Collect tool call - multiple can come in a single turn
+      pendingToolCalls.push({
+        type: 'tool-call',
+        toolCallId: part.toolCallId,
+        toolName: part.toolName,
+        input: part.input,
+      });
     }
 
     if (part.type === 'tool-result') {
+      // Before processing first tool result, create assistant message with all tool calls
+      if (pendingToolCalls.length > 0) {
+        const toolCallMessage: ModelMessage = {
+          role: 'assistant',
+          content: pendingToolCalls,
+        };
+        currentMessages.push(toolCallMessage);
+        onMessageUpdate?.(currentMessages);
+        await saveModelMessages(chatId, workingDirectory, currentMessages);
+        pendingToolCalls = []; // Clear pending tool calls
+      }
+
+      // Add tool result message
       const toolResultMessage: ModelMessage = {
         role: 'tool',
         content: [
@@ -121,6 +128,16 @@ export async function runAnalyticsEngineerAgent(params: RunAnalyticsEngineerAgen
     }
 
     if (part.type === 'finish') {
+      // If there are pending tool calls but no results (shouldn't happen normally), flush them
+      if (pendingToolCalls.length > 0) {
+        const toolCallMessage: ModelMessage = {
+          role: 'assistant',
+          content: pendingToolCalls,
+        };
+        currentMessages.push(toolCallMessage);
+        pendingToolCalls = [];
+      }
+
       // Add final assistant message if there's any text
       if (accumulatedText.trim()) {
         const assistantMessage: ModelMessage = {
