@@ -1,6 +1,6 @@
 import { program as commander } from 'commander';
 import { render } from 'ink';
-import { Main } from '../commands/main';
+import { Main } from '../commands/main/main';
 import { getCurrentVersion } from '../commands/update/update-handler';
 import { setupPreActionHook } from './hooks';
 

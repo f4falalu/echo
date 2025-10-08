@@ -1,6 +1,6 @@
 import { Box, Text } from 'ink';
 import { useEffect, useState } from 'react';
-import { getSetting, setSetting, toggleSetting } from '../utils/settings';
+import { getSetting, setSetting, toggleSetting } from '../../utils/settings';
 
 interface SettingsCommandProps {
   vimMode?: boolean;

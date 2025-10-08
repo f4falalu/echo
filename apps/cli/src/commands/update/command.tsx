@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import { render } from 'ink';
-import { UpdateCommand } from './update/index';
+import { UpdateCommand } from './update';
 
 /**
  * Creates the update command for updating the CLI to the latest version

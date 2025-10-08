@@ -8,19 +8,19 @@ import {
   ChatTitle,
   ChatVersionTagline,
   VimStatus,
-} from '../components/chat-layout';
-import { HistoryBrowser } from '../components/history-browser';
-import { AgentMessageComponent } from '../components/message';
-import { SettingsForm } from '../components/settings-form';
-import { ExpansionContext } from '../hooks/use-expansion';
-import type { CliAgentMessage } from '../services/analytics-engineer-handler';
-import type { Conversation } from '../utils/conversation-history';
-import { loadConversation, saveModelMessages } from '../utils/conversation-history';
-import { getCurrentChatId, initNewSession, setSessionChatId } from '../utils/session';
-import { getSetting } from '../utils/settings';
-import type { SlashCommand } from '../utils/slash-commands';
-import { transformModelMessagesToUI } from '../utils/transform-messages';
-import type { VimMode } from '../utils/vim-mode';
+} from '../../components/chat-layout';
+import { HistoryBrowser } from '../../components/history-browser';
+import { AgentMessageComponent } from '../../components/message';
+import { SettingsForm } from '../../components/settings-form';
+import { ExpansionContext } from '../../hooks/use-expansion';
+import type { CliAgentMessage } from '../../services/analytics-engineer-handler';
+import type { Conversation } from '../../utils/conversation-history';
+import { loadConversation, saveModelMessages } from '../../utils/conversation-history';
+import { getCurrentChatId, initNewSession, setSessionChatId } from '../../utils/session';
+import { getSetting } from '../../utils/settings';
+import type { SlashCommand } from '../../utils/slash-commands';
+import { transformModelMessagesToUI } from '../../utils/transform-messages';
+import type { VimMode } from '../../utils/vim-mode';
 
 type AppMode = 'Planning' | 'Auto-accept' | 'None';
 
@@ -138,7 +138,7 @@ export function Main() {
       await saveModelMessages(chatId, cwd, updatedModelMessages);
 
       // Import and run the analytics engineer agent
-      const { runAnalyticsEngineerAgent } = await import('../services/analytics-engineer-handler');
+      const { runAnalyticsEngineerAgent } = await import('../../services/analytics-engineer-handler');
 
       // Create AbortController for this agent execution
       const abortController = new AbortController();

@@ -7,7 +7,7 @@ import {
   deleteCredentials,
   loadCredentials,
   saveCredentials,
-} from '../utils/credentials';
+} from '../../utils/credentials';
 
 interface AuthProps {
   apiKey?: string;
