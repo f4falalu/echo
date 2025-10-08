@@ -17,6 +17,7 @@ export interface CliAgentMessage {
 export interface RunAnalyticsEngineerAgentParams {
   chatId: string;
   workingDirectory: string;
+  isInResearchMode?: boolean;
   onThinkingStateChange?: (thinking: boolean) => void;
   onMessageUpdate?: (messages: ModelMessage[]) => void;
   abortSignal?: AbortSignal;
@@ -28,7 +29,7 @@ export interface RunAnalyticsEngineerAgentParams {
  * Messages are emitted via callback for immediate UI updates and saved to disk for persistence
  */
 export async function runAnalyticsEngineerAgent(params: RunAnalyticsEngineerAgentParams) {
-  const { chatId, workingDirectory, onThinkingStateChange, onMessageUpdate, abortSignal } = params;
+  const { chatId, workingDirectory, isInResearchMode, onThinkingStateChange, onMessageUpdate, abortSignal } = params;
 
   // Load conversation history to maintain context across sessions
   const conversation = await loadConversation(chatId, workingDirectory);
@@ -62,6 +63,7 @@ export async function runAnalyticsEngineerAgent(params: RunAnalyticsEngineerAgen
     abortSignal,
     apiKey: proxyConfig.apiKey,
     apiUrl: proxyConfig.baseURL,
+    isInResearchMode: isInResearchMode || false,
   });
 
   // Use conversation history - includes user messages, assistant messages, tool calls, and tool results

@@ -30,6 +30,11 @@ export const BashToolOutputSchema = z.object({
 const BashToolContextSchema = z.object({
   messageId: z.string().describe('The message ID for database updates'),
   projectDirectory: z.string().describe('The root directory of the project'),
+  isInResearchMode: z
+    .boolean()
+    .optional()
+    .default(false)
+    .describe('Flag indicating the agent should only allow read-only bash commands'),
   onToolEvent: z.any().optional(),
 });
 

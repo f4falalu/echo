@@ -13,7 +13,7 @@ export {
 } from './planning-thinking-tools/sequential-thinking-tool/sequential-thinking-tool';
 
 // Task tools
-export { createTaskTool } from './task-tools/task-tool/task-tool';
+export { createTaskTool, TASK_TOOL_NAME } from './task-tools/task-tool/task-tool';
 
 // Visualization tools
 export {

@@ -37,6 +37,43 @@ const BLOCKED_DBT_COMMANDS = [
 ];
 
 /**
+ * Validates if a bash command is allowed in research mode (read-only)
+ * @param command - The bash command to validate
+ * @returns Object with isValid boolean and optional error message
+ */
+function validateBashCommandForResearchMode(command: string): { isValid: boolean; error?: string } {
+  // List of write/destructive operations to block
+  const WRITE_PATTERNS = [
+    /\brm\s+/, // rm command
+    /\bmv\s+/, // mv command
+    /\bcp\s+.*\s+/, // cp with destination (allow 'cp file -' to stdout)
+    /\bmkdir\s+/, // mkdir command
+    /\brmdir\s+/, // rmdir command
+    /\btouch\s+/, // touch command
+    />/, // output redirect (>, >>)
+    /\bsed\s+.*-i/, // sed in-place edit
+    /\bawk\s+.*>>/, // awk with output redirect
+    /\bgit\s+(commit|push|add|reset|checkout|merge|rebase|cherry-pick|revert)/, // git write operations
+    /\b(npm|pnpm|yarn|bun)\s+(install|add|remove|update)/, // package manager write operations
+    /\bchmod\s+/, // chmod command
+    /\bchown\s+/, // chown command
+    /\bddt\s+(run|build|seed|snapshot|test|run-operation)/, // dbt write operations (keeping for backward compat)
+  ];
+
+  // Check each pattern
+  for (const pattern of WRITE_PATTERNS) {
+    if (pattern.test(command)) {
+      return {
+        isValid: false,
+        error: `This command is not allowed in research mode. Research mode only permits read-only operations. Command blocked: ${command.substring(0, 100)}`,
+      };
+    }
+  }
+
+  return { isValid: true };
+}
+
+/**
  * Validates if a dbt command is allowed (read-only)
  * @param command - The bash command to validate
  * @returns Object with isValid boolean and optional error message
@@ -183,12 +220,45 @@ async function executeCommand(
  */
 export function createBashToolExecute(context: BashToolContext) {
   return async function execute(input: BashToolInput): Promise<BashToolOutput> {
-    const { messageId, projectDirectory, onToolEvent } = context;
+    const { messageId, projectDirectory, isInResearchMode, onToolEvent } = context;
     const { command, timeout } = input;
 
     console.info(`Executing bash command for message ${messageId}: ${command}`);
 
-    // Validate dbt commands before execution
+    // Validate commands in research mode
+    if (isInResearchMode) {
+      const researchModeValidation = validateBashCommandForResearchMode(command);
+      if (!researchModeValidation.isValid) {
+        const errorResult: BashToolOutput = {
+          command,
+          stdout: '',
+          stderr: researchModeValidation.error || 'Command validation failed',
+          exitCode: 1,
+          success: false,
+          error: researchModeValidation.error,
+        };
+
+        console.error(`Command blocked in research mode: ${command}`, researchModeValidation.error);
+
+        // Emit events for blocked command
+        onToolEvent?.({
+          tool: 'bashTool',
+          event: 'start',
+          args: input,
+        });
+
+        onToolEvent?.({
+          tool: 'bashTool',
+          event: 'complete',
+          result: errorResult,
+          args: input,
+        });
+
+        return errorResult;
+      }
+    }
+
+    // Validate dbt commands before execution (always, regardless of research mode)
     const validation = validateDbtCommand(command);
     if (!validation.isValid) {
       const errorResult: BashToolOutput = {

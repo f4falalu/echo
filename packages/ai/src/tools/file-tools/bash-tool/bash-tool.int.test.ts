@@ -24,6 +24,7 @@ describe.sequential('bash-tool integration test', () => {
     const bashTool = createBashTool({
       messageId: `test-message-${Date.now()}`,
       projectDirectory: testDir,
+      isInResearchMode: false,
     });
 
     const result = await materialize(
@@ -48,6 +49,7 @@ describe.sequential('bash-tool integration test', () => {
     const bashTool = createBashTool({
       messageId: `test-message-${Date.now()}`,
       projectDirectory: testDir,
+      isInResearchMode: false,
     });
 
     const result = await materialize(
@@ -72,6 +74,7 @@ describe.sequential('bash-tool integration test', () => {
     const bashTool = createBashTool({
       messageId: `test-message-${Date.now()}`,
       projectDirectory: testDir,
+      isInResearchMode: false,
     });
 
     const result = await materialize(
@@ -97,6 +100,7 @@ describe.sequential('bash-tool integration test', () => {
     const bashTool = createBashTool({
       messageId: `test-message-${Date.now()}`,
       projectDirectory: testDir,
+      isInResearchMode: false,
     });
 
     const rawResult = await bashTool.execute!(
@@ -119,6 +123,7 @@ describe.sequential('bash-tool integration test', () => {
     const bashTool = createBashTool({
       messageId: `test-message-${Date.now()}`,
       projectDirectory: testDir,
+      isInResearchMode: false,
     });
 
     const rawResult = await bashTool.execute!(
@@ -141,6 +146,7 @@ describe.sequential('bash-tool integration test', () => {
     const bashTool = createBashTool({
       messageId: `test-message-${Date.now()}`,
       projectDirectory: testDir,
+      isInResearchMode: false,
     });
 
     const testFile = `test-bash-${Date.now()}.txt`;
@@ -169,6 +175,7 @@ describe.sequential('bash-tool integration test', () => {
     const bashTool = createBashTool({
       messageId: `test-message-${Date.now()}`,
       projectDirectory: testDir,
+      isInResearchMode: false,
     });
 
     // Create test file
@@ -198,6 +205,7 @@ describe.sequential('bash-tool integration test', () => {
     const bashTool = createBashTool({
       messageId: `test-message-${Date.now()}`,
       projectDirectory: testDir,
+      isInResearchMode: false,
     });
 
     const rawResult = await bashTool.execute!(

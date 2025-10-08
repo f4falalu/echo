@@ -7,6 +7,7 @@ export interface RunHeadlessParams {
   prompt: string;
   chatId?: string;
   workingDirectory?: string;
+  isInResearchMode?: boolean;
 }
 
 /**
@@ -14,7 +15,7 @@ export interface RunHeadlessParams {
  * Returns the chatId for resuming the conversation later
  */
 export async function runHeadless(params: RunHeadlessParams): Promise<string> {
-  const { prompt, chatId: providedChatId, workingDirectory = process.cwd() } = params;
+  const { prompt, chatId: providedChatId, workingDirectory = process.cwd(), isInResearchMode } = params;
 
   // Use provided chatId or generate new one
   const chatId = providedChatId || randomUUID();
@@ -39,6 +40,7 @@ export async function runHeadless(params: RunHeadlessParams): Promise<string> {
   await runAnalyticsEngineerAgent({
     chatId,
     workingDirectory,
+    ...(isInResearchMode !== undefined && { isInResearchMode }),
     // No callbacks needed in headless mode - messages are saved automatically
   });
 

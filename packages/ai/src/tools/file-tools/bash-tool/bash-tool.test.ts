@@ -27,6 +27,7 @@ describe('createBashTool', () => {
   const mockContext = {
     messageId: 'test-message-id',
     projectDirectory: '/tmp/test-project',
+    isInResearchMode: false,
   };
 
   beforeEach(() => {

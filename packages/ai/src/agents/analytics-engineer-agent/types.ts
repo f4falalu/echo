@@ -45,6 +45,11 @@ export const AnalyticsEngineerAgentOptionsSchema = z.object({
     .boolean()
     .optional()
     .describe('Flag indicating this is a subagent (prevents infinite recursion)'),
+  isInResearchMode: z
+    .boolean()
+    .optional()
+    .default(false)
+    .describe('Flag indicating the agent should only perform read-only operations'),
   abortSignal: z
     .custom<AbortSignal>()
     .optional()

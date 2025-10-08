@@ -23,6 +23,7 @@ program
   .option('--cwd <path>', 'Set working directory for the CLI')
   .option('--prompt <prompt>', 'Run agent in headless mode with the given prompt')
   .option('--chatId <id>', 'Continue an existing conversation (used with --prompt)')
+  .option('--research', 'Run agent in research mode (read-only, no file modifications)')
   .hook('preAction', (thisCommand) => {
     // Process --cwd option before any command runs
     const opts = thisCommand.optsWithGlobals();
@@ -31,7 +32,7 @@ program
     }
   });
 
-program.action(async (options: { cwd?: string; prompt?: string; chatId?: string }) => {
+program.action(async (options: { cwd?: string; prompt?: string; chatId?: string; research?: boolean }) => {
   // Change working directory if specified
   if (options.cwd) {
     process.chdir(options.cwd);
@@ -44,6 +45,7 @@ program.action(async (options: { cwd?: string; prompt?: string; chatId?: string 
       const chatId = await runHeadless({
         prompt: options.prompt,
         ...(options.chatId && { chatId: options.chatId }),
+        ...(options.research && { isInResearchMode: options.research }),
       });
       console.log(chatId);
       process.exit(0);

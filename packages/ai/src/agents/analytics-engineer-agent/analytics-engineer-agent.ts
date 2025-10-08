@@ -6,7 +6,10 @@ import {
 import { Sonnet4 } from '../../llm/sonnet-4';
 import { IDLE_TOOL_NAME } from '../../tools/communication-tools/idle-tool/idle-tool';
 import { createAnalyticsEngineerToolset } from './create-analytics-engineer-toolset';
-import { getDocsAgentSystemPrompt as getAnalyticsEngineerAgentSystemPrompt } from './get-analytics-engineer-agent-system-prompt';
+import {
+  getDocsAgentSystemPrompt as getAnalyticsEngineerAgentSystemPrompt,
+  getAnalyticsEngineerSubagentSystemPrompt,
+} from './get-analytics-engineer-agent-system-prompt';
 import type {
   AnalyticsEngineerAgentOptions,
   AnalyticsEngineerAgentStreamOptions,
@@ -20,9 +23,14 @@ const STOP_CONDITIONS = [stepCountIs(250)];
 export function createAnalyticsEngineerAgent(
   analyticsEngineerAgentOptions: AnalyticsEngineerAgentOptions
 ) {
+  // Use subagent prompt if this is a subagent, otherwise use main agent prompt
+  const promptFunction = analyticsEngineerAgentOptions.isSubagent
+    ? getAnalyticsEngineerSubagentSystemPrompt
+    : getAnalyticsEngineerAgentSystemPrompt;
+
   const systemMessage = {
     role: 'system',
-    content: getAnalyticsEngineerAgentSystemPrompt(analyticsEngineerAgentOptions.folder_structure),
+    content: promptFunction(analyticsEngineerAgentOptions.folder_structure),
     providerOptions: DEFAULT_ANALYTICS_ENGINEER_OPTIONS,
   } as ModelMessage;
 
