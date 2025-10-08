@@ -1,8 +1,8 @@
 import type { Command } from 'commander';
-import { createAuthCommand } from './auth';
-import { createDeployCommand } from './deploy';
-import { createInitCommand } from './init';
-import { createSettingsCommand } from './settings';
+import { createAuthCommand } from './auth/command';
+import { createDeployCommand } from './deploy/command';
+import { createInitCommand } from './init/command';
+import { createSettingsCommand } from './settings/command';
 import { createUpdateCommand } from './update';
 
 /**
