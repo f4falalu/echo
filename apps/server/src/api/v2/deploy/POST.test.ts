@@ -179,20 +179,17 @@ describe('deployHandler', () => {
 
       const result = await deployHandler(mockRequest, mockUser);
 
-      expect(mockUpsertDataset).toHaveBeenCalledWith(
-        {},
-        {
-          name: 'test_model',
-          dataSourceId: 'ds-123',
-          organizationId: 'org-123',
-          database: 'test_db',
-          schema: 'public',
-          description: 'Test model',
-          sql_definition: 'SELECT * FROM test',
-          yml_file: 'model: test',
-          userId: 'user-123',
-        }
-      );
+      expect(mockUpsertDataset).toHaveBeenCalledWith({
+        name: 'test_model',
+        dataSourceId: 'ds-123',
+        organizationId: 'org-123',
+        database: 'test_db',
+        schema: 'public',
+        description: 'Test model',
+        sql_definition: 'SELECT * FROM test',
+        yml_file: 'model: test',
+        userId: 'user-123',
+      });
 
       expect(result.models.success).toEqual([
         {

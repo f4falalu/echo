@@ -57,8 +57,8 @@ export const DEFAULT_ANTHROPIC_OPTIONS: AnthropicProviderOptions = {
     cacheControl: { type: 'ephemeral' },
     thinking: {
       type: 'enabled',
-      budgetTokens: 10000 // Set desired tokens for reasoning
-    }
+      budgetTokens: 10000, // Set desired tokens for reasoning
+    },
   },
   bedrock: {
     cachePoint: { type: 'default' },
@@ -66,8 +66,8 @@ export const DEFAULT_ANTHROPIC_OPTIONS: AnthropicProviderOptions = {
       anthropic_beta: ['fine-grained-tool-streaming-2025-05-14'],
       reasoning_config: {
         type: 'enabled',
-        budget_tokens: 10000 // Adjust as needed
-      }
+        budget_tokens: 10000, // Adjust as needed
+      },
     },
   },
 };
@@ -88,8 +88,8 @@ export const DEFAULT_ANALYTICS_ENGINEER_OPTIONS = {
     cacheControl: { type: 'ephemeral' },
     thinking: {
       type: 'enabled',
-      budgetTokens: 10000 // Set desired tokens for reasoning
-    }
+      budgetTokens: 10000, // Set desired tokens for reasoning
+    },
   },
   bedrock: {
     cachePoint: { type: 'default' },
@@ -97,8 +97,8 @@ export const DEFAULT_ANALYTICS_ENGINEER_OPTIONS = {
       anthropic_beta: ['fine-grained-tool-streaming-2025-05-14'],
       reasoning_config: {
         type: 'enabled',
-        budget_tokens: 10000 // Adjust as needed
-      }
+        budget_tokens: 10000, // Adjust as needed
+      },
     },
   },
 };

@@ -75,7 +75,7 @@ export function createRetrieveMetadataExecute(context: RetrieveMetadataContext) 
         return result.data;
       }
 
-      // Throw error if retrieval failed
+      // Throw error with clear message - API server handles logging
       throw new Error(result.error || 'Metadata retrieval failed');
     },
     { name: RETRIEVE_METADATA_TOOL_NAME }

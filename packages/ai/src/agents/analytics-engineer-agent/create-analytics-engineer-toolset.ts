@@ -3,7 +3,6 @@ import {
   EDIT_FILE_TOOL_NAME,
   GLOB_TOOL_NAME,
   GREP_TOOL_NAME,
-  IDLE_TOOL_NAME,
   LS_TOOL_NAME,
   MULTI_EDIT_FILE_TOOL_NAME,
   READ_FILE_TOOL_NAME,
@@ -15,7 +14,6 @@ import {
   createEditFileTool,
   createGlobTool,
   createGrepTool,
-  createIdleTool,
   createLsTool,
   createMultiEditFileTool,
   createReadFileTool,
@@ -32,7 +30,6 @@ import type { AnalyticsEngineerAgentOptions } from './types';
 export async function createAnalyticsEngineerToolset(
   analyticsEngineerAgentOptions: AnalyticsEngineerAgentOptions
 ) {
-  const idleTool = createIdleTool({});
   const writeFileTool = createWriteFileTool({
     messageId: analyticsEngineerAgentOptions.messageId,
     projectDirectory: analyticsEngineerAgentOptions.folder_structure,
@@ -71,7 +68,6 @@ export async function createAnalyticsEngineerToolset(
     todosList: analyticsEngineerAgentOptions.todosList,
   });
   const runSqlTool = createRunSqlTool({
-    messageId: analyticsEngineerAgentOptions.messageId,
     apiKey: analyticsEngineerAgentOptions.apiKey || process.env.BUSTER_API_KEY || '',
     apiUrl:
       analyticsEngineerAgentOptions.apiUrl || process.env.BUSTER_API_URL || 'http://localhost:3000',
@@ -99,7 +95,6 @@ export async function createAnalyticsEngineerToolset(
   //   : null;
 
   return {
-    [IDLE_TOOL_NAME]: idleTool,
     [WRITE_FILE_TOOL_NAME]: writeFileTool,
     [GREP_TOOL_NAME]: grepTool,
     [GLOB_TOOL_NAME]: globTool,

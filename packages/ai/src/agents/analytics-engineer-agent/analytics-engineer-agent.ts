@@ -15,7 +15,7 @@ import type {
 
 export const ANALYST_ENGINEER_AGENT_NAME = 'analyticsEngineerAgent';
 
-const STOP_CONDITIONS = [stepCountIs(100), hasToolCall(IDLE_TOOL_NAME)];
+const STOP_CONDITIONS = [stepCountIs(250)];
 
 export function createAnalyticsEngineerAgent(
   analyticsEngineerAgentOptions: AnalyticsEngineerAgentOptions

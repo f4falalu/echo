@@ -46,7 +46,7 @@ function validateDbtCommand(command: string): { isValid: boolean; error?: string
   // Handle cases like: "dbt run", "dbt run --select model", "cd path && dbt run"
   const dbtMatch = command.match(/\bdbt\s+([a-z-]+)/);
 
-  if (!dbtMatch) {
+  if (!dbtMatch || !dbtMatch[1]) {
     // Not a dbt command, allow it
     return { isValid: true };
   }

@@ -21,7 +21,6 @@ export const RunSqlInputSchema = z.object({
 const RunSqlContextSchema = z.object({
   apiKey: z.string().describe('API key for authentication'),
   apiUrl: z.string().describe('Base URL of the API server'),
-  messageId: z.string().describe('Message ID for database updates'),
 });
 
 export type RunSqlInput = z.infer<typeof RunSqlInputSchema>;

@@ -130,7 +130,7 @@ export function createRunSqlExecute(context: RunSqlContext) {
         return result.data;
       }
 
-      // Throw error if execution failed
+      // Throw error with clear message - API server handles logging
       throw new Error(result.error || 'Query execution failed');
     },
     { name: RUN_SQL_TOOL_NAME }
