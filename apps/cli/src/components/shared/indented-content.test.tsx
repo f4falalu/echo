@@ -35,7 +35,11 @@ describe('IndentedContent', () => {
   });
 
   it('should handle text nodes directly', () => {
-    const { lastFrame } = render(<IndentedContent>Direct text content</IndentedContent>);
+    const { lastFrame } = render(
+      <IndentedContent>
+        <Text>Direct text content</Text>
+      </IndentedContent>
+    );
 
     expect(lastFrame()).toContain('Direct text content');
   });
