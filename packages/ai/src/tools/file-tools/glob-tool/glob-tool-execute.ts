@@ -1,5 +1,6 @@
 import { readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
+import { wrapTraced } from 'braintrust';
 import { minimatch } from 'minimatch';
 import type { GlobToolContext, GlobToolInput, GlobToolOutput } from './glob-tool';
 
@@ -69,81 +70,84 @@ async function executeGlob(pattern: string, searchPath: string): Promise<Match[]
  * @returns The execute function
  */
 export function createGlobToolExecute(context: GlobToolContext) {
-  return async function execute(input: GlobToolInput): Promise<GlobToolOutput> {
-    const { messageId, projectDirectory, onToolEvent } = context;
-    const { pattern, path: inputPath, offset = 0, limit = DEFAULT_LIMIT } = input;
+  return wrapTraced(
+    async function execute(input: GlobToolInput): Promise<GlobToolOutput> {
+      const { messageId, projectDirectory, onToolEvent } = context;
+      const { pattern, path: inputPath, offset = 0, limit = DEFAULT_LIMIT } = input;
 
-    if (!pattern) {
-      throw new Error('pattern is required');
-    }
+      if (!pattern) {
+        throw new Error('pattern is required');
+      }
 
-    const searchPath = inputPath ? path.resolve(projectDirectory, inputPath) : projectDirectory;
-
-    console.info(
-      `Searching for pattern "${pattern}" in ${searchPath} (offset: ${offset}, limit: ${limit}) for message ${messageId}`
-    );
-
-    // Emit start event
-    onToolEvent?.({
-      tool: 'globTool',
-      event: 'start',
-      args: input,
-    });
-
-    try {
-      // Execute glob search
-      const matches = await executeGlob(pattern, searchPath);
-
-      // Sort by modification time (newest first)
-      matches.sort((a, b) => b.modTime - a.modTime);
-
-      // Apply offset and limit
-      const totalMatches = matches.length;
-      const endIndex = Math.min(offset + limit, totalMatches);
-      const finalMatches = matches.slice(offset, endIndex);
-      const truncated = endIndex < totalMatches;
+      const searchPath = inputPath ? path.resolve(projectDirectory, inputPath) : projectDirectory;
 
       console.info(
-        `Glob search complete: ${finalMatches.length} files found${truncated ? ' (truncated)' : ''}`
+        `Searching for pattern "${pattern}" in ${searchPath} (offset: ${offset}, limit: ${limit}) for message ${messageId}`
       );
 
-      const result = {
-        pattern,
-        matches: finalMatches,
-        totalMatches: finalMatches.length,
-        truncated,
-      };
-
-      // Emit complete event
+      // Emit start event
       onToolEvent?.({
         tool: 'globTool',
-        event: 'complete',
-        result,
+        event: 'start',
         args: input,
       });
 
-      return result;
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.error(`Glob search failed:`, errorMessage);
+      try {
+        // Execute glob search
+        const matches = await executeGlob(pattern, searchPath);
 
-      // Return empty results on error
-      const result = {
-        pattern,
-        matches: [],
-        totalMatches: 0,
-        truncated: false,
-      };
+        // Sort by modification time (newest first)
+        matches.sort((a, b) => b.modTime - a.modTime);
 
-      // Emit complete event even on error
-      onToolEvent?.({
-        tool: 'globTool',
-        event: 'complete',
-        result,
-        args: input,
-      });
+        // Apply offset and limit
+        const totalMatches = matches.length;
+        const endIndex = Math.min(offset + limit, totalMatches);
+        const finalMatches = matches.slice(offset, endIndex);
+        const truncated = endIndex < totalMatches;
 
-      return result;
-    }
-  };
+        console.info(
+          `Glob search complete: ${finalMatches.length} files found${truncated ? ' (truncated)' : ''}`
+        );
+
+        const result = {
+          pattern,
+          matches: finalMatches,
+          totalMatches: finalMatches.length,
+          truncated,
+        };
+
+        // Emit complete event
+        onToolEvent?.({
+          tool: 'globTool',
+          event: 'complete',
+          result,
+          args: input,
+        });
+
+        return result;
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error(`Glob search failed:`, errorMessage);
+
+        // Return empty results on error
+        const result = {
+          pattern,
+          matches: [],
+          totalMatches: 0,
+          truncated: false,
+        };
+
+        // Emit complete event even on error
+        onToolEvent?.({
+          tool: 'globTool',
+          event: 'complete',
+          result,
+          args: input,
+        });
+
+        return result;
+      }
+    },
+    { name: 'glob-execute' }
+  );
 }

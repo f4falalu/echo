@@ -31,7 +31,7 @@ catalogs:
       specifier: ^19.1.9
       version: 19.1.9
     ai:
-      specifier: ^5.0.44
+      specifier: ^5.0.6
       version: 5.0.44
     axios:
       specifier: ^1.12.2

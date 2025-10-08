@@ -1,4 +1,5 @@
 import { type ModelMessage, hasToolCall, stepCountIs, streamText } from 'ai';
+import { wrapTraced } from 'braintrust';
 import {
   DEFAULT_ANALYTICS_ENGINEER_OPTIONS,
   DEFAULT_ANTHROPIC_OPTIONS,
@@ -37,18 +38,21 @@ export function createAnalyticsEngineerAgent(
   async function stream({ messages }: AnalyticsEngineerAgentStreamOptions) {
     const toolSet = await createAnalyticsEngineerToolset(analyticsEngineerAgentOptions);
 
-    const streamFn = () =>
-      streamText({
-        model: analyticsEngineerAgentOptions.model || Sonnet4,
-        providerOptions: DEFAULT_ANALYTICS_ENGINEER_OPTIONS,
-        tools: toolSet,
-        messages: [systemMessage, ...messages],
-        stopWhen: STOP_CONDITIONS,
-        maxOutputTokens: 64000,
-        // temperature: 0,
-      });
-
-    return streamFn();
+    return wrapTraced(
+      () =>
+        streamText({
+          model: analyticsEngineerAgentOptions.model || Sonnet4,
+          providerOptions: DEFAULT_ANALYTICS_ENGINEER_OPTIONS,
+          tools: toolSet,
+          messages: [systemMessage, ...messages],
+          stopWhen: STOP_CONDITIONS,
+          maxOutputTokens: 64000,
+          // temperature: 0,
+        }),
+      {
+        name: 'Analytics Engineer Agent',
+      }
+    )();
   }
 
   return {

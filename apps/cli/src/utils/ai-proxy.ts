@@ -23,7 +23,7 @@ export async function getProxyConfig(): Promise<ProxyConfig> {
 
   if (!creds?.apiKey) {
     throw new Error(
-      'API key not found. Please run "buster login" or set BUSTER_API_KEY environment variable'
+      'API key not found. Please set BUSTER_API_KEY environment variable or run "buster auth" to save credentials.'
     );
   }
 

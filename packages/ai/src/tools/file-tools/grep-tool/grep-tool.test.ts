@@ -1,3 +1,4 @@
+import { wrapTraced } from 'braintrust';
 import type { GrepToolContext, GrepToolInput, GrepToolOutput } from './grep-tool';
 
 const DEFAULT_LIMIT = 100;
@@ -96,81 +97,84 @@ async function executeRipgrep(
  * @returns The execute function
  */
 export function createGrepSearchToolExecute(context: GrepToolContext) {
-  return async function execute(input: GrepToolInput): Promise<GrepToolOutput> {
-    const { messageId, projectDirectory, onToolEvent } = context;
-    const { pattern, path, glob, offset = 0, limit = DEFAULT_LIMIT } = input;
+  return wrapTraced(
+    async function execute(input: GrepToolInput): Promise<GrepToolOutput> {
+      const { messageId, projectDirectory, onToolEvent } = context;
+      const { pattern, path, glob, offset = 0, limit = DEFAULT_LIMIT } = input;
 
-    if (!pattern) {
-      throw new Error('pattern is required');
-    }
+      if (!pattern) {
+        throw new Error('pattern is required');
+      }
 
-    const searchPath = path || projectDirectory;
-
-    console.info(
-      `Searching for pattern "${pattern}" in ${searchPath} (offset: ${offset}, limit: ${limit}) for message ${messageId}`
-    );
-
-    // Emit start event
-    onToolEvent?.({
-      tool: 'grepTool',
-      event: 'start',
-      args: input,
-    });
-
-    try {
-      // Execute ripgrep
-      const matches = await executeRipgrep(pattern, searchPath, glob);
-
-      // Sort by modification time (newest first)
-      matches.sort((a, b) => b.modTime - a.modTime);
-
-      // Apply offset and limit
-      const totalMatches = matches.length;
-      const endIndex = Math.min(offset + limit, totalMatches);
-      const finalMatches = matches.slice(offset, endIndex);
-      const truncated = endIndex < totalMatches;
+      const searchPath = path || projectDirectory;
 
       console.info(
-        `Search complete: ${finalMatches.length} matches found${truncated ? ' (truncated)' : ''}`
+        `Searching for pattern "${pattern}" in ${searchPath} (offset: ${offset}, limit: ${limit}) for message ${messageId}`
       );
 
-      const result = {
-        pattern,
-        matches: finalMatches,
-        totalMatches: finalMatches.length,
-        truncated,
-      };
-
-      // Emit complete event
+      // Emit start event
       onToolEvent?.({
         tool: 'grepTool',
-        event: 'complete',
-        result,
+        event: 'start',
         args: input,
       });
 
-      return result;
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.error(`Grep search failed:`, errorMessage);
+      try {
+        // Execute ripgrep
+        const matches = await executeRipgrep(pattern, searchPath, glob);
 
-      // Return empty results on error
-      const result = {
-        pattern,
-        matches: [],
-        totalMatches: 0,
-        truncated: false,
-      };
+        // Sort by modification time (newest first)
+        matches.sort((a, b) => b.modTime - a.modTime);
 
-      // Emit complete event even on error
-      onToolEvent?.({
-        tool: 'grepTool',
-        event: 'complete',
-        result,
-        args: input,
-      });
+        // Apply offset and limit
+        const totalMatches = matches.length;
+        const endIndex = Math.min(offset + limit, totalMatches);
+        const finalMatches = matches.slice(offset, endIndex);
+        const truncated = endIndex < totalMatches;
 
-      return result;
-    }
-  };
+        console.info(
+          `Search complete: ${finalMatches.length} matches found${truncated ? ' (truncated)' : ''}`
+        );
+
+        const result = {
+          pattern,
+          matches: finalMatches,
+          totalMatches: finalMatches.length,
+          truncated,
+        };
+
+        // Emit complete event
+        onToolEvent?.({
+          tool: 'grepTool',
+          event: 'complete',
+          result,
+          args: input,
+        });
+
+        return result;
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error(`Grep search failed:`, errorMessage);
+
+        // Return empty results on error
+        const result = {
+          pattern,
+          matches: [],
+          totalMatches: 0,
+          truncated: false,
+        };
+
+        // Emit complete event even on error
+        onToolEvent?.({
+          tool: 'grepTool',
+          event: 'complete',
+          result,
+          args: input,
+        });
+
+        return result;
+      }
+    },
+    { name: 'grep-execute' }
+  );
 }

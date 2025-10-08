@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { wrapTraced } from 'braintrust';
 import { createTwoFilesPatch } from 'diff';
 import type { EditFileToolContext, EditFileToolInput, EditFileToolOutput } from './edit-file-tool';
 
@@ -546,96 +547,99 @@ function validateFilePath(filePath: string, projectDirectory: string): void {
  * Creates the execute function for the edit file tool
  */
 export function createEditFileToolExecute(context: EditFileToolContext) {
-  return async function execute(input: EditFileToolInput): Promise<EditFileToolOutput> {
-    const { messageId, projectDirectory, onToolEvent } = context;
-    const { filePath, oldString, newString, replaceAll } = input;
+  return wrapTraced(
+    async function execute(input: EditFileToolInput): Promise<EditFileToolOutput> {
+      const { messageId, projectDirectory, onToolEvent } = context;
+      const { filePath, oldString, newString, replaceAll } = input;
 
-    console.info(`Editing file ${filePath} for message ${messageId}`);
+      console.info(`Editing file ${filePath} for message ${messageId}`);
 
-    // Emit start event
-    onToolEvent?.({
-      tool: 'editFileTool',
-      event: 'start',
-      args: input,
-    });
-
-    try {
-      // Convert to absolute path if relative
-      const absolutePath = path.isAbsolute(filePath)
-        ? filePath
-        : path.join(projectDirectory, filePath);
-
-      // Validate the file path is within the project directory
-      validateFilePath(absolutePath, projectDirectory);
-
-      // Check if file exists
-      const file = Bun.file(absolutePath);
-      const stats = await file.stat().catch(() => {});
-      if (!stats) {
-        return {
-          success: false,
-          filePath: absolutePath,
-          errorMessage: `File ${filePath} not found`,
-        };
-      }
-
-      if (stats.isDirectory()) {
-        return {
-          success: false,
-          filePath: absolutePath,
-          errorMessage: `Path is a directory, not a file: ${filePath}`,
-        };
-      }
-
-      // Read file content
-      const contentOld = await file.text();
-
-      // Perform replacement
-      const contentNew = replace(contentOld, oldString, newString, replaceAll);
-
-      // Generate diff
-      const diff = trimDiff(createTwoFilesPatch(filePath, filePath, contentOld, contentNew));
-
-      // Write the updated content
-      await Bun.write(absolutePath, contentNew);
-
-      console.info(`Successfully edited file: ${absolutePath}`);
-
-      const output = {
-        success: true,
-        filePath: absolutePath,
-        message: `Successfully replaced "${oldString}" with "${newString}" in ${filePath}`,
-        diff,
-      };
-
-      // Emit complete event
+      // Emit start event
       onToolEvent?.({
         tool: 'editFileTool',
-        event: 'complete',
-        result: output,
+        event: 'start',
         args: input,
       });
 
-      return output;
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.error(`Error editing file ${filePath}:`, errorMessage);
+      try {
+        // Convert to absolute path if relative
+        const absolutePath = path.isAbsolute(filePath)
+          ? filePath
+          : path.join(projectDirectory, filePath);
 
-      const output = {
-        success: false,
-        filePath,
-        errorMessage,
-      };
+        // Validate the file path is within the project directory
+        validateFilePath(absolutePath, projectDirectory);
 
-      // Emit complete event even on error
-      onToolEvent?.({
-        tool: 'editFileTool',
-        event: 'complete',
-        result: output,
-        args: input,
-      });
+        // Check if file exists
+        const file = Bun.file(absolutePath);
+        const stats = await file.stat().catch(() => {});
+        if (!stats) {
+          return {
+            success: false,
+            filePath: absolutePath,
+            errorMessage: `File ${filePath} not found`,
+          };
+        }
 
-      return output;
-    }
-  };
+        if (stats.isDirectory()) {
+          return {
+            success: false,
+            filePath: absolutePath,
+            errorMessage: `Path is a directory, not a file: ${filePath}`,
+          };
+        }
+
+        // Read file content
+        const contentOld = await file.text();
+
+        // Perform replacement
+        const contentNew = replace(contentOld, oldString, newString, replaceAll);
+
+        // Generate diff
+        const diff = trimDiff(createTwoFilesPatch(filePath, filePath, contentOld, contentNew));
+
+        // Write the updated content
+        await Bun.write(absolutePath, contentNew);
+
+        console.info(`Successfully edited file: ${absolutePath}`);
+
+        const output = {
+          success: true,
+          filePath: absolutePath,
+          message: `Successfully replaced "${oldString}" with "${newString}" in ${filePath}`,
+          diff,
+        };
+
+        // Emit complete event
+        onToolEvent?.({
+          tool: 'editFileTool',
+          event: 'complete',
+          result: output,
+          args: input,
+        });
+
+        return output;
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error(`Error editing file ${filePath}:`, errorMessage);
+
+        const output = {
+          success: false,
+          filePath,
+          errorMessage,
+        };
+
+        // Emit complete event even on error
+        onToolEvent?.({
+          tool: 'editFileTool',
+          event: 'complete',
+          result: output,
+          args: input,
+        });
+
+        return output;
+      }
+    },
+    { name: 'edit-file-execute' }
+  );
 }

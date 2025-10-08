@@ -1,3 +1,4 @@
+import { wrapTraced } from 'braintrust';
 import type { BashToolContext, BashToolInput, BashToolOutput } from './bash-tool';
 
 const MAX_OUTPUT_LENGTH = 30_000;
@@ -219,26 +220,62 @@ async function executeCommand(
  * @returns The execute function
  */
 export function createBashToolExecute(context: BashToolContext) {
-  return async function execute(input: BashToolInput): Promise<BashToolOutput> {
-    const { messageId, projectDirectory, isInResearchMode, onToolEvent } = context;
-    const { command, timeout } = input;
+  return wrapTraced(
+    async function execute(input: BashToolInput): Promise<BashToolOutput> {
+      const { messageId, projectDirectory, isInResearchMode, onToolEvent } = context;
+      const { command, timeout } = input;
 
-    console.info(`Executing bash command for message ${messageId}: ${command}`);
+      console.info(`Executing bash command for message ${messageId}: ${command}`);
 
-    // Validate commands in research mode
-    if (isInResearchMode) {
-      const researchModeValidation = validateBashCommandForResearchMode(command);
-      if (!researchModeValidation.isValid) {
+      // Validate commands in research mode
+      if (isInResearchMode) {
+        const researchModeValidation = validateBashCommandForResearchMode(command);
+        if (!researchModeValidation.isValid) {
+          const errorResult: BashToolOutput = {
+            command,
+            stdout: '',
+            stderr: researchModeValidation.error || 'Command validation failed',
+            exitCode: 1,
+            success: false,
+            error: researchModeValidation.error,
+          };
+
+          console.error(
+            `Command blocked in research mode: ${command}`,
+            researchModeValidation.error
+          );
+
+          // Emit events for blocked command
+          onToolEvent?.({
+            tool: 'bashTool',
+            event: 'start',
+            args: input,
+          });
+
+          onToolEvent?.({
+            tool: 'bashTool',
+            event: 'complete',
+            result: errorResult,
+            args: input,
+          });
+
+          return errorResult;
+        }
+      }
+
+      // Validate dbt commands before execution (always, regardless of research mode)
+      const validation = validateDbtCommand(command);
+      if (!validation.isValid) {
         const errorResult: BashToolOutput = {
           command,
           stdout: '',
-          stderr: researchModeValidation.error || 'Command validation failed',
+          stderr: validation.error || 'Command validation failed',
           exitCode: 1,
           success: false,
-          error: researchModeValidation.error,
+          error: validation.error,
         };
 
-        console.error(`Command blocked in research mode: ${command}`, researchModeValidation.error);
+        console.error(`Command blocked: ${command}`, validation.error);
 
         // Emit events for blocked command
         onToolEvent?.({
@@ -256,64 +293,34 @@ export function createBashToolExecute(context: BashToolContext) {
 
         return errorResult;
       }
-    }
 
-    // Validate dbt commands before execution (always, regardless of research mode)
-    const validation = validateDbtCommand(command);
-    if (!validation.isValid) {
-      const errorResult: BashToolOutput = {
-        command,
-        stdout: '',
-        stderr: validation.error || 'Command validation failed',
-        exitCode: 1,
-        success: false,
-        error: validation.error,
-      };
-
-      console.error(`Command blocked: ${command}`, validation.error);
-
-      // Emit events for blocked command
+      // Emit start event
       onToolEvent?.({
         tool: 'bashTool',
         event: 'start',
         args: input,
       });
 
+      const commandTimeout = Math.min(timeout ?? DEFAULT_TIMEOUT, MAX_TIMEOUT);
+      const result = await executeCommand(command, commandTimeout, projectDirectory);
+
+      // Log result
+      if (result.success) {
+        console.info(`Command succeeded: ${command}`);
+      } else {
+        console.error(`Command failed: ${command}`, result.error);
+      }
+
+      // Emit complete event
       onToolEvent?.({
         tool: 'bashTool',
         event: 'complete',
-        result: errorResult,
+        result,
         args: input,
       });
 
-      return errorResult;
-    }
-
-    // Emit start event
-    onToolEvent?.({
-      tool: 'bashTool',
-      event: 'start',
-      args: input,
-    });
-
-    const commandTimeout = Math.min(timeout ?? DEFAULT_TIMEOUT, MAX_TIMEOUT);
-    const result = await executeCommand(command, commandTimeout, projectDirectory);
-
-    // Log result
-    if (result.success) {
-      console.info(`Command succeeded: ${command}`);
-    } else {
-      console.error(`Command failed: ${command}`, result.error);
-    }
-
-    // Emit complete event
-    onToolEvent?.({
-      tool: 'bashTool',
-      event: 'complete',
-      result,
-      args: input,
-    });
-
-    return result;
-  };
+      return result;
+    },
+    { name: 'bash-execute' }
+  );
 }

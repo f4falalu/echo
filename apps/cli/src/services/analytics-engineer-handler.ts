@@ -5,6 +5,15 @@ import { createProxyModel } from '@buster/ai/llm/providers/proxy-model';
 import type { AgentMessage } from '../types/agent-messages';
 import { getProxyConfig } from '../utils/ai-proxy';
 import { loadConversation, saveModelMessages } from '../utils/conversation-history';
+import {
+  addReasoningContent,
+  addTextContent,
+  addToolCall,
+  addToolResult,
+  createMessageAccumulatorState,
+  resetStepState,
+  type MessageAccumulatorState,
+} from './message-accumulator';
 
 /**
  * CLI wrapper for agent messages with unique ID for React keys
@@ -75,87 +84,71 @@ export async function runAnalyticsEngineerAgent(params: RunAnalyticsEngineerAgen
   // Notify thinking state
   onThinkingStateChange?.(true);
 
-  // Track accumulated messages as we stream
-  let currentMessages = [...messages];
+  // Initialize message accumulator state
+  let accumulatorState = createMessageAccumulatorState(messages);
+
+  // Track streaming text and reasoning within a step
   let accumulatedText = '';
-  let pendingToolCalls: any[] = [];
+  let accumulatedReasoning = '';
 
   // Consume the stream
   for await (const part of stream.fullStream) {
-    if (part.type === 'tool-call') {
-      // Collect tool call - multiple can come in a single turn
-      pendingToolCalls.push({
-        type: 'tool-call',
-        toolCallId: part.toolCallId,
-        toolName: part.toolName,
-        input: part.input,
-      });
+    console.info('[DEBUGGING] Stream part received:', part.type);
+
+    if (part.type === 'start-step') {
+      console.info('[DEBUGGING] Step started');
+      accumulatedText = '';
+      accumulatedReasoning = '';
+      accumulatorState = resetStepState(accumulatorState);
     }
 
-    if (part.type === 'tool-result') {
-      // Before processing first tool result, create assistant message with all tool calls
-      if (pendingToolCalls.length > 0) {
-        const toolCallMessage: ModelMessage = {
-          role: 'assistant',
-          content: pendingToolCalls,
-        };
-        currentMessages.push(toolCallMessage);
-        onMessageUpdate?.(currentMessages);
-        await saveModelMessages(chatId, workingDirectory, currentMessages);
-        pendingToolCalls = []; // Clear pending tool calls
-      }
+    if (part.type === 'reasoning-delta') {
+      console.info('[DEBUGGING] Reasoning delta received, length:', part.text.length);
+      accumulatedReasoning += part.text;
+    }
 
-      // Add tool result message
-      const toolResultMessage: ModelMessage = {
-        role: 'tool',
-        content: [
-          {
-            type: 'tool-result',
-            toolCallId: part.toolCallId,
-            toolName: part.toolName,
-            output: {
-              type: 'json',
-              value: typeof part.output === 'string' ? part.output : JSON.stringify(part.output),
-            },
-          },
-        ],
-      };
-      currentMessages.push(toolResultMessage);
-      onMessageUpdate?.(currentMessages);
-      await saveModelMessages(chatId, workingDirectory, currentMessages);
+    if (part.type === 'reasoning-end') {
+      console.info('[DEBUGGING] Reasoning stream ended, total accumulated length:', accumulatedReasoning.length);
+      if (accumulatedReasoning) {
+        accumulatorState = addReasoningContent(accumulatorState, accumulatedReasoning);
+        onMessageUpdate?.(accumulatorState.messages);
+        await saveModelMessages(chatId, workingDirectory, accumulatorState.messages);
+      }
     }
 
     if (part.type === 'text-delta') {
+      console.info('[DEBUGGING] Text delta received, length:', part.text.length);
       accumulatedText += part.text;
     }
 
-    if (part.type === 'finish') {
-      // If there are pending tool calls but no results (shouldn't happen normally), flush them
-      if (pendingToolCalls.length > 0) {
-        const toolCallMessage: ModelMessage = {
-          role: 'assistant',
-          content: pendingToolCalls,
-        };
-        currentMessages.push(toolCallMessage);
-        pendingToolCalls = [];
+    if (part.type === 'text-end') {
+      console.info('[DEBUGGING] Text stream ended, total accumulated length:', accumulatedText.length);
+      if (accumulatedText) {
+        accumulatorState = addTextContent(accumulatorState, accumulatedText);
+        onMessageUpdate?.(accumulatorState.messages);
+        await saveModelMessages(chatId, workingDirectory, accumulatorState.messages);
       }
+    }
 
-      // Add final assistant message if there's any text
-      if (accumulatedText.trim()) {
-        const assistantMessage: ModelMessage = {
-          role: 'assistant',
-          content: accumulatedText,
-        };
-        currentMessages.push(assistantMessage);
-      }
+    if (part.type === 'tool-call') {
+      console.info('[DEBUGGING] Tool call:', part.toolName, 'ID:', part.toolCallId);
+      accumulatorState = addToolCall(accumulatorState, part.toolCallId, part.toolName, part.input);
+      onMessageUpdate?.(accumulatorState.messages);
+    }
 
-      // Update state with final messages
-      onMessageUpdate?.(currentMessages);
+    if (part.type === 'tool-result') {
+      console.info('[DEBUGGING] Tool result for:', part.toolName, 'ID:', part.toolCallId);
+      accumulatorState = addToolResult(accumulatorState, part.toolCallId, part.toolName, part.output);
+      onMessageUpdate?.(accumulatorState.messages);
+    }
 
-      // Save to disk
-      await saveModelMessages(chatId, workingDirectory, currentMessages);
-
-      onThinkingStateChange?.(false);
+    if (part.type === 'finish-step') {
+      console.info('[DEBUGGING] Step finished');
+      // Save once at end of step to ensure all tool calls/results are captured atomically
+      await saveModelMessages(chatId, workingDirectory, accumulatorState.messages);
     }
   }
+
+  console.info('[DEBUGGING] Stream processing complete. Total messages in conversation:', accumulatorState.messages.length);
+  onThinkingStateChange?.(false);
 }

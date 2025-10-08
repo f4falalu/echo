@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { wrapTraced } from 'braintrust';
 import type {
   WriteFileToolContext,
   WriteFileToolInput,
@@ -89,61 +90,64 @@ async function createSingleFile(
  * @returns The execute function
  */
 export function createWriteFileToolExecute(context: WriteFileToolContext) {
-  return async function execute(input: WriteFileToolInput): Promise<WriteFileToolOutput> {
-    const { messageId, projectDirectory, onToolEvent } = context;
-    const { files } = input;
+  return wrapTraced(
+    async function execute(input: WriteFileToolInput): Promise<WriteFileToolOutput> {
+      const { messageId, projectDirectory, onToolEvent } = context;
+      const { files } = input;
 
-    console.info(`Creating ${files.length} file(s) for message ${messageId}`);
+      console.info(`Creating ${files.length} file(s) for message ${messageId}`);
 
-    // Emit start event
-    onToolEvent?.({
-      tool: 'writeFileTool',
-      event: 'start',
-      args: input,
-    });
+      // Emit start event
+      onToolEvent?.({
+        tool: 'writeFileTool',
+        event: 'start',
+        args: input,
+      });
 
-    // Process all files in parallel
-    const fileResults = await Promise.all(
-      files.map((file) => createSingleFile(file.path, file.content, projectDirectory))
-    );
+      // Process all files in parallel
+      const fileResults = await Promise.all(
+        files.map((file) => createSingleFile(file.path, file.content, projectDirectory))
+      );
 
-    // Format results according to the output schema
-    const results = fileResults.map((result) => {
-      if (result.status === 'success') {
+      // Format results according to the output schema
+      const results = fileResults.map((result) => {
+        if (result.status === 'success') {
+          return {
+            status: 'success' as const,
+            filePath: result.filePath,
+          };
+        }
+
         return {
-          status: 'success' as const,
+          status: 'error' as const,
           filePath: result.filePath,
+          errorMessage: result.errorMessage || 'Unknown error occurred',
         };
+      });
+
+      // Log summary
+      const successCount = results.filter((r) => r.status === 'success').length;
+      const errorCount = results.filter((r) => r.status === 'error').length;
+
+      console.info(`File creation complete: ${successCount} succeeded, ${errorCount} failed`);
+
+      if (errorCount > 0) {
+        const errors = results.filter((r) => r.status === 'error');
+        console.error('Failed files:', errors);
       }
 
-      return {
-        status: 'error' as const,
-        filePath: result.filePath,
-        errorMessage: result.errorMessage || 'Unknown error occurred',
-      };
-    });
+      const output = { results };
 
-    // Log summary
-    const successCount = results.filter((r) => r.status === 'success').length;
-    const errorCount = results.filter((r) => r.status === 'error').length;
+      // Emit complete event
+      onToolEvent?.({
+        tool: 'writeFileTool',
+        event: 'complete',
+        result: output,
+        args: input,
+      });
 
-    console.info(`File creation complete: ${successCount} succeeded, ${errorCount} failed`);
-
-    if (errorCount > 0) {
-      const errors = results.filter((r) => r.status === 'error');
-      console.error('Failed files:', errors);
-    }
-
-    const output = { results };
-
-    // Emit complete event
-    onToolEvent?.({
-      tool: 'writeFileTool',
-      event: 'complete',
-      result: output,
-      args: input,
-    });
-
-    return output;
-  };
+      return output;
+    },
+    { name: 'write-file-execute' }
+  );
 }
