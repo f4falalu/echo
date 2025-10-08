@@ -1,5 +1,7 @@
+import { createBusterSDK } from '@buster/sdk';
 import { Command } from 'commander';
 import { render } from 'ink';
+import { saveCredentials } from '../../utils/credentials';
 import { Auth } from './auth';
 
 /**
@@ -33,9 +35,6 @@ export function createAuthCommand(): Command {
 
       // If we have an API key in CI, just validate and save it without interactive UI
       if (isCIEnvironment && (options.apiKey || process.env.BUSTER_API_KEY)) {
-        const { createBusterSDK } = await import('@buster/sdk');
-        const { saveCredentials } = await import('../../utils/credentials');
-
         const apiKey = options.apiKey || process.env.BUSTER_API_KEY;
         const host =
           options.host ||

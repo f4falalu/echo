@@ -14,6 +14,7 @@ import { AgentMessageComponent } from '../../components/message';
 import { SettingsForm } from '../../components/settings-form';
 import { ExpansionContext } from '../../hooks/use-expansion';
 import type { CliAgentMessage } from '../../services/analytics-engineer-handler';
+import { runAnalyticsEngineerAgent } from '../../services/analytics-engineer-handler';
 import type { Conversation } from '../../utils/conversation-history';
 import { loadConversation, saveModelMessages } from '../../utils/conversation-history';
 import { getCurrentChatId, initNewSession, setSessionChatId } from '../../utils/session';
@@ -136,9 +137,6 @@ export function Main() {
 
       // Save to disk
       await saveModelMessages(chatId, cwd, updatedModelMessages);
-
-      // Import and run the analytics engineer agent
-      const { runAnalyticsEngineerAgent } = await import('../../services/analytics-engineer-handler');
 
       // Create AbortController for this agent execution
       const abortController = new AbortController();

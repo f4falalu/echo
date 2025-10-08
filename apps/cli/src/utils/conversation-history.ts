@@ -1,4 +1,4 @@
-import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, unlink, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { z } from 'zod';
@@ -205,7 +205,6 @@ export async function getLatestConversation(
  */
 export async function deleteConversation(chatId: string, workingDirectory: string): Promise<void> {
   const filePath = getConversationFilePath(chatId, workingDirectory);
-  const { unlink } = await import('node:fs/promises');
   await unlink(filePath);
 }
 

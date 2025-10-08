@@ -3,6 +3,7 @@ import { render } from 'ink';
 import { Main } from '../commands/main/main';
 import { getCurrentVersion } from '../commands/update/update-handler';
 import { setupPreActionHook } from './hooks';
+import { runHeadless } from '../services/headless-handler';
 
 interface RootOptions {
   cwd?: string;
@@ -32,7 +33,6 @@ program.action(async (options: RootOptions) => {
   // Check if running in headless mode
   if (options.prompt) {
     try {
-      const { runHeadless } = await import('../services/headless-handler');
       const chatId = await runHeadless({
         prompt: options.prompt,
         ...(options.chatId && { chatId: options.chatId }),

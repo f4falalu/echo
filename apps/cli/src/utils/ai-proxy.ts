@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { getCredentials } from './credentials';
 
 const ProxyConfigSchema = z.object({
   baseURL: z.string().url().describe('Base URL for the AI proxy endpoint'),
@@ -18,7 +19,6 @@ export type ProxyConfig = z.infer<typeof ProxyConfigSchema>;
  * API key comes from credentials (required)
  */
 export async function getProxyConfig(): Promise<ProxyConfig> {
-  const { getCredentials } = await import('./credentials');
   const creds = await getCredentials();
 
   if (!creds?.apiKey) {

@@ -1,7 +1,9 @@
 import { Command } from 'commander';
 import { render } from 'ink';
 import { DeployCommand } from './deploy';
+import { deployHandler } from './deploy-handler.js';
 import { DeployOptionsSchema } from './schemas';
+import { formatDeployError, getExitCode, isDeploymentValidationError } from './utils/errors.js';
 
 /**
  * Creates the deploy command for deploying semantic models
@@ -32,15 +34,9 @@ export function createDeployCommand(): Command {
           render(<DeployCommand {...parsedOptions} />);
         } else {
           // Direct execution for cleaner CLI output
-          const { deployHandler } = await import('./deploy-handler.js');
           await deployHandler(parsedOptions);
         }
       } catch (error) {
-        // Import the error formatter and type guard
-        const { isDeploymentValidationError, formatDeployError, getExitCode } = await import(
-          './utils/errors.js'
-        );
-
         // Check if it's a DeploymentValidationError to handle it specially
         if (isDeploymentValidationError(error)) {
           // The error message already contains the formatted output
