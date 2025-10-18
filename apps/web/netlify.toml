@@ -1,6 +1,6 @@
 [build]
   # Build command for the web app
-  command = "cd ../../ && pnpm approve-builds && pnpm run build:netlify --filter @buster-app/web"
+  command = "cd ../../ && pnpm install && pnpm run build:netlify --filter @buster-app/web"
   
   # Directory to publish (the build output)
   publish = "dist"
@@ -18,6 +18,9 @@
   
   # Allow build scripts for dependencies
   PNPM_APPROVE_BUILDS = "true"
+  
+  # Disable framework detection
+  NETLIFY_USE_FRAMEWORK_DETECTION = "false"
 
 # Redirect rules for SPA routing
 [[redirects]]
