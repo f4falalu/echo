@@ -4,9 +4,6 @@
   
   # Directory to publish (the build output)
   publish = "dist"
-  
-  # Base directory for the build (monorepo root)
-  base = "../../"
 
 [build.environment]
   # Node.js version
