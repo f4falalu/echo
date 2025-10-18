@@ -14,8 +14,8 @@ const config = defineConfig(({ command, mode }) => {
   const isProduction = mode === 'production' || mode === 'staging';
   const isTypecheck = process.argv.includes('--typecheck') || process.env.TYPECHECK === 'true';
   const useChecker = !process.env.VITEST && isBuild;
-  const isLocalBuild = process.argv.includes('--local') || mode === 'development';
   const isVercelBuild = process.env.VERCEL === '1' || process.env.CI === '1';
+  const isNetlifyBuild = process.env.NETLIFY === 'true';
 
   // Generate a unique version identifier for both build tracking and asset versioning
   const buildId =
@@ -49,7 +49,7 @@ const config = defineConfig(({ command, mode }) => {
       tailwindcss(),
       tanstackStart(),
       nitroV2Plugin({
-        preset: isVercelBuild ? 'vercel' : 'bun',
+        preset: isVercelBuild ? 'vercel' : isNetlifyBuild ? 'static' : 'bun',
       }),
       viteReact(),
     ],

@@ -6,6 +6,7 @@
   "scripts": {
     "prebuild": "tsx scripts/validate-env.ts",
     "build": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build -- --typecheck",
+    "build:netlify": "cross-env NODE_OPTIONS=--max-old-space-size=8192 NETLIFY=true vite build -- --typecheck",
     "build:local": "pnpm prebuild && cross-env NODE_OPTIONS=--max-old-space-size=12288 vite build -- --typecheck --local",
     "build-storybook": "storybook build",
     "build:visualize": "cross-env NODE_OPTIONS=--max-old-space-size=8192 npx vite-bundle-visualizer",
