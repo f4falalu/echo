@@ -1,6 +1,6 @@
 [build]
   # Build command for the web app
-  command = "cd ../../ && pnpm install && pnpm run build:netlify --filter @buster-app/web"
+  command = "pnpm install && pnpm run build:netlify --filter @buster-app/web"
   
   # Directory to publish (the build output)
   publish = "dist"
