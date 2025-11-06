@@ -33,19 +33,17 @@ const config = defineConfig(({ command, mode }) => {
 
   return {
     base,
-    server: { port: 3000 },
+    server: { port: 3007 },
     define: {
       'import.meta.env.VITE_BUILD_ID': JSON.stringify(buildId),
       'import.meta.env.VITE_BUILD_AT': JSON.stringify(buildAt),
     },
     plugins: [
+      tanstackStart({ target }),
       // this is the plugin that enables path aliases
       viteTsConfigPaths({ projects: ['./tsconfig.json'] }),
       tailwindcss(),
-      tanstackStart({
-        customViteReactPlugin: true,
-        target,
-      }),
+
       viteReact(),
       useChecker
         ? checker({
@@ -59,6 +57,7 @@ const config = defineConfig(({ command, mode }) => {
       chunkSizeWarningLimit: 1250,
       minify: isProduction ? 'esbuild' : false,
       reportCompressedSize: false, // Disable gzip size reporting to speed up build
+      sourcemap: false,
       rollupOptions: {
         // Exclude test and stories files from build
         external: (id) => {
